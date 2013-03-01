@@ -27,7 +27,7 @@ The following Eclipse projects are distributed in this release:
 - **RMBTAndroid** - Android App
 
 
-Dependecies
+Dependencies
 ---------------
 
 The following third party libraries are required dependencies:
