@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2013 alladin-IT OG
+  
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+    http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <LinearLayout
+        android:id="@+id/buttonLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="5dp"
+        android:orientation="horizontal" >
+
+        <RelativeLayout
+            android:id="@+id/menuButtonHistory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <Button
+                android:id="@+id/filterButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:background="@drawable/button_filter_medium" />
+
+            <TextView
+                android:id="@+id/filterButtonText"
+                style="@style/textMenuButtonMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/filterButton"
+                android:layout_centerHorizontal="true"
+                android:clickable="false"
+                android:paddingBottom="19dp"
+                android:paddingRight="8dp"
+                android:text="@string/history_button_filter" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/menuButtonMap"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <Button
+                android:id="@+id/syncButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:background="@drawable/button_sync_medium" />
+
+            <TextView
+                android:id="@+id/syncButtonText"
+                style="@style/textMenuButtonMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/syncButton"
+                android:layout_centerHorizontal="true"
+                android:clickable="false"
+                android:paddingBottom="19dp"
+                android:paddingLeft="3dp"
+                android:text="@string/history_button_sync" />
+        </RelativeLayout>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/historyHeaderText"
+        style="@style/blockHeader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/buttonLayout"
+        android:text="@string/history" />
+
+    <RelativeLayout
+        android:id="@+id/historyListBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_below="@+id/historyHeaderText"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="0dp"
+        android:background="@drawable/history_box" >
+
+        <LinearLayout
+            android:id="@+id/columnLabelRow"
+            style="@style/listViewHistoryLabelRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:background="@drawable/bg_trans_light_20">
+
+            <TextView
+                android:id="@+id/col1"
+                style="@style/listViewHistoryLabelRowItem"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight=".15"
+                android:gravity="center"
+                android:text="@string/history_device" />
+
+            <TextView
+                android:id="@+id/col2"
+                style="@style/listViewHistoryLabelRowItem"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight=".17"
+                android:gravity="center"
+                android:text="@string/history_type" />
+
+            <TextView
+                android:id="@+id/col3"
+                style="@style/listViewHistoryLabelRowItem"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight=".18"
+                android:gravity="center"
+                android:text="@string/history_date" />
+
+            <TextView
+                android:id="@+id/col4"
+                style="@style/listViewHistoryLabelRowItem"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight=".20"
+                android:gravity="center"
+                android:text="@string/history_down" />
+
+            <TextView
+                android:id="@+id/col5"
+                style="@style/listViewHistoryLabelRowItem"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight=".20"
+                android:gravity="center"
+                android:text="@string/history_up" />
+
+            <TextView
+                android:id="@+id/col6"
+                style="@style/listViewHistoryLabelRowItem"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight=".10"
+                android:gravity="center"
+                android:text="@string/history_ping" />
+        </LinearLayout>
+        
+        <ListView
+            android:id="@+id/historyList"
+            style="@style/listViewHistory"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/columnLabelRow" />
+
+        <TextView
+            android:id="@+id/infoText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text=""
+            style="@style/infoText" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true" />
+        
+       <!--  <ImageView
+            android:id="@+id/historyImageReflection1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/columnLabelRow"
+            android:contentDescription=""
+            android:src="@drawable/result_box_reflection_large" > 
+        </ImageView> --> 
+    </RelativeLayout>
+
+</RelativeLayout>

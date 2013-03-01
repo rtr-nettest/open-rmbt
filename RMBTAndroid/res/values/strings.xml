@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2013 alladin-IT OG
+  
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+    http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<resources>
+    
+    <string name="main_sub_text">Beta-Version</string>
+    
+    <string name="help">Help</string>
+    
+    <string name="error_no_internet">Please activate your\ninternet connection</string>   
+    <string name="error_no_data">No data available.</string>
+    
+    <string name="main_dialog_registration_title">Registration…</string>
+    <string name="main_dialog_registration_text">Client is being registered. Please wait…</string>
+    
+    <string name="main_dialog_reload_title">Reloading…</string>
+    <string name="main_dialog_reload_text">Reloading data; please wait…</string>
+    
+    <string name="preferences">Settings</string>
+    
+    <string name="preferences_category_test">Preferences</string>
+    
+    <string name="preferences_location_settings">Location</string>
+    <string name="preferences_location_settings_sum">Change location settings</string>
+    
+    <string name="preferences_no_gps">No GPS</string>
+    <string name="preferences_no_gps_sum">Do not use GPS during test</string>
+    
+    <string name="preferences_repeat_test">Loop</string>
+    <string name="preferences_repeat_test_sum">Test will run in a loop</string>
+    
+    <string name="preferences_ndt">NDT</string>
+    <string name="preferences_ndt_sum">Activate extended test</string>
+    
+    <string name="preferences_ipv4_only">IPv4 only</string>
+    <string name="preferences_ipv4_only_sum">Never use IPv6</string>
+    
+    <string name="preferences_category_developer">DEVELOPMENT</string>
+    
+    <string name="preferences_dev_mode">Developer mode</string>
+    <string name="preferences_dev_mode_sum">Activate settings below</string>
+    
+    <string name="preferences_dev_no_control_server">No control server</string>
+    <string name="preferences_dev_no_control_server_sum">Don\'t connect to control server at all</string>
+    
+    <string name="preferences_dev_control_host">Control Host</string>
+    <string name="preferences_dev_control_host_sum">Override address of the control server</string>
+    
+    <string name="preferences_dev_control_port">Control Port</string>
+    <string name="preferences_dev_control_port_sum">Override port of the control server</string>
+    
+    <string name="preferences_dev_control_ssl">Control server SSL</string>
+    <string name="preferences_dev_control_ssl_sum">Use encrypted connection to control server</string>
+    
+    <string name="preferences_dev_test_host">Test Host</string>
+    <string name="preferences_dev_test_host_sum">Override address of the test server</string>
+    
+    <string name="preferences_dev_test_port">Test Port</string>
+    <string name="preferences_dev_test_port_sum">Override port of the test server</string>
+    
+    <string name="preferences_dev_test_ssl">Test server SSL</string>
+    <string name="preferences_dev_test_ssl_sum">Use encrypted connection to test server</string>
+    
+    <string name="preferences_dev_test_duration">Duration</string>
+    <string name="preferences_dev_test_duration_sum">Override duration of the test in seconds</string>
+    
+    <string name="preferences_dev_num_threads">Threads</string>
+    <string name="preferences_dev_num_threads_sum">Override number of parallel threads used</string>
+    
+    <string name="menu_button_start">START</string>
+    <string name="menu_button_map">Map</string>
+    <string name="menu_button_history">History</string>
+    <string name="menu_button_help">Help</string>
+    <string name="menu_button_settings">Settings</string>
+    <string name="menu_button_about">Info</string>
+    
+    <string name="news_title">News</string>
+    <string name="news_no_message">No message text.</string>
+    
+    <string name="about_version_title">Version</string>
+    <string name="about_clientid_title">Client UUID</string>
+    <string name="about_clientid_toast">Client UUID has been copied to clipboard.</string>
+    <string name="about_web_title">Web</string>
+    <string name="about_email_title">Email</string>
+    <string name="about_email_sending">Sending email…</string>
+    <string name="about_terms_title">Privacy Policy</string>
+    <string name="about_terms_line1">Privacy policy and terms of use</string>
+    <string name="about_git_title">Git Repository</string>
+    <string name="about_git_line1" translatable="false">https://github.com/</string>
+    <string name="about_git_link" translatable="false">https://github.com/</string>
+    <string name="about_dev_title">Development</string>
+    <string name="about_dev_line1" translatable="false">alladin-IT OG</string>
+    <string name="about_dev_line2" translatable="false">http://www.alladin.at/</string>
+    <string name="about_dev_link" translatable="false">http://www.alladin.at/</string>
+    <string name="about_gms_legal_title">Google Play</string>
+    <string name="about_gms_legal_line1">Google Play Services Legal Notice</string>
+    
+    <string name="terms">Privacy Policy and Terms of Use</string>
+    
+    <string name="terms_accept_button">Agree</string>
+    <string name="terms_accept_button_continue">Continue</string>
+    <string name="terms_decline_button">Decline</string>
+
+    <string name="terms_ndt_header">Optional NDT-Test</string>
+    <string name="terms_ndt_accept_text"><b>I wish to run the optional NDT-Test.</b></string>
+    <string name="terms_ndt_back_button">Back</string>
+    <string name="terms_ndt_accept_button">Continue</string>
+    
+    
+    <string name="test_mbps">Mbit/s</string>
+    <string name="test_dbm">dBm</string>
+    
+    <string name="test_notification_text">The test is still running in the background.</string>
+    
+    <string name="test_dialog_error_title">Error…</string>
+    <string name="test_dialog_error_text">There has been an error during the test.</string>
+    
+    <string name="test_dialog_abort_title">Abort…</string>
+    <string name="test_dialog_abort_text">Do you really want to abort the running test?</string>
+    <string name="test_dialog_abort_extended_text">Do you really want to abort the extended test?</string>
+    <string name="test_dialog_abort_yes">Abort test</string>
+    <string name="test_dialog_abort_no">Continue test</string>
+    
+    <string name="history">History</string>
+    <string name="history_button_sync">Sync</string>
+    <string name="history_button_filter">Filter</string>
+    <string name="history_device">Device</string>
+	<string name="history_type">Access</string>
+	<string name="history_date">Date</string>
+	<string name="history_down">Down\nMbps</string>
+	<string name="history_up">Up\nMbps</string>
+	<string name="history_ping">Ping\nms</string>
+	
+	<string name="history_filter">FILTER</string>
+	<string name="history_filter_networks">NETWORK TYPE</string>
+	<string name="history_filter_devices">DEVICE</string>
+	<string name="history_filter_result_number">NUMBER OF RESULTS</string>
+	<string name="history_filter_result_number_25">Show only the 25 newest results</string>
+	
+	<string name="result_header">TEST RESULT</string>
+	<string name="result_measurement">MEASUREMENT</string>
+	<string name="result_net">NET</string>
+	<string name="result_details_button">DETAILS</string>
+	<string name="result_map_button">MAP</string>
+	
+	<string name="result_details">DETAILS</string>
+	
+	<string name="result_button_new_test">NEW TEST</string>
+	<string name="result_button_history">History</string>
+	<string name="result_button_map">Map</string>
+	
+	<string name="result_extended_test_header">EXTENDED TEST</string>
+	<string name="result_extended_test_not_started">Extended test not yet started</string>
+	<string name="result_extended_test_running">Extended test running</string>
+	<string name="result_extended_test_results">Finalizing extended test</string>
+	<string name="result_extended_test_finished">Extended test finished</string>
+	<string name="result_extended_test_aborted">Extended test aborted</string>
+	<string name="result_extended_test_error">Error during Extended test</string>
+	<string name="result_extended_test_button_stop">Stop</string>
+	<string name="result_extended_test_button_detail">Details</string>
+	
+	<string name="sync_info_text">You have the possibility to join the results from two different devices. To do so, you have to enter an already requested synchronisation code or request a new one.</string>
+	<string name="sync_request_code_button">Request Code</string>
+	<string name="sync_enter_code_button">Enter Code</string>
+	
+	<string name="sync_enter_code_header">Code entry</string>
+	<string name="sync_enter_code_msg">Code</string>
+	<string name="sync_enter_code_desc">Please enter the code you received on your other device.</string>
+	<string name="sync_enter_code_sync_button">Synchronize</string>
+	<string name="sync_enter_code_length">The code length must be 12</string>
+	
+	<string name="sync_request_code_header">Your synchronisation code is:</string>
+	<string name="sync_request_code_msg">Retrieving code…</string>
+	<string name="sync_request_code_desc">Please enter the code shown above on your other device to synchronise them.</string>
+	<string name="sync_request_code_context_copy">Copy code</string>
+	
+	<!-- Map -->
+	<string name="map_filter_header">MAP FILTER</string>
+	<string name="map_choose_header">CHOOSE MAP</string>
+	
+	<string name="map_appearance_header">MAP APPEARANCE</string>
+	<string name="map_appearance_nosat_title">Normal View</string>
+	<string name="map_appearance_nosat_summary">Map shows normal view</string>
+	<string name="map_appearance_sat_title">Satellite View</string>
+	<string name="map_appearance_sat_summary">Map shows satellite view</string>
+	
+	<string name="map_overlay_header">MAP OVERLAY</string>
+	<string name="map_overlay_auto_title">Automatic</string>
+	<string name="map_overlay_auto_summary">Map switches automatically between heatmap and points</string>
+	<string name="map_overlay_heatmap_title">Heatmap</string>
+	<string name="map_overlay_heatmap_summary">Map shows tests as heatmap</string>
+	<string name="map_overlay_points_title">Points</string>
+	<string name="map_overlay_points_summary">Map shows tests as points</string>
+	
+	<string name="map_balloon_overlay_header">MEASUREMENTS</string>
+	
+	<!-- Test -->
+	<string name="test_progress_title">Connecting…</string>
+	<string name="test_progress_text">The connection to the test server is being established. Please wait…</string>
+	<string name="test_progress_text_wait">The test server is currently busy. The test will start {0,choice,0#shortly|1#in 1 second|1&lt;in {0} seconds}. Please wait…</string>
+	<string name="test_bottom_test">Location: {0}\nTest server: {1}\nIP: {2}\nStatus: {3}</string>
+	<string name="test_bottom_test_status_init">Initializing</string>
+	<string name="test_bottom_test_status_ping">Pinging</string>
+	<string name="test_bottom_test_status_down">Download</string>
+	<string name="test_bottom_test_status_init_up">Initializing Upload</string>
+	<string name="test_bottom_test_status_up">Upload</string>
+	<string name="test_bottom_test_status_end">Finalizing</string>
+	<string name="test_bottom_test_status_error">Error</string>
+	<string name="test_bottom_test_status_aborted">Aborted</string>
+	<string name="test_bottom_text_empty" translatable="false">\n\n\n</string>
+	
+</resources>

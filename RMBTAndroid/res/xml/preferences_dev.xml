@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2013 alladin-IT OG
+  
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+    http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+    <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+        
+        <PreferenceCategory android:title="@string/preferences_category_developer" android:layout="@layout/preferences_category">
+            
+            <CheckBoxPreference
+                android:key="no_gps"
+                android:title="@string/preferences_no_gps" 
+                android:summary="@string/preferences_no_gps_sum" 
+                android:layout="@layout/preferences_item"/>
+            
+            <CheckBoxPreference
+                android:key="repeat_test"
+                android:title="@string/preferences_repeat_test" 
+                android:summary="@string/preferences_repeat_test_sum"
+                android:layout="@layout/preferences_item"/>
+            
+            <CheckBoxPreference
+                android:key="dev_mode"
+                android:title="@string/preferences_dev_mode"
+                android:summary="@string/preferences_dev_mode_sum"
+                android:layout="@layout/preferences_item"/>
+            
+            <!-- 
+            <CheckBoxPreference
+                android:key="dev_no_control_server"
+                android:title="@string/preferences_dev_no_control_server"
+                android:summary="@string/preferences_dev_no_control_server_sum"
+                android:layout="@layout/preferences_item"
+                />
+            -->
+            
+            <EditTextPreference
+                android:key="dev_control_hostname"
+                android:title="@string/preferences_dev_control_host"
+                android:summary="@string/preferences_dev_control_host_sum"
+                android:layout="@layout/preferences_item"
+                />
+            
+            <EditTextPreference
+                android:key="dev_control_port"
+                android:title="@string/preferences_dev_control_port"
+                android:summary="@string/preferences_dev_control_port_sum"
+                android:inputType="number"
+                android:layout="@layout/preferences_item"
+                />
+            
+            <CheckBoxPreference
+                android:key="dev_control_ssl"
+                android:title="@string/preferences_dev_control_ssl"
+                android:summary="@string/preferences_dev_control_ssl_sum"
+                android:defaultValue="false"
+                android:layout="@layout/preferences_item"
+                />
+            
+            <!--
+            <EditTextPreference
+                android:key="dev_test_hostname"
+                android:title="@string/preferences_dev_test_host"
+                android:summary="@string/preferences_dev_test_host_sum"
+                android:layout="@layout/preferences_item"
+                />
+            
+            <EditTextPreference
+                android:key="dev_test_port"
+                android:title="@string/preferences_dev_test_port"
+                android:summary="@string/preferences_dev_test_port_sum"
+                android:inputType="number"
+                android:layout="@layout/preferences_item"
+                />
+            
+            <CheckBoxPreference
+                android:key="dev_test_ssl"
+                android:title="@string/preferences_dev_test_ssl"
+                android:summary="@string/preferences_dev_test_ssl_sum"
+                android:defaultValue="false"
+                android:layout="@layout/preferences_item"/>
+            
+            <EditTextPreference
+                android:key="dev_num_threads"
+                android:title="@string/preferences_dev_num_threads"
+                android:summary="@string/preferences_dev_num_threads_sum"
+                android:inputType="number"
+                android:layout="@layout/preferences_item"/>
+            
+            <EditTextPreference
+                android:key="dev_test_duration"
+                android:title="@string/preferences_dev_test_duration"
+                android:summary="@string/preferences_dev_test_duration_sum"
+                android:inputType="number"
+                android:layout="@layout/preferences_item"/>
+            -->
+            
+        </PreferenceCategory>
+    </PreferenceScreen>

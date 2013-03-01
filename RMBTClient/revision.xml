@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project basedir="." default="get_revision" name="get_revision">
+	<target name="get_revision" description="Store git revision in ${repository.version}">
+        <exec executable="git" outputproperty="git.describe">
+            <arg value="describe"/>
+            <arg value="--match"/>
+            <arg value="initial"/>
+            <arg value="--dirty"/>
+        </exec>
+        <fail unless="git.describe">error while doing git describe</fail>
+        <echo message="git describe: ${git.describe}"/>
+        <exec executable="git" outputproperty="git.branch">
+            <arg value="rev-parse"/>
+            <arg value="--symbolic-full-name"/>
+            <arg value="--abbrev-ref"/>
+            <arg value="HEAD"/>
+        </exec>
+        <fail unless="git.branch">error while doing git rev-parse</fail>
+        <echo message="git.branch: ${git.branch}"/>
+        <script language="javascript">
+            <![CDATA[
+                var describe_regex=/^initial-(\d+)-([^-]+)(-dirty)?$/;
+                var match = describe_regex.exec(project.getProperty('git.describe'));
+                if (match != null)
+                {
+                    project.setProperty('git.revision', match[1]);
+                    project.setProperty('git.id', match[2]);
+                    var dirty = match[3] != null;
+                    project.setProperty('git.dirty', dirty);
+                    if (dirty)
+                        project.setProperty('repository.version', 'g'+match[1]+'M');
+                    else
+                        project.setProperty('repository.version', 'g'+match[1]);
+                }
+            ]]>
+        </script>
+        <fail unless="git.revision">error while parsing git.revision</fail>
+        <fail unless="git.id">error while parsing git.revision</fail>
+        <fail unless="repository.version">error while parsing repository.version</fail>
+        <echo message="git.revision: ${git.revision}"/>
+        <echo message="git.id: ${git.id}"/>
+        <echo message="git.dirty: ${git.dirty}"/>
+        <echo message="repository.version: ${repository.version}"/>
+        <propertyfile file="src/revision.properties" comment="build properties - DO NOT CHANGE">
+            <entry key="git.revision" value="${git.revision}"/>
+            <entry key="git.id" value="${git.id}"/>
+            <entry key="git.dirty" value="${git.dirty}"/>
+            <entry key="git.branch" value="${git.branch}"/>
+            <entry key="git.describe" value="${git.describe}"/>
+        </propertyfile>
+    </target>
+</project>
