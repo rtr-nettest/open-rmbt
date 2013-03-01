@@ -98,9 +98,9 @@
     <string name="about_email_sending">Sending email…</string>
     <string name="about_terms_title">Privacy Policy</string>
     <string name="about_terms_line1">Privacy policy and terms of use</string>
-    <string name="about_git_title">Git Repository</string>
-    <string name="about_git_line1" translatable="false">https://github.com/</string>
-    <string name="about_git_link" translatable="false">https://github.com/</string>
+    <string name="about_git_title" translatable="false">Git Repository</string>
+    <string name="about_git_line1" translatable="false">https://github.com/alladin-IT/open-rmbt</string>
+    <string name="about_git_link" translatable="false">https://github.com/alladin-IT/open-rmbt</string>
     <string name="about_dev_title">Development</string>
     <string name="about_dev_line1" translatable="false">alladin-IT OG</string>
     <string name="about_dev_line2" translatable="false">http://www.alladin.at/</string>

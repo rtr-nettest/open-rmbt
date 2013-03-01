@@ -142,11 +142,11 @@ public class RMBTAboutFragment extends Fragment
         item.put("text1", this.getString(R.string.about_terms_line1));
         item.put("text2", "");
         list.add(item);
-//        item = new HashMap<String, String>();
-//        item.put("title", this.getString(R.string.about_git_title));
-//        item.put("text1", this.getString(R.string.about_git_line1));
-//        item.put("text2", "");
-//        list.add(item);
+        item = new HashMap<String, String>();
+        item.put("title", this.getString(R.string.about_git_title));
+        item.put("text1", this.getString(R.string.about_git_line1));
+        item.put("text2", "");
+        list.add(item);
         item = new HashMap<String, String>();
         item.put("title", this.getString(R.string.about_dev_title));
         item.put("text1", this.getString(R.string.about_dev_line1));
@@ -213,15 +213,15 @@ public class RMBTAboutFragment extends Fragment
                     ft.commit();
                     break;
                 
-//                case 5:
-//                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.about_git_link))));
-//                    break;
-                
                 case 6:
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.about_git_link))));
+                    break;
+                
+                case 7:
                     startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.about_dev_link))));
                     break;
                     
-                case 7:
+                case 8:
                     final String licenseInfo = GooglePlayServicesUtil.getOpenSourceSoftwareLicenseInfo(getActivity());
                     AlertDialog.Builder licenseDialog = new AlertDialog.Builder(getActivity());
                     licenseDialog.setMessage(licenseInfo);

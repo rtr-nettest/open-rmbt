@@ -98,7 +98,6 @@
     <string name="about_email_sending">E-Mail senden…</string>
     <string name="about_terms_title">Datenschutzerklärung</string>
     <string name="about_terms_line1">Datenschutzerklärung und Nutzungsbedingungen</string>
-    <string name="about_git_title">Git Repository</string>
     <string name="about_dev_title">Entwicklung</string>
     <string name="about_gms_legal_title">Google Play</string>
     <string name="about_gms_legal_line1">Google Play Services Impressum</string>
