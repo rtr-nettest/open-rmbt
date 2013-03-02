@@ -246,7 +246,7 @@ public final class Helperfunctions
                 sb.append('0');
             sb.append(Integer.toHexString(v));
         }
-        return sb.toString().toUpperCase();
+        return sb.toString().toUpperCase(Locale.US);
     }
     
     /**

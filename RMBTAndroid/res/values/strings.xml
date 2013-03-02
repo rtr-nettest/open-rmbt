@@ -18,8 +18,6 @@
     
     <string name="main_sub_text">Beta-Version</string>
     
-    <string name="help">Help</string>
-    
     <string name="error_no_internet">Please activate your\ninternet connection</string>   
     <string name="error_no_data">No data available.</string>
     
@@ -53,9 +51,6 @@
     <string name="preferences_dev_mode">Developer mode</string>
     <string name="preferences_dev_mode_sum">Activate settings below</string>
     
-    <string name="preferences_dev_no_control_server">No control server</string>
-    <string name="preferences_dev_no_control_server_sum">Don\'t connect to control server at all</string>
-    
     <string name="preferences_dev_control_host">Control Host</string>
     <string name="preferences_dev_control_host_sum">Override address of the control server</string>
     
@@ -64,21 +59,6 @@
     
     <string name="preferences_dev_control_ssl">Control server SSL</string>
     <string name="preferences_dev_control_ssl_sum">Use encrypted connection to control server</string>
-    
-    <string name="preferences_dev_test_host">Test Host</string>
-    <string name="preferences_dev_test_host_sum">Override address of the test server</string>
-    
-    <string name="preferences_dev_test_port">Test Port</string>
-    <string name="preferences_dev_test_port_sum">Override port of the test server</string>
-    
-    <string name="preferences_dev_test_ssl">Test server SSL</string>
-    <string name="preferences_dev_test_ssl_sum">Use encrypted connection to test server</string>
-    
-    <string name="preferences_dev_test_duration">Duration</string>
-    <string name="preferences_dev_test_duration_sum">Override duration of the test in seconds</string>
-    
-    <string name="preferences_dev_num_threads">Threads</string>
-    <string name="preferences_dev_num_threads_sum">Override number of parallel threads used</string>
     
     <string name="menu_button_start">START</string>
     <string name="menu_button_map">Map</string>
@@ -179,7 +159,6 @@
 	<string name="sync_enter_code_header">Code entry</string>
 	<string name="sync_enter_code_msg">Code</string>
 	<string name="sync_enter_code_desc">Please enter the code you received on your other device.</string>
-	<string name="sync_enter_code_sync_button">Synchronize</string>
 	<string name="sync_enter_code_length">The code length must be 12</string>
 	
 	<string name="sync_request_code_header">Your synchronisation code is:</string>

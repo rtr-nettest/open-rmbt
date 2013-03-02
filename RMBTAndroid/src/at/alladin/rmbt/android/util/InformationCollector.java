@@ -854,9 +854,14 @@ public class InformationCollector
             int errorRate = 0;
             
             
-            // discard signal strength from GT-I9100G - passes wrong info
-            if (android.os.Build.MODEL != null && android.os.Build.MODEL.equals("GT-I9100G"))
+            // discard signal strength from GT-I9100G (Galaxy S II) - passes wrong info
+            if (android.os.Build.MODEL != null)
+            {
+                if (android.os.Build.MODEL.equals("GT-I9100G")
+                    ||
+                    android.os.Build.MODEL.equals("HUAWEI P2-6011"))
                 return;
+            }
             
             if (network != NETWORK_WIFI)
             {
@@ -887,11 +892,13 @@ public class InformationCollector
         public void onCellLocationChanged(final CellLocation location)
         {
             Log.d(DEBUG_TAG, "CellLocation Changed");
-            GsmCellLocation cellLocation;
+            GsmCellLocation cellLocation = null;
             if (telManager != null)
-                cellLocation = (GsmCellLocation) telManager.getCellLocation();
-            else
-                cellLocation = null;
+            {
+                final CellLocation _cellLocation = telManager.getCellLocation();
+                if (_cellLocation instanceof GsmCellLocation)
+                    cellLocation = (GsmCellLocation) _cellLocation;
+            }
             
             if (cellLocation != null && cellLocation.getCid() > 0)
                 cellLocations.add(new CellLocationItem(cellLocation));

@@ -118,6 +118,7 @@ public class RMBTMapFragment extends SupportMapFragment implements OnClickListen
                 uiSettings.setZoomControlsEnabled(false);
                 uiSettings.setMyLocationButtonEnabled(false);
                 uiSettings.setCompassEnabled(false);
+                uiSettings.setRotateGesturesEnabled(false);
                 
                 gMap.setTrafficEnabled(false);
                 gMap.setIndoorEnabled(false);

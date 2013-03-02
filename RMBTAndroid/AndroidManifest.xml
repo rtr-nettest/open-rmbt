@@ -16,8 +16,8 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="at.alladin.openrmbt.android"
-    android:versionCode="58"
-    android:versionName="0.9.18"
+    android:versionCode="61"
+    android:versionName="0.9.20"
     android:installLocation="auto" 
     >
 

@@ -14,11 +14,9 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:locale="de">
     
     <string name="main_sub_text">Beta-Version</string>
-    
-    <string name="help">Hilfe</string>
     
     <string name="error_no_internet">Bitte aktivieren Sie\nIhre Internetverbindung</string>
     <string name="error_no_data">Keine Daten verfügbar.</string>
@@ -53,9 +51,6 @@
     <string name="preferences_dev_mode">Entwicklungsmodus</string>
     <string name="preferences_dev_mode_sum">Aktiviert die folgenden Einstellungen</string>
     
-    <string name="preferences_dev_no_control_server">Kein Control-Server</string>
-    <string name="preferences_dev_no_control_server_sum">Der Control-Server wird nicht kontaktiert</string>
-    
     <string name="preferences_dev_control_host">Control Host</string>
     <string name="preferences_dev_control_host_sum">Control-Server-Adresse überschreiben</string>
     
@@ -64,21 +59,6 @@
     
     <string name="preferences_dev_control_ssl">Control-Server SSL</string>
     <string name="preferences_dev_control_ssl_sum">Verschlüsselte Verbindung zum Control-Server</string>
-    
-    <string name="preferences_dev_test_host">Test Host</string>
-    <string name="preferences_dev_test_host_sum">Test-Server-Adresse überschreiben</string>
-    
-    <string name="preferences_dev_test_port">Test Port</string>
-    <string name="preferences_dev_test_port_sum">Test-Server-Port überschreiben</string>
-    
-    <string name="preferences_dev_test_ssl">Test-Server SSL</string>
-    <string name="preferences_dev_test_ssl_sum">Verschlüsselte Verbindung zum Test-Server</string>
-    
-    <string name="preferences_dev_test_duration">Testdauer</string>
-    <string name="preferences_dev_test_duration_sum">Dauer des Tests in Sekunden überschreiben</string>
-    
-    <string name="preferences_dev_num_threads">Threads</string>
-    <string name="preferences_dev_num_threads_sum">Anzahl der parallelen Threads überschreiben</string>
     
     <string name="menu_button_start">START</string>
     <string name="menu_button_map">Karte</string>
@@ -171,7 +151,6 @@
 	<string name="sync_enter_code_header">Codeeingabe</string>
 	<string name="sync_enter_code_msg">Code</string>
 	<string name="sync_enter_code_desc">Geben Sie hier bitte den Code ein, den Sie auf Ihrem anderen Gerät angefordert haben.</string>
-	<string name="sync_enter_code_sync_button">Synchronisieren</string>
 	<string name="sync_enter_code_length">Der Code muss aus 12 Zeichen bestehen</string>
 	
 	<string name="sync_request_code_header">Ihr Synchronisationscode lautet:</string>

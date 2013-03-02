@@ -307,12 +307,12 @@ public class RMBTClient
             if (waitTime > 0)
             {
                 setStatus(TestStatus.WAIT);
-                log(String.format("we have to wait %d ms...", waitTime));
+                log(String.format(Locale.US, "we have to wait %d ms...", waitTime));
                 Thread.sleep(waitTime);
-                log(String.format("...done.", waitTime));
+                log(String.format(Locale.US, "...done.", waitTime));
             }
             else
-                log(String.format("luckily we do not have to wait.", waitTime));
+                log(String.format(Locale.US, "luckily we do not have to wait.", waitTime));
             
             setStatus(TestStatus.INIT);
             statusBeforeError.set(null);
@@ -330,8 +330,8 @@ public class RMBTClient
             if (params.isEncryption())
                 sslSocketFactory = createSSLSocketFactory();
             
-            log(String.format("Host: %s; Port: %s; Enc: %s", params.getHost(), params.getPort(), params.isEncryption()));
-            log(String.format("starting %d threads...", numThreads));
+            log(String.format(Locale.US, "Host: %s; Port: %s; Enc: %s", params.getHost(), params.getPort(), params.isEncryption()));
+            log(String.format(Locale.US, "starting %d threads...", numThreads));
             
             final CyclicBarrier barrier = new CyclicBarrier(numThreads);
             
@@ -380,10 +380,10 @@ public class RMBTClient
                     {
                         realNumThreads++;
                         
-                        log(String.format("Thread %d: Download: bytes: %d time: %.3f s", i,
+                        log(String.format(Locale.US, "Thread %d: Download: bytes: %d time: %.3f s", i,
                                 ThreadTestResult.getLastEntry(testResult.downBytes),
                                 ThreadTestResult.getLastEntry(testResult.downNsec) / 1e9));
-                        log(String.format("Thread %d: Upload:   bytes: %d time: %.3f s", i,
+                        log(String.format(Locale.US, "Thread %d: Upload:   bytes: %d time: %.3f s", i,
                                 ThreadTestResult.getLastEntry(testResult.upBytes),
                                 ThreadTestResult.getLastEntry(testResult.upNsec) / 1e9));
                         
@@ -408,10 +408,10 @@ public class RMBTClient
                 result.calculateUpload(allUpBytes, allUpNsecs);
                 
                 log("");
-                log(String.format("Total calculated bytes down: %d", result.bytes_download));
-                log(String.format("Total calculated time down:  %.3f s", result.nsec_download / 1e9));
-                log(String.format("Total calculated bytes up:   %d", result.bytes_upload));
-                log(String.format("Total calculated time up:    %.3f s", result.nsec_upload / 1e9));
+                log(String.format(Locale.US, "Total calculated bytes down: %d", result.bytes_download));
+                log(String.format(Locale.US, "Total calculated time down:  %.3f s", result.nsec_download / 1e9));
+                log(String.format(Locale.US, "Total calculated bytes up:   %d", result.bytes_upload));
+                log(String.format(Locale.US, "Total calculated time up:    %.3f s", result.nsec_upload / 1e9));
                 
                 // get Connection Info from thread 1 (one thread must run)
                 result.ip_local = results[0].get().ip_local;
@@ -427,9 +427,9 @@ public class RMBTClient
                 result.speed_upload = result.getUploadSpeedBitPerSec() / 1e3;
                 
                 log("");
-                log(String.format("Total Down: %.0f kBit/s", result.getDownloadSpeedBitPerSec() / 1e3));
-                log(String.format("Total UP:   %.0f kBit/s", result.getUploadSpeedBitPerSec() / 1e3));
-                log(String.format("Ping:       %.2f ms", shortestPing / 1e6));
+                log(String.format(Locale.US, "Total Down: %.0f kBit/s", result.getDownloadSpeedBitPerSec() / 1e3));
+                log(String.format(Locale.US, "Total UP:   %.0f kBit/s", result.getUploadSpeedBitPerSec() / 1e3));
+                log(String.format(Locale.US, "Ping:       %.2f ms", shortestPing / 1e6));
                 
                 if (controlConnection != null)
                 {
@@ -437,7 +437,7 @@ public class RMBTClient
                     final String testId = controlConnection.getTestId();
                     final String testUUID = params.getUUID();
                     final long testTime = controlConnection.getTestTime();
-                    log(String.format("uid=%s, time=%s, uuid=%s\n", testId, new SimpleDateFormat(
+                    log(String.format(Locale.US, "uid=%s, time=%s, uuid=%s\n", testId, new SimpleDateFormat(
                             "yyyy-MM-dd HH:mm:ss.SSS", Locale.US).format(new Date(testTime)), testUUID));
                 }
                 
@@ -698,7 +698,7 @@ public class RMBTClient
         if (outputToStdout)
             e.printStackTrace(System.out);
         if (outputCallback != null)
-            outputCallback.log(String.format("Error: %s", e.getMessage()));
+            outputCallback.log(String.format(Locale.US, "Error: %s", e.getMessage()));
     }
     
     class MeasureSpeedTask extends TimerTask
@@ -750,7 +750,7 @@ public class RMBTClient
             if (speedAll > 0)
             {
                 result.addSpeedItem(sumAllTrans, sumDiffTrans, maxAllTime, maxDiffTime, tstamp, testStatus.get());
-                log(String.format("Current Speed: %.0f kBit/s (%.0f kBit/s avg.)", speedDiff / 1e3, speedAll / 1e3));
+                log(String.format(Locale.US, "Current Speed: %.0f kBit/s (%.0f kBit/s avg.)", speedDiff / 1e3, speedAll / 1e3));
             }
         }
     }

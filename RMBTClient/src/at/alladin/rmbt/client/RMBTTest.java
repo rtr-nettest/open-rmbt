@@ -112,8 +112,8 @@ public class RMBTTest implements Callable<ThreadTestResult>
         @SuppressWarnings("unused")
         void logResult(final String type)
         {
-            log(String.format("thread %d - Time Diff %d", threadId, nsec));
-            log(String.format("thread %d: %.0f kBit/s %s (%.2f kbytes / %.3f secs)", threadId, getSpeed() / 1e3, type,
+            log(String.format(Locale.US, "thread %d - Time Diff %d", threadId, nsec));
+            log(String.format(Locale.US, "thread %d: %.0f kBit/s %s (%.2f kbytes / %.3f secs)", threadId, getSpeed() / 1e3, type,
                     getBytes() / 1e3, getNsec() / nsecs));
         }
         
@@ -202,7 +202,7 @@ public class RMBTTest implements Callable<ThreadTestResult>
     
     private Socket connect(final TestResult testResult) throws IOException
     {
-        log(String.format("thread %d: connecting...", threadId));
+        log(String.format(Locale.US, "thread %d: connecting...", threadId));
         
         final InetAddress inetAddress = InetAddress.getByName(params.getHost());
         final Socket s = getSocket(inetAddress.getHostAddress(), params.getPort());
@@ -216,11 +216,11 @@ public class RMBTTest implements Callable<ThreadTestResult>
         {
             final SSLSocket sslSocket = (SSLSocket) s;
             final SSLSession session = sslSocket.getSession();
-            testResult.encryption = String.format("%s (%s)", session.getProtocol(), session.getCipherSuite());
+            testResult.encryption = String.format(Locale.US, "%s (%s)", session.getProtocol(), session.getCipherSuite());
         }
         
-        log(String.format("thread %d: ReceiveBufferSize: '%s'.", threadId, s.getReceiveBufferSize()));
-        log(String.format("thread %d: SendBufferSize: '%s'.", threadId, s.getSendBufferSize()));
+        log(String.format(Locale.US, "thread %d: ReceiveBufferSize: '%s'.", threadId, s.getReceiveBufferSize()));
+        log(String.format(Locale.US, "thread %d: SendBufferSize: '%s'.", threadId, s.getSendBufferSize()));
         
         if (in != null)
             totalDown += in.getCount();
@@ -234,19 +234,19 @@ public class RMBTTest implements Callable<ThreadTestResult>
         String line = reader.readLine();
         if (!line.equals(EXPECT_GREETING))
         {
-            log(String.format("thread %d: got '%s' expected '%s'", threadId, line, EXPECT_GREETING));
+            log(String.format(Locale.US, "thread %d: got '%s' expected '%s'", threadId, line, EXPECT_GREETING));
             return null;
         }
         
         line = reader.readLine();
         if (!line.startsWith("ACCEPT "))
         {
-            log(String.format("thread %d: got '%s' expected 'ACCEPT'", threadId, line));
+            log(String.format(Locale.US, "thread %d: got '%s' expected 'ACCEPT'", threadId, line));
             return null;
         }
         
         // Sobald Serverueberpruefung Token von Client
-        final String send = String.format("TOKEN %s\n", params.getToken());
+        final String send = String.format(Locale.US, "TOKEN %s\n", params.getToken());
         
         out.write(send.getBytes("US-ASCII"));
         
@@ -254,12 +254,12 @@ public class RMBTTest implements Callable<ThreadTestResult>
         
         if (line == null)
         {
-            log(String.format("thread %d: got no answer expected 'OK'", threadId, line));
+            log(String.format(Locale.US, "thread %d: got no answer expected 'OK'", threadId, line));
             return null;
         }
         else if (!line.equals("OK"))
         {
-            log(String.format("thread %d: got '%s' expected 'OK'", threadId, line));
+            log(String.format(Locale.US, "thread %d: got '%s' expected 'OK'", threadId, line));
             return null;
         }
         
@@ -269,17 +269,17 @@ public class RMBTTest implements Callable<ThreadTestResult>
         {
             if (!"CHUNKSIZE".equals(scanner.next()))
             {
-                log(String.format("thread %d: got '%s' expected 'CHUNKSIZE'", threadId, line));
+                log(String.format(Locale.US, "thread %d: got '%s' expected 'CHUNKSIZE'", threadId, line));
                 return null;
             }
             try
             {
                 chunksize = scanner.nextInt();
-                log(String.format("thread %d: CHUNKSIZE is %d", threadId, chunksize));
+                log(String.format(Locale.US, "thread %d: CHUNKSIZE is %d", threadId, chunksize));
             }
             catch (final Exception e)
             {
-                log(String.format("thread %d: invalid CHUNKSIZE: '%s'", threadId, line));
+                log(String.format(Locale.US, "thread %d: invalid CHUNKSIZE: '%s'", threadId, line));
                 return null;
             }
             if (buf == null || buf != null && buf.length != chunksize)
@@ -294,7 +294,7 @@ public class RMBTTest implements Callable<ThreadTestResult>
     
     public ThreadTestResult call()
     {
-        log(String.format("thread %d: started.", threadId));
+        log(String.format(Locale.US, "thread %d: started.", threadId));
         final ThreadTestResult testResult = new ThreadTestResult();
         Socket s = null;
         try
@@ -304,7 +304,7 @@ public class RMBTTest implements Callable<ThreadTestResult>
             if (s == null)
                 throw new Exception("error during connect to test server");
             
-            log(String.format("thread %d: connected, waiting for rest...", threadId));
+            log(String.format(Locale.US, "thread %d: connected, waiting for rest...", threadId));
             barrier.await();
             
             /***** short download *****/
@@ -372,7 +372,7 @@ public class RMBTTest implements Callable<ThreadTestResult>
                 {
                     s.close();
                     s = connect(testResult);
-                    log(String.format("thread %d: reconnected", threadId));
+                    log(String.format(Locale.US, "thread %d: reconnected", threadId));
                     if (s == null)
                         throw new Exception("error during connect to test server");
                 }
@@ -487,14 +487,14 @@ public class RMBTTest implements Callable<ThreadTestResult>
         if (chunks < 1)
             throw new IllegalArgumentException();
         
-        log(String.format("thread %d: getting %d chunk(s)", threadId, chunks));
+        log(String.format(Locale.US, "thread %d: getting %d chunk(s)", threadId, chunks));
         
         String line = reader.readLine();
         if (line == null)
             throw new IllegalStateException("connection lost");
         if (!line.startsWith("ACCEPT "))
         {
-            log(String.format("thread %d: got '%s' expected 'ACCEPT'", threadId, line));
+            log(String.format(Locale.US, "thread %d: got '%s' expected 'ACCEPT'", threadId, line));
             throw new IllegalStateException();
         }
         
@@ -552,14 +552,14 @@ public class RMBTTest implements Callable<ThreadTestResult>
         if (seconds < 1)
             throw new IllegalArgumentException();
         
-        log(String.format("thread %d: download test %d seconds", threadId, seconds));
+        log(String.format(Locale.US, "thread %d: download test %d seconds", threadId, seconds));
         
         String line = reader.readLine();
         if (line == null)
             throw new IllegalStateException("connection lost");
         if (!line.startsWith("ACCEPT "))
         {
-            log(String.format("thread %d: got '%s' expected 'ACCEPT'", threadId, line));
+            log(String.format(Locale.US, "thread %d: got '%s' expected 'ACCEPT'", threadId, line));
             throw new IllegalStateException();
         }
         
@@ -603,7 +603,7 @@ public class RMBTTest implements Callable<ThreadTestResult>
         
         if (read <= 0)
         {
-            log(String.format("thread %d: error while receiving data", threadId));
+            log(String.format(Locale.US, "thread %d: error while receiving data", threadId));
             throw new IllegalStateException();
         }
         
@@ -634,14 +634,14 @@ public class RMBTTest implements Callable<ThreadTestResult>
         if (chunks < 1)
             throw new IllegalArgumentException();
         
-        log(String.format("thread %d: putting %d chunk(s)", threadId, chunks));
+        log(String.format(Locale.US, "thread %d: putting %d chunk(s)", threadId, chunks));
         
         String line = reader.readLine();
         if (line == null)
             throw new IllegalStateException("connection lost");
         if (!line.startsWith("ACCEPT "))
         {
-            log(String.format("thread %d: got '%s' expected 'ACCEPT'", threadId, line));
+            log(String.format(Locale.US, "thread %d: got '%s' expected 'ACCEPT'", threadId, line));
             throw new IllegalStateException();
         }
         
@@ -688,7 +688,7 @@ public class RMBTTest implements Callable<ThreadTestResult>
         if (seconds < 1)
             throw new IllegalArgumentException();
         
-        log(String.format("thread %d: upload test %d seconds", threadId, seconds));
+        log(String.format(Locale.US, "thread %d: upload test %d seconds", threadId, seconds));
         
         long _enoughTime = (seconds - UPLOAD_MAX_DISCARD_TIME) * nsecsL;
         if (_enoughTime < 0)
@@ -700,7 +700,7 @@ public class RMBTTest implements Callable<ThreadTestResult>
             throw new IllegalStateException("connection lost");
         if (!line.startsWith("ACCEPT "))
         {
-            log(String.format("thread %d: got '%s' expected 'ACCEPT'", threadId, line));
+            log(String.format(Locale.US, "thread %d: got '%s' expected 'ACCEPT'", threadId, line));
             throw new IllegalStateException();
         }
         
@@ -838,12 +838,12 @@ public class RMBTTest implements Callable<ThreadTestResult>
     
     private long ping() throws IOException
     {
-        log(String.format("thread %d: ping test", threadId));
+        log(String.format(Locale.US, "thread %d: ping test", threadId));
         
         String line = reader.readLine();
         if (!line.startsWith("ACCEPT "))
         {
-            log(String.format("thread %d: got '%s' expected 'ACCEPT'", threadId, line));
+            log(String.format(Locale.US, "thread %d: got '%s' expected 'ACCEPT'", threadId, line));
             return -1;
         }
         
@@ -869,8 +869,8 @@ public class RMBTTest implements Callable<ThreadTestResult>
         final double pingClient = diffClient / 1e6;
         final double pingServer = diffServer / 1e6;
         
-        log(String.format("thread %d - client: %.3f ms ping", threadId, pingClient));
-        log(String.format("thread %d - server: %.3f ms ping", threadId, pingServer));
+        log(String.format(Locale.US, "thread %d - client: %.3f ms ping", threadId, pingClient));
+        log(String.format(Locale.US, "thread %d - server: %.3f ms ping", threadId, pingServer));
         return diffClient;
     }
     
