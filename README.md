@@ -66,7 +66,7 @@ The following third party libraries are required dependencies:
 
 ### JSON in Java ###
 
-- MIT License (+ "The Software shall be used for Good, not Evil."
+- MIT License (+ "The Software shall be used for Good, not Evil.")
 - available at <http://www.json.org/java/index.html>
 - copy as "RMBTSharedCode/lib/org.json.jar" and "RMBTClient/lib/org.json.jar"
 
