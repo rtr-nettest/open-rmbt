@@ -41,7 +41,8 @@ import at.alladin.rmbt.controlServer.ServerResource;
 
 public class ExportResource extends ServerResource
 {
-    private static final String FILENAME = "opendata.csv";
+    private static final String FILENAME_CSV = "opendata.csv";
+    private static final String FILENAME_ZIP = "netztest-opendata.zip";
     
     private static final CSVFormat csvFormat = CSVFormat.RFC4180;
     private static final boolean zip = true;
@@ -51,7 +52,7 @@ public class ExportResource extends ServerResource
     {
         final String sql = "SELECT" +
                 " ('P' || t.open_uuid) open_uuid," +
-                " to_char(t.time, 'IYYY-MM-DD HH24:MI') \"time\"," +
+                " to_char(t.time AT TIME ZONE 'UTC', 'YYYY-MM-DD HH24:MI') \"time\"," +
                 " nt.group_name cat_technology," +
                 " nt.name network_type," +
                 " t.geo_lat lat," +
@@ -68,19 +69,22 @@ public class ExportResource extends ServerResource
                 " plattform," +
                 " COALESCE(adm.fullname, t.model) model," +
                 " client_software_version client_version," +
-                " network_operator network_mnc_mcc," +
+                " network_operator network_mcc_mnc," +
                 " network_operator_name network_name," +
-                " network_sim_operator sim_mnc_mcc," +
+                " network_sim_operator sim_mcc_mnc," +
                 " nat_type \"connection\"," +
                 " public_ip_asn asn," +
-                " client_public_ip_anonymized ip_anonym" +
+                " client_public_ip_anonymized ip_anonym," +
+                " (ndt.s2cspd*1000)::int ndt_download_kbit," +
+                " (ndt.c2sspd*1000)::int ndt_upload_kbit" +
                 " FROM test t" +
                 " LEFT JOIN network_type nt ON nt.uid=t.network_type" +
                 " LEFT JOIN android_device_map adm ON adm.codename=t.model" +
                 " LEFT JOIN test_server ts ON ts.uid=t.server_id" +
+                " LEFT JOIN test_ndt ndt ON t.uid=ndt.test_id" +
                 " WHERE " +
                 " t.deleted = false" +
-                " AND time > '2012-12-22'" +
+                " AND time > '2012-12-22 01:00'" +
                 " AND status = 'FINISHED'" +
                 " ORDER BY t.uid";
         
@@ -149,7 +153,7 @@ public class ExportResource extends ServerResource
                     IOUtils.copy(licenseIS, zos);
                     licenseIS.close();
                     
-                    final ZipEntry zeCsv = new ZipEntry(FILENAME);
+                    final ZipEntry zeCsv = new ZipEntry(FILENAME_CSV);
                     zos.putNextEntry(zeCsv);
                     out = zos;
                 }
@@ -176,7 +180,7 @@ public class ExportResource extends ServerResource
         if (zip)
         {
             final Disposition disposition = new Disposition(Disposition.TYPE_ATTACHMENT);
-            disposition.setFilename(FILENAME);
+            disposition.setFilename(FILENAME_ZIP);
             result.setDisposition(disposition);
         }
         

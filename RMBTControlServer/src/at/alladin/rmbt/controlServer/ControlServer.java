@@ -53,6 +53,8 @@ public class ControlServer extends Application
         
         router.attach("/result", ResultResource.class);
         
+        router.attach("/resultUpdate", ResultUpdateResource.class);
+        
         router.attach("/ndtResult", NdtResultResource.class);
         
         router.attach("/news", NewsResource.class);

@@ -71,7 +71,8 @@ public class ServerResource extends org.restlet.resource.ServerResource
     {
         try
         {
-            conn.close();
+            if (conn != null)
+                conn.close();
         }
         catch (final SQLException e)
         {

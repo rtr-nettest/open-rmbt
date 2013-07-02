@@ -214,15 +214,18 @@ public class TestResultDetailResource extends ServerResource
                                     }
                                     geoString.append(")");
                                 }
-                                
-                                if (geoString != null)
-                                    addString(resultList, "location", geoString.toString());
+                                addString(resultList, "location", geoString.toString());
                             }
                         }
                         
                         final Field zipCodeField = test.getField("zip_code");
                         if (!zipCodeField.isNull())
-                            addString(resultList, "zip_code", zipCodeField);
+                        {
+                            String zipCode = zipCodeField.toString();
+                            if (zipCode.equals("0"))
+                                zipCode = "-";
+                            addString(resultList, "zip_code", zipCode);
+                        }
                         
                         addString(resultList, "client_public_ip", test.getField("client_public_ip"));
                         addString(resultList, "client_public_ip_as_name", test.getField("public_ip_as_name"));
@@ -245,22 +248,26 @@ public class TestResultDetailResource extends ServerResource
                         addString(resultList, "network_operator_name", test.getField("network_operator_name"));
                         
                         final Field networkOperatorField = test.getField("network_operator");
-                        final Field networkOperatorTextField = test.getField("network_operator_mnc_mcc_text");
-                        if (networkOperatorTextField.isNull())
+                        final Field mobileProviderNameField = test.getField("mobile_provider_name");
+                        if (mobileProviderNameField.isNull())
                             addString(resultList, "network_operator", networkOperatorField);
                         else
                             addString(resultList, "network_operator",
-                                    String.format("%s (%s)", networkOperatorTextField, networkOperatorField));
+                                    String.format("%s (%s)", mobileProviderNameField, networkOperatorField));
                         
                         addString(resultList, "network_sim_operator_name", test.getField("network_sim_operator_name"));
                         
                         final Field networkSimOperatorField = test.getField("network_sim_operator");
-                        final Field networkSimOperatorTextField = test.getField("network_sim_operator_mnc_mcc_text");
+                        final Field networkSimOperatorTextField = test.getField("network_sim_operator_mcc_mnc_text");
                         if (networkSimOperatorTextField.isNull())
                             addString(resultList, "network_sim_operator", networkSimOperatorField);
                         else
                             addString(resultList, "network_sim_operator",
                                     String.format("%s (%s)", networkSimOperatorTextField, networkSimOperatorField));
+                        
+                        final Field roamingTypeField = test.getField("roaming_type");
+                        if (! roamingTypeField.isNull() && roamingTypeField.intValue() > 0)
+                            addString(resultList, "roaming", Helperfunctions.getRoamingType(labels, roamingTypeField.intValue()));
                         
                         final long totalDownload = test.getField("total_bytes_download").longValue();
                         final long totalUpload = test.getField("total_bytes_upload").longValue();
@@ -333,7 +340,7 @@ public class TestResultDetailResource extends ServerResource
                         answer.put("testresultdetail", resultList);
                     }
                     else
-                        errorList.addError("ERROR_REQUEST_NO_UUID");
+                        errorList.addError("ERROR_REQUEST_TEST_RESULT_DETAIL_NO_UUID");
                     
                 }
                 else

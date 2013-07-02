@@ -75,7 +75,7 @@ public class StatisticsResource extends ServerResource
             {
             }
         
-        boolean useMccMnc = false;
+        boolean useMobileProvider = false;
         
         final boolean signalMobile;
         boolean needNetworkTypeJoin = false;
@@ -83,10 +83,10 @@ public class StatisticsResource extends ServerResource
         if (type.equals("mobile"))
         {
             signalMobile = true;
-            useMccMnc = true;
+            useMobileProvider = true;
             
             if (networkTypeGroup == null)
-                where = "t.network_type not in (0, 98, 99)";
+                where = "t.network_type not in (0, 97, 98, 99)";
             else
             {
                 needNetworkTypeJoin = true;
@@ -97,7 +97,7 @@ public class StatisticsResource extends ServerResource
                 else if ("4G".equalsIgnoreCase(networkTypeGroup))
                     where = "nt.group_name = '4G'";
                 else if ("mixed".equalsIgnoreCase(networkTypeGroup))
-                    where = "nt.group_name NOT IN ('2G','3G','4G') AND t.network_type not in (0, 98, 99)";
+                    where = "nt.group_name NOT IN ('2G','3G','4G') AND t.network_type not in (0, 97, 98, 99)";
                 else
                     where = "1=0";
             }
@@ -132,12 +132,12 @@ public class StatisticsResource extends ServerResource
             answer.put("months", months);
             answer.put("type", type);
             
-            ps = selectProviders(true, quantile, months, useMccMnc, where, signalMobile, needNetworkTypeJoin);
+            ps = selectProviders(true, quantile, months, useMobileProvider, where, signalMobile, needNetworkTypeJoin);
             if (!ps.execute())
                 return null;
             rs = fillJSON(lang, ps, providers);
             
-            ps = selectProviders(false, quantile, months, useMccMnc, where, signalMobile, needNetworkTypeJoin);
+            ps = selectProviders(false, quantile, months, useMobileProvider, where, signalMobile, needNetworkTypeJoin);
             if (!ps.execute())
                 return null;
             final JSONArray providersSumsArray = new JSONArray();
@@ -145,12 +145,12 @@ public class StatisticsResource extends ServerResource
             if (providersSumsArray.length() == 1)
                 answer.put("providers_sums", providersSumsArray.get(0));
             
-            ps = selectDevices(true, quantile, months, where, maxDevices, needNetworkTypeJoin);
+            ps = selectDevices(true, quantile, months, useMobileProvider, where, maxDevices, needNetworkTypeJoin);
             if (!ps.execute())
                 return null;
             rs = fillJSON(lang, ps, devices);
             
-            ps = selectDevices(false, quantile, months, where, maxDevices, needNetworkTypeJoin);
+            ps = selectDevices(false, quantile, months, useMobileProvider, where, maxDevices, needNetworkTypeJoin);
             if (!ps.execute())
                 return null;
             final JSONArray devicesSumsArray = new JSONArray();
@@ -186,7 +186,7 @@ public class StatisticsResource extends ServerResource
     }
     
     private PreparedStatement selectProviders(final boolean group, final float quantile, final int months,
-            final boolean useMccMnc, final String where, final boolean signalMobile, final boolean needNetworkTypeJoin) throws SQLException
+            final boolean useMobileProvider, final String where, final boolean signalMobile, final boolean needNetworkTypeJoin) throws SQLException
     {
         PreparedStatement ps;
         final String sql = String
@@ -215,8 +215,8 @@ public class StatisticsResource extends ServerResource
                         " sum((ping_shortest > ?)::int)::double precision / count(t.uid) ping_red" +
                         
                         " FROM test t" +
-                        " LEFT JOIN provider p ON" + 
-                        (useMccMnc ? " t.network_operator=p.mcc_mnc" : " t.provider_id = p.uid") +
+                        " JOIN provider p ON" + 
+                        (useMobileProvider ? " t.mobile_provider_id = p.uid" : " t.provider_id = p.uid") +
                         (needNetworkTypeJoin ? " LEFT JOIN network_type nt ON t.network_type=nt.uid" : "") +
                         
                         " WHERE %s" +
@@ -266,7 +266,7 @@ public class StatisticsResource extends ServerResource
     }
     
     private PreparedStatement selectDevices(final boolean group, final float quantile, final int months,
-            final String where, final int maxDevices, final boolean needNetworkTypeJoin) throws SQLException
+            final boolean useMobileProvider, final String where, final int maxDevices, final boolean needNetworkTypeJoin) throws SQLException
     {
         PreparedStatement ps;
         final String sql = String.format("SELECT" +
@@ -281,11 +281,12 @@ public class StatisticsResource extends ServerResource
                 " AND t.deleted = false AND t.status = 'FINISHED'" +
                 " AND time > NOW() - CAST(? AS INTERVAL)" +
                 " AND time > '2012-10-26'" +
-                (group ? " GROUP BY COALESCE(adm.fullname, t.model)" : "") +
+                (useMobileProvider ? " AND t.mobile_provider_id IS NOT NULL" : "") +
+                (group ? " GROUP BY COALESCE(adm.fullname, t.model) HAVING count(t.uid) > 10" : "") +
                 " ORDER BY count DESC" +
                 " LIMIT %d", where, maxDevices);
-        // System.out.println(sql);
         ps = conn.prepareStatement(sql);
+        System.out.println(ps);
         
         int i = 1;
         for (int j = 0; j < 2; j++)
@@ -297,7 +298,7 @@ public class StatisticsResource extends ServerResource
         return ps;
     }
     
-    private ResultSet fillJSON(final String lang, final PreparedStatement ps, final JSONArray providers)
+    private static ResultSet fillJSON(final String lang, final PreparedStatement ps, final JSONArray providers)
             throws SQLException, JSONException
     {
         ResultSet rs;

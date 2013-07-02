@@ -15,8 +15,6 @@
  ******************************************************************************/
 package at.alladin.rmbt.controlServer;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.PropertyResourceBundle;
@@ -32,12 +30,8 @@ public class ErrorList
     
     private PropertyResourceBundle labels = null;
     
-    private final List<String> labelList;
-    
     public ErrorList()
     {
-        labelList = new ArrayList<String>();
-        
         errorList = new JSONArray();
         
         labels = (PropertyResourceBundle) ResourceBundle.getBundle("at.alladin.rmbt.res.SystemMessages");
@@ -45,23 +39,21 @@ public class ErrorList
     
     public void addError(final String errorLabel)
     {
-        if (!labelList.contains(errorLabel))
-            try
-            {
-                final String errorText = labels.getString(errorLabel);
-                addErrorString(errorText);
-            }
-            catch (final MissingResourceException e)
-            {
-                System.out.println("Error writing to ErrorList: Label" + errorLabel + "not found in"
-                        + labels.getLocale().toString());
-            }
-            catch (final NullPointerException e)
-            {
-                System.out.println("Error writing to ErrorList: Label" + errorLabel + "not found in"
-                        + labels.getLocale().toString());
-            }
-        
+        try
+        {
+            final String errorText = labels.getString(errorLabel);
+            addErrorString(errorText);
+        }
+        catch (final MissingResourceException e)
+        {
+            System.out.println("Error writing to ErrorList: Label" + errorLabel + "not found in"
+                    + labels.getLocale().toString());
+        }
+        catch (final NullPointerException e)
+        {
+            System.out.println("Error writing to ErrorList: Label" + errorLabel + "not found in"
+                    + labels.getLocale().toString());
+        }
     }
     
     public void addErrorString(final String errorText)
@@ -86,6 +78,11 @@ public class ErrorList
     public int getLength()
     {
         return errorList.length();
+    }
+    
+    public boolean isEmpty()
+    {
+        return getLength()==0;
     }
     
     public JSONArray getList()

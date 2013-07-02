@@ -77,47 +77,49 @@ public class NewsResource extends ServerResource
                     
                     final JSONArray newsList = new JSONArray();
                     
-                    if (softwareVersionCode != -1) // no news for old (buggy) versions
+//                    if (softwareVersionCode != -1) // no news for old (buggy) versions
+//                    {
+                    try
                     {
-                        try
+                        
+                        final PreparedStatement st = conn
+                                .prepareStatement("SELECT uid,title_" + lang + 
+                                        " AS title, text_" + lang +
+                                        " AS text FROM news " +
+                                        " WHERE" +
+                                        " (uid > ? OR force = true)" +
+                                        " AND active = true" +
+                                        " AND (plattform IS NULL OR plattform = ?)" +
+                                        " AND (max_software_version_code IS NULL OR ? <= max_software_version_code)" +
+                                        " AND (min_software_version_code IS NULL OR ? >= min_software_version_code)" +
+                                        " ORDER BY time ASC");
+                        st.setLong(1, lastNewsUid);
+                        st.setString(2, plattform);
+                        st.setInt(3, softwareVersionCode);
+                        st.setInt(4, softwareVersionCode);
+                        
+                        final ResultSet rs = st.executeQuery();
+                        
+                        while (rs.next())
                         {
+                            final JSONObject jsonItem = new JSONObject();
                             
-                            final PreparedStatement st = conn
-                                    .prepareStatement("SELECT uid,title_" + lang + 
-                                            " AS title, text_" + lang +
-                                            " AS text FROM news " +
-                                            " WHERE" +
-                                            " (uid > ? OR force = true)" +
-                                            " AND active = true" +
-                                            " AND (plattform IS NULL OR plattform = ?)" +
-                                            " AND (? <= max_software_version_code)" +
-                                            " ORDER BY time ASC");
-                            st.setLong(1, lastNewsUid);
-                            st.setString(2, plattform);
-                            st.setInt(3, softwareVersionCode);
+                            jsonItem.put("uid", rs.getInt("uid"));
+                            jsonItem.put("title", rs.getString("title"));
+                            jsonItem.put("text", rs.getString("text"));
                             
-                            final ResultSet rs = st.executeQuery();
-                            
-                            while (rs.next())
-                            {
-                                final JSONObject jsonItem = new JSONObject();
-                                
-                                jsonItem.put("uid", rs.getInt("uid"));
-                                jsonItem.put("title", rs.getString("title"));
-                                jsonItem.put("text", rs.getString("text"));
-                                
-                                newsList.put(jsonItem);
-                            }
-                            
-                            rs.close();
-                            st.close();
+                            newsList.put(jsonItem);
                         }
-                        catch (final SQLException e)
-                        {
-                            e.printStackTrace();
-                            errorList.addError("ERROR_DB_GET_NEWS_SQL");
-                        }
+                        
+                        rs.close();
+                        st.close();
                     }
+                    catch (final SQLException e)
+                    {
+                        e.printStackTrace();
+                        errorList.addError("ERROR_DB_GET_NEWS_SQL");
+                    }
+//                    }
                     
                     answer.put("news", newsList);
                     

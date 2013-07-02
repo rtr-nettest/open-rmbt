@@ -19,7 +19,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.UUID;
 
 import at.alladin.rmbt.db.fields.BooleanField;
@@ -36,14 +35,23 @@ public class Test extends Table
     
     // Interface for Table Test
     
-    private final static String SELECT = "SELECT" + " t.*," + " pOp.shortname network_operator_mnc_mcc_text,"
-            + " pSim.shortname network_sim_operator_mnc_mcc_text," + " pPro.shortname provider_id_name"
-            + " FROM test t" + " LEFT JOIN provider pOp" + " ON t.network_operator=pOp.mcc_mnc"
-            + " LEFT JOIN provider pSim" + " ON t.network_sim_operator=pSim.mcc_mnc" + " LEFT JOIN provider pPro"
-            + " ON t.provider_id=pPro.uid";
+    private final static String SELECT = "SELECT" +
+            " t.*," +
+            " pMob.shortname mobile_provider_name," +
+            " pSim.shortname network_sim_operator_mcc_mnc_text," +
+            " pPro.shortname provider_id_name" +
+            " FROM test t" +
+            " LEFT JOIN provider pSim" +
+            " ON t.network_sim_operator=pSim.mcc_mnc" +
+            " LEFT JOIN provider pPro" +
+            " ON t.provider_id=pPro.uid" +
+            " LEFT JOIN provider pMob" +
+            " ON t.mobile_provider_id=pMob.uid";
     
-    private static final Field[] fields = new Field[] {
-            new UUIDField("uuid", null, true),
+    private final static ThreadLocal<Field[]> PER_THREAD_FIELDS = new ThreadLocal<Field[]>() {
+        protected Field[] initialValue() {
+            return new Field[] {
+            new UUIDField("uuid", null),
             new LongField("client_id", null),
             new StringField("client_version", "client_version"),
             new StringField("client_name", "client_name"),
@@ -70,12 +78,13 @@ public class Test extends Table
             new IntField("data_state", "telephony_data_state"),
             new StringField("network_country", "telephony_network_country"),
             new StringField("network_operator", "telephony_network_operator"),
-            new StringField("network_operator_mnc_mcc_text", null, true),
+            new StringField("mobile_provider_name", null, true),
             new StringField("network_operator_name", "telephony_network_operator_name"),
             new StringField("network_sim_country", "telephony_network_sim_country"),
             new StringField("network_sim_operator", "telephony_network_sim_operator"),
-            new StringField("network_sim_operator_mnc_mcc_text", null, true),
+            new StringField("network_sim_operator_mcc_mnc_text", null, true),
             new StringField("network_sim_operator_name", "telephony_network_sim_operator_name"),
+            new IntField("roaming_type", null),
             new StringField("wifi_ssid", "wifi_ssid"),
             new StringField("wifi_bssid", "wifi_bssid"),
             new IntField("wifi_network_id", "wifi_network_id"),
@@ -104,15 +113,18 @@ public class Test extends Table
             new LongField("total_bytes_upload", "test_total_bytes_upload"), 
             new IntField("wifi_link_speed", null),
             new BooleanField("network_is_roaming", "telephony_network_is_roaming"),
-            new IntField("zip_code", "zip_code"), 
+            new IntField("zip_code", "zip_code"),
+            new IntField("zip_code_geo", null), 
             new StringField("provider_id_name", null, true),
             new StringField("geo_provider", "provider"),
             new DoubleField("geo_accuracy", "accuracy"),
             };
+        };
+    };
     
     public Test(final Connection conn)
     {
-        super(fields, conn);
+        super(PER_THREAD_FIELDS.get(), conn);
     }
     
     public void updateTest()
@@ -128,8 +140,7 @@ public class Test extends Table
             
             PreparedStatement st;
             st = conn.prepareStatement("UPDATE test " + "SET " + sqlBuilder
-                    + ", location = ST_TRANSFORM(ST_SetSRID(ST_Point(?, ?), 4326), 900913)" + "WHERE uid = ?",
-                    Statement.RETURN_GENERATED_KEYS);
+                    + ", location = ST_TRANSFORM(ST_SetSRID(ST_Point(?, ?), 4326), 900913) WHERE uid = ?");
             
             int idx = 1;
             for (final Field field : fields)
@@ -145,14 +156,6 @@ public class Test extends Table
             final int affectedRows = st.executeUpdate();
             if (affectedRows == 0)
                 setError("ERROR_DB_STORE_TEST");
-            else
-            {
-                final ResultSet rs = st.getGeneratedKeys();
-                if (rs.next())
-                    uid = rs.getLong(1);
-                rs.close();
-            }
-            
             st.close();
         }
         catch (final SQLException e)

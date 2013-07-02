@@ -26,6 +26,12 @@
     <welcome-file>default.jsp</welcome-file>
   </welcome-file-list>
   
+  <listener>
+    <listener-class>
+     at.alladin.rmbt.controlServer.ContextListener
+    </listener-class>
+   </listener>
+  
   <!-- Application class name -->
     <context-param>
         <param-name>org.restlet.application</param-name>

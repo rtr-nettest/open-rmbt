@@ -20,6 +20,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
@@ -36,10 +37,7 @@ import org.restlet.resource.Post;
 
 import at.alladin.rmbt.db.Cell_location;
 import at.alladin.rmbt.db.GeoLocation;
-import at.alladin.rmbt.db.Ping;
 import at.alladin.rmbt.db.Signal;
-import at.alladin.rmbt.db.Speed_down;
-import at.alladin.rmbt.db.Speed_up;
 import at.alladin.rmbt.db.Test;
 import at.alladin.rmbt.db.fields.IntField;
 import at.alladin.rmbt.shared.Helperfunctions;
@@ -89,6 +87,8 @@ public class ResultResource extends ServerResource
                 
                 if (conn != null)
                 {
+                    
+                    conn.setAutoCommit(false);
                     
                     final Test test = new Test(conn);
                     
@@ -149,95 +149,59 @@ public class ResultResource extends ServerResource
                                             test.getField("server_ip").setString(
                                                     InetAddresses.toAddrString(testServerInetAddress));
                                         }
-                                        test.getField("status").setString("FINISHED");
                                         
-                                        // Additional Info from Android
+                                        // Additional Info
                                         
-                                        JSONArray speedData = request.optJSONArray("speed_down");
-                                        
-                                        if (speedData != null && !test.hasError())
-                                            for (int i = 0; i < speedData.length(); i++)
-                                            {
-                                                
-                                                final JSONObject speedDataItem = speedData.getJSONObject(i);
-                                                
-                                                final Speed_down downSpeed = new Speed_down(conn);
-                                                
-                                                downSpeed.setTest_id(test.getUid());
-                                                
-                                                final long clientTime = speedDataItem.optLong("tstamp");
-                                                final Timestamp tstamp = java.sql.Timestamp.valueOf(new Timestamp(
-                                                        clientTime).toString());
-                                                downSpeed.setTstamp(tstamp, test.getField("timezone").toString());
-                                                
-                                                downSpeed.setSumAllTrans(speedDataItem.optLong("sumAllTrans", 0));
-                                                downSpeed.setSumDiffTrans(speedDataItem.optLong("sumDiffTrans", 0));
-                                                downSpeed.setMaxAllTime(speedDataItem.optLong("maxAllTime", 0));
-                                                downSpeed.setMaxDiffTime(speedDataItem.optLong("maxDiffTime", 0));
-                                                
-                                                downSpeed.storeSpeed_down();
-                                                
-                                                if (downSpeed.hasError())
-                                                {
-                                                    errorList.addError(downSpeed.getError());
-                                                    break;
-                                                }
-                                                
-                                            }
-                                        
-                                        speedData = request.optJSONArray("speed_up");
+                                        JSONArray speedData = request.optJSONArray("speed_detail");
                                         
                                         if (speedData != null && !test.hasError())
+                                        {
+                                            final PreparedStatement psSpeed = conn.prepareStatement("INSERT INTO test_speed (test_id, upload, thread, time, bytes) VALUES (?,?,?,?,?)");
+                                            psSpeed.setLong(1, test.getUid());
                                             for (int i = 0; i < speedData.length(); i++)
                                             {
+                                                final JSONObject item = speedData.getJSONObject(i);
                                                 
-                                                final JSONObject speedDataItem = speedData.getJSONObject(i);
-                                                
-                                                final Speed_up upSpeed = new Speed_up(conn);
-                                                
-                                                upSpeed.setTest_id(test.getUid());
-                                                
-                                                final long clientTime = speedDataItem.optLong("tstamp");
-                                                final Timestamp tstamp = java.sql.Timestamp.valueOf(new Timestamp(
-                                                        clientTime).toString());
-                                                upSpeed.setTstamp(tstamp, test.getField("timezone").toString());
-                                                
-                                                upSpeed.setSumAllTrans(speedDataItem.optLong("sumAllTrans", 0));
-                                                upSpeed.setSumDiffTrans(speedDataItem.optLong("sumDiffTrans", 0));
-                                                upSpeed.setMaxAllTime(speedDataItem.optLong("maxAllTime", 0));
-                                                upSpeed.setMaxDiffTime(speedDataItem.optLong("maxDiffTime", 0));
-                                                
-                                                upSpeed.storeSpeed_up();
-                                                
-                                                if (upSpeed.hasError())
+                                                final String direction = item.optString("direction");
+                                                if (direction != null && (direction.equals("download") || direction.equals("upload")))
                                                 {
-                                                    errorList.addError(upSpeed.getError());
-                                                    break;
+                                                    psSpeed.setBoolean(2, direction.equals("upload"));
+                                                    psSpeed.setInt(3, item.optInt("thread"));
+                                                    psSpeed.setLong(4, item.optLong("time"));
+                                                    psSpeed.setLong(5, item.optLong("bytes"));
+                                                    
+                                                    psSpeed.executeUpdate();
                                                 }
                                             }
+                                        }
                                         
                                         final JSONArray pingData = request.optJSONArray("pings");
                                         
                                         if (pingData != null && !test.hasError())
+                                        {
+                                            final PreparedStatement psPing = conn.prepareStatement("INSERT INTO ping (test_id, value, value_server) " + "VALUES(?,?,?)");
+                                            psPing.setLong(1, test.getUid());
+                                            
                                             for (int i = 0; i < pingData.length(); i++)
                                             {
                                                 
                                                 final JSONObject pingDataItem = pingData.getJSONObject(i);
                                                 
-                                                final Ping ping = new Ping(conn);
+                                                long valueClient = pingDataItem.optLong("value", -1);
+                                                if (valueClient >= 0)
+                                                    psPing.setLong(2, valueClient);
+                                                else
+                                                    psPing.setNull(2, Types.BIGINT);
                                                 
-                                                ping.setTest_id(test.getUid());
+                                                long valueServer = pingDataItem.optLong("value_server", -1);
+                                                if (valueServer >= 0)
+                                                    psPing.setLong(3, valueServer);
+                                                else
+                                                    psPing.setNull(3, Types.BIGINT);
                                                 
-                                                ping.setValue(pingDataItem.optLong("value", 0));
-                                                ping.storePing();
-                                                
-                                                if (ping.hasError())
-                                                {
-                                                    errorList.addError(ping.getError());
-                                                    break;
-                                                }
-                                                
+                                                psPing.executeUpdate();
                                             }
+                                        }
                                         
                                         final JSONArray geoData = request.optJSONArray("geoLocations");
                                         
@@ -331,6 +295,7 @@ public class ResultResource extends ServerResource
                                         int signalStrength = Integer.MAX_VALUE;
                                         int linkSpeed = Integer.MAX_VALUE;
                                         final int networkType = test.getField("network_type").intValue();
+                                        int maxNetworkType = networkType;
                                         
                                         final JSONArray signalData = request.optJSONArray("signals");
                                         
@@ -352,7 +317,11 @@ public class ResultResource extends ServerResource
                                                 
                                                 signal.setTime(tstamp, test.getField("timezone").toString());
                                                 
-                                                signal.setNetwork_type_id(signalDataItem.optInt("network_type_id", 0));
+                                                final int thisNetworkType = signalDataItem.optInt("network_type_id", 0);
+                                                signal.setNetwork_type_id(thisNetworkType);
+                                                if (thisNetworkType > maxNetworkType)
+                                                    maxNetworkType = thisNetworkType;
+                                                
                                                 final int thisSignalStrength = signalDataItem.optInt("signal_strength",
                                                         Integer.MAX_VALUE);
                                                 if (thisSignalStrength != Integer.MAX_VALUE)
@@ -395,7 +364,8 @@ public class ResultResource extends ServerResource
                                                 ((IntField) test.getField("wifi_link_speed")).setValue(linkSpeed);
                                         }
                                         
-                                        test.updateTest();
+                                        // use max network type
+                                        ((IntField)test.getField("network_type")).setValue(maxNetworkType);
                                         
                                         /*
                                          * check for different types (e.g.
@@ -416,12 +386,19 @@ public class ResultResource extends ServerResource
                                             {
                                                 final int newNetworkType = rs.getInt("uid");
                                                 if (newNetworkType != 0)
-                                                {
                                                     ((IntField) test.getField("network_type")).setValue(newNetworkType);
-                                                    test.updateTest();
-                                                }
                                             }
                                         }
+                                        
+                                        if (test.getField("network_type").intValue() <= 0)
+                                            errorList.addError("ERROR_NETWORK_TYPE");
+                                        
+                                        if (errorList.isEmpty())
+                                            test.getField("status").setString("FINISHED");
+                                        else
+                                            test.getField("status").setString("ERROR");
+                                        
+                                        test.updateTest();
                                         
                                         if (test.hasError())
                                             errorList.addError(test.getError());
@@ -443,6 +420,7 @@ public class ResultResource extends ServerResource
                     else
                         errorList.addError("ERROR_TEST_TOKEN_MISSING");
                     
+                    conn.commit();
                 }
                 else
                     errorList.addError("ERROR_DB_CONNECTION");

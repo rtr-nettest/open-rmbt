@@ -22,6 +22,7 @@ import java.security.GeneralSecurityException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.TimeZone;
 
 import javax.crypto.Mac;
@@ -183,6 +184,8 @@ public class Helperfunctions
             return "2G (EHRPD)";
         case 15:
             return "3G (HSPA+)";
+        case 97:
+            return "CLI";
         case 98:
             return "BROWSER";
         case 99:
@@ -198,7 +201,24 @@ public class Helperfunctions
         default:
             return "UNKNOWN";
         }
-        
+    }
+    
+    public static String getRoamingType(final ResourceBundle labels, final int roamingType)
+    {
+        final String roamingValue;
+        switch (roamingType)
+        {
+        case 1:
+            roamingValue = labels.getString("value_roaming_national");
+            break;
+        case 2:
+            roamingValue = labels.getString("value_roaming_international");
+            break;
+        default:
+            roamingValue = "?";
+            break;
+        }
+        return roamingValue;
     }
     
     public static boolean isIPLocal(final InetAddress adr)

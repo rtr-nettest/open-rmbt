@@ -120,7 +120,7 @@ public class RegistrationResource extends ServerResource
                         // String tmpTimeZoneId = timeZoneId;
                         
                         final long clientTime = request.getLong("time");
-                        final Timestamp tstamp = java.sql.Timestamp.valueOf(new Timestamp(clientTime).toString());
+                        final Timestamp clientTstamp = java.sql.Timestamp.valueOf(new Timestamp(clientTime).toString());
                         
                         final JSONObject location = request.optJSONObject("location");
                         
@@ -281,8 +281,8 @@ public class RegistrationResource extends ServerResource
                                     PreparedStatement st;
                                     st = conn
                                             .prepareStatement(
-                                                    "INSERT INTO test(uuid, client_id, client_name, client_version, client_software_version, client_language, client_public_ip, server_id, port, use_ssl, timezone, time, duration, num_threads_requested, status, software_revision, client_test_counter, client_previous_test_status, public_ip_asn, public_ip_as_name, public_ip_rdns, run_ndt)"
-                                                            + "VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                                                    "INSERT INTO test(time, uuid, client_id, client_name, client_version, client_software_version, client_language, client_public_ip, server_id, port, use_ssl, timezone, client_time, duration, num_threads_requested, status, software_revision, client_test_counter, client_previous_test_status, public_ip_asn, public_ip_as_name, public_ip_rdns, run_ndt)"
+                                                            + "VALUES(NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                                                     Statement.RETURN_GENERATED_KEYS);
                                     
                                     int i = 1;
@@ -298,7 +298,7 @@ public class RegistrationResource extends ServerResource
                                     st.setInt(i++, testServerPort);
                                     st.setBoolean(i++, testServerEncryption);
                                     st.setString(i++, timeZoneId);
-                                    st.setTimestamp(i++, tstamp, timeWithZone);
+                                    st.setTimestamp(i++, clientTstamp, timeWithZone);
                                     st.setInt(i++, Integer.parseInt(settings.getString("RMBT_DURATION")));
                                     st.setInt(i++, Integer.parseInt(settings.getString("RMBT_NUM_THREADS")));
                                     st.setString(i++, "RUNNING");
@@ -499,7 +499,7 @@ public class RegistrationResource extends ServerResource
         
         final Test_Server result = new Test_Server(conn);
         
-        result.getServerByName(settings.getString("RMBT_TEST_SERVER"));
+        result.getServerByUid(1);
         if (result.hasError())
         {
             errorList.addError(result.getError());

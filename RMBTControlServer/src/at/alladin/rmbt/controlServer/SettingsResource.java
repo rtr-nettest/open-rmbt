@@ -36,6 +36,8 @@ import org.json.JSONObject;
 import org.restlet.resource.Get;
 import org.restlet.resource.Post;
 
+import com.google.common.base.Strings;
+
 import at.alladin.rmbt.db.Client;
 import at.alladin.rmbt.shared.Helperfunctions;
 
@@ -114,8 +116,14 @@ public class SettingsResource extends ServerResource
                         long clientUid = 0;
                         
                         final String uuidString = request.optString("uuid", "");
-                        if (uuidString.length() != 0)
-                            uuid = UUID.fromString(uuidString);
+                        try
+                        {
+                            if (! Strings.isNullOrEmpty(uuidString))
+                                uuid = UUID.fromString(uuidString);
+                        }
+                        catch (IllegalArgumentException e) // not a valid uuid
+                        {
+                        }
                         
                         if (uuid != null && errorList.getLength() == 0)
                         {

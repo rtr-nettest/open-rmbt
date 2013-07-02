@@ -10548,19 +10548,70 @@ CREATE FUNCTION trigger_test() RETURNS trigger
     AS $$
 DECLARE
     _tmp_uuid uuid;
+    _mcc_sim VARCHAR;
+    _mcc_net VARCHAR;
 BEGIN
 
-    IF (NEW.speed_download > 0) THEN
+    IF ((TG_OP = 'INSERT' OR NEW.speed_download IS DISTINCT FROM OLD.speed_download) AND NEW.speed_download > 0) THEN
         NEW.speed_download_log=(log(NEW.speed_download::double precision/10))/4;
     END IF;
-    IF (NEW.speed_upload > 0) THEN
+    IF ((TG_OP = 'INSERT' OR NEW.speed_upload IS DISTINCT FROM OLD.speed_upload) AND NEW.speed_upload > 0) THEN
         NEW.speed_upload_log=(log(NEW.speed_upload::double precision/10))/4;
     END IF;
-    IF (NEW.ping_shortest > 0) THEN
+    IF ((TG_OP = 'INSERT' OR NEW.ping_shortest IS DISTINCT FROM OLD.ping_shortest) AND NEW.ping_shortest > 0) THEN
         NEW.ping_shortest_log=(log(NEW.ping_shortest::double precision/1000000))/3;
     END IF;
 
+    IF (TG_OP = 'INSERT' OR NEW.location IS DISTINCT FROM OLD.location) THEN
+        IF (NEW.location IS NULL OR NEW.geo_accuracy > 2000) THEN
+            NEW.zip_code_geo = NULL;
+        ELSE
+            SELECT INTO NEW.zip_code_geo plz_4
+            FROM plz2001
+            WHERE NEW.location && the_geom AND ST_Intersects(NEW.location, the_geom)
+            LIMIT 1;
+            IF (NEW.zip_code IS NULL) THEN
+	        NEW.zip_code = NEW.zip_code_geo;
+            END IF;
+        END IF;
+    END IF;
 
+    IF (TG_OP = 'INSERT'
+        OR NEW.network_sim_operator IS DISTINCT FROM OLD.network_sim_operator
+        OR NEW.network_operator IS DISTINCT FROM OLD.network_operator
+        OR NEW.time IS DISTINCT FROM OLD.time
+        ) THEN
+
+            -- roaming_type
+            IF (NEW.network_sim_operator IS NULL OR NEW.network_operator IS NULL) THEN
+                NEW.roaming_type = NULL;
+            ELSE
+		IF (NEW.network_sim_operator = NEW.network_operator) THEN
+		    NEW.roaming_type = 0; -- no roaming
+		ELSE
+                    _mcc_sim := split_part(NEW.network_sim_operator, '-', 1);
+                    _mcc_net := split_part(NEW.network_operator, '-', 1);
+                    IF (_mcc_sim = _mcc_net) THEN
+                        NEW.roaming_type = 1;  -- national roaming
+                    ELSE
+		        NEW.roaming_type = 2;  -- international roaming
+		    END IF;
+                END IF;
+            END IF;
+
+            -- mobile_provider_id
+            IF (NEW.network_sim_operator IS NULL OR
+                NEW.roaming_type = 2) THEN -- not for foreign networks
+                NEW.mobile_provider_id = NULL;
+            ELSE
+                SELECT INTO NEW.mobile_provider_id provider_id FROM mccmnc2provider
+                    WHERE mcc_mnc_sim = NEW.network_sim_operator
+                    AND (valid_from IS NULL OR valid_from <= NEW.time) AND (valid_to IS NULL OR valid_to >= NEW.time)
+                    AND (mcc_mnc_network IS NULL OR mcc_mnc_network = NEW.network_operator)
+                    ORDER BY mcc_mnc_network NULLS LAST
+                    LIMIT 1;
+            END IF;
+    END IF;
 
     IF (TG_OP = 'INSERT') THEN
         SELECT INTO _tmp_uuid open_uuid FROM test WHERE client_id=NEW.client_id AND (now() - INTERVAL '4 hours' < time) ORDER BY uid DESC LIMIT 1;
@@ -11751,84 +11802,6 @@ ALTER SEQUENCE as2provider_uid_seq OWNED BY as2provider.uid;
 
 
 --
--- Name: bev_gemeinden; Type: TABLE; Schema: public; Owner: rmbt; Tablespace: 
---
-
-CREATE TABLE bev_gemeinden (
-    gid integer NOT NULL,
-    bundesland character varying(2),
-    gem_kennza integer,
-    pol_gem character varying(32),
-    plz integer,
-    gem_id_neu integer,
-    the_geom geometry,
-    CONSTRAINT enforce_dims_the_geom CHECK ((st_ndims(the_geom) = 2)),
-    CONSTRAINT enforce_geotype_the_geom CHECK (((geometrytype(the_geom) = 'MULTIPOLYGON'::text) OR (the_geom IS NULL))),
-    CONSTRAINT enforce_srid_the_geom CHECK ((st_srid(the_geom) = 3416))
-);
-
-
-ALTER TABLE public.bev_gemeinden OWNER TO rmbt;
-
---
--- Name: bev_gemeinden_gid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
---
-
-CREATE SEQUENCE bev_gemeinden_gid_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.bev_gemeinden_gid_seq OWNER TO rmbt;
-
---
--- Name: bev_gemeinden_gid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
---
-
-ALTER SEQUENCE bev_gemeinden_gid_seq OWNED BY bev_gemeinden.gid;
-
-
---
--- Name: bev_plz; Type: TABLE; Schema: public; Owner: rmbt; Tablespace: 
---
-
-CREATE TABLE bev_plz (
-    gid integer NOT NULL,
-    plz integer,
-    the_geom geometry,
-    CONSTRAINT enforce_dims_the_geom CHECK ((st_ndims(the_geom) = 2)),
-    CONSTRAINT enforce_geotype_the_geom CHECK (((geometrytype(the_geom) = 'MULTIPOLYGON'::text) OR (the_geom IS NULL))),
-    CONSTRAINT enforce_srid_the_geom CHECK ((st_srid(the_geom) = 900913))
-);
-
-
-ALTER TABLE public.bev_plz OWNER TO rmbt;
-
---
--- Name: bev_plz_gid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
---
-
-CREATE SEQUENCE bev_plz_gid_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.bev_plz_gid_seq OWNER TO rmbt;
-
---
--- Name: bev_plz_gid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
---
-
-ALTER SEQUENCE bev_plz_gid_seq OWNED BY bev_plz.gid;
-
-
---
 -- Name: cell_location; Type: TABLE; Schema: public; Owner: rmbt; Tablespace: 
 --
 
@@ -11974,7 +11947,7 @@ ALTER TABLE public.geography_columns OWNER TO postgres;
 SET default_with_oids = true;
 
 --
--- Name: geometry_columns; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: geometry_columns; Type: TABLE; Schema: public; Owner: rmbt; Tablespace: 
 --
 
 CREATE TABLE geometry_columns (
@@ -11988,7 +11961,7 @@ CREATE TABLE geometry_columns (
 );
 
 
-ALTER TABLE public.geometry_columns OWNER TO postgres;
+ALTER TABLE public.geometry_columns OWNER TO rmbt;
 
 --
 -- Name: location_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
@@ -12012,6 +11985,43 @@ ALTER SEQUENCE location_uid_seq OWNED BY geo_location.uid;
 
 
 SET default_with_oids = false;
+
+--
+-- Name: mccmnc2provider; Type: TABLE; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+CREATE TABLE mccmnc2provider (
+    uid integer NOT NULL,
+    mcc_mnc_sim character varying(10),
+    provider_id integer NOT NULL,
+    mcc_mnc_network character varying(10),
+    valid_from date,
+    valid_to date
+);
+
+
+ALTER TABLE public.mccmnc2provider OWNER TO rmbt;
+
+--
+-- Name: mccmnc2provider_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
+--
+
+CREATE SEQUENCE mccmnc2provider_uid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.mccmnc2provider_uid_seq OWNER TO rmbt;
+
+--
+-- Name: mccmnc2provider_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
+--
+
+ALTER SEQUENCE mccmnc2provider_uid_seq OWNED BY mccmnc2provider.uid;
+
 
 --
 -- Name: network_type; Type: TABLE; Schema: public; Owner: rmbt; Tablespace: 
@@ -12063,7 +12073,8 @@ CREATE TABLE news (
     active boolean DEFAULT false NOT NULL,
     force boolean DEFAULT false NOT NULL,
     plattform text,
-    max_software_version_code integer
+    max_software_version_code integer,
+    min_software_version_code integer
 );
 
 
@@ -12097,7 +12108,7 @@ ALTER SEQUENCE news_uid_seq OWNED BY news.uid;
 CREATE TABLE ping (
     uid bigint NOT NULL,
     test_id bigint,
-    value integer
+    value bigint
 );
 
 
@@ -12125,18 +12136,15 @@ ALTER SEQUENCE ping_uid_seq OWNED BY ping.uid;
 
 
 --
--- Name: plz_gemeinden; Type: TABLE; Schema: public; Owner: rmbt; Tablespace: 
+-- Name: plz2001; Type: TABLE; Schema: public; Owner: rmbt; Tablespace: 
 --
 
-CREATE TABLE plz_gemeinden (
+CREATE TABLE plz2001 (
     gid integer NOT NULL,
     objectid integer,
-    plz integer,
-    sum_ew_ges numeric,
-    range_geme numeric,
-    count_geme integer,
-    first_geme character varying(100),
-    last_gemei character varying(100),
+    plz_4 integer,
+    "fläche" numeric,
+    plz_3 integer,
     shape_leng numeric,
     shape_area numeric,
     the_geom geometry,
@@ -12146,20 +12154,21 @@ CREATE TABLE plz_gemeinden (
 );
 
 
-ALTER TABLE public.plz_gemeinden OWNER TO rmbt;
+ALTER TABLE public.plz2001 OWNER TO rmbt;
 
 --
--- Name: TABLE plz_gemeinden; Type: COMMENT; Schema: public; Owner: rmbt
+-- Name: TABLE plz2001; Type: COMMENT; Schema: public; Owner: rmbt
 --
 
-COMMENT ON TABLE plz_gemeinden IS 'shp2pgsql -d -W LATIN1 -c -D -s 3035 -I Postleitzahlen_Gemeinden_dissolve.shp public.plz_gemeinden > plz_gemeinden.sql';
+COMMENT ON TABLE plz2001 IS 'shp2pgsql -d -W LATIN1 -c -D -s 97064 -I PLZ2001.shp
+update plz2001 set the_geom=(ST_TRANSFORM(the_geom, 900913));';
 
 
 --
--- Name: plz_gemeinden_gid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
+-- Name: plz2001_gid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
 --
 
-CREATE SEQUENCE plz_gemeinden_gid_seq
+CREATE SEQUENCE plz2001_gid_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -12167,13 +12176,13 @@ CREATE SEQUENCE plz_gemeinden_gid_seq
     CACHE 1;
 
 
-ALTER TABLE public.plz_gemeinden_gid_seq OWNER TO rmbt;
+ALTER TABLE public.plz2001_gid_seq OWNER TO rmbt;
 
 --
--- Name: plz_gemeinden_gid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
+-- Name: plz2001_gid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
 --
 
-ALTER SEQUENCE plz_gemeinden_gid_seq OWNED BY plz_gemeinden.gid;
+ALTER SEQUENCE plz2001_gid_seq OWNED BY plz2001.gid;
 
 
 --
@@ -12252,7 +12261,7 @@ ALTER SEQUENCE signal_uid_seq OWNED BY signal.uid;
 
 
 --
--- Name: spatial_ref_sys; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: spatial_ref_sys; Type: TABLE; Schema: public; Owner: rmbt; Tablespace: 
 --
 
 CREATE TABLE spatial_ref_sys (
@@ -12264,7 +12273,7 @@ CREATE TABLE spatial_ref_sys (
 );
 
 
-ALTER TABLE public.spatial_ref_sys OWNER TO postgres;
+ALTER TABLE public.spatial_ref_sys OWNER TO rmbt;
 
 --
 -- Name: speed_down; Type: TABLE; Schema: public; Owner: rmbt; Tablespace: 
@@ -12454,9 +12463,15 @@ CREATE TABLE test (
     deleted boolean DEFAULT false NOT NULL,
     comment text,
     open_uuid uuid,
+    client_time timestamp with time zone,
+    zip_code_geo integer,
+    mobile_provider_id integer,
+    roaming_type integer,
     CONSTRAINT enforce_dims_location CHECK ((st_ndims(location) = 2)),
     CONSTRAINT enforce_geotype_location CHECK (((geometrytype(location) = 'POINT'::text) OR (location IS NULL))),
-    CONSTRAINT enforce_srid_location CHECK ((st_srid(location) = 900913))
+    CONSTRAINT enforce_srid_location CHECK ((st_srid(location) = 900913)),
+    CONSTRAINT test_speed_download_noneg CHECK ((speed_download >= 0)),
+    CONSTRAINT test_speed_upload_noneg CHECK ((speed_upload >= 0))
 );
 
 
@@ -12590,20 +12605,6 @@ ALTER TABLE ONLY as2provider ALTER COLUMN uid SET DEFAULT nextval('as2provider_u
 
 
 --
--- Name: gid; Type: DEFAULT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY bev_gemeinden ALTER COLUMN gid SET DEFAULT nextval('bev_gemeinden_gid_seq'::regclass);
-
-
---
--- Name: gid; Type: DEFAULT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY bev_plz ALTER COLUMN gid SET DEFAULT nextval('bev_plz_gid_seq'::regclass);
-
-
---
 -- Name: uid; Type: DEFAULT; Schema: public; Owner: rmbt
 --
 
@@ -12635,6 +12636,13 @@ ALTER TABLE ONLY geo_location ALTER COLUMN uid SET DEFAULT nextval('location_uid
 -- Name: uid; Type: DEFAULT; Schema: public; Owner: rmbt
 --
 
+ALTER TABLE ONLY mccmnc2provider ALTER COLUMN uid SET DEFAULT nextval('mccmnc2provider_uid_seq'::regclass);
+
+
+--
+-- Name: uid; Type: DEFAULT; Schema: public; Owner: rmbt
+--
+
 ALTER TABLE ONLY network_type ALTER COLUMN uid SET DEFAULT nextval('network_type_uid_seq'::regclass);
 
 
@@ -12656,7 +12664,7 @@ ALTER TABLE ONLY ping ALTER COLUMN uid SET DEFAULT nextval('ping_uid_seq'::regcl
 -- Name: gid; Type: DEFAULT; Schema: public; Owner: rmbt
 --
 
-ALTER TABLE ONLY plz_gemeinden ALTER COLUMN gid SET DEFAULT nextval('plz_gemeinden_gid_seq'::regclass);
+ALTER TABLE ONLY plz2001 ALTER COLUMN gid SET DEFAULT nextval('plz2001_gid_seq'::regclass);
 
 
 --
@@ -12740,22 +12748,6 @@ ALTER TABLE ONLY as2provider
 
 
 --
--- Name: bev_gemeinden_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt; Tablespace: 
---
-
-ALTER TABLE ONLY bev_gemeinden
-    ADD CONSTRAINT bev_gemeinden_pkey PRIMARY KEY (gid);
-
-
---
--- Name: bev_plz_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt; Tablespace: 
---
-
-ALTER TABLE ONLY bev_plz
-    ADD CONSTRAINT bev_plz_pkey PRIMARY KEY (gid);
-
-
---
 -- Name: cell_location_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt; Tablespace: 
 --
 
@@ -12796,7 +12788,7 @@ ALTER TABLE ONLY client
 
 
 --
--- Name: geometry_columns_pk; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: geometry_columns_pk; Type: CONSTRAINT; Schema: public; Owner: rmbt; Tablespace: 
 --
 
 ALTER TABLE ONLY geometry_columns
@@ -12809,6 +12801,14 @@ ALTER TABLE ONLY geometry_columns
 
 ALTER TABLE ONLY geo_location
     ADD CONSTRAINT location_pkey PRIMARY KEY (uid);
+
+
+--
+-- Name: mccmnc2provider_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+ALTER TABLE ONLY mccmnc2provider
+    ADD CONSTRAINT mccmnc2provider_pkey PRIMARY KEY (uid);
 
 
 --
@@ -12828,11 +12828,11 @@ ALTER TABLE ONLY ping
 
 
 --
--- Name: plz_gemeinden_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt; Tablespace: 
+-- Name: plz2001_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt; Tablespace: 
 --
 
-ALTER TABLE ONLY plz_gemeinden
-    ADD CONSTRAINT plz_gemeinden_pkey PRIMARY KEY (gid);
+ALTER TABLE ONLY plz2001
+    ADD CONSTRAINT plz2001_pkey PRIMARY KEY (gid);
 
 
 --
@@ -12852,7 +12852,7 @@ ALTER TABLE ONLY signal
 
 
 --
--- Name: spatial_ref_sys_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: spatial_ref_sys_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt; Tablespace: 
 --
 
 ALTER TABLE ONLY spatial_ref_sys
@@ -12939,27 +12939,6 @@ CREATE INDEX as2provider_provider_id_idx ON as2provider USING btree (provider_id
 
 
 --
--- Name: bev_gemeinden_the_geom_gist; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
---
-
-CREATE INDEX bev_gemeinden_the_geom_gist ON bev_gemeinden USING gist (the_geom);
-
-
---
--- Name: bev_plz_plz_idx; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
---
-
-CREATE INDEX bev_plz_plz_idx ON bev_plz USING btree (plz);
-
-
---
--- Name: bev_plz_the_geom_gist; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
---
-
-CREATE INDEX bev_plz_the_geom_gist ON bev_plz USING gist (the_geom);
-
-
---
 -- Name: cell_location_test_id_idx; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
 --
 
@@ -13009,6 +12988,20 @@ CREATE INDEX location_idx ON test USING gist (location);
 
 
 --
+-- Name: mccmnc2provider_mcc_mnc_idx; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+CREATE INDEX mccmnc2provider_mcc_mnc_idx ON mccmnc2provider USING btree (mcc_mnc_sim, mcc_mnc_network);
+
+
+--
+-- Name: mccmnc2provider_provider_id; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+CREATE INDEX mccmnc2provider_provider_id ON mccmnc2provider USING btree (provider_id);
+
+
+--
 -- Name: network_type_group_name_idx; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
 --
 
@@ -13037,17 +13030,10 @@ CREATE INDEX ping_test_id_key ON ping USING btree (test_id);
 
 
 --
--- Name: plz_gemeinden_plz_idx; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
+-- Name: plz2001_the_geom_gist; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
 --
 
-CREATE INDEX plz_gemeinden_plz_idx ON plz_gemeinden USING btree (plz);
-
-
---
--- Name: plz_gemeinden_the_geom_gist; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
---
-
-CREATE INDEX plz_gemeinden_the_geom_gist ON plz_gemeinden USING gist (the_geom);
+CREATE INDEX plz2001_the_geom_gist ON plz2001 USING gist (the_geom);
 
 
 --
@@ -13086,6 +13072,13 @@ CREATE INDEX test_client_id_idx ON test USING btree (client_id);
 
 
 --
+-- Name: test_deleted_idx; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+CREATE INDEX test_deleted_idx ON test USING btree (deleted);
+
+
+--
 -- Name: test_device_idx; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
 --
 
@@ -13104,6 +13097,13 @@ CREATE INDEX test_geo_accuracy_idx ON test USING btree (geo_accuracy);
 --
 
 CREATE INDEX test_idx ON test USING btree (((network_type <> ALL (ARRAY[0, 99]))));
+
+
+--
+-- Name: test_mobile_provider_id_idx; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+CREATE INDEX test_mobile_provider_id_idx ON test USING btree (mobile_provider_id);
 
 
 --
@@ -13196,7 +13196,7 @@ ALTER TABLE ONLY as2provider
 --
 
 ALTER TABLE ONLY cell_location
-    ADD CONSTRAINT cell_location_test_id_fkey FOREIGN KEY (test_id) REFERENCES test(uid);
+    ADD CONSTRAINT cell_location_test_id_fkey FOREIGN KEY (test_id) REFERENCES test(uid) ON DELETE CASCADE;
 
 
 --
@@ -13220,7 +13220,15 @@ ALTER TABLE ONLY client
 --
 
 ALTER TABLE ONLY geo_location
-    ADD CONSTRAINT location_test_id_fkey FOREIGN KEY (test_id) REFERENCES test(uid);
+    ADD CONSTRAINT location_test_id_fkey FOREIGN KEY (test_id) REFERENCES test(uid) ON DELETE CASCADE;
+
+
+--
+-- Name: mccmnc2provider_provider_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY mccmnc2provider
+    ADD CONSTRAINT mccmnc2provider_provider_id_fkey FOREIGN KEY (provider_id) REFERENCES provider(uid);
 
 
 --
@@ -13228,7 +13236,7 @@ ALTER TABLE ONLY geo_location
 --
 
 ALTER TABLE ONLY ping
-    ADD CONSTRAINT ping_test_id_fkey FOREIGN KEY (test_id) REFERENCES test(uid);
+    ADD CONSTRAINT ping_test_id_fkey FOREIGN KEY (test_id) REFERENCES test(uid) ON DELETE CASCADE;
 
 
 --
@@ -13236,7 +13244,7 @@ ALTER TABLE ONLY ping
 --
 
 ALTER TABLE ONLY signal
-    ADD CONSTRAINT signal_test_id_fkey FOREIGN KEY (test_id) REFERENCES test(uid);
+    ADD CONSTRAINT signal_test_id_fkey FOREIGN KEY (test_id) REFERENCES test(uid) ON DELETE CASCADE;
 
 
 --
@@ -13244,7 +13252,7 @@ ALTER TABLE ONLY signal
 --
 
 ALTER TABLE ONLY speed_down
-    ADD CONSTRAINT speed_down_test_id_fkey FOREIGN KEY (test_id) REFERENCES test(uid);
+    ADD CONSTRAINT speed_down_test_id_fkey FOREIGN KEY (test_id) REFERENCES test(uid) ON DELETE CASCADE;
 
 
 --
@@ -13252,7 +13260,7 @@ ALTER TABLE ONLY speed_down
 --
 
 ALTER TABLE ONLY speed_up
-    ADD CONSTRAINT speed_up_test_id_fkey FOREIGN KEY (test_id) REFERENCES test(uid);
+    ADD CONSTRAINT speed_up_test_id_fkey FOREIGN KEY (test_id) REFERENCES test(uid) ON DELETE CASCADE;
 
 
 --
@@ -13260,7 +13268,15 @@ ALTER TABLE ONLY speed_up
 --
 
 ALTER TABLE ONLY test
-    ADD CONSTRAINT test_client_id_fkey FOREIGN KEY (client_id) REFERENCES client(uid);
+    ADD CONSTRAINT test_client_id_fkey FOREIGN KEY (client_id) REFERENCES client(uid) ON DELETE CASCADE;
+
+
+--
+-- Name: test_mobile_provider_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY test
+    ADD CONSTRAINT test_mobile_provider_id_fkey FOREIGN KEY (mobile_provider_id) REFERENCES provider(uid);
 
 
 --
@@ -13268,7 +13284,7 @@ ALTER TABLE ONLY test
 --
 
 ALTER TABLE ONLY test_ndt
-    ADD CONSTRAINT test_ndt_test_id_fkey FOREIGN KEY (test_id) REFERENCES test(uid);
+    ADD CONSTRAINT test_ndt_test_id_fkey FOREIGN KEY (test_id) REFERENCES test(uid) ON DELETE CASCADE;
 
 
 --
@@ -13304,7 +13320,7 @@ GRANT ALL ON SCHEMA public TO PUBLIC;
 REVOKE ALL ON TABLE android_device_map FROM PUBLIC;
 REVOKE ALL ON TABLE android_device_map FROM rmbt;
 GRANT ALL ON TABLE android_device_map TO rmbt;
-GRANT SELECT ON TABLE android_device_map TO external_user;
+GRANT SELECT ON TABLE android_device_map TO rmbt_group_read_only;
 
 
 --
@@ -13314,27 +13330,7 @@ GRANT SELECT ON TABLE android_device_map TO external_user;
 REVOKE ALL ON TABLE as2provider FROM PUBLIC;
 REVOKE ALL ON TABLE as2provider FROM rmbt;
 GRANT ALL ON TABLE as2provider TO rmbt;
-GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE as2provider TO external_user;
-
-
---
--- Name: bev_gemeinden; Type: ACL; Schema: public; Owner: rmbt
---
-
-REVOKE ALL ON TABLE bev_gemeinden FROM PUBLIC;
-REVOKE ALL ON TABLE bev_gemeinden FROM rmbt;
-GRANT ALL ON TABLE bev_gemeinden TO rmbt;
-GRANT SELECT ON TABLE bev_gemeinden TO external_user;
-
-
---
--- Name: bev_plz; Type: ACL; Schema: public; Owner: rmbt
---
-
-REVOKE ALL ON TABLE bev_plz FROM PUBLIC;
-REVOKE ALL ON TABLE bev_plz FROM rmbt;
-GRANT ALL ON TABLE bev_plz TO rmbt;
-GRANT SELECT ON TABLE bev_plz TO external_user;
+GRANT SELECT ON TABLE as2provider TO rmbt_group_read_only;
 
 
 --
@@ -13344,7 +13340,18 @@ GRANT SELECT ON TABLE bev_plz TO external_user;
 REVOKE ALL ON TABLE cell_location FROM PUBLIC;
 REVOKE ALL ON TABLE cell_location FROM rmbt;
 GRANT ALL ON TABLE cell_location TO rmbt;
-GRANT SELECT ON TABLE cell_location TO external_user;
+GRANT SELECT ON TABLE cell_location TO rmbt_group_read_only;
+GRANT INSERT ON TABLE cell_location TO rmbt_group_control;
+
+
+--
+-- Name: cell_location_uid_seq; Type: ACL; Schema: public; Owner: rmbt
+--
+
+REVOKE ALL ON SEQUENCE cell_location_uid_seq FROM PUBLIC;
+REVOKE ALL ON SEQUENCE cell_location_uid_seq FROM rmbt;
+GRANT ALL ON SEQUENCE cell_location_uid_seq TO rmbt;
+GRANT USAGE ON SEQUENCE cell_location_uid_seq TO rmbt_group_control;
 
 
 --
@@ -13354,7 +13361,8 @@ GRANT SELECT ON TABLE cell_location TO external_user;
 REVOKE ALL ON TABLE client FROM PUBLIC;
 REVOKE ALL ON TABLE client FROM rmbt;
 GRANT ALL ON TABLE client TO rmbt;
-GRANT SELECT ON TABLE client TO external_user;
+GRANT SELECT ON TABLE client TO rmbt_group_read_only;
+GRANT INSERT,UPDATE ON TABLE client TO rmbt_group_control;
 
 
 --
@@ -13364,7 +13372,17 @@ GRANT SELECT ON TABLE client TO external_user;
 REVOKE ALL ON TABLE client_type FROM PUBLIC;
 REVOKE ALL ON TABLE client_type FROM rmbt;
 GRANT ALL ON TABLE client_type TO rmbt;
-GRANT SELECT ON TABLE client_type TO external_user;
+GRANT SELECT ON TABLE client_type TO rmbt_group_read_only;
+
+
+--
+-- Name: client_uid_seq; Type: ACL; Schema: public; Owner: rmbt
+--
+
+REVOKE ALL ON SEQUENCE client_uid_seq FROM PUBLIC;
+REVOKE ALL ON SEQUENCE client_uid_seq FROM rmbt;
+GRANT ALL ON SEQUENCE client_uid_seq TO rmbt;
+GRANT USAGE ON SEQUENCE client_uid_seq TO rmbt_group_control;
 
 
 --
@@ -13374,7 +13392,8 @@ GRANT SELECT ON TABLE client_type TO external_user;
 REVOKE ALL ON TABLE geo_location FROM PUBLIC;
 REVOKE ALL ON TABLE geo_location FROM rmbt;
 GRANT ALL ON TABLE geo_location TO rmbt;
-GRANT SELECT ON TABLE geo_location TO external_user;
+GRANT SELECT ON TABLE geo_location TO rmbt_group_read_only;
+GRANT INSERT ON TABLE geo_location TO rmbt_group_control;
 
 
 --
@@ -13384,18 +13403,36 @@ GRANT SELECT ON TABLE geo_location TO external_user;
 REVOKE ALL ON TABLE geography_columns FROM PUBLIC;
 REVOKE ALL ON TABLE geography_columns FROM postgres;
 GRANT ALL ON TABLE geography_columns TO postgres;
-GRANT SELECT ON TABLE geography_columns TO external_user;
 
 
 --
--- Name: geometry_columns; Type: ACL; Schema: public; Owner: postgres
+-- Name: geometry_columns; Type: ACL; Schema: public; Owner: rmbt
 --
 
 REVOKE ALL ON TABLE geometry_columns FROM PUBLIC;
-REVOKE ALL ON TABLE geometry_columns FROM postgres;
-GRANT ALL ON TABLE geometry_columns TO postgres;
+REVOKE ALL ON TABLE geometry_columns FROM rmbt;
 GRANT ALL ON TABLE geometry_columns TO rmbt;
-GRANT SELECT ON TABLE geometry_columns TO external_user;
+GRANT SELECT ON TABLE geometry_columns TO rmbt_group_read_only;
+
+
+--
+-- Name: location_uid_seq; Type: ACL; Schema: public; Owner: rmbt
+--
+
+REVOKE ALL ON SEQUENCE location_uid_seq FROM PUBLIC;
+REVOKE ALL ON SEQUENCE location_uid_seq FROM rmbt;
+GRANT ALL ON SEQUENCE location_uid_seq TO rmbt;
+GRANT USAGE ON SEQUENCE location_uid_seq TO rmbt_group_control;
+
+
+--
+-- Name: mccmnc2provider; Type: ACL; Schema: public; Owner: rmbt
+--
+
+REVOKE ALL ON TABLE mccmnc2provider FROM PUBLIC;
+REVOKE ALL ON TABLE mccmnc2provider FROM rmbt;
+GRANT ALL ON TABLE mccmnc2provider TO rmbt;
+GRANT SELECT ON TABLE mccmnc2provider TO rmbt_group_read_only;
 
 
 --
@@ -13405,7 +13442,7 @@ GRANT SELECT ON TABLE geometry_columns TO external_user;
 REVOKE ALL ON TABLE network_type FROM PUBLIC;
 REVOKE ALL ON TABLE network_type FROM rmbt;
 GRANT ALL ON TABLE network_type TO rmbt;
-GRANT SELECT ON TABLE network_type TO external_user;
+GRANT SELECT ON TABLE network_type TO rmbt_group_read_only;
 
 
 --
@@ -13415,7 +13452,7 @@ GRANT SELECT ON TABLE network_type TO external_user;
 REVOKE ALL ON TABLE news FROM PUBLIC;
 REVOKE ALL ON TABLE news FROM rmbt;
 GRANT ALL ON TABLE news TO rmbt;
-GRANT SELECT ON TABLE news TO external_user;
+GRANT SELECT ON TABLE news TO rmbt_group_read_only;
 
 
 --
@@ -13425,7 +13462,28 @@ GRANT SELECT ON TABLE news TO external_user;
 REVOKE ALL ON TABLE ping FROM PUBLIC;
 REVOKE ALL ON TABLE ping FROM rmbt;
 GRANT ALL ON TABLE ping TO rmbt;
-GRANT SELECT ON TABLE ping TO external_user;
+GRANT SELECT ON TABLE ping TO rmbt_group_read_only;
+GRANT INSERT ON TABLE ping TO rmbt_group_control;
+
+
+--
+-- Name: ping_uid_seq; Type: ACL; Schema: public; Owner: rmbt
+--
+
+REVOKE ALL ON SEQUENCE ping_uid_seq FROM PUBLIC;
+REVOKE ALL ON SEQUENCE ping_uid_seq FROM rmbt;
+GRANT ALL ON SEQUENCE ping_uid_seq TO rmbt;
+GRANT USAGE ON SEQUENCE ping_uid_seq TO rmbt_group_control;
+
+
+--
+-- Name: plz2001; Type: ACL; Schema: public; Owner: rmbt
+--
+
+REVOKE ALL ON TABLE plz2001 FROM PUBLIC;
+REVOKE ALL ON TABLE plz2001 FROM rmbt;
+GRANT ALL ON TABLE plz2001 TO rmbt;
+GRANT SELECT ON TABLE plz2001 TO rmbt_group_read_only;
 
 
 --
@@ -13435,7 +13493,7 @@ GRANT SELECT ON TABLE ping TO external_user;
 REVOKE ALL ON TABLE provider FROM PUBLIC;
 REVOKE ALL ON TABLE provider FROM rmbt;
 GRANT ALL ON TABLE provider TO rmbt;
-GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE provider TO external_user;
+GRANT SELECT ON TABLE provider TO rmbt_group_read_only;
 
 
 --
@@ -13445,18 +13503,28 @@ GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE provider TO external_user;
 REVOKE ALL ON TABLE signal FROM PUBLIC;
 REVOKE ALL ON TABLE signal FROM rmbt;
 GRANT ALL ON TABLE signal TO rmbt;
-GRANT SELECT ON TABLE signal TO external_user;
+GRANT SELECT ON TABLE signal TO rmbt_group_read_only;
+GRANT INSERT ON TABLE signal TO rmbt_group_control;
 
 
 --
--- Name: spatial_ref_sys; Type: ACL; Schema: public; Owner: postgres
+-- Name: signal_uid_seq; Type: ACL; Schema: public; Owner: rmbt
+--
+
+REVOKE ALL ON SEQUENCE signal_uid_seq FROM PUBLIC;
+REVOKE ALL ON SEQUENCE signal_uid_seq FROM rmbt;
+GRANT ALL ON SEQUENCE signal_uid_seq TO rmbt;
+GRANT USAGE ON SEQUENCE signal_uid_seq TO rmbt_group_control;
+
+
+--
+-- Name: spatial_ref_sys; Type: ACL; Schema: public; Owner: rmbt
 --
 
 REVOKE ALL ON TABLE spatial_ref_sys FROM PUBLIC;
-REVOKE ALL ON TABLE spatial_ref_sys FROM postgres;
-GRANT ALL ON TABLE spatial_ref_sys TO postgres;
-GRANT SELECT ON TABLE spatial_ref_sys TO rmbt;
-GRANT SELECT ON TABLE spatial_ref_sys TO external_user;
+REVOKE ALL ON TABLE spatial_ref_sys FROM rmbt;
+GRANT ALL ON TABLE spatial_ref_sys TO rmbt;
+GRANT SELECT ON TABLE spatial_ref_sys TO rmbt_group_read_only;
 
 
 --
@@ -13466,7 +13534,18 @@ GRANT SELECT ON TABLE spatial_ref_sys TO external_user;
 REVOKE ALL ON TABLE speed_down FROM PUBLIC;
 REVOKE ALL ON TABLE speed_down FROM rmbt;
 GRANT ALL ON TABLE speed_down TO rmbt;
-GRANT SELECT ON TABLE speed_down TO external_user;
+GRANT SELECT ON TABLE speed_down TO rmbt_group_read_only;
+GRANT INSERT ON TABLE speed_down TO rmbt_group_control;
+
+
+--
+-- Name: speed_down_uid_seq; Type: ACL; Schema: public; Owner: rmbt
+--
+
+REVOKE ALL ON SEQUENCE speed_down_uid_seq FROM PUBLIC;
+REVOKE ALL ON SEQUENCE speed_down_uid_seq FROM rmbt;
+GRANT ALL ON SEQUENCE speed_down_uid_seq TO rmbt;
+GRANT USAGE ON SEQUENCE speed_down_uid_seq TO rmbt_group_control;
 
 
 --
@@ -13476,7 +13555,18 @@ GRANT SELECT ON TABLE speed_down TO external_user;
 REVOKE ALL ON TABLE speed_up FROM PUBLIC;
 REVOKE ALL ON TABLE speed_up FROM rmbt;
 GRANT ALL ON TABLE speed_up TO rmbt;
-GRANT SELECT ON TABLE speed_up TO external_user;
+GRANT SELECT ON TABLE speed_up TO rmbt_group_read_only;
+GRANT INSERT ON TABLE speed_up TO rmbt_group_control;
+
+
+--
+-- Name: speed_up_uid_seq; Type: ACL; Schema: public; Owner: rmbt
+--
+
+REVOKE ALL ON SEQUENCE speed_up_uid_seq FROM PUBLIC;
+REVOKE ALL ON SEQUENCE speed_up_uid_seq FROM rmbt;
+GRANT ALL ON SEQUENCE speed_up_uid_seq TO rmbt;
+GRANT USAGE ON SEQUENCE speed_up_uid_seq TO rmbt_group_control;
 
 
 --
@@ -13486,7 +13576,18 @@ GRANT SELECT ON TABLE speed_up TO external_user;
 REVOKE ALL ON TABLE sync_group FROM PUBLIC;
 REVOKE ALL ON TABLE sync_group FROM rmbt;
 GRANT ALL ON TABLE sync_group TO rmbt;
-GRANT SELECT ON TABLE sync_group TO external_user;
+GRANT SELECT ON TABLE sync_group TO rmbt_group_read_only;
+GRANT INSERT,DELETE ON TABLE sync_group TO rmbt_group_control;
+
+
+--
+-- Name: sync_group_uid_seq; Type: ACL; Schema: public; Owner: rmbt
+--
+
+REVOKE ALL ON SEQUENCE sync_group_uid_seq FROM PUBLIC;
+REVOKE ALL ON SEQUENCE sync_group_uid_seq FROM rmbt;
+GRANT ALL ON SEQUENCE sync_group_uid_seq TO rmbt;
+GRANT USAGE ON SEQUENCE sync_group_uid_seq TO rmbt_group_control;
 
 
 --
@@ -13496,7 +13597,8 @@ GRANT SELECT ON TABLE sync_group TO external_user;
 REVOKE ALL ON TABLE test FROM PUBLIC;
 REVOKE ALL ON TABLE test FROM rmbt;
 GRANT ALL ON TABLE test TO rmbt;
-GRANT SELECT ON TABLE test TO external_user;
+GRANT SELECT ON TABLE test TO rmbt_group_read_only;
+GRANT INSERT,UPDATE ON TABLE test TO rmbt_group_control;
 
 
 --
@@ -13506,7 +13608,18 @@ GRANT SELECT ON TABLE test TO external_user;
 REVOKE ALL ON TABLE test_ndt FROM PUBLIC;
 REVOKE ALL ON TABLE test_ndt FROM rmbt;
 GRANT ALL ON TABLE test_ndt TO rmbt;
-GRANT SELECT ON TABLE test_ndt TO external_user;
+GRANT SELECT ON TABLE test_ndt TO rmbt_group_read_only;
+GRANT INSERT,UPDATE ON TABLE test_ndt TO rmbt_group_control;
+
+
+--
+-- Name: test_ndt_uid_seq; Type: ACL; Schema: public; Owner: rmbt
+--
+
+REVOKE ALL ON SEQUENCE test_ndt_uid_seq FROM PUBLIC;
+REVOKE ALL ON SEQUENCE test_ndt_uid_seq FROM rmbt;
+GRANT ALL ON SEQUENCE test_ndt_uid_seq TO rmbt;
+GRANT USAGE ON SEQUENCE test_ndt_uid_seq TO rmbt_group_control;
 
 
 --
@@ -13516,7 +13629,17 @@ GRANT SELECT ON TABLE test_ndt TO external_user;
 REVOKE ALL ON TABLE test_server FROM PUBLIC;
 REVOKE ALL ON TABLE test_server FROM rmbt;
 GRANT ALL ON TABLE test_server TO rmbt;
-GRANT SELECT ON TABLE test_server TO external_user;
+GRANT SELECT ON TABLE test_server TO rmbt_group_read_only;
+
+
+--
+-- Name: test_uid_seq; Type: ACL; Schema: public; Owner: rmbt
+--
+
+REVOKE ALL ON SEQUENCE test_uid_seq FROM PUBLIC;
+REVOKE ALL ON SEQUENCE test_uid_seq FROM rmbt;
+GRANT ALL ON SEQUENCE test_uid_seq TO rmbt;
+GRANT USAGE ON SEQUENCE test_uid_seq TO rmbt_group_control;
 
 
 --

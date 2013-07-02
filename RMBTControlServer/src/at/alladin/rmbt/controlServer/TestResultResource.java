@@ -180,69 +180,48 @@ public class TestResultResource extends ServerResource
                         
                         jsonItemList.put(singleItem);
                         
-                        String mobileNetworkString = null;
-                        if (networkType == 99)
+                        if (networkType == 98 || networkType == 99) // mobile wifi or browser
                         {
-                            final Field ssid = test.getField("wifi_ssid");
-                            if (!ssid.isNull())
-                            {
-                                singleItem = new JSONObject();
-                                singleItem.put("title", labels.getString("RESULT_WIFI_SSID"));
-                                
-                                singleItem.put("value", ssid.toString());
-                                
-                                jsonItemList.put(singleItem);
-                            }
-                            
-                        }
-                        else
-                        {
-                            final Field operatorField = test.getField("network_operator");
-                            final Field mncMccText = test.getField("network_operator_mnc_mcc_text");
-                            
-                            final Field operatorNameField = test.getField("network_operator_name");
-                            if (!operatorNameField.isNull())
+                            final Field providerNameField = test.getField("provider_id_name");
+                            if (! providerNameField.isNull())
                             {
                                 singleItem = new JSONObject();
                                 singleItem.put("title", labels.getString("RESULT_OPERATOR_NAME"));
-                                
-                                String addOperatorInfo = null;
-                                final Field simField = test.getField("network_sim_operator");
-                                if (!operatorField.isNull() && !simField.isNull())
+                                singleItem.put("value", providerNameField.toString());
+                                jsonItemList.put(singleItem);
+                            }
+                            if (networkType == 99)  // mobile wifi
+                            {
+                                final Field ssid = test.getField("wifi_ssid");
+                                if (! ssid.isNull())
                                 {
-                                    final String operator = operatorField.toString();
-                                    final String sim = simField.toString();
-                                    if (operator != null && sim != null && !operator.equals(sim))
-                                    {
-                                        if (mncMccText.isNull())
-                                            addOperatorInfo = labels.getString("RESULT_OPERATOR_NETWORK_ROAMING");
-                                        else
-                                            addOperatorInfo = MessageFormat.format(
-                                                    labels.getString("RESULT_OPERATOR_NETWORK"), mncMccText.toString());
-                                    }
+                                    singleItem = new JSONObject();
+                                    singleItem.put("title", labels.getString("RESULT_WIFI_SSID"));
+                                    singleItem.put("value", ssid.toString());
+                                    jsonItemList.put(singleItem);
                                 }
                                 
-                                if (addOperatorInfo != null)
-                                    singleItem.put("value", String.format("%s %s", operatorNameField, addOperatorInfo));
-                                else
-                                    singleItem.put("value", operatorNameField.toString());
-                                
-                                jsonItemList.put(singleItem);
-                                
-                                if (mncMccText.isNull())
-                                    mobileNetworkString = operatorField.toString();
-                                else
-                                    mobileNetworkString = String.format("%s (%s)", mncMccText, operatorField);
                             }
                         }
-                        
-                        if (! request.has("softwareVersionCode") ||
-                                request.optInt("softwareVersionCode", 0) < Integer.parseInt(settings.getString("RMBT_CURRENT_VERSION_CODE")))
+                        else // mobile
                         {
-                            singleItem = new JSONObject();
-                            singleItem.put("title", labels.getString("RESULT_UPDATE_INFO_TITLE"));
-                            singleItem.put("value", labels.getString("RESULT_UPDATE_INFO_VALUE"));
-                            jsonItemList.put(singleItem);
+                            final Field operatorNameField = test.getField("network_operator_name");
+                            if (! operatorNameField.isNull())
+                            {
+                                singleItem = new JSONObject();
+                                singleItem.put("title", labels.getString("RESULT_OPERATOR_NAME"));
+                                singleItem.put("value", operatorNameField.toString());
+                                jsonItemList.put(singleItem);
+                            }
+                            
+                            final Field roamingTypeField = test.getField("roaming_type");
+                            if (! roamingTypeField.isNull() && roamingTypeField.intValue() > 0)
+                            {
+                                singleItem = new JSONObject();
+                                singleItem.put("title", labels.getString("RESULT_ROAMING"));
+                                singleItem.put("value", Helperfunctions.getRoamingType(labels, roamingTypeField.intValue()));
+                                jsonItemList.put(singleItem);
+                            }
                         }
                         
                         jsonItem.put("net", jsonItemList);
@@ -255,6 +234,14 @@ public class TestResultResource extends ServerResource
                             jsonItem.put("geo_long", geo_long.doubleValue());
                         }
                         
+                        final Field zip_code = test.getField("zip_code");
+                        if (! zip_code.isNull())
+                            jsonItem.put("zip_code", zip_code.intValue());
+                        
+                        final Field zip_code_geo = test.getField("zip_code_geo");
+                        if (! zip_code_geo.isNull())
+                            jsonItem.put("zip_code_geo", zip_code_geo.intValue());
+                        
                         String providerString = test.getField("provider_id_name").toString();
                         if (providerString == null)
                             providerString = "";
@@ -265,11 +252,22 @@ public class TestResultResource extends ServerResource
                         if (modelString == null)
                             modelString = "";
                         
+                        String mobileNetworkString = null;
+                        final Field networkOperatorField = test.getField("network_operator");
+                        final Field mobileProviderNameField = test.getField("mobile_provider_name");
+                        if (! networkOperatorField.isNull())
+                        {
+                            if (mobileProviderNameField.isNull())
+                                mobileNetworkString = networkOperatorField.toString();
+                            else
+                                mobileNetworkString = String.format("%s (%s)", mobileProviderNameField, networkOperatorField);
+                        }
+                        
                         final String shareText = MessageFormat.format(labels.getString("RESULT_SHARE_TEXT"),
                                 timeString, downloadString, uploadString, pingString,
                                 signalString == null ? "" : MessageFormat.format(labels.getString("RESULT_SHARE_TEXT_SIGNAL_ADD"), signalString),
                                 networkTypeString,
-                                providerString == null || providerString.isEmpty() ? "" : MessageFormat.format(labels.getString("RESULT_SHARE_TEXT_PROVIDER_ADD"), providerString),
+                                providerString.isEmpty() ? "" : MessageFormat.format(labels.getString("RESULT_SHARE_TEXT_PROVIDER_ADD"), providerString),
                                 mobileNetworkString == null ? "" : MessageFormat.format(labels.getString("RESULT_SHARE_TEXT_MOBILE_ADD"), mobileNetworkString),
                                 platformString, modelString);
                         

@@ -31,14 +31,23 @@ public class TestNdt extends Table
     
     private final static String SELECT = "SELECT" + " *" + " FROM test_ndt tn";
     
-    private static final Field[] fields = new Field[] { new LongField("test_id", null),
-            new DoubleField("s2cspd", "s2cspd"), new DoubleField("c2sspd", "c2sspd"),
-            new DoubleField("avgrtt", "avgrtt"), new StringField("main", "main"), new StringField("stat", "stat"),
-            new StringField("diag", "diag"), };
+    private final static ThreadLocal<Field[]> PER_THREAD_FIELDS = new ThreadLocal<Field[]>() {
+        protected Field[] initialValue() {
+            return new Field[] {
+                    new LongField("test_id", null),
+                    new DoubleField("s2cspd", "s2cspd"),
+                    new DoubleField("c2sspd", "c2sspd"),
+                    new DoubleField("avgrtt", "avgrtt"),
+                    new StringField("main", "main"),
+                    new StringField("stat", "stat"),
+                    new StringField("diag", "diag"),
+                    };
+        }
+    };
     
     public TestNdt(final Connection conn)
     {
-        super(fields, conn);
+        super(PER_THREAD_FIELDS.get(), conn);
     }
     
     public void storeTest()

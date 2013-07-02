@@ -139,8 +139,6 @@ public class Test_Server
                 setValuesFromResult(rs);
             else
                 setError("ERROR_DB_GET_SERVER");
-            // errorList.addErrorString(MessageFormat.format(labels.getString("ERROR_DB_GET_SERVER"),
-            // new Object[] {Config.RMBT_TEST_SERVER}));
             
             rs.close();
             st.close();
@@ -148,7 +146,6 @@ public class Test_Server
         catch (final SQLException e)
         {
             setError("ERROR_DB_GET_SERVER_SQL");
-            // errorList.addError("ERROR_DB_GET_SERVER_SQL");
             e.printStackTrace();
             
         }
@@ -174,8 +171,6 @@ public class Test_Server
                 setValuesFromResult(rs);
             else
                 setError("ERROR_DB_GET_SERVER");
-            // errorList.addErrorString(MessageFormat.format(labels.getString("ERROR_DB_GET_SERVER"),
-            // new Object[] {Config.RMBT_TEST_SERVER}));
             
             rs.close();
             st.close();
@@ -183,7 +178,6 @@ public class Test_Server
         catch (final SQLException e)
         {
             setError("ERROR_DB_GET_SERVER_SQL");
-            // errorList.addError("ERROR_DB_GET_SERVER_SQL");
             e.printStackTrace();
             
         }

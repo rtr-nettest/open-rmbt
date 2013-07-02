@@ -39,6 +39,7 @@ public abstract class Table
     {
         this.fields = fields;
         this.conn = conn;
+        reset();
         generateKeyMap();
     }
     
@@ -105,11 +106,6 @@ public abstract class Table
      * SETTERS
      * 
      ***********/
-    
-    public void setUid(final long uid)
-    {
-        this.uid = uid;
-    }
     
     public void setFields(final JSONObject object)
     {
