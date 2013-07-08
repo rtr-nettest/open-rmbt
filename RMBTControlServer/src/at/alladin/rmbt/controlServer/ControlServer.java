@@ -22,6 +22,7 @@ import org.restlet.routing.Router;
 import org.restlet.routing.Template;
 
 import at.alladin.rmbt.controlServer.export.ExportResource;
+import at.alladin.rmbt.controlServer.export.ImageExport;
 
 public class ControlServer extends Application
 {
@@ -76,6 +77,12 @@ public class ControlServer extends Application
         router.attach("/export", ExportResource.class, Template.MODE_STARTS_WITH);
         
         router.attach("/usage", UsageResource.class);
+        
+        router.attach("/openTest", OpenTestResource.class);
+        
+        router.attach("/openTest/{open_uuid}", OpenTestResource.class);
+        
+        router.attach("/{lang}/{open_test_uuid}/{size}.png", ImageExport.class);
         
         return router;
     }

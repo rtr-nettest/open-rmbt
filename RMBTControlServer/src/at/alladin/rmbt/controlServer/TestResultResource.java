@@ -38,6 +38,7 @@ import at.alladin.rmbt.db.Test;
 import at.alladin.rmbt.db.Test_Server;
 import at.alladin.rmbt.db.fields.Field;
 import at.alladin.rmbt.db.fields.TimestampField;
+import at.alladin.rmbt.db.fields.UUIDField;
 import at.alladin.rmbt.shared.Classification;
 import at.alladin.rmbt.shared.Helperfunctions;
 import at.alladin.rmbt.shared.SignificantFormat;
@@ -104,6 +105,13 @@ public class TestResultResource extends ServerResource
                         JSONArray jsonItemList = new JSONArray();
                         
                         // RMBTClient Info
+                        //also send open-uuid
+                        final String openUUID = ((UUIDField) test.getField("open_uuid")).toString();
+                        jsonItem.put("open_uuid", openUUID);
+                        
+                        //and open test-uuid
+                        final String openTestUUID = ((UUIDField) test.getField("open_test_uuid")).toString();
+                        jsonItem.put("open_test_uuid", openTestUUID);
                         
                         final Date date = ((TimestampField) test.getField("time")).getDate();
                         final long time = date.getTime();
