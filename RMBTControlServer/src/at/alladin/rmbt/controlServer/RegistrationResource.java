@@ -177,6 +177,7 @@ public class RegistrationResource extends ServerResource
                         {
                             
                             final String testUuid = UUID.randomUUID().toString();
+                            final String testOpenUuid = UUID.randomUUID().toString();
                             
                             int testServerId = 0;
                             int testServerPort = 0;
@@ -281,13 +282,14 @@ public class RegistrationResource extends ServerResource
                                     PreparedStatement st;
                                     st = conn
                                             .prepareStatement(
-                                                    "INSERT INTO test(time, uuid, client_id, client_name, client_version, client_software_version, client_language, client_public_ip, server_id, port, use_ssl, timezone, client_time, duration, num_threads_requested, status, software_revision, client_test_counter, client_previous_test_status, public_ip_asn, public_ip_as_name, public_ip_rdns, run_ndt)"
-                                                            + "VALUES(NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                                                    "INSERT INTO test(time, uuid, open_test_uuid, client_id, client_name, client_version, client_software_version, client_language, client_public_ip, server_id, port, use_ssl, timezone, client_time, duration, num_threads_requested, status, software_revision, client_test_counter, client_previous_test_status, public_ip_asn, public_ip_as_name, public_ip_rdns, run_ndt)"
+                                                            + "VALUES(NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                                                     Statement.RETURN_GENERATED_KEYS);
                                     
                                     int i = 1;
                                     
                                     st.setObject(i++, UUID.fromString(testUuid));
+                                    st.setObject(i++, UUID.fromString(testOpenUuid));
                                     st.setLong(i++, clientUid);
                                     st.setString(i++, clientName);
                                     st.setString(i++, clientVersion);

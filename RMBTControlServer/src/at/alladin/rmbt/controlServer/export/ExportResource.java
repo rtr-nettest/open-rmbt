@@ -174,7 +174,18 @@ public class ExportResource extends ServerResource
                 csvPrinter.flush();
                 
                 if (zip)
-                    out.close();
+                    outf.close();
+                
+                //if we reach this code, the data is now cached in a temporary tmp-file
+                //so, rename the file for "production use2
+                //concurrency issues should be solved by the operating system
+                File newCacheFile = new File(property + File.separator + ((zip)?FILENAME_ZIP:FILENAME_CSV));
+                Files.move(cachedFile.toPath(), newCacheFile.toPath(), StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+                
+                FileInputStream fis = new FileInputStream(newCacheFile);
+                IOUtils.copy(fis, out);
+                fis.close();
+                out.close();
             }
         };
         if (zip)

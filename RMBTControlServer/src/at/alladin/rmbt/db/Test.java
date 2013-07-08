@@ -118,6 +118,8 @@ public class Test extends Table
             new StringField("provider_id_name", null, true),
             new StringField("geo_provider", "provider"),
             new DoubleField("geo_accuracy", "accuracy"),
+            new UUIDField("open_uuid", null),
+            new UUIDField("open_test_uuid",null)
             };
         };
     };
