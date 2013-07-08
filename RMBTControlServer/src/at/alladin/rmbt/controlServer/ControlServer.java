@@ -78,9 +78,9 @@ public class ControlServer extends Application
         
         router.attach("/usage", UsageResource.class);
         
-        router.attach("/openTest", OpenTestResource.class);
+        router.attach("/opentests", OpenTestResource.class);
         
-        router.attach("/openTest/{open_uuid}", OpenTestResource.class);
+        router.attach("/opentests/{open_test_or_user_uuid}", OpenTestResource.class);
         
         router.attach("/{lang}/{open_test_uuid}/{size}.png", ImageExport.class);
         
