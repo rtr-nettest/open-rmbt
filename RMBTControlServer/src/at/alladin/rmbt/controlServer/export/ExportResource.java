@@ -38,6 +38,12 @@ import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
 
 import at.alladin.rmbt.controlServer.ServerResource;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.util.Date;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 
 public class ExportResource extends ServerResource
 {
@@ -47,9 +53,42 @@ public class ExportResource extends ServerResource
     private static final CSVFormat csvFormat = CSVFormat.RFC4180;
     private static final boolean zip = true;
     
+    private static final long cacheThresholdMs = 60*60*1000; //1 hour
+
     @Get
     public Representation request(final String entity)
     {
+        //Before doing anything => check if a cached file already exists and is new enough
+        String property = System.getProperty("java.io.tmpdir");
+        final File cachedFile = new File(property + File.separator + ((zip)?FILENAME_ZIP:FILENAME_CSV));
+        if (cachedFile.exists()) {
+            
+            //check if file has been recently created
+            if ((cachedFile.lastModified() + cacheThresholdMs) > (new Date()).getTime()) {
+
+                //if so, return the cached file instead of a cost-intensive new one
+                final OutputRepresentation result = new OutputRepresentation(zip ? MediaType.APPLICATION_ZIP
+                : MediaType.TEXT_CSV) {
+
+                    @Override
+                    public void write(OutputStream out) throws IOException {
+                        InputStream is = new FileInputStream(cachedFile);
+                        IOUtils.copy(is, out);
+                        out.close();
+                    }
+                    
+                };
+                if (zip)
+                {
+                    final Disposition disposition = new Disposition(Disposition.TYPE_ATTACHMENT);
+                    disposition.setFilename(FILENAME_ZIP);
+                    result.setDisposition(disposition);
+                }
+                return result;
+        
+            }
+        }
+        
         final String sql = "SELECT" +
                 " ('P' || t.open_uuid) open_uuid," +
                 " ('O' || t.open_test_uuid) open_test_uuid," + 
@@ -145,9 +184,15 @@ public class ExportResource extends ServerResource
             @Override
             public void write(OutputStream out) throws IOException
             {
+                //cache in file => create temporary temporary file (to 
+                // handle errors while fulfilling a request)
+                String property = System.getProperty("java.io.tmpdir");
+                final File cachedFile = new File(property + File.separator + ((zip)?FILENAME_ZIP:FILENAME_CSV) + "_tmp");
+                OutputStream outf = new FileOutputStream(cachedFile);
+                
                 if (zip)
                 {
-                    final ZipOutputStream zos = new ZipOutputStream(out);
+                    final ZipOutputStream zos = new ZipOutputStream(outf);
                     final ZipEntry zeLicense = new ZipEntry("LIZENZ.txt");
                     zos.putNextEntry(zeLicense);
                     final InputStream licenseIS = getClass().getResourceAsStream("DATA_LICENSE.txt");
@@ -156,10 +201,10 @@ public class ExportResource extends ServerResource
                     
                     final ZipEntry zeCsv = new ZipEntry(FILENAME_CSV);
                     zos.putNextEntry(zeCsv);
-                    out = zos;
+                    outf = zos;
                 }
                 
-                final OutputStreamWriter osw = new OutputStreamWriter(out);
+                final OutputStreamWriter osw = new OutputStreamWriter(outf);
                 final CSVPrinter csvPrinter = new CSVPrinter(osw, csvFormat);
                 
                 for (final String c : columns)
