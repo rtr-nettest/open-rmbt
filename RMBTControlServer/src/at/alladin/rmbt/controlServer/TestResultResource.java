@@ -105,12 +105,12 @@ public class TestResultResource extends ServerResource
                         JSONArray jsonItemList = new JSONArray();
                         
                         // RMBTClient Info
-                        //also send open-uuid
-                        final String openUUID = ((UUIDField) test.getField("open_uuid")).toString();
+                        //also send open-uuid (starts with 'P')
+                        final String openUUID = "P" + ((UUIDField) test.getField("open_uuid")).toString();
                         jsonItem.put("open_uuid", openUUID);
                         
-                        //and open test-uuid
-                        final String openTestUUID = ((UUIDField) test.getField("open_test_uuid")).toString();
+                        //and open test-uuid (starts with 'O')
+                        final String openTestUUID = "O" + ((UUIDField) test.getField("open_test_uuid")).toString();
                         jsonItem.put("open_test_uuid", openTestUUID);
                         
                         final Date date = ((TimestampField) test.getField("time")).getDate();

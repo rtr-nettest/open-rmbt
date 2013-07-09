@@ -52,6 +52,7 @@ public class ExportResource extends ServerResource
     {
         final String sql = "SELECT" +
                 " ('P' || t.open_uuid) open_uuid," +
+                " ('O' || t.open_test_uuid) open_test_uuid," + 
                 " to_char(t.time AT TIME ZONE 'UTC', 'YYYY-MM-DD HH24:MI') \"time\"," +
                 " nt.group_name cat_technology," +
                 " nt.name network_type," +

@@ -51,7 +51,7 @@ public class ImageExport extends ServerResource {
         if (!getRequest().getAttributes().containsKey("open_test_uuid")) {
             return new StringRepresentation("invalid uuid");
         }
-        final String uuid = getRequest().getAttributes().get("open_test_uuid").toString();
+        final String uuid = getRequest().getAttributes().get("open_test_uuid").toString().substring(1); //since the first letter is a 'O'
         final String lang = getRequest().getAttributes().get("lang").toString();
         final String size = getRequest().getAttributes().get("size").toString();
         
@@ -62,7 +62,7 @@ public class ImageExport extends ServerResource {
         
         if (!size.equals("forumlarge") && !size.equals("forumsmall") && !size.equals("facebook")) {
             setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-            return new StringRepresentation("invalid size");
+            return new StringRepresentation("invalid image type");
         }
 
         //first - get data
