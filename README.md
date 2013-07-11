@@ -22,6 +22,7 @@ The following Eclipse projects are distributed in this release:
 
 - **RMBTSharedCode** - common libraries and classes for *RMBTControlServer*
 - **RMBTControlServer** - Servlet acting as control server for the clients
+- **RMBTMapServer** - Servlet acting as map server
 - **server** - actual test server
 - **RMBTClient** - client code used by *RMBTAndroid*, the command line client and the Applet
 - **RMBTAndroid** - Android App
@@ -111,4 +112,16 @@ The following third party libraries are required dependencies:
   - "RMBTControlServer/WebContent/WEB-INF/lib/org.restlet.jar"
   - "RMBTControlServer/WebContent/WEB-INF/lib/org.restlet.ext.json.jar"
   - "RMBTControlServer/WebContent/WEB-INF/lib/org.restlet.ext.servlet.jar"
+  - "RMBTMapServer/WebContent/WEB-INF/lib/org.restlet.jar"
+  - "RMBTMapServer/WebContent/WEB-INF/lib/org.restlet.ext.json.jar"
+  - "RMBTMapServer/WebContent/WEB-INF/lib/org.restlet.ext.servlet.jar"
 
+### PostGIS/ODBC ###
+
+- Version: 2.1
+- Licenses:
+  - GPL license version 2.0 (for PostGIS)
+  - LGPL license version 2.1 (for PostGIS/JDBC)
+- available at <http://postgis.net/>
+- copy as:
+  - "RMBTMapServer/WebContent/WEB-INF/lib/postgis.jar"
