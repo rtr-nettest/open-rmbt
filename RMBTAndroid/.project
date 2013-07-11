@@ -3,6 +3,7 @@
 	<name>RMBTAndroid</name>
 	<comment></comment>
 	<projects>
+		<project>google-play-services_lib</project>
 		<project>RMBTClient</project>
 	</projects>
 	<buildSpec>

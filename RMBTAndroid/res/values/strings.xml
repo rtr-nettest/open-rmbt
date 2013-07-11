@@ -16,7 +16,7 @@
 -->
 <resources>
     
-    <string name="main_sub_text">Beta-Version</string>
+    <string name="main_sub_text" translatable="false"></string>
     
     <string name="error_no_internet">Please activate your\ninternet connection</string>   
     <string name="error_no_data">No data available.</string>
@@ -87,6 +87,7 @@
     <string name="about_dev_link" translatable="false">http://www.alladin.at/</string>
     <string name="about_gms_legal_title">Google Play</string>
     <string name="about_gms_legal_line1">Google Play Services Legal Notice</string>
+    <string name="about_test_counter_title">Test Counter</string>
     
     <string name="terms">Privacy Policy and Terms of Use</string>
     
@@ -148,7 +149,7 @@
 	<string name="result_extended_test_results">Finalizing extended test</string>
 	<string name="result_extended_test_finished">Extended test finished</string>
 	<string name="result_extended_test_aborted">Extended test aborted</string>
-	<string name="result_extended_test_error">Error during Extended test</string>
+	<string name="result_extended_test_error">Error during extended test</string>
 	<string name="result_extended_test_button_stop">Stop</string>
 	<string name="result_extended_test_button_detail">Details</string>
 	

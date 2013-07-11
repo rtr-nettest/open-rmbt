@@ -16,8 +16,6 @@
 -->
 <resources xmlns:tools="http://schemas.android.com/tools" tools:locale="de">
     
-    <string name="main_sub_text">Beta-Version</string>
-    
     <string name="error_no_internet">Bitte aktivieren Sie\nIhre Internetverbindung</string>
     <string name="error_no_data">Keine Daten verfügbar.</string>
     
@@ -81,6 +79,7 @@
     <string name="about_dev_title">Entwicklung</string>
     <string name="about_gms_legal_title">Google Play</string>
     <string name="about_gms_legal_line1">Google Play Services Impressum</string>
+    <string name="about_test_counter_title">Testzähler</string>
     
     <string name="terms">Datenschutzerklärung und Nutzungsbedingungen</string>
     <string name="terms_accept_button">Zustimmung</string>
@@ -140,11 +139,11 @@
 	<string name="result_extended_test_results">Erweiterter Test wird finalisiert</string>
 	<string name="result_extended_test_finished">Erweiterter Test abgeschlossen</string>
 	<string name="result_extended_test_aborted">Erweiterter Test abgebrochen</string>
-	<string name="result_extended_test_error">Fehler während dem Erweiterter Test</string>
+	<string name="result_extended_test_error">Verbindungsfehler während des erweiterten Tests.</string>
 	<string name="result_extended_test_button_stop">Stopp</string>
 	<string name="result_extended_test_button_detail">Details</string>
 	
-	<string name="sync_info_text">Es besteht die Möglichkeit die Messergebnisse von anderen Endgeräten zusammenzuführen. Dazu müssen Sie einen bereits erhaltenen Synchronisationscode eingeben oder einen neuen anfordern.</string>
+	<string name="sync_info_text">Es besteht die Möglichkeit die Messergebnisse von anderen Endgeräten zusammenzuführen. Dazu müssen Sie einen bereits erhaltenen Synchronisations-Code eingeben oder einen neuen anfordern.</string>
 	<string name="sync_request_code_button">Code anfordern</string>
 	<string name="sync_enter_code_button">Code eingeben</string>
 	
@@ -153,7 +152,7 @@
 	<string name="sync_enter_code_desc">Geben Sie hier bitte den Code ein, den Sie auf Ihrem anderen Gerät angefordert haben.</string>
 	<string name="sync_enter_code_length">Der Code muss aus 12 Zeichen bestehen</string>
 	
-	<string name="sync_request_code_header">Ihr Synchronisationscode lautet:</string>
+	<string name="sync_request_code_header">Ihr Synchronisations-Code lautet:</string>
 	<string name="sync_request_code_msg">Code wird angefordert....</string>
 	<string name="sync_request_code_desc">Bitte geben Sie den oben angezeigten Code auf Ihrem anderen Gerät ein, um diese zu synchronisieren.</string>
 	<string name="sync_request_code_context_copy">Code kopieren</string>

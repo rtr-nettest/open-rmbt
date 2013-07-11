@@ -17,6 +17,7 @@ package at.alladin.rmbt.android.util;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.preference.PreferenceManager;
 import at.alladin.rmbt.client.helper.Config;
 import at.alladin.rmbt.client.helper.ConfigLocal;
@@ -93,7 +94,13 @@ public final class ConfigHelper
         getSharedPreferences(context).edit().putString("previous_test_status", status).commit();
     }
     
-    public static int getNextTestCounter(final Context context)
+    public static int getTestCounter(final Context context)
+    {
+        int counter = getSharedPreferences(context).getInt("test_counter", 0);
+        return counter;
+    }
+    
+    public static int incAndGetNextTestCounter(final Context context)
     {
         int lastValue = getSharedPreferences(context).getInt("test_counter", 0);
         lastValue++;
@@ -247,5 +254,10 @@ public final class ConfigHelper
                 return pref.getInt("dev_test_duration", -1);
             return null;
         }
+    }
+    
+    public static boolean isDevEnabled(final Context ctx)
+    {
+        return PackageManager.SIGNATURE_MATCH == ctx.getPackageManager().checkSignatures(ctx.getPackageName(), at.alladin.rmbt.android.util.Config.RMBT_DEV_UNLOCK_PACKAGE_NAME);
     }
 }

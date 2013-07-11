@@ -217,6 +217,8 @@ public class GetMapOptionsInfoTask extends AsyncTask<Void, Void, JSONObject>
                         
                         final List<MapListEntry> mapListEntryList = new ArrayList<MapListEntry>();
                         
+                        boolean haveDefault = false;
+                        
                         for (int cnt2 = 0; cnt2 < objectOptionsArray.length(); cnt2++)
                         {
                             
@@ -224,9 +226,11 @@ public class GetMapOptionsInfoTask extends AsyncTask<Void, Void, JSONObject>
                             
                             final String entryTitle = s.getString("title");
                             final String entrySummary = s.getString("summary");
+                            final boolean entryDefault = s.optBoolean("default", false);
                             
                             s.remove("title");
                             s.remove("summary");
+                            s.remove("default");
                             
                             //
                             
@@ -245,13 +249,17 @@ public class GetMapOptionsInfoTask extends AsyncTask<Void, Void, JSONObject>
                                 mapListEntry.setValue(s.getString(key));
                             }
                             
-                            // always select first element in sections
-                            mapListEntry.setChecked(cnt2 == 0);
+                            mapListEntry.setChecked(entryDefault && ! haveDefault);
+                            if (entryDefault)
+                                haveDefault = true;
                             
                             // /
                             
                             mapListEntryList.add(mapListEntry);
                         }
+                        
+                        if (! haveDefault && mapListEntryList.size() > 0)
+                            mapListEntryList.get(0).setChecked(true); // set first if we had no default
                         
                         final MapListSection mapListSection = new MapListSection(sectionTitle, mapListEntryList);
                         mapFilterListSectionList.add(mapListSection);

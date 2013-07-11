@@ -16,7 +16,6 @@
 package at.alladin.rmbt.android.map;
 
 import java.util.List;
-import java.util.Map;
 
 import android.app.Activity;
 import android.content.Context;
@@ -82,9 +81,10 @@ public class RMBTMapFilterFragment extends Fragment implements OnItemClickListen
             @Override
             public void run()
             {
-                if (getMapFilterListSelectionList() == null)
+                final RMBTMainActivity activity = getRMBTMainActivity();
+                if (activity.getMapFilterListSelectionList() == null)
                 {
-                    ((RMBTMainActivity) getActivity()).fetchMapOptions();
+                    activity.fetchMapOptions();
                     handler.postDelayed(recheckRunnable, 500);
                 }
                 else
@@ -114,15 +114,21 @@ public class RMBTMapFilterFragment extends Fragment implements OnItemClickListen
             handler.removeCallbacks(recheckRunnable);
     }
     
+    private RMBTMainActivity getRMBTMainActivity()
+    {
+        return (RMBTMainActivity) getActivity();
+    }
+    
     protected void populateList()
     {
-        final SectionListAdapter sectionListAdapter = new SectionListAdapter(getActivity(),
+        final RMBTMainActivity activity = getRMBTMainActivity();
+        final SectionListAdapter sectionListAdapter = new SectionListAdapter(activity,
                 R.layout.preferences_category);
         
         // add filter options
         
-        for (final MapListSection mapListSection : getMapFilterListSelectionList())
-            sectionListAdapter.addSection(mapListSection.getTitle(), new MapListSectionAdapter(getActivity(),
+        for (final MapListSection mapListSection : activity.getMapFilterListSelectionList())
+            sectionListAdapter.addSection(mapListSection.getTitle(), new MapListSectionAdapter(activity,
                     mapListSection));
         
         // /
@@ -135,37 +141,6 @@ public class RMBTMapFilterFragment extends Fragment implements OnItemClickListen
         listView.setOnItemClickListener(this);
     }
 
-    private List<MapListSection> getMapFilterListSelectionList()
-    {
-        
-        final RMBTMainActivity rmbtMainActivity = (RMBTMainActivity) getActivity();
-        final Map<String, List<MapListSection>> mapFilterListSectionListMap = rmbtMainActivity.getMapFilterListSectionListMap();
-        if (mapFilterListSectionListMap == null)
-            return null;
-        return mapFilterListSectionListMap.get(rmbtMainActivity.getCurrentMainMapType());
-    }
-    
-    /**
-	 * 
-	 */
-    private void updateFilter()
-    {
-        
-        for (final MapListSection section : getMapFilterListSelectionList())
-        {
-            
-            final MapListEntry entry = section.getCheckedMapListEntry();
-            
-            if (entry != null && entry.getKey() != null && entry.getValue() != null)
-            {
-                
-                ((RMBTMainActivity) getActivity()).getCurrentMapOptions().put(entry.getKey(), entry.getValue());
-                ((RMBTMainActivity) getActivity()).getCurrentMapOptionTitles().put(entry.getKey(),
-                        entry.getSection().getTitle() + ": " + entry.getTitle());
-            }
-        }
-    }
-    
     /**
 	 * 
 	 */
@@ -193,20 +168,21 @@ public class RMBTMapFilterFragment extends Fragment implements OnItemClickListen
         
         // handle sat differently
         final String value = clickedEntry.getValue();
+        final RMBTMainActivity activity = getRMBTMainActivity();
         if (MapProperties.MAP_SAT_KEY.equals(clickedEntry.getKey()))
-            ((RMBTMainActivity) getActivity()).setMapTypeSatellite(MapProperties.MAP_SAT_VALUE.equals(value));
+            activity.setMapTypeSatellite(MapProperties.MAP_SAT_VALUE.equals(value));
         else if (MapProperties.MAP_OVERLAY_KEY.equals(clickedEntry.getKey()))
         {
             if (MapProperties.MAP_AUTO_VALUE.equals(value))
-                ((RMBTMainActivity) getActivity()).setMapOverlayType(MapProperties.MAP_OVERLAY_TYPE_AUTO);
+                activity.setMapOverlayType(MapProperties.MAP_OVERLAY_TYPE_AUTO);
             else if (MapProperties.MAP_HEATMAP_VALUE.equals(value))
-                ((RMBTMainActivity) getActivity()).setMapOverlayType(MapProperties.MAP_OVERLAY_TYPE_HEATMAP);
+                activity.setMapOverlayType(MapProperties.MAP_OVERLAY_TYPE_HEATMAP);
             else if (MapProperties.MAP_POINTS_VALUE.equals(value))
-                ((RMBTMainActivity) getActivity()).setMapOverlayType(MapProperties.MAP_OVERLAY_TYPE_POINTS);
+                activity.setMapOverlayType(MapProperties.MAP_OVERLAY_TYPE_POINTS);
         }
         else
             // set new filter options:
-            updateFilter();
+            activity.updateMapFilter();
         
         // reload list view:
         ((SectionListAdapter) parent.getAdapter()).notifyDataSetChanged();

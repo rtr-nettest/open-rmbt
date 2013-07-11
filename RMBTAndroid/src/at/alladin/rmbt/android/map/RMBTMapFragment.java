@@ -52,10 +52,13 @@ import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
 import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
+import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
+import com.google.android.gms.maps.GoogleMap.OnMyLocationChangeListener;
 import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.LocationSource.OnLocationChangedListener;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -64,7 +67,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 
-public class RMBTMapFragment extends SupportMapFragment implements OnClickListener, OnCameraChangeListener, OnMapClickListener, InfoWindowAdapter, OnInfoWindowClickListener
+public class RMBTMapFragment extends SupportMapFragment implements OnClickListener, OnCameraChangeListener, OnMapClickListener, InfoWindowAdapter, OnInfoWindowClickListener, OnMyLocationChangeListener, OnMarkerClickListener
 {
 //    private static final String DEBUG_TAG = "RMBTMapFragment";
     
@@ -73,7 +76,9 @@ public class RMBTMapFragment extends SupportMapFragment implements OnClickListen
     private TileOverlay heatmapOverlay;
     private TileOverlay pointsOverlay;
     
+    private Marker myLocationMarker;
     private MyGeoLocation geoLocation;
+    private BitmapDescriptor markerIconBitmapDescriptor;
     
     private boolean firstStart = true;
     
@@ -168,10 +173,18 @@ public class RMBTMapFragment extends SupportMapFragment implements OnClickListen
                     }
                 });
                 
+ 
+                
                 gMap.setMyLocationEnabled(true);
+                gMap.setOnMyLocationChangeListener(this);
+                gMap.setOnMarkerClickListener(this);
                 gMap.setOnMapClickListener(this);
                 gMap.setInfoWindowAdapter(this);
                 gMap.setOnInfoWindowClickListener(this);
+                
+                final Location myLocation = gMap.getMyLocation();
+                if (myLocation != null)
+                    onMyLocationChange(myLocation);
             }
             
             
@@ -218,9 +231,39 @@ public class RMBTMapFragment extends SupportMapFragment implements OnClickListen
                 pointsProvider.setOptionMap(mapOptions);
                 pointsProvider.setPath(MapProperties.POINTS_PATH);
                 pointsOverlay = gMap.addTileOverlay(new TileOverlayOptions().tileProvider(pointsProvider).zIndex(200000000));
+                
+                if (mapOverlayType == MapProperties.MAP_OVERLAY_TYPE_AUTO)
+                    onCameraChange(gMap.getCameraPosition());
             }
         }
     }
+    
+    @Override
+    public void onMyLocationChange(Location location)
+    {
+        if (myLocationMarker != null)
+            myLocationMarker.remove(); 
+        
+        if (markerIconBitmapDescriptor == null)
+            markerIconBitmapDescriptor = BitmapDescriptorFactory.fromResource(R.drawable.bg_trans_light);
+
+        myLocationMarker = gMap.addMarker(new MarkerOptions() 
+                .position(new LatLng(location.getLatitude(), location.getLongitude()))
+                .icon(markerIconBitmapDescriptor)); 
+    }
+    
+    @Override
+    public boolean onMarkerClick(Marker marker)
+    {
+        if (myLocationMarker != null && marker.equals(myLocationMarker))
+        {
+            // redirect to map click
+            onMapClick(marker.getPosition());
+            return true;
+        }
+        return false;
+    }
+
     
     @Override
     public void onStop()
@@ -429,6 +472,9 @@ public class RMBTMapFragment extends SupportMapFragment implements OnClickListen
             
             try
             {
+                if (result.length() == 0)
+                    return;
+                
                 final JSONObject resultListItem = result.getJSONObject(0);
                 
                 final LatLng latLng = new LatLng(resultListItem.getDouble("lat"), resultListItem.getDouble("lon"));

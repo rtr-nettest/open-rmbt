@@ -363,7 +363,7 @@ public class InformationCollector
             
             result.put("ndt", ConfigHelper.isNDT(context));
             
-            result.put("testCounter", ConfigHelper.getNextTestCounter(context));
+            result.put("testCounter", ConfigHelper.incAndGetNextTestCounter(context));
             result.put("previousTestStatus", ConfigHelper.getPreviousTestStatus(context));
             ConfigHelper.setPreviousTestStatus(context, null);
             return result;
@@ -423,10 +423,13 @@ public class InformationCollector
         {
             // Get Cell Location
             CellLocation.requestLocationUpdate();
-            final GsmCellLocation cellLocation = (GsmCellLocation) telManager.getCellLocation();
-            
-            if (cellLocation != null && cellLocation.getCid() > 0)
-                cellLocations.add(new CellLocationItem(cellLocation));
+            final CellLocation cellLocation = telManager.getCellLocation();
+            if (cellLocation != null && (cellLocation instanceof GsmCellLocation))
+            {
+                final GsmCellLocation gcl = (GsmCellLocation) cellLocation;
+                if (gcl.getCid() > 0)
+                    cellLocations.add(new CellLocationItem(gcl));
+            }
             
             fullInfo.setProperty("TELEPHONY_NETWORK_OPERATOR_NAME", String.valueOf(telManager.getNetworkOperatorName()));
             String networkOperator = telManager.getNetworkOperator();
@@ -439,7 +442,17 @@ public class InformationCollector
             if (simOperator != null && simOperator.length() >= 5)
                 simOperator = String.format("%s-%s", simOperator.substring(0, 3), simOperator.substring(3));
             fullInfo.setProperty("TELEPHONY_NETWORK_SIM_OPERATOR", String.valueOf(simOperator));
-            fullInfo.setProperty("TELEPHONY_NETWORK_SIM_OPERATOR_NAME", String.valueOf(telManager.getSimOperatorName()));
+            
+            try // hack for Motorola Defy (#594)
+            {
+                fullInfo.setProperty("TELEPHONY_NETWORK_SIM_OPERATOR_NAME", String.valueOf(telManager.getSimOperatorName()));
+            }
+            catch (SecurityException e)
+            {
+                e.printStackTrace();
+                fullInfo.setProperty("TELEPHONY_NETWORK_SIM_OPERATOR_NAME", "s.exception");
+            }
+            
             fullInfo.setProperty("TELEPHONY_PHONE_TYPE", String.valueOf(telManager.getPhoneType()));
             fullInfo.setProperty("TELEPHONY_DATA_STATE", String.valueOf(telManager.getDataState()));
             

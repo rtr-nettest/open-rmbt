@@ -20,7 +20,6 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
@@ -29,7 +28,6 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import at.alladin.openrmbt.android.R;
 import at.alladin.rmbt.android.terms.RMBTTermsActivity;
-import at.alladin.rmbt.android.util.Config;
 import at.alladin.rmbt.android.util.ConfigHelper;
 import at.alladin.rmbt.android.util.Helperfunctions;
 
@@ -67,10 +65,6 @@ public class RMBTPreferenceActivity extends PreferenceActivity
     public void onCreate(final Bundle savedInstanceState)
     {
         
-        final int checkSignatures = getPackageManager().checkSignatures(getPackageName(), Config.RMBT_DEV_UNLOCK_PACKAGE_NAME);
-        final boolean activateDevPreferences = (checkSignatures == PackageManager.SIGNATURE_MATCH);
-            
-        
         // onBuildHeaders() will be called during super.onCreate()
         try
         {
@@ -84,7 +78,7 @@ public class RMBTPreferenceActivity extends PreferenceActivity
         if (!isNewV11Prefs())
         {
             addPreferencesFromResource(R.xml.preferences);
-            if (activateDevPreferences)
+            if (ConfigHelper.isDevEnabled(this))
                 addPreferencesFromResource(R.xml.preferences_dev);
         }
         

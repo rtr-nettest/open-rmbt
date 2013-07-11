@@ -515,6 +515,15 @@ public class RMBTHistoryPagerAdapter extends PagerAdapter
                             
                             measurememtItemLayout.addView(itemClassification);
                             
+                            itemClassification.setOnClickListener(new OnClickListener()
+                            {
+                                @Override
+                                public void onClick(View v)
+                                {
+                                    activity.showHelp(R.string.url_help_result);
+                                }
+                            });
+                            
                             final TextView itemValue = new TextView(activity, null, R.style.listResultItemValue);
                             itemValue.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
                                     LayoutParams.WRAP_CONTENT, 0.5f));
@@ -624,7 +633,7 @@ public class RMBTHistoryPagerAdapter extends PagerAdapter
         return view;
     }
     
-    private void setExtendedTestStatus(final View view, final boolean finished)
+    private static void setExtendedTestStatus(final View view, final boolean finished)
     {
         final ProgressView extendedProgress = (ProgressView) view.findViewById(R.id.resultExtendedProgressView);
         final TextView extendedStatus = (TextView) view.findViewById(R.id.resultExtendedTestStatus);

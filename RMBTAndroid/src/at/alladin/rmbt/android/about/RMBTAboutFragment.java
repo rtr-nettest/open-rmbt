@@ -123,34 +123,34 @@ public class RMBTAboutFragment extends Fragment
         item.put("text2", "");
         list.add(item);
         item = new HashMap<String, String>();
-        item.put("title", this.getString(R.string.about_clientid_title));
+        item.put("title", getString(R.string.about_clientid_title));
         item.put("text1", clientUUID);
         item.put("text2", "");
         list.add(item);
         item = new HashMap<String, String>();
-        item.put("title", this.getString(R.string.about_web_title));
-        item.put("text1", this.getString(R.string.about_web_line1));
+        item.put("title", getString(R.string.about_web_title));
+        item.put("text1", getString(R.string.about_web_line1));
         item.put("text2", "");
         list.add(item);
         item = new HashMap<String, String>();
-        item.put("title", this.getString(R.string.about_email_title));
-        item.put("text1", this.getString(R.string.about_email_line1));
+        item.put("title", getString(R.string.about_email_title));
+        item.put("text1", getString(R.string.about_email_line1));
         item.put("text2", "");
         list.add(item);
         item = new HashMap<String, String>();
-        item.put("title", this.getString(R.string.about_terms_title));
-        item.put("text1", this.getString(R.string.about_terms_line1));
+        item.put("title", getString(R.string.about_terms_title));
+        item.put("text1", getString(R.string.about_terms_line1));
         item.put("text2", "");
         list.add(item);
         item = new HashMap<String, String>();
-        item.put("title", this.getString(R.string.about_git_title));
-        item.put("text1", this.getString(R.string.about_git_line1));
+        item.put("title", getString(R.string.about_git_title));
+        item.put("text1", getString(R.string.about_git_line1));
         item.put("text2", "");
         list.add(item);
         item = new HashMap<String, String>();
-        item.put("title", this.getString(R.string.about_dev_title));
-        item.put("text1", this.getString(R.string.about_dev_line1));
-        item.put("text2", this.getString(R.string.about_dev_line2));
+        item.put("title", getString(R.string.about_dev_title));
+        item.put("text1", getString(R.string.about_dev_line1));
+        item.put("text2", getString(R.string.about_dev_line2));
         list.add(item);
         
         final String openSourceSoftwareLicenseInfo = GooglePlayServicesUtil.getOpenSourceSoftwareLicenseInfo(getActivity());
@@ -158,8 +158,17 @@ public class RMBTAboutFragment extends Fragment
         if (openSourceSoftwareLicenseInfo != null)
         {
             item = new HashMap<String, String>();
-            item.put("title", this.getString(R.string.about_gms_legal_title));
-            item.put("text1", this.getString(R.string.about_gms_legal_line1));
+            item.put("title", getString(R.string.about_gms_legal_title));
+            item.put("text1", getString(R.string.about_gms_legal_line1));
+            item.put("text2", "");
+            list.add(item);
+        }
+        
+        if (ConfigHelper.isDevEnabled(getActivity()))
+        {
+            item = new HashMap<String, String>();
+            item.put("title", getString(R.string.about_test_counter_title));
+            item.put("text1", Integer.toString(ConfigHelper.getTestCounter(getActivity())));
             item.put("text2", "");
             list.add(item);
         }

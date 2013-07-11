@@ -26,8 +26,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.google.android.gms.maps.model.LatLng;
-
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -66,7 +64,6 @@ import at.alladin.rmbt.android.terms.RMBTNDTCheckFragment;
 import at.alladin.rmbt.android.terms.RMBTTermsCheckFragment;
 import at.alladin.rmbt.android.test.RMBTService;
 import at.alladin.rmbt.android.test.RMBTTestFragment;
-import at.alladin.rmbt.android.util.AppSettings;
 import at.alladin.rmbt.android.util.CheckHistoryTask;
 import at.alladin.rmbt.android.util.CheckNewsTask;
 import at.alladin.rmbt.android.util.CheckSettingsTask;
@@ -76,6 +73,8 @@ import at.alladin.rmbt.android.util.EndTaskListener;
 import at.alladin.rmbt.android.util.GeoLocation;
 import at.alladin.rmbt.android.util.GetMapOptionsInfoTask;
 import at.alladin.rmbt.android.util.Helperfunctions;
+
+import com.google.android.gms.maps.model.LatLng;
 
 /**
  * 
@@ -230,21 +229,6 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties
             {
                 preferences.edit().clear().commit();
                 Log.d(DEBUG_TAG, "preferences cleared");
-            }
-            
-            // migrate uuid
-            if (lastVersion <= 51)
-            {
-                final String uuid = ConfigHelper.getUUID(context);
-                if (uuid == null || uuid.length() == 0)
-                {
-                    // try to read old uuid
-                    final AppSettings appSettings = AppSettings.getInstance(context);
-                    final String oldUUID = appSettings.getUUID();
-                    if (oldUUID != null && oldUUID.length() > 0)
-                        ConfigHelper.setUUID(context, oldUUID);
-                    appSettings.removeFile();
-                }
             }
             
             if (lastVersion != clientVersion)
@@ -661,6 +645,12 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties
      * 
      * @param url
      */
+    
+    public void showHelp(final int resource)
+    {
+        showHelp(getResources().getString(resource));
+    }
+    
     public void showHelp(final String url)
     {
         // ViewPager and its adapters use support library
@@ -916,6 +906,15 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties
         return mapFilterListSectionListMap;
     }
     
+    public List<MapListSection> getMapFilterListSelectionList()
+    {
+        
+        final Map<String, List<MapListSection>> mapFilterListSectionListMap = getMapFilterListSectionListMap();
+        if (mapFilterListSectionListMap == null)
+            return null;
+        return mapFilterListSectionListMap.get(getCurrentMainMapType());
+    }
+    
     /**
      * 
      * @param mapFilterListSectionList
@@ -923,7 +922,28 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties
     public void setMapFilterListSectionListMap(final HashMap<String,List<MapListSection>> mapFilterListSectionList)
     {
         this.mapFilterListSectionListMap = mapFilterListSectionList;
+        updateMapFilter();
     }
+    
+    public void updateMapFilter()
+    {
+        
+        for (final MapListSection section : getMapFilterListSelectionList())
+        {
+            
+            final MapListEntry entry = section.getCheckedMapListEntry();
+            
+            if (entry != null && entry.getKey() != null && entry.getValue() != null)
+            {
+                
+                getCurrentMapOptions().put(entry.getKey(), entry.getValue());
+                getCurrentMapOptionTitles().put(entry.getKey(),
+                        entry.getSection().getTitle() + ": " + entry.getTitle());
+            }
+        }
+    }
+    
+    
     
     /**
      * 
