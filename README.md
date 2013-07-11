@@ -8,6 +8,7 @@ C, consisting of:
 - Java Applet client
 - Android client
 - control Servlet based on Restlet
+- map Servlet based on Restlet
 - test server (written in C)
 
 *Open-RMBT* is released under the [Apache License, Version 2.0]. It was developed
