@@ -1,8 +1,13 @@
+GCC_PARAMS = -Wall -Wno-unused-value -o server server.c -pthread -lrt -lssl -lcrypto
+SERVER_DEP = server.c config.h
+
 all: server
 
-server: server.c config.h
-	#gcc -Wall -Wno-unused-value -O3 -o server server.c -pthread -lrt -lssl
-	gcc -Wall -Wno-unused-value -O0 -g -o server server.c -pthread -lrt -lssl
+server: ${SERVER_DEP}
+	gcc -O0 -g ${GCC_PARAMS}
+
+server-prod: ${SERVER_DEP}
+	gcc -O3 ${GCC_PARAMS}
 	
 clean:
 	rm server

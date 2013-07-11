@@ -882,7 +882,7 @@ void init_ssl()
     SSL_METHOD *meth = SSLv23_server_method();
     ssl_ctx = SSL_CTX_new(meth);
     
-    if (SSL_CTX_use_certificate_file(ssl_ctx, SERVER_CERT, SSL_FILETYPE_PEM) <= 0)
+    if (SSL_CTX_use_certificate_chain_file(ssl_ctx, SERVER_CERT) <= 0)
     {
         ERR_print_errors_fp(stderr);
         exit(1);
