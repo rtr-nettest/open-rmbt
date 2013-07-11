@@ -39,6 +39,8 @@ import at.alladin.rmbt.client.ndt.NDTRunner;
 
 public class RMBTApplet extends Applet
 {
+    private static final long serialVersionUID = 1L;
+
     private RMBTClient client;
     
     private volatile boolean start = false;
@@ -194,7 +196,7 @@ public class RMBTApplet extends Applet
     
     synchronized public void startNdt(final String uuid, final String testUuid)
     {
-        System.out.println(String.format("starting ndt. client_uuid: %s; test_uuid", uuid, testUuid));
+        System.out.println(String.format("starting ndt. client_uuid: %s; test_uuid: %s", uuid, testUuid));
         
         this.uuid = uuid;
         

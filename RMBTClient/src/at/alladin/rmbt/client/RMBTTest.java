@@ -23,6 +23,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.InputMismatchException;
+import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
 import java.util.concurrent.BrokenBarrierException;
@@ -46,7 +47,7 @@ import at.alladin.rmbt.client.helper.TestStatus;
 public class RMBTTest implements Callable<ThreadTestResult>
 {
     private static final long nsecsL = 1000000000L;
-    private static final double nsecs = 1e9;
+//    private static final double nsecs = 1e9;
     
     private static final String EXPECT_GREETING = Config.RMBT_VERSION_STRING;
     private static final long UPLOAD_MAX_DISCARD_TIME = 2 * nsecsL;
@@ -75,88 +76,149 @@ public class RMBTTest implements Callable<ThreadTestResult>
     private long totalUp;
     
     private final long minDiffTime;
-    private final int storeResults;
+    private final int maxCoarseResults;
+    private final int maxFineResults;
     
     private class SingleResult
     {
+        private final Results fine;
+        private final Results coarse;
         
-        private final long[] bytes;
-        private final long[] nsec;
-        
-        private int results;
+        private int fineResults = 0;
+        private int coarseResults = 0;
         
         SingleResult()
         {
-            bytes = new long[storeResults];
-            nsec = new long[storeResults];
+            fine = new Results(maxFineResults);
+            coarse = new Results(maxCoarseResults);
         }
         
         public void addResult(final long newBytes, final long newNsec)
         {
             
-            boolean increment = results == 0;
-            if (!increment)
+            boolean addToCoarse = coarseResults == 0;
+            if (! addToCoarse)
             {
-                final long diffTime = newNsec - getNsec();
+                final long diffTime = newNsec - coarse.nsec[(coarseResults - 1) % coarse.nsec.length];
                 if (diffTime > minDiffTime)
-                    increment = true;
+                    addToCoarse = true;
             }
-            int pos = increment ? results++ : results - 1;
             
-            pos %= storeResults;
+            if (addToCoarse)
+            {
+                int coarsePos = coarseResults++ % coarse.bytes.length;
+                coarse.bytes[coarsePos] = newBytes;
+                coarse.nsec[coarsePos] = newNsec;
+            }
             
-            bytes[pos] = newBytes;
-            nsec[pos] = newNsec;
+            int finePos = fineResults++ % fine.bytes.length;
+            fine.bytes[finePos] = newBytes;
+            fine.nsec[finePos] = newNsec;
         }
         
-        @SuppressWarnings("unused")
-        void logResult(final String type)
-        {
-            log(String.format(Locale.US, "thread %d - Time Diff %d", threadId, nsec));
-            log(String.format(Locale.US, "thread %d: %.0f kBit/s %s (%.2f kbytes / %.3f secs)", threadId, getSpeed() / 1e3, type,
-                    getBytes() / 1e3, getNsec() / nsecs));
-        }
+//        @SuppressWarnings("unused")
+//        void logResult(final String type)
+//        {
+//            log(String.format(Locale.US, "thread %d - Time Diff %d", threadId, nsec));
+//            log(String.format(Locale.US, "thread %d: %.0f kBit/s %s (%.2f kbytes / %.3f secs)", threadId, getSpeed() / 1e3, type,
+//                    getBytes() / 1e3, getNsec() / nsecs));
+//        }
         
-        // bit/s
-        double getSpeed()
-        {
-            return (double) getBytes() / (double) getNsec() * nsecs * 8.0;
-        }
+//        // bit/s
+//        double getSpeed()
+//        {
+//            return (double) getBytes() / (double) getNsec() * nsecs * 8.0;
+//        }
         
         public long getBytes()
         {
-            if (results == 0)
+            if (fineResults == 0)
                 return 0;
             else
-                return bytes[(results - 1) % bytes.length];
+                return fine.bytes[(fineResults - 1) % fine.bytes.length];
         }
         
         public long getNsec()
         {
-            if (results == 0)
+            if (fineResults == 0)
                 return 0;
             else
-                return nsec[(results - 1) % nsec.length];
+                return fine.nsec[(fineResults - 1) % fine.nsec.length];
         }
         
-        public long[] getAllBytes()
+        public Results getAllResults()
         {
-            final int numResults = Math.min(results, storeResults);
-            final long[] result = new long[numResults];
-            final int offset = results - numResults;
-            for (int i = 0; i < numResults; i++)
-                result[i] = bytes[(offset + i) % storeResults];
+            final int numResultsCoarse = Math.min(coarseResults, maxCoarseResults);
+            final int numResultsFine = Math.min(fineResults, maxFineResults);
+            final int numResults = numResultsCoarse + numResultsFine;
+            
+            long[] resultBytes = new long[numResults];
+            long[] resultNsec = new long[numResults];
+            
+            int results = 0;
+            int posCoarse = coarseResults - numResultsCoarse;
+            int posFine = fineResults - numResultsFine;
+            
+            while (results < numResults && (posCoarse < coarseResults || posFine < fineResults))
+            {
+                final boolean coarseAvail = posCoarse < coarseResults;
+                final boolean fineAvail = posFine < fineResults;
+                final long thisCoarse = coarseAvail ? coarse.nsec[posCoarse % coarse.nsec.length] : -1;
+                final long thisFine = fineAvail ? fine.nsec[posFine % fine.nsec.length] : -1;
+                
+                if ((thisFine <= thisCoarse || thisCoarse == -1) && fineAvail)
+                {
+                    resultNsec[results] = thisFine;
+                    resultBytes[results++] = fine.bytes[posFine++ % fine.bytes.length];
+                    
+                    if (thisFine == thisCoarse && coarseAvail)
+                        posCoarse++;
+                }
+                else if ((thisCoarse < thisFine || thisFine == -1) && coarseAvail)
+                {
+                    resultNsec[results] = thisCoarse;
+                    resultBytes[results++] = coarse.bytes[posCoarse++ % coarse.bytes.length];
+                }
+                else // shoudn't happen; avoid endless loop
+                    break;
+            }
+            
+            if (results < numResults)
+            {
+//                resultBytes = Arrays.copyOf(resultBytes, results); // copyOf not avail in android sdk < 9
+//                resultNsec = Arrays.copyOf(resultNsec, results);
+                
+                long[] newResultBytes = new long[results];
+                long[] newResultNsec = new long[results];
+                System.arraycopy(resultBytes, 0, newResultBytes, 0, results);
+                System.arraycopy(resultNsec, 0, newResultNsec, 0, results);
+                resultBytes = newResultBytes;
+                resultNsec = newResultNsec;
+            }
+            final Results result = new Results(resultBytes, resultNsec);
             return result;
         }
         
-        public long[] getAllNsec()
+        public void addCoarseSpeedItems(List<SpeedItem> list, boolean upload, int thread)
         {
-            final int numResults = Math.min(results, storeResults);
-            final long[] result = new long[numResults];
-            final int offset = results - numResults;
-            for (int i = 0; i < numResults; i++)
-                result[i] = nsec[(offset + i) % storeResults];
-            return result;
+            long lastNsec = 0;
+            final int numResultsCoarse = Math.min(coarseResults, maxCoarseResults);
+            for (int i = 0; i < numResultsCoarse; i++)
+            {
+                final long nsec = coarse.nsec[i % coarse.nsec.length];
+                final long bytes = coarse.bytes[i % coarse.bytes.length];
+                final SpeedItem item = new SpeedItem(upload, thread, nsec, bytes);
+                list.add(item);
+                lastNsec = nsec;
+            }
+            
+            final long nsec = getNsec();
+            if (nsec > lastNsec)
+            {
+                final long bytes = getBytes();
+                final SpeedItem item = new SpeedItem(upload, thread, nsec, bytes);
+                list.add(item);
+            }
         }
     }
     
@@ -168,7 +230,8 @@ public class RMBTTest implements Callable<ThreadTestResult>
         this.params = params;
         this.threadId = threadId;
         this.barrier = barrier;
-        this.storeResults = storeResults;
+        this.maxCoarseResults = storeResults;
+        this.maxFineResults = storeResults;
         this.minDiffTime = minDiffTime;
         this.fallbackToOneThread = fallbackToOneThread;
     }
@@ -245,7 +308,6 @@ public class RMBTTest implements Callable<ThreadTestResult>
             return null;
         }
         
-        // Sobald Serverueberpruefung Token von Client
         final String send = String.format(Locale.US, "TOKEN %s\n", params.getToken());
         
         out.write(send.getBytes("US-ASCII"));
@@ -340,11 +402,14 @@ public class RMBTTest implements Callable<ThreadTestResult>
                 {
                     for (int i = 0; i < 5; i++)
                     {
-                        final long ping = ping();
-                        if (ping < shortestPing)
-                            shortestPing = ping;
-                        
-                        testResult.pings.add(ping);
+                        final Ping ping = ping();
+                        if (ping != null)
+                        {
+                            if (ping.client < shortestPing)
+                                shortestPing = ping.client;
+                            
+                            testResult.pings.add(ping);
+                        }
                     }
                     client.setPing(shortestPing);
                 }
@@ -377,8 +442,8 @@ public class RMBTTest implements Callable<ThreadTestResult>
                         throw new Exception("error during connect to test server");
                 }
                 
-                testResult.downBytes = result.getAllBytes();
-                testResult.downNsec = result.getAllNsec();
+                testResult.down = result.getAllResults();
+                result.addCoarseSpeedItems(testResult.speedItems, false, threadId);
                 
                 curTransfer.set(result.getBytes());
                 curTime.set(result.getNsec());
@@ -424,8 +489,8 @@ public class RMBTTest implements Callable<ThreadTestResult>
                 
                 upload(duration, result);
                 
-                testResult.upBytes = result.getAllBytes();
-                testResult.upNsec = result.getAllNsec();
+                testResult.up = result.getAllResults();
+                result.addCoarseSpeedItems(testResult.speedItems, true, threadId);
                 
                 if (in != null)
                     totalDown += in.getCount();
@@ -836,7 +901,7 @@ public class RMBTTest implements Callable<ThreadTestResult>
         return returnValue;
     }
     
-    private long ping() throws IOException
+    private Ping ping() throws IOException
     {
         log(String.format(Locale.US, "thread %d: ping test", threadId));
         
@@ -844,7 +909,7 @@ public class RMBTTest implements Callable<ThreadTestResult>
         if (!line.startsWith("ACCEPT "))
         {
             log(String.format(Locale.US, "thread %d: got '%s' expected 'ACCEPT'", threadId, line));
-            return -1;
+            return null;
         }
         
         final byte[] data = "PING\n".getBytes("US-ASCII");
@@ -856,7 +921,7 @@ public class RMBTTest implements Callable<ThreadTestResult>
         out.write("OK\n".getBytes("US-ASCII"));
         out.flush();
         if (!line.equals("PONG"))
-            return -1;
+            return null;
         
         line = reader.readLine();
         final Scanner s = new Scanner(line);
@@ -871,7 +936,7 @@ public class RMBTTest implements Callable<ThreadTestResult>
         
         log(String.format(Locale.US, "thread %d - client: %.3f ms ping", threadId, pingClient));
         log(String.format(Locale.US, "thread %d - server: %.3f ms ping", threadId, pingServer));
-        return diffClient;
+        return new Ping(diffClient, diffServer);
     }
     
     private void log(final CharSequence text)

@@ -20,7 +20,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -28,6 +27,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import at.alladin.rmbt.client.Ping;
 import at.alladin.rmbt.client.RMBTTestParameter;
 import at.alladin.rmbt.client.SpeedItem;
 import at.alladin.rmbt.client.TotalTestResult;
@@ -262,65 +262,26 @@ public class ControlServerConnection
                 
                 if (result.pings != null && !result.pings.isEmpty())
                 {
-                    
-                    final Iterator<Long> itr = result.pings.iterator();
-                    while (itr.hasNext())
+                    for (final Ping ping : result.pings)
                     {
-                        final Long curPing = itr.next();
-                        
                         final JSONObject pingItem = new JSONObject();
-                        pingItem.put("value", curPing);
-                        
+                        pingItem.put("value", ping.client);
+                        pingItem.put("value_server", ping.server);
                         pingData.put(pingItem);
                     }
                 }
                 
                 testData.put("pings", pingData);
                 
-                JSONArray speedData = new JSONArray();
+                JSONArray speedDetail = new JSONArray();
                 
-                if (result.speedList_down != null)
+                if (result.speedItems != null)
                 {
-                    
-                    final Iterator<SpeedItem> itr = result.speedList_down.iterator();
-                    while (itr.hasNext())
-                    {
-                        final SpeedItem curItem = itr.next();
-                        
-                        final JSONObject speedDataItem = new JSONObject();
-                        speedDataItem.put("tstamp", curItem.tstamp);
-                        speedDataItem.put("sumAllTrans", curItem.sumAllTrans);
-                        speedDataItem.put("sumDiffTrans", curItem.sumDiffTrans);
-                        speedDataItem.put("maxAllTime", curItem.maxAllTime);
-                        speedDataItem.put("maxDiffTime", curItem.maxDiffTime);
-                        
-                        speedData.put(speedDataItem);
-                    }
+                    for (SpeedItem item : result.speedItems)
+                        speedDetail.put(item.toJSON());
                 }
                 
-                testData.put("speed_down", speedData);
-                
-                speedData = new JSONArray();
-                
-                if (result.speedList_down != null)
-                {
-                    final Iterator<SpeedItem> itr2 = result.speedList_up.iterator();
-                    while (itr2.hasNext())
-                    {
-                        final SpeedItem curItem = itr2.next();
-                        
-                        final JSONObject speedDataItem = new JSONObject();
-                        speedDataItem.put("tstamp", curItem.tstamp);
-                        speedDataItem.put("sumAllTrans", curItem.sumAllTrans);
-                        speedDataItem.put("sumDiffTrans", curItem.sumDiffTrans);
-                        speedDataItem.put("maxAllTime", curItem.maxAllTime);
-                        speedDataItem.put("maxDiffTime", curItem.maxDiffTime);
-                        
-                        speedData.put(speedDataItem);
-                    }
-                }
-                
-                testData.put("speed_up", speedData);
+                testData.put("speed_detail", speedDetail);
                 
                 addToJSONObject(testData, additionalValues);
                 

@@ -24,8 +24,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -90,7 +88,6 @@ public class RMBTClient
     private final AtomicReference<TestStatus> testStatus = new AtomicReference<TestStatus>(TestStatus.WAIT);
     private final AtomicReference<TestStatus> statusBeforeError = new AtomicReference<TestStatus>(null);
     private final AtomicLong statusChangeTime = new AtomicLong();
-    private Timer measureTimer;
     
     public static RMBTClient getInstance(final String host, final String pathPrefix, final int port,
             final boolean encryption, final ArrayList<String> geoInfo, final String uuid, final String clientType,
@@ -353,14 +350,9 @@ public class RMBTClient
                 
                 long shortestPing = Long.MAX_VALUE;
                 
-                measureTimer = new Timer();
-                measureTimer.schedule(new MeasureSpeedTask(), 0, Config.RMBT_SPEED_TEST_INTERVAL);
-                
                 // wait for all threads first
                 for (int i = 0; i < numThreads; i++)
                     results[i].get();
-                
-                measureTimer.cancel();
                 
                 if (aborted.get())
                     return null;
@@ -381,11 +373,11 @@ public class RMBTClient
                         realNumThreads++;
                         
                         log(String.format(Locale.US, "Thread %d: Download: bytes: %d time: %.3f s", i,
-                                ThreadTestResult.getLastEntry(testResult.downBytes),
-                                ThreadTestResult.getLastEntry(testResult.downNsec) / 1e9));
+                                ThreadTestResult.getLastEntry(testResult.down.bytes),
+                                ThreadTestResult.getLastEntry(testResult.down.nsec) / 1e9));
                         log(String.format(Locale.US, "Thread %d: Upload:   bytes: %d time: %.3f s", i,
-                                ThreadTestResult.getLastEntry(testResult.upBytes),
-                                ThreadTestResult.getLastEntry(testResult.upNsec) / 1e9));
+                                ThreadTestResult.getLastEntry(testResult.up.bytes),
+                                ThreadTestResult.getLastEntry(testResult.up.nsec) / 1e9));
                         
                         final long ping = testResult.ping_shortest;
                         if (ping < shortestPing)
@@ -394,13 +386,16 @@ public class RMBTClient
                         if (!testResult.pings.isEmpty())
                             result.pings.addAll(testResult.pings);
                         
-                        allDownBytes[i] = testResult.downBytes;
-                        allDownNsecs[i] = testResult.downNsec;
-                        allUpBytes[i] = testResult.upBytes;
-                        allUpNsecs[i] = testResult.upNsec;
+                        allDownBytes[i] = testResult.down.bytes;
+                        allDownNsecs[i] = testResult.down.nsec;
+                        allUpBytes[i] = testResult.up.bytes;
+                        allUpNsecs[i] = testResult.up.nsec;
                         
                         result.totalDownBytes += testResult.totalDownBytes;
                         result.totalUpBytes += testResult.totalUpBytes;
+                        
+                        // aggregate speedItems
+                        result.speedItems.addAll(testResult.speedItems);
                     }
                 }
                 
@@ -488,8 +483,6 @@ public class RMBTClient
             testThreadPool.shutdownNow();
         if (commonThreadPool != null)
             commonThreadPool.shutdownNow();
-        if (measureTimer != null)
-            measureTimer.cancel();
         
         return true;
     }
@@ -501,8 +494,6 @@ public class RMBTClient
             testThreadPool.shutdown();
         if (commonThreadPool != null)
             commonThreadPool.shutdown();
-        if (measureTimer != null)
-            measureTimer.cancel();
     }
     
     public SSLSocketFactory getSslSocketFactory()
@@ -699,60 +690,6 @@ public class RMBTClient
             e.printStackTrace(System.out);
         if (outputCallback != null)
             outputCallback.log(String.format(Locale.US, "Error: %s", e.getMessage()));
-    }
-    
-    class MeasureSpeedTask extends TimerTask
-    {
-        
-        private final long[] lastTransfer = new long[params.getNumThreads()];
-        private final long[] lastTime = new long[params.getNumThreads()];
-        
-        @Override
-        public void run()
-        {
-            long sumAllTrans = 0;
-            long sumDiffTrans = 0;
-            long maxAllTime = 0;
-            long maxDiffTime = 0;
-            
-            final CurrentSpeed currentSpeed = new CurrentSpeed();
-            
-            for (int i = 0; i < params.getNumThreads(); i++)
-                if (testTasks[i] != null)
-                {
-                    testTasks[i].getCurrentSpeed(currentSpeed);
-                    
-                    if (lastTransfer[i] > currentSpeed.trans || lastTime[i] > currentSpeed.trans)
-                    {
-                        lastTransfer[i] = 0;
-                        lastTime[i] = 0;
-                    }
-                    
-                    final long diffTrans = currentSpeed.trans - lastTransfer[i];
-                    lastTransfer[i] = currentSpeed.trans;
-                    
-                    final long diffTime = currentSpeed.time - lastTime[i];
-                    lastTime[i] = currentSpeed.time;
-                    
-                    sumAllTrans += currentSpeed.trans;
-                    sumDiffTrans += diffTrans;
-                    if (currentSpeed.time > maxAllTime)
-                        maxAllTime = currentSpeed.time;
-                    if (diffTime > maxDiffTime)
-                        maxDiffTime = diffTime;
-                }
-            
-            final double speedAll = maxAllTime == 0 ? 0 : (double) sumAllTrans / (double) maxAllTime * 1e9 * 8.0;
-            final double speedDiff = maxDiffTime == 0 ? 0 : (double) sumDiffTrans / (double) maxDiffTime * 1e9 * 8.0;
-            
-            final long tstamp = System.currentTimeMillis();
-            
-            if (speedAll > 0)
-            {
-                result.addSpeedItem(sumAllTrans, sumDiffTrans, maxAllTime, maxDiffTime, tstamp, testStatus.get());
-                log(String.format(Locale.US, "Current Speed: %.0f kBit/s (%.0f kBit/s avg.)", speedDiff / 1e3, speedAll / 1e3));
-            }
-        }
     }
     
     void setPing(final long shortestPing)

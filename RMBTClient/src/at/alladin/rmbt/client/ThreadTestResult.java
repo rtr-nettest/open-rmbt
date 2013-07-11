@@ -17,11 +17,8 @@ package at.alladin.rmbt.client;
 
 public class ThreadTestResult extends TestResult
 {
-    public long[] downBytes;
-    public long[] downNsec;
-    
-    public long[] upBytes;
-    public long[] upNsec;
+    public Results down;
+    public Results up;
     
     public long totalDownBytes;
     public long totalUpBytes;

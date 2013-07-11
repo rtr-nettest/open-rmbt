@@ -19,8 +19,6 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 
-import at.alladin.rmbt.client.helper.TestStatus;
-
 public abstract class TestResult
 {
     public InetAddress ip_local;
@@ -32,24 +30,13 @@ public abstract class TestResult
     public long ping_shortest;
     public String client_version;
     
-    public final List<Long> pings = new ArrayList<Long>();
+    public final List<Ping> pings = new ArrayList<Ping>();
     
-    public final List<SpeedItem> speedList_up = new ArrayList<SpeedItem>();
-    public final List<SpeedItem> speedList_down = new ArrayList<SpeedItem>();
+    public final List<SpeedItem> speedItems = new ArrayList<SpeedItem>();
     
     public static long getSpeedBitPerSec(final long bytes, final long nsec)
     {
         return Math.round((double) bytes / (double) nsec * 1e9 * 8.0);
-    }
-    
-    public void addSpeedItem(final long sumAllTrans, final long sumDiffTrans, final long maxAllTime,
-            final long maxDiffTime, final long tstamp, final TestStatus status)
-    {
-        
-        if (status == TestStatus.UP)
-            speedList_up.add(new SpeedItem(sumAllTrans, sumDiffTrans, maxAllTime, maxDiffTime, tstamp));
-        else if (status == TestStatus.DOWN)
-            speedList_down.add(new SpeedItem(sumAllTrans, sumDiffTrans, maxAllTime, maxDiffTime, tstamp));
     }
     
 }

@@ -23,6 +23,9 @@ import java.util.Arrays;
 
 import javax.net.ssl.SSLContext;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -122,6 +125,17 @@ public class RMBTClientRunner
         
         final String uuid = "2608df31-8a51-4271-aab7-d489ca59f93b";
         
+        final JSONObject additionalValues = new JSONObject();
+        try
+        {
+            additionalValues.put("ndt", options.has("n"));
+            additionalValues.put("plattform", "CLI");
+        }
+        catch (JSONException e)
+        {
+            e.printStackTrace();
+        }
+        
         client = RMBTClient.getInstance(host, null, port, encryption, geoInfo, uuid,
                 "DESKTOP", Config.RMBT_CLIENT_NAME, Config.RMBT_VERSION_NUMBER, null, null);
         
@@ -130,7 +144,19 @@ public class RMBTClientRunner
             final TestResult result = client.runTest();
             
             if (result != null)
-                client.sendResult(null);
+            {
+                final JSONObject jsonResult = new JSONObject();
+                try
+                {
+                    jsonResult.put("network_type", "97");
+                    jsonResult.put("plattform", "CLI");
+                }
+                catch (JSONException e)
+                {
+                    e.printStackTrace();
+                }
+                client.sendResult(jsonResult);
+            }
             
             client.shutdown();
             

@@ -15,24 +15,31 @@
  ******************************************************************************/
 package at.alladin.rmbt.client;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class SpeedItem
 {
+    public final boolean upload;
+    public final int thread;
+    public final long time;
+    public final long bytes;
     
-    public final long sumAllTrans;
-    public final long sumDiffTrans;
-    public final long maxAllTime;
-    public final long maxDiffTime;
-    public final long tstamp;
-    
-    public SpeedItem(final long sumAllTrans, final long sumDiffTrans, final long maxAllTime, final long maxDiffTime,
-            final long tstamp)
+    public SpeedItem(final boolean upload, final int thread, final long time, final long bytes)
     {
-        
-        this.sumAllTrans = sumAllTrans;
-        this.sumDiffTrans = sumDiffTrans;
-        this.maxAllTime = maxAllTime;
-        this.maxDiffTime = maxDiffTime;
-        this.tstamp = tstamp;
-        
+        this.upload = upload;
+        this.thread = thread;
+        this.time = time;
+        this.bytes = bytes;
+    }
+    
+    public JSONObject toJSON() throws JSONException
+    {
+        final JSONObject result = new JSONObject();
+        result.put("direction", upload ? "upload" : "download");
+        result.put("thread", thread);
+        result.put("time", time);
+        result.put("bytes", bytes);
+        return result;
     }
 }
