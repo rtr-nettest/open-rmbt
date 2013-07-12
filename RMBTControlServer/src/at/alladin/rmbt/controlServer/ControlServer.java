@@ -80,7 +80,11 @@ public class ControlServer extends Application
         
         router.attach("/opentests", OpenTestResource.class);
         
-        router.attach("/opentests/{open_test_or_user_uuid}", OpenTestResource.class);
+        //router.attach("/opentests/search", OpenTestSearchResource.class, Template.MODE_STARTS_WITH);
+        
+        router.attach("/opentests/P{open_uuid}", OpenTestResource.class);
+        
+        router.attach("/opentests/O{open_test_uuid}", OpenTestResource.class);
         
         router.attach("/{lang}/{open_test_uuid}/{size}.png", ImageExport.class);
         
