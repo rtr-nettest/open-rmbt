@@ -11829,17 +11829,6 @@ ALTER TABLE public.test OWNER TO rmbt;
 
 COMMENT ON COLUMN test.server_id IS 'id of test server used';
 
-
---
--- Name: Meine_DJ; Type: VIEW; Schema: public; Owner: dj
---
-
-CREATE VIEW "Meine_DJ" AS
-    SELECT count(*) AS count FROM test;
-
-
-ALTER TABLE public."Meine_DJ" OWNER TO dj;
-
 --
 -- Name: android_device_map; Type: TABLE; Schema: public; Owner: rmbt; Tablespace: 
 --
