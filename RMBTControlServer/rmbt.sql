@@ -11731,6 +11731,116 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
+-- Name: test; Type: TABLE; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+CREATE TABLE test (
+    uid bigint NOT NULL,
+    uuid uuid,
+    client_id bigint,
+    client_version character varying(10),
+    client_name character varying,
+    client_language character varying(10),
+    client_local_ip character varying(100),
+    token character varying(500),
+    server_id integer,
+    port integer,
+    use_ssl boolean DEFAULT false NOT NULL,
+    "time" timestamp with time zone,
+    speed_upload integer,
+    speed_download integer,
+    ping_shortest bigint,
+    encryption character varying(50),
+    client_public_ip character varying(100),
+    plattform character varying(200),
+    os_version character varying(100),
+    api_level character varying(10),
+    device character varying(200),
+    model character varying(200),
+    product character varying(200),
+    phone_type integer,
+    data_state integer,
+    network_country character varying(10),
+    network_operator character varying(10),
+    network_operator_name character varying(200),
+    network_sim_country character varying(10),
+    network_sim_operator character varying(10),
+    network_sim_operator_name character varying(200),
+    wifi_ssid character varying(200),
+    wifi_bssid character varying(200),
+    wifi_network_id character varying(200),
+    duration integer,
+    num_threads integer,
+    status character varying(100),
+    timezone character varying(200),
+    bytes_download bigint,
+    bytes_upload bigint,
+    nsec_download bigint,
+    nsec_upload bigint,
+    server_ip character varying(100),
+    client_software_version character varying(100),
+    geo_lat double precision,
+    geo_long double precision,
+    network_type integer,
+    location geometry,
+    signal_strength integer,
+    software_revision character varying(200),
+    client_test_counter bigint,
+    nat_type character varying(200),
+    client_previous_test_status character varying(200),
+    public_ip_asn bigint,
+    speed_upload_log double precision,
+    speed_download_log double precision,
+    total_bytes_download bigint,
+    total_bytes_upload bigint,
+    wifi_link_speed integer,
+    public_ip_rdns character varying(200),
+    public_ip_as_name character varying(200),
+    test_slot integer,
+    provider_id integer,
+    network_is_roaming boolean,
+    ping_shortest_log double precision,
+    run_ndt boolean,
+    num_threads_requested integer,
+    client_public_ip_anonymized character varying(100),
+    zip_code integer,
+    geo_provider character varying(200),
+    geo_accuracy double precision,
+    deleted boolean DEFAULT false NOT NULL,
+    comment text,
+    open_uuid uuid,
+    client_time timestamp with time zone,
+    zip_code_geo integer,
+    mobile_provider_id integer,
+    roaming_type integer,
+    CONSTRAINT enforce_dims_location CHECK ((st_ndims(location) = 2)),
+    CONSTRAINT enforce_geotype_location CHECK (((geometrytype(location) = 'POINT'::text) OR (location IS NULL))),
+    CONSTRAINT enforce_srid_location CHECK ((st_srid(location) = 900913)),
+    CONSTRAINT test_speed_download_noneg CHECK ((speed_download >= 0)),
+    CONSTRAINT test_speed_upload_noneg CHECK ((speed_upload >= 0))
+);
+
+
+ALTER TABLE public.test OWNER TO rmbt;
+
+--
+-- Name: COLUMN test.server_id; Type: COMMENT; Schema: public; Owner: rmbt
+--
+
+COMMENT ON COLUMN test.server_id IS 'id of test server used';
+
+
+--
+-- Name: Meine_DJ; Type: VIEW; Schema: public; Owner: dj
+--
+
+CREATE VIEW "Meine_DJ" AS
+    SELECT count(*) AS count FROM test;
+
+
+ALTER TABLE public."Meine_DJ" OWNER TO dj;
+
+--
 -- Name: android_device_map; Type: TABLE; Schema: public; Owner: rmbt; Tablespace: 
 --
 
@@ -12108,7 +12218,8 @@ ALTER SEQUENCE news_uid_seq OWNED BY news.uid;
 CREATE TABLE ping (
     uid bigint NOT NULL,
     test_id bigint,
-    value bigint
+    value bigint,
+    value_server bigint
 );
 
 
@@ -12385,106 +12496,6 @@ ALTER SEQUENCE sync_group_uid_seq OWNED BY sync_group.uid;
 
 
 --
--- Name: test; Type: TABLE; Schema: public; Owner: rmbt; Tablespace: 
---
-
-CREATE TABLE test (
-    uid bigint NOT NULL,
-    uuid uuid,
-    client_id bigint,
-    client_version character varying(10),
-    client_name character varying,
-    client_language character varying(10),
-    client_local_ip character varying(100),
-    token character varying(500),
-    server_id integer,
-    port integer,
-    use_ssl boolean DEFAULT false NOT NULL,
-    "time" timestamp with time zone,
-    speed_upload integer,
-    speed_download integer,
-    ping_shortest bigint,
-    encryption character varying(50),
-    client_public_ip character varying(100),
-    plattform character varying(200),
-    os_version character varying(100),
-    api_level character varying(10),
-    device character varying(200),
-    model character varying(200),
-    product character varying(200),
-    phone_type integer,
-    data_state integer,
-    network_country character varying(10),
-    network_operator character varying(10),
-    network_operator_name character varying(200),
-    network_sim_country character varying(10),
-    network_sim_operator character varying(10),
-    network_sim_operator_name character varying(200),
-    wifi_ssid character varying(200),
-    wifi_bssid character varying(200),
-    wifi_network_id character varying(200),
-    duration integer,
-    num_threads integer,
-    status character varying(100),
-    timezone character varying(200),
-    bytes_download bigint,
-    bytes_upload bigint,
-    nsec_download bigint,
-    nsec_upload bigint,
-    server_ip character varying(100),
-    client_software_version character varying(100),
-    geo_lat double precision,
-    geo_long double precision,
-    network_type integer,
-    location geometry,
-    signal_strength integer,
-    software_revision character varying(200),
-    client_test_counter bigint,
-    nat_type character varying(200),
-    client_previous_test_status character varying(200),
-    public_ip_asn bigint,
-    speed_upload_log double precision,
-    speed_download_log double precision,
-    total_bytes_download bigint,
-    total_bytes_upload bigint,
-    wifi_link_speed integer,
-    public_ip_rdns character varying(200),
-    public_ip_as_name character varying(200),
-    test_slot integer,
-    provider_id integer,
-    network_is_roaming boolean,
-    ping_shortest_log double precision,
-    run_ndt boolean,
-    num_threads_requested integer,
-    client_public_ip_anonymized character varying(100),
-    zip_code integer,
-    geo_provider character varying(200),
-    geo_accuracy double precision,
-    deleted boolean DEFAULT false NOT NULL,
-    comment text,
-    open_uuid uuid,
-    client_time timestamp with time zone,
-    zip_code_geo integer,
-    mobile_provider_id integer,
-    roaming_type integer,
-    CONSTRAINT enforce_dims_location CHECK ((st_ndims(location) = 2)),
-    CONSTRAINT enforce_geotype_location CHECK (((geometrytype(location) = 'POINT'::text) OR (location IS NULL))),
-    CONSTRAINT enforce_srid_location CHECK ((st_srid(location) = 900913)),
-    CONSTRAINT test_speed_download_noneg CHECK ((speed_download >= 0)),
-    CONSTRAINT test_speed_upload_noneg CHECK ((speed_upload >= 0))
-);
-
-
-ALTER TABLE public.test OWNER TO rmbt;
-
---
--- Name: COLUMN test.server_id; Type: COMMENT; Schema: public; Owner: rmbt
---
-
-COMMENT ON COLUMN test.server_id IS 'id of test server used';
-
-
---
 -- Name: test_ndt; Type: TABLE; Schema: public; Owner: rmbt; Tablespace: 
 --
 
@@ -12567,6 +12578,50 @@ ALTER TABLE public.test_server_uid_seq OWNER TO rmbt;
 --
 
 ALTER SEQUENCE test_server_uid_seq OWNED BY test_server.uid;
+
+
+--
+-- Name: test_speed; Type: TABLE; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+CREATE TABLE test_speed (
+    uid bigint NOT NULL,
+    test_id bigint NOT NULL,
+    upload boolean NOT NULL,
+    thread smallint NOT NULL,
+    "time" bigint NOT NULL,
+    bytes bigint NOT NULL
+);
+
+
+ALTER TABLE public.test_speed OWNER TO rmbt;
+
+--
+-- Name: COLUMN test_speed.upload; Type: COMMENT; Schema: public; Owner: rmbt
+--
+
+COMMENT ON COLUMN test_speed.upload IS 'f=down,t=up';
+
+
+--
+-- Name: test_speed_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
+--
+
+CREATE SEQUENCE test_speed_uid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.test_speed_uid_seq OWNER TO rmbt;
+
+--
+-- Name: test_speed_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
+--
+
+ALTER SEQUENCE test_speed_uid_seq OWNED BY test_speed.uid;
 
 
 --
@@ -12721,6 +12776,13 @@ ALTER TABLE ONLY test_ndt ALTER COLUMN uid SET DEFAULT nextval('test_ndt_uid_seq
 --
 
 ALTER TABLE ONLY test_server ALTER COLUMN uid SET DEFAULT nextval('test_server_uid_seq'::regclass);
+
+
+--
+-- Name: uid; Type: DEFAULT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY test_speed ALTER COLUMN uid SET DEFAULT nextval('test_speed_uid_seq'::regclass);
 
 
 --
@@ -12913,6 +12975,14 @@ ALTER TABLE ONLY test
 
 ALTER TABLE ONLY test_server
     ADD CONSTRAINT test_server_pkey PRIMARY KEY (uid);
+
+
+--
+-- Name: test_speed_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+ALTER TABLE ONLY test_speed
+    ADD CONSTRAINT test_speed_pkey PRIMARY KEY (uid);
 
 
 --
@@ -13314,6 +13384,17 @@ GRANT ALL ON SCHEMA public TO PUBLIC;
 
 
 --
+-- Name: test; Type: ACL; Schema: public; Owner: rmbt
+--
+
+REVOKE ALL ON TABLE test FROM PUBLIC;
+REVOKE ALL ON TABLE test FROM rmbt;
+GRANT ALL ON TABLE test TO rmbt;
+GRANT SELECT ON TABLE test TO rmbt_group_read_only;
+GRANT INSERT,UPDATE ON TABLE test TO rmbt_group_control;
+
+
+--
 -- Name: android_device_map; Type: ACL; Schema: public; Owner: rmbt
 --
 
@@ -13591,17 +13672,6 @@ GRANT USAGE ON SEQUENCE sync_group_uid_seq TO rmbt_group_control;
 
 
 --
--- Name: test; Type: ACL; Schema: public; Owner: rmbt
---
-
-REVOKE ALL ON TABLE test FROM PUBLIC;
-REVOKE ALL ON TABLE test FROM rmbt;
-GRANT ALL ON TABLE test TO rmbt;
-GRANT SELECT ON TABLE test TO rmbt_group_read_only;
-GRANT INSERT,UPDATE ON TABLE test TO rmbt_group_control;
-
-
---
 -- Name: test_ndt; Type: ACL; Schema: public; Owner: rmbt
 --
 
@@ -13630,6 +13700,27 @@ REVOKE ALL ON TABLE test_server FROM PUBLIC;
 REVOKE ALL ON TABLE test_server FROM rmbt;
 GRANT ALL ON TABLE test_server TO rmbt;
 GRANT SELECT ON TABLE test_server TO rmbt_group_read_only;
+
+
+--
+-- Name: test_speed; Type: ACL; Schema: public; Owner: rmbt
+--
+
+REVOKE ALL ON TABLE test_speed FROM PUBLIC;
+REVOKE ALL ON TABLE test_speed FROM rmbt;
+GRANT ALL ON TABLE test_speed TO rmbt;
+GRANT INSERT,UPDATE ON TABLE test_speed TO rmbt_group_control;
+GRANT SELECT ON TABLE test_speed TO rmbt_group_read_only;
+
+
+--
+-- Name: test_speed_uid_seq; Type: ACL; Schema: public; Owner: rmbt
+--
+
+REVOKE ALL ON SEQUENCE test_speed_uid_seq FROM PUBLIC;
+REVOKE ALL ON SEQUENCE test_speed_uid_seq FROM rmbt;
+GRANT ALL ON SEQUENCE test_speed_uid_seq TO rmbt;
+GRANT USAGE ON SEQUENCE test_speed_uid_seq TO rmbt_group_control;
 
 
 --
