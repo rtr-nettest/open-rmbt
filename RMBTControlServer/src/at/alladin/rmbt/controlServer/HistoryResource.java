@@ -38,6 +38,7 @@ import org.restlet.resource.Get;
 import org.restlet.resource.Post;
 
 import at.alladin.rmbt.db.Client;
+import at.alladin.rmbt.shared.Classification;
 import at.alladin.rmbt.shared.SignificantFormat;
 
 public class HistoryResource extends ServerResource
@@ -193,6 +194,12 @@ public class HistoryResource extends ServerResource
                                 jsonItem.put("ping_shortest", format.format(pingShortest / 1000000d));
                                 jsonItem.put("model", rs.getString("model"));
                                 jsonItem.put("network_type", rs.getString("network_type_group_name"));
+                                
+                                //for appscape-iPhone-Version: also add classification to the response
+                                jsonItem.put("speed_upload_classification", Classification.classify(Classification.THRESHOLD_UPLOAD, rs.getInt("speed_upload")));
+                                jsonItem.put("speed_download_classification", Classification.classify(Classification.THRESHOLD_DOWNLOAD, rs.getInt("speed_download")));
+                                jsonItem.put("ping_shortest_classification", Classification.classify(Classification.THRESHOLD_PING, rs.getLong("ping_shortest")));
+                                
                                 historyList.put(jsonItem);
                             }
                             
