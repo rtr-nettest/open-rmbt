@@ -78,11 +78,9 @@ public class ControlServer extends Application
         
         router.attach("/usage", UsageResource.class);
         
-        router.attach("/opentests", OpenTestResource.class);
+        router.attach("/opentests", OpenTestSearchResource.class);
         
-        //router.attach("/opentests/search", OpenTestSearchResource.class, Template.MODE_STARTS_WITH);
-        
-        router.attach("/opentests/P{open_uuid}", OpenTestResource.class);
+        router.attach("/opentests/search", OpenTestSearchResource.class, Template.MODE_STARTS_WITH);
         
         router.attach("/opentests/O{open_test_uuid}", OpenTestResource.class);
         
