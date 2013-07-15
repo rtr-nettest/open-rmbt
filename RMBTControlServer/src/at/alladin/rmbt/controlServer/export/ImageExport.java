@@ -60,7 +60,7 @@ public class ImageExport extends ServerResource {
             return new StringRepresentation("invalid language");
         }
         
-        if (!size.equals("forumlarge") && !size.equals("forumsmall") && !size.equals("facebook")) {
+        if (!size.equals("forumlarge") && !size.equals("forumsmall") && !size.equals("thumbnail")) {
             setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
             return new StringRepresentation("invalid image type");
         }
@@ -107,8 +107,8 @@ public class ImageExport extends ServerResource {
                 return new StringRepresentation("invalid uuid");
             }
 
-            final double upload = ((double) rs.getInt("download_kbit")) / 1024;
-            final double download = ((double) rs.getInt("upload_kbit")) / 1024;
+            final double download = ((double) rs.getInt("download_kbit")) / 1024;
+            final double upload = ((double) rs.getInt("upload_kbit")) / 1024;
             final double ping = rs.getFloat("ping_ms");
             final String isp = rs.getString("network_name");
             final String typ = rs.getString("network_type");
@@ -120,7 +120,7 @@ public class ImageExport extends ServerResource {
                 public void write(OutputStream out) throws IOException {
 
                     ShareImageGenerator generator;
-                    if (size.equals("facebook")) {
+                    if (size.equals("thumbnail")) {
                         generator = new FacebookThumbnailGenerator();
                     }
                     else if (size.equals("forumsmall")){
@@ -309,7 +309,7 @@ public class ImageExport extends ServerResource {
             Graphics2D g = (Graphics2D)img.getGraphics(); 
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-            BufferedImage img2 = ImageIO.read(getClass().getResourceAsStream("netztest-fb.png"));
+            BufferedImage img2 = ImageIO.read(getClass().getResourceAsStream("netztest-thumbnail.png"));
             g.drawImage(img2, null, 0, 0);
 
             //Speeds
