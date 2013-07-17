@@ -180,7 +180,10 @@ public class ImageExport extends ServerResource {
                df = new DecimalFormat("000");
            } 
            else if (number > 10)  {
-               df = new DecimalFormat("00.0");
+               df = new DecimalFormat("00");
+           } 
+           else if (number > 1) {
+               df = new DecimalFormat("0.0");
            }
            else {
                df = new DecimalFormat("0.00");

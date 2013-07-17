@@ -277,7 +277,7 @@ public class TestResultResource extends ServerResource
                                 networkTypeString,
                                 providerString.isEmpty() ? "" : MessageFormat.format(labels.getString("RESULT_SHARE_TEXT_PROVIDER_ADD"), providerString),
                                 mobileNetworkString == null ? "" : MessageFormat.format(labels.getString("RESULT_SHARE_TEXT_MOBILE_ADD"), mobileNetworkString),
-                                platformString, modelString);
+                                platformString, modelString, labels.getString("RESULT_SHARE_OPENDATA_LINK") + openTestUUID);
                         
                         jsonItem.put("share_text", shareText);
                         
