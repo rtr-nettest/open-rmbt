@@ -262,8 +262,11 @@ public class Helperfunctions
             final InetAddress inetAddress = InetAddresses.forString(input);
             final byte[] address = inetAddress.getAddress();
             address[address.length - 1] = 0;
-            if (address.length > 4)
-                address[address.length - 2] = 0;
+            if (address.length > 4) // ipv6
+            {
+                for (int i = 6; i < address.length; i++)
+                    address[i] = 0;
+            }
             
             String result = InetAddresses.toAddrString(InetAddress.getByAddress(address));
             if (address.length == 4)

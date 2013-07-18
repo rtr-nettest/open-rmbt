@@ -35,11 +35,11 @@ public class ContextListener implements ServletContextListener
                     System.out.println("Cleaning IPs");
                     final Connection conn = DbConnection.getConnection();
                     
-                    PreparedStatement ps = conn.prepareStatement("UPDATE test SET client_public_ip = NULL, public_ip_rdns = NULL WHERE time < NOW() - CAST('5 months' AS INTERVAL) AND (client_public_ip IS NOT NULL OR public_ip_rdns IS NOT NULL)");
+                    PreparedStatement ps = conn.prepareStatement("UPDATE test SET client_public_ip = NULL, public_ip_rdns = NULL WHERE time < NOW() - CAST('4 months' AS INTERVAL) AND (client_public_ip IS NOT NULL OR public_ip_rdns IS NOT NULL)");
                     ps.executeUpdate();
                     ps.close();
                     
-                    ps = conn.prepareStatement("UPDATE test_ndt n SET main = NULL, stat = NULL, diag = NULL FROM test t WHERE t.uid = n.test_id AND t.time < NOW() - CAST('5 months' AS INTERVAL) AND (n.main IS NOT NULL OR n.stat IS NOT NULL OR n.diag IS NOT NULL)");
+                    ps = conn.prepareStatement("UPDATE test_ndt n SET main = NULL, stat = NULL, diag = NULL FROM test t WHERE t.uid = n.test_id AND t.time < NOW() - CAST('4 months' AS INTERVAL) AND (n.main IS NOT NULL OR n.stat IS NOT NULL OR n.diag IS NOT NULL)");
                     ps.executeUpdate();
                     ps.close();
                     

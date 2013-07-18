@@ -81,6 +81,11 @@ public class NDTRunner
             return ndtCancelled.get();
         }
         
+        public void cancel()
+        {
+            ndtCancelled.set(true);
+        }
+        
         @Override
         public void onFailure(final String errorMessage)
         {

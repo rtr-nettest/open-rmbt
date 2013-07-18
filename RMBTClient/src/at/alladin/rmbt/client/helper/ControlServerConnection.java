@@ -78,7 +78,7 @@ public class ControlServerConnection
         
     }
     
-    private URI getUri(final boolean encryption, final String host, final String pathPrefix, final int port,
+    private static URI getUri(final boolean encryption, final String host, final String pathPrefix, final int port,
             final String path)
     {
         try

@@ -139,7 +139,7 @@
 	<string name="result_extended_test_results">Erweiterter Test wird finalisiert</string>
 	<string name="result_extended_test_finished">Erweiterter Test abgeschlossen</string>
 	<string name="result_extended_test_aborted">Erweiterter Test abgebrochen</string>
-	<string name="result_extended_test_error">Verbindungsfehler während des erweiterten Tests.</string>
+	<string name="result_extended_test_error">Verbindungsfehler während des Tests.</string>
 	<string name="result_extended_test_button_stop">Stopp</string>
 	<string name="result_extended_test_button_detail">Details</string>
 	

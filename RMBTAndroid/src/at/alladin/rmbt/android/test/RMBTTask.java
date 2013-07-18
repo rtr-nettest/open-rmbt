@@ -333,7 +333,13 @@ public class RMBTTask
             {
                 if (super.wantToStop())
                     return true;
-                return cancelled.get();
+                
+                if (cancelled.get())
+                {
+                    cancel();
+                    return true;
+                }
+                return false;
             }
         });
     }

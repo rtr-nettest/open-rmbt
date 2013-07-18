@@ -38,7 +38,11 @@ public class UUIDField extends FieldAdapter<UUID>
     @Override
     public void setField(final ResultSet rs) throws SQLException
     {
-        value = UUID.fromString(rs.getString(dbKey));
+        final String string = rs.getString(dbKey);
+        if (string == null)
+            value = null;
+        else
+            value = UUID.fromString(string);
     }
     
     @Override
