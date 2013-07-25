@@ -105,19 +105,31 @@ public class HistoryResource extends ServerResource
                             limitRequest = " LIMIT " + limit + offsetString;
                         }
                         
+                        final ArrayList<String> deviceValues = new ArrayList<String>();
                         String deviceRequest = "";
                         if (request.optJSONArray("devices") != null)
                         {
+                            final JSONArray devices = request.getJSONArray("devices");
                             
-                            String checkUnknown = "";
-                            String tmpString = request.getJSONArray("devices").toString();
-                            tmpString = tmpString.substring(1, tmpString.length() - 1);
-                            tmpString = tmpString.replace('\"', '\'');
+                            boolean checkUnknown = false;
+                            final StringBuffer sb = new StringBuffer();
+                            for (int i = 0; i < devices.length(); i++)
+                            {
+                                final String device = devices.getString(i);
+                                
+                                if (device.equals("Unknown Device"))
+                                    checkUnknown = true;
+                                else
+                                {
+                                    if (sb.length() > 0)
+                                        sb.append(',');
+                                    deviceValues.add(device);
+                                    sb.append('?');
+                                }
+                            }
                             
-                            if (tmpString.indexOf("Unknown Device") > -1)
-                                checkUnknown = " OR model IS NULL OR model = ''";
-                            
-                            deviceRequest = " AND ( model IN (" + tmpString + ")" + checkUnknown + ")";
+                            if (sb.length() > 0)
+                                deviceRequest = " AND ( model IN (" + sb.toString() + ")" + (checkUnknown ? " OR model IS NULL OR model = ''" : "") + ")";
 //                            System.out.println(deviceRequest);
                             
                         }
@@ -169,6 +181,9 @@ public class HistoryResource extends ServerResource
                             int i = 1;
                             st.setLong(i++, client.getUid());
                             st.setInt(i++, client.getSync_group_id());
+                            
+                            for (final String value : deviceValues)
+                                st.setString(i++, value);
                             
                             for (final String filterValue : filterValues)
                                 st.setString(i++, filterValue);
