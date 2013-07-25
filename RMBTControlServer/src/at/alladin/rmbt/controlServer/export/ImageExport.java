@@ -233,7 +233,7 @@ public class ImageExport extends ServerResource {
                 g.drawString((isp == null)?unknownString:isp, 110, 191);
 
                 //right
-                g.drawString((signal==null)?unknownString:signal, 410, 168);
+                g.drawString((signal==null)?unknownString:signal + " dBm", 410, 168);
                 g.drawString((os==null)?unknownString:os, 410, 191);
             } 
             else { //en
@@ -242,7 +242,7 @@ public class ImageExport extends ServerResource {
                 g.drawString((isp == null)?unknownString:isp, 90, 191);
 
                 //right
-                g.drawString((signal==null)?unknownString:signal, 445, 168);
+                g.drawString((signal==null)?unknownString:signal + " dBm", 445, 168);
                 g.drawString((os==null)?unknownString:os, 445, 191);
             }
             
@@ -283,7 +283,7 @@ public class ImageExport extends ServerResource {
                 g.drawString((isp == null)?unknownString:isp, 73, 124);
 
                 //right
-                g.drawString((signal==null)?unknownString:signal, 270, 109);
+                g.drawString((signal==null)?unknownString:signal + " dBm", 270, 109);
                 g.drawString((os==null)?unknownString:os, 270, 124);
             } 
             else { //en
@@ -292,7 +292,7 @@ public class ImageExport extends ServerResource {
                 g.drawString((isp == null)?unknownString:isp, 60, 124);
 
                 //right
-                g.drawString((signal==null)?unknownString:signal, 290, 109);
+                g.drawString((signal==null)?unknownString:signal + " dBm", 290, 109);
                 g.drawString((os==null)?unknownString:os, 290, 124);
             }
             
