@@ -16,6 +16,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.math.RoundingMode;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -107,8 +108,8 @@ public class ImageExport extends ServerResource {
                 return new StringRepresentation("invalid uuid");
             }
 
-            final double download = ((double) rs.getInt("download_kbit")) / 1024;
-            final double upload = ((double) rs.getInt("upload_kbit")) / 1024;
+            final double download = ((double) rs.getInt("download_kbit")) / 1000;
+            final double upload = ((double) rs.getInt("upload_kbit")) / 1000;
             final double ping = rs.getFloat("ping_ms");
             final String isp = rs.getString("network_name");
             final String typ = rs.getString("network_type");
@@ -170,24 +171,25 @@ public class ImageExport extends ServerResource {
         public abstract BufferedImage generateImage(String lang, double upload, double download, double ping, String isp, String typ, String signal, String os) throws IOException;
         
         /**
-        * Formats a number to 4 digits
+        * Formats a number to 2 significant digits
         * @param number the number
         * @return the formatted number
         */
-       protected String formatNumber(double number) {
+        protected String formatNumber(double number) {
            DecimalFormat df = null;
            if (number > 100) {
                df = new DecimalFormat("000");
            } 
-           else if (number > 10)  {
+           else if (number >= 10)  {
                df = new DecimalFormat("00");
            } 
-           else if (number > 1) {
+           else if (number >= 1) {
                df = new DecimalFormat("0.0");
            }
            else {
                df = new DecimalFormat("0.00");
            }
+           df.setRoundingMode(RoundingMode.HALF_UP);
            return df.format(number);
        }
        
@@ -214,7 +216,7 @@ public class ImageExport extends ServerResource {
 
             //Speeds
             g.setColor(Color.black);
-            g.setFont(new Font("Tahoma", Font.BOLD, 60));
+            g.setFont(new Font("Arial", Font.BOLD, 60));
             g.drawString(formatNumber(download), 30, 105);
             g.drawString(formatNumber(upload), 230, 105);
             g.drawString(formatNumber(ping), 440, 105);
@@ -231,7 +233,7 @@ public class ImageExport extends ServerResource {
                 g.drawString((isp == null)?unknownString:isp, 110, 191);
 
                 //right
-                g.drawString((signal==null)?unknownString:signal, 410, 168);
+                g.drawString((signal==null)?unknownString:signal + " dBm", 410, 168);
                 g.drawString((os==null)?unknownString:os, 410, 191);
             } 
             else { //en
@@ -240,7 +242,7 @@ public class ImageExport extends ServerResource {
                 g.drawString((isp == null)?unknownString:isp, 90, 191);
 
                 //right
-                g.drawString((signal==null)?unknownString:signal, 445, 168);
+                g.drawString((signal==null)?unknownString:signal + " dBm", 445, 168);
                 g.drawString((os==null)?unknownString:os, 445, 191);
             }
             
@@ -264,10 +266,10 @@ public class ImageExport extends ServerResource {
             
             //Speeds
             g.setColor(Color.black);
-            g.setFont(new Font("Tahoma", Font.BOLD, 40));
-            g.drawString(formatNumber(download), 20, 67);
-            g.drawString(formatNumber(upload), 150, 67);
-            g.drawString(formatNumber(ping), 290, 67);
+            g.setFont(new Font("Droid Sans", Font.BOLD, 40));
+            drawCenteredString(formatNumber(download), 0, 20,130,65,g);
+            drawCenteredString(formatNumber(upload), 130, 20,130,65,g);
+            drawCenteredString(formatNumber(ping), 260, 20,130,65,g);
 
 
             //ISP and other information
@@ -281,7 +283,7 @@ public class ImageExport extends ServerResource {
                 g.drawString((isp == null)?unknownString:isp, 73, 124);
 
                 //right
-                g.drawString((signal==null)?unknownString:signal, 270, 109);
+                g.drawString((signal==null)?unknownString:signal + " dBm", 270, 109);
                 g.drawString((os==null)?unknownString:os, 270, 124);
             } 
             else { //en
@@ -290,7 +292,7 @@ public class ImageExport extends ServerResource {
                 g.drawString((isp == null)?unknownString:isp, 60, 124);
 
                 //right
-                g.drawString((signal==null)?unknownString:signal, 290, 109);
+                g.drawString((signal==null)?unknownString:signal + " dBm", 290, 109);
                 g.drawString((os==null)?unknownString:os, 290, 124);
             }
             

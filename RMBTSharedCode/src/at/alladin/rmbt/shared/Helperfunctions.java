@@ -198,6 +198,8 @@ public class Helperfunctions
             return "2G/4G";
         case 104:
             return "2G/3G/4G";
+        case 105:
+            return "MOBILE";
         default:
             return "UNKNOWN";
         }

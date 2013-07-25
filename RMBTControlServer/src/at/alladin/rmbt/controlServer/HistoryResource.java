@@ -95,7 +95,14 @@ public class HistoryResource extends ServerResource
                         if (request.optInt("result_limit", 0) != 0)
                         {
                             final int limit = request.getInt("result_limit");
-                            limitRequest = " LIMIT " + limit;
+                            
+                            //get offset string if there is one
+                            String offsetString = "";
+                            if ((request.optInt("result_offset",0) != 0) && (request.getInt("result_offset") >= 0)) {
+                                offsetString = " OFFSET " + request.getInt("result_offset");
+                            }
+                            
+                            limitRequest = " LIMIT " + limit + offsetString;
                         }
                         
                         String deviceRequest = "";
