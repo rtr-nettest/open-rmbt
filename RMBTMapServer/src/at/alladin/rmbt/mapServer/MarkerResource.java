@@ -182,7 +182,7 @@ public class MarkerResource extends ServerResource
                                     .format("SELECT"
                                             + (useLatLon ? " geo_lat lat, geo_long lon"
                                                     : " ST_X(t.location) x, ST_Y(t.location) y")
-                                            + ", t.time, t.timezone, t.speed_download, t.speed_upload, t.ping_shortest, t.network_type, t.signal_strength, t.wifi_ssid, t.network_operator_name, t.network_operator, t.network_sim_operator, t.roaming_type, pMob.shortname mobile_provider_name, prov.shortname provider_text"
+                                            + ", t.time, t.timezone, t.speed_download, t.speed_upload, t.ping_shortest, t.network_type, t.signal_strength, t.wifi_ssid, t.network_operator_name, t.network_operator, t.network_sim_operator, t.roaming_type, pMob.shortname mobile_provider_name, prov.shortname provider_text, t.open_test_uuid"
                                             + (highlightUUID == null ? "" : " , c.uid, c.uuid")
                                             + " FROM test t"
                                             + " LEFT JOIN provider prov"
@@ -235,9 +235,11 @@ public class MarkerResource extends ServerResource
                                     
                                     final double res_x = rs.getDouble(1);
                                     final double res_y = rs.getDouble(2);
+                                    final String openTestUUID = rs.getObject("open_test_uuid").toString();
                                     
                                     jsonItem.put("lat", res_x);
                                     jsonItem.put("lon", res_y);
+                                    jsonItem.put("open_test_uuid", "O" + openTestUUID);
                                     // marker.put("uid", uid);
                                     
                                     final Date date = rs.getTimestamp("time");

@@ -18,7 +18,6 @@ package at.alladin.rmbt.android.map;
 import java.util.Map;
 
 import at.alladin.openrmbt.android.R;
-import at.alladin.rmbt.client.helper.ConfigLocal;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -58,11 +57,6 @@ public interface MapProperties
     /**
 	 * 
 	 */
-    public static final String OVERLAY_HOST = ConfigLocal.RMBT_CONTROL_HOST;
-    
-    /**
-	 * 
-	 */
     public static final String HEATMAP_PATH = "/RMBTMapServer/tiles/heatmap";
     
     /**
@@ -84,18 +78,6 @@ public interface MapProperties
      * 
      */
     public static final String MAP_OPTIONS_PATH = "/RMBTMapServer/tiles/info";
-    
-    /**
-	 * 
-	 */
-    public static final int OVERLAY_PORT = 443;
-    // public static final int OVERLAY_PORT = 8080;
-    
-    /**
-	 * 
-	 */
-    public static final String OVERLAY_PROTOCOL = "https";
-    // public static final String OVERLAY_PROTOCOL = "http";
     
     /**
 	 * 
@@ -149,7 +131,7 @@ public interface MapProperties
     /**
      * 
      */
-    public static final float POINT_DIAMETER = 8;
+    public static final int POINT_DIAMETER = 12;
     
     /**
      * 

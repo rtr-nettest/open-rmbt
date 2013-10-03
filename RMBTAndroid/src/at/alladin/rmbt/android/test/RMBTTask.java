@@ -41,6 +41,8 @@ import at.alladin.rmbt.client.ndt.NDTRunner;
 public class RMBTTask
 {
     private static final String LOG_TAG = "RMBTTask";
+    private static final long MAX_NUM_LOOPTESTS = 100l;
+    private long testLoops = 0;
     
     private final AtomicBoolean started = new AtomicBoolean();
     private final AtomicBoolean running = new AtomicBoolean();
@@ -159,8 +161,10 @@ public class RMBTTask
         try
         {
             boolean firstRun = true;
+            testLoops = 0;
             do
             {
+                testLoops++;
                 boolean error = false;
                 connectionError.set(false);
                 try
@@ -182,7 +186,7 @@ public class RMBTTask
                     final ArrayList<String> geoInfo = fullInfo.getCurLocation();
                     
                     client = RMBTClient.getInstance(controlServer, null, controlPort, controlSSL, geoInfo, uuid,
-                            Config.RMBT_CLIENT_TYPE, fullInfo.getInfo("CLIENT_NAME"),
+                            Config.RMBT_CLIENT_TYPE, Config.RMBT_CLIENT_NAME,
                             fullInfo.getInfo("CLIENT_SOFTWARE_VERSION"), null, fullInfo.getInitialInfo());
                     
                     if (client != null)
@@ -238,7 +242,7 @@ public class RMBTTask
                     
                     if (!error && !cancelled.get() && ConfigHelper.isNDT(ctx))
                     {
-                        if (!ConfigHelper.isRepeatTest(ctx))
+                        if (!ConfigHelper.isRepeatTest(ctx) || !loopContinue())
                             synchronized (holdNdtLock)
                             {
                                 while (holdNdt)
@@ -249,7 +253,8 @@ public class RMBTTask
                     }
                 }
             }
-            while (!cancelled.get() && ConfigHelper.isRepeatTest(ctx) && !Thread.interrupted());
+            while (!cancelled.get() && ConfigHelper.isRepeatTest(ctx) &&
+                    loopContinue() && !Thread.interrupted());
         }
         catch (final InterruptedException e)
         {
@@ -425,4 +430,12 @@ public class RMBTTask
             return 0;
     }
     
+    public long testLoops()
+    {
+        return testLoops;
+    }
+    public boolean loopContinue()
+    {
+        return (testLoops <= MAX_NUM_LOOPTESTS);
+    }
 }

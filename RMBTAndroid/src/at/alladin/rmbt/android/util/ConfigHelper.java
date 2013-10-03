@@ -15,6 +15,12 @@
  ******************************************************************************/
 package at.alladin.rmbt.android.util;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -31,12 +37,16 @@ public final class ConfigHelper
     
     public static void setUUID(final Context context, final String uuid)
     {
-        getSharedPreferences(context).edit().putString("uuid", uuid).commit();
+        final SharedPreferences pref = getSharedPreferences(context);
+        final boolean devMode = isOverrideControlServer(pref);
+        pref.edit().putString(devMode ? "uuid_dev" : "uuid", uuid).commit();
     }
     
     public static String getUUID(final Context context)
     {
-        return getSharedPreferences(context).getString("uuid", "");
+        final SharedPreferences pref = getSharedPreferences(context);
+        final boolean devMode = isOverrideControlServer(pref);
+        return pref.getString(devMode ? "uuid_dev" : "uuid", "");
     }
     
     public static void setLastNewsUid(final Context context, final long newsUid)
@@ -56,6 +66,8 @@ public final class ConfigHelper
     
     public static boolean isRepeatTest(final Context context)
     {
+        if (! isDevEnabled(context))
+            return false;
         return getSharedPreferences(context).getBoolean("repeat_test", false);
     }
     
@@ -77,11 +89,6 @@ public final class ConfigHelper
     public static void setNDTDecisionMade(final Context context, final boolean value)
     {
         getSharedPreferences(context).edit().putBoolean("ndt_decision", value).commit();
-    }
-    
-    public static boolean isDevMode(final Context context)
-    {
-        return isDevMode(getSharedPreferences(context));
     }
     
     public static String getPreviousTestStatus(final Context context)
@@ -118,9 +125,14 @@ public final class ConfigHelper
         getSharedPreferences(context).edit().putBoolean("terms_and_conditions_accepted", accepted).commit();
     }
     
-    private static boolean isDevMode(final SharedPreferences pref)
+    private static boolean isOverrideControlServer(final SharedPreferences pref)
     {
-        return pref.getBoolean("dev_mode", false);
+        return pref.getBoolean("dev_control_override", false);
+    }
+    
+    private static boolean isOverrideMapServer(final SharedPreferences pref)
+    {
+        return pref.getBoolean("dev_map_override", false);
     }
     
     private static String getDefaultControlServerName(final SharedPreferences pref)
@@ -135,7 +147,7 @@ public final class ConfigHelper
     public static String getControlServerName(final Context context)
     {
         final SharedPreferences pref = getSharedPreferences(context);
-        final boolean devMode = isDevMode(pref);
+        final boolean devMode = isOverrideControlServer(pref);
         if (devMode)
         {
             final boolean noControlServer = pref.getBoolean("dev_no_control_server", false);
@@ -150,7 +162,7 @@ public final class ConfigHelper
     public static int getControlServerPort(final Context context)
     {
         final SharedPreferences pref = getSharedPreferences(context);
-        final boolean devMode = isDevMode(pref);
+        final boolean devMode = isOverrideControlServer(pref);
         if (devMode)
         {
             final boolean noControlServer = pref.getBoolean("dev_no_control_server", false);
@@ -173,7 +185,7 @@ public final class ConfigHelper
     public static boolean isControlSeverSSL(final Context context)
     {
         final SharedPreferences pref = getSharedPreferences(context);
-        final boolean devMode = isDevMode(pref);
+        final boolean devMode = isOverrideControlServer(pref);
         if (devMode)
         {
             final boolean noControlServer = pref.getBoolean("dev_no_control_server", false);
@@ -187,73 +199,83 @@ public final class ConfigHelper
             return Config.RMBT_CONTROL_SSL;
     }
     
-    public static String getTestServerNameOverride(final Context context)
+    public static String getMapServerName(final Context context)
     {
         final SharedPreferences pref = getSharedPreferences(context);
-        final boolean devMode = isDevMode(pref);
-        if (!devMode)
-            return null;
+        final boolean devMode = isOverrideMapServer(pref);
+        if (devMode)
+            return pref.getString("dev_map_hostname", "");
         else
-            return pref.getString("dev_test_hostname", null);
+        {
+            final String host = mapHost.get();
+            if (host != null)
+                return host;
+            else
+                return getControlServerName(context);
+        }
     }
     
-    public static int getTestServerPortOverride(final Context context)
+    public static int getMapServerPort(final Context context)
     {
         final SharedPreferences pref = getSharedPreferences(context);
-        final boolean devMode = isDevMode(pref);
-        if (!devMode)
-            return -1;
-        else
+        final boolean devMode = isOverrideMapServer(pref);
+
+        if (devMode)
+        {
             try
             {
-                return Integer.parseInt(pref.getString("dev_test_port", ""));
+                return Integer.parseInt(pref.getString("dev_map_port", ""));
             }
             catch (final NumberFormatException e)
             {
                 return -1;
             }
-    }
-    
-    public static Boolean getTestServerSSLOverride(final Context context)
-    {
-        final SharedPreferences pref = getSharedPreferences(context);
-        final boolean devMode = isDevMode(pref);
-        if (!devMode)
-            return null;
+        }
         else
         {
-            if (pref.contains("dev_test_port") && pref.contains("dev_test_ssl"))
-                return pref.getBoolean("dev_test_ssl", false);
-            return null;
+            if (mapHost.get() != null)
+                return mapPort.get();
+            else
+                return getControlServerPort(context);
         }
     }
     
-    public static Integer getNumThreadsOverride(final Context context)
+    public static boolean isMapSeverSSL(final Context context)
     {
         final SharedPreferences pref = getSharedPreferences(context);
-        final boolean devMode = isDevMode(pref);
-        if (!devMode)
-            return null;
+        final boolean devMode = isOverrideMapServer(pref);
+        if (devMode)
+            return pref.getBoolean("dev_map_ssl", false);
         else
         {
-            if (pref.contains("dev_num_threads"))
-                return pref.getInt("dev_num_threads", -1);
-            return null;
+            if (mapHost.get() != null)
+                return mapSSL.get();
+            else
+                return isControlSeverSSL(context);
         }
     }
     
-    public static Integer getTestDurationOverride(final Context context)
+    private static AtomicReference<String> mapHost = new AtomicReference<String>();
+    private static AtomicInteger mapPort = new AtomicInteger();
+    private static AtomicBoolean mapSSL = new AtomicBoolean();
+    
+    public static void setMapServer(final String host, final int port, final boolean ssl)
     {
-        final SharedPreferences pref = getSharedPreferences(context);
-        final boolean devMode = isDevMode(pref);
-        if (!devMode)
-            return null;
-        else
-        {
-            if (pref.contains("dev_test_duration"))
-                return pref.getInt("dev_test_duration", -1);
-            return null;
-        }
+        mapHost.set(host);
+        mapPort.set(port);
+        mapSSL.set(ssl);
+    }
+    
+    private static ConcurrentMap<String, String> volatileSettings = new ConcurrentHashMap<String, String>();
+    
+    public static ConcurrentMap<String, String> getVolatileSettings()
+    {
+        return volatileSettings;
+    }
+    
+    public static String getVolatileSetting(String key)
+    {
+        return volatileSettings.get(key);
     }
     
     public static boolean isDevEnabled(final Context ctx)

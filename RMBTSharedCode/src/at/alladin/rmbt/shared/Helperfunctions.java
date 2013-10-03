@@ -41,15 +41,8 @@ import org.xbill.DNS.Type;
 
 import com.google.common.net.InetAddresses;
 
-public class Helperfunctions
+public abstract class Helperfunctions
 {
-    
-    // Suppress default constructor for noninstantiability
-    private Helperfunctions()
-    {
-        throw new AssertionError();
-    }
-    
     public static String calculateHMAC(final String secret, final String data)
     {
         try
@@ -228,11 +221,10 @@ public class Helperfunctions
         return adr.isLinkLocalAddress() || adr.isLoopbackAddress() || adr.isSiteLocalAddress();
     }
     
-    public static String filterIpString(final String input)
+    public static String filterIp(InetAddress inetAddress)
     {
         try
         {
-            final InetAddress inetAddress = InetAddresses.forString(input);
             final String ipVersion;
             if (inetAddress instanceof Inet4Address)
                 ipVersion = "ipv4";
@@ -257,11 +249,10 @@ public class Helperfunctions
         }
     }
     
-    public static String anonymizeIpString(final String input)
+    public static String anonymizeIp(final InetAddress inetAddress)
     {
         try
         {
-            final InetAddress inetAddress = InetAddresses.forString(input);
             final byte[] address = inetAddress.getAddress();
             address[address.length - 1] = 0;
             if (address.length > 4) // ipv6
@@ -282,13 +273,10 @@ public class Helperfunctions
         }
     }
     
-    public static String getNatType(final String localIP, final String publicIP)
+    public static String getNatType(final InetAddress localAdr, final InetAddress publicAdr)
     {
         try
         {
-            final InetAddress localAdr = InetAddresses.forString(localIP);
-            final InetAddress publicAdr = InetAddresses.forString(publicIP);
-            
             final String ipVersion;
             if (publicAdr instanceof Inet4Address)
                 ipVersion = "ipv4";
@@ -312,12 +300,10 @@ public class Helperfunctions
         }
     }
     
-    public static String reverseDNSLookup(final String ip)
+    public static String reverseDNSLookup(final InetAddress adr)
     {
         try
         {
-            final InetAddress adr = InetAddresses.forString(ip);
-            
             final Name name = ReverseMap.fromAddress(adr);
             
             final Lookup lookup = new Lookup(name, Type.PTR);
@@ -374,12 +360,10 @@ public class Helperfunctions
         }
     }
     
-    public static Long getASN(final String ip)
+    public static Long getASN(final InetAddress adr)
     {
         try
         {
-            final InetAddress adr = InetAddresses.forString(ip);
-            
             final Name postfix;
             if (adr instanceof Inet6Address)
                 postfix = Name.fromConstantString("origin6.asn.cymru.com");

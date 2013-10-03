@@ -61,10 +61,12 @@ public class ExportResource extends ServerResource
         //Before doing anything => check if a cached file already exists and is new enough
         String property = System.getProperty("java.io.tmpdir");
         final File cachedFile = new File(property + File.separator + ((zip)?FILENAME_ZIP:FILENAME_CSV));
+        final File generatingFile = new File(property + File.separator + ((zip)?FILENAME_ZIP:FILENAME_CSV) + "_tmp");
         if (cachedFile.exists()) {
             
-            //check if file has been recently created
-            if ((cachedFile.lastModified() + cacheThresholdMs) > (new Date()).getTime()) {
+            //check if file has been recently created OR a file is currently being created
+            if (((cachedFile.lastModified() + cacheThresholdMs) > (new Date()).getTime()) ||
+            		(generatingFile.exists() && (generatingFile.lastModified() + cacheThresholdMs) > (new Date()).getTime())) {
 
                 //if so, return the cached file instead of a cost-intensive new one
                 final OutputRepresentation result = new OutputRepresentation(zip ? MediaType.APPLICATION_ZIP

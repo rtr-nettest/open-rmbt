@@ -105,7 +105,7 @@ public class RMBTClient
             return null;
         }
         
-        final RMBTTestParameter params = controlConnection.getTestParameter();
+        final RMBTTestParameter params = controlConnection.getTestParameter(overrideParams);
         
         return new RMBTClient(params, controlConnection);
     }

@@ -30,12 +30,6 @@
                 android:summary="@string/preferences_repeat_test_sum"
                 android:layout="@layout/preferences_item"/>
             
-            <CheckBoxPreference
-                android:key="dev_mode"
-                android:title="@string/preferences_dev_mode"
-                android:summary="@string/preferences_dev_mode_sum"
-                android:layout="@layout/preferences_item"/>
-            
             <!-- 
             <CheckBoxPreference
                 android:key="dev_no_control_server"
@@ -44,29 +38,6 @@
                 android:layout="@layout/preferences_item"
                 />
             -->
-            
-            <EditTextPreference
-                android:key="dev_control_hostname"
-                android:title="@string/preferences_dev_control_host"
-                android:summary="@string/preferences_dev_control_host_sum"
-                android:layout="@layout/preferences_item"
-                />
-            
-            <EditTextPreference
-                android:key="dev_control_port"
-                android:title="@string/preferences_dev_control_port"
-                android:summary="@string/preferences_dev_control_port_sum"
-                android:inputType="number"
-                android:layout="@layout/preferences_item"
-                />
-            
-            <CheckBoxPreference
-                android:key="dev_control_ssl"
-                android:title="@string/preferences_dev_control_ssl"
-                android:summary="@string/preferences_dev_control_ssl_sum"
-                android:defaultValue="false"
-                android:layout="@layout/preferences_item"
-                />
             
             <!--
             <EditTextPreference
@@ -106,5 +77,69 @@
                 android:layout="@layout/preferences_item"/>
             -->
             
+        </PreferenceCategory>
+        
+        <PreferenceCategory android:title="@string/preferences_category_developer_control_server" android:layout="@layout/preferences_category">
+            
+            <CheckBoxPreference
+                android:key="dev_control_override"
+                android:title="@string/preferences_dev_control_override"
+                android:summary="@string/preferences_dev_control_override_sum"
+                android:layout="@layout/preferences_item"/>
+            
+            <EditTextPreference
+                android:key="dev_control_hostname"
+                android:title="@string/preferences_dev_control_host"
+                android:summary="@string/preferences_dev_control_host_sum"
+                android:layout="@layout/preferences_item"
+                />
+            
+            <EditTextPreference
+                android:key="dev_control_port"
+                android:title="@string/preferences_dev_control_port"
+                android:summary="@string/preferences_dev_control_port_sum"
+                android:inputType="number"
+                android:layout="@layout/preferences_item"
+                />
+            
+            <CheckBoxPreference
+                android:key="dev_control_ssl"
+                android:title="@string/preferences_dev_control_ssl"
+                android:summary="@string/preferences_dev_control_ssl_sum"
+                android:defaultValue="false"
+                android:layout="@layout/preferences_item"
+                />
+        </PreferenceCategory>
+        
+        <PreferenceCategory android:title="@string/preferences_category_developer_map_server" android:layout="@layout/preferences_category">
+            
+            <CheckBoxPreference
+                android:key="dev_map_override"
+                android:title="@string/preferences_dev_map_override"
+                android:summary="@string/preferences_dev_map_override_sum"
+                android:layout="@layout/preferences_item"/>
+            
+            <EditTextPreference
+                android:key="dev_map_hostname"
+                android:title="@string/preferences_dev_map_host"
+                android:summary="@string/preferences_dev_map_host_sum"
+                android:layout="@layout/preferences_item"
+                />
+            
+            <EditTextPreference
+                android:key="dev_map_port"
+                android:title="@string/preferences_dev_map_port"
+                android:summary="@string/preferences_dev_map_port_sum"
+                android:inputType="number"
+                android:layout="@layout/preferences_item"
+                />
+            
+            <CheckBoxPreference
+                android:key="dev_map_ssl"
+                android:title="@string/preferences_dev_map_ssl"
+                android:summary="@string/preferences_dev_map_ssl_sum"
+                android:defaultValue="false"
+                android:layout="@layout/preferences_item"
+                />
         </PreferenceCategory>
     </PreferenceScreen>

@@ -25,6 +25,7 @@ public interface Config
      */
     
     public static final String RMBT_CLIENT_TYPE = "MOBILE";
+    public static final String RMBT_CLIENT_NAME = "RMBT";
     public static final String RMBT_SETTINGS_FILENAME = "RMBTClient";
     public static final String RMBT_DEV_UNLOCK_PACKAGE_NAME = "at.alladin.rmbt.android.devunlock";
     // public static final String RMBT_AGB_FILENAME = "RMBTAgbs";

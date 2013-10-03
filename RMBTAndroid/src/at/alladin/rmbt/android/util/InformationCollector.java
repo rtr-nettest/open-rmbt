@@ -50,7 +50,6 @@ import android.telephony.SignalStrength;
 import android.telephony.TelephonyManager;
 import android.telephony.gsm.GsmCellLocation;
 import android.util.Log;
-import at.alladin.openrmbt.android.R;
 import at.alladin.rmbt.client.helper.RevisionHelper;
 
 public class InformationCollector
@@ -300,12 +299,10 @@ public class InformationCollector
         
         PackageInfo pInfo;
         String clientVersion = "";
-        String clientName = "";
         try
         {
             pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
             clientVersion = pInfo.versionName;
-            clientName = context.getResources().getString(R.string.app_name);
         }
         catch (final NameNotFoundException e)
         {
@@ -313,7 +310,7 @@ public class InformationCollector
             Log.e(DEBUG_TAG, "version of the application cannot be found", e);
         }
         
-        fullInfo.setProperty("CLIENT_NAME", clientName);
+        fullInfo.setProperty("CLIENT_NAME", Config.RMBT_CLIENT_NAME);
         fullInfo.setProperty("CLIENT_SOFTWARE_VERSION", clientVersion);
     }
     

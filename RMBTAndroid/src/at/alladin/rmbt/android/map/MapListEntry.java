@@ -55,6 +55,8 @@ public class MapListEntry implements Serializable
 	 */
     private boolean checked;
     
+    private boolean _default;
+    
     private String overlayType;
     
     /**
@@ -72,7 +74,7 @@ public class MapListEntry implements Serializable
      */
     public MapListEntry(final String title, final String summary)
     {
-        this(title, summary, false, null, null);
+        this(title, summary, false, null, null, false);
     }
     
     /**
@@ -84,7 +86,7 @@ public class MapListEntry implements Serializable
      */
     public MapListEntry(final String title, final String summary, final String key, final String value)
     {
-        this(title, summary, false, key, value);
+        this(title, summary, false, key, value, false);
     }
     
     /**
@@ -95,13 +97,14 @@ public class MapListEntry implements Serializable
      * @param value
      */
     public MapListEntry(final String title, final String summary, final boolean checked, final String key,
-            final String value)
+            final String value, final boolean _default)
     {
         setTitle(title);
         setSummary(summary);
         setKey(key);
         setValue(value);
         setChecked(checked);
+        setDefault(_default);
     }
     
     /**
@@ -213,6 +216,16 @@ public class MapListEntry implements Serializable
     public void setChecked(final boolean checked)
     {
         this.checked = checked;
+    }
+    
+    public void setDefault(boolean _default)
+    {
+        this._default = _default;
+    }
+    
+    public boolean isDefault()
+    {
+        return _default;
     }
     
     /**

@@ -222,7 +222,7 @@ final public class MapServerOptions
         }
     });
     
-    protected static final SQLFilter accuracyMapFilter = new SQLFilter("t.geo_accuracy < 3000");
+    protected static final SQLFilter accuracyMapFilter = new SQLFilter("t.geo_accuracy < 1000");
     
     protected static final Map<String, MapFilter> mapFilterMap = Collections.unmodifiableMap(new LinkedHashMap<String, MapFilter>()
     {

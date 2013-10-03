@@ -622,11 +622,25 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties
      * @param mapType 
      * 
      */
-    public void showMap(String mapType, LatLng initialCenter)
+    public void showMap(String mapType, LatLng initialCenter, boolean clearFilter)
     {
         FragmentTransaction ft;
         
         setCurrentMapType(mapType);
+        
+        if (clearFilter)
+        {
+            final List<MapListSection> mapFilterListSelectionList = getMapFilterListSelectionList();
+            if (mapFilterListSelectionList != null)
+            {
+                for (final MapListSection section : mapFilterListSelectionList)
+                {
+                    for (final MapListEntry entry : section.getMapListEntryList())
+                        entry.setChecked(entry.isDefault());
+                }
+                updateMapFilter();
+            }
+        }
         
         final Fragment fragment = new RMBTMapFragment();
         
@@ -736,12 +750,14 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties
         historyFilterNetworks = history_filter_networks;
         
         historyFilterDevicesFilter = new ArrayList<String>();
-        for (final String history_filter_device : history_filter_devices)
-            historyFilterDevicesFilter.add(history_filter_device);
+        if (history_filter_devices != null)
+            for (final String history_filter_device : history_filter_devices)
+                historyFilterDevicesFilter.add(history_filter_device);
         
         historyFilterNetworksFilter = new ArrayList<String>();
-        for (final String history_filter_network : history_filter_networks)
-            historyFilterNetworksFilter.add(history_filter_network);
+        if (history_filter_networks != null)
+            for (final String history_filter_network : history_filter_networks)
+                historyFilterNetworksFilter.add(history_filter_network);
     }
     
     /**
@@ -842,10 +858,16 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties
         this.currentMapType = currentMapType;
         
      // set the filter options in activity
+        final String uuid = ConfigHelper.getUUID(getApplicationContext());
+        currentMapOptions.clear();
+        currentMapOptionTitles.clear();
+        currentMapOptions.put("highlight", uuid);
         currentMapOptions.put(currentMapType.getKey(), currentMapType.getValue());
         currentMapOptions.put("overlay_type", currentMapType.getOverlayType());
         currentMapOptionTitles.put(currentMapType.getKey(),
                 currentMapType.getSection().getTitle() + ": " + currentMapType.getTitle());
+        
+        updateMapFilter();
     }
     
     public void setCurrentMapType(String mapType)
@@ -857,7 +879,10 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties
             for (MapListEntry entry : section.getMapListEntryList())
             {
                 if (entry.getValue().equals(mapType))
+                {
                     setCurrentMapType(entry);
+                    return;
+                }
             }
         }
     }
@@ -927,15 +952,15 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties
     
     public void updateMapFilter()
     {
-        
-        for (final MapListSection section : getMapFilterListSelectionList())
+        final List<MapListSection> mapFilterListSelectionList = getMapFilterListSelectionList();
+        if (mapFilterListSelectionList == null)
+            return;
+        for (final MapListSection section : mapFilterListSelectionList)
         {
-            
             final MapListEntry entry = section.getCheckedMapListEntry();
             
             if (entry != null && entry.getKey() != null && entry.getValue() != null)
             {
-                
                 getCurrentMapOptions().put(entry.getKey(), entry.getValue());
                 getCurrentMapOptionTitles().put(entry.getKey(),
                         entry.getSection().getTitle() + ": " + entry.getTitle());

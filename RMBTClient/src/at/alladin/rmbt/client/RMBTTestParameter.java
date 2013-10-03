@@ -42,6 +42,19 @@ public class RMBTTestParameter
         this.startTime = startTime;
     }
     
+    public RMBTTestParameter(final String host, final int port, final boolean encryption,
+            final int duration, final int numThreads)
+    {
+        super();
+        this.host = host;
+        this.port = port;
+        this.encryption = encryption;
+        this.duration = duration;
+        this.numThreads = numThreads;
+        this.token = null;
+        this.startTime = 0;
+    }
+    
     public String getHost()
     {
         return host;

@@ -55,9 +55,9 @@
         android:layout_marginRight="30dp"
         android:layout_marginTop="5dp"
         android:hint="@string/test_bottom_text_empty"
-        android:lines="4"
-        android:maxLines="4"
-        android:minLines="4"
+        android:lines="5"
+        android:maxLines="5"
+        android:minLines="5"
         android:text="@string/test_bottom_text_empty" />
 
     <!-- 

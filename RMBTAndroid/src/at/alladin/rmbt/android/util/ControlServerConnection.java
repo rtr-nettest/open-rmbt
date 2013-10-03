@@ -71,11 +71,7 @@ public class ControlServerConnection
             final int defaultPort = encryption ? 443 : 80;
             final String totalPath;
             if (useMapServerPath)
-            {
                 totalPath = path;
-                protocol = MapProperties.OVERLAY_PROTOCOL;
-                port = MapProperties.OVERLAY_PORT;
-            }
             else
                 totalPath = Config.RMBT_CONTROL_PATH + path;
             
@@ -121,14 +117,16 @@ public class ControlServerConnection
         
         this.useMapServerPath = useMapServerPath;
         
-        encryption = ConfigHelper.isControlSeverSSL(context);
+        
         if (useMapServerPath)
         {
-            hostname = MapProperties.OVERLAY_HOST;
-            port = MapProperties.OVERLAY_PORT;
+            encryption = ConfigHelper.isMapSeverSSL(context);
+            hostname = ConfigHelper.getMapServerName(context);
+            port = ConfigHelper.getMapServerPort(context);
         }
         else
         {
+            encryption = ConfigHelper.isControlSeverSSL(context);
             hostname = ConfigHelper.getControlServerName(context);
             port = ConfigHelper.getControlServerPort(context);
         }
@@ -144,6 +142,7 @@ public class ControlServerConnection
     private JSONArray sendRequest(final URI hostUrl, final JSONObject requestData, final String fieldName)
     {
         // getting JSON string from URL
+        Log.d(DEBUG_TAG, "request to "+ hostUrl);
         final JSONObject response = jParser.sendJSONToUrl(hostUrl, requestData);
         
         if (response != null)
@@ -428,6 +427,7 @@ public class ControlServerConnection
             errorMsg = "Error gernerating request";
         }
         
+        Log.d(DEBUG_TAG, "request to " + hostUrl);
         final JSONObject response = jParser.sendJSONToUrl(hostUrl, requestData);
         return response;
     }

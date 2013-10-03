@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.location.Location;
 import android.os.Build;
@@ -91,33 +92,112 @@ public final class Helperfunctions
             return 0;
     }
     
-    public static String getLocationString(final Location location)
+    public static String getLocationString(final Context context, final Resources res, final Location location, final int line)
     {
-        return getLocationString(location.getLatitude(), location.getLongitude());
+        
+        if (line == 1)
+            return String.format("%s %s %s", convertLocation(res, location.getLatitude(), true),
+                    convertLocation(res, location.getLongitude(), false),
+                    convertLocationAltitude(res, location.hasAltitude(), location.getAltitude()));
+        else // 2nd line
+        if (!ConfigHelper.isDevEnabled(context))
+            return String.format("%s (%s)", convertLocationProvider(res, location.getProvider()),
+                    convertLocationAccuracy(res, location.hasAccuracy(), location.getAccuracy()));
+        else
+            // additional debug information
+            return String.format("%s (%s) %s %s",
+                    convertLocationProvider(res, location.getProvider()),
+                    convertLocationAccuracy(res, location.hasAccuracy(), location.getAccuracy()),
+                      convertLocationSpeed(res, location.hasSpeed(), location.getSpeed()),
+                    convertLocationTime(location.getTime()));
+ 
     }
     
-    public static String getLocationString(final double latitude, final double longitude)
-    {
-        return String.format("%s   %s", convertLocation(latitude, true), convertLocation(longitude, false));
-    }
-    
-    public static String convertLocation(final double coordinate, final boolean latitude)
+    public static String convertLocation(final Resources res, final double coordinate, final boolean latitude)
     {
         final String rawStr = Location.convert(coordinate, Location.FORMAT_MINUTES);
+        //[+-]DDD:MM.MMMMM - FORMAT_MINUTES
         final String[] split = rawStr.split(":");
         final String direction;
+        float min = 0f;
+       
+        
+        try
+        {
+            split[1] = split[1].replace(",",".");
+            min = Float.parseFloat(split[1]);
+        }
+        catch (NumberFormatException e)
+        {
+        }
+        
         if (latitude)
         {
             if (coordinate >= 0)
-                direction = "N";
+                direction = res.getString(R.string.test_location_dir_n);
             else
-                direction = "S";
+                direction = res.getString(R.string.test_location_dir_s);
         }
         else if (coordinate >= 0)
-            direction = getLang().equals("de") ? "O" : "E";
+            direction = res.getString(R.string.test_location_dir_e);
         else
-            direction = "W";
-        return String.format("%s %s°%s'", direction, split[0], split[1]);
+            direction = res.getString(R.string.test_location_dir_w);
+        return String.format("%s %s°%.3f'", direction, split[0].replace("-", ""), min);
+    }
+    
+    public static String convertLocationSpeed(final Resources res, final boolean hasspeed, final float speed)
+    {   
+        final String unit;
+        if ((!hasspeed) || (speed <= 1.0)) // ignore speed < 3.6km
+            return "";
+        else 
+            return String.format ("%.0f %s", speed*3.6,res.getString(R.string.test_location_km_h));
+    }
+    
+    public static String convertLocationAccuracy(final Resources res, final boolean hasaccuracy, final float accuracy)
+    {   
+        final String unit;
+        if ((!hasaccuracy)  || (accuracy < 0)) // ignore negative or null
+            return "";
+        else
+            return String.format ("+/-%.0f %s", accuracy,res.getString(R.string.test_location_m));
+    }
+    
+    public static String convertLocationAltitude (final Resources res, final boolean hasaltitude, final double altitude)
+    {   
+        final String unit;
+        if ((!hasaltitude)  || (altitude < 0)) // ignore negative or null
+            return "";
+        else
+            return String.format ("%.0f %s", altitude,res.getString(R.string.test_location_m));
+    }
+    
+    public static String convertLocationProvider(final Resources res, final String provider)
+    {   
+        final String localized_provider;
+        
+        if (provider == null)
+            return "";
+        else {
+            if (provider.equals("gps"))
+                localized_provider = res.getString(R.string.test_location_gps);
+            else if (provider.equals("network"))
+                localized_provider = res.getString(R.string.test_location_network);
+            else  //fallback for unexpected string
+                localized_provider = provider;
+            return String.format ("%s", localized_provider);
+        }
+    }
+    
+    public static String convertLocationTime(final long time)
+    {   
+        final long age;
+        
+        age = System.currentTimeMillis()-time; // in ms
+        if (age < 1000) // < 1s
+            return "";
+        else
+            return String.format ("%d s", age/1000);
     }
     
     public static String getNetworkTypeName(final int type)

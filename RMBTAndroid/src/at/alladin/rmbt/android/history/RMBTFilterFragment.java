@@ -165,7 +165,7 @@ public class RMBTFilterFragment extends Fragment
                 itemCheck.setClickable(false);
                 itemCheck.setId(i + historyDevices.length);
                 
-                if (devicesToShow.contains(historyDevices[i]))
+                if (devicesToShow.isEmpty() || devicesToShow.contains(historyDevices[i]))
                     itemCheck.setChecked(true);
                 else
                     itemCheck.setChecked(false);
@@ -258,7 +258,7 @@ public class RMBTFilterFragment extends Fragment
                 itemCheck.setClickable(false);
                 itemCheck.setId(i + historyNetworks.length);
                 
-                if (networksToShow.contains(historyNetworks[i]))
+                if (networksToShow.isEmpty() || networksToShow.contains(historyNetworks[i]))
                     itemCheck.setChecked(true);
                 else
                     itemCheck.setChecked(false);

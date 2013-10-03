@@ -22,7 +22,7 @@
 
     <ImageView
         android:id="@+id/headerImageBg"
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="top|center"
         android:layout_weight="1"
@@ -137,29 +137,29 @@
             android:orientation="horizontal" >
 
             <RelativeLayout
-                android:id="@+id/menuButtonSettings"
+                android:id="@+id/menuButtonStatistics"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" >
 
                 <Button
-                    android:id="@+id/menuButtonSettingsButton"
+                    android:id="@+id/menuButtonStatisticsButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentTop="true"
                     android:layout_centerHorizontal="true"
-                    android:background="@drawable/menu_button_settings" />
+                    android:background="@drawable/menu_button_statistics" />
 
                 <TextView
-                    android:id="@+id/menuButtonSettingsText"
+                    android:id="@+id/menuButtonStatisticsText"
                     style="@style/textMenuButtonSmall"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignBottom="@+id/menuButtonSettingsButton"
+                    android:layout_alignBottom="@+id/menuButtonStatisticsButton"
                     android:layout_centerHorizontal="true"
                     android:clickable="false"
                     android:paddingBottom="12dp"
                     android:paddingRight="8dp"
-                    android:text="@string/menu_button_settings" />
+                    android:text="@string/menu_button_statistics" />
             </RelativeLayout>
 
             <RelativeLayout
@@ -230,23 +230,29 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignBottom="@id/menuButtonAbout"
-            android:layout_alignParentRight="true"
             android:background="@android:color/transparent"
-            android:contentDescription=""
+            android:contentDescription="@string/menu_button_about"
             android:paddingBottom="15dp"
-            android:paddingRight="15dp"
+            android:layout_centerHorizontal="true"
             android:src="@drawable/button_logo" />
-
-        <TextView
-            android:id="@+id/textView1"
+        
+        <RelativeLayout
+            android:id="@+id/menuButtonSettings"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignTop="@+id/buttonLogo"
-            android:layout_centerHorizontal="true"
-            android:text="@string/main_sub_text"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textColor="#006398"
-            android:textStyle="bold" />
+            android:layout_alignParentRight="true"
+            android:paddingBottom="10dp" >
+
+            <Button
+                android:id="@+id/menuButtonSettingsButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:background="@drawable/menu_button_settings" />
+
+        </RelativeLayout>
+
     </RelativeLayout>
 
 </LinearLayout>

@@ -40,6 +40,7 @@ import at.alladin.rmbt.db.GeoLocation;
 import at.alladin.rmbt.db.Signal;
 import at.alladin.rmbt.db.Test;
 import at.alladin.rmbt.db.fields.IntField;
+import at.alladin.rmbt.db.fields.LongField;
 import at.alladin.rmbt.shared.Helperfunctions;
 
 import com.google.common.net.InetAddresses;
@@ -58,11 +59,7 @@ public class ResultResource extends ServerResource
         final ErrorList errorList = new ErrorList();
         final JSONObject answer = new JSONObject();
         
-        final String ip = getIP();
-        final InetAddress inetAddress = InetAddresses.forString(ip);
-        final String clientIp = InetAddresses.toAddrString(inetAddress);
-        
-        System.out.println(MessageFormat.format(labels.getString("NEW_RESULT"), ip));
+        System.out.println(MessageFormat.format(labels.getString("NEW_RESULT"), getIP()));
         
         if (entity != null && !entity.isEmpty())
             // try parse the string to a JSON object
@@ -126,20 +123,15 @@ public class ResultResource extends ServerResource
                                         
                                         // RMBTClient Info
                                         
-                                        final String ipLocal = request.optString("test_ip_local", null);
-                                        if (ipLocal != null)
+                                        final String ipLocalRaw = request.optString("test_ip_local", null);
+                                        if (ipLocalRaw != null)
                                         {
+                                            final InetAddress ipLocalAddress = InetAddresses.forString(ipLocalRaw);
                                             test.getField("client_local_ip").setString(
-                                                    Helperfunctions.filterIpString(ipLocal));
-                                        }
-                                        test.getField("client_public_ip").setString(clientIp);
-                                        test.getField("client_public_ip_anonymized").setString(
-                                                Helperfunctions.anonymizeIpString(clientIp));
-                                        
-                                        if (ipLocal != null)
-                                        {
+                                                    Helperfunctions.filterIp(ipLocalAddress));
+                                            final InetAddress ipPublicAddress = InetAddresses.forString(test.getField("client_public_ip").toString());
                                             test.getField("nat_type")
-                                                    .setString(Helperfunctions.getNatType(ipLocal, clientIp));
+                                                    .setString(Helperfunctions.getNatType(ipLocalAddress, ipPublicAddress));
                                         }
                                         
                                         final String ipServer = request.optString("test_ip_server", null);
@@ -295,7 +287,6 @@ public class ResultResource extends ServerResource
                                         int signalStrength = Integer.MAX_VALUE;
                                         int linkSpeed = Integer.MAX_VALUE;
                                         final int networkType = test.getField("network_type").intValue();
-                                        int maxNetworkType = networkType;
                                         
                                         final JSONArray signalData = request.optJSONArray("signals");
                                         
@@ -319,8 +310,6 @@ public class ResultResource extends ServerResource
                                                 
                                                 final int thisNetworkType = signalDataItem.optInt("network_type_id", 0);
                                                 signal.setNetwork_type_id(thisNetworkType);
-                                                if (thisNetworkType > maxNetworkType)
-                                                    maxNetworkType = thisNetworkType;
                                                 
                                                 final int thisSignalStrength = signalDataItem.optInt("signal_strength",
                                                         Integer.MAX_VALUE);
@@ -365,7 +354,27 @@ public class ResultResource extends ServerResource
                                         }
                                         
                                         // use max network type
-                                        ((IntField)test.getField("network_type")).setValue(maxNetworkType);
+                                        
+                                        final String sqlMaxNetworkType = "SELECT nt.uid"
+                                                + " FROM signal s"
+                                                + " JOIN network_type nt"
+                                                + " ON s.network_type_id=nt.uid"
+                                                + " WHERE test_id=?"
+                                                + " ORDER BY nt.technology_order DESC"
+                                                + " LIMIT 1";
+
+                                        final PreparedStatement psMaxNetworkType = conn.prepareStatement(sqlMaxNetworkType);
+                                        psMaxNetworkType.setLong(1, test.getUid());
+                                        if (psMaxNetworkType.execute())
+                                        {
+                                            final ResultSet rs = psMaxNetworkType.getResultSet();
+                                            if (rs.next())
+                                            {
+                                                final int maxNetworkType = rs.getInt("uid");
+                                                if (maxNetworkType != 0)
+                                                    ((IntField) test.getField("network_type")).setValue(maxNetworkType);
+                                            }
+                                        }
                                         
                                         /*
                                          * check for different types (e.g.
@@ -377,11 +386,11 @@ public class ResultResource extends ServerResource
                                                 + " JOIN network_type nt ON s.network_type_id=nt.uid WHERE test_id=?)"
                                                 + " SELECT uid FROM agg JOIN network_type nt ON nt.aggregate=agg";
                                         
-                                        final PreparedStatement ps = conn.prepareStatement(sqlAggSignal);
-                                        ps.setLong(1, test.getUid());
-                                        if (ps.execute())
+                                        final PreparedStatement psAgg = conn.prepareStatement(sqlAggSignal);
+                                        psAgg.setLong(1, test.getUid());
+                                        if (psAgg.execute())
                                         {
-                                            final ResultSet rs = ps.getResultSet();
+                                            final ResultSet rs = psAgg.getResultSet();
                                             if (rs.next())
                                             {
                                                 final int newNetworkType = rs.getInt("uid");
@@ -392,6 +401,19 @@ public class ResultResource extends ServerResource
                                         
                                         if (test.getField("network_type").intValue() <= 0)
                                             errorList.addError("ERROR_NETWORK_TYPE");
+                                        
+                                        final IntField downloadField = (IntField) test.getField("speed_download");
+                                        if (downloadField.isNull() || downloadField.intValue() <= 0 || downloadField.intValue() > 10000000) // 10 gbit/s limit
+                                            errorList.addError("ERROR_DOWNLOAD_INSANE");
+                                        
+                                        final IntField upField = (IntField) test.getField("speed_upload");
+                                        if (upField.isNull() || upField.intValue() <= 0 || upField.intValue() > 10000000) // 10 gbit/s limit
+                                            errorList.addError("ERROR_UPLOAD_INSANE");
+                                        
+                                        final LongField pingField = (LongField) test.getField("ping_shortest");
+                                        if (pingField.isNull() || pingField.longValue() <= 0 || pingField.longValue() > 60000000000L) // 1 min limit
+                                            errorList.addError("ERROR_PING_INSANE");
+                                        
                                         
                                         if (errorList.isEmpty())
                                             test.getField("status").setString("FINISHED");

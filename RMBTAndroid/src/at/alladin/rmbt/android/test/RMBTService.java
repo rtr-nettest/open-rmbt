@@ -239,6 +239,22 @@ public class RMBTService extends Service implements EndTaskListener
         else
             return false;
     }
+
+    public long testLoops()
+    {
+        if (testTask != null)
+            return testTask.testLoops();
+        else
+            return -1;
+    }
+
+    public boolean loopContinue()
+    {
+        if (testTask != null)
+            return testTask.loopContinue();
+        else
+            return false;
+    }
     
     public Integer getSignal()
     {

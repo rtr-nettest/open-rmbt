@@ -20,6 +20,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
+import org.apache.jcs.access.exception.CacheException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -36,44 +37,23 @@ public class StatisticsResource extends ServerResource
     {
         addAllowOrigin();
         
-        String lang = settings.getString("RMBT_DEFAULT_LANGUAGE");
+        final StatisticParameters params = new StatisticParameters(settings.getString("RMBT_DEFAULT_LANGUAGE"), entity);
         
-        float quantile = 0.8f;
-        int months = 2;
-        int maxDevices = 50;
-        String type = "mobile";
-        String networkTypeGroup = null;
+        final StatisticsCache cache = StatisticsCache.getInstance();
+        String result = cache.get(params);
+        if (result != null)
+        {
+            System.out.println("cache hit");
+            return result; // cache hit
+        }
+        System.out.println("not in cache");
         
-        if (entity != null && !entity.isEmpty())
-            // try parse the string to a JSON object
-            try
-            {
-                final JSONObject request = new JSONObject(entity);
-                lang = request.optString("language");
-                
-                final double _quantile = request.optDouble("quantile", Double.NaN);
-                if (_quantile >= 0 && _quantile <= 1)
-                    quantile = (float) _quantile;
-                
-                final int _months = request.optInt("months", 0);
-                if (_months > 0)
-                    months = _months;
-                
-                final int _maxDevices = request.optInt("max_devices", 0);
-                if (_maxDevices > 0)
-                    maxDevices = _maxDevices;
-                
-                final String _type = request.optString("type", null);
-                if (_type != null)
-                    type = _type;
-                
-                final String _networkTypeGroup = request.optString("network_type_group", null);
-                if (_networkTypeGroup != null && ! _networkTypeGroup.equalsIgnoreCase("all"))
-                    networkTypeGroup = _networkTypeGroup;
-            }
-            catch (final JSONException e)
-            {
-            }
+        final String lang = params.getLang();
+        final float quantile = params.getQuantile();
+        final int months = params.getMonths();
+        final int maxDevices = params.getMaxDevices();
+        final String type = params.getType();
+        final String networkTypeGroup = params.getNetworkTypeGroup();
         
         boolean useMobileProvider = false;
         
@@ -158,13 +138,20 @@ public class StatisticsResource extends ServerResource
             if (devicesSumsArray.length() == 1)
                 answer.put("devices_sums", devicesSumsArray.get(0));
             
-            return answer.toString(4);
+            
+            result = answer.toString();
+            cache.put(params, result); // put in cache
+            return result;
         }
         catch (final JSONException e)
         {
             e.printStackTrace();
         }
         catch (final SQLException e)
+        {
+            e.printStackTrace();
+        }
+        catch (CacheException e)
         {
             e.printStackTrace();
         }
@@ -191,28 +178,28 @@ public class StatisticsResource extends ServerResource
         PreparedStatement ps;
         final String sql = String
                 .format("SELECT" +
-                        (group ? " p.name," : "") +
+                        (group ? " p.name, p.shortname, " : "") +
                         " count(t.uid) count," +
                         " quantile(speed_download, ?) quantile_down," +
                         " quantile(speed_upload, ?) quantile_up," +
                         " quantile(signal_strength, ?) quantile_signal," +
                         " quantile(ping_shortest, ?) quantile_ping," +
                         
-                        " sum((speed_download >= ?)::int)::double precision / count(t.uid) down_green," +
-                        " sum((speed_download < ? and speed_download >= ?)::int)::double precision / count(t.uid) down_yellow," +
-                        " sum((speed_download < ?)::int)::double precision / count(t.uid) down_red," +
+                        " sum((speed_download >= ?)::int)::double precision / count(speed_download) down_green," +
+                        " sum((speed_download < ? and speed_download >= ?)::int)::double precision / count(speed_download) down_yellow," +
+                        " sum((speed_download < ?)::int)::double precision / count(speed_download) down_red," +
                                                 
-                        " sum((speed_upload >= ?)::int)::double precision / count(t.uid) up_green," +
-                        " sum((speed_upload < ? and speed_upload >= ?)::int)::double precision / count(t.uid) up_yellow," +
-                        " sum((speed_upload < ?)::int)::double precision / count(t.uid) up_red," +
+                        " sum((speed_upload >= ?)::int)::double precision / count(speed_upload) up_green," +
+                        " sum((speed_upload < ? and speed_upload >= ?)::int)::double precision / count(speed_upload) up_yellow," +
+                        " sum((speed_upload < ?)::int)::double precision / count(speed_upload) up_red," +
                         
-                        " sum((signal_strength >= ?)::int)::double precision / count(t.uid) signal_green," +
-                        " sum((signal_strength < ? and signal_strength >= ?)::int)::double precision / count(t.uid) signal_yellow," +
-                        " sum((signal_strength < ?)::int)::double precision / count(t.uid) signal_red," + 
+                        " sum((signal_strength >= ?)::int)::double precision / count(signal_strength) signal_green," +
+                        " sum((signal_strength < ? and signal_strength >= ?)::int)::double precision / count(signal_strength) signal_yellow," +
+                        " sum((signal_strength < ?)::int)::double precision / count(signal_strength) signal_red," + 
                         
-                        " sum((ping_shortest <= ?)::int)::double precision / count(t.uid) ping_green," +
-                        " sum((ping_shortest > ? and ping_shortest <= ?)::int)::double precision / count(t.uid) ping_yellow," +
-                        " sum((ping_shortest > ?)::int)::double precision / count(t.uid) ping_red" +
+                        " sum((ping_shortest <= ?)::int)::double precision / count(ping_shortest) ping_green," +
+                        " sum((ping_shortest > ? and ping_shortest <= ?)::int)::double precision / count(ping_shortest) ping_yellow," +
+                        " sum((ping_shortest > ?)::int)::double precision / count(ping_shortest) ping_red" +
                         
                         " FROM test t" +
                         " JOIN provider p ON" + 
@@ -317,6 +304,12 @@ public class StatisticsResource extends ServerResource
                         data = "Andere Betreiber";
                     else
                         data = "Other operators";
+                if (colName.equals("shortname") && data == null) {
+                    if (lang != null && lang.equals("de"))
+                            data = "Andere";
+                        else
+                            data = "Others";
+                }
                 obj.put(colName, data);
             }
             providers.put(obj);

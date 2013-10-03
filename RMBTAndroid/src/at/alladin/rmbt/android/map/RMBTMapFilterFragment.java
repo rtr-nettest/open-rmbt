@@ -249,12 +249,9 @@ public class RMBTMapFilterFragment extends Fragment implements OnItemClickListen
         @Override
         public View getView(final int position, View convertView, final ViewGroup parent)
         {
-            
             if (convertView == null)
             {
-                
                 final LayoutInflater inflater = ((Activity) context).getLayoutInflater();
-                
                 convertView = inflater.inflate(R.layout.map_filter_item, parent, false);
             }
             

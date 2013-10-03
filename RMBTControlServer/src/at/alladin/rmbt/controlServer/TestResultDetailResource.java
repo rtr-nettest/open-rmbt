@@ -143,8 +143,6 @@ public class TestResultDetailResource extends ServerResource
                         
                         final JSONArray resultList = new JSONArray();
                         
-                        addString(resultList, "uuid", String.format("T%s", test.getField("uuid")));
-                        
                         final JSONObject singleItem = addObject(resultList, "time");
                         final Date date = ((TimestampField) test.getField("time")).getDate();
                         final long time = date.getTime();
@@ -192,28 +190,19 @@ public class TestResultDetailResource extends ServerResource
                         if (!(latField.isNull() || longField.isNull() || accuracyField.isNull()))
                         {
                             final double accuracy = accuracyField.doubleValue();
-                            if (accuracy < Double.parseDouble(settings.getString("RMBT_MIN_GEO_ACCURACY")))
+                            if (accuracy < Double.parseDouble(settings.getString("RMBT_GEO_ACCURACY_DETAIL_LIMIT")))
                             {
                                 final StringBuilder geoString = new StringBuilder(Helperfunctions.geoToString(latField.doubleValue(),
                                         longField.doubleValue()));
                                 
+                                geoString.append(" (");
                                 if (! providerField.isNull())
                                 {
-                                    geoString.append(" (");
-                                    boolean hadProvider = false;
-                                    if (! providerField.isNull())
-                                    {
-                                        hadProvider = true;
-                                        geoString.append(providerField.toString().toUpperCase(Locale.US));
-                                    }
-                                    if (! accuracyField.isNull())
-                                    {
-                                        if (hadProvider)
-                                            geoString.append(", ");
-                                        geoString.append(String.format(Locale.US, "+/- %.0f m", accuracy));
-                                    }
-                                    geoString.append(")");
+                                    geoString.append(providerField.toString().toUpperCase(Locale.US));
+                                    geoString.append(", ");
                                 }
+                                geoString.append(String.format(Locale.US, "+/- %.0f m", accuracy));
+                                geoString.append(")");
                                 addString(resultList, "location", geoString.toString());
                             }
                         }
@@ -252,8 +241,13 @@ public class TestResultDetailResource extends ServerResource
                         if (mobileProviderNameField.isNull())
                             addString(resultList, "network_operator", networkOperatorField);
                         else
-                            addString(resultList, "network_operator",
+                        {
+                            if (networkOperatorField.isNull())
+                                addString(resultList, "network_operator", mobileProviderNameField);
+                            else
+                                addString(resultList, "network_operator",
                                     String.format("%s (%s)", mobileProviderNameField, networkOperatorField));
+                        }
                         
                         addString(resultList, "network_sim_operator_name", test.getField("network_sim_operator_name"));
                         
@@ -316,9 +310,6 @@ public class TestResultDetailResource extends ServerResource
                             addString(resultList, "client_version", test.getField("client_version"));
                         }
                         
-                        // NDT-Typ
-                        // NDT-Version
-                        
                         addString(resultList, "server_name", server.getName());
                         addString(
                                 resultList,
@@ -326,6 +317,13 @@ public class TestResultDetailResource extends ServerResource
                                 String.format("%d %s", test.getField("duration").intValue(),
                                         labels.getString("RESULT_DURATION_UNIT")));
                         addInt(resultList, "num_threads", test.getField("num_threads"));
+                        
+                        addString(resultList, "uuid", String.format("T%s", test.getField("uuid")));
+                        
+                        final Field openTestUUIDField = test.getField("open_test_uuid");
+                        if (! openTestUUIDField.isNull())
+                            addString(resultList, "open_test_uuid", String.format("O%s", openTestUUIDField));
+                        
                         
                         if (ndt != null)
                         {

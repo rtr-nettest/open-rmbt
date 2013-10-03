@@ -10550,6 +10550,7 @@ DECLARE
     _tmp_uuid uuid;
     _mcc_sim VARCHAR;
     _mcc_net VARCHAR;
+    _min_accuracy CONSTANT integer := 3000;
 BEGIN
 
     IF ((TG_OP = 'INSERT' OR NEW.speed_download IS DISTINCT FROM OLD.speed_download) AND NEW.speed_download > 0) THEN
@@ -10563,15 +10564,25 @@ BEGIN
     END IF;
 
     IF (TG_OP = 'INSERT' OR NEW.location IS DISTINCT FROM OLD.location) THEN
-        IF (NEW.location IS NULL OR NEW.geo_accuracy > 2000) THEN
+        IF (NEW.location IS NULL OR NEW.geo_accuracy > _min_accuracy) THEN
             NEW.zip_code_geo = NULL;
+            NEW.country_location = NULL;
         ELSE
             SELECT INTO NEW.zip_code_geo plz_4
             FROM plz2001
-            WHERE NEW.location && the_geom AND ST_Intersects(NEW.location, the_geom)
+            WHERE NEW.location && the_geom AND Within(NEW.location, the_geom)
             LIMIT 1;
             IF (NEW.zip_code IS NULL) THEN
-	        NEW.zip_code = NEW.zip_code_geo;
+        NEW.zip_code = NEW.zip_code_geo;
+            END IF;
+
+            IF (NEW.zip_code_geo IS NOT NULL) THEN
+                NEW.country_location = 'AT'; -- plz2001 is more accurate for AT than ne_50m_admin_0_countries
+            ELSE
+                SELECT INTO NEW.country_location iso_a2
+                FROM ne_50m_admin_0_countries
+                WHERE NEW.location && the_geom AND Within(NEW.location, the_geom) AND char_length(iso_a2)=2
+                LIMIT 1;
             END IF;
         END IF;
     END IF;
@@ -10586,22 +10597,21 @@ BEGIN
             IF (NEW.network_sim_operator IS NULL OR NEW.network_operator IS NULL) THEN
                 NEW.roaming_type = NULL;
             ELSE
-		IF (NEW.network_sim_operator = NEW.network_operator) THEN
-		    NEW.roaming_type = 0; -- no roaming
-		ELSE
+IF (NEW.network_sim_operator = NEW.network_operator) THEN
+    NEW.roaming_type = 0; -- no roaming
+ELSE
                     _mcc_sim := split_part(NEW.network_sim_operator, '-', 1);
                     _mcc_net := split_part(NEW.network_operator, '-', 1);
                     IF (_mcc_sim = _mcc_net) THEN
                         NEW.roaming_type = 1;  -- national roaming
                     ELSE
-		        NEW.roaming_type = 2;  -- international roaming
-		    END IF;
+        NEW.roaming_type = 2;  -- international roaming
+    END IF;
                 END IF;
             END IF;
 
             -- mobile_provider_id
-            IF (NEW.network_sim_operator IS NULL OR
-                NEW.roaming_type = 2) THEN -- not for foreign networks
+            IF ((NEW.roaming_type IS NULL AND NEW.country_location != 'AT') OR NEW.roaming_type = 2) THEN -- not for foreign networks
                 NEW.mobile_provider_id = NULL;
             ELSE
                 SELECT INTO NEW.mobile_provider_id provider_id FROM mccmnc2provider
@@ -10614,11 +10624,14 @@ BEGIN
     END IF;
 
     IF (TG_OP = 'INSERT') THEN
-        SELECT INTO _tmp_uuid open_uuid FROM test WHERE client_id=NEW.client_id AND (now() - INTERVAL '4 hours' < time) ORDER BY uid DESC LIMIT 1;
+        SELECT INTO _tmp_uuid open_uuid FROM test
+        WHERE client_id=NEW.client_id
+        AND (now() - INTERVAL '4 hours' < time)
+        ORDER BY uid DESC LIMIT 1;
         IF (_tmp_uuid IS NULL) THEN
             _tmp_uuid = uuid_generate_v4();
         END IF;
-	NEW.open_uuid = _tmp_uuid;
+NEW.open_uuid = _tmp_uuid;
     END IF;
 
     RETURN NEW;
@@ -12024,6 +12037,115 @@ ALTER SEQUENCE mccmnc2provider_uid_seq OWNED BY mccmnc2provider.uid;
 
 
 --
+-- Name: ne_50m_admin_0_countries; Type: TABLE; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+CREATE TABLE ne_50m_admin_0_countries (
+    gid integer NOT NULL,
+    scalerank smallint,
+    featurecla character varying(30),
+    labelrank double precision,
+    sovereignt character varying(254),
+    sov_a3 character varying(254),
+    adm0_dif double precision,
+    level double precision,
+    type character varying(254),
+    admin character varying(254),
+    adm0_a3 character varying(254),
+    geou_dif double precision,
+    geounit character varying(254),
+    gu_a3 character varying(254),
+    su_dif double precision,
+    subunit character varying(254),
+    su_a3 character varying(254),
+    brk_diff double precision,
+    name character varying(254),
+    name_long character varying(254),
+    brk_a3 character varying(254),
+    brk_name character varying(254),
+    brk_group character varying(254),
+    abbrev character varying(254),
+    postal character varying(254),
+    formal_en character varying(254),
+    formal_fr character varying(254),
+    note_adm0 character varying(254),
+    note_brk character varying(254),
+    name_sort character varying(254),
+    name_alt character varying(254),
+    mapcolor7 double precision,
+    mapcolor8 double precision,
+    mapcolor9 double precision,
+    mapcolor13 double precision,
+    pop_est double precision,
+    gdp_md_est double precision,
+    pop_year double precision,
+    lastcensus double precision,
+    gdp_year double precision,
+    economy character varying(254),
+    income_grp character varying(254),
+    wikipedia double precision,
+    fips_10 character varying(254),
+    iso_a2 character varying(254),
+    iso_a3 character varying(254),
+    iso_n3 character varying(254),
+    un_a3 character varying(254),
+    wb_a2 character varying(254),
+    wb_a3 character varying(254),
+    woe_id double precision,
+    adm0_a3_is character varying(254),
+    adm0_a3_us character varying(254),
+    adm0_a3_un double precision,
+    adm0_a3_wb double precision,
+    continent character varying(254),
+    region_un character varying(254),
+    subregion character varying(254),
+    region_wb character varying(254),
+    name_len double precision,
+    long_len double precision,
+    abbrev_len double precision,
+    tiny double precision,
+    homepart double precision,
+    the_geom geometry,
+    CONSTRAINT enforce_dims_the_geom CHECK ((st_ndims(the_geom) = 2)),
+    CONSTRAINT enforce_geotype_the_geom CHECK (((geometrytype(the_geom) = 'MULTIPOLYGON'::text) OR (the_geom IS NULL))),
+    CONSTRAINT enforce_srid_the_geom CHECK ((st_srid(the_geom) = 900913))
+);
+
+
+ALTER TABLE public.ne_50m_admin_0_countries OWNER TO rmbt;
+
+--
+-- Name: TABLE ne_50m_admin_0_countries; Type: COMMENT; Schema: public; Owner: rmbt
+--
+
+COMMENT ON TABLE ne_50m_admin_0_countries IS 'shp2pgsql -d -W LATIN1 -c -D -s 4326 -I ne_50m_admin_0_countries.shp  > ne_50m_admin_0_countries.sql
+ALTER TABLE ne_50m_admin_0_countries DROP CONSTRAINT enforce_srid_the_geom;
+update ne_50m_admin_0_countries set the_geom=(ST_TRANSFORM(the_geom, 900913));
+alter table ne_50m_admin_0_countries add CONSTRAINT enforce_srid_the_geom CHECK (st_srid(the_geom) = 900913);';
+
+
+--
+-- Name: ne_50m_admin_0_countries_gid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
+--
+
+CREATE SEQUENCE ne_50m_admin_0_countries_gid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.ne_50m_admin_0_countries_gid_seq OWNER TO rmbt;
+
+--
+-- Name: ne_50m_admin_0_countries_gid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
+--
+
+ALTER SEQUENCE ne_50m_admin_0_countries_gid_seq OWNED BY ne_50m_admin_0_countries.gid;
+
+
+--
 -- Name: network_type; Type: TABLE; Schema: public; Owner: rmbt; Tablespace: 
 --
 
@@ -12032,7 +12154,8 @@ CREATE TABLE network_type (
     name character varying(200) NOT NULL,
     group_name character varying NOT NULL,
     aggregate character varying[],
-    type character varying NOT NULL
+    type character varying NOT NULL,
+    technology_order integer DEFAULT 0 NOT NULL
 );
 
 
@@ -12223,6 +12346,41 @@ ALTER SEQUENCE provider_uid_seq OWNED BY provider.uid;
 
 
 --
+-- Name: settings; Type: TABLE; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+CREATE TABLE settings (
+    uid integer NOT NULL,
+    key character varying NOT NULL,
+    lang character(2),
+    value character varying NOT NULL
+);
+
+
+ALTER TABLE public.settings OWNER TO rmbt;
+
+--
+-- Name: settings_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
+--
+
+CREATE SEQUENCE settings_uid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.settings_uid_seq OWNER TO rmbt;
+
+--
+-- Name: settings_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
+--
+
+ALTER SEQUENCE settings_uid_seq OWNED BY settings.uid;
+
+
+--
 -- Name: signal; Type: TABLE; Schema: public; Owner: rmbt; Tablespace: 
 --
 
@@ -12393,6 +12551,8 @@ CREATE TABLE test (
     mobile_provider_id integer,
     roaming_type integer,
     open_test_uuid uuid,
+    country_asn character(2),
+    country_location character(2),
     CONSTRAINT enforce_dims_location CHECK ((st_ndims(location) = 2)),
     CONSTRAINT enforce_geotype_location CHECK (((geometrytype(location) = 'POINT'::text) OR (location IS NULL))),
     CONSTRAINT enforce_srid_location CHECK ((st_srid(location) = 900913)),
@@ -12610,6 +12770,13 @@ ALTER TABLE ONLY mccmnc2provider ALTER COLUMN uid SET DEFAULT nextval('mccmnc2pr
 
 
 --
+-- Name: gid; Type: DEFAULT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY ne_50m_admin_0_countries ALTER COLUMN gid SET DEFAULT nextval('ne_50m_admin_0_countries_gid_seq'::regclass);
+
+
+--
 -- Name: uid; Type: DEFAULT; Schema: public; Owner: rmbt
 --
 
@@ -12642,6 +12809,13 @@ ALTER TABLE ONLY plz2001 ALTER COLUMN gid SET DEFAULT nextval('plz2001_gid_seq':
 --
 
 ALTER TABLE ONLY provider ALTER COLUMN uid SET DEFAULT nextval('provider_uid_seq'::regclass);
+
+
+--
+-- Name: uid; Type: DEFAULT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY settings ALTER COLUMN uid SET DEFAULT nextval('settings_uid_seq'::regclass);
 
 
 --
@@ -12775,6 +12949,14 @@ ALTER TABLE ONLY mccmnc2provider
 
 
 --
+-- Name: ne_50m_admin_0_countries_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+ALTER TABLE ONLY ne_50m_admin_0_countries
+    ADD CONSTRAINT ne_50m_admin_0_countries_pkey PRIMARY KEY (gid);
+
+
+--
 -- Name: network_type_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt; Tablespace: 
 --
 
@@ -12804,6 +12986,22 @@ ALTER TABLE ONLY plz2001
 
 ALTER TABLE ONLY provider
     ADD CONSTRAINT provider_pkey PRIMARY KEY (uid);
+
+
+--
+-- Name: settings_key_lang_key; Type: CONSTRAINT; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+ALTER TABLE ONLY settings
+    ADD CONSTRAINT settings_key_lang_key UNIQUE (key, lang);
+
+
+--
+-- Name: settings_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+ALTER TABLE ONLY settings
+    ADD CONSTRAINT settings_pkey PRIMARY KEY (uid);
 
 
 --
@@ -12957,6 +13155,20 @@ CREATE INDEX mccmnc2provider_provider_id ON mccmnc2provider USING btree (provide
 
 
 --
+-- Name: ne_50m_admin_0_countries_iso_a2_idx; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+CREATE INDEX ne_50m_admin_0_countries_iso_a2_idx ON ne_50m_admin_0_countries USING btree (iso_a2);
+
+
+--
+-- Name: ne_50m_admin_0_countries_the_geom_gist; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+CREATE INDEX ne_50m_admin_0_countries_the_geom_gist ON ne_50m_admin_0_countries USING gist (the_geom);
+
+
+--
 -- Name: network_type_group_name_idx; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
 --
 
@@ -12996,6 +13208,13 @@ CREATE INDEX plz2001_the_geom_gist ON plz2001 USING gist (the_geom);
 --
 
 CREATE INDEX provider_mcc_mnc_idx ON provider USING btree (mcc_mnc);
+
+
+--
+-- Name: settings_key_lang_idx; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+CREATE INDEX settings_key_lang_idx ON settings USING btree (key, lang);
 
 
 --
@@ -13368,6 +13587,16 @@ GRANT SELECT ON TABLE mccmnc2provider TO rmbt_group_read_only;
 
 
 --
+-- Name: ne_50m_admin_0_countries; Type: ACL; Schema: public; Owner: rmbt
+--
+
+REVOKE ALL ON TABLE ne_50m_admin_0_countries FROM PUBLIC;
+REVOKE ALL ON TABLE ne_50m_admin_0_countries FROM rmbt;
+GRANT ALL ON TABLE ne_50m_admin_0_countries TO rmbt;
+GRANT SELECT ON TABLE ne_50m_admin_0_countries TO rmbt_group_read_only;
+
+
+--
 -- Name: network_type; Type: ACL; Schema: public; Owner: rmbt
 --
 
@@ -13426,6 +13655,16 @@ REVOKE ALL ON TABLE provider FROM PUBLIC;
 REVOKE ALL ON TABLE provider FROM rmbt;
 GRANT ALL ON TABLE provider TO rmbt;
 GRANT SELECT ON TABLE provider TO rmbt_group_read_only;
+
+
+--
+-- Name: settings; Type: ACL; Schema: public; Owner: rmbt
+--
+
+REVOKE ALL ON TABLE settings FROM PUBLIC;
+REVOKE ALL ON TABLE settings FROM rmbt;
+GRANT ALL ON TABLE settings TO rmbt;
+GRANT SELECT ON TABLE settings TO rmbt_group_read_only;
 
 
 --

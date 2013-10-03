@@ -158,6 +158,7 @@ public class RMBTSyncEnterCodeFragment extends Fragment implements EndTaskListen
                         {
                             popBackStackIncluding = "sync";
                             ((RMBTMainActivity) getActivity()).setHistoryDirty(true);
+                            ((RMBTMainActivity) getActivity()).setSettings(null, null);
                             ((RMBTMainActivity) getActivity()).checkSettings(true, null);
                         }
                         

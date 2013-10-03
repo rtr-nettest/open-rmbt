@@ -15,13 +15,16 @@
  ******************************************************************************/
 package at.alladin.rmbt.android.help;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import at.alladin.openrmbt.android.R;
@@ -45,26 +48,7 @@ public class RMBTHelpFragment extends Fragment
     /**
 	 * 
 	 */
-    private WebView webview;
-    
-    /**
-	 * 
-	 */
-    private FragmentActivity activity;
-    
-    /**
-	 * 
-	 */
-    private boolean encryption;
-    
-    /**
-	 * 
-	 */
-    private String url;
-    
-    /**
-	 * 
-	 */
+    @SuppressLint("SetJavaScriptEnabled")
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState)
     {
@@ -73,14 +57,14 @@ public class RMBTHelpFragment extends Fragment
         
         final Bundle args = getArguments();
         
-        url = args.getString(ARG_URL);
+        String url = args.getString(ARG_URL);
         
-        if (url.length() == 0)
+        if (url == null || url.length() == 0)
             url = this.getString(R.string.url_help);
         
-        activity = getActivity();
+        final FragmentActivity activity = getActivity();
         
-        webview = new WebView(activity)
+        final WebView webview = new WebView(activity)
         {
             @Override
             public boolean onKeyDown(final int keyCode, final KeyEvent event)
@@ -94,12 +78,8 @@ public class RMBTHelpFragment extends Fragment
             }
         };
         
-        encryption = ConfigHelper.isControlSeverSSL(activity);
-        
-        final String protocol = encryption ? "https" : "http";
-        
-        /* JavaScript must be enabled if you want it to work, obviously */
-        // webview.getSettings().setJavaScriptEnabled(true);
+        final WebSettings webSettings = webview.getSettings();
+        webSettings.setJavaScriptEnabled(true);
         
         webview.setWebViewClient(new WebViewClient()
         {
@@ -107,12 +87,21 @@ public class RMBTHelpFragment extends Fragment
             public void onReceivedError(final WebView view, final int errorCode, final String description,
                     final String failingUrl)
             {
+                Log.w(getTag(), "error code:" + errorCode);
+                Log.d(getTag(), "error desc:" + description);
+                Log.d(getTag(), "error url:" + failingUrl);
                 super.onReceivedError(view, errorCode, description, failingUrl);
                 webview.loadUrl("file:///android_res/raw/error.html");
             }
         });
         
-        webview.loadUrl(protocol + "://" + url);
+        if (! url.matches("^https?://.*"))
+        {
+            final String protocol = ConfigHelper.isControlSeverSSL(activity) ? "https" : "http";
+            url = protocol + "://" + url;
+        }
+        
+        webview.loadUrl(url);
         
         return webview;
     }

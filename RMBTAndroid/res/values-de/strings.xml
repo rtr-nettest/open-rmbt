@@ -45,9 +45,11 @@
     <string name="preferences_ipv4_only_sum">Keine Verwendung von IPv6</string>
     
     <string name="preferences_category_developer">ENTWICKLUNG</string>
+    <string name="preferences_category_developer_control_server">Control-Server</string>
+    <string name="preferences_category_developer_map_server">Map-Server</string>
     
-    <string name="preferences_dev_mode">Entwicklungsmodus</string>
-    <string name="preferences_dev_mode_sum">Aktiviert die folgenden Einstellungen</string>
+    <string name="preferences_dev_control_override">Control-Server überschreiben</string>
+    <string name="preferences_dev_control_override_sum">Aktiviert die folgenden Einstellungen für den Control-Server</string>
     
     <string name="preferences_dev_control_host">Control Host</string>
     <string name="preferences_dev_control_host_sum">Control-Server-Adresse überschreiben</string>
@@ -58,10 +60,23 @@
     <string name="preferences_dev_control_ssl">Control-Server SSL</string>
     <string name="preferences_dev_control_ssl_sum">Verschlüsselte Verbindung zum Control-Server</string>
     
+    <string name="preferences_dev_map_override">Map-Server überschreiben</string>
+    <string name="preferences_dev_map_override_sum">Aktiviert die folgenden Einstellungen für den Map-Server</string>
+    
+    <string name="preferences_dev_map_host">Map Host</string>
+    <string name="preferences_dev_map_host_sum">Map-Server-Adresse überschreiben</string>
+    
+    <string name="preferences_dev_map_port">Map Port</string>
+    <string name="preferences_dev_map_port_sum">Map-Server-Port überschreiben</string>
+    
+    <string name="preferences_dev_map_ssl">Map-Server SSL</string>
+    <string name="preferences_dev_map_ssl_sum">Verschlüsselte Verbindung zum Map-Server</string>
+    
     <string name="menu_button_start">START</string>
     <string name="menu_button_map">Karte</string>
     <string name="menu_button_history">Verlauf</string>
     <string name="menu_button_help">Hilfe</string>
+    <string name="menu_button_statistics">Statistik</string>
     <string name="menu_button_settings">Einstellungen</string>
     <string name="menu_button_about">Info</string>
     
@@ -93,9 +108,17 @@
 
     <string name="test_mbps">Mbps</string>
     <string name="test_dbm">dBm</string>
+    <string name="test_location_km_h">km/h</string>
+    <string name="test_location_m">m</string>
+    <string name="test_location_gps">GPS</string>
+    <string name="test_location_network">Netzwerk</string>
+    <string name="test_location_dir_n">N</string>
+    <string name="test_location_dir_e">O</string>
+    <string name="test_location_dir_s">S</string>
+    <string name="test_location_dir_w">W</string>
     
     <string name="test_notification_text">Der Test läuft noch im Hintergrund.</string>
-    
+    <string name="test_loop">Durchlauf</string> 
     <string name="test_dialog_error_title">Fehler…</string>
     <string name="test_dialog_error_text">Während des Tests ist ein Fehler aufgetreten.</string>
     
@@ -181,7 +204,7 @@
 	<string name="test_progress_title">Verbindungsaufbau…</string>
 	<string name="test_progress_text">Die Verbindung zum Testserver wird hergestellt. Bitte warten…</string>
 	<string name="test_progress_text_wait">Der Testserver ist zur Zeit beschäftigt. Der Test startet {0,choice,0#gleich|1#in 1 Sekunde|1&lt;in {0} Sekunden}. Bitte warten…</string>
-	<string name="test_bottom_test">Koordinaten: {0}\nTestserver: {1}\nIP: {2}\nStatus: {3}</string>
+	<string name="test_bottom_test">Status: {0}\nServer: {1}\nIP: {2}\n{3}\n{4}</string>
 	<string name="test_bottom_test_status_init">Initialisierung</string>
 	<string name="test_bottom_test_status_ping">Ping</string>
 	<string name="test_bottom_test_status_down">Download</string>

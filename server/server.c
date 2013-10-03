@@ -416,7 +416,7 @@ void handle_connection(MY_SOCK sock)
         return;
     
     printf("GOT (%d): %s\n", r, buf1);
-    r = sscanf((char*)buf1, "TOKEN %[0-9a-f-]_%[0-9]_%[a-zA-Z0-9+/=]", buf2, buf3, buf4);
+    r = sscanf((char*)buf1, "TOKEN %36[0-9a-f-]_%12[0-9]_%50[a-zA-Z0-9+/=]", buf2, buf3, buf4);
     if (r != 3)
         return;
     printf("GOT (%d): %s#%s#%s\n", r, buf2, buf3, buf4);
@@ -441,7 +441,7 @@ void handle_connection(MY_SOCK sock)
             return;
         printf("GOT (%d): %s\n", r, buf1);
         
-        int parts = sscanf((char*)buf1, "%s %[^\n]", buf2, buf3);
+        int parts = sscanf((char*)buf1, "%50s %12[^\n]", buf2, buf3);
         
         /***** GETTIME *****/
         if (parts == 2 && strncmp((char*)buf2, GETTIME, sizeof(GETTIME)) == 0)
@@ -449,7 +449,7 @@ void handle_connection(MY_SOCK sock)
             printf("GETTIME\n");
             
             int seconds;
-            r = sscanf((char*)buf3, "%d", &seconds);
+            r = sscanf((char*)buf3, "%12d", &seconds);
             if (r != 1 || seconds <=0 || seconds > MAX_SECONDS)
                 write_err(sock);
             else
@@ -521,7 +521,7 @@ void handle_connection(MY_SOCK sock)
             printf("GETCHUNKS\n");
             
             int chunks;
-            r = sscanf((char*)buf3, "%d", &chunks);
+            r = sscanf((char*)buf3, "%12d", &chunks);
             if (r != 1 || chunks <=0 || chunks > MAX_CHUNKS)
                 write_err(sock);
             else

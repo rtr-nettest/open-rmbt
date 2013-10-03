@@ -15,6 +15,9 @@
  ******************************************************************************/
 package at.alladin.rmbt.android.util;
 
+import java.util.Iterator;
+import java.util.concurrent.ConcurrentMap;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -113,9 +116,42 @@ public class CheckSettingsTask extends AsyncTask<Void, Void, JSONArray>
                 {
                     resultListItem = resultList.getJSONObject(0);
                     
+                    /* UUID */
+                    
                     final String uuid = resultListItem.optString("uuid", "");
                     if (uuid != null && uuid.length() != 0)
                         ConfigHelper.setUUID(activity.getApplicationContext(), uuid);
+                    
+                    /* urls */
+                    
+                    final ConcurrentMap<String, String> volatileSettings = ConfigHelper.getVolatileSettings();
+                    
+                    final JSONObject urls = resultListItem.optJSONObject("urls");
+                    if (urls != null)
+                    {
+                        @SuppressWarnings("unchecked")
+                        final Iterator<String> keys = urls.keys();
+                        
+                        while (keys.hasNext())
+                        {
+                            final String key = keys.next();
+                            final String value = urls.optString(key, null);
+                            if (value != null)
+                                volatileSettings.put("url_" + key, value);
+                        }
+                    }
+                    
+                    /* map server */
+                    
+                    final JSONObject mapServer = resultListItem.optJSONObject("map_server");
+                    if (mapServer != null)
+                    {
+                        final String host = mapServer.optString("host");
+                        final int port = mapServer.optInt("port");
+                        final boolean ssl = mapServer.optBoolean("ssl");
+                        if (host != null && port > 0)
+                            ConfigHelper.setMapServer(host, port, ssl);
+                    }
                     
                     // ///////////////////////////////////////////////////////
                     // HISTORY / FILTER

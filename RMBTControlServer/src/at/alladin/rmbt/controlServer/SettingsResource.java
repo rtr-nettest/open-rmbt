@@ -22,10 +22,8 @@ import java.sql.Timestamp;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 import java.util.UUID;
@@ -33,13 +31,15 @@ import java.util.UUID;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.restlet.data.Parameter;
 import org.restlet.resource.Get;
 import org.restlet.resource.Post;
-
-import com.google.common.base.Strings;
+import org.restlet.util.Series;
 
 import at.alladin.rmbt.db.Client;
 import at.alladin.rmbt.shared.Helperfunctions;
+
+import com.google.common.base.Strings;
 
 public class SettingsResource extends ServerResource
 {
@@ -159,6 +159,20 @@ public class SettingsResource extends ServerResource
                             
                             if (client.getUid() > 0)
                             {
+                                /* map server */
+                                
+                                final Series<Parameter> ctxParams = getContext().getParameters();
+                                final String host = ctxParams.getFirstValue("RMBT_MAP_HOST");
+                                final String sslStr = ctxParams.getFirstValue("RMBT_MAP_SSL");
+                                final String portStr = ctxParams.getFirstValue("RMBT_MAP_PORT");
+                                if (host != null && sslStr != null && portStr != null)
+                                {
+                                    JSONObject mapServer = new JSONObject();
+                                    mapServer.put("host", host);
+                                    mapServer.put("port", Integer.parseInt(portStr));
+                                    mapServer.put("ssl", Boolean.parseBoolean(sslStr));
+                                    jsonItem.put("map_server", mapServer);
+                                }
                                 
                                 // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                                 // HISTORY / FILTER
@@ -213,15 +227,19 @@ public class SettingsResource extends ServerResource
                                 if (errorList.getLength() == 0)
                                     jsonItem.put("history", subItem);
                                 
-                                // //////////////////////////////////////////////////////////////////////////////////////////////
-                                // add map filter options to json response
                             }
                             else
                                 errorList.addError("ERROR_CLIENT_UUID");
-                            
-                            jsonItem.put("mapfilter", getMapFilterObject(errorList));
-                            
                         }
+                        
+                        //also put there: basis-urls for all services
+                        final JSONObject jsonItemURLs = new JSONObject();
+                        jsonItemURLs.put("open_data_prefix", getSetting("url_open_data_prefix", lang));
+                        jsonItemURLs.put("statistics", getSetting("url_statistics", lang));
+                        
+                        jsonItem.put("urls",jsonItemURLs);
+                   
+                        
                         
                         settingsList.put(jsonItem);
                         
@@ -286,7 +304,10 @@ public class SettingsResource extends ServerResource
         JSONArray ownDeviceList = null;
         
         final PreparedStatement st = conn
-                .prepareStatement("SELECT DISTINCT model FROM test WHERE (client_id = ? OR client_id IN (SELECT uid FROM client WHERE sync_group_id = ?)) AND deleted = false AND status = 'FINISHED' ORDER BY model ASC");
+                .prepareStatement("SELECT DISTINCT COALESCE(adm.fullname, t.model) model"
+                        + " FROM test t"
+                        + " LEFT JOIN android_device_map adm ON adm.codename=t.model"
+                        + " WHERE (t.client_id = ? OR t.client_id IN (SELECT uid FROM client WHERE sync_group_id = ?)) AND t.deleted = false AND t.status = 'FINISHED' ORDER BY model ASC");
         
         st.setLong(1, client.getUid());
         st.setInt(2, client.getSync_group_id());
@@ -317,307 +338,4 @@ public class SettingsResource extends ServerResource
         return ownDeviceList;
     }
     
-    private Map<String, String> getDeviceList(final ErrorList errorList) throws SQLException
-    {
-        
-        final Map<String, String> result = new LinkedHashMap<String, String>();
-        
-        final PreparedStatement st = conn
-                .prepareStatement("SELECT t.model model_key, COALESCE(adm.fullname, t.model) model_value FROM test t"
-                        + " LEFT JOIN android_device_map adm ON adm.codename=t.model"
-                        + " WHERE t.deleted = false AND t.status = 'FINISHED' AND t.model IS NOT NULL GROUP BY model_key, model_value ORDER BY model_value ASC");
-        
-        final ResultSet rs = st.executeQuery();
-        if (rs != null)
-            while (rs.next())
-            {
-                final String key = rs.getString("model_key");
-                final String value = rs.getString("model_value");
-                if (key != null && !key.isEmpty() && value != null && !value.isEmpty())
-                    result.put(key, value);
-            }
-        else
-            errorList.addError("ERROR_DB_GET_SETTING_HISTORY_DEVICES_SQL");
-        
-        rs.close();
-        st.close();
-        
-        return result;
-    }
-    
-    // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // MAP CHOOSE / FILTER
-    // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    
-    /**
-     * 
-     * @return
-     * @throws JSONException
-     */
-    private JSONObject getMapFilterObject(final ErrorList errorList) throws JSONException
-    {
-        
-        final JSONObject mapFilterObject = new JSONObject();
-        
-        mapFilterObject.put("mapTypes", getMapTypeList());
-        mapFilterObject.put("mapFilters", getMapFilterList(errorList));
-        
-        return mapFilterObject;
-    }
-    
-    /**
-     * 
-     * @return
-     * @throws JSONException
-     */
-    private JSONArray getMapTypeList() throws JSONException
-    {
-        
-        final JSONArray mapTypeList = new JSONArray();
-        
-        final JSONArray mapType1List = new JSONArray();
-        
-        final JSONObject mapType1Property1List = new JSONObject();
-        
-        // Map<String, MapOption> mapOptions = MapOptions.getMapOptions();
-        
-        mapType1Property1List.put("title", labels.getString("RESULT_DOWNLOAD"));
-        mapType1Property1List.put("summary", labels.getString("MAP_DOWNLOAD_SUMMARY"));
-        mapType1Property1List.put("map_options", "mobile/download");
-        /*
-         * mapType1Property1List.put("map_values", "mobile/download");
-         * mapType1Property1List.put("map_colors", "mobile/download");
-         * mapOptions.get("mobile/download").colors;
-         */
-        
-        mapType1List.put(mapType1Property1List);
-        
-        final JSONObject mapType1Property2List = new JSONObject();
-        
-        mapType1Property2List.put("title", labels.getString("RESULT_UPLOAD"));
-        mapType1Property2List.put("summary", labels.getString("MAP_UPLOAD_SUMMARY"));
-        mapType1Property2List.put("map_options", "mobile/upload");
-        
-        mapType1List.put(mapType1Property2List);
-        
-        final JSONObject mapType1Property3List = new JSONObject();
-        
-        mapType1Property3List.put("title", labels.getString("RESULT_PING"));
-        mapType1Property3List.put("summary", labels.getString("MAP_PING_SUMMARY"));
-        mapType1Property3List.put("map_options", "mobile/ping");
-        
-        mapType1List.put(mapType1Property3List);
-        
-        final JSONObject mapType1Property4List = new JSONObject();
-        
-        mapType1Property4List.put("title", labels.getString("RESULT_SIGNAL"));
-        mapType1Property4List.put("summary", labels.getString("MAP_SIGNAL_SUMMARY"));
-        mapType1Property4List.put("map_options", "mobile/signal");
-        
-        mapType1List.put(mapType1Property4List);
-        
-        // /
-        
-        final JSONArray mapType2List = new JSONArray();
-        
-        final JSONObject mapType2Property1List = new JSONObject();
-        
-        mapType2Property1List.put("title", labels.getString("RESULT_DOWNLOAD"));
-        mapType2Property1List.put("summary", labels.getString("MAP_DOWNLOAD_SUMMARY"));
-        mapType2Property1List.put("map_options", "wifi/download");
-        
-        mapType2List.put(mapType2Property1List);
-        
-        final JSONObject mapType2Property2List = new JSONObject();
-        
-        mapType2Property2List.put("title", labels.getString("RESULT_UPLOAD"));
-        mapType2Property2List.put("summary", labels.getString("MAP_UPLOAD_SUMMARY"));
-        mapType2Property2List.put("map_options", "wifi/upload");
-        
-        mapType2List.put(mapType2Property2List);
-        
-        final JSONObject mapType2Property3List = new JSONObject();
-        
-        mapType2Property3List.put("title", labels.getString("RESULT_PING"));
-        mapType2Property3List.put("summary", labels.getString("MAP_PING_SUMMARY"));
-        mapType2Property3List.put("map_options", "wifi/ping");
-        
-        mapType2List.put(mapType2Property3List);
-        
-        final JSONObject mapType2Property4List = new JSONObject();
-        
-        mapType2Property4List.put("title", labels.getString("RESULT_SIGNAL"));
-        mapType2Property4List.put("summary", labels.getString("MAP_SIGNAL_SUMMARY"));
-        mapType2Property4List.put("map_options", "wifi/signal");
-        
-        mapType2List.put(mapType2Property4List);
-        
-        // /
-        
-        final JSONArray mapType3List = new JSONArray();
-        
-        final JSONObject mapType3Property1List = new JSONObject();
-        
-        mapType3Property1List.put("title", labels.getString("RESULT_DOWNLOAD"));
-        mapType3Property1List.put("summary", labels.getString("MAP_DOWNLOAD_SUMMARY"));
-        mapType3Property1List.put("map_options", "browser/download");
-        
-        mapType3List.put(mapType3Property1List);
-        
-        final JSONObject mapType3Property2List = new JSONObject();
-        
-        mapType3Property2List.put("title", labels.getString("RESULT_UPLOAD"));
-        mapType3Property2List.put("summary", labels.getString("MAP_UPLOAD_SUMMARY"));
-        mapType3Property2List.put("map_options", "browser/upload");
-        
-        mapType3List.put(mapType3Property2List);
-        
-        final JSONObject mapType3Property3List = new JSONObject();
-        
-        mapType3Property3List.put("title", labels.getString("RESULT_PING"));
-        mapType3Property3List.put("summary", labels.getString("MAP_PING_SUMMARY"));
-        mapType3Property3List.put("map_options", "browser/ping");
-        
-        mapType3List.put(mapType3Property3List);
-        
-        // /
-        
-        final JSONObject mobileObj = new JSONObject();
-        
-        mobileObj.put("title", labels.getString("MAP_MOBILE"));
-        mobileObj.put("options", mapType1List);
-        
-        mapTypeList.put(mobileObj);
-        
-        // /
-        
-        final JSONObject wifiObj = new JSONObject();
-        
-        wifiObj.put("title", labels.getString("MAP_WIFI"));
-        wifiObj.put("options", mapType2List);
-        
-        mapTypeList.put(wifiObj);
-        
-        // /
-        
-        final JSONObject browserObj = new JSONObject();
-        
-        browserObj.put("title", labels.getString("MAP_BROWSER_TEST"));
-        browserObj.put("options", mapType3List);
-        
-        mapTypeList.put(browserObj);
-        
-        return mapTypeList;
-    }
-    
-    /**
-     * 
-     * @return
-     * @throws JSONException
-     */
-    private JSONArray getMapFilterList(final ErrorList errorList) throws JSONException
-    {
-        final JSONArray mapFilterCarrierList = new JSONArray();
-        
-        for (int i = 0; labels.containsKey(String.format("MAP_FILTER_CARRIER_%d_TITLE", i)); i++)
-        {
-            final JSONObject mapFilterAllCarrierObject = new JSONObject();
-            mapFilterAllCarrierObject.put("title", labels.getString(String.format("MAP_FILTER_CARRIER_%d_TITLE", i)));
-            mapFilterAllCarrierObject.put("summary",
-                    labels.getString(String.format("MAP_FILTER_CARRIER_%d_SUMMARY", i)));
-            mapFilterAllCarrierObject.put("operator",
-                    labels.getString(String.format("MAP_FILTER_CARRIER_%d_FILTER", i)));
-            mapFilterCarrierList.put(mapFilterAllCarrierObject);
-        }
-        
-        // /
-        
-        final double[] statisticalMethodArray = { 0.8, 0.5, 0.2 };
-        
-        final JSONArray mapFilterStatisticalMethodList = new JSONArray();
-        
-        for (int stat = 1; stat <= statisticalMethodArray.length; stat++)
-        {
-            
-            final JSONObject mapFilterDayTimeObject = new JSONObject();
-            
-            mapFilterDayTimeObject.put("title", labels.getString("MAP_FILTER_STATISTICAL_METHOD_" + stat + "_TITLE"));
-            mapFilterDayTimeObject.put("summary",
-                    labels.getString("MAP_FILTER_STATISTICAL_METHOD_" + stat + "_SUMMARY"));
-            mapFilterDayTimeObject.put("statistical_method", statisticalMethodArray[stat - 1]);
-            
-            mapFilterStatisticalMethodList.put(mapFilterDayTimeObject);
-        }
-        
-        // /
-        
-        final JSONArray mapFilterDeviceList = new JSONArray();
-        
-        // all-element
-        
-        final JSONObject mapFilterAllDeviceObject = new JSONObject();
-        
-        mapFilterAllDeviceObject.put("title", labels.getString("MAP_FILTER_DEVICE_0_TITLE"));
-        mapFilterAllDeviceObject.put("summary", labels.getString("MAP_FILTER_DEVICE_0_SUMMARY"));
-        mapFilterAllDeviceObject.put("device", "");
-        
-        mapFilterDeviceList.put(mapFilterAllDeviceObject);
-        
-        // /
-        
-        try
-        {
-            
-            final Map<String, String> deviceList = getDeviceList(errorList);
-            
-            if (deviceList != null)
-                for (final Map.Entry<String, String> entry : deviceList.entrySet())
-                {
-                    final JSONObject mapFilterDeviceObject = new JSONObject();
-                    
-                    mapFilterDeviceObject.put("title", entry.getValue());
-                    mapFilterDeviceObject.put("summary",
-                            labels.getString("MAP_FILTER_DEVICE_SUMMARY") + " " + entry.getValue());
-                    mapFilterDeviceObject.put("device", entry.getKey());
-                    
-                    mapFilterDeviceList.put(mapFilterDeviceObject);
-                }
-        }
-        catch (final SQLException ex)
-        {
-            ex.printStackTrace();
-            errorList.addError("ERROR_DB_GET_SETTING_HISTORY_SQL");
-        }
-        
-        // /////////////////////////
-        
-        final JSONObject carrierObj = new JSONObject();
-        
-        carrierObj.put("title", labels.getString("MAP_FILTER_CARRIER"));
-        carrierObj.put("options", mapFilterCarrierList);
-        
-        // /
-        
-        final JSONObject statisticalMethodObj = new JSONObject();
-        
-        statisticalMethodObj.put("title", labels.getString("MAP_FILTER_STATISTICAL_METHOD"));
-        statisticalMethodObj.put("options", mapFilterStatisticalMethodList);
-        
-        // /
-        
-        final JSONObject deviceObj = new JSONObject();
-        
-        deviceObj.put("title", labels.getString("MAP_FILTER_DEVICE"));
-        deviceObj.put("options", mapFilterDeviceList);
-        
-        // /
-        
-        final JSONArray mapFilterList = new JSONArray();
-        
-        mapFilterList.put(carrierObj);
-        mapFilterList.put(statisticalMethodObj);
-        mapFilterList.put(deviceObj);
-        
-        return mapFilterList;
-    }
 }

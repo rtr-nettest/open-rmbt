@@ -136,8 +136,20 @@ public class RMBTClientRunner
             e.printStackTrace();
         }
         
+        
+        int numThreads = 0;
+        int duration = 0;
+        if (options.has("t"))
+            numThreads = (Integer) options.valueOf("t");
+        if (options.has("d"))
+            duration = (Integer) options.valueOf("d");
+            
+        RMBTTestParameter overrideParams = null;
+        if (numThreads > 0 || duration > 0)
+            overrideParams = new RMBTTestParameter(null, 0, false, duration, numThreads);
+            
         client = RMBTClient.getInstance(host, null, port, encryption, geoInfo, uuid,
-                "DESKTOP", Config.RMBT_CLIENT_NAME, Config.RMBT_VERSION_NUMBER, null, null);
+                "DESKTOP", Config.RMBT_CLIENT_NAME, Config.RMBT_VERSION_NUMBER, overrideParams, null);
         
         if (client != null)
         {

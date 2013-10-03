@@ -430,10 +430,28 @@ public class ControlServerConnection
         return testUuid;
     }
     
-    public RMBTTestParameter getTestParameter()
+    public RMBTTestParameter getTestParameter(RMBTTestParameter overrideParams)
     {
-        return new RMBTTestParameter(testHost, testPort, testEncryption, testToken, testDuration, testNumThreads,
-                testTime);
+        String host = testHost;
+        int port = testPort;
+        boolean encryption = testEncryption;
+        int duration = testDuration;
+        int numThreads = testNumThreads;
+        
+        if (overrideParams != null)
+        {
+            if (overrideParams.getHost() != null && overrideParams.getPort() > 0)
+            {
+                host = overrideParams.getHost();
+                encryption = overrideParams.isEncryption();
+                port = overrideParams.getPort();
+            }
+            if (overrideParams.getDuration() > 0)
+                duration = overrideParams.getDuration();
+            if (overrideParams.getNumThreads() > 0)
+                numThreads = overrideParams.getNumThreads();
+        }
+        return new RMBTTestParameter(host, port, encryption, testToken, duration, numThreads, testTime);
     }
     
 }

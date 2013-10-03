@@ -33,16 +33,14 @@ import com.google.android.gms.maps.model.UrlTileProvider;
  */
 public class RMBTTileSourceProvider extends UrlTileProvider
 {
+    private final String protocol;
+    private final String host;
+    private final int port;
     
     /**
 	 * 
 	 */
     private String options;
-    
-    /**
-     * display density
-     */
-    private final float density;
     
     private final int tileSize;
     
@@ -58,12 +56,14 @@ public class RMBTTileSourceProvider extends UrlTileProvider
      * @param aZoomMinLevel
      * @param aZoomMaxLevel
      * @param aTileSizePixels
-     * @param density
      */
-    public RMBTTileSourceProvider(final int tileSize, final float density)
+    public RMBTTileSourceProvider(final String protocol, final String host, final int port, final int tileSize)
     {
         super(tileSize, tileSize);
-        this.density = density;
+        this.protocol = protocol;
+        this.host = host;
+        this.port = port;
+        
         this.tileSize = tileSize;
         
         path = MapProperties.HEATMAP_PATH; // heatmap is default
@@ -75,11 +75,9 @@ public class RMBTTileSourceProvider extends UrlTileProvider
         URI uri = null;
         try
         {
-            uri = new URI(MapProperties.OVERLAY_PROTOCOL, null, MapProperties.OVERLAY_HOST,
-                    MapProperties.OVERLAY_PORT,
-                    /* MapProperties.HEATMAP_PATH */path,
+            uri = new URI(protocol, null, host, port,path,
                     String.format(Locale.US, "%spath=%d/%d/%d&point_diameter=%d&size=%d",
-                    options, zoom, x, y, (int)(density * MapProperties.POINT_DIAMETER), tileSize),
+                    options, zoom, x, y, MapProperties.POINT_DIAMETER, tileSize),
                     null);
             
 //            System.out.println(uri.toASCIIString());

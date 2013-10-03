@@ -129,7 +129,7 @@ public class HistoryResource extends ServerResource
                             }
                             
                             if (sb.length() > 0)
-                                deviceRequest = " AND ( model IN (" + sb.toString() + ")" + (checkUnknown ? " OR model IS NULL OR model = ''" : "") + ")";
+                                deviceRequest = " AND (COALESCE(adm.fullname, t.model) IN (" + sb.toString() + ")" + (checkUnknown ? " OR model IS NULL OR model = ''" : "") + ")";
 //                            System.out.println(deviceRequest);
                             
                         }

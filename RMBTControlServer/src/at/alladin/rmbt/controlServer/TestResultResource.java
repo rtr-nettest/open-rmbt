@@ -234,12 +234,18 @@ public class TestResultResource extends ServerResource
                         
                         jsonItem.put("net", jsonItemList);
                         
-                        final Field geo_lat = test.getField("geo_lat");
-                        final Field geo_long = test.getField("geo_long");
-                        if (!geo_lat.isNull() && !geo_long.isNull())
+                        
+                        final Field latField = test.getField("geo_lat");
+                        final Field longField = test.getField("geo_long");
+                        final Field accuracyField = test.getField("geo_accuracy");
+                        if (!(latField.isNull() || longField.isNull() || accuracyField.isNull()))
                         {
-                            jsonItem.put("geo_lat", geo_lat.doubleValue());
-                            jsonItem.put("geo_long", geo_long.doubleValue());
+                            final double accuracy = accuracyField.doubleValue();
+                            if (accuracy < Double.parseDouble(settings.getString("RMBT_GEO_ACCURACY_BUTTON_LIMIT")))
+                            {
+                                jsonItem.put("geo_lat", latField.doubleValue());
+                                jsonItem.put("geo_long", longField.doubleValue());
+                            }
                         }
                         
                         final Field zip_code = test.getField("zip_code");
@@ -256,7 +262,7 @@ public class TestResultResource extends ServerResource
                         String platformString = test.getField("plattform").toString();
                         if (platformString == null)
                             platformString = "";
-                        String modelString = test.getField("model").toString();
+                        String modelString = test.getField("model_fullname").toString();
                         if (modelString == null)
                             modelString = "";
                         
@@ -277,7 +283,7 @@ public class TestResultResource extends ServerResource
                                 networkTypeString,
                                 providerString.isEmpty() ? "" : MessageFormat.format(labels.getString("RESULT_SHARE_TEXT_PROVIDER_ADD"), providerString),
                                 mobileNetworkString == null ? "" : MessageFormat.format(labels.getString("RESULT_SHARE_TEXT_MOBILE_ADD"), mobileNetworkString),
-                                platformString, modelString, labels.getString("RESULT_SHARE_OPENDATA_LINK") + openTestUUID);
+                                platformString, modelString, getSetting("url_open_data_prefix", lang) + openTestUUID);
                         
                         jsonItem.put("share_text", shareText);
                         

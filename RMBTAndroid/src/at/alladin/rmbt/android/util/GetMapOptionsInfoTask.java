@@ -37,7 +37,7 @@ public class GetMapOptionsInfoTask extends AsyncTask<Void, Void, JSONObject>
     /**
      * 
      */
-    private static final String DEBUG_TAG = "CheckSettingsTask";
+    private static final String DEBUG_TAG = "GetMapOptionsInfoTask";
     
     /**
      * 
@@ -78,9 +78,15 @@ public class GetMapOptionsInfoTask extends AsyncTask<Void, Void, JSONObject>
         
         serverConn = new ControlServerConnection(activity.getApplicationContext(), true);
         
-        result = serverConn.requestMapOptionsInfo();
-        
-        return result;
+        try
+        {
+            result = serverConn.requestMapOptionsInfo();
+            return result;
+        }
+        catch (Exception e)
+        {
+            return null;
+        }
     }
     
     /**
@@ -117,7 +123,7 @@ public class GetMapOptionsInfoTask extends AsyncTask<Void, Void, JSONObject>
                 
                 final JSONArray mapTypeArray = mapSettingsObject.getJSONArray("mapTypes");
                 
-                Log.d(DEBUG_TAG, mapTypeArray.toString(4));
+//                Log.d(DEBUG_TAG, mapTypeArray.toString(4));
                 
                 // /
                 
@@ -180,7 +186,7 @@ public class GetMapOptionsInfoTask extends AsyncTask<Void, Void, JSONObject>
                             activity.getString(R.string.map_appearance_header), Arrays.asList(
                                     new MapListEntry(activity.getString(R.string.map_appearance_nosat_title), activity
                                             .getString(R.string.map_appearance_nosat_summary), true,
-                                            MapProperties.MAP_SAT_KEY, MapProperties.MAP_NOSAT_VALUE),
+                                            MapProperties.MAP_SAT_KEY, MapProperties.MAP_NOSAT_VALUE, true),
                                     new MapListEntry(activity.getString(R.string.map_appearance_sat_title), activity
                                             .getString(R.string.map_appearance_sat_summary), MapProperties.MAP_SAT_KEY,
                                             MapProperties.MAP_SAT_VALUE)));
@@ -192,7 +198,7 @@ public class GetMapOptionsInfoTask extends AsyncTask<Void, Void, JSONObject>
                             activity.getString(R.string.map_overlay_header), Arrays.asList(
                                     new MapListEntry(activity.getString(R.string.map_overlay_auto_title), activity
                                             .getString(R.string.map_overlay_auto_summary), true,
-                                            MapProperties.MAP_OVERLAY_KEY, MapProperties.MAP_AUTO_VALUE),
+                                            MapProperties.MAP_OVERLAY_KEY, MapProperties.MAP_AUTO_VALUE, true),
                                     new MapListEntry(activity.getString(R.string.map_overlay_heatmap_title), activity
                                             .getString(R.string.map_overlay_heatmap_summary),
                                             MapProperties.MAP_OVERLAY_KEY, MapProperties.MAP_HEATMAP_VALUE),
@@ -250,6 +256,7 @@ public class GetMapOptionsInfoTask extends AsyncTask<Void, Void, JSONObject>
                             }
                             
                             mapListEntry.setChecked(entryDefault && ! haveDefault);
+                            mapListEntry.setDefault(entryDefault);
                             if (entryDefault)
                                 haveDefault = true;
                             
@@ -259,7 +266,11 @@ public class GetMapOptionsInfoTask extends AsyncTask<Void, Void, JSONObject>
                         }
                         
                         if (! haveDefault && mapListEntryList.size() > 0)
-                            mapListEntryList.get(0).setChecked(true); // set first if we had no default
+                        {
+                            final MapListEntry first = mapListEntryList.get(0);
+                            first.setChecked(true); // set first if we had no default
+                            first.setDefault(true);
+                        }
                         
                         final MapListSection mapListSection = new MapListSection(sectionTitle, mapListEntryList);
                         mapFilterListSectionList.add(mapListSection);

@@ -61,8 +61,11 @@ public class RegistrationResource extends ServerResource
         final JSONObject answer = new JSONObject();
         String answerString;
         
-        final String ip = getIP();
-        System.out.println(MessageFormat.format(labels.getString("NEW_REQUEST"), ip));
+        final String clientIpRaw = getIP();
+        final InetAddress clientAddress = InetAddresses.forString(clientIpRaw);
+        final String clientIpString = InetAddresses.toAddrString(clientAddress);
+        
+        System.out.println(MessageFormat.format(labels.getString("NEW_REQUEST"), clientIpRaw));
         
         if (entity != null && !entity.isEmpty())
             // try parse the string to a JSON object
@@ -186,17 +189,16 @@ public class RegistrationResource extends ServerResource
                             boolean testServerEncryption = true; // default is
                                                                  // true
                             
-                            final Test_Server server = getNearestServer(errorList, geolat, geolong, geotime, ip);
+                            final Test_Server server = getNearestServer(errorList, geolat, geolong, geotime, clientIpString);
                             
                             if (server != null)
                             {
                                 
                                 testServerId = server.getUid();
                                 
-                                final InetAddress inetAddress = InetAddresses.forString(getIP());
-                                if (inetAddress instanceof Inet6Address)
+                                if (clientAddress instanceof Inet6Address)
                                     testServerAddress = server.getWeb_address_ipv6();
-                                else if (inetAddress instanceof Inet4Address)
+                                else if (clientAddress instanceof Inet4Address)
                                     testServerAddress = server.getWeb_address_ipv4();
                                 else
                                     testServerAddress = server.getWeb_address(); // does
@@ -258,7 +260,7 @@ public class RegistrationResource extends ServerResource
                                 answer.put("test_duration", settings.getString("RMBT_DURATION"));
                                 answer.put("test_numthreads", settings.getString("RMBT_NUM_THREADS"));
                                 
-                                answer.put("client_remote_ip", ip);
+                                answer.put("client_remote_ip", clientIpString);
                                 
                                 final String resultUrl = new Reference(getURL(), settings.getString("RMBT_RESULT_PATH"))
                                         .getTargetRef().toString();
@@ -282,8 +284,8 @@ public class RegistrationResource extends ServerResource
                                     PreparedStatement st;
                                     st = conn
                                             .prepareStatement(
-                                                    "INSERT INTO test(time, uuid, open_test_uuid, client_id, client_name, client_version, client_software_version, client_language, client_public_ip, server_id, port, use_ssl, timezone, client_time, duration, num_threads_requested, status, software_revision, client_test_counter, client_previous_test_status, public_ip_asn, public_ip_as_name, public_ip_rdns, run_ndt)"
-                                                            + "VALUES(NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                                                    "INSERT INTO test(time, uuid, open_test_uuid, client_id, client_name, client_version, client_software_version, client_language, client_public_ip, client_public_ip_anonymized, server_id, port, use_ssl, timezone, client_time, duration, num_threads_requested, status, software_revision, client_test_counter, client_previous_test_status, public_ip_asn, public_ip_as_name, public_ip_rdns, run_ndt)"
+                                                            + "VALUES(NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                                                     Statement.RETURN_GENERATED_KEYS);
                                     
                                     int i = 1;
@@ -295,7 +297,8 @@ public class RegistrationResource extends ServerResource
                                     st.setString(i++, clientVersion);
                                     st.setString(i++, request.optString("softwareVersion", null));
                                     st.setString(i++, lang);
-                                    st.setString(i++, ip);
+                                    st.setString(i++, clientIpString);
+                                    st.setString(i++, Helperfunctions.anonymizeIp(clientAddress));
                                     st.setInt(i++, testServerId);
                                     st.setInt(i++, testServerPort);
                                     st.setBoolean(i++, testServerEncryption);
@@ -312,7 +315,7 @@ public class RegistrationResource extends ServerResource
                                         st.setLong(i++, testCounter);
                                     st.setString(i++, request.optString("previousTestStatus", null));
                                     
-                                    final Long asn = Helperfunctions.getASN(ip);
+                                    final Long asn = Helperfunctions.getASN(clientAddress);
                                     final String asName;
                                     if (asn == null)
                                     {
@@ -330,7 +333,7 @@ public class RegistrationResource extends ServerResource
                                     else
                                         st.setString(i++, asName);
                                     
-                                    String reverseDNS = Helperfunctions.reverseDNSLookup(ip);
+                                    String reverseDNS = Helperfunctions.reverseDNSLookup(clientAddress);
                                     if (reverseDNS == null || reverseDNS.isEmpty())
                                         st.setNull(i++, Types.VARCHAR);
                                     else

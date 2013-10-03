@@ -31,6 +31,7 @@ import at.alladin.openrmbt.android.R;
 import at.alladin.rmbt.android.about.RMBTAboutFragment;
 import at.alladin.rmbt.android.map.RMBTMapFragment;
 import at.alladin.rmbt.android.preferences.RMBTPreferenceActivity;
+import at.alladin.rmbt.android.util.ConfigHelper;
 
 /**
  * 
@@ -72,9 +73,10 @@ public class RMBTMainMenuFragment extends Fragment
         final Button startButton = (Button) view.findViewById(R.id.menuButtonStartButton);
         final Button historyButton = (Button) view.findViewById(R.id.menuButtonHistoryButton);
         final Button mapButton = (Button) view.findViewById(R.id.menuButtonMapButton);
-        final Button settingsButton = (Button) view.findViewById(R.id.menuButtonSettingsButton);
+        final Button statisticsButton = (Button) view.findViewById(R.id.menuButtonStatisticsButton);
         final Button helpButton = (Button) view.findViewById(R.id.menuButtonHelpButton);
         final Button aboutButton = (Button) view.findViewById(R.id.menuButtonAboutButton);
+        final Button settingsButton = (Button) view.findViewById(R.id.menuButtonSettingsButton);
         final ImageButton logoButton = (ImageButton) view.findViewById(R.id.buttonLogo);
         
         final FragmentManager fm = getActivity().getSupportFragmentManager();
@@ -125,15 +127,21 @@ public class RMBTMainMenuFragment extends Fragment
         
         settingsButton.setOnClickListener(new OnClickListener()
         {
-            
-            /**
-	    	 * 
-	    	 */
             @Override
             public void onClick(final View v)
             {
                 final RMBTMainActivity activity = (RMBTMainActivity) getActivity();
                 startActivity(new Intent(activity, RMBTPreferenceActivity.class));
+            }
+        });
+        
+        statisticsButton.setOnClickListener(new OnClickListener()
+        {
+            @Override
+            public void onClick(final View v)
+            {
+                final RMBTMainActivity activity = (RMBTMainActivity) getActivity();
+                activity.showHelp(ConfigHelper.getVolatileSetting("url_statistics"));
             }
         });
         

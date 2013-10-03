@@ -77,6 +77,7 @@ public class RMBTSyncFragment extends Fragment
     {
         ((RMBTMainActivity) getActivity()).setHistoryDirty(true);
         ((RMBTMainActivity) getActivity()).checkSettings(true, null);
+        ((RMBTMainActivity) getActivity()).setSettings(null, null);
 //        ((RMBTMainActivity) getActivity()).waitForSettings(false, false, true);
         return false;
     }

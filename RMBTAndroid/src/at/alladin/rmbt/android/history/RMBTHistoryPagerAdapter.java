@@ -423,9 +423,7 @@ public class RMBTHistoryPagerAdapter extends PagerAdapter
                                         public void run()
                                         {
                                             final LatLng testPoint = new LatLng(geoLat, geoLong);
-                                            
-//                                            activity.setCurrentMapType(mapType);
-                                            activity.showMap(mapType, testPoint);
+                                            activity.showMap(mapType, testPoint, true);
                                         }
                                     };
                                     final boolean wasRunning = checkTestRunning(runnable);

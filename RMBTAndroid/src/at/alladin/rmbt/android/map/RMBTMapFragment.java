@@ -27,6 +27,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,6 +42,7 @@ import at.alladin.rmbt.android.main.RMBTMainActivity;
 import at.alladin.rmbt.android.map.overlay.RMBTBalloonOverlayItem;
 import at.alladin.rmbt.android.map.overlay.RMBTBalloonOverlayView;
 import at.alladin.rmbt.android.util.CheckMarker;
+import at.alladin.rmbt.android.util.ConfigHelper;
 import at.alladin.rmbt.android.util.EndTaskListener;
 import at.alladin.rmbt.android.util.GeoLocation;
 
@@ -147,12 +149,14 @@ public class RMBTMapFragment extends SupportMapFragment implements OnClickListen
                         latLng = initialCenter;
                         zoom = MapProperties.POINT_MAP_ZOOM;
                         
-                        gMap.addMarker(
-                                new MarkerOptions().
-                                position(initialCenter).
-                                draggable(false).
-                                icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
-                                );
+                        if (balloonMarker != null)
+                            balloonMarker.remove();
+                        balloonMarker = gMap.addMarker(
+                            new MarkerOptions().
+                            position(initialCenter).
+                            draggable(false).
+                            icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+                            );
                     }
                 }
                 gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
@@ -191,7 +195,6 @@ public class RMBTMapFragment extends SupportMapFragment implements OnClickListen
             final RMBTMainActivity activity = (RMBTMainActivity)getActivity();
             gMap.setMapType(activity.getMapTypeSatellite() ? GoogleMap.MAP_TYPE_SATELLITE : GoogleMap.MAP_TYPE_NORMAL);
             
-            final float density = getResources().getDisplayMetrics().density;
             final Map<String, String> mapOptions = ((MapProperties) getActivity()).getCurrentMapOptions();
             
             boolean needHeatmapOverlay = false;
@@ -213,9 +216,13 @@ public class RMBTMapFragment extends SupportMapFragment implements OnClickListen
                     needPointsOverlay = true;
             }
             
+            final String protocol = ConfigHelper.isMapSeverSSL(getActivity()) ? "https" : "http";
+            final String host = ConfigHelper.getMapServerName(getActivity());
+            final int port = ConfigHelper.getMapServerPort(getActivity());
+            
             if (needHeatmapOverlay)
             {
-                final RMBTTileSourceProvider heatmapProvider = new RMBTTileSourceProvider(MapProperties.TILE_SIZE, density);
+                final RMBTTileSourceProvider heatmapProvider = new RMBTTileSourceProvider(protocol, host, port, MapProperties.TILE_SIZE);
                 heatmapProvider.setOptionMap(mapOptions);
                 final String mapType = activity.getCurrentMainMapType();
                 if (mapType != null && mapType.equals("browser"))
@@ -227,7 +234,7 @@ public class RMBTMapFragment extends SupportMapFragment implements OnClickListen
             
             if (needPointsOverlay)
             {
-                final RMBTTileSourceProvider pointsProvider = new RMBTTileSourceProvider(MapProperties.TILE_SIZE * 2, density);
+                final RMBTTileSourceProvider pointsProvider = new RMBTTileSourceProvider(protocol, host, port, MapProperties.TILE_SIZE * 2);
                 pointsProvider.setOptionMap(mapOptions);
                 pointsProvider.setPath(MapProperties.POINTS_PATH);
                 pointsOverlay = gMap.addTileOverlay(new TileOverlayOptions().tileProvider(pointsProvider).zIndex(200000000));
@@ -451,13 +458,17 @@ public class RMBTMapFragment extends SupportMapFragment implements OnClickListen
 
             infoString += s;
         }
-        final Toast toast = Toast.makeText(getActivity(), infoString, Toast.LENGTH_LONG);
-        toast.setGravity(Gravity.CENTER_VERTICAL | Gravity.BOTTOM, 0, 0);
-        toast.show();
+        if (infoString.length() > 0)
+        {
+            final Toast toast = Toast.makeText(getActivity(), infoString, Toast.LENGTH_LONG);
+            toast.setGravity(Gravity.CENTER_VERTICAL | Gravity.BOTTOM, 0, 0);
+            toast.show();
+        }
     }
     
     private CheckMarker checkMarker;
     private RMBTBalloonOverlayItem balloon;
+    private String openTestUUIDURL;
     private Marker balloonMarker;
     private final EndTaskListener checkMarkerEndTaskListener = new EndTaskListener()
     {
@@ -479,6 +490,15 @@ public class RMBTMapFragment extends SupportMapFragment implements OnClickListen
                 
                 final LatLng latLng = new LatLng(resultListItem.getDouble("lat"), resultListItem.getDouble("lon"));
                 
+                openTestUUIDURL = null;
+                final String openDataPrefix = ConfigHelper.getVolatileSetting("url_open_data_prefix");
+                if (openDataPrefix != null && openDataPrefix.length() > 0)
+                {
+                    final String openUUID = resultListItem.optString("open_test_uuid", null);
+                    if (openUUID != null && openUUID.length() > 0)
+                        openTestUUIDURL = openDataPrefix + openUUID;
+                }
+                
                 balloon = new RMBTBalloonOverlayItem(latLng, getResources().getString(R.string.map_balloon_overlay_header), result);
                 
                 if (balloonMarker != null)
@@ -486,7 +506,8 @@ public class RMBTMapFragment extends SupportMapFragment implements OnClickListen
                 
                 balloonMarker = gMap.addMarker(new MarkerOptions().
                         position(latLng).
-                        icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
+                        draggable(false).
+                        icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
                 balloonMarker.showInfoWindow();
                 
                 
@@ -559,7 +580,14 @@ public class RMBTMapFragment extends SupportMapFragment implements OnClickListen
     {
         if (balloonMarker == null || ! balloonMarker.equals(marker))
             return;
+        
         balloonMarker.hideInfoWindow();
+        if (openTestUUIDURL != null)
+        {
+            Log.d(getTag(), "go to url: " + openTestUUIDURL);
+            final RMBTMainActivity activity = (RMBTMainActivity) getActivity();
+            activity.showHelp(openTestUUIDURL);
+        }
     }
 
 }

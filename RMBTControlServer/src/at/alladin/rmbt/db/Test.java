@@ -39,14 +39,16 @@ public class Test extends Table
             " t.*," +
             " pMob.shortname mobile_provider_name," +
             " pSim.shortname network_sim_operator_mcc_mnc_text," +
-            " pPro.shortname provider_id_name" +
+            " pPro.shortname provider_id_name," +
+            " COALESCE(adm.fullname, t.model) model_fullname" +
             " FROM test t" +
             " LEFT JOIN provider pSim" +
             " ON t.network_sim_operator=pSim.mcc_mnc" +
             " LEFT JOIN provider pPro" +
             " ON t.provider_id=pPro.uid" +
             " LEFT JOIN provider pMob" +
-            " ON t.mobile_provider_id=pMob.uid";
+            " ON t.mobile_provider_id=pMob.uid" +
+            " LEFT JOIN android_device_map adm ON adm.codename=t.model";
     
     private final static ThreadLocal<Field[]> PER_THREAD_FIELDS = new ThreadLocal<Field[]>() {
         protected Field[] initialValue() {
@@ -73,6 +75,7 @@ public class Test extends Table
             new StringField("api_level", "api_level"),
             new StringField("device", "device"),
             new StringField("model", "model"),
+            new StringField("model_fullname", null, true),
             new StringField("product", "product"),
             new IntField("phone_type", "telephony_phone_type"),
             new IntField("data_state", "telephony_data_state"),

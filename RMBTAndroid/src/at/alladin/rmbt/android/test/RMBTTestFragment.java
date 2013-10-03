@@ -106,7 +106,6 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
     private String lastStatusString;
     private long lastShownWaitTime = -1;
     private String waitText;
-    private boolean errorDialogShown;
     private boolean suppressError;
     
     private Dialog dialog;
@@ -115,7 +114,7 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
     private Handler handler;
     
     private static final int RESULT_SWITCHER_POST_TIME = 3000;
-    private static final long RESULT_SWITCHER_MAX_WAIT_TIME = 1000l * 1000000000l; // 10s
+    private static final long RESULT_SWITCHER_MAX_WAIT_TIME = 20l * 1000000000l; // 20s
     private static final long MAX_COUNTER_WITHOUT_RESULT = 100;
     
     private Long resultSwitcherTime;
@@ -159,7 +158,6 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
         
         speedFormat = new DecimalFormat(String.format("@@ %s",
                 getActivity().getResources().getString(R.string.test_mbps)));
-        
     }
     
     protected RMBTMainActivity getMainActivity()
@@ -305,6 +303,7 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
     
     private void updateUI()
     {
+        String teststatus;
         updateCounter++;
         
         if (rmbtService == null)
@@ -321,7 +320,7 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
                     progressDialog.dismiss();
                     progressDialog = null;
                 }
-                if (!errorDialogShown && !ConfigHelper.isRepeatTest(getActivity()) && ! suppressError)
+                if (!ConfigHelper.isRepeatTest(getActivity()))
                     showErrorDialog(true);
             }
             
@@ -399,11 +398,18 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
             if (location != null && !location.equals(lastLocation))
                 lastLocation = location;
             
-            final String locationStr;
+            final String locationStr_line1;
+            final String locationStr_line2;
             if (lastLocation != null)
-                locationStr = Helperfunctions.getLocationString(lastLocation);
+            {    
+                locationStr_line1 = Helperfunctions.getLocationString(context, getResources(), lastLocation,1);
+                locationStr_line2 = Helperfunctions.getLocationString(context, getResources(), lastLocation,2);
+            }    
             else
-                locationStr = "?";
+            {    
+                locationStr_line1 = "";
+                locationStr_line2 = "";
+            }
             
             final String ip = rmbtService.getIP();
             if (ip != null)
@@ -411,7 +417,14 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
             if (lastIP == null)
                 lastIP = "?";
             
-            textView.setText(MessageFormat.format(bottomText, locationStr, lastServerName, lastIP, lastStatusString));
+            if (ConfigHelper.isRepeatTest(context))
+                teststatus = String.format("%s #%d - %s",getString(R.string.test_loop),
+                        rmbtService.testLoops(),lastStatusString);
+            else
+                teststatus = lastStatusString;
+            
+            textView.setText(MessageFormat.format(bottomText, teststatus, lastServerName, lastIP, 
+                    locationStr_line1, locationStr_line2));
         }
         
         final Integer signal = rmbtService.getSignal();
@@ -494,7 +507,7 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
                     + PROGRESS_SEGMENTS_UP;
             speedValueRelative = intermediateResult.upBitPerSecLog;
             
-            if (!ConfigHelper.isRepeatTest(context))
+            if (!ConfigHelper.isRepeatTest(context) || !rmbtService.loopContinue())
                 if (resultSwitcherTime == null)
                 {
                     resultSwitcherTime = System.nanoTime();
@@ -503,8 +516,7 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
                 else if (resultSwitcherTime + RESULT_SWITCHER_MAX_WAIT_TIME < System.nanoTime())
                 {
                     resultSwitcherTime = System.nanoTime();
-                    Log.w(TAG, "forcing switch to result!");
-                    switchToResult();
+                    getActivity().getSupportFragmentManager().popBackStack();
                 }
             break;
         
@@ -513,7 +525,7 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
             progressSegments = 0;
             resetGraph();
             
-            if (!errorDialogShown && !ConfigHelper.isRepeatTest(getActivity()))
+            if (!ConfigHelper.isRepeatTest(getActivity()))
                 showErrorDialog(true);
             
             break;
@@ -583,8 +595,13 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
     
     protected void showErrorDialog(final boolean popAfterOk)
     {
-        errorDialogShown = true;
+        if (suppressError)
+            return;
+        suppressError = true;
         
+        if (suppressError)
+            return;
+
         if (dialog != null && dialog.isShowing())
             dialog.dismiss();
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -637,7 +654,7 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
                 showErrorDialog(true);
         }
         
-        getMainActivity().setCurrentMapType(Helperfunctions.getMapType(lastNetworkType) + "/download");
+//        getMainActivity().setCurrentMapType(Helperfunctions.getMapType(lastNetworkType) + "/download");
         
         final RMBTHistoryPagerFragment fragment = new RMBTHistoryPagerFragment();
         final Bundle args = new Bundle();
