@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +26,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.PropertyResourceBundle;
-import java.util.ResourceBundle;
 import java.util.TimeZone;
 import java.util.UUID;
 
@@ -39,6 +37,7 @@ import org.restlet.resource.Post;
 
 import at.alladin.rmbt.db.Client;
 import at.alladin.rmbt.shared.Classification;
+import at.alladin.rmbt.shared.ResourceManager;
 import at.alladin.rmbt.shared.SignificantFormat;
 
 public class HistoryResource extends ServerResource
@@ -72,8 +71,7 @@ public class HistoryResource extends ServerResource
                 if (langs.contains(lang))
                 {
                     errorList.setLanguage(lang);
-                    labels = (PropertyResourceBundle) ResourceBundle.getBundle("at.alladin.rmbt.res.SystemMessages",
-                            new Locale(lang));
+                    labels = ResourceManager.getSysMsgBundle(new Locale(lang));
                 }
                 else
                     lang = settings.getString("RMBT_DEFAULT_LANGUAGE");
@@ -162,25 +160,48 @@ public class HistoryResource extends ServerResource
                         
                         final JSONArray historyList = new JSONArray();
                         
+                        final PreparedStatement st;
+                        
                         try
-                        {
-                            
-                            final PreparedStatement st = conn
+                        {   
+                        	if (client.getSync_group_id() == 0) { 
+                        		//use faster request ignoring sync-group as user is not synced (id=0)
+                                st = conn
                                     .prepareStatement(String
-                                            .format("SELECT DISTINCT"
+                                            .format(
+
+                                            		"SELECT DISTINCT"
                                                     + " t.uuid, time, timezone, speed_upload, speed_download, ping_shortest, network_type, nt.group_name network_type_group_name,"
                                                     + " COALESCE(adm.fullname, t.model) model"
                                                     + " FROM test t"
-                                                    + " LEFT JOIN android_device_map adm ON adm.codename=t.model"
+                                                    + " LEFT JOIN device_map adm ON adm.codename=t.model"
                                                     + " LEFT JOIN network_type nt ON t.network_type=nt.uid"
-                                                    + " WHERE t.deleted = false AND t.status = 'FINISHED'"
-                                                    + " AND (client_id = ? OR client_id IN (SELECT uid FROM client WHERE sync_group_id = ?))"
+                                                    + " WHERE t.deleted = false AND t.implausible = false AND t.status = 'FINISHED'"
+                                                    + " AND client_id = ?"
                                                     + " %s %s" + " ORDER BY time DESC" + " %s", deviceRequest,
                                                     networksRequest, limitRequest));
-                            
+                        	}
+                        	else { //use slower request including sync-group if client is synced
+                                 st = conn
+                                        .prepareStatement(String
+                                                .format(
+                                                		"SELECT DISTINCT"
+                                                        + " t.uuid, time, timezone, speed_upload, speed_download, ping_shortest, network_type, nt.group_name network_type_group_name,"
+                                                        + " COALESCE(adm.fullname, t.model) model"
+                                                        + " FROM test t"
+                                                        + " LEFT JOIN device_map adm ON adm.codename=t.model"
+                                                        + " LEFT JOIN network_type nt ON t.network_type=nt.uid"
+                                                        + " WHERE t.deleted = false AND t.implausible = false AND t.status = 'FINISHED'"
+                                                        + " AND (t.client_id IN (SELECT ? UNION SELECT uid FROM client WHERE sync_group_id = ? ))"
+                                                        + " %s %s" + " ORDER BY time DESC" + " %s", deviceRequest,
+                                                        networksRequest, limitRequest));
+                       		
+                        	}
+                        
                             int i = 1;
                             st.setLong(i++, client.getUid());
-                            st.setInt(i++, client.getSync_group_id());
+                            if (client.getSync_group_id() != 0) 
+                              st.setInt(i++, client.getSync_group_id());
                             
                             for (final String value : deviceValues)
                                 st.setString(i++, value);
@@ -188,7 +209,7 @@ public class HistoryResource extends ServerResource
                             for (final String filterValue : filterValues)
                                 st.setString(i++, filterValue);
                             
-//                            System.out.println(st.toString());
+                            System.out.println(st.toString());
                             
                             final ResultSet rs = st.executeQuery();
                             
@@ -254,6 +275,10 @@ public class HistoryResource extends ServerResource
             {
                 errorList.addError("ERROR_REQUEST_JSON");
                 System.out.println("Error parsing JSDON Data " + e.toString());
+            }
+            catch (final IllegalArgumentException e)
+            {
+                errorList.addError("ERROR_REQUEST_NO_UUID");
             }
         else
             errorList.addErrorString("Expected request is missing.");

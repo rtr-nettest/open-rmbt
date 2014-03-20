@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.PropertyResourceBundle;
-import java.util.ResourceBundle;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -32,6 +30,7 @@ import org.restlet.resource.Get;
 import org.restlet.resource.Post;
 
 import at.alladin.rmbt.mapServer.MapServerOptions.MapOption;
+import at.alladin.rmbt.shared.ResourceManager;
 
 public class InfoResource extends ServerResource
 {
@@ -101,8 +100,9 @@ public class InfoResource extends ServerResource
         filterList.put(statisticalMethodObj);
         filterList.put(getOperators(true));
         filterList.put(getTimes());
+        filterList.put(getTechnology());
 //        filterList.put(getDevices("mobile"));
-        
+       
         final JSONObject operatorsNotMobile = getOperators(false);
         filterList = new JSONArray();
         result.put("wifi", filterList);
@@ -126,29 +126,92 @@ public class InfoResource extends ServerResource
         final JSONArray options = new JSONArray();
         
         JSONObject obj = new JSONObject();
-        options.put(obj);
-        obj.put("title", labels.getString("MAP_FILTER_PERIOD_1_MONTH"));
-        obj.put("summary", labels.getString("MAP_FILTER_PERIOD_1_MONTH"));
-        obj.put("period", 1);
+     //   options.put(obj);
+     //   obj.put("title", labels.getString("MAP_FILTER_PERIOD_1_DAY"));
+     //   obj.put("summary", labels.getString("MAP_FILTER_PERIOD_1_DAY"));
+     //   obj.put("period", 1);
         
         obj = new JSONObject();
         options.put(obj);
-        obj.put("title", labels.getString("MAP_FILTER_PERIOD_3_MONTHS"));
-        obj.put("summary", labels.getString("MAP_FILTER_PERIOD_3_MONTHS"));
-        obj.put("period", 3);
-        
+        obj.put("title", labels.getString("MAP_FILTER_PERIOD_7_DAYS"));
+        obj.put("summary", labels.getString("MAP_FILTER_PERIOD_7_DAYS"));
+        obj.put("period", 7);
+
         obj = new JSONObject();
         options.put(obj);
-        obj.put("title", labels.getString("MAP_FILTER_PERIOD_6_MONTHS"));
-        obj.put("summary", labels.getString("MAP_FILTER_PERIOD_6_MONTHS"));
+        obj.put("title", labels.getString("MAP_FILTER_PERIOD_30_DAYS"));
+        obj.put("summary", labels.getString("MAP_FILTER_PERIOD_30_DAYS"));
+        obj.put("period", 30);
+
+        obj = new JSONObject();
+        options.put(obj);
+        obj.put("title", labels.getString("MAP_FILTER_PERIOD_90_DAYS"));
+        obj.put("summary", labels.getString("MAP_FILTER_PERIOD_90_DAYS"));
+        obj.put("period", 90);
+
+        obj = new JSONObject();
+        options.put(obj);
+        obj.put("title", labels.getString("MAP_FILTER_PERIOD_180_DAYS"));
+        obj.put("summary", labels.getString("MAP_FILTER_PERIOD_180_DAYS"));
         obj.put("default", true);
-        obj.put("period", 6);
-        
+        obj.put("period", 180);
+
+        obj = new JSONObject();
+        options.put(obj);
+        obj.put("title", labels.getString("MAP_FILTER_PERIOD_365_DAYS"));
+        obj.put("summary", labels.getString("MAP_FILTER_PERIOD_365_DAYS"));
+        obj.put("period", 365);
+
+        obj = new JSONObject();
+        options.put(obj);
+        obj.put("title", labels.getString("MAP_FILTER_PERIOD_730_DAYS"));
+        obj.put("summary", labels.getString("MAP_FILTER_PERIOD_730_DAYS"));
+        obj.put("period", 730);
+
         final JSONObject result = new JSONObject();
-        
+
         result.put("title", labels.getString("MAP_FILTER_PERIOD"));
         result.put("options", options);
+
+        return result;
+    }
+    private JSONObject getTechnology() throws JSONException
+    {
+        final JSONArray options = new JSONArray();
         
+        JSONObject obj = new JSONObject();
+ 
+        obj = new JSONObject();
+        options.put(obj);
+        obj.put("title", labels.getString("MAP_FILTER_TECHNOLOGY_ANY"));
+        obj.put("summary", labels.getString("MAP_FILTER_TECHNOLOGY_ANY"));
+        obj.put("default", true);
+        obj.put("technology", "");
+        
+        obj = new JSONObject();
+        options.put(obj);
+        obj.put("title", labels.getString("MAP_FILTER_TECHNOLOGY_2G"));
+        obj.put("summary", labels.getString("MAP_FILTER_TECHNOLOGY_2G"));
+        obj.put("technology", "2");
+
+        obj = new JSONObject();
+        options.put(obj);
+        obj.put("title", labels.getString("MAP_FILTER_TECHNOLOGY_3G"));
+        obj.put("summary", labels.getString("MAP_FILTER_TECHNOLOGY_3G"));
+        obj.put("technology", "3");
+
+        obj = new JSONObject();
+        options.put(obj);
+        obj.put("title", labels.getString("MAP_FILTER_TECHNOLOGY_4G"));
+        obj.put("summary", labels.getString("MAP_FILTER_TECHNOLOGY_4G"));
+        obj.put("technology", "4");
+
+        
+        final JSONObject result = new JSONObject();
+
+        result.put("title", labels.getString("MAP_FILTER_TECHNOLOGY"));
+        result.put("options", options);
+
         return result;
     }
     
@@ -168,7 +231,7 @@ public class InfoResource extends ServerResource
             obj.put("provider", "");
         
         final String sql = "SELECT uid,name,mcc_mnc,shortname FROM provider p WHERE p.map_filter=true"
-                + (mobile ? " AND p.mcc_mnc IS NOT NULL" : " AND p.mcc_mnc IS NULL") + " ORDER BY shortname";
+                + (mobile ? " AND p.mcc_mnc IS NOT NULL" : " ") + " ORDER BY shortname";  // allow mobile networks for wifi/browser
         
         final PreparedStatement ps = conn.prepareStatement(sql);
         
@@ -235,11 +298,11 @@ public class InfoResource extends ServerResource
                         		" COALESCE(adm.fullname, s.model) val" +
                         		" FROM" +
                         		" (SELECT DISTINCT model FROM test t " +
-                        		" WHERE t.deleted = false" +
+                        		" WHERE t.deleted = false AND t.implausible = false " +
                         		" AND t.status = 'FINISHED'" +
                         		" AND t.model IS NOT NULL" +
                         		" %s) s" +
-                        		" LEFT JOIN android_device_map adm ON adm.codename=s.model" +
+                        		" LEFT JOIN device_map adm ON adm.codename=s.model" +
                         		" GROUP BY val ORDER BY val ASC",
                                 typeFilter));
         
@@ -296,8 +359,7 @@ public class InfoResource extends ServerResource
                 final List<String> langs = Arrays.asList(settings.getString("RMBT_SUPPORTED_LANGUAGES").split(",\\s*"));
                 
                 if (langs.contains(lang))
-                    labels = (PropertyResourceBundle) ResourceBundle.getBundle("at.alladin.rmbt.res.SystemMessages",
-                            new Locale(lang));
+                    labels = ResourceManager.getSysMsgBundle(new Locale(lang));
             }
             
             final JSONObject mapFilterObject = new JSONObject();

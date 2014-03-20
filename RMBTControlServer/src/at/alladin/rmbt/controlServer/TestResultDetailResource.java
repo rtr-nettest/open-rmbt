@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  ******************************************************************************/
 package at.alladin.rmbt.controlServer;
 
+import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -25,8 +26,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
-import java.util.PropertyResourceBundle;
-import java.util.ResourceBundle;
 import java.util.TimeZone;
 import java.util.UUID;
 
@@ -43,6 +42,7 @@ import at.alladin.rmbt.db.Test_Server;
 import at.alladin.rmbt.db.fields.Field;
 import at.alladin.rmbt.db.fields.TimestampField;
 import at.alladin.rmbt.shared.Helperfunctions;
+import at.alladin.rmbt.shared.ResourceManager;
 import at.alladin.rmbt.shared.SignificantFormat;
 
 public class TestResultDetailResource extends ServerResource
@@ -113,8 +113,7 @@ public class TestResultDetailResource extends ServerResource
                 if (langs.contains(lang))
                 {
                     errorList.setLanguage(lang);
-                    labels = (PropertyResourceBundle) ResourceBundle.getBundle("at.alladin.rmbt.res.SystemMessages",
-                            new Locale(lang));
+                    labels = ResourceManager.getSysMsgBundle(new Locale(lang));
                 }
                 else
                     lang = settings.getString("RMBT_DEFAULT_LANGUAGE");
@@ -146,7 +145,7 @@ public class TestResultDetailResource extends ServerResource
                         final JSONObject singleItem = addObject(resultList, "time");
                         final Date date = ((TimestampField) test.getField("time")).getDate();
                         final long time = date.getTime();
-                        singleItem.put("time", time);
+                        singleItem.put("time", time); //csv 3
                         final String tzString = test.getField("timezone").toString();
                         final TimeZone tz = TimeZone.getTimeZone(tzString);
                         singleItem.put("timezone", tzString);
@@ -160,18 +159,22 @@ public class TestResultDetailResource extends ServerResource
                         final float offset = tz.getOffset(time) / 1000f / 60f / 60f;
                         addString(resultList, "timezone", String.format("UTC%sh", tzFormat.format(offset)));
                         
+                        // speed download in Mbit/s (converted from kbit/s) - csv 10 (in kbit/s)
                         final String download = format.format(test.getField("speed_download").doubleValue() / 1000d);
                         addString(resultList, "speed_download",
                                 String.format("%s %s", download, labels.getString("RESULT_DOWNLOAD_UNIT")));
                         
+                        // speed upload im MBit/s (converted from kbit/s) - csv 11 (in kbit/s)
                         final String upload = format.format(test.getField("speed_upload").doubleValue() / 1000d);
                         addString(resultList, "speed_upload",
                                 String.format("%s %s", upload, labels.getString("RESULT_UPLOAD_UNIT")));
                         
+                        // ping in ms - csv 12
                         final String ping = format.format(test.getField("ping_shortest").doubleValue() / 1000000d);
                         addString(resultList, "ping_shortest",
                                 String.format("%s %s", ping, labels.getString("RESULT_PING_UNIT")));
                         
+                        // signal strength RSSI in dBm - csv 13
                         final Field signalStrengthField = test.getField("signal_strength");
                         if (!signalStrengthField.isNull())
                             addString(
@@ -179,14 +182,39 @@ public class TestResultDetailResource extends ServerResource
                                     "signal_strength",
                                     String.format("%d %s", signalStrengthField.intValue(),
                                             labels.getString("RESULT_SIGNAL_UNIT")));
+
+                        //signal strength RSRP in dBm (LTE) - csv 29
+                        final Field lteRsrpField = test.getField("lte_rsrp");
+                        if (!lteRsrpField.isNull())
+                            addString(
+                                    resultList,
+                                    "signal_rsrp",
+                                    String.format("%d %s", lteRsrpField.intValue(),
+                                            labels.getString("RESULT_SIGNAL_UNIT")));
+
+                        //signal quality in LTE, RSRQ in dB
+                        final Field lteRsrqField = test.getField("lte_rsrq");
+                        if (!lteRsrqField.isNull())
+                            addString(
+                                    resultList,
+                                    "signal_rsrq",
+                                    String.format("%d %s", lteRsrqField.intValue(),
+                                            labels.getString("RESULT_DB_UNIT")));
+                      
+                        // network, eg. "3G (HSPA+)
+                        //TODO fix helper-function
                         addString(resultList, "network_type",
                                 Helperfunctions.getNetworkTypeName(test.getField("network_type").intValue()));
-                        addString(resultList, "client_type", client.getClient_type_name());
                         
-                        final Field latField = test.getField("geo_lat");
-                        final Field longField = test.getField("geo_long");
-                        final Field accuracyField = test.getField("geo_accuracy");
-                        final Field providerField = test.getField("geo_provider");
+
+                        // type of client (DESKTOP or MOBILE) - obsolete (and confusing - 'mobile' includes Wifi)
+                        //addString(resultList, "client_type", client.getClient_type_name());
+                        
+                        // geo-location
+                        final Field latField = test.getField("geo_lat"); //csv 6
+                        final Field longField = test.getField("geo_long"); //csv 7
+                        final Field accuracyField = test.getField("geo_accuracy"); 
+                        final Field providerField = test.getField("geo_provider"); //csv 8
                         if (!(latField.isNull() || longField.isNull() || accuracyField.isNull()))
                         {
                             final double accuracy = accuracyField.doubleValue();
@@ -204,28 +232,75 @@ public class TestResultDetailResource extends ServerResource
                                 geoString.append(String.format(Locale.US, "+/- %.0f m", accuracy));
                                 geoString.append(")");
                                 addString(resultList, "location", geoString.toString());
+                                
+                                //also try getting the distance during the test
+                                final Date clientDate = ((TimestampField) test.getField("client_time")).getDate();
+                                final long clientTime = clientDate.getTime();
+                                try {
+                                	OpenTestResource.LocationGraph locGraph = new OpenTestResource.LocationGraph(test.getUid(), clientTime,conn);
+                                	if ((locGraph.getTotalDistance() > 0) &&
+                                	        locGraph.getTotalDistance() <= Double.parseDouble(settings.getString("RMBT_GEO_DISTANCE_DETAIL_LIMIT")))
+                                		addString(resultList, "motion", Math.round(locGraph.getTotalDistance()) + " m");
+
+                                } catch (SQLException ex) {
+                                	//cannot happen since the test uid has to exist in here
+                                	ex.printStackTrace();
+                                }
                             }
+                            
+                        // country derived from location
+                        final Field countryLocationField = test.getField("country_location"); 
+                        if (!countryLocationField.isNull())
+                                addString(resultList, "country_location", countryLocationField.toString());
                         }
-                        
+
+                        // country derived from AS registry
+                        final Field countryAsnField = test.getField("country_asn");
+                        if (!countryAsnField.isNull()) 
+                            addString(resultList, "country_asn", countryAsnField.toString());
+
+                        // country derived from geo-IP database
+                        final Field countryGeoipField = test.getField("country_geoip");
+                        if (!countryGeoipField.isNull())
+                            addString(resultList, "country_geoip", countryGeoipField.toString());
+
                         final Field zipCodeField = test.getField("zip_code");
                         if (!zipCodeField.isNull())
                         {
-                            String zipCode = zipCodeField.toString();
-                            if (zipCode.equals("0"))
-                                zipCode = "-";
-                            addString(resultList, "zip_code", zipCode);
+                            final String zipCode = zipCodeField.toString();
+                            final int zipCodeInt = zipCodeField.intValue();
+                            if (zipCodeInt > 999 || zipCodeInt <= 9999)  // plausibility of zip code (must be 4 digits in Austria)
+                            	addString(resultList, "zip_code", zipCode);
                         }
                         
+                        // public client ip (private)
                         addString(resultList, "client_public_ip", test.getField("client_public_ip"));
+
+                        // AS number - csv 24
+                        addString(resultList, "client_public_ip_as", test.getField("public_ip_asn"));
+
+                        // name of AS
                         addString(resultList, "client_public_ip_as_name", test.getField("public_ip_as_name"));
+
+                        // reverse hostname (from ip) - (private)
                         addString(resultList, "client_public_ip_rdns", test.getField("public_ip_rdns"));
+                        
+                        // operator - derived from provider_id (only for pre-defined operators)
+                        //TODO replace provider-information by more generic information
                         addString(resultList, "provider", test.getField("provider_id_name"));
+                        
+                        // local ip of client (or info private ip) (private)
                         addString(resultList, "client_local_ip", test.getField("client_local_ip"));
+                        
+                        // nat-translation of client - csv 23
                         addString(resultList, "nat_type", test.getField("nat_type"));
                         
+                        // wifi base station id SSID (numberic) eg 01:2c:3d..
                         addString(resultList, "wifi_ssid", test.getField("wifi_ssid"));
+                        // wifi base station id - BSSID (text) eg 'my hotspot'
                         addString(resultList, "wifi_bssid", test.getField("wifi_bssid"));
                         
+                        // nominal link speed of wifi connection in MBit/s
                         final Field linkSpeedField = test.getField("wifi_link_speed");
                         if (!linkSpeedField.isNull())
                             addString(
@@ -233,18 +308,21 @@ public class TestResultDetailResource extends ServerResource
                                     "wifi_link_speed",
                                     String.format("%s %s", linkSpeedField.toString(),
                                             labels.getString("RESULT_WIFI_LINK_SPEED_UNIT")));
-                        
+                        // name of mobile network operator (eg. 'T-Mobile AT')
                         addString(resultList, "network_operator_name", test.getField("network_operator_name"));
                         
+                        // mobile network name derived from MCC/MNC of network, eg. '232-01'
                         final Field networkOperatorField = test.getField("network_operator");
+                        
+                        // mobile provider name, eg. 'Hutchison Drei' (derived from mobile_provider_id)
                         final Field mobileProviderNameField = test.getField("mobile_provider_name");
-                        if (mobileProviderNameField.isNull())
+                        if (mobileProviderNameField.isNull()) // eg. '248-02'
                             addString(resultList, "network_operator", networkOperatorField);
                         else
                         {
                             if (networkOperatorField.isNull())
                                 addString(resultList, "network_operator", mobileProviderNameField);
-                            else
+                            else // eg. 'Hutchison Drei (232-10)'
                                 addString(resultList, "network_operator",
                                     String.format("%s (%s)", mobileProviderNameField, networkOperatorField));
                         }
@@ -260,7 +338,7 @@ public class TestResultDetailResource extends ServerResource
                                     String.format("%s (%s)", networkSimOperatorTextField, networkSimOperatorField));
                         
                         final Field roamingTypeField = test.getField("roaming_type");
-                        if (! roamingTypeField.isNull() && roamingTypeField.intValue() > 0)
+                        if (!roamingTypeField.isNull())
                             addString(resultList, "roaming", Helperfunctions.getRoamingType(labels, roamingTypeField.intValue()));
                         
                         final long totalDownload = test.getField("total_bytes_download").longValue();
@@ -275,7 +353,94 @@ public class TestResultDetailResource extends ServerResource
                                     String.format("%s %s", totalBytesString,
                                             labels.getString("RESULT_TOTAL_BYTES_UNIT")));
                         }
+                        // interface volumes - total including control-server and pre-tests (and other tests)
+                        final long totalIfDownload = test.getField("test_if_bytes_download").longValue();
+                        final long totalIfUpload = test.getField("test_if_bytes_upload").longValue();
+                        // output only total of down- and upload
+                        final long totalIfBytes = totalIfDownload + totalIfUpload;
+                        if (totalIfBytes > 0)
+                        {
+                            final String totalIfBytesString = format.format(totalIfBytes / (1024d * 1024d));
+                            addString(
+                                    resultList,
+                                    "total_if_bytes",
+                                    String.format("%s %s", totalIfBytesString,
+                                            labels.getString("RESULT_TOTAL_BYTES_UNIT")));
+                        }
+                        // interface volumes during test
+                        // download test - volume in download direction
+                        final long testDlIfBytesDownload = test.getField("testdl_if_bytes_download").longValue();
+                        if (testDlIfBytesDownload > 0l) {
+                        	final String testDlIfBytesDownloadString = format.format(testDlIfBytesDownload / (1024d * 1024d));
+                        	addString(
+                        			resultList,
+                        			"testdl_if_bytes_download",
+                        			String.format("%s %s", testDlIfBytesDownloadString,
+                        					labels.getString("RESULT_TOTAL_BYTES_UNIT")));
+                        }
+                        // download test - volume in upload direction
+                        final long testDlIfBytesUpload = test.getField("testdl_if_bytes_upload").longValue();
+                        if (testDlIfBytesUpload > 0l) {
+                        	final String testDlIfBytesUploadString = format.format(testDlIfBytesUpload / (1024d * 1024d));
+                        	addString(
+                        			resultList,
+                        			"testdl_if_bytes_upload",
+                        			String.format("%s %s", testDlIfBytesUploadString,
+                        					labels.getString("RESULT_TOTAL_BYTES_UNIT")));
+                        }
+                        // upload test - volume in upload direction
+                        final long testUlIfBytesUpload = test.getField("testul_if_bytes_upload").longValue();
+                        if (testUlIfBytesUpload > 0l) {
+                        	final String testUlIfBytesUploadString = format.format(testUlIfBytesUpload / (1024d * 1024d));
+                        	addString(
+                        			resultList,
+                        			"testul_if_bytes_upload",
+                        			String.format("%s %s", testUlIfBytesUploadString,
+                        					labels.getString("RESULT_TOTAL_BYTES_UNIT")));
+                        }
+                        // upload test - volume in download direction
+                        final long testUlIfBytesDownload = test.getField("testul_if_bytes_download").longValue();
+                        if (testDlIfBytesDownload > 0l) {
+                        	final String testUlIfBytesDownloadString = format.format(testUlIfBytesDownload / (1024d * 1024d));
+                        	addString(
+                        			resultList,
+                        			"testul_if_bytes_upload",
+                        			String.format("%s %s", testUlIfBytesDownloadString,
+                        					labels.getString("RESULT_TOTAL_BYTES_UNIT")));
+                        }
+
+                        //start time download-test 
+                        final Field time_dl_ns = test.getField("time_dl_ns");
+                        if (!time_dl_ns.isNull()) {                   
+                        addString(resultList,"time_dl",
+                                    String.format("%s %s", format.format(time_dl_ns.doubleValue() / 1000000000d),  //convert ns to s
+                                            labels.getString("RESULT_DURATION_UNIT")));
+                        }
                         
+                        //duration download-test 
+                        final Field duration_download_ns = test.getField("nsec_download");
+                        if (!duration_download_ns.isNull()) {                   
+                        addString(resultList,"duration_dl",
+                                    String.format("%s %s", format.format(duration_download_ns.doubleValue() / 1000000000d),  //convert ns to s
+                                            labels.getString("RESULT_DURATION_UNIT")));
+                        }
+
+                        //start time upload-test 
+                        final Field time_ul_ns = test.getField("time_ul_ns");
+                        if (!time_ul_ns.isNull()) {                   
+                        addString(resultList,"time_ul",
+                                    String.format("%s %s", format.format(time_ul_ns.doubleValue() / 1000000000d),  //convert ns to s
+                                            labels.getString("RESULT_DURATION_UNIT")));
+                        }
+                        
+                        //duration upload-test 
+                        final Field duration_upload_ns = test.getField("nsec_upload");
+                        if (!duration_upload_ns.isNull()) {                   
+                        addString(resultList,"duration_ul",
+                                    String.format("%s %s", format.format(duration_upload_ns.doubleValue() / 1000000000d),  //convert ns to s
+                                            labels.getString("RESULT_DURATION_UNIT")));
+                        }
+                   
                         if (ndt != null)
                         {
                             final String downloadNdt = format.format(ndt.getField("s2cspd").doubleValue());
@@ -295,7 +460,7 @@ public class TestResultDetailResource extends ServerResource
                         
                         addString(resultList, "plattform", test.getField("plattform"));
                         addString(resultList, "os_version", test.getField("os_version"));
-                        addString(resultList, "model", test.getField("model"));
+                        addString(resultList, "model", test.getField("model_fullname"));
                         addString(resultList, "client_name", test.getField("client_name"));
                         addString(resultList, "client_software_version", test.getField("client_software_version"));
                         final String encryption = test.getField("encryption").toString();
@@ -316,9 +481,22 @@ public class TestResultDetailResource extends ServerResource
                                 "duration",
                                 String.format("%d %s", test.getField("duration").intValue(),
                                         labels.getString("RESULT_DURATION_UNIT")));
-                        addInt(resultList, "num_threads", test.getField("num_threads"));
-                        
-                        addString(resultList, "uuid", String.format("T%s", test.getField("uuid")));
+ 
+                        // number of threads for download-test
+                        final Field num_threads = test.getField("num_threads");
+                        if (!num_threads.isNull()) {                   
+                        	addInt(resultList,"num_threads",num_threads);
+                        }
+                       
+                        //number of threads for upload-test
+                        final Field num_threads_ul = test.getField("num_threads_ul");
+                        if (!num_threads_ul.isNull()) {                   
+                        	addInt(resultList,"num_threads_ul",num_threads_ul);
+                        }
+                    
+                        //dz 2013-11-09 removed UUID from details as users might get confused by two
+                        //              ids;
+                        //addString(resultList, "uuid", String.format("T%s", test.getField("uuid")));
                         
                         final Field openTestUUIDField = test.getField("open_test_uuid");
                         if (! openTestUUIDField.isNull())

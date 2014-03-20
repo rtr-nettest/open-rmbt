@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,8 +29,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
-import java.util.PropertyResourceBundle;
-import java.util.ResourceBundle;
 import java.util.UUID;
 
 import org.json.JSONException;
@@ -42,7 +40,9 @@ import org.restlet.resource.Post;
 import at.alladin.rmbt.db.Client;
 import at.alladin.rmbt.db.GeoLocation;
 import at.alladin.rmbt.db.Test_Server;
+import at.alladin.rmbt.shared.GeoIPHelper;
 import at.alladin.rmbt.shared.Helperfunctions;
+import at.alladin.rmbt.shared.ResourceManager;
 
 import com.google.common.net.InetAddresses;
 
@@ -84,8 +84,7 @@ public class RegistrationResource extends ServerResource
                 if (langs.contains(lang))
                 {
                     errorList.setLanguage(lang);
-                    labels = (PropertyResourceBundle) ResourceBundle.getBundle("at.alladin.rmbt.res.SystemMessages",
-                            new Locale(lang));
+                    labels = ResourceManager.getSysMsgBundle(new Locale(lang));
                 }
                 
 //                System.out.println(request.toString(4));
@@ -284,55 +283,82 @@ public class RegistrationResource extends ServerResource
                                     PreparedStatement st;
                                     st = conn
                                             .prepareStatement(
-                                                    "INSERT INTO test(time, uuid, open_test_uuid, client_id, client_name, client_version, client_software_version, client_language, client_public_ip, client_public_ip_anonymized, server_id, port, use_ssl, timezone, client_time, duration, num_threads_requested, status, software_revision, client_test_counter, client_previous_test_status, public_ip_asn, public_ip_as_name, public_ip_rdns, run_ndt)"
-                                                            + "VALUES(NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                                                    "INSERT INTO test(time, uuid, open_test_uuid, client_id, client_name, client_version, client_software_version, client_language, client_public_ip, client_public_ip_anonymized, country_geoip, server_id, port, use_ssl, timezone, client_time, duration, num_threads_requested, status, software_revision, client_test_counter, client_previous_test_status, public_ip_asn, public_ip_as_name, country_asn, public_ip_rdns, run_ndt)"
+                                                            + "VALUES(NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                                                     Statement.RETURN_GENERATED_KEYS);
                                     
                                     int i = 1;
-                                    
+                                    // uuid
                                     st.setObject(i++, UUID.fromString(testUuid));
+                                    // open_test_uuid
                                     st.setObject(i++, UUID.fromString(testOpenUuid));
+                                    // client_id
                                     st.setLong(i++, clientUid);
+                                    // client_name
                                     st.setString(i++, clientName);
+                                    // client_version
                                     st.setString(i++, clientVersion);
+                                    // client_software_version
                                     st.setString(i++, request.optString("softwareVersion", null));
+                                    // client_language
                                     st.setString(i++, lang);
+                                    // client_public_ip
                                     st.setString(i++, clientIpString);
+                                    // client_public_ip_anonymized
                                     st.setString(i++, Helperfunctions.anonymizeIp(clientAddress));
+                                    // country_geoip (2digit country code derived from public IP of client)
+                                    st.setString(i++, GeoIPHelper.lookupCountry(clientAddress));
+                                    // server_id
                                     st.setInt(i++, testServerId);
+                                    // port
                                     st.setInt(i++, testServerPort);
+                                    // use_ssl
                                     st.setBoolean(i++, testServerEncryption);
+                                    // timezone (of client)
                                     st.setString(i++, timeZoneId);
+                                    // client_time (local time of client)
                                     st.setTimestamp(i++, clientTstamp, timeWithZone);
+                                    // duration (requested)
                                     st.setInt(i++, Integer.parseInt(settings.getString("RMBT_DURATION")));
+                                    // num_threads_requested 
                                     st.setInt(i++, Integer.parseInt(settings.getString("RMBT_NUM_THREADS")));
-                                    st.setString(i++, "RUNNING");
+                                    // status (of test)
+                                    st.setString(i++, "STARTED"); //was "RUNNING" before
+                                    // software_revision (of client)
                                     st.setString(i++, request.optString("softwareRevision", null));
+                                    // client_test_counter (number of tests the client has performed)
                                     final int testCounter = request.optInt("testCounter", -1);
-                                    if (testCounter == -1)
+                                    if (testCounter == -1) // older clients did not support testCounter
                                         st.setNull(i++, Types.INTEGER);
                                     else
                                         st.setLong(i++, testCounter);
+                                    // client_previous_test_status (outcome of previous test)
                                     st.setString(i++, request.optString("previousTestStatus", null));
-                                    
+                                    // public_ip_asn
                                     final Long asn = Helperfunctions.getASN(clientAddress);
+                                    // public_ip_as_name 
+                                    // country_asn (2 digit country code of AS, eg. AT or EU)
                                     final String asName;
-                                    if (asn == null)
-                                    {
+                                    final String asCountry;
+                                    if (asn == null) {
                                         st.setNull(i++, Types.BIGINT);
                                         asName = null;
+                                        asCountry =null;
                                     }
-                                    else
-                                    {
+                                    else {
                                         st.setLong(i++, asn);
                                         asName = Helperfunctions.getASName(asn);
+                                        asCountry = Helperfunctions.getAScountry(asn);
                                     }
-                                    
                                     if (asName == null)
                                         st.setNull(i++, Types.VARCHAR);
                                     else
                                         st.setString(i++, asName);
-                                    
+                                    if (asCountry == null)
+                                        st.setNull(i++, Types.VARCHAR);
+                                    else
+                                        st.setString(i++, asCountry);    
+                                    //public_ip_rdns
                                     String reverseDNS = Helperfunctions.reverseDNSLookup(clientAddress);
                                     if (reverseDNS == null || reverseDNS.isEmpty())
                                         st.setNull(i++, Types.VARCHAR);
@@ -341,7 +367,7 @@ public class RegistrationResource extends ServerResource
                                         reverseDNS = reverseDNS.replaceFirst("\\.$", "");
                                         st.setString(i++, reverseDNS); // cut off last dot (#332)
                                     }
-                                    
+                                    // run_ndt
                                     if (request.has("ndt"))
                                         st.setBoolean(i++, request.getBoolean("ndt"));
                                     else

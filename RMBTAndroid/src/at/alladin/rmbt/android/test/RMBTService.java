@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,11 +34,15 @@ import at.alladin.openrmbt.android.R;
 import at.alladin.rmbt.android.main.RMBTMainActivity;
 import at.alladin.rmbt.android.test.RMBTTask.EndTaskListener;
 import at.alladin.rmbt.android.util.ConfigHelper;
+import at.alladin.rmbt.android.util.InformationCollector;
+import at.alladin.rmbt.android.util.NotificationIDs;
 import at.alladin.rmbt.client.helper.IntermediateResult;
 import at.alladin.rmbt.client.helper.NdtStatus;
 
 public class RMBTService extends Service implements EndTaskListener
 {
+    public static String ACTION_LOOP_TEST = "at.alladin.rmbt.android.LoopTest";
+    public static String BROADCAST_TEST_FINISHED = "at.alladin.rmbt.android.test.RMBTService.TestFinished";
     
     private RMBTTask testTask;
     // private InformationCollector fullInfo;
@@ -50,6 +54,10 @@ public class RMBTService extends Service implements EndTaskListener
     private static WifiManager wifiManager;
     private static WifiLock wifiLock;
     private static WakeLock wakeLock;
+    
+    private boolean bound = false;
+    
+    private boolean loopMode;
     
     private static long DEADMAN_TIME = 120 * 1000;
     private final Runnable deadman = new Runnable()
@@ -89,11 +97,14 @@ public class RMBTService extends Service implements EndTaskListener
         super.onCreate();
         
         handler = new Handler();
+        
+        loopMode = ConfigHelper.isLoopMode(this);
+        
         // initialise the locks
         wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL, "RMBTWifiLock");
+        wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, "RMBTWifiLock");
         wakeLock = ((PowerManager) getApplicationContext().getSystemService(Context.POWER_SERVICE)).newWakeLock(
-                PowerManager.FULL_WAKE_LOCK, "RMBTWakeLock");
+                PowerManager.PARTIAL_WAKE_LOCK, "RMBTWakeLock");
         
         // mNetworkStateIntentReceiver = new BroadcastReceiver() {
         // @Override
@@ -123,7 +134,7 @@ public class RMBTService extends Service implements EndTaskListener
         Log.d(TAG, "destroyed");
         super.onDestroy();
         removeNotification();
-        unlock(true, true);
+        unlock();
         if (testTask != null)
         {
             testTask.cancel();
@@ -131,7 +142,6 @@ public class RMBTService extends Service implements EndTaskListener
         }
         
         handler.removeCallbacks(addNotificationRunnable);
-        handler.removeCallbacks(unlockRunnable);
         handler.removeCallbacks(deadman);
         
         // unregisterReceiver(mNetworkStateIntentReceiver);
@@ -140,8 +150,19 @@ public class RMBTService extends Service implements EndTaskListener
     @Override
     public int onStartCommand(final Intent intent, final int flags, final int startId)
     {
+        boolean loopIntent = intent != null && intent.getAction() != null && intent.getAction().equals(ACTION_LOOP_TEST);
+        
+        if (loopMode && ! loopIntent)
+        {
+            startService(new Intent(getApplicationContext(), RMBTLoopService.class));
+        }
+        
         if (testTask != null && testTask.isRunning())
+        {
+            if (loopIntent)
+                return START_NOT_STICKY;
             testTask.cancel();
+        }
         
         completed = false;
         
@@ -153,8 +174,8 @@ public class RMBTService extends Service implements EndTaskListener
         testTask.execute(handler);
         Log.d(TAG, "RMBTTest started");
         
-        if (!ConfigHelper.isRepeatTest(getApplicationContext()))
-            handler.postDelayed(deadman, DEADMAN_TIME);
+        handler.postDelayed(addNotificationRunnable, 200);
+        handler.postDelayed(deadman, DEADMAN_TIME);
         
         return START_NOT_STICKY;
     }
@@ -177,16 +198,22 @@ public class RMBTService extends Service implements EndTaskListener
     
     private void addNotificationIfTestRunning()
     {
-        if (isTestRunning())
+        if (isTestRunning() && ! bound)
         {
             final Resources res = getResources();
-            final Notification notification = new Notification(R.drawable.stat_icon_test,
-                    res.getText(R.string.test_notification_ticker), System.currentTimeMillis());
+            
             final PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(), 0, new Intent(
                     getApplicationContext(), RMBTMainActivity.class), 0);
-            notification.setLatestEventInfo(getApplicationContext(), res.getText(R.string.test_notification_title),
-                    res.getText(R.string.test_notification_text), contentIntent);
-            startForeground(1, notification);
+            
+            final Notification notification = new Notification.Builder(this)
+                .setSmallIcon(R.drawable.stat_icon_test)
+                .setContentTitle(res.getText(R.string.test_notification_title))
+                .setContentText(res.getText(R.string.test_notification_text))
+                .setTicker(res.getText(R.string.test_notification_ticker))
+                .setContentIntent(contentIntent)
+                .getNotification();
+            
+            startForeground(NotificationIDs.TEST_RUNNING, notification);
         }
     }
     
@@ -199,6 +226,7 @@ public class RMBTService extends Service implements EndTaskListener
     @Override
     public IBinder onBind(final Intent intent)
     {
+        bound = true;
         return localRMBTBinder;
     }
     
@@ -214,6 +242,7 @@ public class RMBTService extends Service implements EndTaskListener
     @Override
     public boolean onUnbind(final Intent intent)
     {
+        bound = false;
         handler.postDelayed(addNotificationRunnable, 200);
         return true;
     }
@@ -221,6 +250,7 @@ public class RMBTService extends Service implements EndTaskListener
     @Override
     public void onRebind(final Intent intent)
     {
+        bound = true;
         removeNotification();
     }
     
@@ -240,28 +270,20 @@ public class RMBTService extends Service implements EndTaskListener
             return false;
     }
 
-    public long testLoops()
-    {
-        if (testTask != null)
-            return testTask.testLoops();
-        else
-            return -1;
-    }
-
-    public boolean loopContinue()
-    {
-        if (testTask != null)
-            return testTask.loopContinue();
-        else
-            return false;
-    }
-    
     public Integer getSignal()
     {
         if (testTask != null)
             return testTask.getSignal();
         else
             return null;
+    }
+    
+    public int getSignalType()
+    {
+        if (testTask != null)
+            return testTask.getSignalType();
+        else
+            return InformationCollector.SINGAL_TYPE_NO_SIGNAL;
     }
     
     public String getOperatorName()
@@ -340,7 +362,6 @@ public class RMBTService extends Service implements EndTaskListener
     {
         try
         {
-            handler.removeCallbacks(unlockRunnable);
             if (!wakeLock.isHeld())
                 wakeLock.acquire();
             if (!wifiLock.isHeld())
@@ -353,33 +374,24 @@ public class RMBTService extends Service implements EndTaskListener
         }
     }
     
-    public static void unlock(final boolean wake, final boolean wifi)
+    public static void unlock()
     {
-        if (wake && wakeLock != null && wakeLock.isHeld())
+        if (wakeLock != null && wakeLock.isHeld())
             wakeLock.release();
-        if (wifi && wifiLock != null && wifiLock.isHeld())
+        if (wifiLock != null && wifiLock.isHeld())
             wifiLock.release();
         Log.d(TAG, "Unlock");
     }
     
-    private final Runnable unlockRunnable = new Runnable()
-    {
-        @Override
-        public void run()
-        {
-            unlock(true, false);
-            stopSelf();
-        };
-    };
-    
     @Override
     public void taskEnded()
     {
-        unlock(false, true);
-        handler.postDelayed(unlockRunnable, 15000);
+        unlock();
         removeNotification();
         handler.removeCallbacks(deadman);
         completed = true;
+        sendBroadcast(new Intent(BROADCAST_TEST_FINISHED));
+        stopSelf();
     }
     
     public boolean isCompleted()
@@ -391,5 +403,10 @@ public class RMBTService extends Service implements EndTaskListener
     {
         if (testTask != null)
             testTask.letNDTStart();
+    }
+    
+    public boolean isLoopMode()
+    {
+        return loopMode;
     }
 }

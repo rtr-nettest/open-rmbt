@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.preference.PreferenceManager;
+import at.alladin.openrmbt.android.R;
 import at.alladin.rmbt.client.helper.Config;
-import at.alladin.rmbt.client.helper.ConfigLocal;
 
 public final class ConfigHelper
 {
@@ -64,11 +64,50 @@ public final class ConfigHelper
         return ! getSharedPreferences(context).getBoolean("no_gps", false);
     }
     
-    public static boolean isRepeatTest(final Context context)
+    public static boolean isLoopMode(final Context context)
     {
         if (! isDevEnabled(context))
             return false;
-        return getSharedPreferences(context).getBoolean("repeat_test", false);
+        return getSharedPreferences(context).getBoolean("loop_mode", false);
+    }
+    
+    public static boolean isLoopModeGPS(final Context context)
+    {
+        return getSharedPreferences(context).getBoolean("loop_mode_gps", false);
+    }
+    
+    private static int getInt(final Context context, String key, int defaultId)
+    {
+        final int def = context.getResources().getInteger(defaultId);
+        final String string = getSharedPreferences(context).getString(key, Integer.toString(def));
+        try
+        {
+            return Integer.parseInt(string);
+        }
+        catch (NumberFormatException e)
+        {
+            return def;
+        }
+    }
+    
+    public static int getLoopModeMaxTests(final Context context)
+    {
+        return getInt(context, "loop_mode_max_tests", R.integer.default_loop_max_tests);
+    }
+    
+    public static int getLoopModeMinDelay(final Context context)
+    {
+        return getInt(context, "loop_mode_min_delay", R.integer.default_loop_min_delay);
+    }
+    
+    public static int getLoopModeMaxDelay(final Context context)
+    {
+        return getInt(context, "loop_mode_max_delay", R.integer.default_loop_max_delay);
+    }
+    
+    public static int getLoopModeMaxMovement(final Context context)
+    {
+        return getInt(context, "loop_mode_max_movement", R.integer.default_loop_max_movement);
     }
     
     public static boolean isNDT(final Context context)
@@ -117,12 +156,23 @@ public final class ConfigHelper
     
     public static boolean isTCAccepted(final Context context)
     {
-        return getSharedPreferences(context).getBoolean("terms_and_conditions_accepted", false);
+        final int tcNeedVersion = context.getResources().getInteger(R.integer.rmbt_terms_version);
+        final int tcAcceptedVersion = getTCAcceptedVersion(context);
+        return tcAcceptedVersion == tcNeedVersion;
+    }
+    
+    public static int getTCAcceptedVersion(final Context context)
+    {
+        return getSharedPreferences(context).getInt("terms_and_conditions_accepted_version", 0);
     }
     
     public static void setTCAccepted(final Context context, final boolean accepted)
     {
-        getSharedPreferences(context).edit().putBoolean("terms_and_conditions_accepted", accepted).commit();
+        final int tcVersion = context.getResources().getInteger(R.integer.rmbt_terms_version);
+        if (accepted)
+            getSharedPreferences(context).edit().putInt("terms_and_conditions_accepted_version", tcVersion).commit();
+        else
+            getSharedPreferences(context).edit().remove("terms_and_conditions_accepted_version").commit();
     }
     
     private static boolean isOverrideControlServer(final SharedPreferences pref)
@@ -135,13 +185,13 @@ public final class ConfigHelper
         return pref.getBoolean("dev_map_override", false);
     }
     
-    private static String getDefaultControlServerName(final SharedPreferences pref)
+    private static String getDefaultControlServerName(final Context context, final SharedPreferences pref)
     {
         final boolean ipv4Only = pref.getBoolean("ipv4_only", false);
         if (ipv4Only)
-            return ConfigLocal.RMBT_CONTROL_HOST_IPV4;
+            return context.getResources().getString(R.string.default_control_host_ipv4);
         else
-            return ConfigLocal.RMBT_CONTROL_HOST;
+            return context.getResources().getString(R.string.default_control_host);
     }
     
     public static String getControlServerName(final Context context)
@@ -153,10 +203,10 @@ public final class ConfigHelper
             final boolean noControlServer = pref.getBoolean("dev_no_control_server", false);
             if (noControlServer)
                 return null;
-            return pref.getString("dev_control_hostname", getDefaultControlServerName(pref));
+            return pref.getString("dev_control_hostname", getDefaultControlServerName(context, pref));
         }
         else
-            return getDefaultControlServerName(pref);
+            return getDefaultControlServerName(context, pref);
     }
     
     public static int getControlServerPort(final Context context)
@@ -253,6 +303,11 @@ public final class ConfigHelper
             else
                 return isControlSeverSSL(context);
         }
+    }
+    
+    public static String getTag(final Context context)
+    {
+        return getSharedPreferences(context).getString("tag", null);
     }
     
     private static AtomicReference<String> mapHost = new AtomicReference<String>();

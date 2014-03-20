@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,9 +26,16 @@ public final class Classification
     public static final int[] THRESHOLD_PING = { 25000000, 75000000 };
     public static final String[] THRESHOLD_PING_CAPTIONS = { "25", "75" };
     
-    public static final int[] THRESHOLD_SIGNAL_MOBILE = { -86, -101 };
-    public static final String[] THRESHOLD_SIGNAL_MOBILE_CAPTIONS = { "-86", "-101" };
+    // RSSI limits used for 2G,3G (and 4G when RSSI is used)
+    // only odd values are reported by 2G/3G 
+    public static final int[] THRESHOLD_SIGNAL_MOBILE = { -85, -101 }; // -85 is still green, -101 is still yellow
+    public static final String[] THRESHOLD_SIGNAL_MOBILE_CAPTIONS = { "-85", "-101" };
     
+    // RSRP limit used for 4G
+    public static final int[] THRESHOLD_SIGNAL_RSRP = { -95, -111 };
+    public static final String[] THRESHOLD_SIGNAL_RSRP_CAPTIONS = { "-95", "-111" };
+
+    // RSSI limits used for Wifi
     public static final int[] THRESHOLD_SIGNAL_WIFI = { -61, -76 };
     public static final String[] THRESHOLD_SIGNAL_WIFI_CAPTIONS = { "-61", "-76" };
     
@@ -39,11 +46,11 @@ public final class Classification
         if (!inverse)
         {
             if (value >= threshold[0])
-                return 3;
+                return 3; // GREEN
             else if (value >= threshold[1])
-                return 2;
+                return 2; // YELLOW
             else
-                return 1;
+                return 1; // RED
         }
         else if (value <= threshold[0])
             return 3;

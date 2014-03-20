@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,15 +50,15 @@ public class StatisticsResource extends ServerResource
         
         final String lang = params.getLang();
         final float quantile = params.getQuantile();
-        final int months = params.getMonths();
+        final int durationDays = params.getDuration();
         final int maxDevices = params.getMaxDevices();
         final String type = params.getType();
         final String networkTypeGroup = params.getNetworkTypeGroup();
+        final double accuracy = params.getAccuracy();
         
         boolean useMobileProvider = false;
         
         final boolean signalMobile;
-        boolean needNetworkTypeJoin = false;
         final String where;
         if (type.equals("mobile"))
         {
@@ -66,34 +66,33 @@ public class StatisticsResource extends ServerResource
             useMobileProvider = true;
             
             if (networkTypeGroup == null)
-                where = "t.network_type not in (0, 97, 98, 99)";
+                where = "t.network_group_type = 'MOBILE'";
             else
             {
-                needNetworkTypeJoin = true;
                 if ("2G".equalsIgnoreCase(networkTypeGroup))
-                    where = "nt.group_name = '2G'";
+                    where = "t.network_group_name = '2G'";
                 else if ("3G".equalsIgnoreCase(networkTypeGroup))
-                    where = "nt.group_name = '3G'";
+                    where = "t.network_group_name = '3G'";
                 else if ("4G".equalsIgnoreCase(networkTypeGroup))
-                    where = "nt.group_name = '4G'";
+                    where = "t.network_group_name = '4G'";
                 else if ("mixed".equalsIgnoreCase(networkTypeGroup))
-                    where = "nt.group_name NOT IN ('2G','3G','4G') AND t.network_type not in (0, 97, 98, 99)";
+                    where = "t.network_group_name IN ('2G/3G','2G/4G','3G/4G','2G/3G/4G')";
                 else
                     where = "1=0";
             }
         }
         else if (type.equals("wifi"))
         {
-            where = "t.network_type = 99";
+            where = "t.network_group_type='WLAN'";
             signalMobile = false;
         }
         else if (type.equals("browser"))
         {
-            where = "t.network_type = 98";
+            where = "t.network_group_type = 'LAN'";
             signalMobile = false;
         }
         else
-        {
+        {   // invalid request
             where = "1=0";
             signalMobile = false;
         }
@@ -109,15 +108,15 @@ public class StatisticsResource extends ServerResource
             final JSONArray devices = new JSONArray();
             answer.put("devices", devices);
             answer.put("quantile", quantile);
-            answer.put("months", months);
+            answer.put("duration", durationDays);
             answer.put("type", type);
             
-            ps = selectProviders(true, quantile, months, useMobileProvider, where, signalMobile, needNetworkTypeJoin);
+            ps = selectProviders(true, quantile, durationDays, accuracy, useMobileProvider, where, signalMobile);
             if (!ps.execute())
                 return null;
             rs = fillJSON(lang, ps, providers);
             
-            ps = selectProviders(false, quantile, months, useMobileProvider, where, signalMobile, needNetworkTypeJoin);
+            ps = selectProviders(false, quantile, durationDays, accuracy, useMobileProvider, where, signalMobile);
             if (!ps.execute())
                 return null;
             final JSONArray providersSumsArray = new JSONArray();
@@ -125,12 +124,12 @@ public class StatisticsResource extends ServerResource
             if (providersSumsArray.length() == 1)
                 answer.put("providers_sums", providersSumsArray.get(0));
             
-            ps = selectDevices(true, quantile, months, useMobileProvider, where, maxDevices, needNetworkTypeJoin);
+            ps = selectDevices(true, quantile, durationDays, accuracy, useMobileProvider, where, maxDevices);
             if (!ps.execute())
                 return null;
             rs = fillJSON(lang, ps, devices);
             
-            ps = selectDevices(false, quantile, months, useMobileProvider, where, maxDevices, needNetworkTypeJoin);
+            ps = selectDevices(false, quantile, durationDays, accuracy, useMobileProvider, where, maxDevices);
             if (!ps.execute())
                 return null;
             final JSONArray devicesSumsArray = new JSONArray();
@@ -172,8 +171,8 @@ public class StatisticsResource extends ServerResource
         return null;
     }
     
-    private PreparedStatement selectProviders(final boolean group, final float quantile, final int months,
-            final boolean useMobileProvider, final String where, final boolean signalMobile, final boolean needNetworkTypeJoin) throws SQLException
+    private PreparedStatement selectProviders(final boolean group, final float quantile, final int durationDays, final double accuracy,
+            final boolean useMobileProvider, final String where, final boolean signalMobile) throws SQLException
     {
         PreparedStatement ps;
         final String sql = String
@@ -204,12 +203,10 @@ public class StatisticsResource extends ServerResource
                         " FROM test t" +
                         " JOIN provider p ON" + 
                         (useMobileProvider ? " t.mobile_provider_id = p.uid" : " t.provider_id = p.uid") +
-                        (needNetworkTypeJoin ? " LEFT JOIN network_type nt ON t.network_type=nt.uid" : "") +
-                        
                         " WHERE %s" +
-                        " AND t.deleted = false AND t.status = 'FINISHED'" +
+                        " AND t.deleted = false AND t.implausible = false AND t.status = 'FINISHED'"+
                         " AND t.time > NOW() - CAST(? AS INTERVAL)" +
-                        " AND t.time > '2012-10-26'" +
+                        ((accuracy > 0) ? " AND t.geo_accuracy < ?" : "") + 
                         (group ? " GROUP BY p.uid" : "") +
                         " ORDER BY count DESC"
                         , where);
@@ -245,15 +242,19 @@ public class StatisticsResource extends ServerResource
         ps.setInt(i++, tp[1]);
         ps.setInt(i++, tp[1]);
         
-        ps.setString(i++, String.format("%d months", months));
+        ps.setString(i++, String.format("%d days", durationDays));
+        
+        if (accuracy>0) {
+        	ps.setDouble(i++, accuracy);
+        }
 
 //        System.out.println(ps);
         
         return ps;
     }
     
-    private PreparedStatement selectDevices(final boolean group, final float quantile, final int months,
-            final boolean useMobileProvider, final String where, final int maxDevices, final boolean needNetworkTypeJoin) throws SQLException
+    private PreparedStatement selectDevices(final boolean group, final float quantile, final int durationDays, final double accuracy,
+            final boolean useMobileProvider, final String where, final int maxDevices) throws SQLException
     {
         PreparedStatement ps;
         final String sql = String.format("SELECT" +
@@ -262,13 +263,12 @@ public class StatisticsResource extends ServerResource
                 " quantile(speed_upload, ?) quantile_up," +
                 " quantile(ping_shortest, ?) quantile_ping" +
                 " FROM test t" +
-                " LEFT JOIN android_device_map adm ON adm.codename=t.model" +
-                (needNetworkTypeJoin ? " LEFT JOIN network_type nt ON t.network_type=nt.uid" : "") +
+                " LEFT JOIN device_map adm ON adm.codename=t.model" +
                 " WHERE %s" +
-                " AND t.deleted = false AND t.status = 'FINISHED'" +
+                " AND t.deleted = false AND t.implausible = false AND t.status = 'FINISHED'" +
                 " AND time > NOW() - CAST(? AS INTERVAL)" +
-                " AND time > '2012-10-26'" +
                 (useMobileProvider ? " AND t.mobile_provider_id IS NOT NULL" : "") +
+                ((accuracy > 0) ? " AND t.geo_accuracy < ?" : "") + 
                 (group ? " GROUP BY COALESCE(adm.fullname, t.model) HAVING count(t.uid) > 10" : "") +
                 " ORDER BY count DESC" +
                 " LIMIT %d", where, maxDevices);
@@ -280,7 +280,11 @@ public class StatisticsResource extends ServerResource
             ps.setFloat(i++, quantile);
         ps.setFloat(i++, 1 - quantile); // inverse for ping
         
-        ps.setString(i++, String.format("%d months", months));
+        ps.setString(i++, String.format("%d days", durationDays));
+        
+        if (accuracy>0) {
+        	ps.setDouble(i++, accuracy);
+        }
         
         return ps;
     }

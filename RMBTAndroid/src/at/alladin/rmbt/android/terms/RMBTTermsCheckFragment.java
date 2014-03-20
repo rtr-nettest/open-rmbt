@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,54 +33,48 @@ public class RMBTTermsCheckFragment extends Fragment
 {
 //    private static final String DEBUG_TAG = "RMBTTermsCheckFragment";
     
-    boolean firstTime = true;
+    private boolean firstTime = true;
+    
+    private View view;
     
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState)
     {
-        final View v = inflater.inflate(R.layout.terms_check, container, false);
+        view = inflater.inflate(R.layout.terms_check, container, false);
         
-        final WebView tcWvs = (WebView) v.findViewById(R.id.termsCheckWebViewShort);
+        final WebView tcWvs = (WebView) view.findViewById(R.id.termsCheckWebViewShort);
         tcWvs.loadUrl("file:///android_res/raw/terms_conditions_short.html");
         
-        final WebView tcWvl = (WebView) v.findViewById(R.id.termsCheckWebViewLong);
+        final WebView tcWvl = (WebView) view.findViewById(R.id.termsCheckWebViewLong);
         tcWvl.loadUrl("file:///android_res/raw/terms_conditions_long.html");
         
         final FragmentActivity activity = getActivity();
         if (! (activity instanceof RMBTMainActivity))
             firstTime = false;
-        final boolean tcAccepted = ConfigHelper.isTCAccepted(activity);
-        
-        final TextView acceptButtonTextView = (TextView) v.findViewById(R.id.termsAcceptButtonText);
-        
-        if (tcAccepted)
-        {
-            acceptButtonTextView.setText(R.string.terms_accept_button_continue);
-            v.findViewById(R.id.termsAcceptText).setVisibility(View.GONE);
-        }
         
         if (! firstTime)
-            v.findViewById(R.id.termsButtonDecline).setVisibility(View.GONE);
+            view.findViewById(R.id.termsButtonDecline).setVisibility(View.GONE);
         
-        final Button buttonTermsAccept = (Button) v.findViewById(R.id.termsAcceptButton);
+        final Button buttonTermsAccept = (Button) view.findViewById(R.id.termsAcceptButton);
         buttonTermsAccept.setOnClickListener(new OnClickListener()
         {
             @Override
             public void onClick(final View v)
             {
                 ConfigHelper.setTCAccepted(getActivity(), true);
-                acceptButtonTextView.setText(R.string.terms_accept_button_continue);
                 if (firstTime)
                 {
                     ((RMBTMainActivity)getActivity()).checkSettings(true, null);
-                    ((RMBTMainActivity)getActivity()).showNdtCheck();
+                    final boolean wasNDTTermsNecessary = ((RMBTMainActivity)getActivity()).showNdtCheckIfNecessary();
+                    if (! wasNDTTermsNecessary)
+                        ((RMBTMainActivity) activity).initApp(false);
                 }
                 else
                     ((RMBTTermsActivity)getActivity()).showNdtCheck();
             }
         });
         
-        final Button buttonTermsDecline = (Button) v.findViewById(R.id.termsDeclineButton);
+        final Button buttonTermsDecline = (Button) view.findViewById(R.id.termsDeclineButton);
         buttonTermsDecline.setOnClickListener(new OnClickListener()
         {
             @Override
@@ -90,7 +84,21 @@ public class RMBTTermsCheckFragment extends Fragment
             }
         });
         
-        return v;
+        return view;
+    }
+    
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+        final FragmentActivity activity = getActivity();
+        final boolean tcAccepted = ConfigHelper.isTCAccepted(activity);
+        if (tcAccepted)
+        {
+            final TextView acceptButtonTextView = (TextView) view.findViewById(R.id.termsAcceptButtonText);
+            acceptButtonTextView.setText(R.string.terms_accept_button_continue);
+            view.findViewById(R.id.termsAcceptText).setVisibility(View.GONE);
+        }
     }
 
     public boolean onBackPressed()

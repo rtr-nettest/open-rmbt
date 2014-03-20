@@ -1,3 +1,18 @@
+/*******************************************************************************
+ * Copyright 2013-2014 alladin-IT GmbH
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package at.alladin.rmbt.controlServer;
 
 import java.io.Serializable;
@@ -11,19 +26,21 @@ public class StatisticParameters implements Serializable
     
     private final String lang;
     private final float quantile;
-    private final int months;
+    private final int duration; //duration in days
     private final int maxDevices;
     private final String type;
     private final String networkTypeGroup;
+    private final double accuracy;
     
     public StatisticParameters(String defaultLang, String params)
     {
         String _lang = defaultLang;
         float _quantile = 0.8f;
-        int _months = 2;
+        int _duration = 90;
         int _maxDevices = 50;
         String _type = "mobile";
         String _networkTypeGroup = null;
+        double _accuracy = -1;
         
         if (params != null && !params.isEmpty())
             // try parse the string to a JSON object
@@ -36,9 +53,13 @@ public class StatisticParameters implements Serializable
                 if (__quantile >= 0 && __quantile <= 1)
                     _quantile = (float) __quantile;
                 
-                final int __months = request.optInt("months", 0);
+                final int __months = request.optInt("months", 0); // obsolete, old format (now in days)
                 if (__months > 0)
-                    _months = __months;
+                    _duration = __months * 30;
+
+                final int __duration = request.optInt("duration", 0); 
+                if (__duration > 0)
+                    _duration = __duration;
                 
                 final int __maxDevices = request.optInt("max_devices", 0);
                 if (__maxDevices > 0)
@@ -51,16 +72,21 @@ public class StatisticParameters implements Serializable
                 final String __networkTypeGroup = request.optString("network_type_group", null);
                 if (__networkTypeGroup != null && ! __networkTypeGroup.equalsIgnoreCase("all"))
                     _networkTypeGroup = __networkTypeGroup;
+                
+                final double __accuracy = request.optDouble("location_accuracy",-1);
+                if (__accuracy != -1)
+                	_accuracy = __accuracy;
             }
             catch (final JSONException e)
             {
             }
         lang = _lang;
         quantile = _quantile;
-        months = _months;
+        duration = _duration;
         maxDevices = _maxDevices;
         type = _type;
         networkTypeGroup = _networkTypeGroup;
+        accuracy = _accuracy;
     }
 
     public static long getSerialversionuid()
@@ -78,9 +104,9 @@ public class StatisticParameters implements Serializable
         return quantile;
     }
 
-    public int getMonths()
+        public int getDuration() //dz obsoletes getMonths
     {
-        return months;
+        return duration;
     }
 
     public int getMaxDevices()
@@ -97,6 +123,10 @@ public class StatisticParameters implements Serializable
     {
         return networkTypeGroup;
     }
+    
+    public double getAccuracy() {
+    	return accuracy;
+    }
 
     @Override
     public int hashCode()
@@ -105,10 +135,11 @@ public class StatisticParameters implements Serializable
         int result = 1;
         result = prime * result + ((lang == null) ? 0 : lang.hashCode());
         result = prime * result + maxDevices;
-        result = prime * result + months;
+        result = prime * result + duration;
         result = prime * result + ((networkTypeGroup == null) ? 0 : networkTypeGroup.hashCode());
         result = prime * result + Float.floatToIntBits(quantile);
         result = prime * result + ((type == null) ? 0 : type.hashCode());
+        result = prime * result + ((accuracy == -1) ? 0 : (int) accuracy);
         return result;
     }
 
@@ -131,7 +162,7 @@ public class StatisticParameters implements Serializable
             return false;
         if (maxDevices != other.maxDevices)
             return false;
-        if (months != other.months)
+        if (duration != other.duration)
             return false;
         if (networkTypeGroup == null)
         {
@@ -142,6 +173,9 @@ public class StatisticParameters implements Serializable
             return false;
         if (Float.floatToIntBits(quantile) != Float.floatToIntBits(other.quantile))
             return false;
+        if (accuracy != other.accuracy) {
+        	return false;
+        }
         if (type == null)
         {
             if (other.type != null)

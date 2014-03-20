@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -204,7 +204,11 @@ public class GetMapOptionsInfoTask extends AsyncTask<Void, Void, JSONObject>
                                             MapProperties.MAP_OVERLAY_KEY, MapProperties.MAP_HEATMAP_VALUE),
                                     new MapListEntry(activity.getString(R.string.map_overlay_points_title), activity
                                             .getString(R.string.map_overlay_points_summary), MapProperties.MAP_OVERLAY_KEY,
-                                            MapProperties.MAP_POINTS_VALUE)));
+                                            MapProperties.MAP_POINTS_VALUE),
+                                    new MapListEntry(activity.getString(R.string.map_overlay_shapes_title), activity
+                                            .getString(R.string.map_overlay_shapes_summary), MapProperties.MAP_OVERLAY_KEY,
+                                            MapProperties.MAP_SHAPES_VALUE)
+                                    ));
                     
                     mapFilterListSectionList.add(overlaySection);
                     

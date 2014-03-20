@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ public class RMBTBalloonOverlayView extends View
     private static TextView emptyView;
     private static ProgressBar progessBar;
     
-    public RMBTBalloonOverlayView(final Context context, final int balloonBottomOffset)
+    public RMBTBalloonOverlayView(final Context context)
     {
         super(context);
     }

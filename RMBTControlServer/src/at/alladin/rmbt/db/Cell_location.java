@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ public class Cell_location
     private int location_id;
     private int area_code;
     private int primary_scrambling_code;
+    private long time_ns;
     
     private Calendar timeZone = null;
     
@@ -48,7 +49,7 @@ public class Cell_location
     }
     
     public Cell_location(final Connection conn, final long uid, final long test_id, final Timestamp time,
-            final int location_id, final int area_code, final int primary_scrambling_code, final String timeZoneId)
+            final int location_id, final int area_code, final int primary_scrambling_code, final String timeZoneId, final long time_ns)
     {
         
         reset();
@@ -58,6 +59,7 @@ public class Cell_location
         this.uid = uid;
         this.test_id = test_id;
         this.time = time;
+        this.time_ns = time_ns;
         this.location_id = location_id;
         this.area_code = area_code;
         this.primary_scrambling_code = primary_scrambling_code;
@@ -98,8 +100,8 @@ public class Cell_location
         try
         {
             st = conn.prepareStatement(
-                    "INSERT INTO cell_location(test_id, time, location_id, area_code, primary_scrambling_code) "
-                            + "VALUES( ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+                    "INSERT INTO cell_location(test_id, time, location_id, area_code, primary_scrambling_code, time_ns) "
+                            + "VALUES( ?, ?, ?, ?, ?,?)", Statement.RETURN_GENERATED_KEYS);
             
             /*
              * Timestamp geotstamp = java.sql.Timestamp.valueOf(new Timestamp(
@@ -111,6 +113,7 @@ public class Cell_location
             st.setInt(3, location_id);
             st.setInt(4, area_code);
             st.setInt(5, primary_scrambling_code);
+            st.setLong(6, time_ns);
             
             // System.out.println(st2.toString());
             
@@ -157,6 +160,14 @@ public class Cell_location
     {
         return time;
     }
+
+	public long getTime_ns() {
+		return time_ns;
+	}
+
+	public void setTime_ns(long time_ns) {
+		this.time_ns = time_ns;
+	}
     
     public int getLocation_id()
     {

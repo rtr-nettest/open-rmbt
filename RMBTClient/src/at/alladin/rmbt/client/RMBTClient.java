@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -45,6 +46,8 @@ import at.alladin.rmbt.client.helper.ControlServerConnection;
 import at.alladin.rmbt.client.helper.IntermediateResult;
 import at.alladin.rmbt.client.helper.RMBTOutputCallback;
 import at.alladin.rmbt.client.helper.TestStatus;
+import at.alladin.rmbt.client.v2.task.service.TestMeasurement;
+import at.alladin.rmbt.client.v2.task.service.TrafficService;
 
 public class RMBTClient
 {
@@ -89,6 +92,9 @@ public class RMBTClient
     private final AtomicReference<TestStatus> statusBeforeError = new AtomicReference<TestStatus>(null);
     private final AtomicLong statusChangeTime = new AtomicLong();
     
+    private TrafficService trafficService;
+    private ConcurrentHashMap<TestStatus, TestMeasurement> measurementMap = new ConcurrentHashMap<TestStatus, TestMeasurement>();
+    
     public static RMBTClient getInstance(final String host, final String pathPrefix, final int port,
             final boolean encryption, final ArrayList<String> geoInfo, final String uuid, final String clientType,
             final String clientName, final String clientVersion, final RMBTTestParameter overrideParams,
@@ -120,13 +126,7 @@ public class RMBTClient
         this.params = params;
         this.controlConnection = controlConnection;
         
-        if (controlConnection != null && controlConnection.hasError())
-        {
-            setErrorStatus();
-            log("Error initializing RMBTTest...");
-            errorMsg = controlConnection.getErrorMsg();
-            log(errorMsg);
-        }
+        params.check();
         
         if (params.getNumThreads() > 0)
         {
@@ -144,6 +144,14 @@ public class RMBTClient
         
         lastTransfer = new long[params.getNumThreads()][KEEP_LAST_ENTRIES];
         lastTime = new long[params.getNumThreads()][KEEP_LAST_ENTRIES];
+    }
+    
+    public void setTrafficService(TrafficService trafficService) {
+    	this.trafficService = trafficService;
+    }
+    
+    public TrafficService getTrafficService() {
+    	return trafficService;
     }
     
     private SSLSocketFactory createSSLSocketFactory()
@@ -292,9 +300,18 @@ public class RMBTClient
     
     public TestResult runTest() throws InterruptedException
     {
+    	long txBytes = 0;
+    	long rxBytes = 0;
+    	final long timeStampStart = System.nanoTime();
+    	
         if (testStatus.get() != TestStatus.ERROR && testThreadPool != null)
         {
             
+        	if (trafficService != null) {
+        		txBytes = trafficService.getTotalTxBytes();
+        		rxBytes = trafficService.getTotalRxBytes();
+        	}
+        	
             resetSpeed();
             downBitPerSec.set(-1);
             upBitPerSec.set(-1);
@@ -441,6 +458,14 @@ public class RMBTClient
                 
                 log("end.");
                 setStatus(TestStatus.END);
+                
+            	if (trafficService != null) {
+            		txBytes = trafficService.getTotalTxBytes() - txBytes;
+            		rxBytes = trafficService.getTotalRxBytes() - rxBytes;
+            		result.setTotalTrafficMeasurement(new TestMeasurement(rxBytes, txBytes, timeStampStart, System.nanoTime()));
+            		result.setMeasurementMap(measurementMap);
+            	}
+
                 
                 return result;
             }
@@ -621,11 +646,6 @@ public class RMBTClient
         return iResult;
     }
     
-    public String getError()
-    {
-        return errorMsg;
-    }
-    
     public TestStatus getStatus()
     {
         return testStatus.get();
@@ -647,6 +667,24 @@ public class RMBTClient
             resetSpeed();
         }
     }
+        
+    public void startTrafficService(final int threadId, final TestStatus status) {
+    	if (trafficService != null) {
+    		//a concurrent map is needed in case multiple threads want to start the traffic service
+    		//only the first thread should be able to start the service
+    		TestMeasurement tm = new TestMeasurement(status.toString(), trafficService);
+        	TestMeasurement previousTm = measurementMap.putIfAbsent(status, tm);
+        	if (previousTm == null) {
+        		tm.start(threadId);
+        	}
+    	}
+    }
+    
+    public void stopTrafficMeasurement(final int threadId, final TestStatus status) {
+    	final TestMeasurement testMeasurement = measurementMap.get(status);
+    	if (testMeasurement != null)
+    	    testMeasurement.stop(threadId);
+    }
     
     public String getErrorMsg()
     {
@@ -657,13 +695,12 @@ public class RMBTClient
     {
         if (controlConnection != null)
         {
-            controlConnection.sendTestResult(result, additionalValues);
+            final String errorMsg = controlConnection.sendTestResult(result, additionalValues);
             
-            if (controlConnection.hasError())
+            if (errorMsg != null)
             {
                 setErrorStatus();
                 log("Error sending Result...");
-                errorMsg = controlConnection.getErrorMsg();
                 log(errorMsg);
             }
         }

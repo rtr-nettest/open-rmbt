@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -179,6 +179,8 @@ public class RMBTMapFilterFragment extends Fragment implements OnItemClickListen
                 activity.setMapOverlayType(MapProperties.MAP_OVERLAY_TYPE_HEATMAP);
             else if (MapProperties.MAP_POINTS_VALUE.equals(value))
                 activity.setMapOverlayType(MapProperties.MAP_OVERLAY_TYPE_POINTS);
+            else if (MapProperties.MAP_SHAPES_VALUE.equals(value))
+                activity.setMapOverlayType(MapProperties.MAP_OVERLAY_TYPE_SHAPES);
         }
         else
             // set new filter options:

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -219,7 +219,7 @@ public class HeatmapTiles extends TileRestlet
             ps.setDouble(i++, box.x2 + margin);
             ps.setDouble(i++, box.y2 + margin);
             
-            System.out.println(ps);
+//            System.out.println(ps);
             
             if (!ps.execute())
                 return;

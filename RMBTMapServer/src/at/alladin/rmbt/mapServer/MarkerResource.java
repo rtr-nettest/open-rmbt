@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +26,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.PropertyResourceBundle;
-import java.util.ResourceBundle;
 import java.util.TimeZone;
 import java.util.UUID;
 
@@ -42,6 +40,7 @@ import at.alladin.rmbt.mapServer.MapServerOptions.MapOption;
 import at.alladin.rmbt.mapServer.MapServerOptions.SQLFilter;
 import at.alladin.rmbt.shared.Classification;
 import at.alladin.rmbt.shared.Helperfunctions;
+import at.alladin.rmbt.shared.ResourceManager;
 import at.alladin.rmbt.shared.SignificantFormat;
 
 import com.google.common.base.Strings;
@@ -73,8 +72,7 @@ public class MarkerResource extends ServerResource
                 final List<String> langs = Arrays.asList(settings.getString("RMBT_SUPPORTED_LANGUAGES").split(",\\s*"));
                 
                 if (langs.contains(lang))
-                    labels = (PropertyResourceBundle) ResourceBundle.getBundle("at.alladin.rmbt.res.SystemMessages",
-                            new Locale(lang));
+                    labels = ResourceManager.getSysMsgBundle(new Locale(lang));
                 else
                     lang = settings.getString("RMBT_DEFAULT_LANGUAGE");
                 
@@ -182,9 +180,17 @@ public class MarkerResource extends ServerResource
                                     .format("SELECT"
                                             + (useLatLon ? " geo_lat lat, geo_long lon"
                                                     : " ST_X(t.location) x, ST_Y(t.location) y")
-                                            + ", t.time, t.timezone, t.speed_download, t.speed_upload, t.ping_shortest, t.network_type, t.signal_strength, t.wifi_ssid, t.network_operator_name, t.network_operator, t.network_sim_operator, t.roaming_type, pMob.shortname mobile_provider_name, prov.shortname provider_text, t.open_test_uuid"
+                                            + ", t.time, t.timezone, t.speed_download, t.speed_upload, t.ping_shortest, t.network_type,"
+                                            + " t.signal_strength, t.wifi_ssid, t.network_operator_name, t.network_operator,"
+                                            + " t.network_sim_operator, t.roaming_type," //TODO: sim_operator obsoled by sim_name
+                                            + " pMob.shortname mobile_provider_name," // TODO: obsoleted by mobile_network_name
+                                            + " prov.shortname provider_text, t.open_test_uuid,"
+                                            + " COALESCE(mnwk.shortname,mnwk.name) mobile_network_name,"
+                                            + " COALESCE(msim.shortname,msim.name) mobile_sim_name"
                                             + (highlightUUID == null ? "" : " , c.uid, c.uuid")
                                             + " FROM test t"
+                                            + " LEFT JOIN mccmnc2name mnwk ON t.mobile_network_id=mnwk.uid"
+                                            + " LEFT JOIN mccmnc2name msim ON t.mobile_sim_id=msim.uid"
                                             + " LEFT JOIN provider prov"
                                             + " ON t.provider_id=prov.uid"
                                             + " LEFT JOIN provider pMob"
@@ -343,22 +349,55 @@ public class MarkerResource extends ServerResource
                                     else // mobile
                                     {
                                         String networkOperator = rs.getString("network_operator");
-                                        String mobileProviderName = rs.getString("mobile_provider_name");
+                                        String mobileNetworkName = rs.getString("mobile_network_name");
+                                        String simOperator = rs.getString("network_sim_operator");
+                                        String mobileSimName = rs.getString("mobile_sim_name");
+                                        final int roamingType = rs.getInt("roaming_type");
+                                        //network
                                         if (! Strings.isNullOrEmpty(networkOperator))
                                         {
                                             final String mobileNetworkString;
-                                            if (Strings.isNullOrEmpty(mobileProviderName))
-                                                mobileNetworkString = networkOperator;
-                                            else
-                                                mobileNetworkString = String.format("%s (%s)", mobileProviderName, networkOperator);
-                                            
+                                            if (roamingType != 2) { //not international roaming - display name of home network
+                                            	if (Strings.isNullOrEmpty(mobileSimName))
+                                            		mobileNetworkString = networkOperator;
+                                            	else
+                                            		mobileNetworkString = String.format("%s (%s)", mobileSimName, networkOperator);
+                                            }
+                                            else { //international roaming - display name of network
+                                            	if (Strings.isNullOrEmpty(mobileSimName))
+                                            		mobileNetworkString = networkOperator;
+                                            	else
+                                            		mobileNetworkString = String.format("%s (%s)", mobileNetworkName, networkOperator);
+                                            }
+
                                             singleItem = new JSONObject();
-                                            singleItem.put("title", labels.getString("RESULT_OPERATOR_NAME"));
+                                            singleItem.put("title", labels.getString("RESULT_MOBILE_NETWORK"));
+                                            singleItem.put("value", mobileNetworkString);
+                                            jsonItemList.put(singleItem);
+                                        }
+                                        //home network (sim)
+                                        else if (!Strings.isNullOrEmpty(simOperator)) {
+                                        	final String mobileNetworkString;
+                                        	
+                                        	if (Strings.isNullOrEmpty(mobileSimName))
+                                                mobileNetworkString = simOperator;
+                                            else
+                                                mobileNetworkString = String.format("%s (%s)", mobileSimName, simOperator);
+                                        	
+                                        	/*
+                                        	if (!Strings.isNullOrEmpty(mobileProviderName)) {
+                                        		mobileNetworkString = mobileProviderName;
+                                        	} else {
+                                        		mobileNetworkString = simOperator;
+                                        	}
+                                        	*/
+                                        	
+                                        	singleItem = new JSONObject();
+                                            singleItem.put("title", labels.getString("RESULT_HOME_NETWORK"));
                                             singleItem.put("value", mobileNetworkString);
                                             jsonItemList.put(singleItem);
                                         }
                                         
-                                        final int roamingType = rs.getInt("roaming_type");
                                         if (roamingType > 0)
                                         {
                                             singleItem = new JSONObject();

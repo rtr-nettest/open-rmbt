@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,8 +41,6 @@ import at.alladin.rmbt.client.ndt.NDTRunner;
 public class RMBTTask
 {
     private static final String LOG_TAG = "RMBTTask";
-    private static final long MAX_NUM_LOOPTESTS = 100l;
-    private long testLoops = 0;
     
     private final AtomicBoolean started = new AtomicBoolean();
     private final AtomicBoolean running = new AtomicBoolean();
@@ -160,101 +158,85 @@ public class RMBTTask
     {
         try
         {
-            boolean firstRun = true;
-            testLoops = 0;
-            do
+            boolean error = false;
+            connectionError.set(false);
+            try
             {
-                testLoops++;
-                boolean error = false;
-                connectionError.set(false);
-                try
-                {
-                    if (!firstRun)
-                    {
-                        Thread.sleep(5000);
-                        fullInfo.reInit();
-                    }
-                    else
-                        firstRun = false;
-                    
-                    final String uuid = fullInfo.getUUID();
-                    
-                    final String controlServer = ConfigHelper.getControlServerName(ctx);
-                    final int controlPort = ConfigHelper.getControlServerPort(ctx);
-                    final boolean controlSSL = ConfigHelper.isControlSeverSSL(ctx);
-                    
-                    final ArrayList<String> geoInfo = fullInfo.getCurLocation();
-                    
-                    client = RMBTClient.getInstance(controlServer, null, controlPort, controlSSL, geoInfo, uuid,
-                            Config.RMBT_CLIENT_TYPE, Config.RMBT_CLIENT_NAME,
-                            fullInfo.getInfo("CLIENT_SOFTWARE_VERSION"), null, fullInfo.getInitialInfo());
-                    
-                    if (client != null)
-                    {
-                        final ControlServerConnection controlConnection = client.getControlConnection();
-                        if (controlConnection != null)
-                        {
-                            fullInfo.setUUID(controlConnection.getClientUUID());
-                            fullInfo.setTestServerName(controlConnection.getServerName());
-                        }
-                    }
-                }
-                catch (final InterruptedException e)
-                {
-                    throw e;
-                }
-                catch (final Exception e)
-                {
-                    e.printStackTrace();
-                    error = true;
-                }
+                final String uuid = fullInfo.getUUID();
                 
-                if (client == null)
-                    connectionError.set(true);
-                else
+                final String controlServer = ConfigHelper.getControlServerName(ctx);
+                final int controlPort = ConfigHelper.getControlServerPort(ctx);
+                final boolean controlSSL = ConfigHelper.isControlSeverSSL(ctx);
+                
+                final ArrayList<String> geoInfo = fullInfo.getCurLocation();
+                
+                client = RMBTClient.getInstance(controlServer, null, controlPort, controlSSL, geoInfo, uuid,
+                        Config.RMBT_CLIENT_TYPE, Config.RMBT_CLIENT_NAME,
+                        fullInfo.getInfo("CLIENT_SOFTWARE_VERSION"), null, fullInfo.getInitialInfo());
+                
+                if (client != null)
                 {
-                    if (client.getStatus() != TestStatus.ERROR)
+                	client.setTrafficService(new TrafficServiceImpl());
+                    final ControlServerConnection controlConnection = client.getControlConnection();
+                    if (controlConnection != null)
                     {
-                        
-                        TestResult result;
-                        try
-                        {
-                            result = client.runTest();
-                            if (result != null && ! fullInfo.getIllegalNetworkTypeChangeDetcted())
-                                client.sendResult(fullInfo.getResultValues());
-                            else
-                                error = true;
-                        }
-                        catch (final Exception e)
-                        {
-                            e.printStackTrace();
-                        }
-                    }
-                    else
-                    {
-                        System.err.println(client.getErrorMsg());
-                        error = true;
-                    }
-                    
-                    client.shutdown();
-                    
-                    setPreviousTestStatus();
-                    
-                    if (!error && !cancelled.get() && ConfigHelper.isNDT(ctx))
-                    {
-                        if (!ConfigHelper.isRepeatTest(ctx) || !loopContinue())
-                            synchronized (holdNdtLock)
-                            {
-                                while (holdNdt)
-                                    holdNdtLock.wait();
-                            }
-                        if (!cancelled.get())
-                            runNDT();
+                        fullInfo.setUUID(controlConnection.getClientUUID());
+                        fullInfo.setTestServerName(controlConnection.getServerName());
                     }
                 }
             }
-            while (!cancelled.get() && ConfigHelper.isRepeatTest(ctx) &&
-                    loopContinue() && !Thread.interrupted());
+            catch (final Exception e)
+            {
+                e.printStackTrace();
+                error = true;
+            }
+            
+            if (client == null)
+                connectionError.set(true);
+            else
+            {
+                if (client.getStatus() != TestStatus.ERROR)
+                {
+                    
+                    TestResult result;
+                    try
+                    {
+                        result = client.runTest();
+                        if (result != null && ! fullInfo.getIllegalNetworkTypeChangeDetcted()) {
+                        	final ControlServerConnection controlConnection = client.getControlConnection();
+                            client.sendResult(fullInfo.getResultValues(controlConnection.getStartTimeNs()));
+                        }
+                        else
+                            error = true;
+                    }
+                    catch (final Exception e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+                else
+                {
+                    System.err.println(client.getErrorMsg());
+                    error = true;
+                }
+                
+                client.shutdown();
+                
+                setPreviousTestStatus();
+                
+                if (!error && !cancelled.get() && ConfigHelper.isNDT(ctx))
+                {
+                    if (! ConfigHelper.isLoopMode(ctx))
+                        synchronized (holdNdtLock)
+                        {
+                            while (holdNdt)
+                                holdNdtLock.wait();
+                        }
+                    if (! cancelled.get())
+                        runNDT();
+                }
+            }
+
         }
         catch (final InterruptedException e)
         {
@@ -362,6 +344,14 @@ public class RMBTTask
             return null;
     }
     
+    public int getSignalType()
+    {
+        if (fullInfo != null)
+            return fullInfo.getSignalType();
+        else
+            return InformationCollector.SINGAL_TYPE_NO_SIGNAL;
+    }
+    
     public IntermediateResult getIntermediateResult(final IntermediateResult result)
     {
         if (client == null)
@@ -428,14 +418,5 @@ public class RMBTTask
         }
         else
             return 0;
-    }
-    
-    public long testLoops()
-    {
-        return testLoops;
-    }
-    public boolean loopContinue()
-    {
-        return (testLoops <= MAX_NUM_LOOPTESTS);
     }
 }

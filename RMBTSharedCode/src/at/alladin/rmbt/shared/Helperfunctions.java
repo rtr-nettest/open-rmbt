@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -203,6 +203,9 @@ public abstract class Helperfunctions
         final String roamingValue;
         switch (roamingType)
         {
+        case 0:
+            roamingValue = labels.getString("value_roaming_none");
+            break;
         case 1:
             roamingValue = labels.getString("value_roaming_national");
             break;
@@ -426,6 +429,40 @@ public abstract class Helperfunctions
                             final String[] parts = result.split(" ?\\| ?");
                             if (parts != null && parts.length >= 1)
                                 return parts[4];
+                        }
+                    }
+        }
+        catch (final Exception e)
+        {
+        }
+        return null;
+    }
+
+    public static String getAScountry(final long asn)
+    {
+        try
+        {
+            final Name postfix = Name.fromConstantString("asn.cymru.com.");
+            final Name name = new Name(String.format("AS%d", asn), postfix);
+            System.out.println("lookup: " + name);
+            
+            final Lookup lookup = new Lookup(name, Type.TXT);
+            lookup.setResolver(new SimpleResolver());
+            lookup.setCache(null);
+            final Record[] records = lookup.run();
+            if (lookup.getResult() == Lookup.SUCCESSFUL)
+                for (final Record record : records)
+                    if (record instanceof TXTRecord)
+                    {
+                        final TXTRecord txt = (TXTRecord) record;
+                        @SuppressWarnings("unchecked")
+                        final List<String> strings = txt.getStrings();
+                        if (strings != null && !strings.isEmpty())
+                        {
+                            final String result = strings.get(0);
+                            final String[] parts = result.split(" ?\\| ?");
+                            if (parts != null && parts.length >= 1)
+                                return parts[1];
                         }
                     }
         }

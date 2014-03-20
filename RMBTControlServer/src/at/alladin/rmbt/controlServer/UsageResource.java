@@ -1,3 +1,18 @@
+/*******************************************************************************
+ * Copyright 2013-2014 alladin-IT GmbH
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package at.alladin.rmbt.controlServer;
 
 import java.sql.Date;
@@ -73,6 +88,15 @@ public class UsageResource extends ServerResource
                 final long countIPs = rs.getLong("count_ips");
                 result.append(String.format("<tr class=\"info\"><td>Total</td><td class=\"r\">%8d</td><td class=\"r\">%8d</td><td class=\"r\">%8d</td></tr>\n", countTests, countClients, countIPs));
             }
+            
+            //remove the last day since the day is not yet over (=first in the array)
+            if (statTests.size() > 0)
+            {
+                statTests.remove(0);
+                statClients.remove(0);
+                statIPs.remove(0);
+            }
+            
             result.append("</tbody></table><div id='flot' style='height:450px;width:100%'></div></div>").append(makeStat(statTests,statClients,statIPs)).append(getFooter());
             ps.close();
         }

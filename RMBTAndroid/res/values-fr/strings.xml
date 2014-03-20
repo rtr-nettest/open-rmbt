@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2013-2014 alladin-IT GmbH
+  
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+    http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<resources tools:locale="fr" xmlns:tools="http://schemas.android.com/tools">
+    
+
+    
+    <string name="error_no_internet">S\'il vous plaît activer\nVotre connexion sur résau</string>
+    <string name="error_no_data">Pas de données disponibles.</string>
+    
+    <string name="main_dialog_registration_title">Enregistrement…</string>
+    <string name="main_dialog_registration_text">Le client est bien enregistré. S\'il vous plaît, patientez…</string>
+    
+    <string name="main_dialog_reload_title">Mise à jour…</string>
+    <string name="main_dialog_reload_text">Les données ont été mises à jour. S\'il vous plait, patientez…</string>
+    
+    <string name="preferences">Réglages</string>
+    
+    <string name="preferences_category_test">Réglages</string>
+    
+    <string name="preferences_location_settings">Localisation</string>
+    <string name="preferences_location_settings_sum">Modifier les paramètres de localisation du système</string>
+    
+    <string name="preferences_no_gps">Pas de localisation par GPS</string>
+    <string name="preferences_no_gps_sum">Le service GPS n\'est pas actif pendant la durée de la prise de mesure</string>
+    
+    <string name="preferences_loop_mode">Relancer le test</string>
+    <string name="preferences_loop_mode_sum">Activer la relance du test </string>
+    
+    <string name="preferences_ndt">NDT</string>
+    <string name="preferences_ndt_sum">Activer le test élargi</string>
+    
+    <string name="preferences_ipv4_only">IPv4 uniquement</string>
+    <string name="preferences_ipv4_only_sum">Pas d\'utilisation d\'IPv6</string>
+    
+    <string name="preferences_category_developer">DÉVELOPPEMENT</string>
+    <string name="preferences_category_developer_control_server">Serveur de contrôle</string>
+    <string name="preferences_category_developer_map_server">Carte du serveur</string>
+    
+    <string name="preferences_dev_control_override">Remplacer les préférences du serveur de contrôle</string>
+    <string name="preferences_dev_control_override_sum">Activer les préférences du serveur de contrôle</string>
+    
+    <string name="preferences_dev_control_host">Host du contrôle</string>
+    <string name="preferences_dev_control_host_sum">Remplacer l\'adresse du serveur de contrôle</string>
+    
+    <string name="preferences_dev_control_port">Port de contrôle</string>
+    <string name="preferences_dev_control_port_sum">Remplacer le port du serveur de contrôle</string>
+    
+    <string name="preferences_dev_control_ssl">Serveur de contrôle par SSL</string>
+    <string name="preferences_dev_control_ssl_sum">Connexion cryptée sur le serveur contrôlé</string>
+    
+    <string name="preferences_dev_map_override">Remplacer la carte-serveur</string>
+    <string name="preferences_dev_map_override_sum">Activé, les paramètres suivants pour le serveur de cartes</string>
+    
+    <string name="preferences_dev_map_host">Carte du serveur</string>
+    <string name="preferences_dev_map_host_sum">Remplacer l\'adresse de  la carte du serveur</string>
+    
+    <string name="preferences_dev_map_port">Port carte</string>
+    <string name="preferences_dev_map_port_sum">Remplacer le port du serveur de carte</string>
+    
+    <string name="preferences_dev_map_ssl">Serveur de carte par SSL</string>
+    <string name="preferences_dev_map_ssl_sum">Connexion cryptée sur le serveur de carte</string>
+    
+    <string name="menu_button_start">LANCER</string>
+    <string name="menu_button_map">Carte</string>
+    <string name="menu_button_history">Historique</string>
+    <string name="menu_button_help">Aide</string>
+    <string name="menu_button_statistics">Statistiques</string>
+    <string name="menu_button_settings">Réglages</string>
+    <string name="menu_button_about">Info</string>
+    
+    <string name="news_title">Actualité</string>
+    <string name="news_no_message">Pas de nouveau message.</string>
+    
+    <string name="about_version_title">Version</string>
+    <string name="about_clientid_title">Client UUID</string>
+    <string name="about_clientid_toast">Le UUID client est copié dans le presse-papiers.</string>
+    <string name="about_web_title">Réseau</string>
+    <string name="about_email_title">Courriel</string>
+    <string name="about_email_sending">Envoyer un courriel…</string>
+    <string name="about_terms_title">Déclaration de protection de données</string>
+    <string name="about_terms_line1">Déclaration de protection de données et les conditions d\'utilisation</string>
+    <string name="about_dev_title">Développement</string>
+    <string name="about_gms_legal_title">Google Play</string>
+    <string name="about_gms_legal_line1">Google Play Services juridiques</string>
+    <string name="about_test_counter_title">Compteur de measurement</string>
+
+    <string name="terms">Déclaration de protection de données et les conditions d\'utilisation</string>
+
+    <string name="terms_accept_button">D\'accord</string>
+    <string name="terms_accept_button_continue">Continuer</string>
+    <string name="terms_decline_button">Refuser</string>
+
+    <string name="terms_ndt_header">Test NDT approvondant optional</string>
+    <string name="terms_ndt_accept_text"><b>Je voudrais également exécuter le test NDT approvondant optional.</b></string>
+    <string name="terms_ndt_back_button">Retour</string>
+    <string name="terms_ndt_accept_button">Continuer</string>
+
+
+    <string name="test_mbps">Mbit/s</string>
+    <string name="test_dbm">dBm</string>
+    <string name="test_location_km_h">km/h</string>
+    <string name="test_location_m">m</string>
+    <string name="test_location_gps">GPS</string>
+    <string name="test_location_network">Réseau</string>
+    <string name="test_location_dir_n">N</string>
+    <string name="test_location_dir_e">E</string>
+    <string name="test_location_dir_s">S</string>
+    <string name="test_location_dir_w">O</string>
+    
+    <string name="test_notification_text">Le test est encore en cours.</string>
+    <string name="test_loop">Passage</string>
+    <string name="test_dialog_error_title">Erreur…</string>
+    <string name="test_dialog_error_text">Durant l’analyse, une erreur est apparue.</string>
+    
+    <string name="test_dialog_abort_title">Abandonner…</string>
+    <string name="test_dialog_abort_text">Voulez-vous vraiment interrompre le test actuel?</string>
+    <string name="test_dialog_abort_extended_text">Voulez-vous vraiment annuler le test prolongé?</string>
+    <string name="test_dialog_abort_yes">Annuler le test</string>
+    <string name="test_dialog_abort_no">Continuer le test</string>
+    
+    <string name="history">HISTOIRE</string>
+    <string name="history_button_sync">Sync</string>
+    <string name="history_button_filter">Filtrez</string>
+    <string name="history_device">Appareil</string>
+	<string name="history_type">Accès</string>
+	<string name="history_date">Date</string>
+	<string name="history_down">Download\nMbit/s</string>
+	<string name="history_up">Upload\nMbit/s</string>
+	<string name="history_ping">Ping\nms</string>
+	
+	<string name="history_filter">FILTRER</string>
+	<string name="history_filter_networks">ACCÈS</string>
+	<string name="history_filter_devices">MATÉRIEL</string>
+	<string name="history_filter_result_number">NUMÉRO DE RÉSULTAT</string>
+	<string name="history_filter_result_number_25">Afficher uniquement les dernières 25 résultats</string>
+	
+	<string name="result_header">RESULTATS DU TEST</string>
+	<string name="result_measurement">MESURE</string>
+	<string name="result_net">RÉSEAU</string>
+	<string name="result_details_button">DETAILS</string>
+	<string name="result_map_button">CARTE</string>
+	
+	<string name="result_details">DETAILS</string>
+	
+	<string name="result_button_new_test">Nouveau test</string>
+	<string name="result_button_history">Histoire</string>
+	<string name="result_button_map">Carte</string>
+	
+	<string name="result_extended_test_header">Test avancé</string>
+	<string name="result_extended_test_not_started">Le test avancé n’a pas encore démarré</string>
+	<string name="result_extended_test_running">Test en cours</string>
+	<string name="result_extended_test_results">Résultats du test finalisé</string>
+	<string name="result_extended_test_finished">Test avancé terminé</string>
+	<string name="result_extended_test_aborted">Le test avancé a été interrompu</string>
+	<string name="result_extended_test_error">Échec de connexion au cours de test</string>
+	<string name="result_extended_test_button_stop">Arrêter</string>
+	<string name="result_extended_test_button_detail">Détails</string>
+	
+	<string name="sync_info_text">Il est possible de combiner les résultats d\'autres terminaux. Vous devez entrer un code de synchronisation déjà reçu ou en demander un nouveau.</string>
+	<string name="sync_request_code_button">Requête code</string>
+	<string name="sync_enter_code_button">Entrez le code</string>
+	
+	<string name="sync_enter_code_header">Saisie du code</string>
+	<string name="sync_enter_code_msg">Code</string>
+	<string name="sync_enter_code_desc">S\'il vous plaît, entrez le code que vous avez demandé sur votre appareil.</string>
+	<string name="sync_enter_code_length">Le code doit être composé de 12 caractères</string>
+	
+	<string name="sync_request_code_header">Votre code de synchronisation est:</string>
+	<string name="sync_request_code_msg">Code est nécessaire…</string>
+	<string name="sync_request_code_desc">S\'il vous plaît, entrez le code ci-dessus sur l\'autre appareil à synchroniser.</string>
+	<string name="sync_request_code_context_copy">Copiez le code</string>
+	
+	<!-- Map -->
+	<string name="map_filter_header">FILTRE DE LA CARTE</string>
+	<string name="map_choose_header">SÉLECTION DE LA CARTE</string>
+	
+	<string name="map_appearance_header">CARTE</string>
+	<string name="map_appearance_nosat_title">Affichage normal</string>
+	<string name="map_appearance_nosat_summary">La carte montre une vue normale</string>
+	<string name="map_appearance_sat_title">Image satellite</string>
+	<string name="map_appearance_sat_summary">La carte montre la vue satellite</string>
+	
+	<string name="map_overlay_header">CARTE DE RECOUVREMENT</string>
+	<string name="map_overlay_auto_title">Automatiquement</string>
+	<string name="map_overlay_auto_summary">Carte commute automatiquement entre la carte chaleur et les points</string>
+	<string name="map_overlay_heatmap_title">La carte chaleur</string>
+	<string name="map_overlay_heatmap_summary">La carte indique les tests réalisés sur la carte chaleur</string>
+	<string name="map_overlay_points_title">Points</string>
+	<string name="map_overlay_points_summary">La carte indiquent les points de test </string>
+	
+	<string name="map_balloon_overlay_header">MESURES</string>
+	
+	<!-- Test -->
+	<string name="test_progress_title">Connexion en cours…</string>
+	<string name="test_progress_text">La connexion au serveur de test est établie. S\'il vous plaît, patientez…</string>
+	<string name="test_progress_text_wait">Le serveur de test est occupé. Le test démarre {0,choice,0#égale|1#de 1 seconde|1&lt;{0} secondes po. S\'il vous plaît, patientez…</string>
+	<string name="test_bottom_test">Statut: {0}\nServeur: {1}\nIP: {2}\n{3}\n{4}</string>
+	<string name="test_bottom_test_status_init">Initialisation</string>
+	<string name="test_bottom_test_status_ping">Ping</string>
+	<string name="test_bottom_test_status_down">Download</string>
+	<string name="test_bottom_test_status_init_up">Upload initialisation</string>
+	<string name="test_bottom_test_status_up">Upload</string>
+	<string name="test_bottom_test_status_end">Finalisation</string>
+	<string name="test_bottom_test_status_error">Erreur</string>
+	<string name="test_bottom_test_status_aborted">Annulé</string>
+	
+</resources>

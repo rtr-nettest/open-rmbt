@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package at.alladin.rmbt.mapServer;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Locale;
-import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 
 import javax.naming.NamingException;
@@ -29,23 +28,23 @@ import org.restlet.resource.Options;
 import org.restlet.resource.ResourceException;
 import org.restlet.util.Series;
 
+import at.alladin.rmbt.shared.ResourceManager;
+
 public class ServerResource extends org.restlet.resource.ServerResource
 {
     protected Connection conn;
-    protected PropertyResourceBundle labels;
-    protected PropertyResourceBundle settings;
+    protected ResourceBundle labels;
+    protected ResourceBundle settings;
     
     @Override
     public void doInit() throws ResourceException
     {
         super.doInit();
         
-        settings = (PropertyResourceBundle) ResourceBundle.getBundle("at.alladin.rmbt.res.Configuration");
-        
+        settings = ResourceManager.getCfgBundle();
         // Set default Language for System
         Locale.setDefault(new Locale(settings.getString("RMBT_DEFAULT_LANGUAGE")));
-        
-        labels = (PropertyResourceBundle) ResourceBundle.getBundle("at.alladin.rmbt.res.SystemMessages");
+        labels = ResourceManager.getSysMsgBundle();
         
         // Get DB-Connection
         try

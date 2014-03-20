@@ -446,6 +446,21 @@ CREATE TYPE gidx (
 ALTER TYPE public.gidx OWNER TO postgres;
 
 --
+-- Name: mobiletech; Type: TYPE; Schema: public; Owner: postgres
+--
+
+CREATE TYPE mobiletech AS ENUM (
+    'unknown',
+    '2G',
+    '3G',
+    '4G',
+    'mixed'
+);
+
+
+ALTER TYPE public.mobiletech OWNER TO postgres;
+
+--
 -- Name: pgis_abs; Type: SHELL TYPE; Schema: public; Owner: postgres
 --
 
@@ -5744,7 +5759,7 @@ SELECT
   FROM test t
   JOIN as2provider ap
   ON t.public_ip_asn=ap.asn 
-  AND (ap.dns_part IS NULL OR t.public_ip_rdns ILIKE ap.dns_part)
+  AND (ap.dns_part IS NULL OR t.public_ip_rdns ILIKE ap.dns_part /*Case insensitive regexp, DJ per #235:*/ OR t.public_ip_rdns ~* ap.dns_part)
   JOIN provider p
   ON p.uid = ap.provider_id
   WHERE t.uid = _test_id
@@ -10548,9 +10563,16 @@ CREATE FUNCTION trigger_test() RETURNS trigger
     AS $$
 DECLARE
     _tmp_uuid uuid;
+    _tmp_uid integer;
+    _tmp_time timestamp;
+    _tmp_network_group_name VARCHAR;
     _mcc_sim VARCHAR;
     _mcc_net VARCHAR;
     _min_accuracy CONSTANT integer := 3000;
+
+    v_old_data TEXT;
+    v_new_data TEXT;
+
 BEGIN
 
     IF ((TG_OP = 'INSERT' OR NEW.speed_download IS DISTINCT FROM OLD.speed_download) AND NEW.speed_download > 0) THEN
@@ -10597,16 +10619,16 @@ BEGIN
             IF (NEW.network_sim_operator IS NULL OR NEW.network_operator IS NULL) THEN
                 NEW.roaming_type = NULL;
             ELSE
-IF (NEW.network_sim_operator = NEW.network_operator) THEN
-    NEW.roaming_type = 0; -- no roaming
-ELSE
+		IF (NEW.network_sim_operator = NEW.network_operator) THEN
+			NEW.roaming_type = 0; -- no roaming
+		ELSE
                     _mcc_sim := split_part(NEW.network_sim_operator, '-', 1);
                     _mcc_net := split_part(NEW.network_operator, '-', 1);
                     IF (_mcc_sim = _mcc_net) THEN
                         NEW.roaming_type = 1;  -- national roaming
                     ELSE
-        NEW.roaming_type = 2;  -- international roaming
-    END IF;
+			NEW.roaming_type = 2;  -- international roaming
+		    END IF;
                 END IF;
             END IF;
 
@@ -11744,10 +11766,10 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
--- Name: android_device_map; Type: TABLE; Schema: public; Owner: rmbt; Tablespace: 
+-- Name: device_map; Type: TABLE; Schema: public; Owner: rmbt; Tablespace: 
 --
 
-CREATE TABLE android_device_map (
+CREATE TABLE device_map (
     uid integer NOT NULL,
     codename character varying(200),
     fullname character varying(200),
@@ -11756,7 +11778,7 @@ CREATE TABLE android_device_map (
 );
 
 
-ALTER TABLE public.android_device_map OWNER TO rmbt;
+ALTER TABLE public.device_map OWNER TO rmbt;
 
 --
 -- Name: android_device_map_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
@@ -11776,7 +11798,7 @@ ALTER TABLE public.android_device_map_uid_seq OWNER TO rmbt;
 -- Name: android_device_map_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
 --
 
-ALTER SEQUENCE android_device_map_uid_seq OWNED BY android_device_map.uid;
+ALTER SEQUENCE android_device_map_uid_seq OWNED BY device_map.uid;
 
 
 --
@@ -11824,11 +11846,211 @@ CREATE TABLE cell_location (
     location_id integer,
     area_code integer,
     "time" timestamp with time zone,
-    primary_scrambling_code integer
+    primary_scrambling_code integer,
+    time_ns bigint
 );
 
 
 ALTER TABLE public.cell_location OWNER TO rmbt;
+
+--
+-- Name: cell; Type: VIEW; Schema: public; Owner: rmbt
+--
+
+CREATE VIEW cell AS
+    SELECT DISTINCT cell_location.test_id, cell_location.location_id, cell_location.area_code FROM cell_location ORDER BY cell_location.test_id DESC;
+
+
+ALTER TABLE public.cell OWNER TO rmbt;
+
+--
+-- Name: geo_location; Type: TABLE; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+CREATE TABLE geo_location (
+    uid bigint NOT NULL,
+    test_id bigint NOT NULL,
+    "time" timestamp with time zone,
+    accuracy double precision,
+    altitude double precision,
+    bearing double precision,
+    speed double precision,
+    provider character varying(200),
+    geo_lat double precision,
+    geo_long double precision,
+    location geometry,
+    time_ns bigint,
+    CONSTRAINT enforce_dims_location CHECK ((st_ndims(location) = 2)),
+    CONSTRAINT enforce_geotype_location CHECK (((geometrytype(location) = 'POINT'::text) OR (location IS NULL))),
+    CONSTRAINT enforce_srid_location CHECK ((st_srid(location) = 900913))
+);
+
+
+ALTER TABLE public.geo_location OWNER TO rmbt;
+
+--
+-- Name: test; Type: TABLE; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+CREATE TABLE test (
+    uid bigint NOT NULL,
+    uuid uuid,
+    client_id bigint,
+    client_version character varying(10),
+    client_name character varying,
+    client_language character varying(10),
+    client_local_ip character varying(100),
+    token character varying(500),
+    server_id integer,
+    port integer,
+    use_ssl boolean DEFAULT false NOT NULL,
+    "time" timestamp with time zone,
+    speed_upload integer,
+    speed_download integer,
+    ping_shortest bigint,
+    encryption character varying(50),
+    client_public_ip character varying(100),
+    plattform character varying(200),
+    os_version character varying(100),
+    api_level character varying(10),
+    device character varying(200),
+    model character varying(200),
+    product character varying(200),
+    phone_type integer,
+    data_state integer,
+    network_country character varying(10),
+    network_operator character varying(10),
+    network_operator_name character varying(200),
+    network_sim_country character varying(10),
+    network_sim_operator character varying(10),
+    network_sim_operator_name character varying(200),
+    wifi_ssid character varying(200),
+    wifi_bssid character varying(200),
+    wifi_network_id character varying(200),
+    duration integer,
+    num_threads integer,
+    status character varying(100),
+    timezone character varying(200),
+    bytes_download bigint,
+    bytes_upload bigint,
+    nsec_download bigint,
+    nsec_upload bigint,
+    server_ip character varying(100),
+    client_software_version character varying(100),
+    geo_lat double precision,
+    geo_long double precision,
+    network_type integer,
+    location geometry,
+    signal_strength integer,
+    software_revision character varying(200),
+    client_test_counter bigint,
+    nat_type character varying(200),
+    client_previous_test_status character varying(200),
+    public_ip_asn bigint,
+    speed_upload_log double precision,
+    speed_download_log double precision,
+    total_bytes_download bigint,
+    total_bytes_upload bigint,
+    wifi_link_speed integer,
+    public_ip_rdns character varying(200),
+    public_ip_as_name character varying(200),
+    test_slot integer,
+    provider_id integer,
+    network_is_roaming boolean,
+    ping_shortest_log double precision,
+    run_ndt boolean,
+    num_threads_requested integer,
+    client_public_ip_anonymized character varying(100),
+    zip_code integer,
+    geo_provider character varying(200),
+    geo_accuracy double precision,
+    deleted boolean DEFAULT false NOT NULL,
+    comment text,
+    open_uuid uuid,
+    client_time timestamp with time zone,
+    zip_code_geo integer,
+    mobile_provider_id integer,
+    roaming_type integer,
+    open_test_uuid uuid,
+    country_asn character(2),
+    country_location character(2),
+    test_if_bytes_download bigint,
+    test_if_bytes_upload bigint,
+    implausible boolean DEFAULT false NOT NULL,
+    testdl_if_bytes_download bigint,
+    testdl_if_bytes_upload bigint,
+    testul_if_bytes_download bigint,
+    testul_if_bytes_upload bigint,
+    country_geoip character(2),
+    location_max_distance integer,
+    location_max_distance_gps integer,
+    network_group_name character varying(200),
+    network_group_type character varying(200),
+    time_dl_ns bigint,
+    time_ul_ns bigint,
+    num_threads_ul integer,
+    "timestamp" timestamp without time zone DEFAULT now(),
+    source_ip character varying(50),
+    lte_rsrp integer,
+    lte_rsrq integer,
+    mobile_network_id integer,
+    mobile_sim_id integer,
+    dist_prev double precision,
+    speed_prev double precision,
+    tag character varying(512),
+    CONSTRAINT enforce_dims_location CHECK ((st_ndims(location) = 2)),
+    CONSTRAINT enforce_geotype_location CHECK (((geometrytype(location) = 'POINT'::text) OR (location IS NULL))),
+    CONSTRAINT enforce_srid_location CHECK ((st_srid(location) = 900913)),
+    CONSTRAINT test_speed_download_noneg CHECK ((speed_download >= 0)),
+    CONSTRAINT test_speed_upload_noneg CHECK ((speed_upload >= 0))
+);
+
+
+ALTER TABLE public.test OWNER TO rmbt;
+
+--
+-- Name: COLUMN test.server_id; Type: COMMENT; Schema: public; Owner: rmbt
+--
+
+COMMENT ON COLUMN test.server_id IS 'id of test server used';
+
+
+--
+-- Name: cell2earth; Type: VIEW; Schema: public; Owner: rmbt
+--
+
+CREATE VIEW cell2earth AS
+    SELECT cell_location.location_id, cell_location.area_code, test.network_operator, geo_location.provider, test.network_group_name, count(*) AS count, round(avg(geo_location.accuracy)) AS avg_accuracy, round(stddev(geo_location.accuracy)) AS sd_accuracy, round(min(geo_location.accuracy)) AS min_accuracy, round(max(geo_location.accuracy)) AS max_accuracy, avg(geo_location.geo_lat) AS avg_geo_lat, stddev(geo_location.geo_lat) AS sd_geo_lat, min(geo_location.geo_lat) AS min_geo_lat, max(geo_location.geo_lat) AS max_geo_lat, avg(geo_location.geo_long) AS avg_geo_long, stddev(geo_location.geo_long) AS sd_geo_long, min(geo_location.geo_long) AS min_geo_long, max(geo_location.geo_long) AS max_geo_long FROM cell_location, geo_location, test WHERE ((((cell_location.test_id = geo_location.test_id) AND (cell_location.test_id = test.uid)) AND (geo_location.geo_lat IS NOT NULL)) AND (geo_location.geo_long IS NOT NULL)) GROUP BY cell_location.location_id, cell_location.area_code, test.network_operator, geo_location.provider, test.network_group_name ORDER BY cell_location.location_id, cell_location.area_code, test.network_operator, geo_location.provider, test.network_group_name;
+
+
+ALTER TABLE public.cell2earth OWNER TO rmbt;
+
+--
+-- Name: VIEW cell2earth; Type: COMMENT; Schema: public; Owner: rmbt
+--
+
+COMMENT ON VIEW cell2earth IS 'Used in display of cells for Google Earth';
+
+
+--
+-- Name: geo; Type: VIEW; Schema: public; Owner: rmbt
+--
+
+CREATE VIEW geo AS
+    SELECT DISTINCT geo_location.test_id, geo_location.provider, (round((geo_location.accuracy / (10.0)::double precision)) * (10)::double precision) AS accuracy_rd, round((geo_location.geo_lat)::numeric, 3) AS lat_rd, round((geo_location.geo_long)::numeric, 3) AS long_rd FROM geo_location ORDER BY geo_location.test_id DESC;
+
+
+ALTER TABLE public.geo OWNER TO rmbt;
+
+--
+-- Name: cell_geo_test; Type: VIEW; Schema: public; Owner: rmbt
+--
+
+CREATE VIEW cell_geo_test AS
+    SELECT cell.test_id, cell.location_id, cell.area_code, geo.test_id AS test_id2, geo.provider, geo.accuracy_rd, geo.lat_rd, geo.long_rd, test.uid, test.uuid, test.client_id, test.client_version, test.client_name, test.client_language, test.client_local_ip, test.token, test.server_id, test.port, test.use_ssl, test."time", test.speed_upload, test.speed_download, test.ping_shortest, test.encryption, test.client_public_ip, test.plattform, test.os_version, test.api_level, test.device, test.model, test.product, test.phone_type, test.data_state, test.network_country, test.network_operator, test.network_operator_name, test.network_sim_country, test.network_sim_operator, test.network_sim_operator_name, test.wifi_ssid, test.wifi_bssid, test.wifi_network_id, test.duration, test.num_threads, test.status, test.timezone, test.bytes_download, test.bytes_upload, test.nsec_download, test.nsec_upload, test.server_ip, test.client_software_version, test.geo_lat, test.geo_long, test.network_type, test.location, test.signal_strength, test.software_revision, test.client_test_counter, test.nat_type, test.client_previous_test_status, test.public_ip_asn, test.speed_upload_log, test.speed_download_log, test.total_bytes_download, test.total_bytes_upload, test.wifi_link_speed, test.public_ip_rdns, test.public_ip_as_name, test.test_slot, test.provider_id, test.network_is_roaming, test.ping_shortest_log, test.run_ndt, test.num_threads_requested, test.client_public_ip_anonymized, test.zip_code, test.geo_provider, test.geo_accuracy, test.deleted, test.comment, test.open_uuid, test.client_time, test.zip_code_geo, test.mobile_provider_id, test.roaming_type, test.open_test_uuid, test.country_asn, test.country_location, test.test_if_bytes_download, test.test_if_bytes_upload, test.implausible, test.testdl_if_bytes_download, test.testdl_if_bytes_upload, test.testul_if_bytes_download, test.testul_if_bytes_upload, test.country_geoip, test.location_max_distance, test.location_max_distance_gps, test.network_group_name, test.network_group_type, test.time_dl_ns, test.time_ul_ns, test.num_threads_ul, test."timestamp", test.source_ip, test.lte_rsrp, test.lte_rsrq, test.mobile_network_id, test.mobile_sim_id FROM cell, geo, test WHERE ((cell.test_id = geo.test_id) AND (cell.test_id = test.uid)) ORDER BY cell.location_id, cell.area_code, cell.test_id DESC, geo.accuracy_rd, geo.lat_rd, geo.long_rd;
+
+
+ALTER TABLE public.cell_geo_test OWNER TO rmbt;
 
 --
 -- Name: cell_location_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
@@ -11924,30 +12146,6 @@ ALTER SEQUENCE client_uid_seq OWNED BY client.uid;
 
 
 --
--- Name: geo_location; Type: TABLE; Schema: public; Owner: rmbt; Tablespace: 
---
-
-CREATE TABLE geo_location (
-    uid bigint NOT NULL,
-    test_id bigint NOT NULL,
-    "time" timestamp with time zone,
-    accuracy double precision,
-    altitude double precision,
-    bearing double precision,
-    speed double precision,
-    provider character varying(200),
-    geo_lat double precision,
-    geo_long double precision,
-    location geometry,
-    CONSTRAINT enforce_dims_location CHECK ((st_ndims(location) = 2)),
-    CONSTRAINT enforce_geotype_location CHECK (((geometrytype(location) = 'POINT'::text) OR (location IS NULL))),
-    CONSTRAINT enforce_srid_location CHECK ((st_srid(location) = 900913))
-);
-
-
-ALTER TABLE public.geo_location OWNER TO rmbt;
-
---
 -- Name: geography_columns; Type: VIEW; Schema: public; Owner: postgres
 --
 
@@ -11998,6 +12196,61 @@ ALTER SEQUENCE location_uid_seq OWNED BY geo_location.uid;
 
 
 SET default_with_oids = false;
+
+--
+-- Name: mcc2country; Type: TABLE; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+CREATE TABLE mcc2country (
+    mcc character varying(3) NOT NULL,
+    country character varying(2) NOT NULL
+);
+
+
+ALTER TABLE public.mcc2country OWNER TO rmbt;
+
+--
+-- Name: mccmnc2name; Type: TABLE; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+CREATE TABLE mccmnc2name (
+    uid integer NOT NULL,
+    mccmnc character varying(7) NOT NULL,
+    valid_from date DEFAULT '0001-01-01'::date,
+    valid_to date DEFAULT '9999-12-31'::date,
+    country character varying(2),
+    name character varying(200) NOT NULL,
+    shortname character varying(100),
+    use_for_sim boolean DEFAULT true,
+    use_for_network boolean DEFAULT true,
+    mcc_mnc_network_mapping character varying(10),
+    comment character varying(200),
+    mapped_uid integer
+);
+
+
+ALTER TABLE public.mccmnc2name OWNER TO rmbt;
+
+--
+-- Name: mccmnc2name_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
+--
+
+CREATE SEQUENCE mccmnc2name_uid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.mccmnc2name_uid_seq OWNER TO rmbt;
+
+--
+-- Name: mccmnc2name_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
+--
+
+ALTER SEQUENCE mccmnc2name_uid_seq OWNED BY mccmnc2name.uid;
+
 
 --
 -- Name: mccmnc2provider; Type: TABLE; Schema: public; Owner: rmbt; Tablespace: 
@@ -12197,7 +12450,8 @@ CREATE TABLE news (
     force boolean DEFAULT false NOT NULL,
     plattform text,
     max_software_version_code integer,
-    min_software_version_code integer
+    min_software_version_code integer,
+    uuid uuid
 );
 
 
@@ -12232,7 +12486,8 @@ CREATE TABLE ping (
     uid bigint NOT NULL,
     test_id bigint,
     value bigint,
-    value_server bigint
+    value_server bigint,
+    time_ns bigint
 );
 
 
@@ -12392,7 +12647,12 @@ CREATE TABLE signal (
     network_type_id integer,
     wifi_link_speed integer,
     gsm_bit_error_rate integer,
-    wifi_rssi integer
+    wifi_rssi integer,
+    time_ns bigint,
+    lte_rsrp integer,
+    lte_rsrq integer,
+    lte_rssnr integer,
+    lte_cqi integer
 );
 
 
@@ -12468,109 +12728,6 @@ ALTER SEQUENCE sync_group_uid_seq OWNED BY sync_group.uid;
 
 
 --
--- Name: test; Type: TABLE; Schema: public; Owner: rmbt; Tablespace: 
---
-
-CREATE TABLE test (
-    uid bigint NOT NULL,
-    uuid uuid,
-    client_id bigint,
-    client_version character varying(10),
-    client_name character varying,
-    client_language character varying(10),
-    client_local_ip character varying(100),
-    token character varying(500),
-    server_id integer,
-    port integer,
-    use_ssl boolean DEFAULT false NOT NULL,
-    "time" timestamp with time zone,
-    speed_upload integer,
-    speed_download integer,
-    ping_shortest bigint,
-    encryption character varying(50),
-    client_public_ip character varying(100),
-    plattform character varying(200),
-    os_version character varying(100),
-    api_level character varying(10),
-    device character varying(200),
-    model character varying(200),
-    product character varying(200),
-    phone_type integer,
-    data_state integer,
-    network_country character varying(10),
-    network_operator character varying(10),
-    network_operator_name character varying(200),
-    network_sim_country character varying(10),
-    network_sim_operator character varying(10),
-    network_sim_operator_name character varying(200),
-    wifi_ssid character varying(200),
-    wifi_bssid character varying(200),
-    wifi_network_id character varying(200),
-    duration integer,
-    num_threads integer,
-    status character varying(100),
-    timezone character varying(200),
-    bytes_download bigint,
-    bytes_upload bigint,
-    nsec_download bigint,
-    nsec_upload bigint,
-    server_ip character varying(100),
-    client_software_version character varying(100),
-    geo_lat double precision,
-    geo_long double precision,
-    network_type integer,
-    location geometry,
-    signal_strength integer,
-    software_revision character varying(200),
-    client_test_counter bigint,
-    nat_type character varying(200),
-    client_previous_test_status character varying(200),
-    public_ip_asn bigint,
-    speed_upload_log double precision,
-    speed_download_log double precision,
-    total_bytes_download bigint,
-    total_bytes_upload bigint,
-    wifi_link_speed integer,
-    public_ip_rdns character varying(200),
-    public_ip_as_name character varying(200),
-    test_slot integer,
-    provider_id integer,
-    network_is_roaming boolean,
-    ping_shortest_log double precision,
-    run_ndt boolean,
-    num_threads_requested integer,
-    client_public_ip_anonymized character varying(100),
-    zip_code integer,
-    geo_provider character varying(200),
-    geo_accuracy double precision,
-    deleted boolean DEFAULT false NOT NULL,
-    comment text,
-    open_uuid uuid,
-    client_time timestamp with time zone,
-    zip_code_geo integer,
-    mobile_provider_id integer,
-    roaming_type integer,
-    open_test_uuid uuid,
-    country_asn character(2),
-    country_location character(2),
-    CONSTRAINT enforce_dims_location CHECK ((st_ndims(location) = 2)),
-    CONSTRAINT enforce_geotype_location CHECK (((geometrytype(location) = 'POINT'::text) OR (location IS NULL))),
-    CONSTRAINT enforce_srid_location CHECK ((st_srid(location) = 900913)),
-    CONSTRAINT test_speed_download_noneg CHECK ((speed_download >= 0)),
-    CONSTRAINT test_speed_upload_noneg CHECK ((speed_upload >= 0))
-);
-
-
-ALTER TABLE public.test OWNER TO rmbt;
-
---
--- Name: COLUMN test.server_id; Type: COMMENT; Schema: public; Owner: rmbt
---
-
-COMMENT ON COLUMN test.server_id IS 'id of test server used';
-
-
---
 -- Name: test_ndt; Type: TABLE; Schema: public; Owner: rmbt; Tablespace: 
 --
 
@@ -12582,7 +12739,9 @@ CREATE TABLE test_ndt (
     avgrtt double precision,
     main text,
     stat text,
-    diag text
+    diag text,
+    time_ns bigint,
+    time_end_ns bigint
 );
 
 
@@ -12724,13 +12883,6 @@ ALTER SEQUENCE test_uid_seq OWNED BY test.uid;
 -- Name: uid; Type: DEFAULT; Schema: public; Owner: rmbt
 --
 
-ALTER TABLE ONLY android_device_map ALTER COLUMN uid SET DEFAULT nextval('android_device_map_uid_seq'::regclass);
-
-
---
--- Name: uid; Type: DEFAULT; Schema: public; Owner: rmbt
---
-
 ALTER TABLE ONLY as2provider ALTER COLUMN uid SET DEFAULT nextval('as2provider_uid_seq'::regclass);
 
 
@@ -12759,7 +12911,21 @@ ALTER TABLE ONLY client_type ALTER COLUMN uid SET DEFAULT nextval('client_type_u
 -- Name: uid; Type: DEFAULT; Schema: public; Owner: rmbt
 --
 
+ALTER TABLE ONLY device_map ALTER COLUMN uid SET DEFAULT nextval('android_device_map_uid_seq'::regclass);
+
+
+--
+-- Name: uid; Type: DEFAULT; Schema: public; Owner: rmbt
+--
+
 ALTER TABLE ONLY geo_location ALTER COLUMN uid SET DEFAULT nextval('location_uid_seq'::regclass);
+
+
+--
+-- Name: uid; Type: DEFAULT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY mccmnc2name ALTER COLUMN uid SET DEFAULT nextval('mccmnc2name_uid_seq'::regclass);
 
 
 --
@@ -12864,7 +13030,7 @@ ALTER TABLE ONLY test_speed ALTER COLUMN uid SET DEFAULT nextval('test_speed_uid
 -- Name: android_device_map_codename_key; Type: CONSTRAINT; Schema: public; Owner: rmbt; Tablespace: 
 --
 
-ALTER TABLE ONLY android_device_map
+ALTER TABLE ONLY device_map
     ADD CONSTRAINT android_device_map_codename_key UNIQUE (codename);
 
 
@@ -12872,7 +13038,7 @@ ALTER TABLE ONLY android_device_map
 -- Name: android_device_map_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt; Tablespace: 
 --
 
-ALTER TABLE ONLY android_device_map
+ALTER TABLE ONLY device_map
     ADD CONSTRAINT android_device_map_pkey PRIMARY KEY (uid);
 
 
@@ -12925,6 +13091,14 @@ ALTER TABLE ONLY client
 
 
 --
+-- Name: device_map_fullname_key; Type: CONSTRAINT; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+ALTER TABLE ONLY device_map
+    ADD CONSTRAINT device_map_fullname_key UNIQUE (fullname);
+
+
+--
 -- Name: geometry_columns_pk; Type: CONSTRAINT; Schema: public; Owner: rmbt; Tablespace: 
 --
 
@@ -12938,6 +13112,22 @@ ALTER TABLE ONLY geometry_columns
 
 ALTER TABLE ONLY geo_location
     ADD CONSTRAINT location_pkey PRIMARY KEY (uid);
+
+
+--
+-- Name: mcc2country_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+ALTER TABLE ONLY mcc2country
+    ADD CONSTRAINT mcc2country_pkey PRIMARY KEY (mcc);
+
+
+--
+-- Name: mccmnc2name_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+ALTER TABLE ONLY mccmnc2name
+    ADD CONSTRAINT mccmnc2name_pkey PRIMARY KEY (uid);
 
 
 --
@@ -13099,6 +13289,13 @@ CREATE INDEX cell_location_test_id_idx ON cell_location USING btree (test_id);
 
 
 --
+-- Name: cell_location_test_id_time_idx; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+CREATE INDEX cell_location_test_id_time_idx ON cell_location USING btree (test_id, "time");
+
+
+--
 -- Name: client_client_type_id_idx; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
 --
 
@@ -13134,10 +13331,45 @@ CREATE INDEX geo_location_test_id_key ON geo_location USING btree (test_id);
 
 
 --
+-- Name: geo_location_test_id_provider; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+CREATE INDEX geo_location_test_id_provider ON geo_location USING btree (test_id, provider);
+
+
+--
+-- Name: geo_location_test_id_provider_time_idx; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+CREATE INDEX geo_location_test_id_provider_time_idx ON geo_location USING btree (test_id, provider, "time");
+
+
+--
+-- Name: geo_location_test_id_time_idx; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+CREATE INDEX geo_location_test_id_time_idx ON geo_location USING btree (test_id, "time");
+
+
+--
 -- Name: location_idx; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
 --
 
 CREATE INDEX location_idx ON test USING gist (location);
+
+
+--
+-- Name: mcc2country_mcc; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+CREATE INDEX mcc2country_mcc ON mcc2country USING btree (mcc);
+
+
+--
+-- Name: mccmnc2name_mccmnc; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+CREATE INDEX mccmnc2name_mccmnc ON mccmnc2name USING btree (mccmnc);
 
 
 --
@@ -13260,10 +13492,24 @@ CREATE INDEX test_idx ON test USING btree (((network_type <> ALL (ARRAY[0, 99]))
 
 
 --
+-- Name: test_mobile_network_id_idx; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+CREATE INDEX test_mobile_network_id_idx ON test USING btree (mobile_network_id);
+
+
+--
 -- Name: test_mobile_provider_id_idx; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
 --
 
 CREATE INDEX test_mobile_provider_id_idx ON test USING btree (mobile_provider_id);
+
+
+--
+-- Name: test_ndt_test_id_idx; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+CREATE INDEX test_ndt_test_id_idx ON test_ndt USING btree (test_id);
 
 
 --
@@ -13288,6 +13534,20 @@ CREATE INDEX test_open_test_uuid_idx ON test USING btree (open_test_uuid);
 
 
 --
+-- Name: test_open_uuid_idx; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+CREATE INDEX test_open_uuid_idx ON test USING btree (open_uuid);
+
+
+--
+-- Name: test_ping_shortest_log_idx; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+CREATE INDEX test_ping_shortest_log_idx ON test USING btree (ping_shortest_log);
+
+
+--
 -- Name: test_provider_id_idx; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
 --
 
@@ -13299,6 +13559,13 @@ CREATE INDEX test_provider_id_idx ON test USING btree (provider_id);
 --
 
 CREATE INDEX test_speed_download_log_idx ON test USING btree (speed_download_log);
+
+
+--
+-- Name: test_speed_test_id_key; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+CREATE INDEX test_speed_test_id_key ON test_speed USING btree (test_id);
 
 
 --
@@ -13465,13 +13732,13 @@ GRANT ALL ON SCHEMA public TO PUBLIC;
 
 
 --
--- Name: android_device_map; Type: ACL; Schema: public; Owner: rmbt
+-- Name: device_map; Type: ACL; Schema: public; Owner: rmbt
 --
 
-REVOKE ALL ON TABLE android_device_map FROM PUBLIC;
-REVOKE ALL ON TABLE android_device_map FROM rmbt;
-GRANT ALL ON TABLE android_device_map TO rmbt;
-GRANT SELECT ON TABLE android_device_map TO rmbt_group_read_only;
+REVOKE ALL ON TABLE device_map FROM PUBLIC;
+REVOKE ALL ON TABLE device_map FROM rmbt;
+GRANT ALL ON TABLE device_map TO rmbt;
+GRANT SELECT ON TABLE device_map TO rmbt_group_read_only;
 
 
 --
@@ -13493,6 +13760,28 @@ REVOKE ALL ON TABLE cell_location FROM rmbt;
 GRANT ALL ON TABLE cell_location TO rmbt;
 GRANT SELECT ON TABLE cell_location TO rmbt_group_read_only;
 GRANT INSERT ON TABLE cell_location TO rmbt_group_control;
+
+
+--
+-- Name: geo_location; Type: ACL; Schema: public; Owner: rmbt
+--
+
+REVOKE ALL ON TABLE geo_location FROM PUBLIC;
+REVOKE ALL ON TABLE geo_location FROM rmbt;
+GRANT ALL ON TABLE geo_location TO rmbt;
+GRANT SELECT ON TABLE geo_location TO rmbt_group_read_only;
+GRANT INSERT ON TABLE geo_location TO rmbt_group_control;
+
+
+--
+-- Name: test; Type: ACL; Schema: public; Owner: rmbt
+--
+
+REVOKE ALL ON TABLE test FROM PUBLIC;
+REVOKE ALL ON TABLE test FROM rmbt;
+GRANT ALL ON TABLE test TO rmbt;
+GRANT SELECT ON TABLE test TO rmbt_group_read_only;
+GRANT INSERT,UPDATE ON TABLE test TO rmbt_group_control;
 
 
 --
@@ -13537,17 +13826,6 @@ GRANT USAGE ON SEQUENCE client_uid_seq TO rmbt_group_control;
 
 
 --
--- Name: geo_location; Type: ACL; Schema: public; Owner: rmbt
---
-
-REVOKE ALL ON TABLE geo_location FROM PUBLIC;
-REVOKE ALL ON TABLE geo_location FROM rmbt;
-GRANT ALL ON TABLE geo_location TO rmbt;
-GRANT SELECT ON TABLE geo_location TO rmbt_group_read_only;
-GRANT INSERT ON TABLE geo_location TO rmbt_group_control;
-
-
---
 -- Name: geography_columns; Type: ACL; Schema: public; Owner: postgres
 --
 
@@ -13574,6 +13852,27 @@ REVOKE ALL ON SEQUENCE location_uid_seq FROM PUBLIC;
 REVOKE ALL ON SEQUENCE location_uid_seq FROM rmbt;
 GRANT ALL ON SEQUENCE location_uid_seq TO rmbt;
 GRANT USAGE ON SEQUENCE location_uid_seq TO rmbt_group_control;
+
+
+--
+-- Name: mcc2country; Type: ACL; Schema: public; Owner: rmbt
+--
+
+REVOKE ALL ON TABLE mcc2country FROM PUBLIC;
+REVOKE ALL ON TABLE mcc2country FROM rmbt;
+GRANT ALL ON TABLE mcc2country TO rmbt;
+GRANT SELECT ON TABLE mcc2country TO rmbt_group_read_only;
+
+
+--
+-- Name: mccmnc2name; Type: ACL; Schema: public; Owner: rmbt
+--
+
+REVOKE ALL ON TABLE mccmnc2name FROM PUBLIC;
+REVOKE ALL ON TABLE mccmnc2name FROM rmbt;
+GRANT ALL ON TABLE mccmnc2name TO rmbt;
+GRANT SELECT ON TABLE mccmnc2name TO rmbt_group_read_only;
+GRANT SELECT ON TABLE mccmnc2name TO rmbt_group_control;
 
 
 --
@@ -13717,17 +14016,6 @@ REVOKE ALL ON SEQUENCE sync_group_uid_seq FROM PUBLIC;
 REVOKE ALL ON SEQUENCE sync_group_uid_seq FROM rmbt;
 GRANT ALL ON SEQUENCE sync_group_uid_seq TO rmbt;
 GRANT USAGE ON SEQUENCE sync_group_uid_seq TO rmbt_group_control;
-
-
---
--- Name: test; Type: ACL; Schema: public; Owner: rmbt
---
-
-REVOKE ALL ON TABLE test FROM PUBLIC;
-REVOKE ALL ON TABLE test FROM rmbt;
-GRANT ALL ON TABLE test TO rmbt;
-GRANT SELECT ON TABLE test TO rmbt_group_read_only;
-GRANT INSERT,UPDATE ON TABLE test TO rmbt_group_control;
 
 
 --

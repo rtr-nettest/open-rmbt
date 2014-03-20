@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -207,6 +207,8 @@ public class ControlServerConnection
         try
         {
             InformationCollector.fillBasicInfo(requestData, context);
+            
+            requestData.put("uuid", getUUID());
             requestData.put("lastNewsUid", lastNewsUid);
         }
         catch (final JSONException e)
@@ -374,7 +376,7 @@ public class ControlServerConnection
             pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
             clientVersionName = pInfo.versionName;
             clientVersionCode = pInfo.versionCode;
-            clientName = context.getResources().getString(R.string.app_name);
+            clientName = context.getResources().getString(R.string.app_name_api);
         }
         catch (final NameNotFoundException e)
         {
@@ -394,9 +396,10 @@ public class ControlServerConnection
             requestData.put("version_name", clientVersionName);
             requestData.put("version_code", clientVersionCode);
             
-            if (ConfigHelper.isTCAccepted(context))
-                requestData.put("terms_and_conditions_accepted", ConfigHelper.isTCAccepted(context));
-            
+            final int tcAcceptedVersion = ConfigHelper.getTCAcceptedVersion(context);
+            requestData.put("terms_and_conditions_accepted_version", tcAcceptedVersion);
+            if (tcAcceptedVersion > 0) // for server backward compatibility
+                requestData.put("terms_and_conditions_accepted", true);
         }
         catch (final JSONException e1)
         {

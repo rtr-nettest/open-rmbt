@@ -1,7 +1,18 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+/*******************************************************************************
+ * Copyright 2013-2014 RTR-GmbH
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package at.alladin.rmbt.controlServer.export;
 
 import at.alladin.rmbt.controlServer.OpenTestResource;
@@ -68,32 +79,34 @@ public class ImageExport extends ServerResource {
 
         //first - get data
         final String sql = "SELECT"
-                + " ('P' || t.open_uuid) open_uuid,"
-                + " to_char(t.time AT TIME ZONE 'UTC', 'YYYY-MM-DD HH24:MI') \"time\","
+                //+ " ('P' || t.open_uuid) open_uuid,"
+                //+ " to_char(t.time AT TIME ZONE 'UTC', 'YYYY-MM-DD HH24:MI') \"time\","
                 + " nt.name network_type,"
-                + " t.geo_provider loc_src,"
-                + " t.zip_code,"
+                //+ " t.geo_provider loc_src,"
+                //+ " t.zip_code,"
                 + " t.speed_download download_kbit,"
                 + " t.speed_upload upload_kbit,"
                 + " (t.ping_shortest::float / 1000000) ping_ms,"
                 + " t.signal_strength,"
-                + " plattform,"
-                + " network_operator network_mcc_mnc,"
-                + " network_operator_name network_name,"
-                + " network_sim_operator sim_mcc_mnc,"
-                + " nat_type \"connection\","
-                + " public_ip_asn asn,"
-                + " client_public_ip_anonymized ip_anonym,"
-                + " (ndt.s2cspd*1000)::int ndt_download_kbit,"
-                + " (ndt.c2sspd*1000)::int ndt_upload_kbit"
+                + " COALESCE(prov.shortname, mprov.shortname, prov.name, mprov.name, network_operator_name, network_sim_operator) provider_name,"
+                + " plattform"
+                //+ " network_operator network_mcc_mnc,"
+                //+ " network_operator_name network_name,"
+                //+ " network_sim_operator sim_mcc_mnc,"
+                //+ " nat_type \"connection\","
+                //+ " public_ip_asn asn,"
+                //+ " client_public_ip_anonymized ip_anonym,"
+                //+ " (ndt.s2cspd*1000)::int ndt_download_kbit,"
+                //+ " (ndt.c2sspd*1000)::int ndt_upload_kbit"
                 + " FROM test t"
                 + " LEFT JOIN network_type nt ON nt.uid=t.network_type"
-                + " LEFT JOIN android_device_map adm ON adm.codename=t.model"
+                + " LEFT JOIN device_map adm ON adm.codename=t.model"
                 + " LEFT JOIN test_server ts ON ts.uid=t.server_id"
                 + " LEFT JOIN test_ndt ndt ON t.uid=ndt.test_id"
+                + " LEFT JOIN provider prov ON mobile_provider_id = prov.uid "
+                + " LEFT JOIN provider mprov ON provider_id = mprov.uid"
                 + " WHERE "
-                + " t.deleted = false"
-                + " AND time > '2012-12-22 01:00'"
+                + " t.deleted = false AND t.implausible = false"
                 + " AND status = 'FINISHED'"
                 + " AND open_test_uuid = ?";
 
@@ -111,7 +124,7 @@ public class ImageExport extends ServerResource {
             final double download = ((double) rs.getInt("download_kbit")) / 1000;
             final double upload = ((double) rs.getInt("upload_kbit")) / 1000;
             final double ping = rs.getFloat("ping_ms");
-            final String isp = rs.getString("network_name");
+            final String isp = rs.getString("provider_name");
             final String typ = rs.getString("network_type");
             final String signal = rs.getString("signal_strength");
             final String os = rs.getString("plattform");
@@ -283,8 +296,16 @@ public class ImageExport extends ServerResource {
                 g.drawString((isp == null)?unknownString:isp, 73, 124);
 
                 //right
-                g.drawString((signal==null)?unknownString:signal + " dBm", 270, 109);
+                g.drawString((signal==null)?"":signal + " dBm", 270, 109);
                 g.drawString((os==null)?unknownString:os, 270, 124);
+                
+                //hide signal caption if signal is null
+                if (signal==null) {
+                	g.setColor(new Color(0,99,148));
+                	g.fillRect(195, 98, 71, 13);
+                	
+                }
+                
             } 
             else { //en
                 //left
@@ -292,8 +313,15 @@ public class ImageExport extends ServerResource {
                 g.drawString((isp == null)?unknownString:isp, 60, 124);
 
                 //right
-                g.drawString((signal==null)?unknownString:signal + " dBm", 290, 109);
+                g.drawString((signal==null)?"":signal + " dBm", 290, 109);
                 g.drawString((os==null)?unknownString:os, 290, 124);
+                
+                //hide signal caption if signal is null
+                if (signal==null) {
+                	g.setColor(new Color(0,99,148));
+                	g.fillRect(195, 98, 90, 13);
+                	
+                }
             }
             
             g.dispose();

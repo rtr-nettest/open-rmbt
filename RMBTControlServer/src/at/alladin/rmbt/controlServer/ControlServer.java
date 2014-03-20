@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,26 +50,33 @@ public class ControlServer extends Application
         
         final Router router = new Router(getContext());
         
+        // test request
         router.attach("/", RegistrationResource.class);
         
+        // test result is submitted, will be called once only
         router.attach("/result", ResultResource.class);
         
+        // plz is submitted (optional additional resource for browser)
         router.attach("/resultUpdate", ResultUpdateResource.class);
         
+        // ndt test results are submitted (optional, after /result)
         router.attach("/ndtResult", NdtResultResource.class);
         
         router.attach("/news", NewsResource.class);
         
+        // send history list to client
         router.attach("/history", HistoryResource.class);
         
+        // send brief summary of test results to client
         router.attach("/testresult", TestResultResource.class);
         
+        // send detailed test results to client
         router.attach("/testresultdetail", TestResultDetailResource.class);
         
         router.attach("/sync", SyncResource.class);
         
         router.attach("/settings", SettingsResource.class);
-        
+        // collection of UserAgent etc.for IE (via server)  
         router.attach("/requestDataCollector", RequestDataCollector.class);
         
         router.attach("/statistics", StatisticsResource.class);
@@ -77,8 +84,11 @@ public class ControlServer extends Application
         router.attach("/export", ExportResource.class, Template.MODE_STARTS_WITH);
         
         router.attach("/usage", UsageResource.class);
+        router.attach("/usageJSON", UsageJSONResource.class);
         
         router.attach("/opentests", OpenTestSearchResource.class);
+        
+        router.attach("/opentests/histogra{histogram}", OpenTestSearchResource.class);
         
         router.attach("/opentests/search", OpenTestSearchResource.class, Template.MODE_STARTS_WITH);
         

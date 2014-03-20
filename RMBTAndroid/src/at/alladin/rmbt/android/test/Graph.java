@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ public class Graph
     private final long maxNsecs;
     private long startTime = -1;
     private int values;
+    private float startX;
     
     public static Graph addGraph(final GraphView graphView, final int color, final long maxNsecs)
     {
@@ -69,30 +70,37 @@ public class Graph
     // 0 <= value <= 1
     public void addValue(double value)
     {
+        final long relTime;
         if (startTime == -1)
+        {
             startTime = System.nanoTime();
+            relTime = 0;
+        }
+        else
+            relTime = System.nanoTime() - startTime;
+        
         if (value < 0)
             value = 0;
         else if (value > 1)
             value = 1;
-        final long relTime = System.nanoTime() - startTime;
         if (relTime >= maxNsecs)
             return;
-        
+
+        final float x = nsecWidth * relTime;
         if (values == 0)
         {
-            pathStroke.moveTo(0, (float) (height * (1 - value)));
+            startX = x;
+            pathStroke.moveTo(x, (float) (height * (1 - value)));
             values++;
         }
         else
         {
-            final float x = nsecWidth * relTime;
             pathStroke.lineTo(x, (float) (height * (1 - value)));
             
             pathFill.rewind();
             pathFill.addPath(pathStroke);
             pathFill.lineTo(x, height);
-            pathFill.lineTo(0, height);
+            pathFill.lineTo(startX, height);
         }
     }
     
@@ -108,6 +116,13 @@ public class Graph
         pathFill.rewind();
         values = 0;
         startTime = -1;
+    }
+    
+    public void clearGraphDontResetTime()
+    {
+        pathStroke.rewind();
+        pathFill.rewind();
+        values = 0;
     }
     
     public boolean hasBeenStarted()

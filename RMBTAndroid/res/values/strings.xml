@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright 2013 alladin-IT OG
+  Copyright 2013-2014 alladin-IT GmbH
   
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -37,8 +37,26 @@
     <string name="preferences_no_gps">No GPS</string>
     <string name="preferences_no_gps_sum">Do not use GPS during test</string>
     
-    <string name="preferences_repeat_test">Loop</string>
-    <string name="preferences_repeat_test_sum">Test will run in a loop</string>
+    <string name="preferences_tag">Tag</string>
+    <string name="preferences_tag_sum">Tag to send with every test</string>
+    
+    <string name="preferences_loop_mode">Loop</string>
+    <string name="preferences_loop_mode_sum">Test will run in a loop</string>
+    
+    <string name="preferences_loop_mode_max_tests">Loop max tests</string>
+    <string name="preferences_loop_mode_max_tests_sum">Maximum number of tests to run if loop mode is active (0 = run forever)</string>
+    
+    <string name="preferences_loop_mode_min_delay">Loop min delay</string>
+    <string name="preferences_loop_mode_min_delay_sum">Minimum time in seconds between two tests if loop mode is active</string>
+    
+    <string name="preferences_loop_mode_max_delay">Loop max delay</string>
+    <string name="preferences_loop_mode_max_delay_sum">Maximum time in seconds between two tests if loop mode is active</string>
+    
+    <string name="preferences_loop_mode_movement">Loop movement</string>
+    <string name="preferences_loop_mode_movement_sum">Movement in meters after which a test in loop mode is triggered</string>
+    
+    <string name="preferences_loop_mode_gps">Loop use GPS</string>
+    <string name="preferences_loop_mode_gps_sum">Use GPS between two tests in loop mode</string>
     
     <string name="preferences_ndt">NDT</string>
     <string name="preferences_ndt_sum">Activate extended test</string>
@@ -47,6 +65,7 @@
     <string name="preferences_ipv4_only_sum">Never use IPv6</string>
     
     <string name="preferences_category_developer">DEVELOPMENT</string>
+    <string name="preferences_category_loop_mode">Loop mode</string>
     <string name="preferences_category_developer_control_server">Control server</string>
     <string name="preferences_category_developer_map_server">Map server</string>
     
@@ -97,7 +116,7 @@
     <string name="about_git_line1" translatable="false">https://github.com/alladin-IT/open-rmbt</string>
     <string name="about_git_link" translatable="false">https://github.com/alladin-IT/open-rmbt</string>
     <string name="about_dev_title">Development</string>
-    <string name="about_dev_line1" translatable="false">alladin-IT OG</string>
+    <string name="about_dev_line1" translatable="false">alladin-IT GmbH</string>
     <string name="about_dev_line2" translatable="false">http://www.alladin.at/</string>
     <string name="about_dev_link" translatable="false">http://www.alladin.at/</string>
     <string name="about_gms_legal_title">Google Play</string>
@@ -115,6 +134,9 @@
     <string name="terms_ndt_back_button">Back</string>
     <string name="terms_ndt_accept_button">Continue</string>
     
+    <string name="loop_notification_ticker">Loop mode is active…</string>
+    <string name="loop_notification_title">Loop mode is active</string>
+    <string name="loop_notification_text">Touch to stop Loop mode</string>
     
     <string name="test_mbps">Mbit/s</string>
     <string name="test_dbm">dBm</string>
@@ -207,6 +229,8 @@
 	<string name="map_overlay_heatmap_summary">Map shows tests as heatmap</string>
 	<string name="map_overlay_points_title">Points</string>
 	<string name="map_overlay_points_summary">Map shows tests as points</string>
+	<string name="map_overlay_shapes_title">Shapes</string>
+	<string name="map_overlay_shapes_summary">Map shows tests as postal code shapes</string>
 	
 	<string name="map_balloon_overlay_header">MEASUREMENTS</string>
 	

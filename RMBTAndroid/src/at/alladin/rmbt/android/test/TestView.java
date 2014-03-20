@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.util.AttributeSet;
 import android.view.View;
 import at.alladin.openrmbt.android.R;
+import at.alladin.rmbt.android.util.InformationCollector;
 import at.alladin.rmbt.client.helper.TestStatus;
 
 public class TestView extends View
@@ -89,10 +90,28 @@ public class TestView extends View
     private String subHeaderString;
     private String progressString;
     private String signalString;
+    private int signalType = InformationCollector.SINGAL_TYPE_NO_SIGNAL;
     private String resultPingString;
     private String resultDownString;
     private String resultUpString;
     private TestStatus testStatus;
+
+    private float signalRingX;
+    private float signalRingY;
+    private Bitmap signalRingBitmapMobile;
+    private Bitmap signalRingBitmapRsrp;
+    private Bitmap signalRingBitmapWlan;
+
+    private String signalDescriptionString;
+    private float signalDescriptionX;
+    private float signalDescriptionY;
+    private Paint signalDescriptionPaint;
+
+    private Bitmap signalStatusBgBitmap;
+
+    private float signalStatusBgX;
+
+    private float signalStatusBgY;
     
     public TestView(final Context context, final AttributeSet attrs, final int defStyle)
     {
@@ -135,12 +154,14 @@ public class TestView extends View
         final Bitmap progressStatusBgBitmap = getBitmap(res, R.drawable.statuscircles_progress);
         final float progressStatusBgX = coordFW(320, relW);
         final float progressStatusBgY = coordFH(125, relH);
-        final Bitmap signalRingBitmap = getBitmap(res, R.drawable.ringskala_signal);
-        final float signalRingX = coordFW(382, relW);
-        final float signalRingY = coordFH(348, relH);
-        final Bitmap signalStatusBgBitmap = getBitmap(res, R.drawable.statuscircles_signal);
-        final float signalStatusBgX = coordFW(370, relW);
-        final float signalStatusBgY = coordFH(344, relH);
+        signalRingBitmapMobile = getBitmap(res, R.drawable.ringskala_signal_mobile);
+        signalRingBitmapRsrp = getBitmap(res, R.drawable.ringskala_signal_rsrp);
+        signalRingBitmapWlan = getBitmap(res, R.drawable.ringskala_signal_wlan);
+        signalRingX = coordFW(382, relW);
+        signalRingY = coordFH(348, relH);
+        signalStatusBgBitmap = getBitmap(res, R.drawable.statuscircles_signal);
+        signalStatusBgX = coordFW(370, relW);
+        signalStatusBgY = coordFH(344, relH);
         
         speedStatusDownBitmap = getBitmap(res, R.drawable.statuscircles_speed_download);
         speedStatusDownX = coordFW(194, relW);
@@ -158,29 +179,35 @@ public class TestView extends View
             backgroundBitmap.recycle();
         
         canvas.drawBitmap(speedRingBitmap, speedRingX, speedRingY, bitmapPaint);
+        speedRingBitmap.recycle();
         canvas.drawBitmap(speedStatusBgBitmap, speedStatusBgX, speedStatusBgY, bitmapPaint);
+        speedStatusBgBitmap.recycle();
         
         canvas.drawBitmap(progressRingBitmap, progressRingX, progressRingY, bitmapPaint);
+        progressRingBitmap.recycle();
         canvas.drawBitmap(progressStatusBgBitmap, progressStatusBgX, progressStatusBgY, bitmapPaint);
-        canvas.drawBitmap(signalRingBitmap, signalRingX, signalRingY, bitmapPaint);
-        canvas.drawBitmap(signalStatusBgBitmap, signalStatusBgX, signalStatusBgY, bitmapPaint);
+        progressStatusBgBitmap.recycle();
         
         final Paint paint = new Paint();
-        paint.setTextSize(coordFH(14, relH));
-        paint.setColor(Color.parseColor("#32c90e"));
-        paint.setTextAlign(Align.CENTER);
         paint.setAntiAlias(true);
         paint.setTypeface(Typeface.DEFAULT_BOLD);
         paint.setFakeBoldText(true);
-        canvas.drawText(res.getString(R.string.test_mbps), coordFW(216, relW), coordFH(418, relH), paint);
-        paint.setColor(Color.parseColor("#ffa200"));
-        canvas.drawText(res.getString(R.string.test_dbm), coordFW(432, relW), coordFH(427, relH), paint);
         paint.setColor(Color.parseColor("#002c44"));
         paint.setTextSize(coordFH(19, relH));
         paint.setTextAlign(Align.LEFT);
         canvas.drawText("Ping:", coordFW(20, relW), coordFH(128, relH), paint);
         canvas.drawText("Down:", coordFW(20, relW), coordFH(165, relH), paint);
         canvas.drawText("Up:", coordFW(20, relW), coordFH(202, relH), paint);
+        
+        paint.setColor(Color.parseColor("#32c90e"));
+        paint.setTextAlign(Align.CENTER);
+        paint.setTextSize(coordFH(14, relH));
+        canvas.drawText(res.getString(R.string.test_mbps), coordFW(216, relW), coordFH(418, relH), paint);
+        paint.setColor(Color.parseColor("#ffa200"));
+        signalDescriptionString = res.getString(R.string.test_dbm);
+        signalDescriptionX = coordFW(432, relW);
+        signalDescriptionY = coordFH(427, relH);
+        signalDescriptionPaint = paint;
         
         Bitmap background, dynamic, foreground;
         int ih, iw, x, y;
@@ -387,6 +414,11 @@ public class TestView extends View
         this.signalString = signalString;
     }
     
+    public void setSignalType(final int signalType)
+    {
+        this.signalType = signalType;
+    }
+    
     public void setTestStatus(final TestStatus testStatus)
     {
         this.testStatus = testStatus;
@@ -430,6 +462,35 @@ public class TestView extends View
                 break;
             }
         
+        final Bitmap signalRingBitmap;
+        switch (signalType)
+        {
+        case InformationCollector.SINGAL_TYPE_MOBILE:
+            signalRingBitmap = signalRingBitmapMobile;
+            break;
+            
+        case InformationCollector.SINGAL_TYPE_WLAN:
+            signalRingBitmap = signalRingBitmapWlan;
+            break;
+            
+        case InformationCollector.SINGAL_TYPE_RSRP:
+            signalRingBitmap = signalRingBitmapRsrp;
+            break;
+            
+        default:
+            signalRingBitmap = null;
+        }
+        
+        if (signalRingBitmap != null)
+        {
+            canvas.drawBitmap(signalRingBitmap, signalRingX, signalRingY, bitmapPaint);
+            canvas.drawBitmap(signalStatusBgBitmap, signalStatusBgX, signalStatusBgY, bitmapPaint);
+            canvas.drawText(signalDescriptionString, signalDescriptionX, signalDescriptionY, signalDescriptionPaint);
+            if (signalString != null)
+                canvas.drawText(signalString, signalX, signalY, signalPaint);
+            signalGauge.draw(canvas);
+        }
+        
         if (headerString != null)
             canvas.drawText(headerString, headerX, headerY, headerPaint);
         if (subHeaderString != null)
@@ -444,12 +505,8 @@ public class TestView extends View
         if (progressString != null)
             canvas.drawText(progressString, progressX, progressY, progressPaint);
         
-        if (signalString != null)
-            canvas.drawText(signalString, signalX, signalY, signalPaint);
-        
         speedGauge.draw(canvas);
         progressGauge.draw(canvas);
-        signalGauge.draw(canvas);
         
         canvas.drawBitmap(reflectionBitmap, reflectionX, reflectionY, bitmapPaint);
         
@@ -464,6 +521,10 @@ public class TestView extends View
         resultBackgroundBitmap.recycle();
         speedStatusDownBitmap.recycle();
         speedStatusUpBitmap.recycle();
+        signalRingBitmapMobile.recycle();
+        signalRingBitmapWlan.recycle();
+        signalRingBitmapRsrp.recycle();
+        signalStatusBgBitmap.recycle();
         
         speedGauge.recycle();
         progressGauge.recycle();

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -518,6 +518,14 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties
         ft.commit();
     }
     
+    public boolean showNdtCheckIfNecessary()
+    {
+        final boolean ndtDecisionMade = ConfigHelper.isNDTDecisionMade(this);
+        if (! ndtDecisionMade)
+            showNdtCheck();
+        return ! ndtDecisionMade;
+    }
+    
     public void showNdtCheck()
     {
         final FragmentTransaction ft = fm.beginTransaction();
@@ -526,10 +534,6 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties
         ft.commit();
     }
     
-    /**
-     * 
-     * @param agbChecked
-     */
     public void initApp(boolean duringCreate)
     {
         FragmentTransaction ft;
@@ -983,7 +987,7 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties
          */
         public MainGeoLocation(final Context context)
         {
-            super(context);
+            super(context, ConfigHelper.isGPS(context));
         }
         
         /**

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ public class RMBTTest implements Callable<ThreadTestResult>
 //    private static final double nsecs = 1e9;
     
     private static final String EXPECT_GREETING = Config.RMBT_VERSION_STRING;
-    private static final long UPLOAD_MAX_DISCARD_TIME = 2 * nsecsL;
+    private static final long UPLOAD_MAX_DISCARD_TIME = 1 * nsecsL;
     private static final long UPLOAD_MAX_WAIT_SECS = 3;
     
     private final RMBTClient client;
@@ -392,6 +392,8 @@ public class RMBTTest implements Callable<ThreadTestResult>
             {
                 barrier.await();
                 
+                startTrafficService(TestStatus.PING);
+                
                 _fallbackToOneThread = fallbackToOneThread.get();
                 
                 if (_fallbackToOneThread && threadId != 0)
@@ -417,6 +419,7 @@ public class RMBTTest implements Callable<ThreadTestResult>
             }
             /*********************/
             
+            
             final int duration = params.getDuration();
             
             if (doDownload)
@@ -427,6 +430,9 @@ public class RMBTTest implements Callable<ThreadTestResult>
                 
                 if (!_fallbackToOneThread)
                     barrier.await();
+                
+                stopTrafficService(TestStatus.PING);
+                startTrafficService(TestStatus.DOWN);
                 
                 curTransfer.set(0);
                 curTime.set(0);
@@ -447,6 +453,7 @@ public class RMBTTest implements Callable<ThreadTestResult>
                 
                 curTransfer.set(result.getBytes());
                 curTime.set(result.getNsec());
+             
                 
                 /*********************/
                 
@@ -460,6 +467,8 @@ public class RMBTTest implements Callable<ThreadTestResult>
                 {
                     if (!_fallbackToOneThread)
                         barrier.await();
+                    
+                    stopTrafficService(TestStatus.DOWN);
                     
                     curTransfer.set(0);
                     curTime.set(0);
@@ -478,6 +487,8 @@ public class RMBTTest implements Callable<ThreadTestResult>
                 /***** upload *****/
                 
                 setStatus(TestStatus.UP);
+                
+                startTrafficService(TestStatus.UP);
                 
                 curTransfer.set(0);
                 curTime.set(0);
@@ -502,6 +513,8 @@ public class RMBTTest implements Callable<ThreadTestResult>
                 
                 curTransfer.set(result.getBytes());
                 curTime.set(result.getNsec());
+                
+                stopTrafficService(TestStatus.UP);
                 
                 /*********************/
             }
@@ -778,10 +791,10 @@ public class RMBTTest implements Callable<ThreadTestResult>
         if (!line.equals("OK"))
             throw new IllegalStateException();
         
-        final AtomicBoolean terminateIfEnough = new AtomicBoolean(false);
-        final AtomicBoolean terminateAtAllEvents = new AtomicBoolean(false);
+        final AtomicBoolean terminateRxIfEnough = new AtomicBoolean(false);
+        final AtomicBoolean terminateRxAtAllEvents = new AtomicBoolean(false);
         
-        final Future<Boolean> future = client.getCommonThreadPool().submit(new Callable<Boolean>()
+        final Future<Boolean> futureRx = client.getCommonThreadPool().submit(new Callable<Boolean>()
         {
             public Boolean call() throws Exception
             {
@@ -826,9 +839,9 @@ public class RMBTTest implements Callable<ThreadTestResult>
                             curTime.set(nsec);
                         }
                         
-                        if (terminateAtAllEvents.get())
+                        if (terminateRxAtAllEvents.get())
                             terminate = true;
-                        if (terminateIfEnough.get() && curTime.get() > enoughTime)
+                        if (terminateRxIfEnough.get() && curTime.get() > enoughTime)
                             terminate = true;
                     }
                     while (! terminate);
@@ -844,47 +857,75 @@ public class RMBTTest implements Callable<ThreadTestResult>
         final long maxnsecs = seconds * 1000000000L;
         buf[chunksize - 1] = (byte) 0; // set last byte to continue value
         
-        boolean end = false;
-        final long timeStart = System.nanoTime();
-        do
+        final byte[] bufTx = buf.clone();
+        final AtomicBoolean terminateTx = new AtomicBoolean(false);
+        final Future<Void> futureTx = client.getCommonThreadPool().submit(new Callable<Void>()
         {
-            if (Thread.interrupted())
-                throw new InterruptedException();
-            if (System.nanoTime() - timeStart > maxnsecs)
+            public Void call() throws Exception
             {
-                // last package
-                buf[chunksize - 1] = (byte) 0xff; // set last byte to
-                                                  // termination value
-                end = true;
+                do
+                {
+                    if (Thread.interrupted())
+                        throw new InterruptedException();
+                    if (terminateTx.get())
+                    {
+                        // last package
+                        bufTx[chunksize - 1] = (byte) 0xff; // set last byte to
+                    }
+                    out.write(bufTx, 0, chunksize);
+                }
+                while (!terminateTx.get());
+                
+                // forces buffered bytes to be written out.
+                out.flush();
+                return null;
             }
-            out.write(buf, 0, chunksize);
-        }
-        while (!end);
-        
-        // forces buffered bytes to be written out.
-        out.flush();
-        
-        Thread.sleep(100);
-        
-        terminateIfEnough.set(true);
-        
+        });
+
         Boolean returnValue = null;
         try
         {
             try
             {
-                returnValue = future.get(UPLOAD_MAX_WAIT_SECS, TimeUnit.SECONDS);
+                futureTx.get(maxnsecs, TimeUnit.NANOSECONDS);
+//                System.out.println("futureTx regular");
             }
             catch (final TimeoutException e)
             {
                 try
                 {
-                    terminateAtAllEvents.set(true);
-                    returnValue = future.get(250, TimeUnit.MILLISECONDS);
+                    terminateTx.set(true);
+                    futureTx.get(250, TimeUnit.MILLISECONDS);
+//                    System.out.println("futureTx after 250");
                 }
                 catch (final TimeoutException e2)
                 {
-                    future.cancel(true);
+                    futureTx.cancel(true);
+//                    System.out.println("futureTx cancel");
+                }
+            }
+        
+            Thread.sleep(100);
+            
+            terminateRxIfEnough.set(true);
+            
+            try
+            {
+                returnValue = futureRx.get(UPLOAD_MAX_WAIT_SECS, TimeUnit.SECONDS);
+//                System.out.println("futureRx regular");
+            }
+            catch (final TimeoutException e)
+            {
+                try
+                {
+                    terminateRxAtAllEvents.set(true);
+                    returnValue = futureRx.get(250, TimeUnit.MILLISECONDS);
+//                    System.out.println("futureRx after 250");
+                }
+                catch (final TimeoutException e2)
+                {
+                    futureRx.cancel(true);
+//                    System.out.println("futureRx cancel");
                 }
             }
         }
@@ -904,6 +945,8 @@ public class RMBTTest implements Callable<ThreadTestResult>
     private Ping ping() throws IOException
     {
         log(String.format(Locale.US, "thread %d: ping test", threadId));
+        
+        final long pingTimeNs = System.nanoTime();
         
         String line = reader.readLine();
         if (!line.startsWith("ACCEPT "))
@@ -936,7 +979,7 @@ public class RMBTTest implements Callable<ThreadTestResult>
         
         log(String.format(Locale.US, "thread %d - client: %.3f ms ping", threadId, pingClient));
         log(String.format(Locale.US, "thread %d - server: %.3f ms ping", threadId, pingServer));
-        return new Ping(diffClient, diffServer);
+        return new Ping(diffClient, diffServer, pingTimeNs);
     }
     
     private void log(final CharSequence text)
@@ -948,6 +991,14 @@ public class RMBTTest implements Callable<ThreadTestResult>
     {
         if (threadId == 0)
             client.setStatus(status);
+    }
+    
+    private void startTrafficService(final TestStatus status) {
+    	client.startTrafficService(threadId, status);
+    }
+    
+    private void stopTrafficService(final TestStatus status) {
+    	client.stopTrafficMeasurement(threadId, status);
     }
     
 }

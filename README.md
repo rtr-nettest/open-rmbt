@@ -12,11 +12,11 @@ C, consisting of:
 - test server (written in C)
 
 *Open-RMBT* is released under the [Apache License, Version 2.0]. It was developed
-by [alladin-IT OG] and financed by the
-[Austrian Regulatory Authority for Broadcasting and Telecommunications (RTR)] [RTR].
+by [alladin-IT GmbH] and financed by the
+[Austrian Regulatory Authority for Broadcasting and Telecommunications (RTR-GmbH)] [RTR-GmbH].
 
- [alladin-IT OG]: http://alladin.at/
- [RTR]: http://www.rtr.at/
+ [alladin-IT GmbH]: http://alladin.at/
+ [RTR]: https://www.rtr.at/
  [Apache License, Version 2.0]: http://www.apache.org/licenses/LICENSE-2.0
 
 The following Eclipse projects are distributed in this release:

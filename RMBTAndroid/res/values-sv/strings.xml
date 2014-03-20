@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2013-2014 alladin-IT GmbH
+  
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+    http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:locale="sv">
+    
+    <string name="error_no_internet">Vänligen aktivera din\ninternetföbindelse</string>   
+    <string name="error_no_data">Ingen data förhanden.</string>
+    
+    <string name="main_dialog_registration_title">Registrering…</string>
+    <string name="main_dialog_registration_text">Client bli registrerad. Vänligen vänta…</string>
+    
+    <string name="main_dialog_reload_title">Aktualisering…</string>
+    <string name="main_dialog_reload_text">Datorna bli aktualiserad. Vänligen vänta…</string>
+    
+    <string name="preferences">Inställningar</string>
+    
+    <string name="preferences_category_test">Inställningar</string>
+    
+    <string name="preferences_location_settings">Position</string>
+    <string name="preferences_location_settings_sum">Redigera Positions-inställningar av systemet</string>
+    
+    <string name="preferences_no_gps">Ingen GPS position</string>
+    <string name="preferences_no_gps_sum">GPS inte aktiv under mätningen</string>
+    
+    <string name="preferences_loop_mode">Repetition</string>
+    <string name="preferences_loop_mode_sum">Testen pågår i en endlösslinga</string>
+    
+    <string name="preferences_ndt">NDT</string>
+    <string name="preferences_ndt_sum">Aktivera avancerade testen</string>
+    
+    <string name="preferences_ipv4_only">Bara IPv4</string>
+    <string name="preferences_ipv4_only_sum">Ingen användning av IPv6</string>
+    
+    <string name="preferences_category_developer">UTVECKLING</string>
+    <string name="preferences_category_developer_control_server">Control-Server</string>
+    <string name="preferences_category_developer_map_server">Map-Server</string>
+    
+    <string name="preferences_dev_control_override">Överskriva Control-Server</string>
+    <string name="preferences_dev_control_override_sum">Aktiveras följande inställningar för Control-Server</string>
+    
+    <string name="preferences_dev_control_host">Control Host</string>
+    <string name="preferences_dev_control_host_sum">Överskriva Control-Server-Adress</string>
+    
+    <string name="preferences_dev_control_port">Control Port</string>
+    <string name="preferences_dev_control_port_sum">Överskriva Control-Server-Port</string>
+    
+    <string name="preferences_dev_control_ssl">Control-Server SSL</string>
+    <string name="preferences_dev_control_ssl_sum">Krypterad koppling till Control-Server</string>
+    
+    <string name="preferences_dev_map_override">Överskriva Map-Server</string>
+    <string name="preferences_dev_map_override_sum">Aktiveras följande inställningar för Map-Server</string>
+    
+    <string name="preferences_dev_map_host">Map Host</string>
+    <string name="preferences_dev_map_host_sum">Överskriva Map-Server-Adress</string>
+    
+    <string name="preferences_dev_map_port">Map Port</string>
+    <string name="preferences_dev_map_port_sum">Överskriva Map-Server-Port</string>
+    
+    <string name="preferences_dev_map_ssl">Map-Server SSL</string>
+    <string name="preferences_dev_map_ssl_sum">Krypterad koppling till Map-Server</string>
+    
+    <string name="menu_button_start">START</string>
+    <string name="menu_button_map">Karta</string>
+    <string name="menu_button_history">Förlopp</string>
+    <string name="menu_button_help">Hjälp</string>
+    <string name="menu_button_statistics">Statistik</string>
+    <string name="menu_button_settings">Inställningar</string>
+    <string name="menu_button_about">Info</string>
+    
+    <string name="news_title">Nyheter</string>
+    <string name="news_no_message">Ingen innehåll.</string>
+    
+    <string name="about_version_title">Version</string>
+    <string name="about_clientid_title">Client UUID</string>
+    <string name="about_clientid_toast">Client UUID koperad och mellanlågrad.</string>
+    <string name="about_web_title">Web</string>
+    <string name="about_email_title">E-Post</string>
+    <string name="about_email_sending">Skicka E-post…</string>
+    <string name="about_terms_title">Dataskyddsdeklaration</string>
+    <string name="about_terms_line1">Dataskyddsdeklaration och användervillkorna</string>
+    <string name="about_dev_title">Utveckling</string>
+    <string name="about_gms_legal_title">Google Play</string>
+    <string name="about_gms_legal_line1">Google Play Services Impressum</string>
+    <string name="about_test_counter_title">Testmätare</string>
+    
+    <string name="terms">Dataskyddsdeklaration och användervillkorna</string>
+    
+    <string name="terms_accept_button">Godkännande</string>
+    <string name="terms_accept_button_continue">Fortsätt</string>
+    <string name="terms_decline_button">Avbryt</string>
+
+    <string name="terms_ndt_header">Optionalt, fördjupande NDT-Test</string>
+    <string name="terms_ndt_accept_text"><b>Jag vil ytterligande utföra optionalt, fördjupande NDT-Testen.</b></string>
+    <string name="terms_ndt_back_button">Tillbaka</string>
+    <string name="terms_ndt_accept_button">Fortsätt</string>
+    
+    
+    <string name="test_mbps">Mbit/s</string>
+    <string name="test_dbm">dBm</string>
+    <string name="test_location_km_h">km/t</string>
+    <string name="test_location_m">m</string>
+    <string name="test_location_gps">GPS</string>
+    <string name="test_location_network">Nätverk</string>
+    <string name="test_location_dir_n">N</string>
+    <string name="test_location_dir_e">Ö</string>
+    <string name="test_location_dir_s">S</string>
+    <string name="test_location_dir_w">V</string>
+    
+    <string name="test_notification_text">Testen fortfarande pågår i bakgrund.</string>
+    <string name="test_loop">Genomgång</string>
+    <string name="test_dialog_error_title">Fel…</string>
+    <string name="test_dialog_error_text">Under testen et fel trätt upp.</string>
+    
+    <string name="test_dialog_abort_title">Avbryt…</string>
+    <string name="test_dialog_abort_text">Vil du verkligen avbryta pågående testen?</string>
+    <string name="test_dialog_abort_extended_text">Vil du verkligen avbryta avancerade testen?</string>
+    <string name="test_dialog_abort_yes">Avbryt testen</string>
+    <string name="test_dialog_abort_no">Fortsätt testen</string>
+    
+    <string name="history">FÖRLOPP</string>
+    <string name="history_button_sync">Sync</string>
+    <string name="history_button_filter">Filter</string>
+    <string name="history_device">Apparat</string>
+	<string name="history_type">Tillgång</string>
+	<string name="history_date">Datum</string>
+	<string name="history_down">Ner\nMbit/s</string>
+	<string name="history_up">Upp\nMbit/s</string>
+	<string name="history_ping">Ping\nms</string>
+	
+	<string name="history_filter">FILTER</string>
+	<string name="history_filter_networks">TILLGÅNG</string>
+	<string name="history_filter_devices">APPARAT</string>
+	<string name="history_filter_result_number">RESULTATSANTAL</string>
+	<string name="history_filter_result_number_25">Ange bara 25 nyaste resultater</string>
+	
+	<string name="result_header">TESTRESULTAT</string>
+	<string name="result_measurement">MÄTNING</string>
+	<string name="result_net">NÄT</string>
+	<string name="result_details_button">DETAILS</string>
+	<string name="result_map_button">KARTA</string>
+	
+	<string name="result_details">DETAILS</string>
+	
+	<string name="result_button_new_test">NYA TEST</string>
+	<string name="result_button_history">Förlopp</string>
+	<string name="result_button_map">Karta</string>
+	
+	<string name="result_extended_test_header">AVANCERADE TEST</string>
+	<string name="result_extended_test_not_started">Avancerade testen inte ännu startad</string>
+	<string name="result_extended_test_running">Avancerade testen pågår</string>
+	<string name="result_extended_test_results">Avancerade testen bli finaliserad</string>
+	<string name="result_extended_test_finished">Avancerade testen avslutad</string>
+	<string name="result_extended_test_aborted">Avancerade testen avbrytad</string>
+	<string name="result_extended_test_error">Förbindningsfel under testen.</string>
+	<string name="result_extended_test_button_stop">Stopp</string>
+	<string name="result_extended_test_button_detail">Details</string>
+	
+	<string name="sync_info_text">Det är möjligt att sammanföra mätningsresultater av andra apparater. Du behöver antingen att mata in en redan erhållit synkroniseringskod eller kräva en nya kod.</string>
+	<string name="sync_request_code_button">Kräva kod</string>
+	<string name="sync_enter_code_button">Mata in kod</string>
+	
+	<string name="sync_enter_code_header">Kodinmatning</string>
+	<string name="sync_enter_code_msg">Kod</string>
+	<string name="sync_enter_code_desc">Vänligen mata in din kod här som du har krävt på din andra apparaten.</string>
+	<string name="sync_enter_code_length">Kod måste bestå av 12 tecken</string>
+	
+	<string name="sync_request_code_header">Din synkroniseringskod lyda:</string>
+	<string name="sync_request_code_msg">Krävs kod…</string>
+	<string name="sync_request_code_desc">För att synkronisera denna, vänligen mata in ovan indikerad kod på din andra apparaten.</string>
+	<string name="sync_request_code_context_copy">Kopera Kod</string>
+	
+	<!-- Map -->
+	<string name="map_filter_header">KARTAFILTER</string>
+	<string name="map_choose_header">KARTAURVAL</string>
+	
+	<string name="map_appearance_header">KARTAANSIKT</string>
+	<string name="map_appearance_nosat_title">Normalt ansikt</string>
+	<string name="map_appearance_nosat_summary">Karta visas normalt ansikt</string>
+	<string name="map_appearance_sat_title">Satellitansikt</string>
+	<string name="map_appearance_sat_summary">Karta visas Satellitansikt</string>
+	
+	<string name="map_overlay_header">KARTAOVERLAY</string>
+	<string name="map_overlay_auto_title">Automatiskt</string>
+	<string name="map_overlay_auto_summary">Karta växlas automatiskt mellan Heatmap och Punkter</string>
+	<string name="map_overlay_heatmap_title">Heatmap</string>
+	<string name="map_overlay_heatmap_summary">Karta visas tester som Heatmap</string>
+	<string name="map_overlay_points_title">Punkter</string>
+	<string name="map_overlay_points_summary">Karta visas tester som Punkter</string>
+	
+	<string name="map_balloon_overlay_header">MÄTNINGAR</string>
+	
+	<!-- Test -->
+	<string name="test_progress_title">Etablera förbindelse…</string>
+	<string name="test_progress_text">Förbindelsen till testserver etableras. Vänligen vänta…</string>
+	<string name="test_progress_text_wait">Testserver är upptagen. Testen startas {0,choice,0#strax|1#i 1 sekund|1&lt;i {0} sekunder}. Vänligen vänta…</string>
+	<string name="test_bottom_test">Status: {0}\nServer: {1}\nIP: {2}\n{3}\n{4}</string>
+	<string name="test_bottom_test_status_init">Initialisering</string>
+	<string name="test_bottom_test_status_ping">Ping</string>
+	<string name="test_bottom_test_status_down">Nerladdning</string>
+	<string name="test_bottom_test_status_init_up">Uppladdning Initialisering</string>
+	<string name="test_bottom_test_status_up">Uppladdning</string>
+	<string name="test_bottom_test_status_end">Finalisering</string>
+	<string name="test_bottom_test_status_error">Fel</string>
+	<string name="test_bottom_test_status_aborted">Avbrytat</string>
+	
+</resources>

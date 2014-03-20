@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2013-2014 alladin-IT GmbH
+  
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+    http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:locale="es">
+    
+    <string name="error_no_internet">Por favor active\nsu conexión de internet</string>
+    <string name="error_no_data">No hay datos disponibles.</string>
+    
+    <string name="main_dialog_registration_title">Registrando…</string>
+    <string name="main_dialog_registration_text">Registrando cliente. Por favor espere…</string>
+    
+    <string name="main_dialog_reload_title">Actualizando…</string>
+    <string name="main_dialog_reload_text">Actualizando los datos. Por favor espere…</string>
+    
+    <string name="preferences">Ajustes</string>
+    
+    <string name="preferences_category_test">Ajustes</string>
+    
+    <string name="preferences_location_settings">Ubicación</string>
+    <string name="preferences_location_settings_sum">Cambiar los ajustes de ubicación del sistema</string>
+    
+    <string name="preferences_no_gps">No hay localización GPS</string>
+    <string name="preferences_no_gps_sum">GPS inactivado durante medición</string>
+    
+    <string name="preferences_loop_mode">Repetición</string>
+    <string name="preferences_loop_mode_sum">Test colgado en un bucle indefinito</string>
+    
+    <string name="preferences_ndt">NDT</string>
+    <string name="preferences_ndt_sum">Activar test ampliado</string>
+    
+    <string name="preferences_ipv4_only">Sólo IPv4</string>
+    <string name="preferences_ipv4_only_sum">No se usa IPv6</string>
+    
+    <string name="preferences_category_developer">DESARROLLO</string>
+    <string name="preferences_category_developer_control_server">Servidor de control</string>
+    <string name="preferences_category_developer_map_server">Servidor de mapa</string>
+    
+    <string name="preferences_dev_control_override">Sobreescribir servidor de control</string>
+    <string name="preferences_dev_control_override_sum">Activa los siguientes ajustes para el servidor de control</string>
+    
+    <string name="preferences_dev_control_host">Host de control</string>
+    <string name="preferences_dev_control_host_sum">Sobreescribir dirección del servidor de control</string>
+    
+    <string name="preferences_dev_control_port">Puerto de control</string>
+    <string name="preferences_dev_control_port_sum">Sobreescribir el puerto del servidor de control</string>
+    
+    <string name="preferences_dev_control_ssl">Control-Server SSL</string>
+    <string name="preferences_dev_control_ssl_sum">Conexión codificada con el servidor de control</string>
+    
+    <string name="preferences_dev_map_override">Sobreescribir servidor de mapa</string>
+    <string name="preferences_dev_map_override_sum">Activa los siguientes ajustes para el servidor de mapa</string>
+    
+    <string name="preferences_dev_map_host">Host mapa</string>
+    <string name="preferences_dev_map_host_sum">Sobreescribir la dirección del servidor de mapa</string>
+    
+    <string name="preferences_dev_map_port">Puerto de mapa</string>
+    <string name="preferences_dev_map_port_sum">Sobreescribir el puerto del servidor de mapa</string>
+    
+    <string name="preferences_dev_map_ssl">Servidor de mapa SSL</string>
+    <string name="preferences_dev_map_ssl_sum">Conexión codificada con el servidor de mapa</string>
+    
+    <string name="menu_button_start">START</string>
+    <string name="menu_button_map">Mapa</string>
+    <string name="menu_button_history">Historial</string>
+    <string name="menu_button_help">Ayuda</string>
+    <string name="menu_button_statistics">Estatística</string>
+    <string name="menu_button_settings">Ajustes</string>
+    <string name="menu_button_about">Info</string>
+    
+    <string name="news_title">Noticias</string>
+    <string name="news_no_message">No hay contenido.</string>
+    
+    <string name="about_version_title">Versión</string>
+    <string name="about_clientid_title">Cliente UUID</string>
+    <string name="about_clientid_toast">Se copió el cliente UUID a la memoria tempora.</string>
+    <string name="about_web_title">Web</string>
+    <string name="about_email_title">E-Mail</string>
+    <string name="about_email_sending">Mandar correo electrónico…</string>
+    <string name="about_terms_title">Declaración de protección de datos y términos de uso</string>
+    <string name="about_terms_line1">Declaración de protección de datos y términos de uso</string>
+    <string name="about_dev_title">Desarrollo</string>
+    <string name="about_gms_legal_title">Google Play</string>
+    <string name="about_gms_legal_line1">Aviso legal de Google Play Services</string>
+    <string name="about_test_counter_title">Contador de tests</string>
+    
+    <string name="terms">Declaración de protección de datos y términos de uso(sólo en inglés)</string>
+
+    <string name="terms_accept_button">Aprobación</string>
+    <string name="terms_accept_button_continue">Continúe</string>
+    <string name="terms_decline_button">Cancelar</string>
+    
+    <string name="terms_ndt_header"> Test NDT ampliado opcional</string>
+    <string name="terms_ndt_accept_text"><b>Quiero realizar adicionalmente el test NDT ampliado opcional.</b></string>
+    <string name="terms_ndt_back_button">Atrás</string>
+    <string name="terms_ndt_accept_button">Adelante</string>
+
+    <string name="test_mbps">Mbps</string>
+    <string name="test_dbm">dBm</string>
+    <string name="test_location_km_h">km/h</string>
+    <string name="test_location_m">m</string>
+    <string name="test_location_gps">GPS</string>
+    <string name="test_location_network">Netzwerk</string>
+    <string name="test_location_dir_n">N</string>
+    <string name="test_location_dir_e">O</string>
+    <string name="test_location_dir_s">S</string>
+    <string name="test_location_dir_w">W</string>
+    
+    <string name="test_notification_text">The test is still running in the background.</string>
+    <string name="test_loop">Ejecución</string> 
+    <string name="test_dialog_error_title">Error…</string>
+    <string name="test_dialog_error_text">Se producjo un error durante el test.</string>
+    
+    <string name="test_dialog_abort_title">Cancelar…</string>
+    <string name="test_dialog_abort_text">Está seguro que quiere cancelar el test en marcha?</string>
+    <string name="test_dialog_abort_extended_text">Está seguro que quiere cancelar el test ampliado?</string>
+    <string name="test_dialog_abort_yes">Cancelar test</string>
+    <string name="test_dialog_abort_no">Continuar test</string>
+    
+    <string name="history">HISTORIAL</string>
+    <string name="history_button_sync">Sync</string>
+    <string name="history_button_filter">Filtro</string>
+    <string name="history_device">Dispositivo</string>
+	<string name="history_type">Acceso</string>
+	<string name="history_date">Fecha</string>
+	<string name="history_down">Bajada\nMbps</string>
+	<string name="history_up">Subida\nMbps</string>
+	<string name="history_ping">Ping\nms</string>
+	
+	<string name="history_filter">FILTRO</string>
+	<string name="history_filter_networks">ACCESO</string>
+	<string name="history_filter_devices">DISPOSITIVO</string>
+	<string name="history_filter_result_number">NÚMERO DE RESULTADOS</string>
+	<string name="history_filter_result_number_25">Mostrar los 25 resultados más recientes</string>
+	
+	<string name="result_header">RESULTADO DEL TEST</string>
+	<string name="result_measurement">MEDICIÓN</string>
+	<string name="result_net">RED</string>
+	<string name="result_details_button">DETALLES</string>
+	<string name="result_map_button">MAPA</string>
+	
+	<string name="result_details">DETALLES</string>
+	
+	<string name="result_button_new_test">NUEVO TEST</string>
+	<string name="result_button_history">Historial</string>
+	<string name="result_button_map">Mapa</string>
+	
+	<string name="result_extended_test_header">TEST AMPLIADO</string>
+	<string name="result_extended_test_not_started">Todavía no se inició el test ampliado</string>
+	<string name="result_extended_test_running">Test ampliado en progreso</string>
+	<string name="result_extended_test_results">Terminando test ampliado</string>
+	<string name="result_extended_test_finished">Test ampliado realizado</string>
+	<string name="result_extended_test_aborted">Test ampliado cancelado</string>
+	<string name="result_extended_test_error">Error de conexión durante el test.</string>
+	<string name="result_extended_test_button_stop">Parar</string>
+	<string name="result_extended_test_button_detail">Detalles</string>
+	
+	<string name="sync_info_text">Hay la posibilidad de unir los resultados de medición de otros dispositivos. Para hacerlo introduzca el código de sincronización que tiene o pida otro código.</string>
+	<string name="sync_request_code_button">Pedir código</string>
+	<string name="sync_enter_code_button">Introducir código</string>
+	
+	<string name="sync_enter_code_header">Introducir código</string>
+	<string name="sync_enter_code_msg">Código</string>
+	<string name="sync_enter_code_desc">Por favor, introduzca el código que pidió con el otro dispositivo.</string>
+	<string name="sync_enter_code_length">El código consiste de 12 signos</string>
+	
+	<string name="sync_request_code_header">Su código de sincronización es el siguiente:</string>
+	<string name="sync_request_code_msg">Pidiendo código....</string>
+	<string name="sync_request_code_desc">Por favor introduzca el código mostrado arriba en su segundo dispositivo para sincronizarlo.</string>
+	<string name="sync_request_code_context_copy">Copiar código</string>
+
+	<!-- Map -->
+	<string name="map_filter_header">FILTRO DE MAPAS</string>
+	<string name="map_choose_header">SELECCIÓN DE MAPAS</string>
+	
+	<string name="map_appearance_header">VISTA DE MAPA</string>
+	<string name="map_appearance_nosat_title">Vista normal</string>
+	<string name="map_appearance_nosat_summary">Se ve la vista normal en el mapa</string>
+	<string name="map_appearance_sat_title">Vista satélite</string>
+	<string name="map_appearance_sat_summary">Se ve la vista satéllite en el mapa</string>
+	
+	<string name="map_overlay_header">OVERLAY DE MAPA</string>
+	<string name="map_overlay_auto_title">Automático</string>
+	<string name="map_overlay_auto_summary">Mapa cambia automáticamente entre heatmap y puntos</string>
+	<string name="map_overlay_heatmap_title">Heatmap</string>
+	<string name="map_overlay_heatmap_summary">Mapa muestra el test en forma de heatmap</string>
+	<string name="map_overlay_points_title">Puntos</string>
+	<string name="map_overlay_points_summary">Mapa muestra el test en forma de puntos</string>
+	
+	<string name="map_balloon_overlay_header">MEDICIONES</string>
+	
+	<!-- Test -->
+	<string name="test_progress_title">Conectando…</string>
+	<string name="test_progress_text">Estableciendo conexión con el servidor de test. Espere por favor…</string>
+	<string name="test_progress_text_wait">El servidor de test está ocupado de momento. El test empieza en {0,choice,0#enseguida|1#en 1 segundo|1&lt;en {0} segundos}. Espere por favor…</string>
+	<string name="test_bottom_test">Estado: {0}\nServidor: {1}\nIP: {2}\n{3}\n{4}</string>
+	<string name="test_bottom_test_status_init">Inicializando</string>
+	<string name="test_bottom_test_status_ping">Ping</string>
+	<string name="test_bottom_test_status_down">Bajada</string>
+	<string name="test_bottom_test_status_init_up">Inicializando subida</string>
+	<string name="test_bottom_test_status_up">Subida</string>
+	<string name="test_bottom_test_status_end">Terminando</string>
+	<string name="test_bottom_test_status_error">Error</string>
+	<string name="test_bottom_test_status_aborted">Cancelado</string>
+	
+</resources>
+
+

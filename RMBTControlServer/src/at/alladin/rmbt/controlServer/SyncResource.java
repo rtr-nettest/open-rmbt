@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,6 @@ import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import java.util.PropertyResourceBundle;
-import java.util.ResourceBundle;
 import java.util.UUID;
 
 import org.json.JSONArray;
@@ -32,6 +30,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.restlet.resource.Get;
 import org.restlet.resource.Post;
+
+import at.alladin.rmbt.shared.ResourceManager;
 
 public class SyncResource extends ServerResource
 {
@@ -63,8 +63,7 @@ public class SyncResource extends ServerResource
                 if (langs.contains(lang))
                 {
                     errorList.setLanguage(lang);
-                    labels = (PropertyResourceBundle) ResourceBundle.getBundle("at.alladin.rmbt.res.SystemMessages",
-                            new Locale(lang));
+                    labels = ResourceManager.getSysMsgBundle(new Locale(lang));
                 }
                 else
                     lang = settings.getString("RMBT_DEFAULT_LANGUAGE");
@@ -114,8 +113,8 @@ public class SyncResource extends ServerResource
                         if (errorList.getLength() == 0)
                         {
                             final JSONObject jsonItem = new JSONObject();
-                            
-                            jsonItem.put("sync_code", syncCode);
+                            //lower case code is easier to enter on mobile devices
+                            jsonItem.put("sync_code", syncCode.toLowerCase(Locale.US));
                             
                             syncList.put(jsonItem);
                             

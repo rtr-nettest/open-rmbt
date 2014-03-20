@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ public class GeoLocation
     private String provider;
     private double geo_lat;
     private double geo_long;
+    private long time_ns;
     
     private Calendar timeZone = null;
     
@@ -53,7 +54,7 @@ public class GeoLocation
     
     public GeoLocation(final Connection conn, final long uid, final long test_id, final Timestamp time,
             final long accuracy, final double altitude, final float bearing, final float speed, final String provider,
-            final double geo_lat, final double geo_long, final String timeZoneId)
+            final double geo_lat, final double geo_long, final String timeZoneId, final long time_ns)
     {
         reset();
         this.conn = conn;
@@ -68,6 +69,7 @@ public class GeoLocation
         this.provider = provider;
         this.geo_lat = geo_lat;
         this.geo_long = geo_long;
+        this.time_ns = time_ns;
         
         timeZone = Helperfunctions.getTimeWithTimeZone(timeZoneId);
     }
@@ -85,6 +87,7 @@ public class GeoLocation
         provider = "";
         geo_lat = 0;
         geo_long = 0;
+        time_ns = 0;
         
         timeZone = null;
         
@@ -109,8 +112,8 @@ public class GeoLocation
         try
         {
             st = conn.prepareStatement(
-                    "INSERT INTO geo_location(test_id, time, accuracy, altitude, bearing, speed, provider, geo_lat, geo_long, location) "
-                            + "VALUES(?,?,?,?,?,?,?,?,?, ST_TRANSFORM(ST_SetSRID(ST_Point(?, ?), 4326), 900913))",
+                    "INSERT INTO geo_location(test_id, time, accuracy, altitude, bearing, speed, provider, geo_lat, geo_long, location, time_ns) "
+                            + "VALUES(?,?,?,?,?,?,?,?,?, ST_TRANSFORM(ST_SetSRID(ST_Point(?, ?), 4326), 900913), ?)",
                     Statement.RETURN_GENERATED_KEYS);
             
             /*
@@ -129,6 +132,7 @@ public class GeoLocation
             st.setDouble(9, geo_long);
             st.setDouble(10, geo_long);
             st.setDouble(11, geo_lat);
+            st.setLong(12, time_ns);
             
             // System.out.println(st2.toString());
             
@@ -266,5 +270,13 @@ public class GeoLocation
     {
         this.timeZone = timeZone;
     }
+
+	public long getTime_ns() {
+		return time_ns;
+	}
+
+	public void setTime_ns(long time_ns) {
+		this.time_ns = time_ns;
+	}
     
 }

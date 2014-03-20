@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2013-2014 alladin-IT GmbH
+  
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+    http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:locale="is">
+    
+    <string name="error_no_internet">Vinsamlegast vektu\nnetaðganginn þinn</string>
+    <string name="error_no_data">Engin gögn fáanleg.</string>
+    
+    <string name="main_dialog_registration_title">Skráning…</string>
+    <string name="main_dialog_registration_text">Skráning í keyrslu. Vinsamlegast bíðið…</string>
+    
+    <string name="main_dialog_reload_title">Uppfærsla…</string>
+    <string name="main_dialog_reload_text">Uppfærsla í keyrslu. Vinsamlegast bíðið…</string>
+    
+    <string name="preferences">Stillingar</string>
+    
+    <string name="preferences_category_test">Stillingar</string>
+    
+    <string name="preferences_location_settings">Staður</string>
+    <string name="preferences_location_settings_sum">Breyta staðsetningarstillingum kerfis</string>
+    
+    <string name="preferences_no_gps">Engin staðsetning</string>
+    <string name="preferences_no_gps_sum">GPS-staðsetningarkerfi ekki virkt í mælingu</string>
+    
+    <string name="preferences_loop_mode">Endurtekning</string>
+    <string name="preferences_loop_mode_sum">Prófun er innt í lokaðri lykkju</string>
+    
+    <string name="preferences_ndt">NDT</string>
+    <string name="preferences_ndt_sum">Inna prófunarauki</string>
+    
+    <string name="preferences_ipv4_only">Einungis IPv4</string>
+    <string name="preferences_ipv4_only_sum">Engin notkun IPv6</string>
+    
+    <string name="preferences_category_developer">HUGBÚNAÐARGERÐ</string>
+    <string name="preferences_category_developer_control_server">Skipanaþjónn</string>
+    <string name="preferences_category_developer_map_server">Kortaþjónn</string>
+    
+    <string name="preferences_dev_control_override">Skrifa ofan í skipanaþjón </string>
+    <string name="preferences_dev_control_override_sum">Vekja þessar stillingar skipanaþjónsins</string>
+    
+    <string name="preferences_dev_control_host">Skipanahýsitölva</string>
+    <string name="preferences_dev_control_host_sum">Yfirrita vistfang skipanaþjónsins</string>
+    
+    <string name="preferences_dev_control_port">Skipanaþjónstengi</string>
+    <string name="preferences_dev_control_port_sum">Yfirrita skipanaþjónstengi</string>
+    
+    <string name="preferences_dev_control_ssl">SSL-samskiptareglur fyrir skipanaþjón</string>
+    <string name="preferences_dev_control_ssl_sum">Dulritun tengingar á skipanaþjón</string>
+    
+    <string name="preferences_dev_map_override">Yfirrita kortaþjón</string>
+    <string name="preferences_dev_map_override_sum">Vekja þessar stillingar kortaþjónsins</string>
+    
+    <string name="preferences_dev_map_host">Kortahýsitölva</string>
+    <string name="preferences_dev_map_host_sum">Yfirrita Kortaþjónsvistfang</string>
+    
+    <string name="preferences_dev_map_port">Kortaþjónstengisnúmer</string>
+    <string name="preferences_dev_map_port_sum">Yfirrita kortaþjónstengisnúmer</string>
+    
+    <string name="preferences_dev_map_ssl">Map-Server SSL</string>
+    <string name="preferences_dev_map_ssl_sum">Dulritun tengingar á kortaþjón</string>
+    
+    <string name="menu_button_start">BYRJUN</string>
+    <string name="menu_button_map">Kort</string>
+    <string name="menu_button_history">Prófunarskrá</string>
+    <string name="menu_button_help">Hjálp</string>
+    <string name="menu_button_statistics">Töluleg gögn</string>
+    <string name="menu_button_settings">Stillingar</string>
+    <string name="menu_button_about">Uppl.</string>
+    
+    <string name="news_title">Fréttir</string>
+    <string name="news_no_message">Ekkert inntak.</string>
+    
+    <string name="about_version_title">Útgáfa</string>
+    <string name="about_clientid_title">UUID biðlarans</string>
+    <string name="about_clientid_toast">UUID biðlarans afritað í klemmuspald.</string>
+    <string name="about_web_title">Vefur</string>
+    <string name="about_email_title">Tölvupóstur</string>
+    <string name="about_email_sending">Senda tölvupóst…</string>
+    <string name="about_terms_title">Persónuverndarstefna</string>
+    <string name="about_terms_line1">Persónuverndarstefna og þjónustuskilmálar á ensku</string>
+    <string name="about_dev_title">Hugbúnaðarþróun</string>
+    <string name="about_gms_legal_title">Google Play</string>
+    <string name="about_gms_legal_line1">Ritstjórnarupplýsingar Google Play þjónustna á ensku</string>
+    <string name="about_test_counter_title">Prófanateljari</string>
+    
+    <string name="terms">Persónuverndarstefna og þjónustuskilmálar á ensku</string>
+    <string name="terms_accept_button">Samþykki</string>
+    <string name="terms_accept_button_continue">Í lagi</string>
+    <string name="terms_decline_button">Hætta við</string>
+    
+    <string name="terms_ndt_header">Valfrjáls rækileg NDT-prófun (á ensku)</string>
+    <string name="terms_ndt_accept_text"><b>Ég ætla að inna hina valfrjálsu rækilegu NDT-prófun.</b></string>
+    <string name="terms_ndt_back_button">Til baka</string>
+    <string name="terms_ndt_accept_button">Áfram</string>
+
+    <string name="test_mbps">Mbit/s</string>
+    <string name="test_dbm">dBm</string>
+    <string name="test_location_km_h">km/h</string>
+    <string name="test_location_m">m</string>
+    <string name="test_location_gps">GPS-staðsetningarkerfi</string>
+    <string name="test_location_network">Net</string>
+    <string name="test_location_dir_n">N</string>
+    <string name="test_location_dir_e">A</string>
+    <string name="test_location_dir_s">S</string>
+    <string name="test_location_dir_w">V</string>
+    
+    <string name="test_notification_text">Prófun er innt sem baksviðsforrit.</string>
+    <string name="test_loop">Umferð</string>
+    <string name="test_dialog_error_title">Villa…</string>
+    <string name="test_dialog_error_text">Villa kom fram í prófunina.</string>
+    
+    <string name="test_dialog_abort_title">Hætta við…</string>
+    <string name="test_dialog_abort_text">Ætlar þú að stöðva prófunina í keyrslu?</string>
+    <string name="test_dialog_abort_extended_text">Ætlar þú að stöðva rækilegu prófunina?</string>
+    <string name="test_dialog_abort_yes">Hætta við</string>
+    <string name="test_dialog_abort_no">Halda áfram</string>
+    
+    <string name="history">PRÓFANASKRÁ</string>
+    <string name="history_button_sync">Samstilla</string>
+    <string name="history_button_filter">Sía</string>
+    <string name="history_device">Tæki</string>
+	<string name="history_type">Aðgangur</string>
+	<string name="history_date">Dagsetning</string>
+	<string name="history_down">Niður\nMbit/s</string>
+	<string name="history_up">Upp\nMbit/s</string>
+	<string name="history_ping">Biðtími\nms</string>
+	
+	<string name="history_filter">SÍA</string>
+	<string name="history_filter_networks">AÐGANGUR</string>
+	<string name="history_filter_devices">TÆKI</string>
+	<string name="history_filter_result_number">FJÖLDI NIÐURSTAÐNA</string>
+	<string name="history_filter_result_number_25">Sýna einungis 25 nýjustu niðurstöður</string>
+	
+	<string name="result_header">PRÓFUNARNIÐURSTAÐA</string>
+	<string name="result_measurement">MÆLING</string>
+	<string name="result_net">NET</string>
+	<string name="result_details_button">SMÁATRIÐI</string>
+	<string name="result_map_button">KORT</string>
+	
+	<string name="result_details">SMÁATRIÐI</string>
+	
+	<string name="result_button_new_test">NÝ PRÓFUN</string>
+	<string name="result_button_history">Prófanaskrá</string>
+	<string name="result_button_map">Kort</string>
+	
+	<string name="result_extended_test_header">RÆKILEG PRÓFUN</string>
+	<string name="result_extended_test_not_started">Rækileg prófun ekki ennþá í keyrslu</string>
+	<string name="result_extended_test_running">Rækileg prófun í keyrslu</string>
+	<string name="result_extended_test_results">Rækileg prófun í lokastig</string>
+	<string name="result_extended_test_finished">Rækileg prófun lokin</string>
+	<string name="result_extended_test_aborted">Rækileg prófun stöðvað</string>
+	<string name="result_extended_test_error">Tengingarvilla í prófun</string>
+	<string name="result_extended_test_button_stop">Stopp</string>
+	<string name="result_extended_test_button_detail">Smáatriði</string>
+	
+	<string name="sync_info_text">Það er hægt að sameina mælinganiðurstöður annarra tækja. Til þess verður þú að slá inn samstillingarkóða fenginn áður eða að krefja nýs kóða.</string>
+	<string name="sync_request_code_button">Krefja kóða</string>
+	<string name="sync_enter_code_button">Slá inn kóða</string>
+	
+	<string name="sync_enter_code_header">Innsláttur kóðans</string>
+	<string name="sync_enter_code_msg">Kóði</string>
+	<string name="sync_enter_code_desc">Slá inn kóðann sem þú hefur krafið á hinu tækinu þínu.</string>
+	<string name="sync_enter_code_length">Kóðinn þarf að vera gerður úr 12 stöfum.</string>
+	
+	<string name="sync_request_code_header">Samstillingarkóðinn þinn er:</string>
+	<string name="sync_request_code_msg">Krefja kóða…</string>
+	<string name="sync_request_code_desc">Vinsamlegast slá inn kóðann sést ofan á hinu tækinu þínu til að samstilla tækin.</string>
+	<string name="sync_request_code_context_copy">Afrita kóða</string>
+
+	<!-- Map -->
+	<string name="map_filter_header">KORTASÍA</string>
+	<string name="map_choose_header">KORTAVAL</string>
+	
+	<string name="map_appearance_header">KORTASJÁ</string>
+	<string name="map_appearance_nosat_title">Eðlileg sjá</string>
+	<string name="map_appearance_nosat_summary">Kort sýnir eðlilega sjá</string>
+	<string name="map_appearance_sat_title">Gervihnattasjá</string>
+	<string name="map_appearance_sat_summary">Kort sýnir gervihnattasjá</string>
+	
+	<string name="map_overlay_header">KORTAYFIRLÖGN</string>
+	<string name="map_overlay_auto_title">Sjálfvirkt</string>
+	<string name="map_overlay_auto_summary">Kort skiptir sjálfvirkt milli hitakorts og punkta</string>
+	<string name="map_overlay_heatmap_title">Hitakort</string>
+	<string name="map_overlay_heatmap_summary">Kort sýnir prófanar sem hitakort</string>
+	<string name="map_overlay_points_title">Punktar</string>
+	<string name="map_overlay_points_summary">Kort sýnir prófanar sem punkta</string>
+	
+	<string name="map_balloon_overlay_header">MÆLINGAR</string>
+	
+	<!-- Test -->
+	<string name="test_progress_title">Setja upp tengingu…</string>
+	<string name="test_progress_text">Tengingin á prófunarþjóninn er sett upp. Vinsamlegjast bíða…</string>
+	<string name="test_progress_text_wait">Prófunarþjónninn mæðist í mörgu. Prófunin byrjar {0,choice,0#strax|1#eftir 1 sekúndu|1&lt;eftir {0} sekúndur}. Vinsamlegast bíða…</string>
+	<string name="test_bottom_test">Staða: {0}\nÞjónn: {1}\nIP: {2}\n{3}\n{4}</string>
+	<string name="test_bottom_test_status_init">Frumstilling</string>
+	<string name="test_bottom_test_status_ping">Biðtími</string>
+	<string name="test_bottom_test_status_down">Niðurhleðsla</string>
+	<string name="test_bottom_test_status_init_up">Frumstilling upphleðslu</string>
+	<string name="test_bottom_test_status_up">Upphleðsla</string>
+	<string name="test_bottom_test_status_end">Lokastig</string>
+	<string name="test_bottom_test_status_error">Villa</string>
+	<string name="test_bottom_test_status_aborted">Stöðvað</string>
+	
+</resources>
+
+

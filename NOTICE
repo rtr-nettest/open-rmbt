@@ -1,12 +1,22 @@
    =========================================================================
    Open-RMBT
-   Copyright 2013 alladin-IT OG
+   Copyright 2013-2014 alladin-IT GmbH
    
    This product includes software developed at
-   alladin-IT OG (http://www.alladin.at/).
+   alladin-IT GmbH (http://www.alladin.at/).
+   
+   This product includes software developed at
+   Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
+   (https://www.rtr.at/).
    
    This software contains code derived from the
    Web100 Network Diagnostic Tool (NDT), which is open source software,
    available under the "new BSD license". The original software is available
    from https://code.google.com/p/ndt/
+   
+   This software contains code derived from the
+   MaxMind GeoIP Java API, which is open source software,
+   available under the "GNU Lesser General Public License" (version 2).
+   The original software is available from
+   https://github.com/maxmind/geoip-api-java
    =========================================================================

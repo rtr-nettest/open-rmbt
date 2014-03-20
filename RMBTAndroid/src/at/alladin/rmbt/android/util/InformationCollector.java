@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,12 +54,18 @@ import at.alladin.rmbt.client.helper.RevisionHelper;
 
 public class InformationCollector
 {
+    private static final int UNKNOWN = Integer.MIN_VALUE;
     
     private static final String PLATTFORM_NAME = "Android";
     
     private static final String DEBUG_TAG = "InformationCollector";
     
     private static final int ACCEPT_WIFI_RSSI_MIN = -113;
+    
+    public static final int SINGAL_TYPE_NO_SIGNAL = 0;
+    public static final int SINGAL_TYPE_MOBILE = 1;
+    public static final int SINGAL_TYPE_RSRP = 2;
+    public static final int SINGAL_TYPE_WLAN = 3;
     
     /** Returned by getNetwork() if Wifi */
     public static final int NETWORK_WIFI = 99;
@@ -90,6 +96,7 @@ public class InformationCollector
     private final List<SignalItem> signals = new ArrayList<SignalItem>();
     
     private final AtomicInteger signal = new AtomicInteger(Integer.MIN_VALUE);
+    private final AtomicInteger signalType = new AtomicInteger(SINGAL_TYPE_NO_SIGNAL);
     
     private final AtomicInteger lastNetworkType = new AtomicInteger(TelephonyManager.NETWORK_TYPE_UNKNOWN);
     private final AtomicBoolean illegalNetworkTypeChangeDetcted = new AtomicBoolean(false);
@@ -404,8 +411,9 @@ public class InformationCollector
                     int linkSpeed = wifiInfo.getLinkSpeed();
                     if (linkSpeed < 0)
                         linkSpeed = 0;
-                    signals.add(new SignalItem(NETWORK_WIFI, 0, 0, linkSpeed, rssi));
+                    signals.add(SignalItem.getWifiSignalItem(linkSpeed, rssi));
                     signal.set(rssi);
+                    signalType.set(SINGAL_TYPE_WLAN);
                     Log.i(DEBUG_TAG, "Signals1: " + signals.toString());
                 }
             }
@@ -536,7 +544,7 @@ public class InformationCollector
             return null;
     }
     
-    public JSONObject getResultValues() throws JSONException
+    public JSONObject getResultValues(long startTimestampNs) throws JSONException
     {
         
         final JSONObject result = new JSONObject();
@@ -572,6 +580,7 @@ public class InformationCollector
                 final JSONObject jsonItem = new JSONObject();
                 
                 jsonItem.put("tstamp", tmpItem.tstamp);
+                jsonItem.put("time_ns", tmpItem.tstampNano - startTimestampNs);
                 jsonItem.put("geo_lat", tmpItem.geo_lat);
                 jsonItem.put("geo_long", tmpItem.geo_long);
                 jsonItem.put("accuracy", tmpItem.accuracy);
@@ -599,7 +608,9 @@ public class InformationCollector
                 
                 final JSONObject jsonItem = new JSONObject();
                 
-                jsonItem.put("time", tmpItem.tstamp);
+
+                jsonItem.put("time", tmpItem.tstamp); //add for backward compatibility
+                jsonItem.put("time_ns", tmpItem.tstampNano - startTimestampNs);
                 jsonItem.put("location_id", tmpItem.locationId);
                 Log.i(DEBUG_TAG, "Cell ID:" + tmpItem.locationId);
                 jsonItem.put("area_code", tmpItem.areaCode);
@@ -611,7 +622,7 @@ public class InformationCollector
             result.put("cellLocations", itemList);
         }
         
-        Log.i(DEBUG_TAG, "Signals: " + signals.toString());
+        //Log.i(DEBUG_TAG, "Signals: " + signals.toString());
         
         if (signals.size() > 0)
         {
@@ -620,23 +631,40 @@ public class InformationCollector
             
             for (int i = 0; i < signals.size(); i++)
             {
-                
                 final SignalItem tmpItem = signals.get(i);
                 
                 final JSONObject jsonItem = new JSONObject();
                 
-                jsonItem.put("time", tmpItem.tstamp);
+                jsonItem.put("time", tmpItem.tstamp); //add for backward compatibility
+                jsonItem.put("time_ns", tmpItem.tstampNano - startTimestampNs);
                 jsonItem.put("network_type_id", tmpItem.networkId);
-                jsonItem.put("signal_strength", tmpItem.signalStrength);
-                jsonItem.put("gsm_bit_error_rate", tmpItem.gsmBitErrorRate);
-                jsonItem.put("wifi_link_speed", tmpItem.wifiLinkSpeed);
-                jsonItem.put("wifi_rssi", tmpItem.wifiRssi);
+                if (tmpItem.signalStrength != UNKNOWN)
+                    jsonItem.put("signal_strength", tmpItem.signalStrength);
+                if (tmpItem.gsmBitErrorRate != UNKNOWN)
+                    jsonItem.put("gsm_bit_error_rate", tmpItem.gsmBitErrorRate);
+                if (tmpItem.wifiLinkSpeed != UNKNOWN)
+                    jsonItem.put("wifi_link_speed", tmpItem.wifiLinkSpeed);
+                if (tmpItem.wifiRssi != UNKNOWN)
+                    jsonItem.put("wifi_rssi", tmpItem.wifiRssi);
+                if (tmpItem.lteRsrp != UNKNOWN)
+                    jsonItem.put("lte_rsrp", tmpItem.lteRsrp);
+                if (tmpItem.lteRsrq != UNKNOWN)
+                    jsonItem.put("lte_rsrq", tmpItem.lteRsrq);
+                if (tmpItem.lteRssnr != UNKNOWN)
+                    jsonItem.put("lte_rssnr", tmpItem.lteRssnr);
+                if (tmpItem.lteCqi != UNKNOWN)
+                    jsonItem.put("lte_cqi", tmpItem.lteCqi);
                 
                 itemList.put(jsonItem);
+                //System.out.println(itemList);
             }
             
             result.put("signals", itemList);
         }
+        
+        final String tag = ConfigHelper.getTag(context);
+        if (tag != null && ! tag.isEmpty())
+            result.put("tag", tag);
         
         return result;
     }
@@ -665,9 +693,9 @@ public class InformationCollector
             wifiManager = tryWifiManager;
             
             // Some interesting info to look at in the logs
-            final NetworkInfo[] infos = connManager.getAllNetworkInfo();
-            for (final NetworkInfo networkInfo : infos)
-                Log.i(DEBUG_TAG, "Network: " + networkInfo);
+            //final NetworkInfo[] infos = connManager.getAllNetworkInfo();
+            //for (final NetworkInfo networkInfo : infos)
+            //    Log.i(DEBUG_TAG, "Network: " + networkInfo);
         }
         assert connManager != null;
         assert telManager != null;
@@ -811,6 +839,11 @@ public class InformationCollector
         return _signal;
     }
     
+    public int getSignalType()
+    {
+        return signalType.get();
+    }
+    
     public void setTestServerName(final String serverName)
     {
         testServerName = serverName;
@@ -841,8 +874,9 @@ public class InformationCollector
                     final int rssi = wifiInfo.getRssi();
                     if (rssi >= ACCEPT_WIFI_RSSI_MIN)
                     {
-                        signals.add(new SignalItem(NETWORK_WIFI, 0, 0, wifiInfo.getLinkSpeed(), rssi));
+                        signals.add(SignalItem.getWifiSignalItem(wifiInfo.getLinkSpeed(), rssi));
                         signal.set(rssi);
+                        signalType.set(SINGAL_TYPE_WLAN);
                         Log.i(DEBUG_TAG, "Signals2: " + signals.toString());
                     }
                 }
@@ -860,8 +894,12 @@ public class InformationCollector
             if (signalStrength != null)
                 Log.d(DEBUG_TAG, signalStrength.toString());
             final int network = getNetwork();
-            int strength = Integer.MIN_VALUE;
-            int errorRate = 0;
+            int strength = UNKNOWN;
+            int lteRsrp = UNKNOWN;
+            int lteRsrq = UNKNOWN;
+            int lteRsssnr = UNKNOWN;
+            int lteCqi = UNKNOWN;
+            int errorRate = UNKNOWN;
             
             
             // discard signal strength from GT-I9100G (Galaxy S II) - passes wrong info
@@ -883,18 +921,66 @@ public class InformationCollector
                             || network == TelephonyManager.NETWORK_TYPE_EVDO_A
                     /* || network == TelephonyManager.NETWORK_TYPE_EVDO_B */)
                         strength = signalStrength.getEvdoDbm();
-                    else if (signalStrength.isGsm())
+                    else if (network == 13) /* TelephonyManager.NETWORK_TYPE_LTE ; not avail in api 8 */
                     {
-                        final int rssi = signalStrength.getGsmSignalStrength();
-                        if (rssi != 99)
+                        try
                         {
-                            strength = -113 + 2 * rssi;
-                            errorRate = signalStrength.getGsmBitErrorRate();
+                            lteRsrp = (Integer) SignalStrength.class.getMethod("getLteRsrp").invoke(signalStrength);
+                            lteRsrq = (Integer) SignalStrength.class.getMethod("getLteRsrq").invoke(signalStrength);
+                            lteRsssnr = (Integer) SignalStrength.class.getMethod("getLteRssnr").invoke(signalStrength);
+                            lteCqi = (Integer) SignalStrength.class.getMethod("getLteCqi").invoke(signalStrength);
+                            
+                            if (lteRsrp == Integer.MAX_VALUE)
+                                lteRsrp = UNKNOWN;
+                            if (lteRsrq == Integer.MAX_VALUE)
+                                lteRsrq = UNKNOWN;
+                            if (lteRsssnr == Integer.MAX_VALUE)
+                                lteRsssnr = UNKNOWN;
+                            if (lteCqi == Integer.MAX_VALUE)
+                                lteCqi = UNKNOWN;
+                        }
+                        catch (Throwable t)
+                        {
+                            t.printStackTrace();
                         }
                     }
-                    signal.set(strength);
+                    else if (signalStrength.isGsm())
+                    {
+                        try
+                        {
+                            final Method getGsmDbm = SignalStrength.class.getMethod("getGsmDbm");
+                            final Integer result = (Integer) getGsmDbm.invoke(signalStrength);
+                            if (result != -1)
+                                strength = result;
+                        }
+                        catch (Throwable t)
+                        {   
+                        }
+                        if (strength == UNKNOWN)
+                        {   // fallback if not implemented
+                            int dBm;
+                            int gsmSignalStrength = signalStrength.getGsmSignalStrength();
+                            int asu = (gsmSignalStrength == 99 ? -1 : gsmSignalStrength);
+                            if (asu != -1)
+                                dBm = -113 + (2 * asu);
+                            else
+                                dBm = UNKNOWN;
+                            strength = dBm;
+                        }
+                        errorRate = signalStrength.getGsmBitErrorRate();
+                    }
+                    if (lteRsrp != UNKNOWN)
+                    {
+                        signal.set(lteRsrp);
+                        signalType.set(SINGAL_TYPE_RSRP);
+                    }
+                    else
+                    {
+                        signal.set(strength);
+                        signalType.set(SINGAL_TYPE_MOBILE);
+                    }
                 }
-                signals.add(new SignalItem(network, strength, errorRate, 0, 0));
+                signals.add(SignalItem.getCellSignalItem(network, strength, errorRate, lteRsrp, lteRsrq, lteRsssnr, lteCqi));
             }
         }
         
@@ -925,7 +1011,7 @@ public class InformationCollector
         
         public InfoGeoLocation(final Context context)
         {
-            super(context);
+            super(context, ConfigHelper.isGPS(context));
         }
         
         @Override
@@ -947,6 +1033,7 @@ public class InformationCollector
     {
         
         public final long tstamp;
+        public final long tstampNano;
         public final double geo_lat;
         public final double geo_long;
         public final float accuracy;
@@ -959,6 +1046,7 @@ public class InformationCollector
                 final double altitude, final float bearing, final float speed, final String provider)
         {
             this.tstamp = tstamp;
+            this.tstampNano = System.nanoTime();
             this.geo_lat = geo_lat;
             this.geo_long = geo_long;
             this.accuracy = accuracy;
@@ -974,6 +1062,7 @@ public class InformationCollector
     {
         
         public final long tstamp;
+        public final long tstampNano;
         public final int locationId;
         public final int areaCode;
         public final int scramblingCode;
@@ -982,6 +1071,7 @@ public class InformationCollector
         {
             
             tstamp = System.currentTimeMillis();
+            tstampNano = System.nanoTime();
             locationId = cellLocation.getCid();
             areaCode = cellLocation.getLac();
             
@@ -1023,7 +1113,7 @@ public class InformationCollector
         
     }
     
-    private class SignalItem
+    private static class SignalItem
     {
         
         public final long tstamp;
@@ -1033,16 +1123,38 @@ public class InformationCollector
         public final int wifiLinkSpeed;
         public final int wifiRssi;
         
-        public SignalItem(final int networkId, final int signalStrength, final int gsmBitErrorRate,
-                final int wifiLinkSpeed, final int wifiRssi)
+        public final int lteRsrp;
+        public final int lteRsrq;
+        public final int lteRssnr;
+        public final int lteCqi;
+        public final long tstampNano; 
+        
+        public static SignalItem getWifiSignalItem(final int wifiLinkSpeed, final int wifiRssi)
+        {
+            return new SignalItem(NETWORK_WIFI, UNKNOWN, UNKNOWN, wifiLinkSpeed, wifiRssi, UNKNOWN, UNKNOWN, UNKNOWN, UNKNOWN);
+        }
+        
+        public static SignalItem getCellSignalItem(final int networkId, final int signalStrength, final int gsmBitErrorRate,
+                final int lteRsrp, final int lteRsrq, final int lteRssnr, final int lteCqi)
+        {
+            return new SignalItem(networkId, signalStrength, gsmBitErrorRate, UNKNOWN, UNKNOWN, lteRsrp, lteRsrq, lteRssnr, lteCqi);
+        }
+        
+        private SignalItem(final int networkId, final int signalStrength, final int gsmBitErrorRate,
+                final int wifiLinkSpeed, final int wifiRssi, final int lteRsrp,
+                final int lteRsrq, final int lteRssnr, final int lteCqi)
         {
             tstamp = System.currentTimeMillis();
+            tstampNano = System.nanoTime();
             this.networkId = networkId;
             this.signalStrength = signalStrength;
             this.gsmBitErrorRate = gsmBitErrorRate;
             this.wifiLinkSpeed = wifiLinkSpeed;
             this.wifiRssi = wifiRssi;
-            
+            this.lteRsrp = lteRsrp;
+            this.lteRsrq = lteRsrq;
+            this.lteRssnr = lteRssnr;
+            this.lteCqi = lteCqi;
         }
         
     }

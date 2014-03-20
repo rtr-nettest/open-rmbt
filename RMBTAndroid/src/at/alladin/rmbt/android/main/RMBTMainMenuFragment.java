@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -141,7 +141,10 @@ public class RMBTMainMenuFragment extends Fragment
             public void onClick(final View v)
             {
                 final RMBTMainActivity activity = (RMBTMainActivity) getActivity();
-                activity.showHelp(ConfigHelper.getVolatileSetting("url_statistics"));
+                final String urlStatistic = ConfigHelper.getVolatileSetting("url_statistics");
+                if (urlStatistic == null || urlStatistic.length() == 0)
+                    return;
+                activity.showHelp(urlStatistic);
             }
         });
         

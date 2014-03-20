@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.content.DialogInterface.OnDismissListener;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.res.Resources;
@@ -40,6 +41,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
@@ -47,15 +49,16 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.TextView;
 import at.alladin.openrmbt.android.R;
 import at.alladin.rmbt.android.history.RMBTHistoryPagerFragment;
 import at.alladin.rmbt.android.main.RMBTMainActivity;
 import at.alladin.rmbt.android.main.RMBTMainActivity.HistoryUpdatedCallback;
 import at.alladin.rmbt.android.test.RMBTService.RMBTBinder;
-import at.alladin.rmbt.android.util.ConfigHelper;
 import at.alladin.rmbt.android.util.EndTaskListener;
 import at.alladin.rmbt.android.util.Helperfunctions;
+import at.alladin.rmbt.android.util.InformationCollector;
 import at.alladin.rmbt.client.helper.IntermediateResult;
 import at.alladin.rmbt.client.helper.NdtStatus;
 import at.alladin.rmbt.client.helper.TestStatus;
@@ -93,6 +96,9 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
     private int lastNetworkType;
     private String lastNetworkTypeString;
     
+    private Integer lastSignal;
+    private int lastSignalType;
+    
     private RMBTService rmbtService;
     
     private long updateCounter;
@@ -106,9 +112,10 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
     private String lastStatusString;
     private long lastShownWaitTime = -1;
     private String waitText;
-    private boolean suppressError;
+    private boolean stopLoop;
     
-    private Dialog dialog;
+    private Dialog errorDialog;
+    private Dialog abortDialog;
     private ProgressDialog progressDialog;
     
     private Handler handler;
@@ -137,7 +144,8 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
                         @Override
                         public void historyUpdated(final boolean success)
                         {
-                            switchToResult();
+                            if (isVisible())
+                                switchToResult();
                         }
                     });
                 }
@@ -189,6 +197,8 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
         handler.removeCallbacks(resultSwitcherRunnable);
         
         context.unbindService(this);
+        
+        getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
     
     @Override
@@ -201,6 +211,8 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
         context.bindService(serviceIntent, this, Context.BIND_AUTO_CREATE);
         
         handler.post(updateTask);
+        
+        getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
     
     @Override
@@ -228,19 +240,7 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
         
         lastShownWaitTime = -1;
         progressDialog = ProgressDialog.show(getActivity(), progressTitle, progressText, true, false);
-        progressDialog.setOnKeyListener(new DialogInterface.OnKeyListener()
-        {
-            @Override
-            public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event)
-            {
-                if (keyCode == KeyEvent.KEYCODE_BACK)
-                {
-                    onBackPressed();
-                    return true;
-                }
-                return false;
-            }
-        });
+        progressDialog.setOnKeyListener(backKeyListener);
         
         return view;
     }
@@ -264,18 +264,33 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
             testView.recycle();
         if (graphView != null)
             graphView.recycle();
+        dismissDialogs();
         System.gc();
-        if (dialog != null)
-            dialog.dismiss();
     }
     
     @Override
     public void onDetach()
     {
         super.onDetach();
+        dismissDialogs();
+    }
+    
+    private void dismissDialogs()
+    {
+        dismissDialog(errorDialog);
+        errorDialog = null;
+        dismissDialog(abortDialog);
+        abortDialog = null;
+        dismissDialog(progressDialog);
+        progressDialog = null;
+    }
+    
+    private static void dismissDialog(Dialog dialog)
+    {
         if (dialog != null)
             dialog.dismiss();
     }
+    
     
     private void resetGraph()
     {
@@ -297,7 +312,19 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
             if (getActivity() == null)
                 return;
             updateUI();
-            handler.postDelayed(this, UPDATE_DELAY);
+            if (! stopLoop)
+                handler.postDelayed(this, UPDATE_DELAY);
+        }
+    };
+
+    private final DialogInterface.OnKeyListener backKeyListener = new DialogInterface.OnKeyListener()
+    {
+        @Override
+        public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event)
+        {
+            if (keyCode == KeyEvent.KEYCODE_BACK)
+                return onBackPressedHandler();
+            return false;
         }
     };
     
@@ -320,8 +347,11 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
                     progressDialog.dismiss();
                     progressDialog = null;
                 }
-                if (!ConfigHelper.isRepeatTest(getActivity()))
-                    showErrorDialog(true);
+                if (! rmbtService.isLoopMode())
+                {
+                    showErrorDialog();
+                    return;
+                }
             }
             
             if (!rmbtService.isTestRunning() && updateCounter > MAX_COUNTER_WITHOUT_RESULT)
@@ -417,23 +447,72 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
             if (lastIP == null)
                 lastIP = "?";
             
-            if (ConfigHelper.isRepeatTest(context))
-                teststatus = String.format("%s #%d - %s",getString(R.string.test_loop),
-                        rmbtService.testLoops(),lastStatusString);
-            else
+//            if (ConfigHelper.isRepeatTest(context))
+//                teststatus = String.format(Locale.US, "%s #%d - %s", getString(R.string.test_loop),
+//                        rmbtService.testLoops(),lastStatusString);
+//            else
                 teststatus = lastStatusString;
             
             textView.setText(MessageFormat.format(bottomText, teststatus, lastServerName, lastIP, 
                     locationStr_line1, locationStr_line2));
         }
         
-        final Integer signal = rmbtService.getSignal();
+        Integer signal = rmbtService.getSignal();
+        int signalType = rmbtService.getSignalType();
+        
+        if (signal == null || signal == 0)
+            signalType = InformationCollector.SINGAL_TYPE_NO_SIGNAL;
+        
+        boolean signalTypeChanged = false;
+        
+        if (signalType != InformationCollector.SINGAL_TYPE_NO_SIGNAL)
+        {
+            signalTypeChanged = lastSignalType != signalType;
+            lastSignal = signal;
+            lastSignalType = signalType;
+        }
+        
+        if (signalType == InformationCollector.SINGAL_TYPE_NO_SIGNAL && lastSignalType != InformationCollector.SINGAL_TYPE_NO_SIGNAL)
+        {
+            // keep old signal if we had one before
+            signal = lastSignal;
+            signalType = lastSignalType;
+        }
+        
         Double relativeSignal = null;
-        if (signal != null)
-            if (signal == 0)
-                relativeSignal = null;
+        int min = Integer.MIN_VALUE;
+        int max = Integer.MAX_VALUE;
+        switch (signalType)
+        {
+        case InformationCollector.SINGAL_TYPE_MOBILE:
+            min = -110;
+            max = -50;
+            break;
+            
+        case InformationCollector.SINGAL_TYPE_WLAN:
+            min = -100;
+            max = -40;
+            break;
+            
+        case InformationCollector.SINGAL_TYPE_RSRP:
+            min = -130;
+            max = -70;
+            break;
+            
+        }
+        if (! (min == Integer.MIN_VALUE || max == Integer.MAX_VALUE))
+            relativeSignal = (double)(signal - min) / (double)(max - min);
+        
+        if (signalTypeChanged)
+        {
+            if (signalGraph != null)
+                signalGraph.clearGraphDontResetTime();
+            if (relativeSignal != null)
+                graphView.setSignalRange(min, max);
             else
-                relativeSignal = (double) signal / 80d + 110d / 80d;
+                graphView.removeSignalRange();
+            graphView.invalidate();
+        }
         
         double speedValueRelative = 0d;
         int progressSegments = 0;
@@ -507,7 +586,7 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
                     + PROGRESS_SEGMENTS_UP;
             speedValueRelative = intermediateResult.upBitPerSecLog;
             
-            if (!ConfigHelper.isRepeatTest(context) || !rmbtService.loopContinue())
+            if (! rmbtService.isLoopMode())
                 if (resultSwitcherTime == null)
                 {
                     resultSwitcherTime = System.nanoTime();
@@ -525,13 +604,16 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
             progressSegments = 0;
             resetGraph();
             
-            if (!ConfigHelper.isRepeatTest(getActivity()))
-                showErrorDialog(true);
-            
-            break;
+            if (intermediateResult.status == TestStatus.ERROR) // && !ConfigHelper.isRepeatTest(getActivity()))
+            {
+                if (! rmbtService.isLoopMode())
+                    showErrorDialog();
+                return;
+            }
         }
         testView.setSpeedValue(speedValueRelative);
         
+        testView.setSignalType(signalType);
         if (signal != null)
             testView.setSignalString(String.valueOf(signal));
         if (relativeSignal != null)
@@ -569,8 +651,32 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
     {
         if (rmbtService == null || !rmbtService.isTestRunning())
             return false;
+        return onBackPressedHandler();
+    }
+    
+    public boolean onBackPressedHandler()
+    {
+        final FragmentActivity activity = getActivity();
+        if (activity == null)
+            return false;
+        if ((errorDialog != null && errorDialog.isShowing())
+                ||
+            (progressDialog != null && progressDialog.isShowing()))
+        {
+            if (rmbtService != null)
+                rmbtService.stopTest();
+            dismissDialogs();
+            activity.getSupportFragmentManager().popBackStack();
+            return true;
+        }
         
-        if (dialog == null || !dialog.isShowing())
+        
+        if (abortDialog != null && abortDialog.isShowing())
+        {
+            dismissDialog(abortDialog);
+            abortDialog = null;
+        }
+        else
         {
             final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setTitle(R.string.test_dialog_abort_title);
@@ -582,46 +688,38 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
                 {
                     if (rmbtService != null)
                         rmbtService.stopTest();
-                    suppressError = true;
                     getActivity().getSupportFragmentManager().popBackStack();
                 }
             });
             builder.setNegativeButton(R.string.test_dialog_abort_no, null);
-            dialog = builder.create();
-            dialog.show();
+            
+            dismissDialogs();
+            abortDialog = builder.show();
         }
         return true;
     }
     
-    protected void showErrorDialog(final boolean popAfterOk)
+    protected void showErrorDialog()
     {
-        if (suppressError)
-            return;
-        suppressError = true;
+        stopLoop = true;
         
-        if (suppressError)
-            return;
-
-        if (dialog != null && dialog.isShowing())
-            dialog.dismiss();
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(R.string.test_dialog_error_title);
         builder.setMessage(R.string.test_dialog_error_text);
-        final OnClickListener onClickListener;
-        if (popAfterOk)
-            onClickListener = new OnClickListener()
+        builder.setNeutralButton(android.R.string.ok, null);
+        dismissDialogs();
+        errorDialog = builder.create();
+        errorDialog.setOnDismissListener(new OnDismissListener()
+        {
+            @Override
+            public void onDismiss(DialogInterface dialog)
             {
-                @Override
-                public void onClick(final DialogInterface dialog, final int which)
-                {
-                    getActivity().getSupportFragmentManager().popBackStack();
-                }
-            };
-        else
-            onClickListener = null;
-        builder.setNeutralButton(android.R.string.ok, onClickListener);
-        dialog = builder.create();
-        dialog.show();
+                final FragmentActivity activity = getActivity();
+                if (activity != null)
+                    activity.getSupportFragmentManager().popBackStack();
+            }
+        });
+        errorDialog.show();
     }
     
     private void switchToResult()
@@ -631,8 +729,7 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
         
         final String testUuid = rmbtService == null ? null : rmbtService.getTestUuid();
         
-        if (dialog != null)
-            dialog.dismiss();
+        dismissDialogs();
         
         ArrayList<Map<String, String>> itemList = getMainActivity().getHistoryStorageList();
         if (itemList == null)
@@ -651,10 +748,11 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
                 pos++;
             }
             if (!found)
-                showErrorDialog(true);
+            {
+                showErrorDialog();
+                return;
+            }
         }
-        
-//        getMainActivity().setCurrentMapType(Helperfunctions.getMapType(lastNetworkType) + "/download");
         
         final RMBTHistoryPagerFragment fragment = new RMBTHistoryPagerFragment();
         final Bundle args = new Bundle();

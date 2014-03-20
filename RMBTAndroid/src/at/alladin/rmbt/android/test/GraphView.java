@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,13 @@ public class GraphView extends View
     
     private float scale = 1f;
     
+    private final int relW = 593;
+    private final int relH = 237;
+    
     private final Paint bitmapPaint;
+    private final Paint signalTextPaint;
+    
+    private final String signalText;
     
     final int graphWidth;
     final int graphHeight;
@@ -58,6 +64,9 @@ public class GraphView extends View
     private final float reflectionX;
     private final float reflectionY;
     
+    private Integer signalMin;
+    private Integer signalMax;
+    
     public GraphView(final Context context, final AttributeSet attrs, final int defStyle)
     {
         super(context, attrs, defStyle);
@@ -66,9 +75,6 @@ public class GraphView extends View
         
         bitmapPaint = new Paint();
         bitmapPaint.setFilterBitmap(true);
-        
-        final int relW = 593;
-        final int relH = 237;
         
         final Bitmap backgroundBitmap = getBitmap(res, R.drawable.test_box_small);
         width = backgroundBitmap.getWidth();
@@ -100,17 +106,9 @@ public class GraphView extends View
         paint.setColor(Color.parseColor("#C800f940"));
         canvas.drawText(String.format("– %s", res.getString(R.string.test_mbps)), coordFW(9, relW), coordFH(110, relH),
                 paint);
-        paint.setColor(Color.parseColor("#C8f8a000"));
-        canvas.drawText(String.format("– %s", res.getString(R.string.test_dbm)), coordFW(9, relW), coordFH(130, relH),
-                paint);
-        
         paint.setTextAlign(Align.RIGHT);
-        paint.setColor(Color.parseColor("#C800f940"));
         canvas.drawText("0", coordFW(72, relW), coordFH(220, relH), paint);
         canvas.drawText("100", coordFW(72, relW), coordFH(38, relH), paint);
-        paint.setColor(Color.parseColor("#C8f8a000"));
-        canvas.drawText("-110", coordFW(72, relW), coordFH(195, relH), paint);
-        canvas.drawText("-30", coordFW(72, relW), coordFH(58, relH), paint);
         
         gridBitmap = getBitmap(res, R.drawable.test_grid);
         gridX = coordFW(55, relW);
@@ -120,6 +118,14 @@ public class GraphView extends View
         graphWidth = coordW(493, relW);
         graphHeight = coordH(183, relH);
         graphStrokeWidth = coordFW(4, relW);
+        
+        signalTextPaint = new Paint();
+        signalTextPaint.setAntiAlias(true);
+        signalTextPaint.setTypeface(Typeface.DEFAULT_BOLD);
+        signalTextPaint.setTextSize(coordFH(15, relH));
+        signalTextPaint.setColor(Color.parseColor("#C8f8a000"));
+        
+        signalText = res.getString(R.string.test_dbm);
     }
     
     public GraphView(final Context context, final AttributeSet attrs)
@@ -171,6 +177,18 @@ public class GraphView extends View
     public float getGraphStrokeWidth()
     {
         return graphStrokeWidth;
+    }
+    
+    public void setSignalRange(int min, int max)
+    {
+        signalMin = min;
+        signalMax = max;
+    }
+    
+    public void removeSignalRange()
+    {
+        signalMin = null;
+        signalMax = null;
     }
     
     @Override
@@ -230,6 +248,18 @@ public class GraphView extends View
         canvas.scale(scale, scale);
         
         canvas.drawBitmap(genBackgroundBitmap, 0, 0, bitmapPaint);
+        
+        final boolean drawSignal = signalMin != null && signalMax != null;
+        if (drawSignal)
+        {
+            signalTextPaint.setTextAlign(Align.LEFT);
+            canvas.drawText(String.format("– %s", signalText), coordFW(9, relW), coordFH(130, relH),
+                    signalTextPaint);
+            signalTextPaint.setTextAlign(Align.RIGHT);
+            canvas.drawText(Integer.toString(signalMin), coordFW(72, relW), coordFH(195, relH), signalTextPaint);
+            canvas.drawText(Integer.toString(signalMax), coordFW(72, relW), coordFH(58, relH), signalTextPaint);
+        }
+
         canvas.drawBitmap(gridBitmap, gridX, gridY, bitmapPaint);
         
         final int canvasSave2 = canvas.save();

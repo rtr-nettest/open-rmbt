@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,6 +58,14 @@ public class RequestDataCollector extends ServerResource
                 product = "Firefox";
             else if (agent.contains("Safari"))
                 product = "Safari";
+            else if (agent.contains("IE 11"))
+                product = "IE";
+            else if (agent.contains("MSIE"))
+                product = "IE";
+            else if (agent.contains("Geko"))
+                product = "Geko";
+            else if (agent.contains("Webkit"))
+                product = "Webkit";
         }
         
         answer.put("product", product);

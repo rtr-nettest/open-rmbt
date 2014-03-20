@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -90,8 +90,8 @@ public class RMBTHelpFragment extends Fragment
                 Log.w(getTag(), "error code:" + errorCode);
                 Log.d(getTag(), "error desc:" + description);
                 Log.d(getTag(), "error url:" + failingUrl);
-                super.onReceivedError(view, errorCode, description, failingUrl);
                 webview.loadUrl("file:///android_res/raw/error.html");
+                super.onReceivedError(view, errorCode, description, failingUrl);
             }
         });
         

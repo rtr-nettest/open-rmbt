@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright 2013 alladin-IT OG
+  Copyright 2013-2014 alladin-IT GmbH
   
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@
         android:layout_gravity="top|center"
         android:layout_weight="1"
         android:adjustViewBounds="true"
-        android:contentDescription=""
+        android:contentDescription="Header image"
         android:src="@drawable/header" />
 
         <LinearLayout

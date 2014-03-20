@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -103,6 +103,20 @@ public class RMBTTestParameter
     public long getStartTime()
     {
         return startTime;
+    }
+
+    public void check() throws IllegalArgumentException
+    {
+        if (host == null || host.length() == 0)
+            throw new IllegalArgumentException("no host");
+        if (port <= 0)
+            throw new IllegalArgumentException("no port");
+        if (getUUID() == null)
+            throw new IllegalArgumentException("no uuid");
+        if (numThreads <= 0)
+            throw new IllegalArgumentException("num threads <= 0");
+//        if (pretestDuration < 0)
+//            throw new IllegalArgumentException("pretestDuration < 0");
     }
     
 }

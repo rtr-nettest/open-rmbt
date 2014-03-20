@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,18 +18,19 @@ package at.alladin.rmbt.controlServer;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import java.util.PropertyResourceBundle;
-import java.util.ResourceBundle;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.restlet.resource.Get;
 import org.restlet.resource.Post;
+
+import at.alladin.rmbt.shared.ResourceManager;
 
 public class NewsResource extends ServerResource
 {
@@ -61,30 +62,30 @@ public class NewsResource extends ServerResource
                 if (langs.contains(lang))
                 {
                     errorList.setLanguage(lang);
-                    labels = (PropertyResourceBundle) ResourceBundle.getBundle("at.alladin.rmbt.res.SystemMessages",
-                            new Locale(lang));
+                    labels = ResourceManager.getSysMsgBundle(new Locale(lang));
                 }
                 else
                     lang = settings.getString("RMBT_DEFAULT_LANGUAGE");
-                
-//                System.out.println(request.toString(4));
+                           
+                String sqlLang = lang;
+                if (!sqlLang.equals("de"))
+                    sqlLang = "en";
                 
                 if (conn != null)
                 {
                     final long lastNewsUid = request.optLong("lastNewsUid");
                     final String plattform = request.optString("plattform");
                     final int softwareVersionCode = request.optInt("softwareVersionCode", -1);
+                    String uuid = request.optString("uuid");
                     
                     final JSONArray newsList = new JSONArray();
                     
-//                    if (softwareVersionCode != -1) // no news for old (buggy) versions
-//                    {
                     try
                     {
                         
                         final PreparedStatement st = conn
-                                .prepareStatement("SELECT uid,title_" + lang + 
-                                        " AS title, text_" + lang +
+                                .prepareStatement("SELECT uid,title_" + sqlLang + 
+                                        " AS title, text_" + sqlLang +
                                         " AS text FROM news " +
                                         " WHERE" +
                                         " (uid > ? OR force = true)" +
@@ -92,11 +93,13 @@ public class NewsResource extends ServerResource
                                         " AND (plattform IS NULL OR plattform = ?)" +
                                         " AND (max_software_version_code IS NULL OR ? <= max_software_version_code)" +
                                         " AND (min_software_version_code IS NULL OR ? >= min_software_version_code)" +
+                                        " AND (uuid IS NULL OR uuid::TEXT = ?)" + //convert to text so that empty uuid-strings are tolerated
                                         " ORDER BY time ASC");
                         st.setLong(1, lastNewsUid);
                         st.setString(2, plattform);
                         st.setInt(3, softwareVersionCode);
                         st.setInt(4, softwareVersionCode);
+                        st.setString(5, uuid);
                         
                         final ResultSet rs = st.executeQuery();
                         
@@ -107,6 +110,7 @@ public class NewsResource extends ServerResource
                             jsonItem.put("uid", rs.getInt("uid"));
                             jsonItem.put("title", rs.getString("title"));
                             jsonItem.put("text", rs.getString("text"));
+
                             
                             newsList.put(jsonItem);
                         }

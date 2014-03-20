@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright 2013 alladin-IT OG
+  Copyright 2013-2014 alladin-IT GmbH
   
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -24,12 +24,68 @@
                 android:summary="@string/preferences_no_gps_sum" 
                 android:layout="@layout/preferences_item"/>
             
+            <EditTextPreference
+                android:key="tag"
+                android:title="@string/preferences_tag"
+                android:summary="@string/preferences_tag_sum"
+                android:layout="@layout/preferences_item"
+                />
+            
+        </PreferenceCategory>
+            
+        <PreferenceCategory android:title="@string/preferences_category_loop_mode" android:layout="@layout/preferences_category">
+            
             <CheckBoxPreference
-                android:key="repeat_test"
-                android:title="@string/preferences_repeat_test" 
-                android:summary="@string/preferences_repeat_test_sum"
+                android:key="loop_mode"
+                android:title="@string/preferences_loop_mode" 
+                android:summary="@string/preferences_loop_mode_sum"
                 android:layout="@layout/preferences_item"/>
             
+            <EditTextPreference
+                android:key="loop_mode_max_tests"
+                android:title="@string/preferences_loop_mode_max_tests"
+                android:summary="@string/preferences_loop_mode_max_tests_sum"
+                android:layout="@layout/preferences_item"
+                android:inputType="number"
+                android:defaultValue="@integer/default_loop_max_tests"
+                />
+            
+            <EditTextPreference
+                android:key="loop_mode_min_delay"
+                android:title="@string/preferences_loop_mode_min_delay"
+                android:summary="@string/preferences_loop_mode_min_delay_sum"
+                android:layout="@layout/preferences_item"
+                android:inputType="number"
+                android:defaultValue="@integer/default_loop_min_delay"
+                />
+            
+            <EditTextPreference
+                android:key="loop_mode_max_delay"
+                android:title="@string/preferences_loop_mode_max_delay"
+                android:summary="@string/preferences_loop_mode_max_delay_sum"
+                android:layout="@layout/preferences_item"
+                android:inputType="number"
+                android:defaultValue="@integer/default_loop_max_delay"
+                />
+            
+            <EditTextPreference
+                android:key="loop_mode_movement"
+                android:title="@string/preferences_loop_mode_movement"
+                android:summary="@string/preferences_loop_mode_movement_sum"
+                android:layout="@layout/preferences_item"
+                android:inputType="number"
+                android:defaultValue="@integer/default_loop_max_movement"
+                />
+            
+            <CheckBoxPreference
+                android:key="loop_mode_gps"
+                android:title="@string/preferences_loop_mode_gps"
+                android:summary="@string/preferences_loop_mode_gps_sum"
+                android:layout="@layout/preferences_item"
+                />
+            
+        </PreferenceCategory>
+        
             <!-- 
             <CheckBoxPreference
                 android:key="dev_no_control_server"
@@ -77,8 +133,6 @@
                 android:layout="@layout/preferences_item"/>
             -->
             
-        </PreferenceCategory>
-        
         <PreferenceCategory android:title="@string/preferences_category_developer_control_server" android:layout="@layout/preferences_category">
             
             <CheckBoxPreference

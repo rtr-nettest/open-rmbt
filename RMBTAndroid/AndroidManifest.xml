@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright 2013 alladin-IT OG
+  Copyright 2013-2014 alladin-IT GmbH
   
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -16,12 +16,12 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="at.alladin.openrmbt.android"
-    android:versionCode="107"
-    android:versionName="1.1rc1"
+    android:versionCode="15125"
+    android:versionName="1.5.3"
     android:installLocation="auto" 
     >
 
-    <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="18"/>
+    <uses-sdk android:minSdkVersion="15" android:targetSdkVersion="19"/>
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/> 
@@ -59,9 +59,11 @@
         
         <activity android:label="@string/terms" android:name="at.alladin.rmbt.android.terms.RMBTTermsActivity" android:theme="@style/customPrefTheme" android:screenOrientation="portrait" android:enabled="true" />
         
-        <service android:enabled="true" android:name="at.alladin.rmbt.android.test.RMBTService" />
+        <service android:enabled="true" android:name="at.alladin.rmbt.android.test.RMBTService" android:exported="false" />
+        <service android:enabled="true" android:name="at.alladin.rmbt.android.test.RMBTLoopService" android:exported="false" />
         
-        <meta-data android:name="com.google.android.maps.v2.API_KEY" android:value="AIzaSyAcjVMHp478zIOygMZxqECKcZd4-S8magU"/>
+        <meta-data android:name="com.google.android.maps.v2.API_KEY" android:value=""/>
+        <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version" />
         
     </application>
     

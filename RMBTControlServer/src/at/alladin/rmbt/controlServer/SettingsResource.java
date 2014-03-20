@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
-import java.util.PropertyResourceBundle;
-import java.util.ResourceBundle;
 import java.util.UUID;
 
 import org.json.JSONArray;
@@ -38,6 +36,7 @@ import org.restlet.util.Series;
 
 import at.alladin.rmbt.db.Client;
 import at.alladin.rmbt.shared.Helperfunctions;
+import at.alladin.rmbt.shared.ResourceManager;
 
 import com.google.common.base.Strings;
 
@@ -76,8 +75,7 @@ public class SettingsResource extends ServerResource
                 if (langs.contains(lang))
                 {
                     errorList.setLanguage(lang);
-                    labels = (PropertyResourceBundle) ResourceBundle.getBundle("at.alladin.rmbt.res.SystemMessages",
-                            new Locale(lang));
+                    labels = ResourceManager.getSysMsgBundle(new Locale(lang));
                 }
                 else
                     lang = settings.getString("RMBT_DEFAULT_LANGUAGE");
@@ -132,8 +130,9 @@ public class SettingsResource extends ServerResource
                                 errorList.addError(client.getError());
                         }
                         
-                        final boolean tcAccepted = request.optBoolean("terms_and_conditions_accepted", false);
-                        
+                        boolean tcAccepted = request.optInt("terms_and_conditions_accepted_version", 0) > 0; // accept any version for now
+                        if (! tcAccepted) // allow old non-version parameter
+                            tcAccepted = request.optBoolean("terms_and_conditions_accepted", false);
                         {
                             if (tcAccepted && (uuid == null || clientUid == 0))
                             {
@@ -191,14 +190,13 @@ public class SettingsResource extends ServerResource
                                     // network_type:
                                     
                                     final PreparedStatement st = conn.prepareStatement(
-                                    // "SELECT DISTINCT network_type FROM test WHERE (client_id = ? OR client_id IN (SELECT uid FROM client WHERE sync_group_id = ?)) AND status = 'FINISHED' ORDER BY network_type ASC"
-                                            "SELECT DISTINCT group_name"
-                                                    + " FROM test t"
-                                                    + " JOIN network_type nt ON t.network_type=nt.uid"
-                                                    + " WHERE t.deleted = false AND t.status = 'FINISHED'"
-                                                    + " AND (t.client_id = ? OR t.client_id IN (SELECT uid FROM client WHERE sync_group_id = ?))"
-                                                    + " AND group_name IS NOT NULL" + " ORDER BY group_name");
-                                    
+                                    "SELECT DISTINCT group_name" +
+                                    " FROM test t" +
+                                    " JOIN network_type nt ON t.network_type=nt.uid" +
+                                    " WHERE t.deleted = false AND t.status = 'FINISHED' "+
+                                    " AND (t.client_id IN (SELECT ? UNION SELECT uid FROM client WHERE sync_group_id = ? ))" +
+                                    " AND group_name IS NOT NULL ORDER BY group_name;");
+
                                     st.setLong(1, client.getUid());
                                     st.setInt(2, client.getSync_group_id());
                                     
@@ -306,8 +304,8 @@ public class SettingsResource extends ServerResource
         final PreparedStatement st = conn
                 .prepareStatement("SELECT DISTINCT COALESCE(adm.fullname, t.model) model"
                         + " FROM test t"
-                        + " LEFT JOIN android_device_map adm ON adm.codename=t.model"
-                        + " WHERE (t.client_id = ? OR t.client_id IN (SELECT uid FROM client WHERE sync_group_id = ?)) AND t.deleted = false AND t.status = 'FINISHED' ORDER BY model ASC");
+                        + " LEFT JOIN device_map adm ON adm.codename=t.model"
+                        + " WHERE (t.client_id = ? OR t.client_id IN (SELECT uid FROM client WHERE sync_group_id = ?)) AND t.deleted = false AND t.implausible = false AND t.status = 'FINISHED' ORDER BY model ASC");
         
         st.setLong(1, client.getUid());
         st.setInt(2, client.getSync_group_id());

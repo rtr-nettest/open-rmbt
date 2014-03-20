@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,14 +42,21 @@ public abstract class GeoLocation
     
     private boolean started = false;
     
-    private final boolean gpsEnabled = true;
+    private final boolean gpsEnabled;
+    private final long minTime;      // minimum time interval between location updates, in milliseconds
+    private final float minDistance; // minimum distance between location updates, in meters
     
-    private final Context context;
+    public GeoLocation(final Context context, final boolean gpsEnabled)
+    {
+        this(context, gpsEnabled, 1000, 5);
+    }
     
-    public GeoLocation(final Context context)
+    public GeoLocation(final Context context, final boolean gpsEnabled, final long minTime, final float minDistance)
     {
         locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        this.context = context;
+        this.gpsEnabled = gpsEnabled;
+        this.minTime = minTime;
+        this.minDistance = minDistance;
     }
     
     /** Load Listeners */
@@ -71,11 +78,11 @@ public abstract class GeoLocation
                 
                 coarseLocationListener = new LocListener();
                 locationManager.requestLocationUpdates(coarseProviderName,
-                /* minTime= */0,
-                /* minDistance= */0, coarseLocationListener);
+                minTime,
+                minDistance, coarseLocationListener);
             }
             
-            if (ConfigHelper.isGPS(context))
+            if (gpsEnabled)
             {
                 final Criteria criteriaFine = new Criteria();
                 /* "Fine" accuracy means "use GPS". */
@@ -89,8 +96,8 @@ public abstract class GeoLocation
                     
                     fineLocationListener = new LocListener();
                     locationManager.requestLocationUpdates(fineProviderName,
-                    /* minTime= */0,
-                    /* minDistance= */0, fineLocationListener);
+                    minTime,
+                    minDistance, fineLocationListener);
                 }
             }
         }
@@ -171,15 +178,15 @@ public abstract class GeoLocation
         if (newLocation == null)
             return;
         
-        final long locTime = newLocation.getTime();
+        final long locTime = newLocation.getTime(); //milliseconds since January 1, 1970
         
         // discard locations older than Config.GEO_ACCEPT_TIME milliseconds
         final long now = System.currentTimeMillis();
-        Log.d(DEBUG_TAG, "age: " + (now - locTime));
+        Log.d(DEBUG_TAG, "age: " + (now - locTime) + " ms");
         if (now > locTime + Config.GEO_ACCEPT_TIME)
             return;
         
-        if (curLocation == null || ! ConfigHelper.isGPS(context) || !gpsEnabled)
+        if (curLocation == null || ! gpsEnabled)
         {
             // A new location is always better than no location
             curLocation = newLocation;

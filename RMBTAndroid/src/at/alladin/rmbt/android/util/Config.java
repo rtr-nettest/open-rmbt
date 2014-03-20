@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,5 @@ public interface Config
     public static final int GEO_ACCEPT_TIME = 1000 * 60 * 15;
     
     public static final int GEO_MIN_TIME = 1000 * 60;
-    
-    public static final int GEO_MIN_DISTANCE = 15;
     
 }

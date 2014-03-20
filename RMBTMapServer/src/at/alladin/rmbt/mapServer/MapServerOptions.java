@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -116,6 +116,7 @@ final public class MapServerOptions
                         Classification.THRESHOLD_UPLOAD,
                         Classification.THRESHOLD_UPLOAD_CAPTIONS,
                         "heatmap"));
+
             
             put("mobile/ping",
                     new MapOption("ping_shortest",
@@ -138,6 +139,17 @@ final public class MapServerOptions
                     Classification.THRESHOLD_SIGNAL_MOBILE_CAPTIONS,
                     "heatmap"));
             
+/* dz, TODO does not work as expected, no filter shown at all 
+                    put("mobile/signalrsrp",
+                    new MapOption("lte_rsrp",
+                    "lte_rsrp is not null AND network_type not in (0, 97, 98, 99)",
+                    colors_ryg_short,
+                    new double[] { -123.5, -108.5, -93.5, -78.5, -63.5 },
+                    new String[] { "", "-108", "-94", "-78", "" },
+                    Classification.THRESHOLD_SIGNAL_RSRP,
+                    Classification.THRESHOLD_SIGNAL_RSRP_CAPTIONS,
+                    "heatmap"));
+*/            
             put("wifi/download", new MapOption("speed_download",
                     "speed_download_log",
                     "speed_download is not null AND network_type = 99",
@@ -211,18 +223,50 @@ final public class MapServerOptions
                     Classification.THRESHOLD_PING,
                     Classification.THRESHOLD_PING_CAPTIONS,
                     "shapes"));
+
+            put("all/download",
+                    new MapOption("speed_download", 
+                    "speed_download_log",
+                    "speed_download is not null",
+                    colors_ryg,
+                    values_download,
+                    captions_download,
+                    Classification.THRESHOLD_DOWNLOAD,
+                    Classification.THRESHOLD_DOWNLOAD_CAPTIONS,
+                    "shapes"));
+            
+            put("all/upload",
+                    new MapOption("speed_upload",
+                    "speed_upload_log",
+                    "speed_upload is not null",
+                    colors_ryg,
+                    values_upload,
+                    captions_upload,
+                    Classification.THRESHOLD_UPLOAD,
+                    Classification.THRESHOLD_UPLOAD_CAPTIONS,
+                    "shapes"));
+            
+            put("all/ping",
+                    new MapOption("ping_shortest",
+                    "ping_shortest_log",
+                    "ping_shortest is not null",
+                    colors_ryg,
+                    values_ping,
+                    captions_ping,
+                    Classification.THRESHOLD_PING,
+                    Classification.THRESHOLD_PING_CAPTIONS,
+                    "shapes"));
         }
     };
     
     protected static final List<SQLFilter> defaultMapFilters = Collections.unmodifiableList(new ArrayList<SQLFilter>()
     {
         {
-            add(new SQLFilter("t.deleted = false AND t.status = 'FINISHED'"));
-            add(new SQLFilter("t.time > NOW() - CAST('6 months' AS INTERVAL)"));
+            add(new SQLFilter("t.deleted = false AND t.implausible = false AND t.status = 'FINISHED'"));
         }
     });
     
-    protected static final SQLFilter accuracyMapFilter = new SQLFilter("t.geo_accuracy < 1000");
+    protected static final SQLFilter accuracyMapFilter = new SQLFilter("t.geo_accuracy < 2000"); // 2km
     
     protected static final Map<String, MapFilter> mapFilterMap = Collections.unmodifiableMap(new LinkedHashMap<String, MapFilter>()
     {
@@ -267,7 +311,46 @@ final public class MapServerOptions
                     };
                 }
             });
-            
+
+            put("technology", new MapFilter()
+            {
+            	@Override
+            	SQLFilter getFilter(final String input)
+            	{ // do not filter if empty
+            		if (Strings.isNullOrEmpty(input))
+            			return null;
+            		try
+            		{
+            			final int technology = Integer.parseInt(input);
+            			// use old numeric network type (replicate network_type_table here)
+            			if (technology == 2)
+            				return new SQLFilter("network_type in (1,2,4,5,6,7,11,12,14)");
+            			else if (technology == 3)
+            				return new SQLFilter("network_type in (8,9,10,15)");
+            			else if (technology == 4)
+            				return new SQLFilter("network_type = 13");
+            			else
+            				return null;
+ 
+            			/* //alternative: use network_group_name
+            			return new SQLFilter("network_group_name=?")
+            			{
+            				@Override
+            				int fillParams(int i, final PreparedStatement ps) throws SQLException
+            				{ // convert 2 => '2G'
+            					ps.setString(i++, String.format("%dG", technology));
+            					return i;
+            				}
+            			};
+            			*/
+            		}
+            		catch (NumberFormatException e)
+            		{
+            			return null;
+            		}
+            	}
+            });
+
             put("period", new MapFilter()
             {
                 @Override
@@ -278,7 +361,7 @@ final public class MapServerOptions
                     try
                     {
                         final int period = Integer.parseInt(input);
-                        if (period <= 0 || period > 6)
+                        if (period <= 0 || period > 730)
                             return null;
                         
                         return new SQLFilter("t.time > NOW() - CAST(? AS INTERVAL)")
@@ -286,7 +369,7 @@ final public class MapServerOptions
                             @Override
                             int fillParams(int i, final PreparedStatement ps) throws SQLException
                             {
-                                ps.setString(i++, String.format("%d months", period));
+                                ps.setString(i++, String.format("%d days", period));
                                 return i;
                             }
                         };

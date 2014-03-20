@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,8 @@ import at.alladin.rmbt.client.RMBTTestParameter;
 import at.alladin.rmbt.client.SpeedItem;
 import at.alladin.rmbt.client.TotalTestResult;
 import at.alladin.rmbt.client.ndt.UiServicesAdapter;
+import at.alladin.rmbt.client.v2.task.service.TestMeasurement;
+import at.alladin.rmbt.client.v2.task.service.TestMeasurement.TrafficDirection;
 
 public class ControlServerConnection
 {
@@ -62,9 +64,7 @@ public class ControlServerConnection
     
     private URI resultURI;
     
-    private String errorMsg = null;
-    
-    private boolean hasError = false;
+    private long startTimeNs = 0;
     
     /**
      * @param args
@@ -74,7 +74,6 @@ public class ControlServerConnection
         
         // Creating JSON Parser instance
         jParser = new JSONParser();
-        hasError = false;
         
     }
     
@@ -106,7 +105,8 @@ public class ControlServerConnection
             final boolean encryption, final ArrayList<String> geoInfo, final String uuid, final String clientType,
             final String clientName, final String clientVersion, final JSONObject additionalValues)
     {
-        
+     
+        String errorMsg = null;
         // url to make request to
         
         clientUUID = uuid;
@@ -128,6 +128,7 @@ public class ControlServerConnection
             regData.put("language", Locale.getDefault().getLanguage());
             regData.put("timezone", TimeZone.getDefault().getID());
             regData.put("time", System.currentTimeMillis());
+            startTimeNs = System.nanoTime();
             
             if (geoInfo != null)
             {
@@ -149,7 +150,6 @@ public class ControlServerConnection
         }
         catch (final JSONException e1)
         {
-            hasError = true;
             errorMsg = "Error gernerating request";
             // e1.printStackTrace();
         }
@@ -191,7 +191,7 @@ public class ControlServerConnection
                 }
                 else
                 {
-                    hasError = true;
+                    errorMsg = "";
                     for (int i = 0; i < errorList.length(); i++)
                     {
                         if (i > 0)
@@ -204,28 +204,22 @@ public class ControlServerConnection
             }
             catch (final JSONException e)
             {
-                hasError = true;
                 errorMsg = "Error parsing server response";
                 e.printStackTrace();
             }
             catch (final URISyntaxException e)
             {
-                hasError = true;
                 errorMsg = "Error parsing server response";
                 e.printStackTrace();
             }
         else
-        {
-            hasError = true;
             errorMsg = "No response";
-        }
-        
         return errorMsg;
     }
     
     public String sendTestResult(final TotalTestResult result, final JSONObject additionalValues)
     {
-        
+        String errorMsg = null;
         if (resultURI != null)
         {
             
@@ -233,7 +227,6 @@ public class ControlServerConnection
             
             try
             {
-                
                 testData.put("client_uuid", clientUUID);
                 testData.put("client_name", Config.RMBT_CLIENT_NAME);
                 testData.put("client_version", Config.RMBT_VERSION_NUMBER);
@@ -257,6 +250,29 @@ public class ControlServerConnection
                 testData.put("test_speed_download", (long) Math.floor(result.speed_download + 0.5d));
                 testData.put("test_speed_upload", (long) Math.floor(result.speed_upload + 0.5d));
                 testData.put("test_ping_shortest", result.ping_shortest);
+               
+                //dz todo - add interface values
+                
+                // total bytes on interface
+                testData.put("test_if_bytes_download", result.getTotalTrafficMeasurement(TrafficDirection.RX));
+                testData.put("test_if_bytes_upload", result.getTotalTrafficMeasurement(TrafficDirection.TX)); 
+                // bytes during download test
+                testData.put("testdl_if_bytes_download", result.getTrafficByTestPart(TestStatus.DOWN, TrafficDirection.RX));
+                testData.put("testdl_if_bytes_upload", result.getTrafficByTestPart(TestStatus.DOWN, TrafficDirection.TX));
+                // bytes during upload test
+                testData.put("testul_if_bytes_download", result.getTrafficByTestPart(TestStatus.UP, TrafficDirection.RX));
+                testData.put("testul_if_bytes_upload", result.getTrafficByTestPart(TestStatus.UP, TrafficDirection.TX));
+                
+                //relative timestamps:
+                TestMeasurement dlMeasurement = result.getTestMeasurementByTestPart(TestStatus.DOWN);
+                if (dlMeasurement != null) {
+                    testData.put("time_dl_ns", dlMeasurement.getTimeStampStart() - startTimeNs);
+                }
+                TestMeasurement ulMeasurement = result.getTestMeasurementByTestPart(TestStatus.UP);
+                if (ulMeasurement != null) {
+                    testData.put("time_ul_ns", ulMeasurement.getTimeStampStart() - startTimeNs);	
+                }                	
+                
                 
                 final JSONArray pingData = new JSONArray();
                 
@@ -267,6 +283,7 @@ public class ControlServerConnection
                         final JSONObject pingItem = new JSONObject();
                         pingItem.put("value", ping.client);
                         pingItem.put("value_server", ping.server);
+                        pingItem.put("time_ns", ping.timeNs - startTimeNs);
                         pingData.put(pingItem);
                     }
                 }
@@ -285,12 +302,11 @@ public class ControlServerConnection
                 
                 addToJSONObject(testData, additionalValues);
                 
-                // System.out.println(testData.toString(4));
+                //System.out.println(testData.toString(4));
                 
             }
             catch (final JSONException e1)
             {
-                hasError = true;
                 errorMsg = "Error gernerating request";
                 // e1.printStackTrace();
             }
@@ -313,7 +329,6 @@ public class ControlServerConnection
                     }
                     else
                     {
-                        hasError = true;
                         for (int i = 0; i < errorList.length(); i++)
                         {
                             if (i > 0)
@@ -326,16 +341,12 @@ public class ControlServerConnection
                 }
                 catch (final JSONException e)
                 {
-                    hasError = true;
                     errorMsg = "Error parsing server response";
                     e.printStackTrace();
                 }
         }
         else
-        {
-            hasError = true;
             errorMsg = "No URL to send the Data to.";
-        }
         
         return errorMsg;
     }
@@ -366,8 +377,12 @@ public class ControlServerConnection
             testData.put("main", data.sbMain.toString());
             testData.put("stat", data.sbStat.toString());
             testData.put("diag", data.sbDiag.toString());
+            testData.put("time_ns", data.getStartTimeNs() - startTimeNs);
+            testData.put("time_end_ns", data.getStopTimeNs() - startTimeNs);
             
             jParser.sendJSONToUrl(hostUri.resolve(Config.RMBT_CONTROL_NDT_RESULT_URL), testData);
+            
+            System.out.println(testData);
         }
         catch (final JSONException e)
         {
@@ -375,7 +390,7 @@ public class ControlServerConnection
         }
     }
     
-    private void addToJSONObject(final JSONObject data, final JSONObject additionalValues) throws JSONException
+    private static void addToJSONObject(final JSONObject data, final JSONObject additionalValues) throws JSONException
     {
         if (additionalValues != null && additionalValues.length() > 0)
         {
@@ -383,11 +398,6 @@ public class ControlServerConnection
             for (int i = 0; i < attr.length(); i++)
                 data.put(attr.getString(i), additionalValues.get(attr.getString(i)));
         }
-    }
-    
-    public boolean hasError()
-    {
-        return hasError;
     }
     
     public String getRemoteIp()
@@ -415,9 +425,8 @@ public class ControlServerConnection
         return testTime;
     }
     
-    public String getErrorMsg()
-    {
-        return errorMsg;
+    public long getStartTimeNs() {
+    	return startTimeNs;
     }
     
     public String getTestId()

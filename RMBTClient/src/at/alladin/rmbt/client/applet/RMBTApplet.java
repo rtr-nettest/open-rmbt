@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ import org.json.JSONObject;
 import at.alladin.rmbt.client.RMBTClient;
 import at.alladin.rmbt.client.TestResult;
 import at.alladin.rmbt.client.helper.Config;
-import at.alladin.rmbt.client.helper.ConfigLocal;
 import at.alladin.rmbt.client.helper.ControlServerConnection;
 import at.alladin.rmbt.client.helper.IntermediateResult;
 import at.alladin.rmbt.client.helper.NdtStatus;
@@ -98,7 +97,7 @@ public class RMBTApplet extends Applet
                             e.printStackTrace();
                         }
                         
-                        client = RMBTClient.getInstance(ConfigLocal.RMBT_APPLET_HOST, ConfigLocal.RMBT_APPLET_PATH_PREFIX,
+                        client = RMBTClient.getInstance(getParameter("host"), getParameter("path"),
                                 port, encryption, geoInfo, uuid, "DESKTOP", Config.RMBT_CLIENT_NAME,
                                 Config.RMBT_VERSION_NUMBER, null, additionalValues);
                         
@@ -167,7 +166,7 @@ public class RMBTApplet extends Applet
                             public void sendResults()
                             {
                                 final ControlServerConnection csc = new ControlServerConnection();
-                                csc.sendNDTResult(ConfigLocal.RMBT_APPLET_HOST, ConfigLocal.RMBT_APPLET_PATH_PREFIX,
+                                csc.sendNDTResult(getParameter("host"), getParameter("path"),
                                         port, encryption, uuid, this, testUuid.get());
                             }
                         });

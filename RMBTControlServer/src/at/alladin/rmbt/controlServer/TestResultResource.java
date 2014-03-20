@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.PropertyResourceBundle;
-import java.util.ResourceBundle;
 import java.util.TimeZone;
 import java.util.UUID;
 
@@ -41,6 +39,7 @@ import at.alladin.rmbt.db.fields.TimestampField;
 import at.alladin.rmbt.db.fields.UUIDField;
 import at.alladin.rmbt.shared.Classification;
 import at.alladin.rmbt.shared.Helperfunctions;
+import at.alladin.rmbt.shared.ResourceManager;
 import at.alladin.rmbt.shared.SignificantFormat;
 
 public class TestResultResource extends ServerResource
@@ -73,8 +72,7 @@ public class TestResultResource extends ServerResource
                 if (langs.contains(lang))
                 {
                     errorList.setLanguage(lang);
-                    labels = (PropertyResourceBundle) ResourceBundle.getBundle("at.alladin.rmbt.res.SystemMessages",
-                            new Locale(lang));
+                    labels = ResourceManager.getSysMsgBundle(new Locale(lang));
                 }
                 else
                     lang = settings.getString("RMBT_DEFAULT_LANGUAGE");
@@ -162,18 +160,31 @@ public class TestResultResource extends ServerResource
                         
                         final int networkType = test.getField("network_type").intValue();
                         
-                        final Field signalField = test.getField("signal_strength");
+                        final Field signalField = test.getField("signal_strength"); // signal strength as RSSI (GSM, UMTS, Wifi, sometimes LTE)
+                        final Field lteRsrpField = test.getField("lte_rsrp");            // signal strength as RSRP, used in LTE
                         String signalString = null;
-                        if (!signalField.isNull())
+                        if (!signalField.isNull() || !lteRsrpField.isNull() )
                         {
-                            final int signalValue = signalField.intValue();
-                            final int[] threshold = networkType == 99 || networkType == 0 ? Classification.THRESHOLD_SIGNAL_WIFI
-                                    : Classification.THRESHOLD_SIGNAL_MOBILE;
-                            singleItem = new JSONObject();
-                            singleItem.put("title", labels.getString("RESULT_SIGNAL"));
-                            signalString = signalValue + " " + labels.getString("RESULT_SIGNAL_UNIT");
-                            singleItem.put("value", signalString);
-                            singleItem.put("classification", Classification.classify(threshold, signalValue));
+                        	if (lteRsrpField.isNull()) {  // only RSSI value, output RSSI to JSON  
+                        		final int signalValue = signalField.intValue();
+                                final int[] threshold = networkType == 99 || networkType == 0 ? Classification.THRESHOLD_SIGNAL_WIFI
+                                       : Classification.THRESHOLD_SIGNAL_MOBILE;
+                                singleItem = new JSONObject();
+                                singleItem.put("title", labels.getString("RESULT_SIGNAL"));
+                                signalString = signalValue + " " + labels.getString("RESULT_SIGNAL_UNIT");
+                                singleItem.put("value", signalString);
+                                singleItem.put("classification", Classification.classify(threshold, signalValue));
+                        	}
+                        	else  { // use RSRP value else (RSRP value has priority if both are available (e.g. 3G/4G-test))
+                        		final int signalValue = lteRsrpField.intValue();
+                                final int[] threshold = Classification.THRESHOLD_SIGNAL_RSRP;
+                                singleItem = new JSONObject();
+                                singleItem.put("title", labels.getString("RESULT_SIGNAL_RSRP"));
+                                signalString = signalValue + " " + labels.getString("RESULT_SIGNAL_UNIT");
+                                singleItem.put("value", signalString);
+                                singleItem.put("classification", Classification.classify(threshold, signalValue));
+
+                            }	
                             jsonItemList.put(singleItem);
                         }
                         
@@ -277,14 +288,38 @@ public class TestResultResource extends ServerResource
                                 mobileNetworkString = String.format("%s (%s)", mobileProviderNameField, networkOperatorField);
                         }
                         
+/*
+RESULT_SHARE_TEXT = My Result:\nDate/time: {0}\nDownload: {1}\nUpload: {2}\nPing: {3}\n{4}Network type: {5}\n{6}{7}Platform: {8}\nModel: {9}\n{10}\n\n
+RESULT_SHARE_TEXT_SIGNAL_ADD = Signal strength: {0}\n
+RESULT_SHARE_TEXT_RSRP_ADD = Signal strength (RSRP): {0}\n
+RESULT_SHARE_TEXT_MOBILE_ADD = Mobile network: {0}\n
+RESULT_SHARE_TEXT_PROVIDER_ADD = Operator: {0}\n
+
+*/                     
+                        String shareTextField4 = "";
+                        if (signalString != null)             //info on signal strength, field 4
+                        	if (lteRsrpField.isNull()) {      //add RSSI if RSRP is not available
+                                shareTextField4 = MessageFormat.format(labels.getString("RESULT_SHARE_TEXT_SIGNAL_ADD"), signalString);
+                        	}    
+                            else {                            //add RSRP
+                                shareTextField4 = MessageFormat.format(labels.getString("RESULT_SHARE_TEXT_RSRP_ADD"), signalString);
+                            }		
+
                         final String shareText = MessageFormat.format(labels.getString("RESULT_SHARE_TEXT"),
-                                timeString, downloadString, uploadString, pingString,
-                                signalString == null ? "" : MessageFormat.format(labels.getString("RESULT_SHARE_TEXT_SIGNAL_ADD"), signalString),
-                                networkTypeString,
-                                providerString.isEmpty() ? "" : MessageFormat.format(labels.getString("RESULT_SHARE_TEXT_PROVIDER_ADD"), providerString),
-                                mobileNetworkString == null ? "" : MessageFormat.format(labels.getString("RESULT_SHARE_TEXT_MOBILE_ADD"), mobileNetworkString),
-                                platformString, modelString, getSetting("url_open_data_prefix", lang) + openTestUUID);
-                        
+                                timeString,                   //field 0
+                                downloadString,               //field 1
+                                uploadString,                 //field 2
+                                pingString,                   //field 3
+                                shareTextField4,              //contains field 4
+                                networkTypeString,            //field 5
+                                providerString.isEmpty() ? "" : MessageFormat.format(labels.getString("RESULT_SHARE_TEXT_PROVIDER_ADD"), 
+                                		providerString),      //field 6
+                                mobileNetworkString == null ? "" : MessageFormat.format(labels.getString("RESULT_SHARE_TEXT_MOBILE_ADD"), 
+                                		mobileNetworkString), //field 7
+                                platformString,               //field 8
+                                modelString,                  //field 9
+                                getSetting("url_open_data_prefix", lang) +
+                                openTestUUID);                //field 10
                         jsonItem.put("share_text", shareText);
                         
                         jsonItem.put("network_type", networkType);

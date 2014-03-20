@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,9 @@ public class UiServicesAdapter implements UiServices
     public final StringBuffer sbMain = new StringBuffer();
     public final StringBuffer sbStat = new StringBuffer();
     public final StringBuffer sbDiag = new StringBuffer();
+    
+    private long startTimeNs;
+    private long stopTimeNs;
     
     public boolean arePrimaryResultsSet()
     {
@@ -55,10 +58,14 @@ public class UiServicesAdapter implements UiServices
     
     public void onBeginTest()
     {
+    	this.startTimeNs = System.nanoTime();
+    	System.out.println("NDT START:" + this.startTimeNs);
     }
     
     public void onEndTest()
     {
+    	this.stopTimeNs = System.nanoTime();
+    	System.out.println("NDT END:" + this.stopTimeNs);
     }
     
     public void onFailure(final String errorMessage)
@@ -115,4 +122,11 @@ public class UiServicesAdapter implements UiServices
     {
     }
     
+    public long getStartTimeNs() {
+    	return startTimeNs;
+    }
+    
+    public long getStopTimeNs() {
+    	return stopTimeNs;
+    }
 }

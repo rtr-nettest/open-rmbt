@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import com.google.android.gms.maps.model.LatLng;
 
 /**
  * 
- * @author alladin-IT OG
+ * @author alladin-IT GmbH
  * 
  */
 public interface MapProperties
@@ -107,7 +107,7 @@ public interface MapProperties
     /**
      * 
      */
-    public static final int MAP_AUTO_SWITCH_VALUE = 13;
+    public static final int MAP_AUTO_SWITCH_VALUE = 12;
     
     /**
      * 
@@ -124,9 +124,16 @@ public interface MapProperties
 	 */
     public static final String MAP_POINTS_VALUE = "POINTS";
     
+    /**
+	 * 
+	 */
+    public static final String MAP_SHAPES_VALUE = "SHAPES";
+    
+    
     public static final int MAP_OVERLAY_TYPE_AUTO = 1;
     public static final int MAP_OVERLAY_TYPE_HEATMAP = 2;
     public static final int MAP_OVERLAY_TYPE_POINTS = 3;
+    public static final int MAP_OVERLAY_TYPE_SHAPES = 4;
     
     /**
      * 

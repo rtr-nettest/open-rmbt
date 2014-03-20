@@ -1,7 +1,24 @@
+/*******************************************************************************
+ * Copyright 2013-2014 alladin-IT GmbH
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
 package at.alladin.rmbt.controlServer;
 
+import java.net.InetAddress;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -10,6 +27,9 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 import at.alladin.rmbt.db.DbConnection;
+import at.alladin.rmbt.shared.GeoIPHelper;
+
+import com.google.common.net.InetAddresses;
 
 public class ContextListener implements ServletContextListener
 {
@@ -20,7 +40,58 @@ public class ContextListener implements ServletContextListener
         scheduler.shutdownNow();
     }
     
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(0);
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    
+    @SuppressWarnings("unused")
+    private void getGeoIPs()
+    {
+        scheduler.submit(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                try
+                {
+                    System.out.println("getting geoips");
+                    final Connection conn = DbConnection.getConnection();
+                    
+                    conn.setAutoCommit(false);
+                    // allow update only 2min after test was started
+                    final PreparedStatement psUpd = conn.prepareStatement("UPDATE test SET country_geoip=? WHERE uid=? and (now() - time  < interval '2' minute)");
+                    final PreparedStatement ps = conn.prepareStatement("SELECT uid,client_public_ip FROM test WHERE client_public_ip IS NOT NULL AND country_geoip IS NULL");
+                    ps.execute();
+                    final ResultSet rs = ps.getResultSet();
+                    int count = 0;
+                    while (rs.next())
+                    {
+                        Thread.sleep(5);
+                        count++;
+                        if ((count % 1000) == 0)
+                            System.out.println(count + " geoips updated");
+                        final long uid = rs.getLong("uid");
+                        final String ip = rs.getString("client_public_ip");
+                        final InetAddress ia = InetAddresses.forString(ip);
+                        final String country = GeoIPHelper.lookupCountry(ia);
+                        if (country != null)
+                        {
+                            psUpd.setString(1, country);
+                            psUpd.setLong(2, uid);
+                            psUpd.executeUpdate();
+                        }
+                    }
+                    psUpd.close();
+                    ps.close();
+                    conn.commit();
+                    
+                }
+                catch (Exception e)
+                {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
     
     @Override
     public void contextInitialized(ServletContextEvent sce)

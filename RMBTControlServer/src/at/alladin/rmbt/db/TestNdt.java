@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,8 @@ public class TestNdt extends Table
                     new StringField("main", "main"),
                     new StringField("stat", "stat"),
                     new StringField("diag", "diag"),
+                    new LongField("time_ns", "time_ns"),
+                    new LongField("time_end_ns", "time_end_ns")
                     };
         }
     };

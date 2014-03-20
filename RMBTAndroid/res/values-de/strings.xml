@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright 2013 alladin-IT OG
+  Copyright 2013-2014 alladin-IT GmbH
   
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -35,8 +35,26 @@
     <string name="preferences_no_gps">Keine GPS Ortung</string>
     <string name="preferences_no_gps_sum">GPS bei Messung nicht aktiv</string>
     
-    <string name="preferences_repeat_test">Wiederholung</string>
-    <string name="preferences_repeat_test_sum">Test läuft in einer Endlosschleife</string>
+    <string name="preferences_tag">Kennzeichen</string>
+    <string name="preferences_tag_sum">Kennzeichen für die Tests</string>
+    
+    <string name="preferences_loop_mode">Wiederholung</string>
+    <string name="preferences_loop_mode_sum">Test läuft in einer Endlosschleife</string>
+    
+    <string name="preferences_loop_mode_max_tests">Wiederholung maximale Testanzahl</string>
+    <string name="preferences_loop_mode_max_tests_sum">Maximale Anzahl von Tests im Wiederholungs-Modus (0 = unendlich)</string>
+    
+    <string name="preferences_loop_mode_min_delay">Wiederholung Mindestpause</string>
+    <string name="preferences_loop_mode_min_delay_sum">Mindestpause (in Sekunden) im Wiederholungs-Modus zwischen zwei Tests</string>
+    
+    <string name="preferences_loop_mode_max_delay">Wiederholung Maximalpause</string>
+    <string name="preferences_loop_mode_max_delay_sum">Maximalpause (in Sekunden) im Wiederholungs-Modus zwischen zwei Tests</string>
+    
+    <string name="preferences_loop_mode_movement">Wiederholung Bewegung</string>
+    <string name="preferences_loop_mode_movement_sum">Bewegung (in Meter), die einen Test im Wiederholungs-Modus auslöst</string>
+    
+    <string name="preferences_loop_mode_gps">Wiederholung GPS</string>
+    <string name="preferences_loop_mode_gps_sum">Verwendet GPS zwischen zwei Tests im Wiederholungs-Modus</string>
     
     <string name="preferences_ndt">NDT</string>
     <string name="preferences_ndt_sum">Erweiterten Test aktivieren</string>
@@ -45,6 +63,7 @@
     <string name="preferences_ipv4_only_sum">Keine Verwendung von IPv6</string>
     
     <string name="preferences_category_developer">ENTWICKLUNG</string>
+    <string name="preferences_category_loop_mode">Wiederholungs-Modus</string>
     <string name="preferences_category_developer_control_server">Control-Server</string>
     <string name="preferences_category_developer_map_server">Map-Server</string>
     
@@ -105,6 +124,10 @@
     <string name="terms_ndt_accept_text"><b>Ich möchte zusätzlich den optionalen, vertiefenden NDT-Test ausführen.</b></string>
     <string name="terms_ndt_back_button">Zurück</string>
     <string name="terms_ndt_accept_button">Weiter</string>
+    
+    <string name="loop_notification_ticker">Wiederholungs-Modus is aktiv…</string>
+    <string name="loop_notification_title">Wiederholungs-Modus is aktiv</string>
+    <string name="loop_notification_text">Berühren um Wiederholungs-Modus zu stoppen</string>
 
     <string name="test_mbps">Mbps</string>
     <string name="test_dbm">dBm</string>
@@ -197,6 +220,8 @@
 	<string name="map_overlay_heatmap_summary">Karte zeigt die Tests als Heatmap an</string>
 	<string name="map_overlay_points_title">Punkte</string>
 	<string name="map_overlay_points_summary">Karte zeigt die Tests als Punkte an</string>
+	<string name="map_overlay_shapes_title">PLZ</string>
+	<string name="map_overlay_shapes_summary">Karte zeigt Tests nach Postleitzahl-Gebieten an</string>
 	
 	<string name="map_balloon_overlay_header">MESSUNGEN</string>
 	

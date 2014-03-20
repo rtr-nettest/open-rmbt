@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,24 +17,24 @@ package at.alladin.rmbt.controlServer;
 
 import java.util.Locale;
 import java.util.MissingResourceException;
-import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+
+import at.alladin.rmbt.shared.ResourceManager;
 
 public class ErrorList
 {
     
     private JSONArray errorList = null;
     
-    private PropertyResourceBundle labels = null;
+    private ResourceBundle labels = null;
     
     public ErrorList()
     {
         errorList = new JSONArray();
-        
-        labels = (PropertyResourceBundle) ResourceBundle.getBundle("at.alladin.rmbt.res.SystemMessages");
+        labels = ResourceManager.getSysMsgBundle();
     }
     
     public void addError(final String errorLabel)
@@ -71,8 +71,7 @@ public class ErrorList
     
     public void setLanguage(final String lang)
     {
-        labels = (PropertyResourceBundle) ResourceBundle.getBundle("at.alladin.rmbt.res.SystemMessages", new Locale(
-                lang));
+        labels = ResourceManager.getSysMsgBundle(new Locale(lang));
     }
     
     public int getLength()

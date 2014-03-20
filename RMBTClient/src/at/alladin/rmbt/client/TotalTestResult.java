@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,12 @@
  ******************************************************************************/
 package at.alladin.rmbt.client;
 
+import java.util.Map;
+
+import at.alladin.rmbt.client.helper.TestStatus;
+import at.alladin.rmbt.client.v2.task.service.TestMeasurement;
+import at.alladin.rmbt.client.v2.task.service.TestMeasurement.TrafficDirection;
+
 public class TotalTestResult extends TestResult
 {
     public double speed_upload;
@@ -25,6 +31,62 @@ public class TotalTestResult extends TestResult
     public long nsec_upload;
     public long totalDownBytes;
     public long totalUpBytes;
+    
+    private Map<TestStatus, TestMeasurement> measurementMap;
+    private TestMeasurement totalTrafficMeasurement;
+
+    public void setMeasurementMap(Map<TestStatus, TestMeasurement> trafficMap) {
+    	this.measurementMap = trafficMap;
+    }
+    
+    public Map<TestStatus, TestMeasurement> getMeasurementMap() {
+    	return measurementMap;
+    }
+    
+    public void setTotalTrafficMeasurement(TestMeasurement measurement) {
+    	this.totalTrafficMeasurement = measurement;
+    }
+    
+    public long getTotalTrafficMeasurement(TrafficDirection dir) {
+    	if (totalTrafficMeasurement != null) {
+			switch (dir) {
+			case RX:
+				return totalTrafficMeasurement.getRxBytes();
+			case TX:
+				return totalTrafficMeasurement.getTxBytes();
+			case TOTAL:
+				return totalTrafficMeasurement.getTxBytes() + totalTrafficMeasurement.getRxBytes();
+			}
+    	}
+    	
+    	return 0;
+    }
+    
+    public long getTrafficByTestPart(TestStatus testStatusPart, TrafficDirection dir) {
+    	if (measurementMap != null) {
+    		TestMeasurement measurement = measurementMap.get(testStatusPart);
+    		if (measurement != null) {
+    			switch (dir) {
+    			case RX:
+    				return measurement.getRxBytes();
+    			case TX:
+    				return measurement.getTxBytes();
+    			case TOTAL:
+    				return measurement.getTxBytes() + measurement.getRxBytes();
+    			}
+    		}
+    	}
+    	
+    	return 0;
+    }
+    
+    public TestMeasurement getTestMeasurementByTestPart(TestStatus testStatusPart) {
+    	if (measurementMap != null) {
+    		return measurementMap.get(testStatusPart);
+    	}
+    	
+    	return null;
+    }
     
     public double getDownloadSpeedBitPerSec()
     {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,11 +48,12 @@ public class Test extends Table
             " ON t.provider_id=pPro.uid" +
             " LEFT JOIN provider pMob" +
             " ON t.mobile_provider_id=pMob.uid" +
-            " LEFT JOIN android_device_map adm ON adm.codename=t.model";
+            " LEFT JOIN device_map adm ON adm.codename=t.model";
     
     private final static ThreadLocal<Field[]> PER_THREAD_FIELDS = new ThreadLocal<Field[]>() {
         protected Field[] initialValue() {
             return new Field[] {
+            //   <sql-column> <json-field-name>
             new UUIDField("uuid", null),
             new LongField("client_id", null),
             new StringField("client_version", "client_version"),
@@ -64,6 +65,7 @@ public class Test extends Table
             new IntField("port", null), // "test_port_remote"
             new BooleanField("use_ssl", null),
             new TimestampField("time", null),
+            new TimestampField("client_time", null),
             new IntField("speed_upload", "test_speed_upload"),
             new IntField("speed_download", "test_speed_download"),
             new LongField("ping_shortest", "test_ping_shortest"),
@@ -99,12 +101,15 @@ public class Test extends Table
             new LongField("bytes_upload", "test_bytes_upload"),
             new LongField("nsec_download", "test_nsec_download"),
             new LongField("nsec_upload", "test_nsec_upload"), 
-            new StringField("server_ip", null),
+            new StringField("server_ip", null),           
+            new StringField("source_ip", null),
             new StringField("client_software_version", "client_software_version"),
             new DoubleField("geo_lat", "geo_lat"), 
             new DoubleField("geo_long", "geo_long"),
             new IntField("network_type", "network_type"), 
-            new IntField("signal_strength", null),
+            new IntField("signal_strength", null), // signal strength as RSSI value
+            new IntField("lte_rsrp", null),        // signal strength as RSRP value
+            new IntField("lte_rsrq", null),        // signal quality as RSRQ value
             new StringField("software_revision", null), 
             new LongField("client_test_counter", null),
             new StringField("nat_type", null), 
@@ -112,6 +117,9 @@ public class Test extends Table
             new LongField("public_ip_asn", null), 
             new StringField("public_ip_rdns", null),
             new StringField("public_ip_as_name", null),
+            new StringField("country_geoip", null),
+            new StringField("country_location", null),
+            new StringField("country_asn", null),
             new LongField("total_bytes_download", "test_total_bytes_download"),
             new LongField("total_bytes_upload", "test_total_bytes_upload"), 
             new IntField("wifi_link_speed", null),
@@ -122,7 +130,17 @@ public class Test extends Table
             new StringField("geo_provider", "provider"),
             new DoubleField("geo_accuracy", "accuracy"),
             new UUIDField("open_uuid", null),
-            new UUIDField("open_test_uuid",null)
+            new UUIDField("open_test_uuid",null),
+            new LongField("test_if_bytes_download", "test_if_bytes_download"),
+            new LongField("test_if_bytes_upload", "test_if_bytes_upload"),
+            new LongField("testdl_if_bytes_download", "testdl_if_bytes_download"),
+            new LongField("testdl_if_bytes_upload", "testdl_if_bytes_upload"),
+            new LongField("testul_if_bytes_download", "testul_if_bytes_download"),
+            new LongField("testul_if_bytes_upload", "testul_if_bytes_upload"),
+            new LongField("time_dl_ns", "time_dl_ns"),
+            new LongField("time_ul_ns", "time_ul_ns"), 
+            new IntField("num_threads_ul", "num_threads_ul"),
+            new StringField("tag", "tag"),
             };
         };
     };
@@ -144,8 +162,9 @@ public class Test extends Table
                     field.appendDbKeyValue(sqlBuilder);
             
             PreparedStatement st;
+            // allow updates only max 2min after test was started
             st = conn.prepareStatement("UPDATE test " + "SET " + sqlBuilder
-                    + ", location = ST_TRANSFORM(ST_SetSRID(ST_Point(?, ?), 4326), 900913) WHERE uid = ?");
+                    + ", location = ST_TRANSFORM(ST_SetSRID(ST_Point(?, ?), 4326), 900913) WHERE uid = ? and (now() - time  < interval '2' minute)");
             
             int idx = 1;
             for (final Field field : fields)
@@ -200,7 +219,7 @@ public class Test extends Table
         resetError();
         try
         {
-            final PreparedStatement st = conn.prepareStatement(SELECT + " WHERE t.deleted = false AND t.uuid = ?");
+            final PreparedStatement st = conn.prepareStatement(SELECT + " WHERE t.deleted = false AND t.implausible = false AND t.uuid = ?");
             st.setObject(1, uuid);
             
             loadTest(st);
@@ -221,7 +240,7 @@ public class Test extends Table
         try
         {
             
-            final PreparedStatement st = conn.prepareStatement(SELECT + " WHERE t.deleted = false AND t.uid = ?");
+            final PreparedStatement st = conn.prepareStatement(SELECT + " WHERE t.deleted = false AND  t.implausible = false AND t.uid = ?");
             st.setLong(1, uid);
             
             loadTest(st);

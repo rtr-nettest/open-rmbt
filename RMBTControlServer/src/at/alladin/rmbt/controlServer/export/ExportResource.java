@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -97,36 +97,38 @@ public class ExportResource extends ServerResource
                 " to_char(t.time AT TIME ZONE 'UTC', 'YYYY-MM-DD HH24:MI') \"time\"," +
                 " nt.group_name cat_technology," +
                 " nt.name network_type," +
-                " t.geo_lat lat," +
-                " t.geo_long long," +
+                " (CASE WHEN t.geo_accuracy < ? THEN t.geo_lat ELSE null END) lat, " +
+                " (CASE WHEN t.geo_accuracy < ? THEN t.geo_long ELSE null END) long, " +
                 " t.geo_provider loc_src," +
-                " t.zip_code," +
+                " (CASE WHEN t.geo_accuracy < ? THEN t.geo_accuracy ELSE null END) loc_accuracy, " +
+                " (CASE WHEN (t.zip_code < 1000 OR t.zip_code > 9999) THEN null ELSE t.zip_code END) zip_code," +
                 " t.speed_download download_kbit," +
                 " t.speed_upload upload_kbit," +
                 " (t.ping_shortest::float / 1000000) ping_ms," +
-                " t.signal_strength," +
+                " t.lte_rsrp," +
                 " ts.name server_name," +
                 " duration test_duration," +
                 " num_threads," +
-                " plattform," +
+                " t.plattform platform," +
                 " COALESCE(adm.fullname, t.model) model," +
                 " client_software_version client_version," +
                 " network_operator network_mcc_mnc," +
                 " network_operator_name network_name," +
                 " network_sim_operator sim_mcc_mnc," +
-                " nat_type \"connection\"," +
+                " nat_type," +
                 " public_ip_asn asn," +
                 " client_public_ip_anonymized ip_anonym," +
                 " (ndt.s2cspd*1000)::int ndt_download_kbit," +
-                " (ndt.c2sspd*1000)::int ndt_upload_kbit" +
+                " (ndt.c2sspd*1000)::int ndt_upload_kbit," +
+                " COALESCE(t.implausible, false) implausible," +
+                " t.signal_strength" +
                 " FROM test t" +
                 " LEFT JOIN network_type nt ON nt.uid=t.network_type" +
-                " LEFT JOIN android_device_map adm ON adm.codename=t.model" +
+                " LEFT JOIN device_map adm ON adm.codename=t.model" +
                 " LEFT JOIN test_server ts ON ts.uid=t.server_id" +
                 " LEFT JOIN test_ndt ndt ON t.uid=ndt.test_id" +
                 " WHERE " +
-                " t.deleted = false" +
-                " AND time > '2012-12-22 01:00'" +
+                " t.deleted = false" + 
                 " AND status = 'FINISHED'" +
                 " ORDER BY t.uid";
         
@@ -137,6 +139,13 @@ public class ExportResource extends ServerResource
         try
         {
             ps = conn.prepareStatement(sql);
+            
+            //insert filter for accuracy
+            double accuracy = Double.parseDouble(settings.getString("RMBT_GEO_ACCURACY_DETAIL_LIMIT"));
+            ps.setDouble(1, accuracy);
+            ps.setDouble(2, accuracy);
+            ps.setDouble(3, accuracy);
+            
             if (!ps.execute())
                 return null;
             rs = ps.getResultSet();

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -143,80 +144,94 @@ public abstract class TileRestlet extends Restlet
         return r << 16 | g << 8 | b;
     }
     
+    public static AtomicInteger maxCount = new AtomicInteger();
+    
     @Override
     public void handle(final Request req, final Response res)
     {
-        final Form params = req.getResourceRef().getQueryAsForm();
-        
-        final String zoomStr = (String) req.getAttributes().get("zoom");
-        final String xStr = (String) req.getAttributes().get("x");
-        final String yStr = (String) req.getAttributes().get("y");
-        
-        final int zoom, x, y;
-        if (zoomStr != null && xStr != null && yStr != null)
+//        if (maxCount.get() > 40) // fast hack so that not the complete server is taken down with many requests
+//            return;
+        try
         {
-            zoom = Integer.valueOf(zoomStr);
-            x = Integer.valueOf(xStr);
-            y = Integer.valueOf(yStr);
-        }
-        else
-        {
-            final String path = params.getFirstValue("path", true);
-            if (path == null)
-                return;
-            final Matcher m = PATH_PATTERN.matcher(path);
-            if (!m.matches())
-                return;
-            zoom = Integer.valueOf(m.group(1));
-            x = Integer.valueOf(m.group(2));
-            y = Integer.valueOf(m.group(3));
-        }
+            maxCount.incrementAndGet();
         
-        if (zoom < 0 || zoom > MAX_ZOOM)
-            return;
-        
-        if (x < 0 || y < 0)
-            return;
-        
-        int pow = 1 << zoom;
-        if (x >= pow || y >= pow)
-            return;
-        
-        int tileSizeIdx = 0;
-        
-        final String sizeStr = params.getFirstValue("size");
-        if (sizeStr != null)
-        {
-            int size = Integer.valueOf(sizeStr);
-            for (int i = 0; i < TILE_SIZES.length; i++)
+            final Form params = req.getResourceRef().getQueryAsForm();
+            
+            final String zoomStr = (String) req.getAttributes().get("zoom");
+            final String xStr = (String) req.getAttributes().get("x");
+            final String yStr = (String) req.getAttributes().get("y");
+            
+            final int zoom, x, y;
+            if (zoomStr != null && xStr != null && yStr != null)
             {
-                if (size == TILE_SIZES[i])
+                zoom = Integer.valueOf(zoomStr);
+                x = Integer.valueOf(xStr);
+                y = Integer.valueOf(yStr);
+            }
+            else
+            {
+                final String path = params.getFirstValue("path", true);
+                if (path == null)
+                    return;
+                final Matcher m = PATH_PATTERN.matcher(path);
+                if (!m.matches())
+                    return;
+                zoom = Integer.valueOf(m.group(1));
+                x = Integer.valueOf(m.group(2));
+                y = Integer.valueOf(m.group(3));
+            }
+            
+            if (zoom < 0 || zoom > MAX_ZOOM)
+                return;
+            
+            if (x < 0 || y < 0)
+                return;
+            
+            int pow = 1 << zoom;
+            if (x >= pow || y >= pow)
+                return;
+            
+            int tileSizeIdx = 0;
+            
+            final String sizeStr = params.getFirstValue("size");
+            if (sizeStr != null)
+            {
+                int size = Integer.valueOf(sizeStr);
+                for (int i = 0; i < TILE_SIZES.length; i++)
                 {
-                    tileSizeIdx = i;
-                    break;
+                    if (size == TILE_SIZES[i])
+                    {
+                        tileSizeIdx = i;
+                        break;
+                    }
                 }
             }
+            
+            String mapOptionStr = params.getFirstValue("map_options", true);
+            if (mapOptionStr == null) // set default
+                mapOptionStr = "mobile/download";
+            final MapOption mo = MapServerOptions.getMapOptionMap().get(mapOptionStr);
+            if (mo == null)
+                return;
+            
+            final List<SQLFilter> filters = new ArrayList<SQLFilter>(MapServerOptions.getDefaultMapFilters());
+            
+            // filters from params
+            for (final Parameter param : params)
+            {
+                final MapFilter mapFilter = MapServerOptions.getMapFilterMap().get(param.getName());
+                if (mapFilter != null)
+                    filters.add(mapFilter.getFilter(param.getValue()));
+            }
+            
+            final DBox box = GeoCalc.xyToMeters(TILE_SIZES[tileSizeIdx], x, y, zoom);
+            
+            handle(req, res, params, tileSizeIdx, zoom, box, mo, filters);
         }
-        
-        String mapOptionStr = params.getFirstValue("map_options", true);
-        if (mapOptionStr == null) // set default
-            mapOptionStr = "mobile/download";
-        final MapOption mo = MapServerOptions.getMapOptionMap().get(mapOptionStr);
-        if (mo == null)
-            return;
-        
-        final List<SQLFilter> filters = new ArrayList<SQLFilter>(MapServerOptions.getDefaultMapFilters());
-        
-        // filters from params
-        for (final Parameter param : params)
+        finally
         {
-            final MapFilter mapFilter = MapServerOptions.getMapFilterMap().get(param.getName());
-            if (mapFilter != null)
-                filters.add(mapFilter.getFilter(param.getValue()));
+            maxCount.decrementAndGet();
         }
-        
-        final DBox box = GeoCalc.xyToMeters(TILE_SIZES[tileSizeIdx], x, y, zoom);
-        handle(req, res, params, tileSizeIdx, zoom, box, mo, filters);
     }
     
     protected abstract void handle(Request req, Response res, Form params, int tileSizeIdx, int zoom, DBox box, MapOption mo,

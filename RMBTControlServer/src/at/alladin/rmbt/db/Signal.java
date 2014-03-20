@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013 alladin-IT OG
+ * Copyright 2013-2014 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,21 +21,28 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.Calendar;
 
 import at.alladin.rmbt.shared.Helperfunctions;
 
 public class Signal
 {
+    final static int UNKNOWN = Integer.MIN_VALUE; 
     
     private long uid;
     private long test_id;
     private Timestamp time;
     private int network_type_id;
-    private int signal_strength;
+    private int signal_strength;    // RSSI value, used in GSM, UMTS and Wifi (sometimes in LTE)
     private int gsm_bit_error_rate;
     private int wifi_link_speed;
     private int wifi_rssi;
+    private int lte_rsrp;           // signal strength value as RSRP, used in LTE
+    private int lte_rsrq;           // signal quality RSRQ, used in LTE
+    private int lte_rssnr;
+    private int lte_cqi;
+    private long time_ns;			// relative ts in ns
     
     private Calendar timeZone = null;
     
@@ -51,7 +58,9 @@ public class Signal
     
     public Signal(final Connection conn, final long uid, final long test_id, final Timestamp time,
             final int network_type_id, final int signal_strength, final int gsm_bit_error_rate,
-            final int wifi_link_speed, final int wifi_rssi, final String timeZoneId)
+            final int wifi_link_speed, final int wifi_rssi,
+            final int lte_rsrp, final int lte_rsrq, final int lte_rssnr, final int lte_cqi,
+            final String timeZoneId, final long time_ns)
     {
         
         reset();
@@ -66,6 +75,11 @@ public class Signal
         this.gsm_bit_error_rate = gsm_bit_error_rate;
         this.wifi_link_speed = wifi_link_speed;
         this.wifi_rssi = wifi_rssi;
+        this.lte_rsrp = lte_rsrp;
+        this.lte_rsrq = lte_rsrp;
+        this.lte_rssnr = lte_rsrp;
+        this.lte_cqi = lte_cqi;
+        this.time_ns = time_ns;
         
         timeZone = Helperfunctions.getTimeWithTimeZone(timeZoneId);
     }
@@ -74,13 +88,18 @@ public class Signal
     {
         
         uid = 0;
-        test_id = 0;
+        test_id = UNKNOWN;
         time = null;
-        network_type_id = 0;
-        signal_strength = 0;
-        gsm_bit_error_rate = 0;
-        wifi_link_speed = 0;
-        wifi_rssi = 0;
+        network_type_id = UNKNOWN;
+        signal_strength = UNKNOWN;
+        gsm_bit_error_rate = UNKNOWN;
+        wifi_link_speed = UNKNOWN;
+        wifi_rssi = UNKNOWN;
+        lte_rsrp = UNKNOWN;
+        lte_rsrq = UNKNOWN;
+        lte_rssnr = UNKNOWN;
+        lte_cqi = UNKNOWN;
+        time_ns = UNKNOWN;
         
         timeZone = null;
         
@@ -105,16 +124,70 @@ public class Signal
         try
         {
             st = conn.prepareStatement(
-                    "INSERT INTO signal(test_id, time, network_type_id, signal_strength, gsm_bit_error_rate, wifi_link_speed, wifi_rssi) "
-                            + "VALUES( ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+                    "INSERT INTO signal(" +
+                    "test_id, time, network_type_id, signal_strength, gsm_bit_error_rate, wifi_link_speed, wifi_rssi, " +
+                    "lte_rsrp, lte_rsrq, lte_rssnr, lte_cqi, time_ns) " +
+                    "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
             
-            st.setLong(1, test_id);
-            st.setTimestamp(2, time, timeZone);
-            st.setInt(3, network_type_id);
-            st.setInt(4, signal_strength);
-            st.setInt(5, gsm_bit_error_rate);
-            st.setInt(6, wifi_link_speed);
-            st.setInt(7, wifi_rssi);
+            if (test_id == UNKNOWN)
+                st.setNull(1, Types.BIGINT);
+            else
+                st.setLong(1, test_id);
+            
+            if (time == null)
+                st.setNull(2, Types.TIMESTAMP);
+            else
+                st.setTimestamp(2, time, timeZone);
+            
+            if (network_type_id == UNKNOWN)
+                st.setNull(3, Types.INTEGER);
+            else
+                st.setInt(3, network_type_id);
+            
+            if (signal_strength == UNKNOWN)
+                st.setNull(4, Types.INTEGER);
+            else
+                st.setInt(4, signal_strength);
+            
+            if (gsm_bit_error_rate == UNKNOWN)
+                st.setNull(5, Types.INTEGER);
+            else
+                st.setInt(5, gsm_bit_error_rate);
+            
+            if (wifi_link_speed == UNKNOWN)
+                st.setNull(6, Types.INTEGER);
+            else
+                st.setInt(6, wifi_link_speed);
+            
+            if (wifi_rssi == UNKNOWN)
+                st.setNull(7, Types.INTEGER);
+            else
+                st.setInt(7, wifi_rssi);
+            
+            if (lte_rsrp == UNKNOWN)
+                st.setNull(8, Types.INTEGER);
+            else
+                st.setInt(8, lte_rsrp);
+            
+            if (lte_rsrq == UNKNOWN)
+                st.setNull(9, Types.INTEGER);
+            else
+                st.setInt(9, lte_rsrq);
+            
+            if (lte_rssnr == UNKNOWN)
+                st.setNull(10, Types.INTEGER);
+            else
+                st.setInt(10, lte_rssnr);
+            
+            if (lte_cqi == UNKNOWN)
+                st.setNull(11, Types.INTEGER);
+            else
+                st.setInt(11, lte_cqi);
+            
+            if (time_ns == UNKNOWN)
+                st.setNull(12, Types.BIGINT);
+            else
+                st.setLong(12, time_ns);            
             
             // System.out.println(st2.toString());
             
@@ -227,5 +300,53 @@ public class Signal
     {
         this.wifi_rssi = wifi_rssi;
     }
+
+    public int getLte_rsrp()
+    {
+        return lte_rsrp;
+    }
+
+    public void setLte_rsrp(int lte_rsrp)
+    {
+        this.lte_rsrp = lte_rsrp;
+    }
+
+    public int getLte_rsrq()
+    {
+        return lte_rsrq;
+    }
+
+    public void setLte_rsrq(int lte_rsrq)
+    {
+        this.lte_rsrq = lte_rsrq;
+    }
+
+    public int getLte_rssnr()
+    {
+        return lte_rssnr;
+    }
+
+    public void setLte_rssnr(int lte_rssnr)
+    {
+        this.lte_rssnr = lte_rssnr;
+    }
+
+    public int getLte_cqi()
+    {
+        return lte_cqi;
+    }
+
+    public void setLte_cqi(int lte_cqi)
+    {
+        this.lte_cqi = lte_cqi;
+    }
+
+	public long getTime_ns() {
+		return time_ns;
+	}
+
+	public void setTime_ns(long time_ns) {
+		this.time_ns = time_ns;
+	}
     
 }
