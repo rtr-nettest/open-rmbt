@@ -21,12 +21,12 @@ import java.util.List;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Align;
 import android.graphics.Typeface;
-import android.graphics.drawable.BitmapDrawable;
 import android.util.AttributeSet;
 import android.view.View;
 import at.alladin.openrmbt.android.R;
@@ -35,7 +35,7 @@ public class GraphView extends View
 {
     private boolean recycled;
     
-    final List<Graph> graphs = new ArrayList<Graph>();
+    final List<GraphService> graphs = new ArrayList<GraphService>();
     final int width;
     final int height;
     
@@ -60,9 +60,9 @@ public class GraphView extends View
     final float graphX;
     final float graphY;
     
-    private final Bitmap reflectionBitmap;
-    private final float reflectionX;
-    private final float reflectionY;
+//    private final Bitmap reflectionBitmap;
+//    private final float reflectionX;
+//    private final float reflectionY;
     
     private Integer signalMin;
     private Integer signalMax;
@@ -76,19 +76,19 @@ public class GraphView extends View
         bitmapPaint = new Paint();
         bitmapPaint.setFilterBitmap(true);
         
-        final Bitmap backgroundBitmap = getBitmap(res, R.drawable.test_box_small);
+        final Bitmap backgroundBitmap = BitmapFactory.decodeResource(res, R.drawable.test_box_small);
         width = backgroundBitmap.getWidth();
         height = backgroundBitmap.getHeight();
         genBackgroundBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         final Canvas canvas = new Canvas(genBackgroundBitmap);
-        canvas.drawBitmap(backgroundBitmap, 0, 0, bitmapPaint);
+        //canvas.drawBitmap(backgroundBitmap, 0, 0, bitmapPaint);
         
         if (! isInEditMode())
             backgroundBitmap.recycle();
         
-        reflectionBitmap = getBitmap(res, R.drawable.test_box_reflection_small);
-        reflectionX = coordFW(7, relW);
-        reflectionY = coordFH(7, relH);
+//        reflectionBitmap = getBitmap(res, R.drawable.test_box_reflection_small);
+//        reflectionX = coordFW(7, relW);
+//        reflectionY = coordFH(7, relH);
         
         final Paint paint = new Paint();
         paint.setAntiAlias(true);
@@ -110,7 +110,7 @@ public class GraphView extends View
         canvas.drawText("0", coordFW(72, relW), coordFH(220, relH), paint);
         canvas.drawText("100", coordFW(72, relW), coordFH(38, relH), paint);
         
-        gridBitmap = getBitmap(res, R.drawable.test_grid);
+        gridBitmap = BitmapFactory.decodeResource(res, R.drawable.test_grid);
         gridX = coordFW(55, relW);
         gridY = coordFH(16, relH);
         graphX = coordFW(80, relW);
@@ -136,12 +136,6 @@ public class GraphView extends View
     public GraphView(final Context context)
     {
         this(context, null, 0);
-    }
-    
-    protected Bitmap getBitmap(Resources res, int id)
-    {
-        final BitmapDrawable drawable = (BitmapDrawable) res.getDrawable(id);
-        return drawable.getBitmap();
     }
     
     protected float coordFW(final int x, final int y)
@@ -265,17 +259,17 @@ public class GraphView extends View
         final int canvasSave2 = canvas.save();
         canvas.translate(graphX, graphY);
         
-        for (final Graph graph : graphs)
+        for (final GraphService graph : graphs)
             graph.draw(canvas);
         
         canvas.restoreToCount(canvasSave2);
         
-        canvas.drawBitmap(reflectionBitmap, reflectionX, reflectionY, bitmapPaint);
+//        canvas.drawBitmap(reflectionBitmap, reflectionX, reflectionY, bitmapPaint);
         
         canvas.restoreToCount(canvasSave);
     }
     
-    public void addGraph(final Graph graph)
+    public void addGraph(final GraphService graph)
     {
         graphs.add(graph);
     }

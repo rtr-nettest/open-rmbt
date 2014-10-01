@@ -64,14 +64,14 @@ public class ShapeTiles extends TileRestlet
     
     @Override
     protected void handle(final Request req, final Response res, final Form params, final int tileSizeIdx, final int zoom, final DBox box,
-            final MapOption mo, final List<SQLFilter> filters)
+            final MapOption mo, final List<SQLFilter> filters, final float quantile)
     {
         Connection con = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
         
         final String transparencyString = params.getFirstValue("transparency");
-        double _transparency = 0.6;
+        double _transparency = 0.4;
         if (transparencyString != null)
             try
             {
@@ -125,19 +125,7 @@ public class ShapeTiles extends TileRestlet
             ps.setDouble(idx++, box.res);
             ps.setDouble(idx++, box.res);
             
-            float quantil = 0.8f;
-            final String statisticalMethod = params.getFirstValue("statistical_method", true);
-            if (statisticalMethod != null)
-                try
-                {
-                    final float _quantil = Float.parseFloat(statisticalMethod);
-                    if (_quantil >= 0 && _quantil <= 1)
-                        quantil = _quantil;
-                }
-                catch (final NumberFormatException e)
-                {
-                }
-            ps.setFloat(idx++, quantil);
+            ps.setFloat(idx++, quantile);
             
             for (final SQLFilter sf : filters)
                 idx = sf.fillParams(idx, ps);

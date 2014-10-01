@@ -43,11 +43,12 @@ import at.alladin.rmbt.shared.Helperfunctions;
 import at.alladin.rmbt.shared.ResourceManager;
 import at.alladin.rmbt.shared.SignificantFormat;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 
 public class MarkerResource extends ServerResource
 {
-    
+    private static int MAX_PROVIDER_LENGTH = 22;
     private static int CLICK_RADIUS = 10;
     
     @Post("json")
@@ -180,9 +181,9 @@ public class MarkerResource extends ServerResource
                                     .format("SELECT"
                                             + (useLatLon ? " geo_lat lat, geo_long lon"
                                                     : " ST_X(t.location) x, ST_Y(t.location) y")
-                                            + ", t.time, t.timezone, t.speed_download, t.speed_upload, t.ping_shortest, t.network_type,"
-                                            + " t.signal_strength, t.wifi_ssid, t.network_operator_name, t.network_operator,"
-                                            + " t.network_sim_operator, t.roaming_type," //TODO: sim_operator obsoled by sim_name
+                                            + ", t.time, t.timezone, t.speed_download, t.speed_upload, t.ping_median, t.network_type,"
+                                            + " t.signal_strength, t.lte_rsrp, t.wifi_ssid, t.network_operator_name, t.network_operator,"
+                                            + " t.network_sim_operator, t.roaming_type, t.public_ip_as_name, " //TODO: sim_operator obsoled by sim_name
                                             + " pMob.shortname mobile_provider_name," // TODO: obsoleted by mobile_network_name
                                             + " prov.shortname provider_text, t.open_test_uuid,"
                                             + " COALESCE(mnwk.shortname,mnwk.name) mobile_network_name,"
@@ -280,8 +281,8 @@ public class MarkerResource extends ServerResource
                                     
                                     jsonItemList.put(singleItem);
                                     
-                                    final long fieldPing = rs.getLong("ping_shortest");
-                                    final int pingValue = (int) Math.round(rs.getDouble("ping_shortest") / 1000000d);
+                                    final long fieldPing = rs.getLong("ping_median");
+                                    final int pingValue = (int) Math.round(rs.getDouble("ping_median") / 1000000d);
                                     singleItem = new JSONObject();
                                     singleItem.put("title", labels.getString("RESULT_PING"));
                                     final String pingString = String.format("%s %s", format.format(pingValue),
@@ -309,6 +310,21 @@ public class MarkerResource extends ServerResource
                                                 Classification.classify(threshold, signalValue));
                                         jsonItemList.put(singleItem);
                                     }
+
+                                    final String lteRsrpField = rs.getString("lte_rsrp");
+                                    if (lteRsrpField != null && lteRsrpField.length() != 0)
+                                    {
+                                        final int lteRsrpValue = rs.getInt("lte_rsrp");
+                                        final int[] threshold = Classification.THRESHOLD_SIGNAL_RSRP;
+                                        singleItem = new JSONObject();
+                                        singleItem.put("title", labels.getString("RESULT_LTE_RSRP"));
+                                        singleItem.put("value",
+                                                lteRsrpValue + " " + labels.getString("RESULT_LTE_RSRP_UNIT"));
+                                        singleItem.put("classification",
+                                                Classification.classify(threshold, lteRsrpValue));
+                                        jsonItemList.put(singleItem);
+                                    }
+
                                     
                                     jsonItem.put("measurement", jsonItemList);
                                     
@@ -323,9 +339,13 @@ public class MarkerResource extends ServerResource
                                     
                                     if (networkType == 98 || networkType == 99) // mobile wifi or browser
                                     {
-                                        final String providerText = rs.getString("provider_text");
+                                        String providerText = Objects.firstNonNull(rs.getString("provider_text"),rs.getString("public_ip_as_name"));
                                         if (! Strings.isNullOrEmpty(providerText))
                                         {
+                                        	if (providerText.length() > (MAX_PROVIDER_LENGTH +3)) {
+                                        		providerText = providerText.substring(0, MAX_PROVIDER_LENGTH) + "...";
+                                        	}
+                                        	
                                             singleItem = new JSONObject();
                                             singleItem.put("title", labels.getString("RESULT_PROVIDER"));
                                             singleItem.put("value", providerText);

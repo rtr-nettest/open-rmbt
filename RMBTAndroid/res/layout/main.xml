@@ -13,18 +13,18 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
--->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+--><RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical"
-    android:background="@drawable/app_bgnd">
+    android:background="@drawable/app_bgdn_radiant">
 
     <FrameLayout 
         android:id="@+id/fragment_content"
         android:layout_width="fill_parent"
 	    android:layout_height="fill_parent" />
 
+    
     <LinearLayout
         android:id="@+id/overlay"
         android:layout_width="fill_parent"
@@ -43,5 +43,4 @@
                android:text="@string/error_no_internet" >
            </TextView>
     </LinearLayout>
-
 </RelativeLayout>

@@ -17,6 +17,8 @@ package at.alladin.rmbt.db.fields;
 
 public abstract class FieldAdapter<T> extends Field
 {
+    private static final long serialVersionUID = 1L;
+    
     protected T value;
     
     public FieldAdapter(final String dbKey, final String jsonKey, final boolean readOnly)

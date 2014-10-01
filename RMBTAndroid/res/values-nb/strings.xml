@@ -118,17 +118,14 @@
     <string name="test_location_dir_w">V</string>
     
     <string name="test_notification_text">Testen kjøres i bakgrunnen.</string>
-    <string name="test_loop">Pass</string> 
     <string name="test_dialog_error_title">Feil…</string>
     <string name="test_dialog_error_text">Det oppstod en feil under testen.</string>
     
     <string name="test_dialog_abort_title">Avbrytelse…</string>
     <string name="test_dialog_abort_text">Ønsker du virkelig å avbryte den aktuelle testen?</string>
-    <string name="test_dialog_abort_extended_text"> Ønsker du virkelig å avbryte den avanserte testen?</string>
     <string name="test_dialog_abort_yes">Avbryt test</string>
     <string name="test_dialog_abort_no">Fortsett test</string>
     
-    <string name="history">HISTORIKK</string>
     <string name="history_button_sync">Synk</string>
     <string name="history_button_filter">Filter</string>
     <string name="history_device">Enhet</string>
@@ -144,27 +141,10 @@
 	<string name="history_filter_result_number">ANTALL RESULTATER</string>
 	<string name="history_filter_result_number_25">Vis bare de siste 25 resultatene</string>
 	
-	<string name="result_header">TESTRESULTAT</string>
 	<string name="result_measurement">MÅLING</string>
 	<string name="result_net">NETT</string>
-	<string name="result_details_button">DETALJER</string>
-	<string name="result_map_button">KART</string>
 	
 	<string name="result_details">DETAILJER</string>
-	
-	<string name="result_button_new_test">NY TEST</string>
-	<string name="result_button_history">Historikk</string>
-	<string name="result_button_map">Kart</string>
-	
-	<string name="result_extended_test_header">AVANSERT TEST</string>
-	<string name="result_extended_test_not_started">Avansert test ennå ikke startet</string>
-	<string name="result_extended_test_running">Avansert test I gang</string>
-	<string name="result_extended_test_results">Avansert test er ferdig</string>
-	<string name="result_extended_test_finished">Avansert test fullført</string>
-	<string name="result_extended_test_aborted">Avansert test avbrutt</string>
-	<string name="result_extended_test_error">Tilkoblingsfeil under testen</string>
-	<string name="result_extended_test_button_stop">Stopp</string>
-	<string name="result_extended_test_button_detail">Detaljer</string>
 	
 	<string name="sync_info_text">Det er muligheten for å bringe sammen måleresultatene av andre enheter. For å gjøre dette, må du skrive inn en synkronisering kode allerede mottatt eller skrive etter en ny.</string>
 	<string name="sync_request_code_button">Skriv etter koden</string>

@@ -15,9 +15,9 @@
  ******************************************************************************/
 package at.alladin.rmbt.android.util;
 
+import android.app.Activity;
+import android.app.Fragment;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,9 +32,7 @@ public class RMBTTermsFragment extends Fragment
     
     private WebView webview;
     
-    private FragmentActivity activity;
-    
-    private boolean encryption;
+    private Activity activity;
     
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState)
@@ -43,10 +41,6 @@ public class RMBTTermsFragment extends Fragment
         activity = getActivity();
         
         webview = new WebView(activity);
-        
-        encryption = ConfigHelper.isControlSeverSSL(activity);
-        
-        final String protocol = encryption ? "https" : "http";
         
         /* JavaScript must be enabled if you want it to work, obviously */
         // webview.getSettings().setJavaScriptEnabled(true);
@@ -65,7 +59,7 @@ public class RMBTTermsFragment extends Fragment
             }
         });
         
-        webview.loadUrl(protocol + "://" + this.getString(R.string.url_terms));
+        webview.loadUrl(this.getString(R.string.url_terms));
         
         return webview;
     }

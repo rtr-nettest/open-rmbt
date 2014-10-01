@@ -17,6 +17,10 @@ package at.alladin.rmbt.controlServer;
 
 import java.util.List;
 
+import net.sf.uadetector.ReadableUserAgent;
+import net.sf.uadetector.UserAgentStringParser;
+import net.sf.uadetector.service.UADetectorServiceFactory;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,6 +31,10 @@ import org.restlet.data.Preference;
 import org.restlet.engine.header.Header;
 import org.restlet.resource.Get;
 import org.restlet.util.Series;
+
+import com.google.common.net.InetAddresses;
+
+import at.alladin.rmbt.shared.GeoIPHelper;
 
 public class RequestDataCollector extends ServerResource
 {
@@ -39,37 +47,22 @@ public class RequestDataCollector extends ServerResource
         
         final Request request = getRequest();
         final ClientInfo clientInfo = request.getClientInfo();
-        final String agent = clientInfo.getAgent();
-        answer.put("ip", getIP());
+        final String uaString = clientInfo.getAgent();
+        final String ip = getIP();
+        answer.put("ip", ip);
+        answer.put("country_geoip", GeoIPHelper.lookupCountry(InetAddresses.forString(ip)));
         answer.put("port", clientInfo.getPort());
-        String product = clientInfo.getAgentName();
         
-        if (product != null && "Version".equals(product))
-            product = null;
+        UserAgentStringParser parser = UADetectorServiceFactory.getResourceModuleParser();
+        ReadableUserAgent agent = parser.parse(uaString);
         
-        if (product == null)
-        {
-            // try to find out on our own...
-            if (agent.contains("Opera"))
-                product = "Opera";
-            else if (agent.contains("Chrome"))
-                product = "Chrome";
-            else if (agent.contains("Firefox"))
-                product = "Firefox";
-            else if (agent.contains("Safari"))
-                product = "Safari";
-            else if (agent.contains("IE 11"))
-                product = "IE";
-            else if (agent.contains("MSIE"))
-                product = "IE";
-            else if (agent.contains("Geko"))
-                product = "Geko";
-            else if (agent.contains("Webkit"))
-                product = "Webkit";
-        }
-        
-        answer.put("product", product);
-        answer.put("agent", agent);
+        answer.put("product", agent.getName());
+        answer.put("version", agent.getVersionNumber().getMajor());
+        answer.put("version_minor", agent.getVersionNumber().getMinor());
+        answer.put("category", agent.getDeviceCategory().getCategory());
+        answer.put("os", agent.getOperatingSystem().getFamilyName());
+        answer.put("family", agent.getFamily());
+        answer.put("agent", uaString);
         answer.put("url", getURL().toString());
         
         final List<Preference<Language>> acceptedLanguages = clientInfo.getAcceptedLanguages();

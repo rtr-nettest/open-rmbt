@@ -36,13 +36,18 @@ public abstract interface Config
     
     public static final int RMBT_CONTROL_PORT = 443;
     public static final boolean RMBT_CONTROL_SSL = true;
+    public static final boolean RMBT_QOS_SSL = true;
     public static final String RMBT_CONTROL_PATH = "/RMBTControlServer";
     public static final String RMBT_CONTROL_MAIN_URL = "/";
+    public static final String RMBT_CONTROL_V2_TESTS = "/qosTestRequest";
     public static final String RMBT_CONTROL_NDT_RESULT_URL = "ndtResult";
     public static final String RMBT_NEWS_HOST_URL = "/news";
+    public static final String RMBT_IP_HOST_URL = "/ip";
     public static final String RMBT_HISTORY_HOST_URL = "/history";
     public static final String RMBT_TESTRESULT_HOST_URL = "/testresult";
     public static final String RMBT_TESTRESULT_DETAIL_HOST_URL = "/testresultdetail";
+    public static final String RMBT_TESTRESULT_QOS_HOST_URL = "/qosTestResult";
+    public static final String RMBT_TESTRESULT_OPENDATA_HOST_URL = "/opentests/";
     public static final String RMBT_SYNC_HOST_URL = "/sync";
     public static final String RMBT_SETTINGS_HOST_URL = "/settings";
     

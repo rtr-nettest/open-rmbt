@@ -25,6 +25,8 @@ import org.json.JSONObject;
 
 public class BooleanField extends FieldAdapter<Boolean>
 {
+    private static final long serialVersionUID = 1L;
+    
     public BooleanField(final String dbKey, final String jsonKey)
     {
         super(dbKey, jsonKey, false);

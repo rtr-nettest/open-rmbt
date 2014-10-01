@@ -14,35 +14,46 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/LinearLayout1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center_horizontal" >
+    android:layout_gravity="center_horizontal"
+    android:orientation="vertical" >
 
-    <include
-        android:id="@+id/syncHeader"
-        android:layout_width="wrap_content"
+    <ImageView
+        android:id="@+id/headerImageBg"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        layout="@layout/header"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp" />
-    
-    <TextView
-        android:id="@+id/info_text"
+        android:layout_gravity="top|center"
+        android:adjustViewBounds="true"
+        android:maxWidth="300dp"
+        android:paddingLeft="35dp"
+        android:paddingRight="35dp"
+        android:contentDescription="@string/header_image_description"
+        android:src="@drawable/header" />
+
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:gravity="center"
-        android:text="@string/sync_info_text"
-        style="@style/textMediumDark" />
+        android:layout_height="match_parent"
+        android:gravity="center_horizontal" >
+
+        <TextView
+            android:id="@+id/info_text"
+            style="@style/textMediumLight"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:gravity="center"
+            android:text="@string/sync_info_text" />
 
         <RelativeLayout
             android:id="@+id/requestCodeButtonWrapper"
-            android:layout_above="@+id/enterCodeButtonWrapper"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true" >
+            android:layout_above="@+id/enterCodeButtonWrapper"
+            android:layout_centerHorizontal="true"
+            android:padding="5dp" >
 
             <Button
                 android:id="@+id/requestCodeButton"
@@ -50,80 +61,30 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 android:layout_centerHorizontal="true"
-                android:background="@drawable/button_medium_full" />
-
-            <LinearLayout
-                android:id="@+id/requestCodeButtonTextWrapper"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingBottom="3dp" >
-
-                <!--
-                <ImageView
-                android:id="@+id/requestCodeButtonImage"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="10dp"
-                android:background="@drawable/icon_sync_medium"
-                android:contentDescription="" />
-                -->
-
-                <TextView
-                    android:id="@+id/requestCodeButtonText"
-                    style="@style/textMenuButtonMediumFull"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:clickable="false"
-                    android:text="@string/sync_request_code_button" />
-            </LinearLayout>
+                android:background="@drawable/button_selector"
+                android:text="@string/sync_request_code_button" />
         </RelativeLayout>
 
         <RelativeLayout
             android:id="@+id/enterCodeButtonWrapper"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignLeft="@id/requestCodeButtonWrapper"
             android:layout_alignParentBottom="true"
+            android:layout_alignRight="@id/requestCodeButtonWrapper"
             android:layout_centerHorizontal="true"
-            android:layout_marginBottom="20dp">
+            android:layout_marginBottom="20dp"
+            android:padding="5dp" >
 
             <Button
                 android:id="@+id/enterCodeButton"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 android:layout_centerHorizontal="true"
-                android:background="@drawable/button_medium_full" />
-
-            <LinearLayout
-                android:id="@+id/enterCodeButtonTextWrapper"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingBottom="3dp" >
-
-                <!--
-                <ImageView
-                android:id="@+id/enterCodeButtonImage"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="10dp"
-                android:background="@drawable/icon_sync_medium"
-                android:contentDescription="" />
-                -->
-
-                <TextView
-                    android:id="@+id/enterCodeButtonText"
-                    style="@style/textMenuButtonMediumFull"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:clickable="false"
-                    android:text="@string/sync_enter_code_button" />
-            </LinearLayout>
+                android:background="@drawable/button_selector"
+                android:text="@string/sync_enter_code_button" />
         </RelativeLayout>
+    </RelativeLayout>
 
-</RelativeLayout>
+</LinearLayout>

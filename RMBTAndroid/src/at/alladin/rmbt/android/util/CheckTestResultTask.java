@@ -18,12 +18,12 @@ package at.alladin.rmbt.android.util;
 import org.json.JSONArray;
 
 import android.os.AsyncTask;
-import android.support.v4.app.FragmentActivity;
+import at.alladin.rmbt.android.main.RMBTMainActivity;
 
 public class CheckTestResultTask extends AsyncTask<String, Void, JSONArray>
 {
     
-    private final FragmentActivity activity;
+    private final RMBTMainActivity activity;
     
     private JSONArray resultList;
     
@@ -33,9 +33,9 @@ public class CheckTestResultTask extends AsyncTask<String, Void, JSONArray>
     
     private boolean hasError = false;
     
-    public CheckTestResultTask(final FragmentActivity activity)
+    public CheckTestResultTask(final RMBTMainActivity activity2)
     {
-        this.activity = activity;
+        this.activity = activity2;
         
     }
     
@@ -45,7 +45,13 @@ public class CheckTestResultTask extends AsyncTask<String, Void, JSONArray>
         serverConn = new ControlServerConnection(activity.getApplicationContext());
         
         if (uid != null && uid[0] != null)
+        {
+        	System.out.println("requesting result data for: " + uid[0]);
             resultList = serverConn.requestTestResult(uid[0]);
+        }
+        else  {
+        	System.out.println("no uid given");
+        }
         
         return resultList;
     }

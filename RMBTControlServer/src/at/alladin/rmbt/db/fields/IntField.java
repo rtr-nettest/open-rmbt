@@ -25,6 +25,8 @@ import org.json.JSONObject;
 
 public class IntField extends NumberFieldAdapter<Integer>
 {
+    private static final long serialVersionUID = 1L;
+    
     public IntField(final String dbKey, final String jsonKey)
     {
         super(dbKey, jsonKey, false);

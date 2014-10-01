@@ -120,17 +120,14 @@
     <string name="test_location_dir_w">V</string>
     
     <string name="test_notification_text">Testen fortfarande pågår i bakgrund.</string>
-    <string name="test_loop">Genomgång</string>
     <string name="test_dialog_error_title">Fel…</string>
     <string name="test_dialog_error_text">Under testen et fel trätt upp.</string>
     
     <string name="test_dialog_abort_title">Avbryt…</string>
     <string name="test_dialog_abort_text">Vil du verkligen avbryta pågående testen?</string>
-    <string name="test_dialog_abort_extended_text">Vil du verkligen avbryta avancerade testen?</string>
     <string name="test_dialog_abort_yes">Avbryt testen</string>
     <string name="test_dialog_abort_no">Fortsätt testen</string>
     
-    <string name="history">FÖRLOPP</string>
     <string name="history_button_sync">Sync</string>
     <string name="history_button_filter">Filter</string>
     <string name="history_device">Apparat</string>
@@ -146,27 +143,10 @@
 	<string name="history_filter_result_number">RESULTATSANTAL</string>
 	<string name="history_filter_result_number_25">Ange bara 25 nyaste resultater</string>
 	
-	<string name="result_header">TESTRESULTAT</string>
 	<string name="result_measurement">MÄTNING</string>
 	<string name="result_net">NÄT</string>
-	<string name="result_details_button">DETAILS</string>
-	<string name="result_map_button">KARTA</string>
 	
 	<string name="result_details">DETAILS</string>
-	
-	<string name="result_button_new_test">NYA TEST</string>
-	<string name="result_button_history">Förlopp</string>
-	<string name="result_button_map">Karta</string>
-	
-	<string name="result_extended_test_header">AVANCERADE TEST</string>
-	<string name="result_extended_test_not_started">Avancerade testen inte ännu startad</string>
-	<string name="result_extended_test_running">Avancerade testen pågår</string>
-	<string name="result_extended_test_results">Avancerade testen bli finaliserad</string>
-	<string name="result_extended_test_finished">Avancerade testen avslutad</string>
-	<string name="result_extended_test_aborted">Avancerade testen avbrytad</string>
-	<string name="result_extended_test_error">Förbindningsfel under testen.</string>
-	<string name="result_extended_test_button_stop">Stopp</string>
-	<string name="result_extended_test_button_detail">Details</string>
 	
 	<string name="sync_info_text">Det är möjligt att sammanföra mätningsresultater av andra apparater. Du behöver antingen att mata in en redan erhållit synkroniseringskod eller kräva en nya kod.</string>
 	<string name="sync_request_code_button">Kräva kod</string>

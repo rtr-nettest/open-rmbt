@@ -25,6 +25,8 @@ import java.util.Locale;
 
 public class SignificantFormat extends NumberFormat
 {
+    private static final long serialVersionUID = 1L;
+    
     private final NumberFormat format;
     private final MathContext mathContext;
     
@@ -36,7 +38,7 @@ public class SignificantFormat extends NumberFormat
     public SignificantFormat(final int significantPlaces, final Locale locale)
     {
         format = NumberFormat.getNumberInstance(locale);
-        mathContext = new MathContext(significantPlaces, RoundingMode.HALF_EVEN);
+        mathContext = new MathContext(significantPlaces, RoundingMode.HALF_UP);
     }
     
     @Override

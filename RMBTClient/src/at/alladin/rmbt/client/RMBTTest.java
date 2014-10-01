@@ -21,7 +21,7 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Locale;
@@ -41,40 +41,25 @@ import java.util.regex.Pattern;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 
-import at.alladin.rmbt.client.helper.Config;
 import at.alladin.rmbt.client.helper.TestStatus;
 
-public class RMBTTest implements Callable<ThreadTestResult>
+public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestResult>
 {
     private static final long nsecsL = 1000000000L;
 //    private static final double nsecs = 1e9;
     
-    private static final String EXPECT_GREETING = Config.RMBT_VERSION_STRING;
     private static final long UPLOAD_MAX_DISCARD_TIME = 1 * nsecsL;
     private static final long UPLOAD_MAX_WAIT_SECS = 3;
     
-    private final RMBTClient client;
-    private final RMBTTestParameter params;
     private final CyclicBarrier barrier;
     private final AtomicBoolean fallbackToOneThread;
-    private final int threadId;
     
     private final boolean doDownload = true;
     private final boolean doUpload = true;
     
-    private int chunksize;
-    private byte[] buf;
-    
     private final AtomicLong curTransfer = new AtomicLong();
     private final AtomicLong curTime = new AtomicLong();
-    
-    private InputStreamCounter in;
-    private BufferedReader reader;
-    private OutputStreamCounter out;
-    
-    private long totalDown;
-    private long totalUp;
-    
+        
     private final long minDiffTime;
     private final int maxCoarseResults;
     private final int maxFineResults;
@@ -104,16 +89,18 @@ public class RMBTTest implements Callable<ThreadTestResult>
                     addToCoarse = true;
             }
             
-            if (addToCoarse)
-            {
-                int coarsePos = coarseResults++ % coarse.bytes.length;
-                coarse.bytes[coarsePos] = newBytes;
-                coarse.nsec[coarsePos] = newNsec;
+            if (coarse.bytes.length > 0) {
+                if (addToCoarse)
+                {
+                    int coarsePos = coarseResults++ % coarse.bytes.length;
+                    coarse.bytes[coarsePos] = newBytes;
+                    coarse.nsec[coarsePos] = newNsec;
+                }
+                
+                int finePos = fineResults++ % fine.bytes.length;
+                fine.bytes[finePos] = newBytes;
+                fine.nsec[finePos] = newNsec;
             }
-            
-            int finePos = fineResults++ % fine.bytes.length;
-            fine.bytes[finePos] = newBytes;
-            fine.nsec[finePos] = newNsec;
         }
         
 //        @SuppressWarnings("unused")
@@ -226,28 +213,14 @@ public class RMBTTest implements Callable<ThreadTestResult>
             final CyclicBarrier barrier, final int storeResults, final long minDiffTime,
             final AtomicBoolean fallbackToOneThread)
     {
-        this.client = client;
-        this.params = params;
-        this.threadId = threadId;
+    	super (client, params, threadId);
         this.barrier = barrier;
         this.maxCoarseResults = storeResults;
         this.maxFineResults = storeResults;
         this.minDiffTime = minDiffTime;
         this.fallbackToOneThread = fallbackToOneThread;
     }
-    
-    private Socket getSocket(final String host, final int port) throws UnknownHostException, IOException
-    {
-        if (client.getSslSocketFactory() != null)
-        {
-            final Socket socket = client.getSslSocketFactory().createSocket(host, port);
-            
-            return socket;
-        }
-        else
-            return new Socket(host, port);
-    }
-    
+        
     static class CurrentSpeed
     {
         long trans;
@@ -263,12 +236,14 @@ public class RMBTTest implements Callable<ThreadTestResult>
         return result;
     }
     
-    private Socket connect(final TestResult testResult) throws IOException
+    protected Socket connect(final TestResult testResult) throws IOException
     {
         log(String.format(Locale.US, "thread %d: connecting...", threadId));
         
         final InetAddress inetAddress = InetAddress.getByName(params.getHost());
-        final Socket s = getSocket(inetAddress.getHostAddress(), params.getPort());
+        
+        System.out.println("connecting to: " + inetAddress.getHostName() + ":" + params.getPort());
+        final Socket s = getSocket(inetAddress.getHostAddress(), params.getPort(), true, 20000);
         
         testResult.ip_local = s.getLocalAddress();
         testResult.ip_server = s.getInetAddress();
@@ -399,31 +374,48 @@ public class RMBTTest implements Callable<ThreadTestResult>
                 if (_fallbackToOneThread && threadId != 0)
                     return null;
                 
+                final int NUMPINGS = 10;
                 long shortestPing = Long.MAX_VALUE;
+                long medianPing = Long.MAX_VALUE;
+                long[] pings = new long[NUMPINGS];
                 if (threadId == 0) // only one thread pings!
                 {
-                    for (int i = 0; i < 5; i++)
-                    {
-                        final Ping ping = ping();
-                        if (ping != null)
-                        {
-                            if (ping.client < shortestPing)
-                                shortestPing = ping.client;
-                            
-                            testResult.pings.add(ping);
-                        }
-                    }
-                    client.setPing(shortestPing);
+                	for (int i = 0; i < NUMPINGS; i++)
+                	{
+                		final Ping ping = ping();
+                		if (ping != null)
+                		{
+                		    pings[i] = ping.server;
+                			if (ping.client < shortestPing)
+                				shortestPing = ping.client;
+
+                			testResult.pings.add(ping);
+                		}
+                	}
+                	
+                	// median
+                	Arrays.sort(pings);
+                	int middle = ((pings.length) / 2);
+                	if(pings.length % 2 == 0){
+                		long medianA = pings[middle];
+                		long medianB = pings[middle-1];
+                		medianPing = (medianA + medianB) / 2;
+                	} else{
+                		medianPing = pings[middle + 1];
+                	}
+                	// display median ping
+                	client.setPing(medianPing);
                 }
                 testResult.ping_shortest = shortestPing;
+                testResult.ping_median = medianPing;
+
             }
             /*********************/
             
-            
-            final int duration = params.getDuration();
-            
+                        
             if (doDownload)
             {
+                final int duration = params.getDuration();
                 
                 setStatus(TestStatus.DOWN);
                 /***** download *****/
@@ -461,6 +453,7 @@ public class RMBTTest implements Callable<ThreadTestResult>
             
             if (doUpload)
             {
+            	final int duration = params.getDuration();
                 
                 setStatus(TestStatus.INIT_UP);
                 /***** short upload *****/
@@ -519,13 +512,6 @@ public class RMBTTest implements Callable<ThreadTestResult>
                 /*********************/
             }
             
-            // barrier.await();
-            
-            // upload(reader, out, 1);
-            // testResult.speed_upload = upload(reader, out,
-            // client.getTestDuration());
-            
-            // out.write("QUIT\n".getBytes("US-ASCII"));
         }
         catch (final BrokenBarrierException e)
         {
@@ -763,7 +749,7 @@ public class RMBTTest implements Callable<ThreadTestResult>
         if (Thread.interrupted())
             throw new InterruptedException();
         
-        if (seconds < 1)
+        if (seconds < 1 && !params.isEncryption())
             throw new IllegalArgumentException();
         
         log(String.format(Locale.US, "thread %d: upload test %d seconds", threadId, seconds));
@@ -794,7 +780,7 @@ public class RMBTTest implements Callable<ThreadTestResult>
         final AtomicBoolean terminateRxIfEnough = new AtomicBoolean(false);
         final AtomicBoolean terminateRxAtAllEvents = new AtomicBoolean(false);
         
-        final Future<Boolean> futureRx = client.getCommonThreadPool().submit(new Callable<Boolean>()
+        final Future<Boolean> futureRx = RMBTClient.getCommonThreadPool().submit(new Callable<Boolean>()
         {
             public Boolean call() throws Exception
             {
@@ -859,7 +845,7 @@ public class RMBTTest implements Callable<ThreadTestResult>
         
         final byte[] bufTx = buf.clone();
         final AtomicBoolean terminateTx = new AtomicBoolean(false);
-        final Future<Void> futureTx = client.getCommonThreadPool().submit(new Callable<Void>()
+        final Future<Void> futureTx = RMBTClient.getCommonThreadPool().submit(new Callable<Void>()
         {
             public Void call() throws Exception
             {
@@ -981,12 +967,7 @@ public class RMBTTest implements Callable<ThreadTestResult>
         log(String.format(Locale.US, "thread %d - server: %.3f ms ping", threadId, pingServer));
         return new Ping(diffClient, diffServer, pingTimeNs);
     }
-    
-    private void log(final CharSequence text)
-    {
-        client.log(text);
-    }
-    
+        
     private void setStatus(final TestStatus status)
     {
         if (threadId == 0)

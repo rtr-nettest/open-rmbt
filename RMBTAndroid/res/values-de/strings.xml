@@ -16,8 +16,9 @@
 -->
 <resources xmlns:tools="http://schemas.android.com/tools" tools:locale="de">
     
-    <string name="error_no_internet">Bitte aktivieren Sie\nIhre Internetverbindung</string>
+    <string name="error_no_internet">Keine Internetverbindung\nverfügbar</string>
     <string name="error_no_data">Keine Daten verfügbar.</string>
+    <string name="error_history_no_data_no_connection">Keine Netzwerksverbindung: Einträge konnten nicht geladen werden.</string>
     
     <string name="main_dialog_registration_title">Registrierung…</string>
     <string name="main_dialog_registration_text">Client wird registriert. Bitte warten…</string>
@@ -66,6 +67,7 @@
     <string name="preferences_category_loop_mode">Wiederholungs-Modus</string>
     <string name="preferences_category_developer_control_server">Control-Server</string>
     <string name="preferences_category_developer_map_server">Map-Server</string>
+    <string name="preferences_category_developer_qos_server">QoS-Server</string>
     
     <string name="preferences_dev_control_override">Control-Server überschreiben</string>
     <string name="preferences_dev_control_override_sum">Aktiviert die folgenden Einstellungen für den Control-Server</string>
@@ -92,12 +94,14 @@
     <string name="preferences_dev_map_ssl_sum">Verschlüsselte Verbindung zum Map-Server</string>
     
     <string name="menu_button_start">START</string>
+    <string name="menu_button_title_page">Startseite</string>
     <string name="menu_button_map">Karte</string>
     <string name="menu_button_history">Verlauf</string>
     <string name="menu_button_help">Hilfe</string>
     <string name="menu_button_statistics">Statistik</string>
     <string name="menu_button_settings">Einstellungen</string>
     <string name="menu_button_about">Info</string>
+    <string name="menu_button_share">Teilen</string>
     
     <string name="news_title">News</string>
     <string name="news_no_message">Kein Inhalt.</string>
@@ -128,11 +132,15 @@
     <string name="loop_notification_ticker">Wiederholungs-Modus is aktiv…</string>
     <string name="loop_notification_title">Wiederholungs-Modus is aktiv</string>
     <string name="loop_notification_text">Berühren um Wiederholungs-Modus zu stoppen</string>
+    
+    <string name="loop_started">Wiederholungs-Modus wurde gestartet.</string>
+    <string name="loop_already_active">Wiederholungs-Modus ist bereits aktiv.</string>
 
-    <string name="test_mbps">Mbps</string>
+    <string name="test_mbps">Mbit/s</string>
     <string name="test_dbm">dBm</string>
     <string name="test_location_km_h">km/h</string>
     <string name="test_location_m">m</string>
+    <string name="test_location_sat"> Satelliten</string>
     <string name="test_location_gps">GPS</string>
     <string name="test_location_network">Netzwerk</string>
     <string name="test_location_dir_n">N</string>
@@ -141,17 +149,16 @@
     <string name="test_location_dir_w">W</string>
     
     <string name="test_notification_text">Der Test läuft noch im Hintergrund.</string>
-    <string name="test_loop">Durchlauf</string> 
     <string name="test_dialog_error_title">Fehler…</string>
     <string name="test_dialog_error_text">Während des Tests ist ein Fehler aufgetreten.</string>
+    <string name="test_dialog_error_control_server_conn">Verbindung zum Testserver kann nicht aufgebaut werden.</string>
+    <string name="test_toast_error_text_qos">Während des QoS-Tests ist ein Fehler aufgetreten.</string>
     
     <string name="test_dialog_abort_title">Abbruch…</string>
     <string name="test_dialog_abort_text">Wollen Sie wirklich den laufenden Test abbrechen?</string>
-    <string name="test_dialog_abort_extended_text">Wollen Sie wirklich den erweiterten Test abbrechen?</string>
     <string name="test_dialog_abort_yes">Test abbrechen</string>
     <string name="test_dialog_abort_no">Test fortführen</string>
     
-    <string name="history">VERLAUF</string>
     <string name="history_button_sync">Sync</string>
     <string name="history_button_filter">Filter</string>
     <string name="history_device">Gerät</string>
@@ -167,27 +174,13 @@
 	<string name="history_filter_result_number">ERGEBNISANZAHL</string>
 	<string name="history_filter_result_number_25">Nur die 25 neuesten Ergebnisse anzeigen</string>
 	
-	<string name="result_header">TESTERGEBNIS</string>
 	<string name="result_measurement">MESSUNG</string>
 	<string name="result_net">NETZ</string>
-	<string name="result_details_button">DETAILS</string>
-	<string name="result_map_button">KARTE</string>
+	
+	<string name="result_category_tests">TESTS</string>
+	<string name="result_description">BESCHREIBUNG</string>
 	
 	<string name="result_details">DETAILS</string>
-	
-	<string name="result_button_new_test">NEUER TEST</string>
-	<string name="result_button_history">Verlauf</string>
-	<string name="result_button_map">Karte</string>
-	
-	<string name="result_extended_test_header">ERWEITERTER TEST</string>
-	<string name="result_extended_test_not_started">Erweiterter Test noch nicht gestartet</string>
-	<string name="result_extended_test_running">Erweiterter Test läuft</string>
-	<string name="result_extended_test_results">Erweiterter Test wird finalisiert</string>
-	<string name="result_extended_test_finished">Erweiterter Test abgeschlossen</string>
-	<string name="result_extended_test_aborted">Erweiterter Test abgebrochen</string>
-	<string name="result_extended_test_error">Verbindungsfehler während des Tests.</string>
-	<string name="result_extended_test_button_stop">Stopp</string>
-	<string name="result_extended_test_button_detail">Details</string>
 	
 	<string name="sync_info_text">Es besteht die Möglichkeit die Messergebnisse von anderen Endgeräten zusammenzuführen. Dazu müssen Sie einen bereits erhaltenen Synchronisations-Code eingeben oder einen neuen anfordern.</string>
 	<string name="sync_request_code_button">Code anfordern</string>
@@ -238,7 +231,80 @@
 	<string name="test_bottom_test_status_end">Finalisierung</string>
 	<string name="test_bottom_test_status_error">Fehler</string>
 	<string name="test_bottom_test_status_aborted">Abgebrochen</string>
+
+	<!-- QoS -->	
+	<string name="result_qos_stats">Qualitätstests</string>
+	<string name="about_control_server_version">Control Server Version</string>
 	
+	<string name="result_qos_error_no_data_available">Es wurde kein QoS-Test durchgeführt.</string>
+	
+	<string name="preferences_dont_show_menu_on_exit">Kein Menü beim Beenden</string>
+    <string name="preferences_dont_show_menu_on_exit_sum">Menü wird vor dem Schließen der App nicht angezeigt.</string>
+	
+	<string name="term_signal">Signal</string>
+	
+	<string name="result_page_title_qos">QoS</string>
+	<string name="result_page_title_test">Details</string>
+	<string name="result_page_title_menu">Ergebnisse</string>
+	<string name="result_page_title_graph">Graph</string>
+	<string name="result_page_title_map">Standort</string>
+		
+	<string name="qos_test_name_website">Referenz-Website</string>
+	<string name="qos_test_name_http_proxy">Unveränderter Inhalt</string>
+	<string name="qos_test_name_non_transparent_proxy">Transparente Verbindung</string>
+	<string name="qos_test_name_dns">DNS</string>
+	<string name="qos_test_name_tcp">TCP-Ports</string>	
+	<string name="qos_test_name_udp">UDP-Ports</string>
+	
+	<string name="qos_test_result_error">Error</string>
+	<string name="qos_test_result_all">Results</string>
+	
+	<string name="result_details_qos_failure">FEHLGESCHLAGEN</string>
+	<string name="result_details_qos_success">ERFOLGREICH</string>
+	
+	<string name="page_title_title_page">Menü</string>
+	<string name="page_title_history">Verlauf</string>
+	<string name="page_title_help">Hilfe</string>
+	<string name="page_title_statistics">Statistik</string>
+	<string name="page_title_information">Information</string>
+	<string name="page_title_map">Karte</string>
+	<string name="page_title_settings">Einstellungen</string>
+	<string name="page_title_about">Info</string>
+	<string name="page_title_main_result">Ergebnisse</string>
+	<string name="page_title_sync">Sync</string>
+	<string name="page_title_qos_result">QoS</string>
+	
+	<string name="title_screen_ipv4">IPv4</string>
+	<string name="title_screen_ipv6">IPv6</string>
+	<string name="title_screen_traffic">Hintergrund Traffic</string>
+	<string name="title_screen_network_id">Netzkennung:</string>
+	
+	<string name="title_screen_info_overlay_location">Standort</string>
+	<string name="title_screen_info_overlay_ipv4_public">Öffentliche IPv4</string>
+	<string name="title_screen_info_overlay_ipv4_private">Private IPv4</string>
+	<string name="title_screen_info_overlay_ipv6_public">Öffentliche IPv6</string>
+	<string name="title_screen_info_overlay_ipv6_private">Private IPv6</string>
+	<string name="title_screen_info_overlay_ul_traffic">Upload Traffic</string>
+	<string name="title_screen_info_overlay_dl_traffic">Download Traffic</string>
+	<string name="title_screen_info_overlay_control_server_conn">ControlServer Verbindung</string>
+	<string name="title_screen_info_overlay_captive_portal_status">Captive Portal</string>
+	<string name="title_screen_info_overlay_is_loopback">Loopback</string>
+	<string name="title_screen_info_overlay_is_link_local">Link-Local</string>
+	<string name="title_screen_info_overlay_location_position">Position</string>
+	<string name="title_screen_info_overlay_location_source">Quelle</string>
+	<string name="title_screen_info_overlay_location_altitude">Höhe</string>
+	<string name="title_screen_info_overlay_location_accuracy">Genauigkeit</string>
+	<string name="title_screen_info_overlay_location_age">Aktualität</string>
+	
+	<string name="captive_portal_found">gefunden</string>
+	<string name="captive_portal_not_found">nicht gefunden</string>
+	<string name="captive_portal_testing">Test läuft…</string>
+	
+	<string name="not_available">nicht verfügbar</string>
+	
+	<string name="test_label_test_info">Test Information</string>
+	<string name="test_label_progress">Fortschritt</string>
+	<string name="test_label_quality_test">Qualitätstest</string>
 </resources>
 
 

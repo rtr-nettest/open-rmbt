@@ -15,15 +15,15 @@
  ******************************************************************************/
 package at.alladin.rmbt.android.terms;
 
+import android.app.Activity;
+import android.app.FragmentTransaction;
 import android.graphics.PixelFormat;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentTransaction;
 import android.view.Window;
 import android.view.WindowManager;
 import at.alladin.openrmbt.android.R;
 
-public class RMBTTermsActivity extends FragmentActivity
+public class RMBTTermsActivity extends Activity
 {
     @Override
     public void onCreate(final Bundle savedInstanceState)
@@ -42,14 +42,14 @@ public class RMBTTermsActivity extends FragmentActivity
     
     public void showTermsCheck()
     {
-        final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        final FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.replace(R.id.fragment_content, new RMBTTermsCheckFragment(), "terms_check");
         ft.commit();
     }
     
     public void showNdtCheck()
     {
-        final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        final FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.replace(R.id.fragment_content, new RMBTNDTCheckFragment(), "ndt_check");
         ft.addToBackStack("ndt_check");
         ft.commit();

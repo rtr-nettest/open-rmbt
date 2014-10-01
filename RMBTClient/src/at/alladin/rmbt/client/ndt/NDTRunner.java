@@ -20,10 +20,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import net.measurementlab.ndt.NdtTests;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import net.measurementlab.ndt.NdtTests;
 import at.alladin.rmbt.client.helper.JSONParser;
 import at.alladin.rmbt.client.helper.NdtStatus;
 

@@ -15,9 +15,9 @@
  ******************************************************************************/
 package at.alladin.rmbt.android.terms;
 
+import android.app.Activity;
+import android.app.Fragment;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -48,7 +48,7 @@ public class RMBTTermsCheckFragment extends Fragment
         final WebView tcWvl = (WebView) view.findViewById(R.id.termsCheckWebViewLong);
         tcWvl.loadUrl("file:///android_res/raw/terms_conditions_long.html");
         
-        final FragmentActivity activity = getActivity();
+        final Activity activity = getActivity();
         if (! (activity instanceof RMBTMainActivity))
             firstTime = false;
         
@@ -91,12 +91,12 @@ public class RMBTTermsCheckFragment extends Fragment
     public void onResume()
     {
         super.onResume();
-        final FragmentActivity activity = getActivity();
+        final Activity activity = getActivity();
         final boolean tcAccepted = ConfigHelper.isTCAccepted(activity);
         if (tcAccepted)
         {
-            final TextView acceptButtonTextView = (TextView) view.findViewById(R.id.termsAcceptButtonText);
-            acceptButtonTextView.setText(R.string.terms_accept_button_continue);
+            final TextView buttonTermsAccept = (TextView) view.findViewById(R.id.termsAcceptButton);
+            buttonTermsAccept.setText(R.string.terms_accept_button_continue);
             view.findViewById(R.id.termsAcceptText).setVisibility(View.GONE);
         }
     }

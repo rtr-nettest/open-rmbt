@@ -18,10 +18,10 @@ package at.alladin.rmbt.android.map;
 import java.util.List;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -154,40 +154,43 @@ public class RMBTMapFilterFragment extends Fragment implements OnItemClickListen
                 .getAdapter(position);
         
         // /
-        
-        final MapListEntry clickedEntry = (MapListEntry) sectionListAdapter.getItem(position);
-        
-        final List<MapListEntry> mapListEntryList = mapListSectionAdapter.mapListSection.getMapListEntryList();
-        
-        // uncheck all entries in section:
-        for (final MapListEntry mapListEntry : mapListEntryList)
-            mapListEntry.setChecked(false);
-        
-        // recheck checked entry:
-        clickedEntry.setChecked(true);
-        
-        // handle sat differently
-        final String value = clickedEntry.getValue();
-        final RMBTMainActivity activity = getRMBTMainActivity();
-        if (MapProperties.MAP_SAT_KEY.equals(clickedEntry.getKey()))
-            activity.setMapTypeSatellite(MapProperties.MAP_SAT_VALUE.equals(value));
-        else if (MapProperties.MAP_OVERLAY_KEY.equals(clickedEntry.getKey()))
+        final Object item = sectionListAdapter.getItem(position);
+        if (item instanceof MapListEntry)
         {
-            if (MapProperties.MAP_AUTO_VALUE.equals(value))
-                activity.setMapOverlayType(MapProperties.MAP_OVERLAY_TYPE_AUTO);
-            else if (MapProperties.MAP_HEATMAP_VALUE.equals(value))
-                activity.setMapOverlayType(MapProperties.MAP_OVERLAY_TYPE_HEATMAP);
-            else if (MapProperties.MAP_POINTS_VALUE.equals(value))
-                activity.setMapOverlayType(MapProperties.MAP_OVERLAY_TYPE_POINTS);
-            else if (MapProperties.MAP_SHAPES_VALUE.equals(value))
-                activity.setMapOverlayType(MapProperties.MAP_OVERLAY_TYPE_SHAPES);
+            final MapListEntry clickedEntry = (MapListEntry) item;
+            
+            final List<MapListEntry> mapListEntryList = mapListSectionAdapter.mapListSection.getMapListEntryList();
+            
+            // uncheck all entries in section:
+            for (final MapListEntry mapListEntry : mapListEntryList)
+                mapListEntry.setChecked(false);
+            
+            // recheck checked entry:
+            clickedEntry.setChecked(true);
+            
+            // handle sat differently
+            final String value = clickedEntry.getValue();
+            final RMBTMainActivity activity = getRMBTMainActivity();
+            if (MapProperties.MAP_SAT_KEY.equals(clickedEntry.getKey()))
+                activity.setMapTypeSatellite(MapProperties.MAP_SAT_VALUE.equals(value));
+            else if (MapProperties.MAP_OVERLAY_KEY.equals(clickedEntry.getKey()))
+            {
+                if (MapProperties.MAP_AUTO_VALUE.equals(value))
+                    activity.setMapOverlayType(MapProperties.MAP_OVERLAY_TYPE_AUTO);
+                else if (MapProperties.MAP_HEATMAP_VALUE.equals(value))
+                    activity.setMapOverlayType(MapProperties.MAP_OVERLAY_TYPE_HEATMAP);
+                else if (MapProperties.MAP_POINTS_VALUE.equals(value))
+                    activity.setMapOverlayType(MapProperties.MAP_OVERLAY_TYPE_POINTS);
+                else if (MapProperties.MAP_SHAPES_VALUE.equals(value))
+                    activity.setMapOverlayType(MapProperties.MAP_OVERLAY_TYPE_SHAPES);
+            }
+            else
+                // set new filter options:
+                activity.updateMapFilter();
+            
+            // reload list view:
+            ((SectionListAdapter) parent.getAdapter()).notifyDataSetChanged();
         }
-        else
-            // set new filter options:
-            activity.updateMapFilter();
-        
-        // reload list view:
-        ((SectionListAdapter) parent.getAdapter()).notifyDataSetChanged();
     }
     
     /**

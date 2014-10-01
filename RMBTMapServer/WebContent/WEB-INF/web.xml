@@ -35,7 +35,7 @@
 
     <!-- Restlet adapter -->
     <servlet>
-        <servlet-name>RMBTControlServlet</servlet-name>
+        <servlet-name>RMBTMapServlet</servlet-name>
         <servlet-class>
             org.restlet.ext.servlet.ServerServlet
         </servlet-class>
@@ -47,7 +47,7 @@
 
     <!-- Catch all requests -->
     <servlet-mapping>
-        <servlet-name>RMBTControlServlet</servlet-name>
-        <url-pattern>/tiles/*</url-pattern>
+        <servlet-name>RMBTMapServlet</servlet-name>
+        <url-pattern>/*</url-pattern>
     </servlet-mapping>
 </web-app>

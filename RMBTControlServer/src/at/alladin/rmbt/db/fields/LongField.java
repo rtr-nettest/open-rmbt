@@ -25,6 +25,8 @@ import org.json.JSONObject;
 
 public class LongField extends NumberFieldAdapter<Long>
 {
+    private static final long serialVersionUID = 1L;
+    
     public LongField(final String dbKey, final String jsonKey)
     {
         super(dbKey, jsonKey, false);

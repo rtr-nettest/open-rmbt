@@ -23,6 +23,7 @@ import java.security.cert.X509Certificate;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CyclicBarrier;
@@ -46,11 +47,14 @@ import at.alladin.rmbt.client.helper.ControlServerConnection;
 import at.alladin.rmbt.client.helper.IntermediateResult;
 import at.alladin.rmbt.client.helper.RMBTOutputCallback;
 import at.alladin.rmbt.client.helper.TestStatus;
+import at.alladin.rmbt.client.v2.task.TaskDesc;
+import at.alladin.rmbt.client.v2.task.result.QoSResultCollector;
 import at.alladin.rmbt.client.v2.task.service.TestMeasurement;
 import at.alladin.rmbt.client.v2.task.service.TrafficService;
 
 public class RMBTClient
 {
+    private static final ExecutorService COMMON_THREAD_POOL = Executors.newCachedThreadPool();
     
     private final RMBTTestParameter params;
     
@@ -71,7 +75,6 @@ public class RMBTClient
     private final long[][] lastTime;
     
     private final ExecutorService testThreadPool;
-    private final ExecutorService commonThreadPool = Executors.newCachedThreadPool();
     
     private final RMBTTest[] testTasks;
     
@@ -88,11 +91,33 @@ public class RMBTClient
     
     private String errorMsg = "";
     
+    
+    /*------------------------------------
+    	V2 tests
+    --------------------------------------*/
+    
+    public final static String TASK_UDP = "udp";
+    public final static String TASK_TCP = "tcp";
+    public final static String TASK_DNS = "dns";
+    public final static String TASK_NON_TRANSPARENT_PROXY = "non_transparent_proxy";
+    public final static String TASK_HTTP = "http_proxy";
+    public final static String TASK_WEBSITE = "website";
+    
+    private List<TaskDesc> taskDescList;
+
+    /*------------------------------------*/
+    
     private final AtomicReference<TestStatus> testStatus = new AtomicReference<TestStatus>(TestStatus.WAIT);
     private final AtomicReference<TestStatus> statusBeforeError = new AtomicReference<TestStatus>(null);
     private final AtomicLong statusChangeTime = new AtomicLong();
     
     private TrafficService trafficService;
+    
+    public static ExecutorService getCommonThreadPool()
+    {
+        return COMMON_THREAD_POOL;
+    }
+    
     private ConcurrentHashMap<TestStatus, TestMeasurement> measurementMap = new ConcurrentHashMap<TestStatus, TestMeasurement>();
     
     public static RMBTClient getInstance(final String host, final String pathPrefix, final int port,
@@ -108,6 +133,16 @@ public class RMBTClient
         if (error != null)
         {
             System.out.println(error);
+            return null;
+        }
+
+        //TODO: simple and fast solution; make it better
+        final String errorNewTest = controlConnection.requestQoSTestParameters(host, pathPrefix, port, encryption, geoInfo,
+                uuid, clientType, clientName, clientVersion, additionalValues);
+        
+        if (errorNewTest != null)
+        {
+            System.out.println(errorNewTest);
             return null;
         }
         
@@ -144,14 +179,19 @@ public class RMBTClient
         
         lastTransfer = new long[params.getNumThreads()][KEEP_LAST_ENTRIES];
         lastTime = new long[params.getNumThreads()][KEEP_LAST_ENTRIES];
+        
+        this.taskDescList = controlConnection.v2TaskDesc;
+        //if (params.isEncryption())
+        //    sslSocketFactory = createSSLSocketFactory();
+
     }
-    
+
     public void setTrafficService(TrafficService trafficService) {
     	this.trafficService = trafficService;
     }
     
     public TrafficService getTrafficService() {
-    	return trafficService;
+    	return this.trafficService;
     }
     
     private SSLSocketFactory createSSLSocketFactory()
@@ -300,6 +340,8 @@ public class RMBTClient
     
     public TestResult runTest() throws InterruptedException
     {
+    	System.out.println("starting test...");
+    	
     	long txBytes = 0;
     	long rxBytes = 0;
     	final long timeStampStart = System.nanoTime();
@@ -331,7 +373,7 @@ public class RMBTClient
             setStatus(TestStatus.INIT);
             statusBeforeError.set(null);
             
-            if (testThreadPool.isShutdown() || commonThreadPool.isShutdown())
+            if (testThreadPool.isShutdown())
                 throw new IllegalStateException("RMBTClient already shut down");
             log("starting test...");
             
@@ -343,7 +385,7 @@ public class RMBTClient
             
             if (params.isEncryption())
                 sslSocketFactory = createSSLSocketFactory();
-            
+                        
             log(String.format(Locale.US, "Host: %s; Port: %s; Enc: %s", params.getHost(), params.getPort(), params.isEncryption()));
             log(String.format(Locale.US, "starting %d threads...", numThreads));
             
@@ -457,7 +499,7 @@ public class RMBTClient
                 upBitPerSec.set(Math.round(result.getUploadSpeedBitPerSec()));
                 
                 log("end.");
-                setStatus(TestStatus.END);
+                setStatus(TestStatus.SPEEDTEST_END);
                 
             	if (trafficService != null) {
             		txBytes = trafficService.getTotalTxBytes() - txBytes;
@@ -482,16 +524,11 @@ public class RMBTClient
                 throw e;
             }
         }
-        else
-        {
-            log("Threadpool is empty.");
-            return result;
+        else {
+            setStatus(TestStatus.SPEEDTEST_END);
+            
+        	return null;
         }
-    }
-    
-    public ExecutorService getCommonThreadPool()
-    {
-        return commonThreadPool;
     }
     
     public boolean abortTest(final boolean error)
@@ -506,8 +543,6 @@ public class RMBTClient
         
         if (testThreadPool != null)
             testThreadPool.shutdownNow();
-        if (commonThreadPool != null)
-            commonThreadPool.shutdownNow();
         
         return true;
     }
@@ -516,9 +551,15 @@ public class RMBTClient
     {
         System.out.println("Shutting down RMBT thread pool.");
         if (testThreadPool != null)
-            testThreadPool.shutdown();
-        if (commonThreadPool != null)
-            commonThreadPool.shutdown();
+            testThreadPool.shutdownNow();
+    }
+    
+    @Override
+    protected void finalize() throws Throwable
+    {
+        super.finalize();
+        if (testThreadPool != null)
+            testThreadPool.shutdownNow();
     }
     
     public SSLSocketFactory getSslSocketFactory()
@@ -624,7 +665,7 @@ public class RMBTClient
             upBitPerSec.set(Math.round(getAvgSpeed()));
             break;
         
-        case END:
+        case SPEEDTEST_END:
             iResult.progress = 1;
             break;
         
@@ -656,7 +697,7 @@ public class RMBTClient
         return statusBeforeError.get();
     }
     
-    void setStatus(final TestStatus status)
+    public void setStatus(final TestStatus status)
     {
         testStatus.set(status);
         statusChangeTime.set(System.nanoTime());
@@ -693,19 +734,29 @@ public class RMBTClient
     
     public void sendResult(final JSONObject additionalValues)
     {
-        if (controlConnection != null)
-        {
-            final String errorMsg = controlConnection.sendTestResult(result, additionalValues);
-            
+    	if (controlConnection != null) {
+    		final String errorMsg = controlConnection.sendTestResult(result, additionalValues);
             if (errorMsg != null)
             {
                 setErrorStatus();
                 log("Error sending Result...");
                 log(errorMsg);
             }
-        }
+    	}
     }
-    
+        
+    public void sendQoSResult(final QoSResultCollector qosResult) {
+    	if (controlConnection != null) {
+    		final String errorMsg = controlConnection.sendQoSResult(result, qosResult.toJson());
+            if (errorMsg != null)
+            {
+                setErrorStatus();
+                log("Error sending QoS Result...");
+                log(errorMsg);
+            }
+    	}    	
+    }
+
     private void setErrorStatus()
     {
         final TestStatus lastStatus = testStatus.getAndSet(TestStatus.ERROR);
@@ -766,5 +817,13 @@ public class RMBTClient
     {
         return controlConnection;
     }
+
+    /**
+     * 
+     * @return
+     */
+	public List<TaskDesc> getTaskDescList() {
+		return taskDescList;
+	}
     
 }

@@ -81,7 +81,6 @@ public class TestResultResource extends ServerResource
                 
                 if (conn != null)
                 {
-                    
                     final Client client = new Client(conn);
                     final Test_Server server = new Test_Server(conn);
                     final Test test = new Test(conn);
@@ -146,18 +145,21 @@ public class TestResultResource extends ServerResource
                         
                         jsonItemList.put(singleItem);
                         
-                        final Field fieldPing = test.getField("ping_shortest");
-                        final double pingValue = test.getField("ping_shortest").doubleValue() / 1000000d;
-                        singleItem = new JSONObject();
-                        singleItem.put("title", labels.getString("RESULT_PING"));
-                        final String pingString = String.format("%s %s", format.format(pingValue),
-                                labels.getString("RESULT_PING_UNIT"));
-                        singleItem.put("value", pingString);
-                        singleItem.put("classification",
-                                Classification.classify(Classification.THRESHOLD_PING, fieldPing.longValue()));
-                        
-                        jsonItemList.put(singleItem);
-                        
+                        final Field fieldPing = test.getField("ping_median");
+                        String pingString = "";
+                        if (! fieldPing.isNull()) {
+                        	final double pingValue = fieldPing.doubleValue() / 1000000d;
+                        	singleItem = new JSONObject();
+                        	singleItem.put("title", labels.getString("RESULT_PING"));
+                        	pingString = String.format("%s %s", format.format(pingValue),
+                        			labels.getString("RESULT_PING_UNIT"));
+                        	singleItem.put("value", pingString);
+                        	singleItem.put("classification",
+                        			Classification.classify(Classification.THRESHOLD_PING, fieldPing.longValue()));
+
+                        	jsonItemList.put(singleItem);
+                        }
+
                         final int networkType = test.getField("network_type").intValue();
                         
                         final Field signalField = test.getField("signal_strength"); // signal strength as RSSI (GSM, UMTS, Wifi, sometimes LTE)
@@ -323,6 +325,18 @@ RESULT_SHARE_TEXT_PROVIDER_ADD = Operator: {0}\n
                         jsonItem.put("share_text", shareText);
                         
                         jsonItem.put("network_type", networkType);
+                        
+                        
+                        //geo location
+                        JSONObject locationJson = TestResultDetailResource.getGeoLocation(test, settings, conn, labels);
+                        if (locationJson != null) {
+                        	if (locationJson.has("location")) {
+                        		jsonItem.put("location", locationJson.getString("location"));
+                        	}
+                        	if (locationJson.has("motion")) {
+                        		jsonItem.put("motion", locationJson.getString("motion"));
+                        	}                        	
+                        }
                         
                         resultList.put(jsonItem);
                         

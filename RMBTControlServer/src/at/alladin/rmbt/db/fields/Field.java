@@ -23,6 +23,8 @@ import org.json.JSONObject;
 
 public abstract class Field extends Number
 {
+    private static final long serialVersionUID = 1L;
+    
     protected final String dbKey;
     protected final String jsonKey;
     protected final boolean readOnly;

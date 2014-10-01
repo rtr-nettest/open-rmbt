@@ -19,15 +19,15 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.DialogFragment;
 import android.os.AsyncTask;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentActivity;
 import at.alladin.openrmbt.android.R;
+import at.alladin.rmbt.android.main.RMBTMainActivity;
 
 public class CheckNewsTask extends AsyncTask<Void, Void, JSONArray>
 {
     
-    private final FragmentActivity activity;
+    private final RMBTMainActivity activity;
     
     private JSONArray newsList;
     
@@ -35,7 +35,7 @@ public class CheckNewsTask extends AsyncTask<Void, Void, JSONArray>
     
     ControlServerConnection serverConn;
     
-    public CheckNewsTask(final FragmentActivity activity)
+    public CheckNewsTask(final RMBTMainActivity activity)
     {
         this.activity = activity;
         
@@ -79,7 +79,7 @@ public class CheckNewsTask extends AsyncTask<Void, Void, JSONArray>
                                 newsItem.optString("title", activity.getString(R.string.news_title)),
                                 newsItem.optString("text", activity.getString(R.string.news_no_message)), null);
                         
-                        newFragment.show(activity.getSupportFragmentManager(), "dialog");
+                        newFragment.show(activity.getFragmentManager(), "dialog");
                         
                         if (newsItem.has("uid"))
                         {

@@ -30,6 +30,9 @@ import at.alladin.rmbt.client.helper.Config;
 
 public final class ConfigHelper
 {
+	public final static String PREF_KEY_SWIPE_INTRO_COUNTER = "swipe_intro_counter";
+	public final static int SWIPE_INTRO_COUNTER_MAX = 2; 
+	
     public static SharedPreferences getSharedPreferences(final Context context)
     {
         return PreferenceManager.getDefaultSharedPreferences(context);
@@ -39,7 +42,7 @@ public final class ConfigHelper
     {
         final SharedPreferences pref = getSharedPreferences(context);
         final boolean devMode = isOverrideControlServer(pref);
-        pref.edit().putString(devMode ? "uuid_dev" : "uuid", uuid).commit();
+        pref.edit().putString(devMode ? "uuid_dev" : "uuid", uuid).apply();
     }
     
     public static String getUUID(final Context context)
@@ -51,14 +54,56 @@ public final class ConfigHelper
     
     public static void setLastNewsUid(final Context context, final long newsUid)
     {
-        getSharedPreferences(context).edit().putLong("lastNewsUid", newsUid).commit();
+        getSharedPreferences(context).edit().putLong("lastNewsUid", newsUid).apply();
     }
     
+    public static void setControlServerVersion(final Context context, final String controlServerVersion)
+    {
+        getSharedPreferences(context).edit().putString("controlServerVersion", controlServerVersion).apply();
+    }
+    
+    public static String getControlServerVersion(final Context context) {
+    	return getSharedPreferences(context).getString("controlServerVersion", null);
+    }
+    
+    public static void setLastIp(final Context context, final String lastIp)
+    {
+        getSharedPreferences(context).edit().putString("lastIp", lastIp).apply();
+    }
+
+    public static String getLastIp(final Context context)
+    {
+       return getSharedPreferences(context).getString("lastIp", null);
+    }
+
+    public static void setLastTestUuid(final Context context, final String lastUuid)
+    {
+        getSharedPreferences(context).edit().putString("lastTestUuid", lastUuid).apply();
+    }
+
+    public static String getLastTestUuid(final Context context, boolean isDeleteOldValue)
+    {
+    	String lastTestUuid = getSharedPreferences(context).getString("lastTestUuid", null);
+    	if (isDeleteOldValue) {
+    		setLastTestUuid(context, null);
+    	}
+    	
+    	return lastTestUuid;
+    }
+
     public static long getLastNewsUid(final Context context)
     {
         return getSharedPreferences(context).getLong("lastNewsUid", 0);
     }
     
+    public static boolean isSystemOutputRedirectedToFile(final Context context) {
+    	return getSharedPreferences(context).getBoolean("dev_debug_output", false);
+    }
+
+    public static boolean isDontShowMainMenuOnClose(final Context context) {
+    	return getSharedPreferences(context).getBoolean("dont_show_menu_before_exit", false);
+    }
+
     public static boolean isGPS(final Context context)
     {
         return ! getSharedPreferences(context).getBoolean("no_gps", false);
@@ -73,7 +118,7 @@ public final class ConfigHelper
     
     public static boolean isLoopModeGPS(final Context context)
     {
-        return getSharedPreferences(context).getBoolean("loop_mode_gps", false);
+        return getSharedPreferences(context).getBoolean("loop_mode_gps", true);
     }
     
     private static int getInt(final Context context, String key, int defaultId)
@@ -117,7 +162,7 @@ public final class ConfigHelper
     
     public static void setNDT(final Context context, final boolean value)
     {
-        getSharedPreferences(context).edit().putBoolean("ndt", value).commit();
+        getSharedPreferences(context).edit().putBoolean("ndt", value).apply();
     }
     
     public static boolean isNDTDecisionMade(final Context context)
@@ -127,7 +172,7 @@ public final class ConfigHelper
     
     public static void setNDTDecisionMade(final Context context, final boolean value)
     {
-        getSharedPreferences(context).edit().putBoolean("ndt_decision", value).commit();
+        getSharedPreferences(context).edit().putBoolean("ndt_decision", value).apply();
     }
     
     public static String getPreviousTestStatus(final Context context)
@@ -137,7 +182,7 @@ public final class ConfigHelper
     
     public static void setPreviousTestStatus(final Context context, final String status)
     {
-        getSharedPreferences(context).edit().putString("previous_test_status", status).commit();
+        getSharedPreferences(context).edit().putString("previous_test_status", status).apply();
     }
     
     public static int getTestCounter(final Context context)
@@ -150,8 +195,23 @@ public final class ConfigHelper
     {
         int lastValue = getSharedPreferences(context).getInt("test_counter", 0);
         lastValue++;
-        getSharedPreferences(context).edit().putInt("test_counter", lastValue).commit();
+        getSharedPreferences(context).edit().putInt("test_counter", lastValue).apply();
         return lastValue;
+    }
+
+    public static boolean useNetworkInterfaceIpMethod(final Context context)
+    {
+        return getSharedPreferences(context).getBoolean("dev_debug_ip_method", false);
+    }
+    
+    public static boolean isRetryRequiredOnIpv6SocketTimeout(final Context context)
+    {
+        return getSharedPreferences(context).getBoolean("dev_debug_ip_retry_on_socket_timeout", false);
+    }
+
+    public static boolean isIpPolling(final Context context)
+    {
+        return getSharedPreferences(context).getBoolean("dev_debug_ip_poll", true);
     }
     
     public static boolean isTCAccepted(final Context context)
@@ -170,9 +230,9 @@ public final class ConfigHelper
     {
         final int tcVersion = context.getResources().getInteger(R.integer.rmbt_terms_version);
         if (accepted)
-            getSharedPreferences(context).edit().putInt("terms_and_conditions_accepted_version", tcVersion).commit();
+            getSharedPreferences(context).edit().putInt("terms_and_conditions_accepted_version", tcVersion).apply();
         else
-            getSharedPreferences(context).edit().remove("terms_and_conditions_accepted_version").commit();
+            getSharedPreferences(context).edit().remove("terms_and_conditions_accepted_version").apply();
     }
     
     private static boolean isOverrideControlServer(final SharedPreferences pref)
@@ -189,11 +249,43 @@ public final class ConfigHelper
     {
         final boolean ipv4Only = pref.getBoolean("ipv4_only", false);
         if (ipv4Only)
-            return context.getResources().getString(R.string.default_control_host_ipv4);
+            return getCachedControlServerNameIpv4(context);
         else
             return context.getResources().getString(R.string.default_control_host);
     }
     
+    public static void setCachedIpv4CheckUrl(String url, Context context) {
+    	getSharedPreferences(context).edit().putString("url_ipv4_check", url).apply();
+    }
+
+    public static String getCachedIpv4CheckUrl(Context context) {
+    	return getSharedPreferences(context).getString("url_ipv4_check", context.getString(R.string.default_control_check_ipv4_url));
+    }
+
+    public static void setCachedIpv6CheckUrl(String url, Context context) {
+    	getSharedPreferences(context).edit().putString("url_ipv6_check", url).apply();
+    }
+
+    public static String getCachedIpv6CheckUrl(Context context) {
+    	return getSharedPreferences(context).getString("url_ipv6_check", context.getString(R.string.default_control_check_ipv6_url));
+    }
+
+    public static void setCachedControlServerNameIpv4(String url, Context context) {
+    	getSharedPreferences(context).edit().putString("cache_control_ipv4", url).apply();
+    }
+
+    public static String getCachedControlServerNameIpv4(Context context) {
+    	return getSharedPreferences(context).getString("cache_control_ipv4", context.getString(R.string.default_control_host_ipv4_only));
+    }
+
+    public static void setCachedControlServerNameIpv6(String url, Context context) {
+    	getSharedPreferences(context).edit().putString("cache_control_ipv6", url).apply();
+    }
+
+    public static String getCachedControlServerNameIpv6(Context context) {
+    	return getSharedPreferences(context).getString("cache_control_ipv6", context.getString(R.string.default_control_host_ipv6_only));
+    }
+
     public static String getControlServerName(final Context context)
     {
         final SharedPreferences pref = getSharedPreferences(context);
@@ -221,7 +313,7 @@ public final class ConfigHelper
             
             try
             {
-                return Integer.parseInt(pref.getString("dev_control_port", ""));
+                return Integer.parseInt(pref.getString("dev_control_port", "443"));
             }
             catch (final NumberFormatException e)
             {
@@ -248,13 +340,19 @@ public final class ConfigHelper
         else
             return Config.RMBT_CONTROL_SSL;
     }
-    
+
+    public static boolean isQoSSeverSSL(final Context context)
+    {
+        final SharedPreferences pref = getSharedPreferences(context);
+        return pref.getBoolean("dev_debug_qos_ssl", Config.RMBT_QOS_SSL);
+    }
+
     public static String getMapServerName(final Context context)
     {
         final SharedPreferences pref = getSharedPreferences(context);
         final boolean devMode = isOverrideMapServer(pref);
         if (devMode)
-            return pref.getString("dev_map_hostname", "");
+            return pref.getString("dev_map_hostname", "develop");
         else
         {
             final String host = mapHost.get();
@@ -274,7 +372,7 @@ public final class ConfigHelper
         {
             try
             {
-                return Integer.parseInt(pref.getString("dev_map_port", ""));
+                return Integer.parseInt(pref.getString("dev_map_port", "443"));
             }
             catch (final NumberFormatException e)
             {
@@ -295,7 +393,7 @@ public final class ConfigHelper
         final SharedPreferences pref = getSharedPreferences(context);
         final boolean devMode = isOverrideMapServer(pref);
         if (devMode)
-            return pref.getBoolean("dev_map_ssl", false);
+            return pref.getBoolean("dev_map_ssl", true);
         else
         {
             if (mapHost.get() != null)
@@ -333,6 +431,22 @@ public final class ConfigHelper
         return volatileSettings.get(key);
     }
     
+    public static void setCachedStatisticsUrl(String url, Context context) {
+    	getSharedPreferences(context).edit().putString("cache_statistics_url", url).apply();
+    }
+    
+    public static String getCachedStatisticsUrl(Context context) {
+    	return getSharedPreferences(context).getString("cache_statistics_url", null);
+    }
+
+    public static void setCachedHelpUrl(String url, Context context) {
+    	getSharedPreferences(context).edit().putString("cache_help_url", url).apply();
+    }
+    
+    public static String getCachedHelpUrl(Context context) {
+    	return getSharedPreferences(context).getString("cache_help_url", null);
+    }
+
     public static boolean isDevEnabled(final Context ctx)
     {
         return PackageManager.SIGNATURE_MATCH == ctx.getPackageManager().checkSignatures(ctx.getPackageName(), at.alladin.rmbt.android.util.Config.RMBT_DEV_UNLOCK_PACKAGE_NAME);

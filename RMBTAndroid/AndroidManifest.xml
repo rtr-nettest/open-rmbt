@@ -16,10 +16,9 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="at.alladin.openrmbt.android"
-    android:versionCode="15125"
-    android:versionName="1.5.3"
-    android:installLocation="auto" 
-    >
+    android:versionCode="20041"
+    android:versionName="2.0.41"
+    android:installLocation="auto" >
 
     <uses-sdk android:minSdkVersion="15" android:targetSdkVersion="19"/>
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -32,32 +31,41 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES"/>
     
+    
     <uses-feature android:glEsVersion="0x00020000" android:required="true"/>
     <uses-feature android:name="android.hardware.location" android:required="false"/>
     <uses-feature android:name="android.hardware.location.network" android:required="false"/>
     <uses-feature android:name="android.hardware.location.gps" android:required="false"/>
     <uses-feature android:name="android.hardware.wifi" android:required="false"/>
-    
-    <application android:icon="@drawable/app_icon" android:label="@string/app_name" android:allowBackup="true">
         
-        <!-- google maps library -->
-        <uses-library android:name="com.google.android.maps" />
-        
+    <application android:icon="@drawable/app_icon" android:label="@string/app_name" android:allowBackup="true"
+        android:supportsRtl="false">
         <activity android:name="at.alladin.rmbt.android.main.RMBTMainActivity" 
             android:label="@string/app_name" 
-            android:theme="@android:style/Theme.NoTitleBar"
-            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Holo"
             android:launchMode="singleTask"
-            android:windowSoftInputMode="adjustPan">
+            android:windowSoftInputMode="adjustPan"
+            android:configChanges="orientation|screenSize|keyboardHidden">
+        <!--
+        	in most cases 
+         		android:configChanges="orientation|screenSize|keyboardHidden"
+         	is a bad choice. don't use it! -->
+         	
+		<!-- android:screenOrientation="portrait" -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:label="@string/preferences" android:name="at.alladin.rmbt.android.preferences.RMBTPreferenceActivity" android:theme="@style/customPrefTheme" android:screenOrientation="portrait" android:enabled="true" />
+        <activity android:label="@string/preferences" 
+            android:name="at.alladin.rmbt.android.preferences.RMBTPreferenceActivity"
+            android:theme="@android:style/Theme.Holo"  
+            android:enabled="true" />
         
-        <activity android:label="@string/terms" android:name="at.alladin.rmbt.android.terms.RMBTTermsActivity" android:theme="@style/customPrefTheme" android:screenOrientation="portrait" android:enabled="true" />
+        <activity android:label="@string/terms" android:name="at.alladin.rmbt.android.terms.RMBTTermsActivity"
+            android:theme="@android:style/Theme.Holo" 
+			android:enabled="true" />
         
         <service android:enabled="true" android:name="at.alladin.rmbt.android.test.RMBTService" android:exported="false" />
         <service android:enabled="true" android:name="at.alladin.rmbt.android.test.RMBTLoopService" android:exported="false" />

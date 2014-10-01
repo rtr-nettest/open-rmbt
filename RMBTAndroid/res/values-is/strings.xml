@@ -118,17 +118,14 @@
     <string name="test_location_dir_w">V</string>
     
     <string name="test_notification_text">Prófun er innt sem baksviðsforrit.</string>
-    <string name="test_loop">Umferð</string>
     <string name="test_dialog_error_title">Villa…</string>
     <string name="test_dialog_error_text">Villa kom fram í prófunina.</string>
     
     <string name="test_dialog_abort_title">Hætta við…</string>
     <string name="test_dialog_abort_text">Ætlar þú að stöðva prófunina í keyrslu?</string>
-    <string name="test_dialog_abort_extended_text">Ætlar þú að stöðva rækilegu prófunina?</string>
     <string name="test_dialog_abort_yes">Hætta við</string>
     <string name="test_dialog_abort_no">Halda áfram</string>
     
-    <string name="history">PRÓFANASKRÁ</string>
     <string name="history_button_sync">Samstilla</string>
     <string name="history_button_filter">Sía</string>
     <string name="history_device">Tæki</string>
@@ -144,27 +141,10 @@
 	<string name="history_filter_result_number">FJÖLDI NIÐURSTAÐNA</string>
 	<string name="history_filter_result_number_25">Sýna einungis 25 nýjustu niðurstöður</string>
 	
-	<string name="result_header">PRÓFUNARNIÐURSTAÐA</string>
 	<string name="result_measurement">MÆLING</string>
 	<string name="result_net">NET</string>
-	<string name="result_details_button">SMÁATRIÐI</string>
-	<string name="result_map_button">KORT</string>
 	
 	<string name="result_details">SMÁATRIÐI</string>
-	
-	<string name="result_button_new_test">NÝ PRÓFUN</string>
-	<string name="result_button_history">Prófanaskrá</string>
-	<string name="result_button_map">Kort</string>
-	
-	<string name="result_extended_test_header">RÆKILEG PRÓFUN</string>
-	<string name="result_extended_test_not_started">Rækileg prófun ekki ennþá í keyrslu</string>
-	<string name="result_extended_test_running">Rækileg prófun í keyrslu</string>
-	<string name="result_extended_test_results">Rækileg prófun í lokastig</string>
-	<string name="result_extended_test_finished">Rækileg prófun lokin</string>
-	<string name="result_extended_test_aborted">Rækileg prófun stöðvað</string>
-	<string name="result_extended_test_error">Tengingarvilla í prófun</string>
-	<string name="result_extended_test_button_stop">Stopp</string>
-	<string name="result_extended_test_button_detail">Smáatriði</string>
 	
 	<string name="sync_info_text">Það er hægt að sameina mælinganiðurstöður annarra tækja. Til þess verður þú að slá inn samstillingarkóða fenginn áður eða að krefja nýs kóða.</string>
 	<string name="sync_request_code_button">Krefja kóða</string>

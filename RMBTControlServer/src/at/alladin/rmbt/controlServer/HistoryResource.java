@@ -103,7 +103,7 @@ public class HistoryResource extends ServerResource
                             limitRequest = " LIMIT " + limit + offsetString;
                         }
                         
-                        final ArrayList<String> deviceValues = new ArrayList<String>();
+                        final ArrayList<String> deviceValues = new ArrayList<>();
                         String deviceRequest = "";
                         if (request.optJSONArray("devices") != null)
                         {
@@ -132,7 +132,7 @@ public class HistoryResource extends ServerResource
                             
                         }
                         
-                        final ArrayList<String> filterValues = new ArrayList<String>();
+                        final ArrayList<String> filterValues = new ArrayList<>();
                         String networksRequest = "";
                         
                         if (request.optJSONArray("networks") != null)
@@ -171,7 +171,7 @@ public class HistoryResource extends ServerResource
                                             .format(
 
                                             		"SELECT DISTINCT"
-                                                    + " t.uuid, time, timezone, speed_upload, speed_download, ping_shortest, network_type, nt.group_name network_type_group_name,"
+                                                    + " t.uuid, time, timezone, speed_upload, speed_download, ping_median, network_type, nt.group_name network_type_group_name,"
                                                     + " COALESCE(adm.fullname, t.model) model"
                                                     + " FROM test t"
                                                     + " LEFT JOIN device_map adm ON adm.codename=t.model"
@@ -186,7 +186,7 @@ public class HistoryResource extends ServerResource
                                         .prepareStatement(String
                                                 .format(
                                                 		"SELECT DISTINCT"
-                                                        + " t.uuid, time, timezone, speed_upload, speed_download, ping_shortest, network_type, nt.group_name network_type_group_name,"
+                                                        + " t.uuid, time, timezone, speed_upload, speed_download, ping_median, network_type, nt.group_name network_type_group_name,"
                                                         + " COALESCE(adm.fullname, t.model) model"
                                                         + " FROM test t"
                                                         + " LEFT JOIN device_map adm ON adm.codename=t.model"
@@ -209,7 +209,7 @@ public class HistoryResource extends ServerResource
                             for (final String filterValue : filterValues)
                                 st.setString(i++, filterValue);
                             
-                            System.out.println(st.toString());
+                            //System.out.println(st.toString());
                             
                             final ResultSet rs = st.executeQuery();
                             
@@ -233,15 +233,19 @@ public class HistoryResource extends ServerResource
                                 jsonItem.put("speed_upload", format.format(rs.getInt("speed_upload") / 1000d));
                                 jsonItem.put("speed_download", format.format(rs.getInt("speed_download") / 1000d));
                                 
-                                final long pingShortest = rs.getLong("ping_shortest");
-                                jsonItem.put("ping_shortest", format.format(pingShortest / 1000000d));
+                                final long ping = rs.getLong("ping_median");
+                                jsonItem.put("ping", format.format(ping / 1000000d));
+                                // backwards compatibility for old clients
+                                jsonItem.put("ping_shortest", format.format(ping / 1000000d));
                                 jsonItem.put("model", rs.getString("model"));
                                 jsonItem.put("network_type", rs.getString("network_type_group_name"));
                                 
                                 //for appscape-iPhone-Version: also add classification to the response
                                 jsonItem.put("speed_upload_classification", Classification.classify(Classification.THRESHOLD_UPLOAD, rs.getInt("speed_upload")));
                                 jsonItem.put("speed_download_classification", Classification.classify(Classification.THRESHOLD_DOWNLOAD, rs.getInt("speed_download")));
-                                jsonItem.put("ping_shortest_classification", Classification.classify(Classification.THRESHOLD_PING, rs.getLong("ping_shortest")));
+                                jsonItem.put("ping_classification", Classification.classify(Classification.THRESHOLD_PING, rs.getLong("ping_median")));
+                                // backwards compatibility for old clients
+                                jsonItem.put("ping_shortest_classification", Classification.classify(Classification.THRESHOLD_PING, rs.getLong("ping_median")));
                                 
                                 historyList.put(jsonItem);
                             }

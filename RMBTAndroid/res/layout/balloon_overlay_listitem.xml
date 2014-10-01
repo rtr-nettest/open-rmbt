@@ -40,8 +40,7 @@
         android:id="@+id/resultMeasurementDivider"
         android:layout_width="match_parent"
         android:layout_height="2dp"
-        android:background="@drawable/bg_trans_light_20"
-        android:contentDescription="" />
+        android:background="@drawable/bg_trans_light_20" />
 
     <LinearLayout
         android:id="@+id/resultMeasurementList"

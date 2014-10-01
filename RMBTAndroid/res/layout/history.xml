@@ -15,90 +15,10 @@
   limitations under the License.
 -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent" >
-
-    <LinearLayout
-        android:id="@+id/buttonLayout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="5dp"
-        android:orientation="horizontal" >
-
-        <RelativeLayout
-            android:id="@+id/menuButtonHistory"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
-            <Button
-                android:id="@+id/filterButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:layout_centerHorizontal="true"
-                android:background="@drawable/button_filter_medium" />
-
-            <TextView
-                android:id="@+id/filterButtonText"
-                style="@style/textMenuButtonMedium"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignBottom="@+id/filterButton"
-                android:layout_centerHorizontal="true"
-                android:clickable="false"
-                android:paddingBottom="19dp"
-                android:paddingRight="8dp"
-                android:text="@string/history_button_filter" />
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:id="@+id/menuButtonMap"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
-            <Button
-                android:id="@+id/syncButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:layout_centerHorizontal="true"
-                android:background="@drawable/button_sync_medium" />
-
-            <TextView
-                android:id="@+id/syncButtonText"
-                style="@style/textMenuButtonMedium"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignBottom="@+id/syncButton"
-                android:layout_centerHorizontal="true"
-                android:clickable="false"
-                android:paddingBottom="19dp"
-                android:paddingLeft="3dp"
-                android:text="@string/history_button_sync" />
-        </RelativeLayout>
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/historyHeaderText"
-        style="@style/blockHeader"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/buttonLayout"
-        android:text="@string/history" />
-
-    <RelativeLayout
         android:id="@+id/historyListBox"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_below="@+id/historyHeaderText"
-        android:layout_marginBottom="10dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginTop="0dp"
-        android:background="@drawable/history_box" >
+        android:layout_height="match_parent" >
+        <!-- android:background="@drawable/history_box" -->
 
         <LinearLayout
             android:id="@+id/columnLabelRow"
@@ -106,7 +26,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:background="@drawable/bg_trans_light_20">
+            android:background="@color/bgblue">
 
             <TextView
                 android:id="@+id/col1"
@@ -183,15 +103,4 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true" />
-        
-       <!--  <ImageView
-            android:id="@+id/historyImageReflection1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignTop="@+id/columnLabelRow"
-            android:contentDescription=""
-            android:src="@drawable/result_box_reflection_large" > 
-        </ImageView> --> 
-    </RelativeLayout>
-
 </RelativeLayout>

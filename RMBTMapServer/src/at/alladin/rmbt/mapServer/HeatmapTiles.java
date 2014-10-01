@@ -122,7 +122,7 @@ public class HeatmapTiles extends TileRestlet
     
     @Override
     protected void handle(final Request req, final Response res, final Form params, final int tileSizeIdx, final int zoom, final DBox box,
-            final MapOption mo, final List<SQLFilter> filters)
+            final MapOption mo, final List<SQLFilter> filters, final float quantile)
     {
         filters.add(MapServerOptions.getAccuracyMapFilter());
         
@@ -167,20 +167,7 @@ public class HeatmapTiles extends TileRestlet
             ps = con.prepareStatement(sql);
             
             int i = 1;
-            
-            float quantil = 0.8f;
-            final String statisticalMethod = params.getFirstValue("statistical_method", true);
-            if (statisticalMethod != null)
-                try
-                {
-                    final float _quantil = Float.parseFloat(statisticalMethod);
-                    if (_quantil >= 0 && _quantil <= 1)
-                        quantil = _quantil;
-                }
-                catch (final NumberFormatException e)
-                {
-                }
-            ps.setFloat(i++, quantil);
+            ps.setFloat(i++, quantile);
             
             // int _partSizeFactor = (int)Math.round((8d/11d) * zoom -
             // (48d/11d));

@@ -39,7 +39,7 @@
         android:layout_height="0dp"
         android:layout_marginTop="5dp"
         android:layout_weight="1"
-        android:background="#104967" >
+        android:background="@color/transparent" >
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -50,18 +50,18 @@
                 android:id="@+id/termsCheckWebViewShort"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="#104967" />
+                android:background="@color/transparent" />
 
             <WebView
                 android:id="@+id/termsCheckWebViewLong"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="#104967" />
+                android:background="@color/transparent" />
         </LinearLayout>
     </ScrollView>
 
     <TextView
-        style="@style/textSmallDark"
+        style="@style/textSmallLight"
         android:id="@+id/termsAcceptText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -69,14 +69,18 @@
         android:text="@string/terms_accept_text"
         android:textStyle="bold" />
 
-    <RelativeLayout
+    <LinearLayout
+        android:layout_marginTop="2dp"
+        android:baselineAligned="false"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal" >
 
         <RelativeLayout
+            android:padding="5dp"
+            android:layout_weight="1"
             android:id="@+id/termsButtonDecline"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content" >
 
             <Button
@@ -85,26 +89,17 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 android:layout_centerHorizontal="true"
-                android:background="@drawable/button_medium_left" />
+                android:text="@string/terms_decline_button"
+                android:background="@drawable/button_selector" />
 
-            <TextView
-                style="@style/textMenuButtonMedium"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignBottom="@+id/termsDeclineButton"
-                android:layout_centerHorizontal="true"
-                android:layout_centerInParent="true"
-                android:clickable="false"
-                android:paddingBottom="19dp"
-                android:paddingRight="6dp"
-                android:text="@string/terms_decline_button" />
         </RelativeLayout>
 
         <RelativeLayout
+			android:padding="5dp"
+            android:layout_weight="1"
             android:id="@+id/termsButtonAccept"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toRightOf="@+id/termsButtonDecline" >
+            android:layout_width="0dp"
+            android:layout_height="wrap_content" >
 
             <Button
                 android:id="@+id/termsAcceptButton"
@@ -112,21 +107,9 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 android:layout_centerHorizontal="true"
-                android:background="@drawable/button_medium_right" />
-
-            <TextView
-                android:id="@+id/termsAcceptButtonText"
-                style="@style/textMenuButtonMedium"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignBottom="@+id/termsAcceptButton"
-                android:layout_centerHorizontal="true"
-                android:layout_centerInParent="true"
-                android:clickable="false"
-                android:paddingBottom="19dp"
-                android:paddingLeft="6dp"
-                android:text="@string/terms_accept_button" />
+                android:text="@string/terms_accept_button" 
+                android:background="@drawable/button_selector" />
         </RelativeLayout>
-    </RelativeLayout>
+    </LinearLayout>
 
 </LinearLayout>

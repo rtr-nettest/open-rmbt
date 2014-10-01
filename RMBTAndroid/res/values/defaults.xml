@@ -16,10 +16,15 @@
 -->
 <resources>
     <integer name="default_loop_max_tests">100</integer>
-    <integer name="default_loop_min_delay">60</integer>
-    <integer name="default_loop_max_delay">600</integer>
-    <integer name="default_loop_max_movement">100</integer>
+    <integer name="default_loop_min_delay">30</integer>
+    <integer name="default_loop_max_delay">900</integer>
+    <integer name="default_loop_max_movement">250</integer>
+
+    <string translatable="false" name="default_control_host">c01.control.netztest.at</string>
     
-    <string name="default_control_host">c01.control.netztest.at</string>
-    <string name="default_control_host_ipv4">c01v4.control.netztest.at</string>
+    <string translatable="false" name="default_control_host_ipv4_only">c01v4.control.netztest.at</string>
+    <string translatable="false" name="default_control_host_ipv6_only">c01v6.control.netztest.at</string>
+    
+    <string translatable="false" name="default_control_check_ipv4_url">https://c01v4.control.netztest.at/RMBTControlServer/ip</string>
+    <string translatable="false" name="default_control_check_ipv6_url">https://c01v6.control.netztest.at/RMBTControlServer/ip</string>
 </resources>

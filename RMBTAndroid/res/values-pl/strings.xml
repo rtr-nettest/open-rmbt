@@ -18,6 +18,7 @@
     
     <string name="error_no_internet"> Proszę uaktywnić \npołączenie z Internetem </string>
     <string name="error_no_data">Brak danych.</string>
+    <string name="error_history_no_data_no_connection">Brak połączenia z Internetem. Pobieranie danych z serwera nie powiodło się.</string>
     
     <string name="main_dialog_registration_title">Rejestracja…</string>
     <string name="main_dialog_registration_text">Klient jest rejestrowany. Proszę czekać…</string>
@@ -35,18 +36,40 @@
     <string name="preferences_no_gps">Brak lokalizacji GPS </string>
     <string name="preferences_no_gps_sum">GPS nieaktywne podczas pomiaru </string>
     
-    <string name="preferences_loop_mode"> Powtórzenie </string>
+    <string name="preferences_tag">Tag</string>
+    <string name="preferences_tag_sum">Tag dołączany do każdego testu</string>
+    
+    <string name="preferences_loop_mode">Powtórzenie</string>
     <string name="preferences_loop_mode_sum">Test wykonywany jest w pętli nieskończonej</string>
     
+    <string name="preferences_loop_mode_max_tests">Maksymalna ilość testów</string>
+    <string name="preferences_loop_mode_max_tests_sum">Maksymalna ilość testów przeprowadzonych w trybie pętli nieskończonej (0 = nieskończona)</string>
+    
+    <string name="preferences_loop_mode_min_delay">Przerwa minimalna</string>
+    <string name="preferences_loop_mode_min_delay_sum">Przerwa minimalna w sekundach między testami pętli nieskończonej</string>
+    
+    <string name="preferences_loop_mode_max_delay">Przerwa maksymalna</string>
+    <string name="preferences_loop_mode_max_delay_sum">Przerwa maksymalna w sekundach między testami pętli nieskończonej</string>
+    
+    <string name="preferences_loop_mode_movement">Poruszenie</string>
+    <string name="preferences_loop_mode_movement_sum">Oddalenie w metrach od miejsca pobytu po którym zostanie wykonany kolejny test pętli nieskończonej</string>
+    
+    <string name="preferences_loop_mode_gps">GPS aktywne</string>
+    <string name="preferences_loop_mode_gps_sum">GPS aktywne między testami pętli nieskończonej</string> 
+        
     <string name="preferences_ndt">NDT</string>
     <string name="preferences_ndt_sum"> Włącz rozszerzony test</string>
     
     <string name="preferences_ipv4_only">Tylko IPv4</string>
     <string name="preferences_ipv4_only_sum"> Nie zastosowany protokół IPv6</string>
-    
+        
     <string name="preferences_category_developer">ROZWÓJ</string>
+    <string name="preferences_category_loop_mode">Pętla nieskończona</string>
     <string name="preferences_category_developer_control_server">serwer sterujący</string>
     <string name="preferences_category_developer_map_server">serwer map</string>
+    <string name="preferences_category_developer_qos_server">serwer QoS</string>
+    <string name="preferences_category_developer_debug">Debugowanie</string>
+    
     
     <string name="preferences_dev_control_override"> nadpisać serwer sterujący</string>
     <string name="preferences_dev_control_override_sum">Aktywuje następujące ustawienia dla serwera sterującego</string>
@@ -72,13 +95,22 @@
     <string name="preferences_dev_map_ssl">SSL serwera mapy</string>
     <string name="preferences_dev_map_ssl_sum"> Połączenie szyfrowane z serwerem map</string>
     
+    <string name="preferences_dev_qos_ssl">SSL serwera QoS</string>
+    <string name="preferences_dev_qos_ssl_sum"> Połączenie szyfrowane z serwerem QoS</string>
+    
+    <string name="preferences_dev_debug_sysout">Zapis błędów w pliku</string>
+    <string name="preferences_dev_debug_sysout_sum">Zapis błędów System.err w folderze "qosdebug"</string>
+    
+    
     <string name="menu_button_start">START</string>
+    <string name="menu_button_title_page">strona startowa</string>
     <string name="menu_button_map">mapa</string>
     <string name="menu_button_history">przebieg</string>
     <string name="menu_button_help">pomoc</string>
     <string name="menu_button_statistics">statystyka</string>
     <string name="menu_button_settings">ustawienia</string>
     <string name="menu_button_about">info</string>
+    <string name="menu_button_share">udostępnić</string>
     
     <string name="news_title">nowości</string>
     <string name="news_no_message">Brak treści.</string>
@@ -105,11 +137,19 @@
     <string name="terms_ndt_accept_text"><b> Chciałbym uruchomić opcjonalny, rozszerzony test NDT.</b></string>
     <string name="terms_ndt_back_button">Wstecz</string>
     <string name="terms_ndt_accept_button">Dalej</string>
+    
+    <string name="loop_notification_ticker">Pętla nieskończonej jest aktywna…</string>
+    <string name="loop_notification_title">Pętla nieskończonej jest aktywna</string>
+    <string name="loop_notification_text">Kliknij aby zakończyć tryb pętli nieskończonej</string>
+    
+    <string name="loop_started">Pętla nieskończona została uaktywniona.</string>
+    <string name="loop_already_active">Aplikacja znajduję się juz w trybie pętli nieskończonej.</string>
 
     <string name="test_mbps">Mbps</string>
     <string name="test_dbm">dBm</string>
     <string name="test_location_km_h">km/h</string>
     <string name="test_location_m">m</string>
+    <string name="test_location_sat">satelity</string>
     <string name="test_location_gps">GPS</string>
     <string name="test_location_network">sieć</string>
     <string name="test_location_dir_n">N</string>
@@ -118,17 +158,16 @@
     <string name="test_location_dir_w">W</string>
     
     <string name="test_notification_text"> Test nadal działa w tle.</string>
-    <string name="test_loop">Przebieg</string> 
     <string name="test_dialog_error_title">Błąd…</string>
     <string name="test_dialog_error_text">Podczas testu wystąpił błąd.</string>
+    <string name="test_dialog_error_control_server_conn">Wystąpił błąd podczas łączenia się z serwerem.</string>
+    <string name="test_toast_error_text_qos">Podczas testu QoS wystąpił błąd.</string>   
     
     <string name="test_dialog_abort_title">Anulować…</string>
     <string name="test_dialog_abort_text">Czy na pewno chcesz przerwać bieżący test?</string>
-    <string name="test_dialog_abort_extended_text">Czy na pewno chcesz przerwać rozszerzony test?</string>
     <string name="test_dialog_abort_yes">Anulować test</string>
     <string name="test_dialog_abort_no">Kontynuować test </string>
     
-    <string name="history">PRZEBIEG</string>
     <string name="history_button_sync">Sync</string>
     <string name="history_button_filter">Filter</string>
     <string name="history_device">aparat</string>
@@ -144,27 +183,14 @@
 	<string name="history_filter_result_number">LICZBA WYNIKÓW</string>
 	<string name="history_filter_result_number_25">Pokaż tylko najnowsze 25 wyników.</string>
 	
-	<string name="result_header">WYNIKI TESTU</string>
 	<string name="result_measurement">MIERZENIE</string>
 	<string name="result_net">SIEĆ</string>
-	<string name="result_details_button">DETALE</string>
-	<string name="result_map_button">MAPA</string>
 	
 	<string name="result_details">DETALE</string>
 	
-	<string name="result_button_new_test">NOWY TEST</string>
-	<string name="result_button_history">przebieg</string>
-	<string name="result_button_map">mapa</string>
+	<string name="result_category_tests">TESTY</string>
+	<string name="result_description">OPIS</string>
 	
-	<string name="result_extended_test_header">ROZSZERZONY TEST</string>
-	<string name="result_extended_test_not_started">Rozszerzony test jeszcze nie rozpoczęty.</string>
-	<string name="result_extended_test_running">Rozszerzony test trwa</string>
-	<string name="result_extended_test_results">Rozszerzony test jest finalizowany </string>
-	<string name="result_extended_test_finished">Rozszerzony test zakończony</string>
-	<string name="result_extended_test_aborted">Rozszerzony test przerwany</string>
-	<string name="result_extended_test_error">Błąd połączenia podczas testu.</string>
-	<string name="result_extended_test_button_stop">Stop</string>
-	<string name="result_extended_test_button_detail">Detale</string>
 	
 	<string name="sync_info_text"> Możliwe jest połączenie wyników z innymi aparatami. Należy wprowadzić już otrzymany kod synchronizacji lub zamówić nowy.</string>
 	<string name="sync_request_code_button">Zamówić kod</string>
@@ -211,9 +237,93 @@
 	<string name="test_bottom_test_status_init_up">Inicjacja Upload</string>
 	<string name="test_bottom_test_status_up">Upload</string>
 	<string name="test_bottom_test_status_end">Finalizacja</string>
-	<string name="test_bottom_test_status_error">Bląd</string>
+	<string name="test_bottom_test_status_error">Błąd</string>
 	<string name="test_bottom_test_status_aborted">Anulowane</string>
 	
+	
+	<!-- QoS -->
+	<string name="about_control_server_version">Wersja serwera sterującego</string>
+	
+	<string name="term_signal">Sygnał</string>
+	
+	<string name="result_page_title_qos">QoS</string>
+	<string name="result_page_title_test">Detale</string>
+	<string name="result_page_title_menu">Wynik</string>
+	<string name="result_page_title_graph">Graf</string>
+	<string name="result_page_title_map">Lokalizacja</string>
+		
+	<string-array name="result_page_title">
+	  	<item>@string/result_page_title_menu</item>
+	    <item>@string/result_page_title_qos</item>
+	    <item>@string/result_page_title_test</item>
+		<item>@string/result_page_title_graph</item>
+	    <item>@string/result_page_title_map</item>
+	</string-array>
+	
+	<string name="qos_test_result_error">Bląd</string>
+	<string name="qos_test_result_all">Wyniki</string>
+	
+	<string name="result_details_qos_failure">NIEPOWODZENIE</string>
+	<string name="result_details_qos_success">POWODZENIE</string>
+	
+	<string name="page_title_title_page">Menu</string>
+	<string name="page_title_history">Przebieg</string>
+	<string name="page_title_help">Pomic</string>
+	<string name="page_title_statistics">Statystyka</string>
+	<string name="page_title_information">Informacja</string>
+	<string name="page_title_map">Mapa</string>
+	<string name="page_title_settings">Ustawienia</string>
+	<string name="page_title_about">O aplikacji</string>
+	<string name="page_title_main_result">Wynik testu</string>
+	<string name="page_title_sync">Synchronizacja</string>
+	<string name="page_title_qos_result">Wyniki testu QoS</string>
+	
+	<string-array name="navigation_main_titles">
+	    <item>@string/menu_button_title_page</item>
+    	<item>@string/page_title_history</item>
+    	<item>@string/page_title_map</item>    	
+    	<item>@string/menu_button_statistics</item>
+    	<item>@string/page_title_help</item>
+    	<item>@string/page_title_information</item>
+    	<item>@string/page_title_settings</item>
+	</string-array>
+	
+	<string name="result_qos_stats">Testy QoS</string>
+	<string name="result_qos_error_no_data_available">Testy QoS nie zostałay wykonane.</string>
+	
+	<string name="title_screen_ipv4">IPv4</string>
+	<string name="title_screen_ipv6">IPv6</string>
+	<string name="title_screen_traffic">Przepływ danych w tle</string>
+	<string name="title_screen_network_id">ID sieci:</string>
+	
+	<string name="title_screen_info_overlay_location">Lokalizacja</string>
+	<string name="title_screen_info_overlay_ipv4_public">publiczny adres IPv4</string>
+	<string name="title_screen_info_overlay_ipv4_private">prywatny adres IPv4</string>
+	<string name="title_screen_info_overlay_ipv6_public">publiczny adres IPv6</string>
+	<string name="title_screen_info_overlay_ipv6_private">prywatny adres IPv6</string>
+	<string name="title_screen_info_overlay_ul_traffic">Upload danych</string>
+	<string name="title_screen_info_overlay_dl_traffic">Download danych</string>
+	<string name="title_screen_info_overlay_control_server_conn">serwer sterujący</string>
+	<string name="title_screen_info_overlay_captive_portal_status">Captive portal</string>
+	<string name="title_screen_info_overlay_is_loopback">Is loopback</string>
+	<string name="title_screen_info_overlay_is_link_local">Is link local</string>
+	<string name="title_screen_info_overlay_location_position">Pozycja</string>
+	<string name="title_screen_info_overlay_location_source">źródło</string>
+	<string name="title_screen_info_overlay_location_accuracy">dokładność</string>
+	<string name="title_screen_info_overlay_location_altitude">wysokość</string>
+	<string name="title_screen_info_overlay_location_age">wiek</string>
+	<string name="title_screen_empty">-</string>
+	
+		
+	<string name="captive_portal_found">znaleziono</string>
+	<string name="captive_portal_not_found">nie znaleziono</string>
+	<string name="captive_portal_testing">testuje…</string>
+	
+	<string name="not_available">nie dostępne</string>
+	
+	<string name="test_label_test_info">Informacje testu</string>
+	<string name="test_label_progress">Postęp</string>
+	<string name="test_label_quality_test">Testy jakości</string>
 </resources>
 
 

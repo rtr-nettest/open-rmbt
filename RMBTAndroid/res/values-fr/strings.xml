@@ -122,17 +122,14 @@
     <string name="test_location_dir_w">O</string>
     
     <string name="test_notification_text">Le test est encore en cours.</string>
-    <string name="test_loop">Passage</string>
     <string name="test_dialog_error_title">Erreur…</string>
     <string name="test_dialog_error_text">Durant l’analyse, une erreur est apparue.</string>
     
     <string name="test_dialog_abort_title">Abandonner…</string>
     <string name="test_dialog_abort_text">Voulez-vous vraiment interrompre le test actuel?</string>
-    <string name="test_dialog_abort_extended_text">Voulez-vous vraiment annuler le test prolongé?</string>
     <string name="test_dialog_abort_yes">Annuler le test</string>
     <string name="test_dialog_abort_no">Continuer le test</string>
     
-    <string name="history">HISTOIRE</string>
     <string name="history_button_sync">Sync</string>
     <string name="history_button_filter">Filtrez</string>
     <string name="history_device">Appareil</string>
@@ -148,27 +145,10 @@
 	<string name="history_filter_result_number">NUMÉRO DE RÉSULTAT</string>
 	<string name="history_filter_result_number_25">Afficher uniquement les dernières 25 résultats</string>
 	
-	<string name="result_header">RESULTATS DU TEST</string>
 	<string name="result_measurement">MESURE</string>
 	<string name="result_net">RÉSEAU</string>
-	<string name="result_details_button">DETAILS</string>
-	<string name="result_map_button">CARTE</string>
 	
 	<string name="result_details">DETAILS</string>
-	
-	<string name="result_button_new_test">Nouveau test</string>
-	<string name="result_button_history">Histoire</string>
-	<string name="result_button_map">Carte</string>
-	
-	<string name="result_extended_test_header">Test avancé</string>
-	<string name="result_extended_test_not_started">Le test avancé n’a pas encore démarré</string>
-	<string name="result_extended_test_running">Test en cours</string>
-	<string name="result_extended_test_results">Résultats du test finalisé</string>
-	<string name="result_extended_test_finished">Test avancé terminé</string>
-	<string name="result_extended_test_aborted">Le test avancé a été interrompu</string>
-	<string name="result_extended_test_error">Échec de connexion au cours de test</string>
-	<string name="result_extended_test_button_stop">Arrêter</string>
-	<string name="result_extended_test_button_detail">Détails</string>
 	
 	<string name="sync_info_text">Il est possible de combiner les résultats d\'autres terminaux. Vous devez entrer un code de synchronisation déjà reçu ou en demander un nouveau.</string>
 	<string name="sync_request_code_button">Requête code</string>

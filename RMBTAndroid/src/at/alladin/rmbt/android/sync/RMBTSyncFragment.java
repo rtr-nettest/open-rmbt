@@ -15,24 +15,33 @@
  ******************************************************************************/
 package at.alladin.rmbt.android.sync;
 
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
+import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import at.alladin.openrmbt.android.R;
 import at.alladin.rmbt.android.main.RMBTMainActivity;
 
 public class RMBTSyncFragment extends Fragment
 {
     @Override
-    public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState)
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle bundle) {
+        FrameLayout frameLayout = new FrameLayout(getActivity());
+        populateViewForOrientation(inflater, frameLayout);
+        return frameLayout;
+    }
+    
+    public void populateViewForOrientation(final LayoutInflater inflater, final ViewGroup container)
     {
-        final View view = inflater.inflate(R.layout.sync, container, false);
+        container.removeAllViewsInLayout();
+        final View view = inflater.inflate(R.layout.sync, container);
         
         final Button buttonRequestCode = (Button) view.findViewById(R.id.requestCodeButton);
         
@@ -69,8 +78,14 @@ public class RMBTSyncFragment extends Fragment
                 ft.commit();
             }
         });
-        
-        return view;
+    }
+    
+    @Override
+    public void onConfigurationChanged(Configuration newConfig)
+    {
+        super.onConfigurationChanged(newConfig);
+        LayoutInflater inflater = LayoutInflater.from(getActivity());
+        populateViewForOrientation(inflater, (ViewGroup) getView());
     }
     
     public boolean onBackPressed()

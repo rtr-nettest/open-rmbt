@@ -86,7 +86,7 @@ public class InfoResource extends ServerResource
             obj.put("title", labels.getString("MAP_FILTER_STATISTICAL_METHOD_" + stat + "_TITLE"));
             obj.put("summary", labels.getString("MAP_FILTER_STATISTICAL_METHOD_" + stat + "_SUMMARY"));
             obj.put("statistical_method", statisticalMethodArray[stat - 1]);
-            if (stat == 1)
+            if (stat == 2)  //2nd list entry is default (median)
                 obj.put("default", true);
             mapFilterStatisticalMethodList.put(obj);
         }
@@ -118,6 +118,11 @@ public class InfoResource extends ServerResource
         filterList.put(getTimes());
 //        filterList.put(getDevices("browser"));
         
+        filterList = new JSONArray();
+        result.put("all", filterList);
+        filterList.put(statisticalMethodObj);
+        filterList.put(getTimes());
+
         return result;
     }
     
@@ -187,6 +192,13 @@ public class InfoResource extends ServerResource
         obj.put("summary", labels.getString("MAP_FILTER_TECHNOLOGY_ANY"));
         obj.put("default", true);
         obj.put("technology", "");
+ 
+        //Filter for 3G + 4G
+        obj = new JSONObject();
+        options.put(obj);
+        obj.put("title", labels.getString("MAP_FILTER_TECHNOLOGY_3G_4G"));
+        obj.put("summary", labels.getString("MAP_FILTER_TECHNOLOGY_3G_4G"));
+        obj.put("technology", "34");     
         
         obj = new JSONObject();
         options.put(obj);

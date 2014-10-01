@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -46,7 +47,8 @@ import com.google.common.net.InetAddresses;
 
 public class ResultResource extends ServerResource
 {
-    final static int UNKNOWN = Integer.MIN_VALUE; 
+    final static int UNKNOWN = Integer.MIN_VALUE;
+    final static Pattern MCC_MNC_PATTERN = Pattern.compile("\\d{3}-\\d+");
     
     @Post("json")
     public String request(final String entity)
@@ -67,7 +69,8 @@ public class ResultResource extends ServerResource
             try
             {
                 request = new JSONObject(entity);
-                
+                //System.out.println(request);
+                               
                 final String lang = request.optString("client_language");
                 
                 // Load Language Files for Client
@@ -120,6 +123,19 @@ public class ResultResource extends ServerResource
                                     {
                                         
                                         test.setFields(request);
+                                        
+                                        final String networkOperator = request.optString("telephony_network_operator");
+                                        if (MCC_MNC_PATTERN.matcher(networkOperator).matches())
+                                            test.getField("network_operator").setString(networkOperator);
+                                        else
+                                            test.getField("network_operator").setString(null);
+                                        
+                                        final String networkSimOperator = request.optString("telephony_network_sim_operator");
+                                        if (MCC_MNC_PATTERN.matcher(networkSimOperator).matches())
+                                            test.getField("network_sim_operator").setString(networkSimOperator);
+                                        else
+                                            test.getField("network_sim_operator").setString(null);
+                                        
                                         
                                         // RMBTClient Info
                                         
@@ -363,7 +379,7 @@ public class ResultResource extends ServerResource
                                                 else if (thisSignalStrength < signalStrength && thisSignalStrength != UNKNOWN)
                                                     signalStrength = thisSignalStrength;
                                                 
-                                                if (thisLinkSpeed != 0 && thisLinkSpeed < linkSpeed)
+                                                if (thisLinkSpeed != 0 && (linkSpeed == UNKNOWN || thisLinkSpeed < linkSpeed))
                                                     linkSpeed = thisLinkSpeed;
                                                 
                                                 if (signal.hasError())
@@ -449,6 +465,7 @@ public class ResultResource extends ServerResource
                                         if (upField.isNull() || upField.intValue() <= 0 || upField.intValue() > 10000000) // 10 gbit/s limit
                                             errorList.addError("ERROR_UPLOAD_INSANE");
                                         
+                                        //clients still report eg: "test_ping_shortest":9195040 (note the 'test_' prefix there!)
                                         final LongField pingField = (LongField) test.getField("ping_shortest");
                                         if (pingField.isNull() || pingField.longValue() <= 0 || pingField.longValue() > 60000000000L) // 1 min limit
                                             errorList.addError("ERROR_PING_INSANE");
@@ -480,7 +497,7 @@ public class ResultResource extends ServerResource
                     }
                     else
                         errorList.addError("ERROR_TEST_TOKEN_MISSING");
-                    
+                                        
                     conn.commit();
                 }
                 else
@@ -491,11 +508,12 @@ public class ResultResource extends ServerResource
             {
                 errorList.addError("ERROR_REQUEST_JSON");
                 System.out.println("Error parsing JSDON Data " + e.toString());
+                e.printStackTrace();
             }
             catch (final SQLException e)
             {
-                errorList.addError("ERROR_REQUEST_JSON");
                 System.out.println("Error while storing data " + e.toString());
+                e.printStackTrace();
             }
         else
             errorList.addErrorString("Expected request is missing.");

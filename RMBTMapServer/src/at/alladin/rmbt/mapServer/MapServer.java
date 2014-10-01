@@ -26,21 +26,23 @@ public class MapServer extends Application
     {
         final Router router = new Router(getContext());
         
+        router.attach("/version", VersionResource.class);
+        
         final PointTiles pointTiles = new PointTiles();
-        router.attach("/points/{zoom}/{x}/{y}.png", pointTiles);
-        router.attach("/points", pointTiles);
+        router.attach("/tiles/points/{zoom}/{x}/{y}.png", pointTiles);
+        router.attach("/tiles/points", pointTiles);
         
         final HeatmapTiles heatmapTiles = new HeatmapTiles();
-        router.attach("/heatmap/{zoom}/{x}/{y}.png", heatmapTiles);
-        router.attach("/heatmap", heatmapTiles);
+        router.attach("/tiles/heatmap/{zoom}/{x}/{y}.png", heatmapTiles);
+        router.attach("/tiles/heatmap", heatmapTiles);
         
         final ShapeTiles shapeTiles = new ShapeTiles();
-        router.attach("/shapes/{zoom}/{x}/{y}.png", shapeTiles);
-        router.attach("/shapes", shapeTiles);
+        router.attach("/tiles/shapes/{zoom}/{x}/{y}.png", shapeTiles);
+        router.attach("/tiles/shapes", shapeTiles);
         
-        router.attach("/markers", MarkerResource.class);
+        router.attach("/tiles/markers", MarkerResource.class);
         
-        router.attach("/info", InfoResource.class);
+        router.attach("/tiles/info", InfoResource.class);
         
         return router;
     }

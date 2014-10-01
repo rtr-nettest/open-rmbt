@@ -66,10 +66,11 @@ public class Test extends Table
             new BooleanField("use_ssl", null),
             new TimestampField("time", null),
             new TimestampField("client_time", null),
-            new IntField("speed_upload", "test_speed_upload"),
-            new IntField("speed_download", "test_speed_download"),
-            new LongField("ping_shortest", "test_ping_shortest"),
-            new StringField("encryption", "test_encryption"),
+            new IntField("speed_upload", "test_speed_upload"), // note the '_test' prefix!
+            new IntField("speed_download", "test_speed_download"), // note the '_test' prefix!
+            new LongField("ping_shortest", "test_ping_shortest"), // note the '_test' prefix!
+            new LongField("ping_median", null),
+            new StringField("encryption", "test_encryption"), // note the '_test' prefix!
             new StringField("client_public_ip", null),
             new StringField("client_public_ip_anonymized", null),
             new StringField("plattform", "plattform"),
@@ -82,11 +83,11 @@ public class Test extends Table
             new IntField("phone_type", "telephony_phone_type"),
             new IntField("data_state", "telephony_data_state"),
             new StringField("network_country", "telephony_network_country"),
-            new StringField("network_operator", "telephony_network_operator"),
+            new StringField("network_operator", null),
             new StringField("mobile_provider_name", null, true),
             new StringField("network_operator_name", "telephony_network_operator_name"),
             new StringField("network_sim_country", "telephony_network_sim_country"),
-            new StringField("network_sim_operator", "telephony_network_sim_operator"),
+            new StringField("network_sim_operator", null),
             new StringField("network_sim_operator_mcc_mnc_text", null, true),
             new StringField("network_sim_operator_name", "telephony_network_sim_operator_name"),
             new IntField("roaming_type", null),
@@ -232,6 +233,25 @@ public class Test extends Table
             setError("ERROR_DB_GET_TEST_SQL");
         }
         return -1;
+    }
+    
+    public long getTestByOpenTestUuid(final UUID openTestUuid) {
+        resetError();
+        try
+        {
+            final PreparedStatement st = conn.prepareStatement(SELECT + " WHERE t.deleted = false AND t.implausible = false AND t.open_test_uuid = ?");
+            st.setObject(1, openTestUuid);
+            
+            loadTest(st);
+            
+            return uid;
+        }
+        catch (final SQLException e)
+        {
+            e.printStackTrace();
+            setError("ERROR_DB_GET_TEST_SQL");
+        }
+        return -1;    	
     }
     
     public boolean getTestByUid(final long uid)

@@ -26,15 +26,17 @@
         android:layout_height="match_parent"
         />
 
-	<Button 
+	<Button
 	    android:id="@+id/mapChooseButton"
-	    android:background="@drawable/map_choose_button"
 	    android:layout_width="wrap_content"
 	    android:layout_height="wrap_content"
-	    android:layout_alignParentTop="true"
 	    android:layout_alignParentLeft="true"
+	    android:layout_alignParentTop="true"
+	    android:layout_marginLeft="12dp"
 	    android:layout_marginTop="12dp"
-	    android:layout_marginLeft="12dp"/>
+	    android:background="@drawable/map_choose_button"
+	    android:minHeight="36dip"
+	    android:minWidth="36dip" />
 	
 	<Button 
 	    android:id="@+id/mapFilterButton"
@@ -43,7 +45,10 @@
 	    android:layout_height="wrap_content"
 	    android:layout_alignParentTop="true"
 	    android:layout_centerHorizontal="true"
-	    android:layout_marginTop="12dp"/>
+	    android:layout_marginTop="12dp"
+	    android:minHeight="36dip"
+	    android:minWidth="36dip" />
+	    
 	
 	<Button 
 	    android:id="@+id/mapLocateButton"
@@ -53,7 +58,10 @@
 	    android:layout_alignParentTop="true"
 	    android:layout_alignParentRight="true"
 	    android:layout_marginTop="12dp"
-	    android:layout_marginRight="12dp"/>
+	    android:layout_marginRight="12dp"
+	    android:minHeight="36dip"
+	    android:minWidth="36dip" />
+	  
 	
 	<Button 
 	    android:id="@+id/mapHelpButton"
@@ -63,7 +71,10 @@
 	    android:layout_alignParentBottom="true"
 	    android:layout_alignParentLeft="true"
 	    android:layout_marginBottom="92dp"
-	    android:layout_marginLeft="12dp"/>
+	    android:layout_marginLeft="12dp"
+	    android:minHeight="36dip"
+	    android:minWidth="36dip" />
+
 	
 	<Button 
 	    android:id="@+id/mapInfoButton"
@@ -73,7 +84,9 @@
 	    android:layout_alignParentBottom="true"
 	    android:layout_alignParentLeft="true"
 	    android:layout_marginBottom="40dp"
-	    android:layout_marginLeft="12dp"/>
+	    android:layout_marginLeft="12dp"
+	    android:minHeight="36dip"
+	    android:minWidth="36dip" />
 	
 	<Button 
 	    android:id="@+id/mapZoomInButton"
@@ -83,7 +96,10 @@
 	    android:layout_alignParentBottom="true"
 	    android:layout_alignParentRight="true"
 	    android:layout_marginBottom="92dp"
-	    android:layout_marginRight="12dp"/>
+	    android:layout_marginRight="12dp"
+	    android:minHeight="36dip"
+	    android:minWidth="36dip" />
+
 	
 	<Button 
 	    android:id="@+id/mapZoomOutButton"
@@ -93,7 +109,9 @@
 	    android:layout_alignParentBottom="true"
 	    android:layout_alignParentRight="true"
 	    android:layout_marginBottom="40dp"
-	    android:layout_marginRight="12dp"/>
+	    android:layout_marginRight="12dp"	    
+	    android:minHeight="36dip"
+	    android:minWidth="36dip" />
 
 	
 </RelativeLayout>

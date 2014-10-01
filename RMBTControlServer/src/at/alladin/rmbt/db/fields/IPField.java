@@ -17,6 +17,7 @@ package at.alladin.rmbt.db.fields;
 
 public class IPField extends StringField
 {
+    private static final long serialVersionUID = 1L;
     
     public IPField(final String dbKey, final String jsonKey)
     {

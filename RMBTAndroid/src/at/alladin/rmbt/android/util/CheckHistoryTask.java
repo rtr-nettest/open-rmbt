@@ -20,13 +20,12 @@ import java.util.ArrayList;
 import org.json.JSONArray;
 
 import android.os.AsyncTask;
-import android.support.v4.app.FragmentActivity;
 import at.alladin.rmbt.android.main.RMBTMainActivity;
 
 public class CheckHistoryTask extends AsyncTask<Void, Void, JSONArray>
 {
     
-    private final FragmentActivity activity;
+    private final RMBTMainActivity activity;
     
     private JSONArray historyList;
     
@@ -42,10 +41,10 @@ public class CheckHistoryTask extends AsyncTask<Void, Void, JSONArray>
     
     private boolean hasError = false;
     
-    public CheckHistoryTask(final FragmentActivity activity, final ArrayList<String> devicesToShow,
+    public CheckHistoryTask(final RMBTMainActivity rmbtMainActivity, final ArrayList<String> devicesToShow,
             final ArrayList<String> networksToShow)
     {
-        this.activity = activity;
+        this.activity = rmbtMainActivity;
         
         this.devicesToShow = devicesToShow;
         

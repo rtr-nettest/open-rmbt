@@ -19,13 +19,13 @@ import java.util.Map;
 
 import org.json.JSONArray;
 
+import android.app.Activity;
 import android.os.AsyncTask;
-import android.support.v4.app.FragmentActivity;
 import at.alladin.rmbt.android.main.RMBTMainActivity;
 
 public class CheckMarker extends AsyncTask<Void, Void, JSONArray>
 {
-    private final FragmentActivity activity;
+    private final Activity activity;
     
     private JSONArray resultList;
     
@@ -38,7 +38,7 @@ public class CheckMarker extends AsyncTask<Void, Void, JSONArray>
     
     private boolean hasError = false;
     
-    public CheckMarker(final FragmentActivity activity, final double lat, final double lon, final int zoom,
+    public CheckMarker(final Activity activity, final double lat, final double lon, final int zoom,
             final int size)
     {
         this.activity = activity;

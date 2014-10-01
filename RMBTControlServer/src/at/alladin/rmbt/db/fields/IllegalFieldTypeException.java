@@ -17,6 +17,8 @@ package at.alladin.rmbt.db.fields;
 
 public class IllegalFieldTypeException extends RuntimeException
 {
+    private static final long serialVersionUID = 1L;
+    
     public IllegalFieldTypeException()
     {
         super();

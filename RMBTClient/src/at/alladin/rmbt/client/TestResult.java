@@ -28,6 +28,7 @@ public abstract class TestResult
     public String encryption = "NONE";
     
     public long ping_shortest;
+    public long ping_median;
     public String client_version;
     
     public final List<Ping> pings = new ArrayList<Ping>();

@@ -19,23 +19,35 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 
+import android.app.ActionBar;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
-import android.view.ViewGroup;
+import android.view.MenuItem;
 import android.widget.ListView;
 import at.alladin.openrmbt.android.R;
 import at.alladin.rmbt.android.terms.RMBTTermsActivity;
 import at.alladin.rmbt.android.util.ConfigHelper;
-import at.alladin.rmbt.android.util.Helperfunctions;
 
 public class RMBTPreferenceActivity extends PreferenceActivity
 {
     protected static final int REQUEST_NDT_CHECK = 1;
     protected Method mLoadHeaders = null;
     protected Method mHasHeaders = null;
+    
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+    	switch (item.getItemId()) {
+    	case android.R.id.home:
+    		finish();
+    		break;
+    	}
+    	
+    	return super.onOptionsItemSelected(item);
+    }
     
     /**
      * Checks to see if using new v11+ way of handling PrefsFragments.
@@ -64,7 +76,6 @@ public class RMBTPreferenceActivity extends PreferenceActivity
     @Override
     public void onCreate(final Bundle savedInstanceState)
     {
-        
         // onBuildHeaders() will be called during super.onCreate()
         try
         {
@@ -82,19 +93,25 @@ public class RMBTPreferenceActivity extends PreferenceActivity
                 addPreferencesFromResource(R.xml.preferences_dev);
         }
         
+        
+        ActionBar actionBar = getActionBar();
+        actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
+        actionBar.setDisplayHomeAsUpEnabled(true);
+       
         final ListView v = getListView();
         v.setCacheColorHint(0);
         
-        final float scale = getResources().getDisplayMetrics().density;
-        final int padding = Helperfunctions.dpToPx(10, scale);
+        //final float scale = getResources().getDisplayMetrics().density;
+        //final int padding = Helperfunctions.dpToPx(10, scale);
         
-        final ViewGroup vg = (ViewGroup) v.getRootView();
-        vg.setPadding(padding, padding, padding, padding);
+        //final ViewGroup vg = (ViewGroup) v.getRootView();
+        //vg.setPadding(padding, padding, padding, padding);
         
-        final int paddingTopBottom = Helperfunctions.dpToPx(3, scale);
-        final int paddingLeftRight = Helperfunctions.dpToPx(10, scale);
-        v.setBackgroundResource(R.drawable.box_large);
-        v.setPadding(paddingLeftRight, paddingTopBottom, paddingLeftRight, paddingTopBottom);
+        //final int paddingTopBottom = Helperfunctions.dpToPx(3, scale);
+        //final int paddingLeftRight = Helperfunctions.dpToPx(10, scale);
+        //v.setBackgroundResource(R.drawable.box_large);
+        v.setBackgroundResource(R.drawable.app_bgdn_radiant);
+        //v.setPadding(paddingLeftRight, paddingTopBottom, paddingLeftRight, paddingTopBottom);
         
         final Preference ndtPref = (Preference) findPreference("ndt");
         if (ndtPref != null)

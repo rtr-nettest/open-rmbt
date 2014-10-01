@@ -36,10 +36,11 @@
         android:layout_above="@+id/code"
         android:gravity="center"
         android:padding="10dp"
-        style="@style/textMediumDark" />
+        style="@style/textMediumLight" />
 
     <EditText
         android:id="@+id/code"
+        style="@style/QoSTheme.EditText.Light"
         android:layout_centerInParent="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -59,7 +60,7 @@
         android:text="@string/sync_enter_code_desc"
         android:gravity="center"
         android:padding="10dp"
-        style="@style/textSmallDark" />
+        style="@style/textSmallLight" />
     
     <RelativeLayout
             android:id="@+id/enterCodeButtonWrapper"
@@ -75,35 +76,9 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 android:layout_centerHorizontal="true"
-                android:background="@drawable/button_medium_full" />
-
-            <LinearLayout
-                android:id="@+id/textWrapper"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingBottom="3dp" >
-
-                <!--
-                <ImageView
-                android:id="@+id/image"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="10dp"
-                android:background="@drawable/icon_sync_medium"
-                android:contentDescription="" />
-                -->
-
-                <TextView
-                    android:id="@+id/text"
-                    style="@style/textMenuButtonMediumFull"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:clickable="false"
-                    android:text="@string/sync_enter_code_button" />
-            </LinearLayout>
+                android:text="@string/sync_enter_code_button"
+                android:background="@drawable/button_selector" />
+				
         </RelativeLayout>
     
     <LinearLayout

@@ -17,11 +17,11 @@ package at.alladin.rmbt.android.util;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.DialogFragment;
+import android.app.FragmentManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentManager;
 import android.view.inputmethod.InputMethodManager;
 
 public class RMBTAlertDialogFragment extends DialogFragment
@@ -72,7 +72,7 @@ public class RMBTAlertDialogFragment extends DialogFragment
         }
         
         if (popBackStackIncluding != null)
-            getActivity().getSupportFragmentManager().popBackStack(popBackStackIncluding, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            getActivity().getFragmentManager().popBackStack(popBackStackIncluding, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         
         super.onDismiss(dialog);
     }

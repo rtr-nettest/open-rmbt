@@ -22,7 +22,7 @@ import android.graphics.Paint.Join;
 import android.graphics.Paint.Style;
 import android.graphics.Path;
 
-public class Graph
+public class Graph implements GraphService
 {
     // private final float width;
     private final float height;
@@ -67,6 +67,18 @@ public class Graph
         paintFill.setAntiAlias(true);
     }
     
+    /*
+     * (non-Javadoc)
+     * @see at.alladin.rmbt.android.test.Graph#addValue(double, double)
+     */
+    public void addValue(double value, double time) {
+    	addValue(value);
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see at.alladin.rmbt.android.test.Graph#addValue(double)
+     */
     // 0 <= value <= 1
     public void addValue(double value)
     {

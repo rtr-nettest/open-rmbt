@@ -185,6 +185,36 @@ public class Test_Server
         return !error;
     }
     
+    public boolean getServerForWebsocketConnection() {
+    	resetError();
+        
+        try
+        {
+            
+            final PreparedStatement st = conn.prepareStatement("SELECT * FROM test_server WHERE server_type = ?");
+            
+            st.setString(1, "RMBTws");
+            
+            final ResultSet rs = st.executeQuery();
+            
+            if (rs.next())
+                setValuesFromResult(rs);
+            else
+                setError("ERROR_DB_GET_SERVER");
+            
+            rs.close();
+            st.close();
+        }
+        catch (final SQLException e)
+        {
+            setError("ERROR_DB_GET_SERVER_SQL");
+            e.printStackTrace();
+            
+        }
+        
+        return !error;
+    }
+    
     public boolean hasError()
     {
         return error;

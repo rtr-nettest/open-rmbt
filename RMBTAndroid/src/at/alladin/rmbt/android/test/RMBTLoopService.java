@@ -17,7 +17,7 @@ package at.alladin.rmbt.android.test;
 
 import java.text.MessageFormat;
 
-import android.annotation.TargetApi;
+import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -30,10 +30,12 @@ import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.location.Location;
 import android.os.Binder;
-import android.os.Build;
 import android.os.IBinder;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.os.SystemClock;
 import android.util.Log;
+import android.widget.Toast;
 import at.alladin.openrmbt.android.R;
 import at.alladin.rmbt.android.util.ConfigHelper;
 import at.alladin.rmbt.android.util.GeoLocation;
@@ -42,6 +44,9 @@ import at.alladin.rmbt.android.util.NotificationIDs;
 public class RMBTLoopService extends Service
 {
     private static final String TAG = "RMBTLoopService";
+    
+    private WakeLock partialWakeLock;
+    private WakeLock dimWakeLock;
     
     public class RMBTLoopBinder extends Binder
     {
@@ -85,6 +90,7 @@ public class RMBTLoopService extends Service
     }
 
     private static final String ACTION_ALARM = "at.alladin.rmbt.android.Alarm";
+    private static final String ACTION_WAKEUP_ALARM = "at.alladin.rmbt.android.WakeupAlarm";
     private static final String ACTION_STOP = "at.alladin.rmbt.android.Stop";
     
     private static final long ACCEPT_INACCURACY = 1000; // accept 1 sec inaccuracy
@@ -93,6 +99,7 @@ public class RMBTLoopService extends Service
     
     private AlarmManager alarmManager;
     private PendingIntent alarm;
+    private PendingIntent wakeupAlarm;
     private NotificationManager notificationManager;
     private Notification.Builder notificationBuilder;
     
@@ -141,6 +148,14 @@ public class RMBTLoopService extends Service
         Log.d(TAG, "created");
         super.onCreate();
         
+        partialWakeLock = ((PowerManager) getApplicationContext().getSystemService(Context.POWER_SERVICE)).newWakeLock(
+                PowerManager.PARTIAL_WAKE_LOCK, "RMBTLoopWakeLock");
+        partialWakeLock.acquire();
+        
+        dimWakeLock = ((PowerManager) getApplicationContext().getSystemService(Context.POWER_SERVICE)).newWakeLock(
+                PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.ON_AFTER_RELEASE, "RMBTLoopDimWakeLock");
+        dimWakeLock.acquire();
+        
         alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         
@@ -156,6 +171,12 @@ public class RMBTLoopService extends Service
         
         final Intent alarmIntent = new Intent(ACTION_ALARM, null, this, getClass());
         alarm = PendingIntent.getService(this, 0, alarmIntent, 0);
+        
+        final Intent wakeupAlarmIntent = new Intent(ACTION_WAKEUP_ALARM, null, this, getClass());
+        wakeupAlarm = PendingIntent.getService(this, 0, wakeupAlarmIntent, 0);
+        
+        final long now = SystemClock.elapsedRealtime();
+        alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, now + 10000, 10000, wakeupAlarm);
     }
     
     private void setAlarm(long millis)
@@ -176,15 +197,34 @@ public class RMBTLoopService extends Service
         {
             final String action = intent.getAction();
             if (action != null && action.equals(ACTION_STOP))
-            {
                 stopSelf();
-                return START_NOT_STICKY;
-            }
-            
-            if (action != null && action.equals(ACTION_ALARM))
+            else if (action != null && action.equals(ACTION_ALARM))
                 onAlarmOrLocation();
+            else if (action != null && action.equals(ACTION_WAKEUP_ALARM))
+                onWakeup();
+            else
+            {
+                if (lastTestTime == 0)
+                {
+                    Toast.makeText(this, R.string.loop_started, Toast.LENGTH_LONG).show();
+                    onAlarmOrLocation();
+                }
+                else
+                    Toast.makeText(this, R.string.loop_already_active, Toast.LENGTH_LONG).show();
+            }
         }
         return START_NOT_STICKY;
+    }
+    
+    @SuppressLint("Wakelock")
+    private void onWakeup()
+    {
+        if (dimWakeLock != null)
+        {
+            if (dimWakeLock.isHeld())
+                dimWakeLock.release();
+            dimWakeLock.acquire();
+        }
     }
     
     private void onAlarmOrLocation()
@@ -207,6 +247,10 @@ public class RMBTLoopService extends Service
     @Override
     public void onDestroy()
     {
+        if (partialWakeLock != null && partialWakeLock.isHeld())
+            partialWakeLock.release();
+        if (dimWakeLock != null && dimWakeLock.isHeld())
+            dimWakeLock.release();
         Log.d(TAG, "destroyed");
         super.onDestroy();
         unregisterReceiver(receiver);
@@ -214,7 +258,10 @@ public class RMBTLoopService extends Service
         if (geoLocation != null)
             geoLocation.stop();
         if (alarmManager != null)
+        {
             alarmManager.cancel(alarm);
+            alarmManager.cancel(wakeupAlarm);
+        }
     }
     
     private Notification.Builder createNotificationBuilder()

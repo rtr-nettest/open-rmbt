@@ -188,7 +188,14 @@ public class RegistrationResource extends ServerResource
                             boolean testServerEncryption = true; // default is
                                                                  // true
                             
-                            final Test_Server server = getNearestServer(errorList, geolat, geolong, geotime, clientIpString);
+                            final Test_Server server;
+                            if (request.optString("client").equals("RMBTws")) {
+                            	server = getNearestServer(errorList, geolat, geolong, geotime, clientIpString, true);
+                            }
+                            else {
+                            	server = getNearestServer(errorList, geolat, geolong, geotime, clientIpString, false);
+                            }
+                            
                             
                             if (server != null)
                             {
@@ -228,7 +235,6 @@ public class RegistrationResource extends ServerResource
                                 // testServerEncryption = false;
                                 
                                 // request.optString("plattform");
-                                
                                 if (testServerEncryption)
                                     testServerPort = server.getPort_ssl();
                                 else
@@ -268,6 +274,11 @@ public class RegistrationResource extends ServerResource
                                 
                                 answer.put("result_url", resultUrl);
                                 
+                                final String resultQoSUrl = new Reference(getURL(), settings.getString("RMBT_QOS_RESULT_PATH")).getTargetRef().toString();
+                        
+                                // System.out.println(resultUrl);
+                        
+                                answer.put("result_qos_url", resultQoSUrl);
                             }
                             catch (final JSONException e)
                             {
@@ -523,14 +534,18 @@ public class RegistrationResource extends ServerResource
      * @return
      */
     private Test_Server getNearestServer(final ErrorList errorList, final double geolat, final double geolong,
-            final long geotime, final String clientIp)
+            final long geotime, final String clientIp, final boolean websocket)
     {
         
         // TODO find nearest Server to GeoLocation or IP address
         
         final Test_Server result = new Test_Server(conn);
-        
-        result.getServerByUid(1);
+        if (websocket) {
+        	result.getServerForWebsocketConnection();
+        }
+        else {
+        	result.getServerByUid(1);
+        }
         if (result.hasError())
         {
             errorList.addError(result.getError());

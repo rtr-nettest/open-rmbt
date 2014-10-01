@@ -118,5 +118,4 @@ public class RMBTTestParameter
 //        if (pretestDuration < 0)
 //            throw new IllegalArgumentException("pretestDuration < 0");
     }
-    
 }

@@ -86,7 +86,7 @@ public class ServerResource extends org.restlet.resource.ServerResource
         Series<Header> responseHeaders = (Series<Header>) getResponse().getAttributes().get("org.restlet.http.headers");
         if (responseHeaders == null)
         {
-            responseHeaders = new Series<Header>(Header.class);
+            responseHeaders = new Series<>(Header.class);
             getResponse().getAttributes().put("org.restlet.http.headers", responseHeaders);
         }
         responseHeaders.add("Access-Control-Allow-Origin", "*");

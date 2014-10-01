@@ -21,9 +21,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.DialogFragment;
+import android.app.Fragment;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -165,7 +165,7 @@ public class RMBTSyncEnterCodeFragment extends Fragment implements EndTaskListen
                         final DialogFragment newFragment = RMBTAlertDialogFragment.newInstance(title, text,
                                 popBackStackIncluding);
                         
-                        newFragment.show(getActivity().getSupportFragmentManager(), "sync_msg");
+                        newFragment.show(getActivity().getFragmentManager(), "sync_msg");
                     }
                     
                 }

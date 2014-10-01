@@ -21,13 +21,18 @@ import java.net.InetAddress;
 import java.security.GeneralSecurityException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.TimeZone;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.postgresql.util.Base64;
 import org.xbill.DNS.Lookup;
 import org.xbill.DNS.Name;
@@ -193,6 +198,10 @@ public abstract class Helperfunctions
             return "2G/3G/4G";
         case 105:
             return "MOBILE";
+        case 106:
+            return "Ethernet";
+        case 107:
+            return "Bluetooth";
         default:
             return "UNKNOWN";
         }
@@ -472,4 +481,135 @@ public abstract class Helperfunctions
         return null;
     }
     
+    /**
+     * 
+     * @param <T>
+     * @param array
+     * @return
+     */
+    public static <T extends Object> String join(String glue, T[] array) {
+    	StringBuilder sb = new StringBuilder("");
+    	
+    	int len = array.length;
+    	
+    	if (len < 1) {
+    		return null;
+    	}
+    	
+    	for (int i = 0; i < (len-1); i++) {
+    		sb.append(String.valueOf(array[i]));
+    		sb.append(glue);
+    	}
+    	
+    	sb.append(String.valueOf(array[len-1]));
+    	
+    	return sb.toString();
+    }
+
+    /**
+     * 
+     * @param json
+     * @param excludeKeys
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+	public static String json2htmlWithLinks(JSONObject json) {
+    	StringBuilder result = new StringBuilder();
+    	
+    	Iterator<String> jsonIterator = json.keys();
+    	
+    	try {
+        	while (jsonIterator.hasNext()) {
+        		String key = jsonIterator.next();
+
+       			if (json.opt(key) instanceof JSONObject) {
+       				result.append("\"" + key + "\" => \"" + json2hstore(json.optJSONObject(key), null) + "\"");
+       			}
+       			else {
+       				String keyValue = json.getString(key).replaceAll("\"","\\\\\"").replaceAll("'","\\\\'");
+       				if ("on_success".equals(key) || "on_failure".equals(key)) {
+       				    String link = "<a href=\"#" + keyValue.replaceAll("[\\-\\+\\.\\^:,]", "_") + "\">" + keyValue + "</a>";
+       					result.append("\"" + key + "\" => \"" + link + "\"");
+       				}
+       				else {
+       					result.append("\"" + key + "\" => \"" + keyValue + "\"");
+       				}
+       			}
+       			
+       			if (jsonIterator.hasNext()) {
+       				result.append(", ");
+       			}
+        	}    		
+    	}
+    	catch (JSONException e) {
+    		return null;
+    	}
+    	
+    	return result.toString();
+    }
+    
+    /**
+     * 
+     * @param json
+     * @param excludeKeys
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+	public static String json2hstore(JSONObject json, Set<String> excludeKeys) {
+    	StringBuilder result = new StringBuilder();
+    	
+    	Iterator<String> jsonIterator = json.keys();
+    	
+    	try {
+        	boolean isFirst = true;
+        	while (jsonIterator.hasNext()) {
+        		String key = jsonIterator.next();
+        
+        		if (excludeKeys == null || !excludeKeys.contains(key)) {
+        			if (!isFirst) {
+            			if (json.opt(key) instanceof JSONObject) {
+            				result.append(", \"" + key + "\" => \"" + json2hstore(json.optJSONObject(key), excludeKeys) + "\"");
+            			}
+            			else {
+            				Object data = json.get(key);
+            				if (data != null) {
+            					if (data instanceof String) {
+            						data = "\"" + ((String) data).replaceAll("\"","\\\\\"").replaceAll("'","\\\\'") + "\"";
+            					}
+            					else if (data instanceof JSONArray) {
+            						data = "\"" + ((JSONArray) data).toString().replaceAll("\"","\\\\\"").replaceAll("'","\\\\'") + "\"";
+            					}
+            				}
+            				result.append(", \"" + key + "\" => " + data);
+            				//result.append(", \"" + key + "\" => \"" + json.getString(key).replaceAll("\"","\\\\\"").replaceAll("'","\\\\'") + "\"");	
+            			}
+        			}
+        			else {
+        				isFirst = false;
+            			if (json.opt(key) instanceof JSONObject) {
+            				result.append("\"" + key + "\" => \"" + json2hstore(json.optJSONObject(key), excludeKeys) + "\"");
+            			}
+            			else {
+            				Object data = json.get(key);
+            				if (data != null) {
+            					if (data instanceof String) {
+            						data = "\"" + ((String) data).replaceAll("\"","\\\\\"").replaceAll("'","\\\\'") + "\"";
+            					}
+            					else if (data instanceof JSONArray) {
+            						data = "\"" + ((JSONArray) data).toString().replaceAll("\"","\\\\\"").replaceAll("'","\\\\'") + "\"";
+            					}
+            				}
+            				result.append("\"" + key + "\" => " + data);
+            				//result.append("\"" + key + "\" => \"" + json.getString(key).replaceAll("\"","\\\\\"").replaceAll("'","\\\\'") + "\"");
+            			}
+        			}
+        		}
+        	}    		
+    	}
+    	catch (JSONException e) {
+    		return null;
+    	}
+    	
+    	return result.toString();
+    }
 }

@@ -18,12 +18,12 @@ package at.alladin.rmbt.android.test;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Align;
 import android.graphics.Typeface;
-import android.graphics.drawable.BitmapDrawable;
 import android.util.AttributeSet;
 import android.view.View;
 import at.alladin.openrmbt.android.R;
@@ -32,6 +32,10 @@ import at.alladin.rmbt.client.helper.TestStatus;
 
 public class TestView extends View
 {
+	public final static int POS_PING_Y  = 78;
+	public final static int POS_DOWN_Y  = 115;
+	public final static int POS_UP_Y  = 152;
+	
     private boolean recycled;
     
     private final Bitmap genBackgroundBitmap;
@@ -39,12 +43,13 @@ public class TestView extends View
     private float scale = 1f;
     
     private final int internalPaddingLeft;
+    private final int internalPaddingTop;
     
-    private final Bitmap reflectionBitmap;
-    private final float reflectionX;
-    private final float reflectionY;
+//    private final Bitmap reflectionBitmap;
+//    private final float reflectionX;
+//    private final float reflectionY;
     
-    private final Bitmap resultBackgroundBitmap;
+//    private final Bitmap resultBackgroundBitmap;
     private final Bitmap speedStatusDownBitmap;
     private final Bitmap speedStatusUpBitmap;
     
@@ -54,8 +59,8 @@ public class TestView extends View
     private final Gauge progressGauge;
     private final Gauge signalGauge;
     
-    private final float resultBgX;
-    private final float resultBgY;
+//    private final float resultBgX;
+//    private final float resultBgY;
     
     private final float speedStatusDownX;
     private final float speedStatusDownY;
@@ -124,8 +129,7 @@ public class TestView extends View
         bitmapPaint = new Paint();
         bitmapPaint.setFilterBitmap(true);
         
-        final BitmapDrawable backgroundDrawable = (BitmapDrawable) res.getDrawable(R.drawable.test_box_large);
-        final Bitmap backgroundBitmap = backgroundDrawable.getBitmap();
+        final Bitmap backgroundBitmap = getBitmap(res,R.drawable.test_box_large);
         width = backgroundBitmap.getWidth();
         height = backgroundBitmap.getHeight();
         
@@ -133,14 +137,7 @@ public class TestView extends View
         final int relH = 560;
         
         internalPaddingLeft = coordW(18, relW);
-        
-        reflectionBitmap = getBitmap(res, R.drawable.test_box_reflection_large);
-        reflectionX = coordFW(5, relW);
-        reflectionY = coordFH(2, relH);
-        
-        resultBackgroundBitmap = getBitmap(res, R.drawable.result_box);
-        resultBgX = coordFW(5, relW);
-        resultBgY = coordFH(101, relH);
+        internalPaddingTop = coordW(-30, relH);
         
         final Bitmap speedRingBitmap = getBitmap(res, R.drawable.ringskala_speed);
         final float speedRingX = coordFW(114, relW);
@@ -173,14 +170,14 @@ public class TestView extends View
         genBackgroundBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         final Canvas canvas = new Canvas(genBackgroundBitmap);
         
-        canvas.drawBitmap(backgroundBitmap, 0, 0, bitmapPaint);
-        canvas.drawBitmap(resultBackgroundBitmap, resultBgX, resultBgY, bitmapPaint);
-        if (! isInEditMode())
-            backgroundBitmap.recycle();
+        //canvas.drawBitmap(backgroundBitmap, 0, 0, bitmapPaint);
+        //canvas.drawBitmap(resultBackgroundBitmap, resultBgX, resultBgY, bitmapPaint);
+        //if (! isInEditMode())
+        //    backgroundBitmap.recycle();
         
         canvas.drawBitmap(speedRingBitmap, speedRingX, speedRingY, bitmapPaint);
         speedRingBitmap.recycle();
-        canvas.drawBitmap(speedStatusBgBitmap, speedStatusBgX, speedStatusBgY, bitmapPaint);
+        canvas.drawBitmap(speedStatusBgBitmap, speedStatusBgX, speedStatusBgY , bitmapPaint);
         speedStatusBgBitmap.recycle();
         
         canvas.drawBitmap(progressRingBitmap, progressRingX, progressRingY, bitmapPaint);
@@ -192,12 +189,12 @@ public class TestView extends View
         paint.setAntiAlias(true);
         paint.setTypeface(Typeface.DEFAULT_BOLD);
         paint.setFakeBoldText(true);
-        paint.setColor(Color.parseColor("#002c44"));
-        paint.setTextSize(coordFH(19, relH));
+        paint.setColor(Color.parseColor("#ffffff"));
+        paint.setTextSize(coordFH(23, relH));
         paint.setTextAlign(Align.LEFT);
-        canvas.drawText("Ping:", coordFW(20, relW), coordFH(128, relH), paint);
-        canvas.drawText("Down:", coordFW(20, relW), coordFH(165, relH), paint);
-        canvas.drawText("Up:", coordFW(20, relW), coordFH(202, relH), paint);
+        canvas.drawText("Ping:", coordFW(20, relW), coordFH(POS_PING_Y, relH), paint);
+        canvas.drawText("Down:", coordFW(20, relW), coordFH(POS_DOWN_Y, relH), paint);
+        canvas.drawText("Up:", coordFW(20, relW), coordFH(POS_UP_Y, relH), paint);
         
         paint.setColor(Color.parseColor("#32c90e"));
         paint.setTextAlign(Align.CENTER);
@@ -249,8 +246,8 @@ public class TestView extends View
         resultPaint.setAntiAlias(true);
         resultPaint.setLinearText(true);
         resultPaint.setTypeface(Typeface.DEFAULT_BOLD);
-        resultPaint.setColor(Color.parseColor("#002c44"));
-        resultPaint.setTextSize(coordFH(19, relH));
+        resultPaint.setColor(Color.parseColor("#ffffff")); //#002c44
+        resultPaint.setTextSize(coordFH(23, relH));
         resultPaint.setTextAlign(Align.LEFT);
         
         progressPaint = new Paint(resultPaint);
@@ -262,19 +259,19 @@ public class TestView extends View
         signalPaint.setTextSize(coordFH(20, relH));
         
         headerPaint = new Paint(resultPaint);
-        headerPaint.setTextSize(coordFH(28, relH));
+        headerPaint.setTextSize(coordFH(19, relH));
         
-        headerX = coordFW(1, relW);
-        headerY = coordFH(33, relH);
-        subHeaderX = coordFW(1, relW);
-        subHeaderY = coordFH(60, relH);
+        headerX = coordFW(10, relW);
+        headerY = coordFH(relH + 10, relH); //33
+        subHeaderX = coordFW(relW - 20, relW);
+        subHeaderY = coordFH(relH + 10, relH); //60
         
         resultPingX = coordFW(90, relW);
-        resultPingY = coordFH(128, relH);
+        resultPingY = coordFH(POS_PING_Y, relH);
         resultDownX = coordFW(90, relW);
-        resultDownY = coordFH(165, relH);
+        resultDownY = coordFH(POS_DOWN_Y, relH);
         resultUpX = coordFW(90, relW);
-        resultUpY = coordFH(202, relH);
+        resultUpY = coordFH(POS_UP_Y, relH);
         
         progressX = coordFW(386, relW);
         progressY = coordFH(203, relH);
@@ -285,15 +282,14 @@ public class TestView extends View
     
     protected Bitmap getBitmap(Resources res, int id)
     {
-        final BitmapDrawable drawable = (BitmapDrawable) res.getDrawable(id);
-        return drawable.getBitmap();
+        return BitmapFactory.decodeResource(res, id);
     }
     
     @Override
     protected void onMeasure(final int widthMeasureSpec, final int heightMeasureSpec)
     {
         final int paddingH = getPaddingLeft() + internalPaddingLeft + getPaddingRight();
-        final int paddingW = getPaddingTop() + getPaddingBottom();
+        final int paddingW = getPaddingTop() + internalPaddingTop + getPaddingBottom();
         
         // super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         int w = MeasureSpec.getSize(widthMeasureSpec);
@@ -315,7 +311,7 @@ public class TestView extends View
         scale = (float) (w - getPaddingLeft() - getPaddingRight()) / (width + internalPaddingLeft);
         
         int h = MeasureSpec.getSize(heightMeasureSpec);
-        final int newH = Math.round(height * scale) + paddingW;
+        final int newH = Math.round((height + 20) * scale) + paddingW;
         switch (MeasureSpec.getMode(heightMeasureSpec))
         {
         case MeasureSpec.AT_MOST:
@@ -382,6 +378,7 @@ public class TestView extends View
     public void setHeaderString(final String headerString)
     {
         this.headerString = headerString;
+    	//this.headerString = "TestTest_0TestTest_0TestTest_012";
     }
     
     public void setSubHeaderString(final String subHeaderString)
@@ -444,7 +441,7 @@ public class TestView extends View
         
         canvas.translate(getPaddingLeft(), getPaddingTop());
         canvas.scale(scale, scale);
-        canvas.translate(internalPaddingLeft, 0);
+        canvas.translate(internalPaddingLeft, internalPaddingTop);
         
         canvas.drawBitmap(genBackgroundBitmap, 0, 0, bitmapPaint);
         
@@ -457,7 +454,7 @@ public class TestView extends View
                 break;
             
             case UP:
-            case END:
+            case SPEEDTEST_END:
                 canvas.drawBitmap(speedStatusUpBitmap, speedStatusUpX, speedStatusUpY, bitmapPaint);
                 break;
             }
@@ -493,8 +490,11 @@ public class TestView extends View
         
         if (headerString != null)
             canvas.drawText(headerString, headerX, headerY, headerPaint);
-        if (subHeaderString != null)
-            canvas.drawText(subHeaderString, subHeaderX, subHeaderY, resultPaint);
+        if (subHeaderString != null) {
+            headerPaint.setTextAlign(Align.RIGHT);
+            canvas.drawText(subHeaderString, subHeaderX, subHeaderY, headerPaint);
+            headerPaint.setTextAlign(Align.LEFT);
+        }
         if (resultPingString != null)
             canvas.drawText(resultPingString, resultPingX, resultPingY, resultPaint);
         if (resultDownString != null)
@@ -508,7 +508,7 @@ public class TestView extends View
         speedGauge.draw(canvas);
         progressGauge.draw(canvas);
         
-        canvas.drawBitmap(reflectionBitmap, reflectionX, reflectionY, bitmapPaint);
+        //canvas.drawBitmap(reflectionBitmap, reflectionX, reflectionY, bitmapPaint);
         
         canvas.restoreToCount(saveCount);
     }
@@ -517,8 +517,8 @@ public class TestView extends View
     {
         recycled = true;
         genBackgroundBitmap.recycle();
-        reflectionBitmap.recycle();
-        resultBackgroundBitmap.recycle();
+        //reflectionBitmap.recycle();
+        //resultBackgroundBitmap.recycle();
         speedStatusDownBitmap.recycle();
         speedStatusUpBitmap.recycle();
         signalRingBitmapMobile.recycle();
@@ -530,5 +530,24 @@ public class TestView extends View
         progressGauge.recycle();
         signalGauge.recycle();
     }
-    
+
+	public String getHeaderString() {
+		return headerString;
+	}
+
+	public String getSubHeaderString() {
+		return subHeaderString;
+	}
+
+	public String getResultPingString() {
+		return resultPingString;
+	}
+
+	public String getResultDownString() {
+		return resultDownString;
+	}
+
+	public String getResultUpString() {
+		return resultUpString;
+	}
 }

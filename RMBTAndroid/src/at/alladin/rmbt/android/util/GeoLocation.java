@@ -132,13 +132,15 @@ public abstract class GeoLocation
     private class LocListener implements LocationListener
     {
         
+        /* (non-Javadoc)
+         * @see android.location.LocationListener#onLocationChanged(android.location.Location)
+         */
         @Override
         public void onLocationChanged(final Location location)
         {
-            Log.v(DEBUG_TAG, "location changed");
-            final String outString = "LAT: " + String.valueOf(location.getLatitude()) + "   LONG: "
-                    + String.valueOf(location.getLongitude()) + "   ACC: " + String.valueOf(location.getAccuracy())
-                    + "   PROVIDER: " + String.valueOf(location.getProvider());
+            final String outString = "Location: " + String.valueOf(location.getLatitude()) + "/"
+                    + String.valueOf(location.getLongitude()) + " +/-" + String.valueOf(location.getAccuracy())
+                    + "m provider: " + String.valueOf(location.getProvider());
             Log.v(DEBUG_TAG, outString);
             isBetterLocation(location);
         }
@@ -181,6 +183,8 @@ public abstract class GeoLocation
         final long locTime = newLocation.getTime(); //milliseconds since January 1, 1970
         
         // discard locations older than Config.GEO_ACCEPT_TIME milliseconds
+        // System.nanoTime() and newLocation.getElapsedRealtimeNanos() would be 
+        // more accurate but would require API level 17
         final long now = System.currentTimeMillis();
         Log.d(DEBUG_TAG, "age: " + (now - locTime) + " ms");
         if (now > locTime + Config.GEO_ACCEPT_TIME)
@@ -249,7 +253,7 @@ public abstract class GeoLocation
     }
     
     /** Checks whether two providers are the same */
-    private boolean isSameProvider(final String provider1, final String provider2)
+    private static boolean isSameProvider(final String provider1, final String provider2)
     {
         if (provider1 == null)
             return provider2 == null;

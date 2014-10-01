@@ -18,6 +18,11 @@ package at.alladin.rmbt.client.helper;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
@@ -25,6 +30,7 @@ import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -115,12 +121,10 @@ public class JSONParser
             
             final HttpPost httppost = new HttpPost(uri);
             
-            final StringEntity se = new StringEntity(data.toString());
+            final StringEntity se = new StringEntity(data.toString(), "UTF-8");
             
             httppost.setEntity(se);
-            httppost.setHeader(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
-            httppost.setHeader("Content-type", "application/json");
-            // Log.e("webservice request","executing");
+            httppost.setHeader(new BasicHeader(HTTP.CONTENT_TYPE, "application/json;charset=UTF-8"));
             
             final ResponseHandler<String> responseHandler = new BasicResponseHandler();
             responseBody = client.execute(httppost, responseHandler);
@@ -149,6 +153,10 @@ public class JSONParser
         {
             writeErrorList("Wrong Protocol");
             // e.printStackTrace();
+        }
+        catch (final ConnectTimeoutException e) {
+        	writeErrorList("ConnectionTimeoutException");
+        	e.printStackTrace();
         }
         catch (final IOException e)
         {
@@ -188,5 +196,53 @@ public class JSONParser
             System.out.println("Error saving ErrorList: " + e.toString());
         }
         return errorAnswer;
+    }
+    
+    /**
+     * 
+     * @param object
+     * @return
+     * @throws JSONException
+     */
+    public static Map<String, Object> toMap(JSONObject object) throws JSONException {
+        Map<String, Object> map = new HashMap<String, Object>();
+        Iterator<?> keys = object.keys();
+        while (keys.hasNext()) {
+            String key = (String) keys.next();
+            map.put(key, fromJson(object.get(key)));
+        }
+        return map;
+    }
+    
+    /**
+     * 
+     * @param array
+     * @return
+     * @throws JSONException
+     */
+    public static List<Object> toList(JSONArray array) throws JSONException {
+        List<Object> list = new ArrayList<Object>();
+        for (int i = 0; i < array.length(); i++) {
+            list.add(fromJson(array.get(i)));
+        }
+        return list;
+    }
+ 
+    /**
+     * 
+     * @param json
+     * @return
+     * @throws JSONException
+     */
+    private static Object fromJson(Object json) throws JSONException {
+        if (json == JSONObject.NULL) {
+            return null;
+        } else if (json instanceof JSONObject) {
+            return toMap((JSONObject) json);
+        } else if (json instanceof JSONArray) {
+            return toList((JSONArray) json);
+        } else {
+            return json;
+        }
     }
 }

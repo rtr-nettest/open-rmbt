@@ -16,6 +16,7 @@
 package at.alladin.rmbt.android.test;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -30,6 +31,8 @@ import android.util.Log;
 import at.alladin.rmbt.android.util.Config;
 import at.alladin.rmbt.android.util.ConfigHelper;
 import at.alladin.rmbt.android.util.InformationCollector;
+import at.alladin.rmbt.client.QualityOfServiceTest;
+import at.alladin.rmbt.client.QualityOfServiceTest.Counter;
 import at.alladin.rmbt.client.RMBTClient;
 import at.alladin.rmbt.client.TestResult;
 import at.alladin.rmbt.client.helper.ControlServerConnection;
@@ -37,6 +40,10 @@ import at.alladin.rmbt.client.helper.IntermediateResult;
 import at.alladin.rmbt.client.helper.NdtStatus;
 import at.alladin.rmbt.client.helper.TestStatus;
 import at.alladin.rmbt.client.ndt.NDTRunner;
+import at.alladin.rmbt.client.v2.task.QoSTestEnum;
+import at.alladin.rmbt.client.v2.task.result.QoSResultCollector;
+import at.alladin.rmbt.client.v2.task.result.QoSTestResultEnum;
+import at.alladin.rmbt.client.v2.task.service.TestSettings;
 
 public class RMBTTask
 {
@@ -46,6 +53,8 @@ public class RMBTTask
     private final AtomicBoolean running = new AtomicBoolean();
     private final AtomicBoolean finished = new AtomicBoolean();
     private final AtomicBoolean cancelled = new AtomicBoolean();
+    
+    private final AtomicReference<QualityOfServiceTest> qosReference = new AtomicReference<QualityOfServiceTest>();
     
     private Handler handler;
     private final Runnable postExecuteHandler = new Runnable()
@@ -63,7 +72,7 @@ public class RMBTTask
         }
     };;
     
-    final private Context ctx;
+    final private Context context;
     
     private final ExecutorService executor = Executors.newCachedThreadPool();
     
@@ -81,12 +90,12 @@ public class RMBTTask
     
     public RMBTTask(final Context ctx)
     {
-        this.ctx = ctx;
+        this.context = ctx;
     }
     
     public void execute(final Handler _handler)
     {
-        fullInfo = new InformationCollector(ctx);
+        fullInfo = new InformationCollector(context, true, true);
         cancelled.set(false);
         started.set(true);
         running.set(true);
@@ -98,11 +107,14 @@ public class RMBTTask
             @Override
             public void run()
             {
+                Log.d(LOG_TAG, "executor task started");
                 doInBackground();
+                Log.d(LOG_TAG, "doInBackground finished");
                 running.set(false);
                 finished.set(true);
                 if (handler != null)
                     handler.post(postExecuteHandler);
+                Log.d(LOG_TAG, "executor task finished");
             }
         });
     }
@@ -111,11 +123,16 @@ public class RMBTTask
     {
         setPreviousTestStatus();
         cancelled.set(true);
-        synchronized (holdNdtLock)
-        {
-            holdNdtLock.notify();
-        }
         executor.shutdownNow();
+        Log.d(LOG_TAG, "shutdownNow called RMBTTask="+this);
+//        try
+//        {
+//            executor.awaitTermination(10, TimeUnit.SECONDS);
+//        }
+//        catch (InterruptedException e)
+//        {
+//            Thread.currentThread().interrupt();
+//        }
     }
     
     public boolean isFinished()
@@ -151,22 +168,25 @@ public class RMBTTask
             statusString = null;
         
         System.out.println("test status at end: " + statusString);
-        ConfigHelper.setPreviousTestStatus(ctx, statusString);
+        ConfigHelper.setPreviousTestStatus(context, statusString);
     }
-    
+        
     private void doInBackground()
     {
         try
         {
             boolean error = false;
             connectionError.set(false);
+        	TestResult result = null;
+        	QoSResultCollector qosResult = null;
+
             try
             {
                 final String uuid = fullInfo.getUUID();
                 
-                final String controlServer = ConfigHelper.getControlServerName(ctx);
-                final int controlPort = ConfigHelper.getControlServerPort(ctx);
-                final boolean controlSSL = ConfigHelper.isControlSeverSSL(ctx);
+                final String controlServer = ConfigHelper.getControlServerName(context);
+                final int controlPort = ConfigHelper.getControlServerPort(context);
+                final boolean controlSSL = ConfigHelper.isControlSeverSSL(context);
                 
                 final ArrayList<String> geoInfo = fullInfo.getCurLocation();
                 
@@ -191,27 +211,36 @@ public class RMBTTask
                 error = true;
             }
             
-            if (client == null)
+            if (error || client == null) {
                 connectionError.set(true);
+            }
             else
             {
+
                 if (client.getStatus() != TestStatus.ERROR)
                 {
-                    
-                    TestResult result;
                     try
                     {
+                    	if (Thread.interrupted() || cancelled.get())
+                    	    throw new InterruptedException();
+                    	Log.d(LOG_TAG, "runTest RMBTTask="+this);
                         result = client.runTest();
+                    	final ControlServerConnection controlConnection = client.getControlConnection();
+                    	
                         if (result != null && ! fullInfo.getIllegalNetworkTypeChangeDetcted()) {
-                        	final ControlServerConnection controlConnection = client.getControlConnection();
                             client.sendResult(fullInfo.getResultValues(controlConnection.getStartTimeNs()));
                         }
-                        else
+                        else {
                             error = true;
+                        }
                     }
                     catch (final Exception e)
                     {
                         e.printStackTrace();
+                    }
+                    finally
+                    {
+                        client.shutdown();
                     }
                 }
                 else
@@ -220,45 +249,74 @@ public class RMBTTask
                     error = true;
                 }
                 
-                client.shutdown();
+                //client.shutdown();
                 
                 setPreviousTestStatus();
+                QualityOfServiceTest qosTest = null;
                 
-                if (!error && !cancelled.get() && ConfigHelper.isNDT(ctx))
-                {
-                    if (! ConfigHelper.isLoopMode(ctx))
-                        synchronized (holdNdtLock)
-                        {
-                            while (holdNdt)
-                                holdNdtLock.wait();
-                        }
-                    if (! cancelled.get())
-                        runNDT();
+                boolean runQoS = (client.getTaskDescList() != null && client.getTaskDescList().size() >= 1);
+                    
+                //run qos test:
+                if (runQoS && !error && !cancelled.get()) {
+					try {
+						
+					    TestSettings qosTestSettings = new TestSettings();
+			            qosTestSettings.setCacheFolder(context.getCacheDir());
+					    qosTestSettings.setWebsiteTestService(new WebsiteTestServiceImpl(context));
+					    qosTestSettings.setTrafficService(new TrafficServiceImpl());
+						qosTestSettings.setStartTimeNs(getRmbtClient().getControlConnection().getStartTimeNs());
+						qosTestSettings.setUseSsl(ConfigHelper.isQoSSeverSSL(context));
+						
+						qosTest = new QualityOfServiceTest(client, qosTestSettings);
+                        qosReference.set(qosTest);
+                        client.setStatus(TestStatus.QOS_TEST_RUNNING);
+                        qosResult = qosTest.call();
+                        InformationCollector.qoSResult = qosResult;
+
+						if (!cancelled.get()) {
+                            if (qosResult != null && !qosTest.getStatus().equals(QoSTestEnum.ERROR)) {
+                            	client.sendQoSResult(qosResult);
+                            }
+                    	}
+                    	
+					} catch (Exception e) {
+						e.printStackTrace();
+						error = true;
+					}                            	                    	
+                }
+                
+                if (qosTest != null && !cancelled.get() && qosTest.getStatus().equals(QoSTestEnum.QOS_FINISHED)) {
+                    if (ConfigHelper.isNDT(context)) {
+                    	qosTest.setStatus(QoSTestEnum.NDT_RUNNING);
+                    	runNDT();
+                    }
+                    qosTest.setStatus(QoSTestEnum.STOP);
                 }
             }
-
         }
-        catch (final InterruptedException e)
+        catch (final Exception e)
         {
+            client.setStatus(TestStatus.ERROR);
+        	e.printStackTrace();
             Thread.currentThread().interrupt();
         }
-    }
-    
-    private boolean holdNdt = true;
-    private final Object holdNdtLock = new Object();
-    private final AtomicReference<NDTRunner> ndtRunnerHolder = new AtomicReference<NDTRunner>();
-    
-    public void letNDTStart()
-    {
-        synchronized (holdNdtLock)
+        finally
         {
-            if (holdNdt)
+            try
             {
-                holdNdt = false;
-                holdNdtLock.notify();
+                if (client != null)
+                {
+                    final TestStatus status = client.getStatus();
+                    if (! (status == TestStatus.ABORTED || status == TestStatus.ERROR))
+                        client.setStatus(TestStatus.END);
+                }
             }
+            catch (Exception e)
+            {}
         }
     }
+    
+    private final AtomicReference<NDTRunner> ndtRunnerHolder = new AtomicReference<NDTRunner>();
     
     public float getNDTProgress()
     {
@@ -283,7 +341,7 @@ public class RMBTTask
             ndtRunner.setNdtCacelled(true);
     }
     
-    private void runNDT()
+    public void runNDT()
     {
         final NDTRunner ndtRunner = new NDTRunner();
         ndtRunnerHolder.set(ndtRunner);
@@ -329,6 +387,60 @@ public class RMBTTask
                 return false;
             }
         });
+    }
+    
+    /**
+     * 
+     * @return
+     */
+    public float getQoSTestProgress()
+    {
+        final QualityOfServiceTest nnTest = qosReference.get();
+        if (nnTest == null)
+            return 0;
+        return nnTest.getProgress();
+    }
+    
+    /**
+     * 
+     * @return
+     */
+    public int getQoSTestSize() {
+        final QualityOfServiceTest nnTest = qosReference.get();
+        if (nnTest == null)
+            return 0;
+        return nnTest.getTestSize();    	
+    }
+    
+    /**
+     * 
+     * @return
+     */
+    public QualityOfServiceTest getQoSTest() {
+    	return qosReference.get();
+    }
+    
+    /**
+     * 
+     * @return
+     */
+    public QoSTestEnum getQoSTestStatus()
+    {
+    	final QualityOfServiceTest nnTest = qosReference.get();
+        if (nnTest == null)
+            return null;
+        return nnTest.getStatus();
+    }
+    
+    /**
+     * 
+     * @return
+     */
+    public Map<QoSTestResultEnum, Counter> getQoSGroupCounterMap() {
+    	final QualityOfServiceTest nnTest = qosReference.get();
+        if (nnTest == null)
+            return null;
+        return nnTest.getTestGroupCounterMap();    	
     }
     
     public void setEndTaskListener(final EndTaskListener endTaskListener)
@@ -418,5 +530,9 @@ public class RMBTTask
         }
         else
             return 0;
+    }
+    
+    public RMBTClient getRmbtClient() {
+    	return client;
     }
 }

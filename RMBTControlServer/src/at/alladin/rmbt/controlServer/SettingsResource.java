@@ -37,6 +37,7 @@ import org.restlet.util.Series;
 import at.alladin.rmbt.db.Client;
 import at.alladin.rmbt.shared.Helperfunctions;
 import at.alladin.rmbt.shared.ResourceManager;
+import at.alladin.rmbt.shared.RevisionHelper;
 
 import com.google.common.base.Strings;
 
@@ -234,14 +235,22 @@ public class SettingsResource extends ServerResource
                         final JSONObject jsonItemURLs = new JSONObject();
                         jsonItemURLs.put("open_data_prefix", getSetting("url_open_data_prefix", lang));
                         jsonItemURLs.put("statistics", getSetting("url_statistics", lang));
-                        
+                        jsonItemURLs.put("control_ipv4_only", getSetting("control_ipv4_only", lang));
+                        jsonItemURLs.put("control_ipv6_only", getSetting("control_ipv6_only", lang));
+                        jsonItemURLs.put("url_ipv4_check", getSetting("url_ipv4_check", lang));
+                        jsonItemURLs.put("url_ipv6_check", getSetting("url_ipv6_check", lang));
+                    
                         jsonItem.put("urls",jsonItemURLs);
-                   
                         
+                        final JSONObject jsonControlServerVersion = new JSONObject();
+                        jsonControlServerVersion.put("control_server_version",  RevisionHelper.getVerboseRevision());
+                        jsonItem.put("versions", jsonControlServerVersion);
                         
                         settingsList.put(jsonItem);
                         
                         answer.put("settings", settingsList);
+                        
+                        System.out.println(settingsList);
                         
                     }
                     else

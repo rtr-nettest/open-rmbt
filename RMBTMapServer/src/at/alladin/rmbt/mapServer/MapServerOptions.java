@@ -104,7 +104,8 @@ final public class MapServerOptions
                         
                         Classification.THRESHOLD_DOWNLOAD,
                         Classification.THRESHOLD_DOWNLOAD_CAPTIONS,
-                        "heatmap"));
+                        "heatmap",
+                        false));
             
             put("mobile/upload",
                     new MapOption("speed_upload",
@@ -115,19 +116,21 @@ final public class MapServerOptions
                         captions_upload,
                         Classification.THRESHOLD_UPLOAD,
                         Classification.THRESHOLD_UPLOAD_CAPTIONS,
-                        "heatmap"));
+                        "heatmap",
+                        false));
 
             
             put("mobile/ping",
-                    new MapOption("ping_shortest",
-                        "ping_shortest_log",
-                        "ping_shortest is not null AND network_type not in (0, 97, 98, 99)",
+                    new MapOption("ping_median",
+                        "ping_median_log",
+                        "ping_median is not null AND network_type not in (0, 97, 98, 99)",
                         colors_ryg,
                         values_ping,
                         captions_ping,
                         Classification.THRESHOLD_PING,
                         Classification.THRESHOLD_PING_CAPTIONS,
-                        "heatmap"));
+                        "heatmap",
+                        true));
             
             put("mobile/signal",
                     new MapOption("signal_strength",
@@ -137,19 +140,21 @@ final public class MapServerOptions
                     new String[] { "", "-108", "-94", "-78", "" },
                     Classification.THRESHOLD_SIGNAL_MOBILE,
                     Classification.THRESHOLD_SIGNAL_MOBILE_CAPTIONS,
-                    "heatmap"));
+                    "heatmap",
+                    false));
             
-/* dz, TODO does not work as expected, no filter shown at all 
-                    put("mobile/signalrsrp",
+            //  filter for LTE signal strength
+            put("mobile/lte_rsrp",
                     new MapOption("lte_rsrp",
                     "lte_rsrp is not null AND network_type not in (0, 97, 98, 99)",
                     colors_ryg_short,
-                    new double[] { -123.5, -108.5, -93.5, -78.5, -63.5 },
-                    new String[] { "", "-108", "-94", "-78", "" },
+                    new double[] { -133.5, -118.5, -103.5, -88.5, -73.5 },
+                    new String[] { "", "-118", "-104", "-88", "" },
                     Classification.THRESHOLD_SIGNAL_RSRP,
                     Classification.THRESHOLD_SIGNAL_RSRP_CAPTIONS,
-                    "heatmap"));
-*/            
+                    "heatmap",
+                    false));
+            
             put("wifi/download", new MapOption("speed_download",
                     "speed_download_log",
                     "speed_download is not null AND network_type = 99",
@@ -158,7 +163,8 @@ final public class MapServerOptions
                     captions_download,
                     Classification.THRESHOLD_DOWNLOAD,
                     Classification.THRESHOLD_DOWNLOAD_CAPTIONS,
-                    "heatmap"));
+                    "heatmap",
+                    false));
             
             put("wifi/upload",
                     new MapOption("speed_upload",
@@ -169,18 +175,20 @@ final public class MapServerOptions
                     captions_upload,
                     Classification.THRESHOLD_UPLOAD,
                     Classification.THRESHOLD_UPLOAD_CAPTIONS,
-                    "heatmap"));
+                    "heatmap",
+                    false));
             
             put("wifi/ping",
-                    new MapOption("ping_shortest",
-                    "ping_shortest_log",
-                    "ping_shortest is not null AND network_type = 99",
+                    new MapOption("ping_median",
+                    "ping_median_log",
+                    "ping_median is not null AND network_type = 99",
                     colors_ryg,
                     values_ping,
                     captions_ping,
                     Classification.THRESHOLD_PING,
                     Classification.THRESHOLD_PING_CAPTIONS,
-                    "heatmap"));
+                    "heatmap",
+                    true));
             
             put("wifi/signal", new MapOption("signal_strength",
                     "signal_strength is not null AND network_type = 99",
@@ -189,7 +197,8 @@ final public class MapServerOptions
                     new String[] { "-99", "", "-69", "", "-39" },
                     Classification.THRESHOLD_SIGNAL_WIFI,
                     Classification.THRESHOLD_SIGNAL_WIFI_CAPTIONS,
-                    "heatmap"));
+                    "heatmap",
+                    false));
             
             put("browser/download",
                     new MapOption("speed_download", 
@@ -200,7 +209,8 @@ final public class MapServerOptions
                     captions_download,
                     Classification.THRESHOLD_DOWNLOAD,
                     Classification.THRESHOLD_DOWNLOAD_CAPTIONS,
-                    "shapes"));
+                    "shapes",
+                    false));
             
             put("browser/upload",
                     new MapOption("speed_upload",
@@ -211,18 +221,20 @@ final public class MapServerOptions
                     captions_upload,
                     Classification.THRESHOLD_UPLOAD,
                     Classification.THRESHOLD_UPLOAD_CAPTIONS,
-                    "shapes"));
+                    "shapes",
+                    false));
             
             put("browser/ping",
-                    new MapOption("ping_shortest",
-                    "ping_shortest_log",
-                    "ping_shortest is not null AND network_type = 98",
+                    new MapOption("ping_median",
+                    "ping_median_log",
+                    "ping_median is not null AND network_type = 98",
                     colors_ryg,
                     values_ping,
                     captions_ping,
                     Classification.THRESHOLD_PING,
                     Classification.THRESHOLD_PING_CAPTIONS,
-                    "shapes"));
+                    "shapes",
+                    true));
 
             put("all/download",
                     new MapOption("speed_download", 
@@ -233,7 +245,8 @@ final public class MapServerOptions
                     captions_download,
                     Classification.THRESHOLD_DOWNLOAD,
                     Classification.THRESHOLD_DOWNLOAD_CAPTIONS,
-                    "shapes"));
+                    "shapes",
+                    false));
             
             put("all/upload",
                     new MapOption("speed_upload",
@@ -244,18 +257,20 @@ final public class MapServerOptions
                     captions_upload,
                     Classification.THRESHOLD_UPLOAD,
                     Classification.THRESHOLD_UPLOAD_CAPTIONS,
-                    "shapes"));
+                    "shapes",
+                    false));
             
             put("all/ping",
-                    new MapOption("ping_shortest",
-                    "ping_shortest_log",
-                    "ping_shortest is not null",
+                    new MapOption("ping_median",
+                    "ping_median_log",
+                    "ping_median is not null",
                     colors_ryg,
                     values_ping,
                     captions_ping,
                     Classification.THRESHOLD_PING,
                     Classification.THRESHOLD_PING_CAPTIONS,
-                    "shapes"));
+                    "shapes",
+                    true));
         }
     };
     
@@ -323,12 +338,14 @@ final public class MapServerOptions
             		{
             			final int technology = Integer.parseInt(input);
             			// use old numeric network type (replicate network_type_table here)
-            			if (technology == 2)
+            			if (technology == 2)      // 2G
             				return new SQLFilter("network_type in (1,2,4,5,6,7,11,12,14)");
-            			else if (technology == 3)
+            			else if (technology == 3) // 3G
             				return new SQLFilter("network_type in (8,9,10,15)");
-            			else if (technology == 4)
+            			else if (technology == 4) // 4G
             				return new SQLFilter("network_type = 13");
+            			else if (technology == 34) // 3G or 4G
+            				return new SQLFilter("network_type in (8,9,10,13,15)");
             			else
             				return null;
  
@@ -416,15 +433,15 @@ final public class MapServerOptions
     {
         public MapOption(final String valueColumn, final String sqlFilter, final int[] colors,
                 final double[] intervals, final String[] captions, final int[] classification,
-                final String[] classificationCaptions, final String overlayType)
+                final String[] classificationCaptions, final String overlayType, final boolean reverseScale)
         {
             this(valueColumn, valueColumn, sqlFilter, colors, intervals, captions, classification,
-                    classificationCaptions, overlayType);
+                    classificationCaptions, overlayType, reverseScale);
         }
         
         public MapOption(final String valueColumn, final String valueColumnLog, final String sqlFilter,
                 final int[] colors, final double[] intervals, final String[] captions, final int[] classification,
-                final String[] classificationCaptions, final String overlayType)
+                final String[] classificationCaptions, final String overlayType, final boolean reverseScale)
         {
             super();
             this.valueColumn = valueColumn;
@@ -435,6 +452,8 @@ final public class MapServerOptions
             this.classification = classification;
             this.classificationCaptions = classificationCaptions;
             this.overlayType = overlayType;
+            this.reverseScale = reverseScale;
+            
             
             if (intervals.length != colors.length || intervals.length != captions.length)
                 throw new IllegalArgumentException("illegal array size");
@@ -473,6 +492,7 @@ final public class MapServerOptions
         final int[] classification;
         final String[] classificationCaptions;
         final String overlayType;
+        final boolean reverseScale;
         
         public int getClassification(final long value)
         {

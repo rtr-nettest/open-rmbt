@@ -16,8 +16,6 @@
 -->
 <resources xmlns:tools="http://schemas.android.com/tools" tools:locale="hr">
     
-    <!--string name="main_sub_text" translatable="false"></string-->
-    
     <string name="error_no_internet">Molimo aktivirajte Vašu\ninternet vezu</string>   
     <string name="error_no_data">Podaci nisu dostupni.</string>
     
@@ -122,17 +120,14 @@
     <string name="test_location_dir_w">W</string>
     
     <string name="test_notification_text">Test se još uvijek izvodi u pozadini.</string>
-    <string name="test_loop">Petlja</string>
     <string name="test_dialog_error_title">Greška…</string>
     <string name="test_dialog_error_text">Greška prilikom izvođenja testa.</string>
     
     <string name="test_dialog_abort_title">Prekid…</string>
     <string name="test_dialog_abort_text">Želite li prekinuti izvođenje testa?</string>
-    <string name="test_dialog_abort_extended_text">Želite li prekinuti izvođenje proširenog testa?</string>
     <string name="test_dialog_abort_yes">Prekini test</string>
     <string name="test_dialog_abort_no">Nastavi test</string>
     
-    <string name="history">Povijest</string>
     <string name="history_button_sync">Sync</string>
     <string name="history_button_filter">Filter</string>
     <string name="history_device">Uređaj</string>
@@ -148,27 +143,10 @@
 	<string name="history_filter_result_number">BROJ REZULTATA</string>
 	<string name="history_filter_result_number_25">Pokaži samo najnovijih 25 rezultata</string>
 	
-	<string name="result_header">REZULTAT TESTA</string>
 	<string name="result_measurement">MJERENJE</string>
 	<string name="result_net">MREŽA</string>
-	<string name="result_details_button">DETALJI</string>
-	<string name="result_map_button">KARTA</string>
 	
 	<string name="result_details">DETALJI</string>
-	
-	<string name="result_button_new_test">NOVI TEST</string>
-	<string name="result_button_history">Povijest</string>
-	<string name="result_button_map">Karta</string>
-	
-	<string name="result_extended_test_header">PROŠIRENI TEST</string>
-	<string name="result_extended_test_not_started">Prošireni test još nije započet</string>
-	<string name="result_extended_test_running">Prošireni test se izvodi</string>
-	<string name="result_extended_test_results">Prošireni test finalizira</string>
-	<string name="result_extended_test_finished">Prošireni test je završen</string>
-	<string name="result_extended_test_aborted">Prošireni test je prekinut</string>
-	<string name="result_extended_test_error">Greška prilikom proširenog testa</string>
-	<string name="result_extended_test_button_stop">Stop</string>
-	<string name="result_extended_test_button_detail">Detalji</string>
 	
 	<string name="sync_info_text">Možete združiti rezultate dvoje različitih uređaja. Za to morate unijeti već dobiveni sinkronizacijski kod ili zatražiti novi.</string>
 	<string name="sync_request_code_button">Zatraži kod</string>

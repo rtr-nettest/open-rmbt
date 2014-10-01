@@ -15,71 +15,45 @@
   limitations under the License.
 -->
 <merge xmlns:android="http://schemas.android.com/apk/res/android" >
-
-    <RelativeLayout
-        android:id="@+id/RelativeLayout1"
-        android:layout_width="match_parent"
-        android:layout_height="50dp" >
-
-        <TextView
-            style="@style/blockHeader"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
-            android:layout_marginBottom="5dp"
-            android:layout_marginLeft="2dp"
-            android:text="@string/result_header" />
-
-        <Button
-            android:id="@+id/resultButtonHelp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginRight="10dp"
-            android:background="@drawable/button_result_help" />
-
-        <Button
-            android:id="@+id/resultButtonShare"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_marginRight="10dp"
-            android:layout_toLeftOf="@+id/resultButtonHelp"
-            android:background="@drawable/button_result_share" />
-
-    </RelativeLayout>
-
+	<ScrollView android:layout_width="match_parent"
+	    android:layout_height="match_parent"
+	    android:background="@color/transparent" >
     <RelativeLayout
         android:id="@+id/resultList"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginBottom="10dp"
+        android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:background="@drawable/result_box_large" >
+        android:background="@color/transparent" >
+        <!-- android:background="@drawable/box_large" -->
 
             <LinearLayout
+                android:id="@+id/result_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:paddingLeft="5dp"
-                android:paddingRight="5dp" >
+                android:visibility="invisible" >
 
                 <TextView
                     android:id="@+id/resultMeasurement"
-                    style="@style/listHeader"
-                    android:layout_width="wrap_content"
+                    android:paddingLeft="8dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:paddingTop="5dp"
+                    android:paddingBottom="5dp"
+                   	android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@color/black"
                     android:text="@string/result_measurement" />
 
+                <!-- 
                 <ImageView
                     android:id="@+id/resultMeasurementDivider"
                     android:layout_width="match_parent"
                     android:layout_height="2dp"
                     android:background="@drawable/bg_trans_light_20"
                     android:contentDescription="" />
-
+				-->
+				
                 <LinearLayout
                     android:id="@+id/resultMeasurementList"
                     android:layout_width="match_parent"
@@ -89,18 +63,25 @@
 
                 <TextView
                     android:id="@+id/resultNet"
-                    style="@style/listHeader"
-                    android:layout_width="wrap_content"
+                    android:paddingLeft="8dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:paddingTop="5dp"
+                    android:paddingBottom="5dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@color/black"
                     android:text="@string/result_net" />
 
+                <!-- 
                 <ImageView
                     android:id="@+id/resultNetDivider"
                     android:layout_width="match_parent"
                     android:layout_height="2dp"
                     android:background="@drawable/bg_trans_light_20"
                     android:contentDescription="" />
-
+				-->
+				
                 <LinearLayout
                     android:id="@+id/resultNetList"
                     android:layout_width="match_parent"
@@ -123,16 +104,5 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true" />
     </RelativeLayout>
-
-    <!--
-    <ImageView
-        android:id="@+id/resultImageReflection"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/resultList"
-        android:contentDescription=""
-        android:src="@drawable/result_box_reflection_large" >
-    </ImageView>
-    -->
-
+    </ScrollView>
 </merge>

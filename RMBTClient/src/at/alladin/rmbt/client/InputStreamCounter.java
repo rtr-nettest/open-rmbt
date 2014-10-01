@@ -23,7 +23,7 @@ public class InputStreamCounter extends FilterInputStream
 {
     private long count;
     
-    protected InputStreamCounter(final InputStream in)
+    public InputStreamCounter(final InputStream in)
     {
         super(in);
     }

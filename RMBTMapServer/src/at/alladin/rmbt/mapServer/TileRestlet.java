@@ -226,7 +226,22 @@ public abstract class TileRestlet extends Restlet
             
             final DBox box = GeoCalc.xyToMeters(TILE_SIZES[tileSizeIdx], x, y, zoom);
             
-            handle(req, res, params, tileSizeIdx, zoom, box, mo, filters);
+            float quantile = 0.5f; //median is default quantile
+            final String statisticalMethod = params.getFirstValue("statistical_method", true);
+            if (statisticalMethod != null)
+                try
+                {
+                    final float _quantile = Float.parseFloat(statisticalMethod);
+                    if (_quantile >= 0 && _quantile <= 1)
+                        quantile = _quantile;
+                }
+                catch (final NumberFormatException e)
+                {
+                }
+            if (mo.reverseScale)
+                quantile = 1 - quantile;
+            
+            handle(req, res, params, tileSizeIdx, zoom, box, mo, filters, quantile);
         }
         finally
         {
@@ -235,5 +250,5 @@ public abstract class TileRestlet extends Restlet
     }
     
     protected abstract void handle(Request req, Response res, Form params, int tileSizeIdx, int zoom, DBox box, MapOption mo,
-            List<SQLFilter> filters);
+            List<SQLFilter> filters, float quantile);
 }

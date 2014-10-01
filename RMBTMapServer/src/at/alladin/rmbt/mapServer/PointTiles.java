@@ -16,6 +16,7 @@
 package at.alladin.rmbt.mapServer;
 
 import java.awt.AlphaComposite;
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
@@ -63,12 +64,12 @@ public class PointTiles extends TileRestlet
     @Override
     protected void handle(final Request req, final Response res, final Form params,  final int tileSizeIdx,
             final int zoom, final DBox box,
-            final MapOption mo, final List<SQLFilter> filters)
+            final MapOption mo, final List<SQLFilter> filters, final float quantile)
     {
         filters.add(MapServerOptions.getAccuracyMapFilter());
         
         final String diameterString = params.getFirstValue("point_diameter");
-        double _diameter = 8.0;
+        double _diameter = 5.0;
         if (diameterString != null)
             try
             {
@@ -116,7 +117,7 @@ public class PointTiles extends TileRestlet
         
         final double diameter = _diameter;
         final double radius = diameter / 2d;
-        final double triangleSide = diameter * 2.5;
+        final double triangleSide = diameter * 1.5;
         final double triangleHeight = Math.sqrt(3) / 2d * triangleSide;
         final int transparency = (int) Math.round(_transparency * 255);
         final boolean noFill = _noFill;
@@ -231,6 +232,7 @@ public class PointTiles extends TileRestlet
                     g.setBackground(new Color(0, 0, 0, 0));
                     g.clearRect(0, 0, img.width, img.height);
                     g.setComposite(AlphaComposite.Src);
+                    g.setStroke((new BasicStroke(((float) diameter / 8f))));
                     
                     final Path2D.Double triangle = new Path2D.Double();
                     final Ellipse2D.Double shape = new Ellipse2D.Double(0, 0, diameter, diameter);

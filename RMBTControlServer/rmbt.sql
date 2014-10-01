@@ -23,6 +23,20 @@ COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
 
 
 --
+-- Name: hstore; Type: EXTENSION; Schema: -; Owner: 
+--
+
+CREATE EXTENSION IF NOT EXISTS hstore WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION hstore; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION hstore IS 'data type for storing sets of (key, value) pairs';
+
+
+--
 -- Name: quantile; Type: EXTENSION; Schema: -; Owner: 
 --
 
@@ -503,6 +517,22 @@ CREATE TYPE pgis_abs (
 
 
 ALTER TYPE public.pgis_abs OWNER TO postgres;
+
+--
+-- Name: qostest; Type: TYPE; Schema: public; Owner: rmbt
+--
+
+CREATE TYPE qostest AS ENUM (
+    'website',
+    'http_proxy',
+    'non_transparent_proxy',
+    'dns',
+    'tcp',
+    'udp'
+);
+
+
+ALTER TYPE public.qostest OWNER TO rmbt;
 
 --
 -- Name: spheroid; Type: SHELL TYPE; Schema: public; Owner: postgres
@@ -3429,6 +3459,37 @@ CREATE FUNCTION height(chip) RETURNS integer
 
 
 ALTER FUNCTION public.height(chip) OWNER TO postgres;
+
+--
+-- Name: hstore2json(hstore); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION hstore2json(hs hstore) RETURNS text
+    LANGUAGE plpgsql IMMUTABLE
+    AS $$
+DECLARE
+rv text;
+r record;
+BEGIN
+rv:='';
+for r in (select key, val from each(hs) as h(key, val)) loop
+if rv<>'' then
+rv:=rv||',';
+end if;
+rv:=rv || '"' || r.key || '":';
+--Perform escaping
+r.val := REPLACE(r.val, E'\\', E'\\\\');
+r.val := REPLACE(r.val, '"', E'\\"');
+r.val := REPLACE(r.val, E'\n', E'\\n');
+r.val := REPLACE(r.val, E'\r', E'\\r');
+rv:=rv || CASE WHEN r.val IS NULL THEN 'null' ELSE '"' || r.val || '"' END;
+end loop;
+return '{'||rv||'}';
+END;
+$$;
+
+
+ALTER FUNCTION public.hstore2json(hs hstore) OWNER TO postgres;
 
 --
 -- Name: interiorringn(geometry, integer); Type: FUNCTION; Schema: public; Owner: postgres
@@ -12198,6 +12259,26 @@ ALTER SEQUENCE location_uid_seq OWNED BY geo_location.uid;
 SET default_with_oids = false;
 
 --
+-- Name: logged_actions; Type: TABLE; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+CREATE TABLE logged_actions (
+    schema_name text NOT NULL,
+    table_name text NOT NULL,
+    user_name text,
+    action_tstamp timestamp with time zone DEFAULT now() NOT NULL,
+    action text NOT NULL,
+    original_data text,
+    new_data text,
+    query text,
+    CONSTRAINT logged_actions_action_check CHECK ((action = ANY (ARRAY['I'::text, 'D'::text, 'U'::text])))
+)
+WITH (fillfactor=100);
+
+
+ALTER TABLE public.logged_actions OWNER TO rmbt;
+
+--
 -- Name: mcc2country; Type: TABLE; Schema: public; Owner: rmbt; Tablespace: 
 --
 
@@ -12601,6 +12682,153 @@ ALTER SEQUENCE provider_uid_seq OWNED BY provider.uid;
 
 
 --
+-- Name: qos_test_desc; Type: TABLE; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+CREATE TABLE qos_test_desc (
+    uid integer NOT NULL,
+    desc_key text,
+    value text,
+    lang text
+);
+
+
+ALTER TABLE public.qos_test_desc OWNER TO rmbt;
+
+--
+-- Name: qos_test_desc_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
+--
+
+CREATE SEQUENCE qos_test_desc_uid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.qos_test_desc_uid_seq OWNER TO rmbt;
+
+--
+-- Name: qos_test_desc_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
+--
+
+ALTER SEQUENCE qos_test_desc_uid_seq OWNED BY qos_test_desc.uid;
+
+
+--
+-- Name: qos_test_objective; Type: TABLE; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+CREATE TABLE qos_test_objective (
+    uid integer NOT NULL,
+    test qostest NOT NULL,
+    param hstore NOT NULL,
+    test_class integer,
+    results hstore[],
+    test_server integer,
+    concurrency_group integer DEFAULT 0 NOT NULL,
+    test_desc text,
+    test_summary text
+);
+
+
+ALTER TABLE public.qos_test_objective OWNER TO rmbt;
+
+--
+-- Name: qos_test_objective_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
+--
+
+CREATE SEQUENCE qos_test_objective_uid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.qos_test_objective_uid_seq OWNER TO rmbt;
+
+--
+-- Name: qos_test_objective_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
+--
+
+ALTER SEQUENCE qos_test_objective_uid_seq OWNED BY qos_test_objective.uid;
+
+
+--
+-- Name: qos_test_result; Type: TABLE; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+CREATE TABLE qos_test_result (
+    uid integer NOT NULL,
+    result hstore,
+    test_uid bigint,
+    qos_test_uid bigint,
+    success_count integer DEFAULT 0 NOT NULL,
+    failure_count integer DEFAULT 0 NOT NULL
+);
+
+
+ALTER TABLE public.qos_test_result OWNER TO rmbt;
+
+--
+-- Name: qos_test_result_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
+--
+
+CREATE SEQUENCE qos_test_result_uid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.qos_test_result_uid_seq OWNER TO rmbt;
+
+--
+-- Name: qos_test_result_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
+--
+
+ALTER SEQUENCE qos_test_result_uid_seq OWNED BY qos_test_result.uid;
+
+
+--
+-- Name: qos_test_type_desc; Type: TABLE; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+CREATE TABLE qos_test_type_desc (
+    uid integer NOT NULL,
+    test qostest,
+    test_desc text,
+    test_name text
+);
+
+
+ALTER TABLE public.qos_test_type_desc OWNER TO rmbt;
+
+--
+-- Name: qos_test_type_desc_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
+--
+
+CREATE SEQUENCE qos_test_type_desc_uid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.qos_test_type_desc_uid_seq OWNER TO rmbt;
+
+--
+-- Name: qos_test_type_desc_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
+--
+
+ALTER SEQUENCE qos_test_type_desc_uid_seq OWNED BY qos_test_type_desc.uid;
+
+
+--
 -- Name: settings; Type: TABLE; Schema: public; Owner: rmbt; Tablespace: 
 --
 
@@ -12981,6 +13209,34 @@ ALTER TABLE ONLY provider ALTER COLUMN uid SET DEFAULT nextval('provider_uid_seq
 -- Name: uid; Type: DEFAULT; Schema: public; Owner: rmbt
 --
 
+ALTER TABLE ONLY qos_test_desc ALTER COLUMN uid SET DEFAULT nextval('qos_test_desc_uid_seq'::regclass);
+
+
+--
+-- Name: uid; Type: DEFAULT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY qos_test_objective ALTER COLUMN uid SET DEFAULT nextval('qos_test_objective_uid_seq'::regclass);
+
+
+--
+-- Name: uid; Type: DEFAULT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY qos_test_result ALTER COLUMN uid SET DEFAULT nextval('qos_test_result_uid_seq'::regclass);
+
+
+--
+-- Name: uid; Type: DEFAULT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY qos_test_type_desc ALTER COLUMN uid SET DEFAULT nextval('qos_test_type_desc_uid_seq'::regclass);
+
+
+--
+-- Name: uid; Type: DEFAULT; Schema: public; Owner: rmbt
+--
+
 ALTER TABLE ONLY settings ALTER COLUMN uid SET DEFAULT nextval('settings_uid_seq'::regclass);
 
 
@@ -13179,6 +13435,54 @@ ALTER TABLE ONLY provider
 
 
 --
+-- Name: qos_test_desc_desc_key_lang_key; Type: CONSTRAINT; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+ALTER TABLE ONLY qos_test_desc
+    ADD CONSTRAINT qos_test_desc_desc_key_lang_key UNIQUE (desc_key, lang);
+
+
+--
+-- Name: qos_test_desc_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+ALTER TABLE ONLY qos_test_desc
+    ADD CONSTRAINT qos_test_desc_pkey PRIMARY KEY (uid);
+
+
+--
+-- Name: qos_test_objective_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+ALTER TABLE ONLY qos_test_objective
+    ADD CONSTRAINT qos_test_objective_pkey PRIMARY KEY (uid);
+
+
+--
+-- Name: qos_test_result_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+ALTER TABLE ONLY qos_test_result
+    ADD CONSTRAINT qos_test_result_pkey PRIMARY KEY (uid);
+
+
+--
+-- Name: qos_test_type_desc_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+ALTER TABLE ONLY qos_test_type_desc
+    ADD CONSTRAINT qos_test_type_desc_pkey PRIMARY KEY (uid);
+
+
+--
+-- Name: qos_test_type_desc_test_key; Type: CONSTRAINT; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+ALTER TABLE ONLY qos_test_type_desc
+    ADD CONSTRAINT qos_test_type_desc_test_key UNIQUE (test);
+
+
+--
 -- Name: settings_key_lang_key; Type: CONSTRAINT; Schema: public; Owner: rmbt; Tablespace: 
 --
 
@@ -13317,6 +13621,20 @@ CREATE INDEX download_idx ON test USING btree (bytes_download, network_type);
 
 
 --
+-- Name: fki_qos_test_result_qos_test_uid_fkey; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+CREATE INDEX fki_qos_test_result_qos_test_uid_fkey ON qos_test_result USING btree (qos_test_uid);
+
+
+--
+-- Name: fki_qos_test_result_test_uid; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+CREATE INDEX fki_qos_test_result_test_uid ON qos_test_result USING btree (test_uid);
+
+
+--
 -- Name: geo_location_location_idx; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
 --
 
@@ -13356,6 +13674,27 @@ CREATE INDEX geo_location_test_id_time_idx ON geo_location USING btree (test_id,
 --
 
 CREATE INDEX location_idx ON test USING gist (location);
+
+
+--
+-- Name: logged_actions_action_idx; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+CREATE INDEX logged_actions_action_idx ON logged_actions USING btree (action);
+
+
+--
+-- Name: logged_actions_action_tstamp_idx; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+CREATE INDEX logged_actions_action_tstamp_idx ON logged_actions USING btree (action_tstamp);
+
+
+--
+-- Name: logged_actions_schema_table_idx; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+CREATE INDEX logged_actions_schema_table_idx ON logged_actions USING btree ((((schema_name || '.'::text) || table_name)));
 
 
 --
@@ -13440,6 +13779,13 @@ CREATE INDEX plz2001_the_geom_gist ON plz2001 USING gist (the_geom);
 --
 
 CREATE INDEX provider_mcc_mnc_idx ON provider USING btree (mcc_mnc);
+
+
+--
+-- Name: qos_test_desc_desc_key_idx; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+CREATE INDEX qos_test_desc_desc_key_idx ON qos_test_desc USING btree (desc_key);
 
 
 --
@@ -13674,6 +14020,22 @@ ALTER TABLE ONLY ping
 
 
 --
+-- Name: qos_test_result_qos_test_uid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY qos_test_result
+    ADD CONSTRAINT qos_test_result_qos_test_uid_fkey FOREIGN KEY (qos_test_uid) REFERENCES qos_test_objective(uid) ON DELETE CASCADE;
+
+
+--
+-- Name: qos_test_result_test_uid; Type: FK CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY qos_test_result
+    ADD CONSTRAINT qos_test_result_test_uid FOREIGN KEY (test_uid) REFERENCES test(uid) ON DELETE CASCADE;
+
+
+--
 -- Name: signal_test_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: rmbt
 --
 
@@ -13855,6 +14217,16 @@ GRANT USAGE ON SEQUENCE location_uid_seq TO rmbt_group_control;
 
 
 --
+-- Name: logged_actions; Type: ACL; Schema: public; Owner: rmbt
+--
+
+REVOKE ALL ON TABLE logged_actions FROM PUBLIC;
+REVOKE ALL ON TABLE logged_actions FROM rmbt;
+GRANT ALL ON TABLE logged_actions TO rmbt;
+GRANT INSERT ON TABLE logged_actions TO rmbt_group_control;
+
+
+--
 -- Name: mcc2country; Type: ACL; Schema: public; Owner: rmbt
 --
 
@@ -13954,6 +14326,57 @@ REVOKE ALL ON TABLE provider FROM PUBLIC;
 REVOKE ALL ON TABLE provider FROM rmbt;
 GRANT ALL ON TABLE provider TO rmbt;
 GRANT SELECT ON TABLE provider TO rmbt_group_read_only;
+
+
+--
+-- Name: qos_test_desc; Type: ACL; Schema: public; Owner: rmbt
+--
+
+REVOKE ALL ON TABLE qos_test_desc FROM PUBLIC;
+REVOKE ALL ON TABLE qos_test_desc FROM rmbt;
+GRANT ALL ON TABLE qos_test_desc TO rmbt;
+GRANT SELECT ON TABLE qos_test_desc TO rmbt_group_read_only;
+
+
+--
+-- Name: qos_test_objective; Type: ACL; Schema: public; Owner: rmbt
+--
+
+REVOKE ALL ON TABLE qos_test_objective FROM PUBLIC;
+REVOKE ALL ON TABLE qos_test_objective FROM rmbt;
+GRANT ALL ON TABLE qos_test_objective TO rmbt;
+GRANT SELECT ON TABLE qos_test_objective TO rmbt_group_read_only;
+
+
+--
+-- Name: qos_test_result; Type: ACL; Schema: public; Owner: rmbt
+--
+
+REVOKE ALL ON TABLE qos_test_result FROM PUBLIC;
+REVOKE ALL ON TABLE qos_test_result FROM rmbt;
+GRANT ALL ON TABLE qos_test_result TO rmbt;
+GRANT SELECT ON TABLE qos_test_result TO rmbt_group_read_only;
+GRANT INSERT,UPDATE ON TABLE qos_test_result TO rmbt_group_control;
+
+
+--
+-- Name: qos_test_result_uid_seq; Type: ACL; Schema: public; Owner: rmbt
+--
+
+REVOKE ALL ON SEQUENCE qos_test_result_uid_seq FROM PUBLIC;
+REVOKE ALL ON SEQUENCE qos_test_result_uid_seq FROM rmbt;
+GRANT ALL ON SEQUENCE qos_test_result_uid_seq TO rmbt;
+GRANT USAGE ON SEQUENCE qos_test_result_uid_seq TO rmbt_group_control;
+
+
+--
+-- Name: qos_test_type_desc; Type: ACL; Schema: public; Owner: rmbt
+--
+
+REVOKE ALL ON TABLE qos_test_type_desc FROM PUBLIC;
+REVOKE ALL ON TABLE qos_test_type_desc FROM rmbt;
+GRANT ALL ON TABLE qos_test_type_desc TO rmbt;
+GRANT SELECT ON TABLE qos_test_type_desc TO rmbt_group_read_only;
 
 
 --

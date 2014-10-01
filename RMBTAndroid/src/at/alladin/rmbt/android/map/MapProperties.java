@@ -17,8 +17,6 @@ package at.alladin.rmbt.android.map;
 
 import java.util.Map;
 
-import at.alladin.openrmbt.android.R;
-
 import com.google.android.gms.maps.model.LatLng;
 
 /**
@@ -78,11 +76,6 @@ public interface MapProperties
      * 
      */
     public static final String MAP_OPTIONS_PATH = "/RMBTMapServer/tiles/info";
-    
-    /**
-	 * 
-	 */
-    public static final int TEST_POINT_OVERLAY_DRAWABLE = R.drawable.map_pin;
     
     /**
 	 * 

@@ -25,6 +25,8 @@ import org.json.JSONObject;
 
 public class DoubleField extends NumberFieldAdapter<Double>
 {
+    private static final long serialVersionUID = 1L;
+    
     public DoubleField(final String dbKey, final String jsonKey)
     {
         super(dbKey, jsonKey, false);
@@ -70,6 +72,11 @@ public class DoubleField extends NumberFieldAdapter<Double>
     public void setString(final String string)
     {
         value = Double.parseDouble(string);
+    }
+    
+    public void setValue(final double value)
+    {
+        this.value = value;
     }
     
 }

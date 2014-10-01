@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+	<item android:id="@+id/action_menu_filter"
+          android:icon="@drawable/ic_action_search"
+          android:title="@string/history_button_filter"
+          android:showAsAction="ifRoom" />
+
+	<item android:id="@+id/action_menu_sync"
+          android:icon="@drawable/ic_action_refresh"
+          android:title="@string/history_button_sync"
+          android:showAsAction="ifRoom" />
+	
+	<item android:id="@+id/action_menu_share"
+          android:icon="@drawable/ic_action_share"
+          android:title="@string/menu_button_share"
+          android:showAsAction="ifRoom" />
+			
+	<item android:id="@+id/action_menu_help"
+          android:icon="@drawable/ic_action_help"
+          android:title="@string/menu_button_help"
+          android:showAsAction="ifRoom" />
+	
+	<item android:id="@+id/action_menu_map"
+          android:icon="@drawable/ic_action_map"
+          android:title="@string/menu_button_map"
+          android:showAsAction="ifRoom" />
+	
+	<item android:id="@+id/action_menu_rtr"
+          android:icon="@drawable/ic_action_logo"
+          android:title="@string/menu_button_about"
+          android:showAsAction="ifRoom" />					
+						
+</menu>

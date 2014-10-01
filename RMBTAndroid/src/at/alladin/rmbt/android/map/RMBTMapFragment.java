@@ -22,11 +22,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Dialog;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.location.Location;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -38,6 +38,7 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 import at.alladin.openrmbt.android.R;
+import at.alladin.rmbt.android.main.AppConstants;
 import at.alladin.rmbt.android.main.RMBTMainActivity;
 import at.alladin.rmbt.android.map.overlay.RMBTBalloonOverlayItem;
 import at.alladin.rmbt.android.map.overlay.RMBTBalloonOverlayView;
@@ -58,7 +59,7 @@ import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMyLocationChangeListener;
 import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.LocationSource.OnLocationChangedListener;
-import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -69,10 +70,15 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 
-public class RMBTMapFragment extends SupportMapFragment implements OnClickListener, OnCameraChangeListener, OnMapClickListener, InfoWindowAdapter, OnInfoWindowClickListener, OnMyLocationChangeListener, OnMarkerClickListener
+public class RMBTMapFragment extends MapFragment implements OnClickListener, OnCameraChangeListener, OnMapClickListener, InfoWindowAdapter, OnInfoWindowClickListener, OnMyLocationChangeListener, OnMarkerClickListener
 {
 //    private static final String DEBUG_TAG = "RMBTMapFragment";
     
+	public final static String OPTION_SHOW_INFO_TOAST = "show_info_toast";
+	public final static String OPTION_ENABLE_ALL_GESTURES = "enable_all_gestures";
+	public final static String OPTION_ENABLE_CONTROL_BUTTONS = "enable_control_buttons";
+	public final static String OPTION_ENABLE_OVERLAY = "enable_overlay";
+	
     private GoogleMap gMap;
     
     private TileOverlay heatmapOverlay;
@@ -84,6 +90,42 @@ public class RMBTMapFragment extends SupportMapFragment implements OnClickListen
     private BitmapDescriptor markerIconBitmapDescriptor;
     
     private boolean firstStart = true;
+
+    private RMBTMapFragmentOptions options = new RMBTMapFragmentOptions();
+    
+    private OnClickListener additionalMapClickListener;
+    
+    public class RMBTMapFragmentOptions {
+    	private boolean showInfoToast = true;
+    	private boolean enableAllGestures = true;
+    	private boolean enableControlButtons = true;
+    	private boolean enableOverlay = true;
+    	
+		public boolean isShowInfoToast() {
+			return showInfoToast;
+		}
+		public void setShowInfoToast(boolean showInfoToast) {
+			this.showInfoToast = showInfoToast;
+		}
+		public boolean isEnableAllGestures() {
+			return enableAllGestures;
+		}
+		public void setEnableAllGestures(boolean enableAllGestures) {
+			this.enableAllGestures = enableAllGestures;
+		}
+		public boolean isEnableControlButtons() {
+			return enableControlButtons;
+		}
+		public void setEnableControlButtons(boolean enableControlButtons) {
+			this.enableControlButtons = enableControlButtons;
+		}
+		public boolean isEnableOverlay() {
+			return enableOverlay;
+		}
+		public void setEnableOverlay(boolean enableOverlay) {
+			this.enableOverlay = enableOverlay;
+		}
+    }
     
     private class MyGeoLocation extends GeoLocation
     {
@@ -107,6 +149,23 @@ public class RMBTMapFragment extends SupportMapFragment implements OnClickListen
     {
         super.onCreate(savedInstanceState);
         geoLocation = new MyGeoLocation(getActivity());
+        
+        final Bundle bundle = getArguments();
+        
+        if (bundle != null) {                	
+            if (bundle.containsKey(OPTION_ENABLE_ALL_GESTURES)) {
+            	options.setEnableAllGestures(bundle.getBoolean(OPTION_ENABLE_ALL_GESTURES));
+            }
+            if (bundle.containsKey(OPTION_SHOW_INFO_TOAST)) {
+            	options.setShowInfoToast(bundle.getBoolean(OPTION_SHOW_INFO_TOAST));
+            }
+            if (bundle.containsKey(OPTION_ENABLE_CONTROL_BUTTONS)) {
+            	options.setEnableControlButtons(bundle.getBoolean(OPTION_ENABLE_CONTROL_BUTTONS));
+            }
+            if (bundle.containsKey(OPTION_ENABLE_OVERLAY)) {
+            	options.setEnableOverlay(bundle.getBoolean(OPTION_ENABLE_OVERLAY));
+            }
+        }
     }
     
     @Override
@@ -120,13 +179,16 @@ public class RMBTMapFragment extends SupportMapFragment implements OnClickListen
         {
             if (firstStart)
             {
+                final Bundle bundle = getArguments();
+                
                 firstStart = false;
                 
                 final UiSettings uiSettings = gMap.getUiSettings();
-                uiSettings.setZoomControlsEnabled(false);
+                uiSettings.setZoomControlsEnabled(false); // options.isEnableAllGestures());
                 uiSettings.setMyLocationButtonEnabled(false);
                 uiSettings.setCompassEnabled(false);
                 uiSettings.setRotateGesturesEnabled(false);
+                uiSettings.setScrollGesturesEnabled(options.isEnableAllGestures());
                 
                 gMap.setTrafficEnabled(false);
                 gMap.setIndoorEnabled(false);
@@ -140,8 +202,7 @@ public class RMBTMapFragment extends SupportMapFragment implements OnClickListen
                     latLng = new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
                     zoom = MapProperties.DEFAULT_MAP_ZOOM_LOCATION;
                 }
-                
-                final Bundle bundle = getArguments();
+
                 if (bundle != null)
                 {
                     final LatLng initialCenter = bundle.getParcelable("initialCenter");
@@ -178,8 +239,6 @@ public class RMBTMapFragment extends SupportMapFragment implements OnClickListen
                     }
                 });
                 
- 
-                
                 gMap.setMyLocationEnabled(true);
                 gMap.setOnMyLocationChangeListener(this);
                 gMap.setOnMarkerClickListener(this);
@@ -187,13 +246,14 @@ public class RMBTMapFragment extends SupportMapFragment implements OnClickListen
                 gMap.setInfoWindowAdapter(this);
                 gMap.setOnInfoWindowClickListener(this);
                 
+                
                 final Location myLocation = gMap.getMyLocation();
                 if (myLocation != null)
                     onMyLocationChange(myLocation);
             }
             
             
-            final RMBTMainActivity activity = (RMBTMainActivity)getActivity();
+            final RMBTMainActivity activity = (RMBTMainActivity) getActivity();
             gMap.setMapType(activity.getMapTypeSatellite() ? GoogleMap.MAP_TYPE_SATELLITE : GoogleMap.MAP_TYPE_NORMAL);
             
             final Map<String, String> mapOptions = ((MapProperties) getActivity()).getCurrentMapOptions();
@@ -236,6 +296,12 @@ public class RMBTMapFragment extends SupportMapFragment implements OnClickListen
                 	needHeatmapOverlay = false;
                 }	
             }
+            
+            if (!options.isEnableOverlay()) {
+            	needHeatmapOverlay = false;
+            	needShapesOverlay = false;
+            	needPointsOverlay = false;
+            }
               
             final String protocol = ConfigHelper.isMapSeverSSL(getActivity()) ? "https" : "http";
             final String host = ConfigHelper.getMapServerName(getActivity());
@@ -268,6 +334,9 @@ public class RMBTMapFragment extends SupportMapFragment implements OnClickListen
                     onCameraChange(gMap.getCameraPosition());
             }
         }
+        
+        //gMap.getUiSettings().setAllGesturesEnabled(options.isEnableAllGestures());
+        //gMap.getUiSettings().setCompassEnabled(false);
     }
     
     @Override
@@ -327,7 +396,10 @@ public class RMBTMapFragment extends SupportMapFragment implements OnClickListen
     public void onResume()
     {
         super.onResume();
-        showInfoToast();
+        
+        if (options.showInfoToast) {
+            showInfoToast();	
+        }
     }
     
     @Override
@@ -380,13 +452,24 @@ public class RMBTMapFragment extends SupportMapFragment implements OnClickListen
         final Button mapZoomInButton = (Button) view.findViewById(R.id.mapZoomInButton);
         final Button mapZoomOutButton = (Button) view.findViewById(R.id.mapZoomOutButton);
 
-        mapChooseButton.setOnClickListener(this);
-        mapFilterButton.setOnClickListener(this);
-        mapLocateButton.setOnClickListener(this);
-        mapHelpButton.setOnClickListener(this);
-        mapInfoButton.setOnClickListener(this);
-        mapZoomInButton.setOnClickListener(this);
-        mapZoomOutButton.setOnClickListener(this);
+        if (options.isEnableControlButtons()) {
+            mapChooseButton.setOnClickListener(this);
+            mapFilterButton.setOnClickListener(this);
+            mapLocateButton.setOnClickListener(this);
+            mapHelpButton.setOnClickListener(this);
+            mapInfoButton.setOnClickListener(this);
+            mapZoomInButton.setOnClickListener(this);
+            mapZoomOutButton.setOnClickListener(this);	
+        }        
+        else {
+        	mapChooseButton.setVisibility(View.GONE);
+        	mapFilterButton.setVisibility(View.GONE);
+        	mapLocateButton.setVisibility(View.GONE);
+        	mapHelpButton.setVisibility(View.GONE);
+        	mapInfoButton.setVisibility(View.GONE);
+        	mapZoomInButton.setVisibility(View.GONE);
+        	mapZoomOutButton.setVisibility(View.GONE);
+        }
     }
     
     @Override
@@ -405,7 +488,7 @@ public class RMBTMapFragment extends SupportMapFragment implements OnClickListen
     @Override
     public void onClick(View v)
     {
-        final FragmentManager fm = getActivity().getSupportFragmentManager();
+        final FragmentManager fm = getActivity().getFragmentManager();
         final FragmentTransaction ft;
         
         final GoogleMap map = getMap();
@@ -447,10 +530,8 @@ public class RMBTMapFragment extends SupportMapFragment implements OnClickListen
             break;
 
         case R.id.mapHelpButton:
-
-            ((RMBTMainActivity) getActivity()).showHelp(""); // TODO: put correct
+            ((RMBTMainActivity) getActivity()).showHelp("", false, AppConstants.PAGE_TITLE_HELP); // TODO: put correct
                                                         // help url
-
             break;
 
         case R.id.mapInfoButton:
@@ -527,7 +608,7 @@ public class RMBTMapFragment extends SupportMapFragment implements OnClickListen
                 {
                     final String openUUID = resultListItem.optString("open_test_uuid", null);
                     if (openUUID != null && openUUID.length() > 0)
-                        openTestUUIDURL = openDataPrefix + openUUID;
+                        openTestUUIDURL = openDataPrefix + openUUID + "#noMMenu";
                 }
                 
                 balloon = new RMBTBalloonOverlayItem(latLng, getResources().getString(R.string.map_balloon_overlay_header), result);
@@ -576,11 +657,17 @@ public class RMBTMapFragment extends SupportMapFragment implements OnClickListen
     @Override
     public void onMapClick(LatLng latLng)
     {
-        cancelCheckMarker();
-        checkMarker = new CheckMarker(getActivity(), latLng.latitude, latLng.longitude,
-                (int) gMap.getCameraPosition().zoom, 20); // TODO correct params (zoom, size)
-        checkMarker.setEndTaskListener(checkMarkerEndTaskListener);
-        checkMarker.execute();
+    	if (additionalMapClickListener != null) {
+    		additionalMapClickListener.onClick(getView());
+    	}
+    	
+    	if (options.isEnableAllGestures() || options.isEnableControlButtons()) {
+    		cancelCheckMarker();
+    		checkMarker = new CheckMarker(getActivity(), latLng.latitude, latLng.longitude,
+    				(int) gMap.getCameraPosition().zoom, 20); // TODO correct params (zoom, size)
+    		checkMarker.setEndTaskListener(checkMarkerEndTaskListener);
+    		checkMarker.execute();
+    	}
     }
 
     @Override
@@ -617,8 +704,24 @@ public class RMBTMapFragment extends SupportMapFragment implements OnClickListen
         {
             Log.d(getTag(), "go to url: " + openTestUUIDURL);
             final RMBTMainActivity activity = (RMBTMainActivity) getActivity();
-            activity.showHelp(openTestUUIDURL);
+            activity.showHelp(openTestUUIDURL, false, AppConstants.PAGE_TITLE_MAP);
         }
     }
+
+    /**
+     * 
+     * @return
+     */
+	public OnClickListener getAdditionalMapClickListener() {
+		return additionalMapClickListener;
+	}
+
+	/**
+	 * 
+	 * @param additionalMapClickListener
+	 */
+	public void setAdditionalMapClickListener(OnClickListener additionalMapClickListener) {
+		this.additionalMapClickListener = additionalMapClickListener;
+	}
 
 }

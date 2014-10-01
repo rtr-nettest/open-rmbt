@@ -33,7 +33,7 @@ public abstract class Table
     protected boolean error = false;
     
     protected final Field[] fields;
-    private final Map<String, Field> keyMap = new HashMap<String, Field>();
+    private final Map<String, Field> keyMap = new HashMap<>();
     
     public Table(final Field[] fields, final Connection conn)
     {

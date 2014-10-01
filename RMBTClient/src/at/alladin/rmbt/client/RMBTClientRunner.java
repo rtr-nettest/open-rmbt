@@ -23,17 +23,21 @@ import java.util.Arrays;
 
 import javax.net.ssl.SSLContext;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import net.measurementlab.ndt.NdtTests;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import at.alladin.rmbt.client.helper.Config;
 import at.alladin.rmbt.client.helper.RevisionHelper;
 import at.alladin.rmbt.client.helper.TestStatus;
 import at.alladin.rmbt.client.ndt.NDTRunner;
+import at.alladin.rmbt.client.v2.task.QoSTestEnum;
+import at.alladin.rmbt.client.v2.task.result.QoSResultCollector;
+import at.alladin.rmbt.client.v2.task.service.TestSettings;
 
 public class RMBTClientRunner
 {
@@ -123,7 +127,7 @@ public class RMBTClientRunner
         
         final ArrayList<String> geoInfo = null;
         
-        final String uuid = "2608df31-8a51-4271-aab7-d489ca59f93b";
+        final String uuid = "1cc2d6bb-2f07-4cb8-8fd6-fb5ffcf10cb0";
         
         final JSONObject additionalValues = new JSONObject();
         try
@@ -172,6 +176,26 @@ public class RMBTClientRunner
             
             client.shutdown();
             
+			try {
+				System.out.print("Starting QoS Test... ");
+            	TestSettings nnTestSettings = new TestSettings(client.getControlConnection().getStartTimeNs());
+				QualityOfServiceTest nnTest = new QualityOfServiceTest(client, nnTestSettings);
+				QoSResultCollector nnResult = nnTest.call();
+            	System.out.println("finished.");
+				if (nnResult != null && nnTest.getStatus().equals(QoSTestEnum.QOS_FINISHED)) {
+					System.out.print("Sending QoS results... ");
+					client.sendQoSResult(nnResult);
+					System.out.println("finished");
+				}
+				else {
+					System.out.println("Error during QoS test.");
+				}
+            	
+			} catch (Exception e) {
+				e.printStackTrace();
+			}                            	                    	
+
+                       
             if (client.getStatus() != TestStatus.END)
                 System.out.println("ERROR: " + client.getErrorMsg());
             else

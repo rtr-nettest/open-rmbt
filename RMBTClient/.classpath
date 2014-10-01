@@ -7,5 +7,6 @@
 	<classpathentry kind="lib" path="lib/commons-logging-1.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/org.apache.httpclient.jar"/>
 	<classpathentry kind="lib" path="lib/org.apache.httpcore.jar"/>
+	<classpathentry kind="lib" path="lib/dnsjava-2.1.6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

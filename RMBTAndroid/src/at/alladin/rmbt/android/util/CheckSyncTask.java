@@ -17,15 +17,15 @@ package at.alladin.rmbt.android.util;
 
 import org.json.JSONArray;
 
+import android.app.Activity;
 import android.os.AsyncTask;
-import android.support.v4.app.FragmentActivity;
 
 public class CheckSyncTask extends AsyncTask<String, Void, JSONArray>
 {
     
     // private static final String DEBUG_TAG = "CheckSyncTask";
     
-    private final FragmentActivity activity;
+    private final Activity activity;
     
     private JSONArray resultList;
     
@@ -35,7 +35,7 @@ public class CheckSyncTask extends AsyncTask<String, Void, JSONArray>
     
     private boolean hasError = false;
     
-    public CheckSyncTask(final FragmentActivity activity)
+    public CheckSyncTask(final Activity activity)
     {
         this.activity = activity;
         

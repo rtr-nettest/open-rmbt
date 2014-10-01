@@ -16,11 +16,10 @@
 package at.alladin.rmbt.android.terms;
 
 import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentManager;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -28,6 +27,8 @@ import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import at.alladin.openrmbt.android.R;
 import at.alladin.rmbt.android.main.RMBTMainActivity;
 import at.alladin.rmbt.android.util.ConfigHelper;
@@ -60,19 +61,32 @@ public class RMBTNDTCheckFragment extends Fragment
         if (savedInstanceState != null)
             ndtCheckBox.setChecked(savedInstanceState.getBoolean("ndtChecked"));
         
+        final Button buttonAccept = (Button) v.findViewById(R.id.termsNdtAcceptButton);
+        
+        if (! firstTime)
+        {    
+            ndtCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener()
+            {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+                {
+                    buttonAccept.setEnabled(isChecked);
+                }
+            });
+        }
+        
         final WebView wv = (WebView) v.findViewById(R.id.ndtInfoWebView);
         wv.loadUrl("file:///android_res/raw/ndt_info.html");
         
-        final Button buttonAccept = (Button) v.findViewById(R.id.termsNdtAcceptButton);
         buttonAccept.setOnClickListener(new OnClickListener()
         {
             @Override
             public void onClick(final View v)
             {
-                final FragmentActivity activity = getActivity();
+                final Activity activity = getActivity();
                 ConfigHelper.setNDT(activity, ndtCheckBox.isChecked());
                 ConfigHelper.setNDTDecisionMade(activity, true);
-                activity.getSupportFragmentManager().popBackStack("ndt_check", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                activity.getFragmentManager().popBackStack("ndt_check", FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 if (firstTime)
                     ((RMBTMainActivity) activity).initApp(false);
                 else
@@ -88,7 +102,7 @@ public class RMBTNDTCheckFragment extends Fragment
             @Override
             public void run()
             {
-                buttonAccept.setEnabled(true);
+                buttonAccept.setEnabled(firstTime || ndtCheckBox.isChecked());
             }
         }, 500);
         
@@ -98,7 +112,7 @@ public class RMBTNDTCheckFragment extends Fragment
             @Override
             public void onClick(final View v)
             {
-                getActivity().getSupportFragmentManager().popBackStack();
+                getActivity().getFragmentManager().popBackStack();
             }
         });
         

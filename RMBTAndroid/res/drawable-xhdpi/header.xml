@@ -15,16 +15,21 @@
   limitations under the License.
 -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 
     <item>
       <bitmap android:src="@drawable/main_header_empty_raw"
         android:gravity="center" />
     </item>
-    <item>
+    -->
+    <item >
       <bitmap android:src="@drawable/main_header_text_raw"
-        android:gravity="center" />
+        android:gravity="center"
+         />
     </item>
+    <!-- 
     <item>
       <bitmap android:src="@drawable/main_header_reflection_raw"
         android:gravity="center" />
     </item>
+    -->
 </layer-list>

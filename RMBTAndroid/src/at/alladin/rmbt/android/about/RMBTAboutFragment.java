@@ -21,17 +21,18 @@ import java.util.HashMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.text.ClipboardManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -90,7 +91,7 @@ public class RMBTAboutFragment extends Fragment
     /**
 	 * 
 	 */
-    private FragmentActivity activity;
+    private Activity activity;
     
     /**
 	 * 
@@ -98,15 +99,19 @@ public class RMBTAboutFragment extends Fragment
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState)
     {
-        
+        final View view = inflater.inflate(R.layout.about, container, false);
+
+        return createView(view, inflater);
+    }
+    
+    private View createView(View view, LayoutInflater inflater) {
         activity = getActivity();
         
         getAppInfo(activity);
         
         final String clientUUID = String.format("U%s", ConfigHelper.getUUID(activity.getApplicationContext()));
-
-        // super.onActivityCreated(savedInstanceState);
-        final View view = inflater.inflate(R.layout.about, container, false);
+        
+        final String controlServerVersion = ConfigHelper.getControlServerVersion(activity);
         
         final ListView listView = (ListView) view.findViewById(R.id.aboutList);
         
@@ -152,7 +157,7 @@ public class RMBTAboutFragment extends Fragment
         item.put("text1", getString(R.string.about_dev_line1));
         item.put("text2", getString(R.string.about_dev_line2));
         list.add(item);
-        
+
         final String openSourceSoftwareLicenseInfo = GooglePlayServicesUtil.getOpenSourceSoftwareLicenseInfo(getActivity());
         
         if (openSourceSoftwareLicenseInfo != null)
@@ -172,6 +177,12 @@ public class RMBTAboutFragment extends Fragment
             item.put("text2", "");
             list.add(item);
         }
+        
+        item = new HashMap<String, String>();
+        item.put("title", getString(R.string.about_control_server_version));
+        item.put("text1", controlServerVersion != null ? controlServerVersion : "---");
+        item.put("text2", "");
+        list.add(item);
         
         sa = new RMBTAboutAdapter(getActivity(), list, R.layout.about_item, new String[] { "title", "text1", "text2" },
                 new int[] { R.id.title, R.id.text1, R.id.text2 });
@@ -214,7 +225,7 @@ public class RMBTAboutFragment extends Fragment
                     break;
                 
                 case 5:
-                    final FragmentManager fm = activity.getSupportFragmentManager();
+                    final FragmentManager fm = activity.getFragmentManager();
                     FragmentTransaction ft;
                     ft = fm.beginTransaction();
                     ft.replace(R.id.fragment_content, new RMBTTermsFragment(), "terms");
@@ -264,6 +275,7 @@ public class RMBTAboutFragment extends Fragment
                 final ApplicationInfo ai = context.getPackageManager().getApplicationInfo(context.getPackageName(), 0);
                 final ZipFile zf = new ZipFile(ai.sourceDir);
                 final ZipEntry ze = zf.getEntry("classes.dex");
+                zf.close();
                 final long time = ze.getTime();
                 date = DateFormat.getDateTimeInstance().format(new java.util.Date(time));
                 
@@ -273,7 +285,7 @@ public class RMBTAboutFragment extends Fragment
             }
             
             pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
-            clientVersion = pInfo.versionName + "\n(" + RevisionHelper.getVerboseRevision() + ")\n(" + date + ")";
+            clientVersion = pInfo.versionName + " (" + pInfo.versionCode + ")\n(" + RevisionHelper.getVerboseRevision() + ")\n(" + date + ")";
             clientName = context.getResources().getString(R.string.app_name);
         }
         catch (final Exception e)
@@ -284,4 +296,24 @@ public class RMBTAboutFragment extends Fragment
         
         return clientVersion;
     }
+    
+    
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+    	super.onConfigurationChanged(newConfig);
+    	LayoutInflater inflater = LayoutInflater.from(getActivity());
+    	populateViewForOrientation(inflater, (ViewGroup) getView());
+    }
+
+    /**
+     * 
+     * @param inflater
+     * @param view
+     */
+	private void populateViewForOrientation(LayoutInflater inflater, ViewGroup view) {
+		view.removeAllViewsInLayout();
+        View v = inflater.inflate(R.layout.about, view);
+        createView(v, inflater);
+	}
+
 }

@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2013 alladin-IT OG
+  
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+    http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<!-- 
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" 
+    android:layout_height="match_parent"
+    android:layout_width="wrap_content"
+    android:fillViewport="true" >
+    -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" 
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:paddingLeft="20dp"
+    android:paddingRight="20dp"
+    android:layout_gravity="top"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:weightSum="2" >
+
+    <LinearLayout
+        android:layout_weight="1"
+		android:layout_margin="5dp"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        android:baselineAligned="false" >
+
+        <RelativeLayout
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content" >
+
+            <TextView android:layout_width="wrap_content"
+                android:paddingLeft="20dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/result_graph_title_dl"
+                android:text="@string/test_bottom_test_status_down" />
+            
+            <at.alladin.rmbt.android.graphview.GraphView
+                android:id="@+id/graph_download"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:layout_margin="1dp"
+                labelh="sec"
+                labelv="@string/test_mbps"
+                lavelv_max="7"
+                lavelv_min="0"
+                android:layout_below="@id/result_graph_title_dl" />
+
+            <ProgressBar
+                android:id="@+id/download_progress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true" />
+        </RelativeLayout>
+        
+
+        <RelativeLayout
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content" >
+
+            <TextView android:layout_width="wrap_content"
+                android:paddingLeft="20dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/result_graph_title_ul"
+                android:text="@string/test_bottom_test_status_up" />
+            
+            <at.alladin.rmbt.android.graphview.GraphView
+                android:id="@+id/graph_upload"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:layout_margin="1dp"
+                labelh="sec"
+                labelv="@string/test_mbps"
+                lavelv_max="7"
+                lavelv_min="0"
+                android:layout_below="@id/result_graph_title_ul" />
+
+            <ProgressBar
+                android:id="@+id/upload_progress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true" />
+        </RelativeLayout>
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_weight="1"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        android:weightSum="2"
+        android:baselineAligned="false" >
+
+                
+        <RelativeLayout
+            android:id="@+id/plaeholder_layout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5" >
+        </RelativeLayout>
+        
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" >
+            
+            <TextView android:layout_width="wrap_content"
+                android:paddingLeft="20dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/result_graph_title_signal"
+                android:text="@string/term_signal" />
+            
+
+            <at.alladin.rmbt.android.graphview.GraphView
+                android:id="@+id/graph_signal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_margin="1dp"
+                android:paddingTop="15dp"
+                labelh="sec"
+                labelv="@string/test_dbm"
+                labelv_max="-110"
+                labelv_min="-30"
+                lavelv_max="7"
+                lavelv_min="0"
+                android:layout_below="@id/result_graph_title_signal" />
+
+            <ProgressBar
+                android:id="@+id/signal_progress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true" />
+        </RelativeLayout>
+        
+    </LinearLayout>
+
+</LinearLayout>
+<!-- </ScrollView>-->

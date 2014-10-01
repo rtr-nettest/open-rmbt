@@ -20,7 +20,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TimeZone;
 
 import org.json.JSONArray;
@@ -32,6 +36,7 @@ import at.alladin.rmbt.client.RMBTTestParameter;
 import at.alladin.rmbt.client.SpeedItem;
 import at.alladin.rmbt.client.TotalTestResult;
 import at.alladin.rmbt.client.ndt.UiServicesAdapter;
+import at.alladin.rmbt.client.v2.task.TaskDesc;
 import at.alladin.rmbt.client.v2.task.service.TestMeasurement;
 import at.alladin.rmbt.client.v2.task.service.TestMeasurement.TrafficDirection;
 
@@ -63,7 +68,19 @@ public class ControlServerConnection
     private String clientUUID = "";
     
     private URI resultURI;
+	private URI resultQoSURI;
     
+    private String errorMsg = null;
+    
+    private boolean hasError = false;
+    
+    public TaskDesc udpTaskDesc;
+    public TaskDesc dnsTaskDesc;
+    public TaskDesc ntpTaskDesc;
+    public TaskDesc httpTaskDesc;
+    public TaskDesc tcpTaskDesc;
+    
+    public List<TaskDesc> v2TaskDesc;
     private long startTimeNs = 0;
     
     /**
@@ -99,6 +116,125 @@ public class ControlServerConnection
         {
             return null;
         }
+    }
+    
+    /**
+     * requests the parameters for the v2 tests
+     * @param host
+     * @param pathPrefix
+     * @param port
+     * @param encryption
+     * @param geoInfo
+     * @param uuid
+     * @param clientType
+     * @param clientName
+     * @param clientVersion
+     * @param additionalValues
+     * @return
+     */
+    public String requestQoSTestParameters(final String host, final String pathPrefix, final int port,
+            final boolean encryption, final ArrayList<String> geoInfo, final String uuid, final String clientType,
+            final String clientName, final String clientVersion, final JSONObject additionalValues)
+    {
+        clientUUID = uuid;
+        
+        hostUri = getUri(encryption, host, pathPrefix, port, Config.RMBT_CONTROL_V2_TESTS);
+        
+        System.out.println("Connection to " + hostUri);
+        
+        final JSONObject regData = new JSONObject();
+        
+        try
+        {
+            regData.put("uuid", uuid);
+            regData.put("client", clientName);
+            regData.put("version", Config.RMBT_VERSION_NUMBER);
+            regData.put("type", clientType);
+            regData.put("softwareVersion", clientVersion);
+            regData.put("softwareRevision", RevisionHelper.getVerboseRevision());
+            regData.put("language", Locale.getDefault().getLanguage());
+            regData.put("timezone", TimeZone.getDefault().getID());
+            regData.put("time", System.currentTimeMillis());
+            
+            if (geoInfo != null)
+            {
+                final JSONObject locData = new JSONObject();
+                locData.put("time", geoInfo.get(0));
+                locData.put("lat", geoInfo.get(1));
+                locData.put("long", geoInfo.get(2));
+                locData.put("accuracy", geoInfo.get(3));
+                locData.put("altitude", geoInfo.get(4));
+                locData.put("bearing", geoInfo.get(5));
+                locData.put("speed", geoInfo.get(6));
+                locData.put("provider", geoInfo.get(7));
+                
+                regData.accumulate("location", locData);
+            }
+            
+            addToJSONObject(regData, additionalValues);
+            
+        }
+        catch (final JSONException e1)
+        {
+            hasError = true;
+            errorMsg = "Error gernerating request";
+            // e1.printStackTrace();
+        }
+        
+        // getting JSON string from URL
+        final JSONObject response = jParser.sendJSONToUrl(hostUri, regData);
+        
+        if (response != null)
+            try
+            {
+                final JSONArray errorList = response.getJSONArray("error");
+                
+                // System.out.println(response.toString(4));
+                
+                if (errorList.length() == 0)
+                {
+                	
+                	int testPort = 5233;
+                	
+                	Map<String, Object> testParams = null;
+                	testParams = JSONParser.toMap(response.getJSONObject("objectives"));
+                	
+                	v2TaskDesc = new ArrayList<TaskDesc>();
+                	
+                	for (Entry<String, Object> e : testParams.entrySet()) {
+                		List<HashMap<String, Object>> paramList = (List<HashMap<String, Object>>) e.getValue();
+                		for (HashMap<String, Object> params : paramList) {
+                			TaskDesc taskDesc = new TaskDesc(testHost, testPort, encryption, testToken, 0, 1, System.nanoTime(), params, e.getKey());
+            				v2TaskDesc.add(taskDesc);
+                		}
+                	}                    
+                }
+                else
+                {
+                    hasError = true;
+                    for (int i = 0; i < errorList.length(); i++)
+                    {
+                        if (i > 0)
+                            errorMsg += "\n";
+                        errorMsg += errorList.getString(i);
+                    }
+                }
+                
+                // }
+            }
+            catch (final JSONException e)
+            {
+                hasError = true;
+                errorMsg = "Error parsing server response";
+                e.printStackTrace();
+            }
+        else
+        {
+            hasError = true;
+            errorMsg = "No response";
+        }
+        
+        return errorMsg;
     }
     
     public String requestNewTestConnection(final String host, final String pathPrefix, final int port,
@@ -186,8 +322,9 @@ public class ControlServerConnection
                     testNumThreads = response.getInt("test_numthreads");
                     
                     remoteIp = response.getString("client_remote_ip");
-                    
+                                        
                     resultURI = new URI(response.getString("result_url"));
+                    resultQoSURI = new URI(response.getString("result_qos_url"));
                 }
                 else
                 {
@@ -217,7 +354,7 @@ public class ControlServerConnection
         return errorMsg;
     }
     
-    public String sendTestResult(final TotalTestResult result, final JSONObject additionalValues)
+    public String sendTestResult(TotalTestResult result, JSONObject additionalValues)
     {
         String errorMsg = null;
         if (resultURI != null)
@@ -294,25 +431,99 @@ public class ControlServerConnection
                 
                 if (result.speedItems != null)
                 {
-                    for (SpeedItem item : result.speedItems)
+                    for (SpeedItem item : result.speedItems) {
                         speedDetail.put(item.toJSON());
+                    }
                 }
                 
                 testData.put("speed_detail", speedDetail);
                 
                 addToJSONObject(testData, additionalValues);
                 
-                //System.out.println(testData.toString(4));
-                
+                // System.out.println(testData.toString(4));
             }
             catch (final JSONException e1)
             {
                 errorMsg = "Error gernerating request";
-                // e1.printStackTrace();
+                e1.printStackTrace();
             }
             
             // getting JSON string from URL
             final JSONObject response = jParser.sendJSONToUrl(resultURI, testData);
+            
+            if (response != null)
+                try
+                {
+                    final JSONArray errorList = response.getJSONArray("error");
+                    
+                    // System.out.println(response.toString(4));
+                    
+                    if (errorList.length() == 0)
+                    {
+                        
+                        // System.out.println("All is fine");
+                        
+                    }
+                    else
+                    {
+                        for (int i = 0; i < errorList.length(); i++)
+                        {
+                            if (i > 0)
+                                errorMsg += "\n";
+                            errorMsg += errorList.getString(i);
+                        }
+                    }
+                    
+                    // }
+                }
+                catch (final JSONException e)
+                {
+                    errorMsg = "Error parsing server response";
+                    e.printStackTrace();
+                }
+        }
+        else
+            errorMsg = "No URL to send the Data to.";
+        
+        return errorMsg;
+    }
+    
+    /**
+     * 
+     * @param result
+     * @param qosTestResult
+     * @return
+     */
+    public String sendQoSResult(final TotalTestResult result, final JSONArray qosTestResult)
+    {
+        String errorMsg = null;
+        System.out.println("sending qos results to " + resultQoSURI);
+        if (resultQoSURI != null)
+        {
+            
+            final JSONObject testData = new JSONObject();
+            
+            try
+            {
+                testData.put("client_uuid", clientUUID);
+                testData.put("client_name", Config.RMBT_CLIENT_NAME);
+                testData.put("client_version", Config.RMBT_VERSION_NUMBER);
+                testData.put("client_language", Locale.getDefault().getLanguage());
+                
+                testData.put("time", System.currentTimeMillis());
+                
+                testData.put("test_token", testToken);
+                
+               	testData.put("qos_result", qosTestResult);               
+            }
+            catch (final JSONException e1)
+            {
+                errorMsg = "Error gernerating request";
+                e1.printStackTrace();
+            }
+            
+            // getting JSON string from URL
+            final JSONObject response = jParser.sendJSONToUrl(resultQoSURI, testData);
             
             if (response != null)
                 try
@@ -390,7 +601,7 @@ public class ControlServerConnection
         }
     }
     
-    private static void addToJSONObject(final JSONObject data, final JSONObject additionalValues) throws JSONException
+    public static void addToJSONObject(final JSONObject data, final JSONObject additionalValues) throws JSONException
     {
         if (additionalValues != null && additionalValues.length() > 0)
         {

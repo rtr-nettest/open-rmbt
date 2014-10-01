@@ -81,6 +81,7 @@
                 android:key="loop_mode_gps"
                 android:title="@string/preferences_loop_mode_gps"
                 android:summary="@string/preferences_loop_mode_gps_sum"
+                android:defaultValue="true"
                 android:layout="@layout/preferences_item"
                 />
             
@@ -145,6 +146,7 @@
                 android:key="dev_control_hostname"
                 android:title="@string/preferences_dev_control_host"
                 android:summary="@string/preferences_dev_control_host_sum"
+                android:defaultValue="develop"
                 android:layout="@layout/preferences_item"
                 />
             
@@ -153,6 +155,7 @@
                 android:title="@string/preferences_dev_control_port"
                 android:summary="@string/preferences_dev_control_port_sum"
                 android:inputType="number"
+                android:defaultValue="443"
                 android:layout="@layout/preferences_item"
                 />
             
@@ -160,7 +163,7 @@
                 android:key="dev_control_ssl"
                 android:title="@string/preferences_dev_control_ssl"
                 android:summary="@string/preferences_dev_control_ssl_sum"
-                android:defaultValue="false"
+                android:defaultValue="true"
                 android:layout="@layout/preferences_item"
                 />
         </PreferenceCategory>
@@ -177,6 +180,7 @@
                 android:key="dev_map_hostname"
                 android:title="@string/preferences_dev_map_host"
                 android:summary="@string/preferences_dev_map_host_sum"
+                android:defaultValue="develop"
                 android:layout="@layout/preferences_item"
                 />
             
@@ -185,6 +189,7 @@
                 android:title="@string/preferences_dev_map_port"
                 android:summary="@string/preferences_dev_map_port_sum"
                 android:inputType="number"
+                android:defaultValue="443"
                 android:layout="@layout/preferences_item"
                 />
             
@@ -192,8 +197,55 @@
                 android:key="dev_map_ssl"
                 android:title="@string/preferences_dev_map_ssl"
                 android:summary="@string/preferences_dev_map_ssl_sum"
+                android:defaultValue="true"
+                android:layout="@layout/preferences_item"
+                />
+        </PreferenceCategory>
+        
+		<PreferenceCategory android:title="@string/preferences_category_developer_qos_server" android:layout="@layout/preferences_category">
+			<CheckBoxPreference
+                android:key="dev_debug_qos_ssl"
+                android:title="@string/preferences_dev_qos_ssl"
+                android:summary="@string/preferences_dev_qos_ssl_sum"
+                android:defaultValue="true"
+                android:layout="@layout/preferences_item"
+                />
+		</PreferenceCategory>
+		
+		<PreferenceCategory android:title="@string/preferences_category_developer_debug" android:layout="@layout/preferences_category">
+		    
+		    <CheckBoxPreference
+                android:key="dev_debug_output"
+                android:title="@string/preferences_dev_debug_sysout"
+                android:summary="@string/preferences_dev_debug_sysout_sum"
                 android:defaultValue="false"
                 android:layout="@layout/preferences_item"
                 />
+		    
+            <!--  
+            <CheckBoxPreference 
+                android:key="dev_debug_ip_method"
+                android:title="@string/preferences_dev_debug_ip_method"
+                android:summary="@string/preferences_dev_debug_ip_method_sum"
+                android:defaultValue="false"
+                android:layout="@layout/preferences_item"
+                />
+            
+            <CheckBoxPreference
+                android:key="dev_debug_ip_retry_on_socket_timeout"
+                android:title="@string/preferences_dev_debug_ip_retry_on_socket_timeout"
+                android:summary="@string/preferences_dev_debug_ip_retry_on_socket_timeout_sum"
+                android:defaultValue="false"
+                android:layout="@layout/preferences_item"
+                />
+
+            <CheckBoxPreference
+                android:key="dev_debug_ip_poll"
+                android:title="@string/preferences_dev_debug_ip_poll"
+                android:summary="@string/preferences_dev_debug_ip_poll_sum"
+                android:defaultValue="true"
+                android:layout="@layout/preferences_item"
+                />
+            -->
         </PreferenceCategory>
     </PreferenceScreen>

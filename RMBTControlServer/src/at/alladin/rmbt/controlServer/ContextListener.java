@@ -28,6 +28,7 @@ import javax.servlet.ServletContextListener;
 
 import at.alladin.rmbt.db.DbConnection;
 import at.alladin.rmbt.shared.GeoIPHelper;
+import at.alladin.rmbt.shared.RevisionHelper;
 
 import com.google.common.net.InetAddresses;
 
@@ -96,6 +97,8 @@ public class ContextListener implements ServletContextListener
     @Override
     public void contextInitialized(ServletContextEvent sce)
     {
+        System.out.println("RMBTControlServer - " + RevisionHelper.getVerboseRevision());
+        
         scheduler.scheduleWithFixedDelay(new Runnable()
         {
             @Override

@@ -39,9 +39,19 @@ import at.alladin.rmbt.client.helper.JSONParser;
 public class ControlServerConnection
 {
     
+	public static enum UriType {
+		DEFAULT_HOSTNAME,
+		HOSTNAME_IPV4,
+		HOSTNAME_IPV6
+	}
+	
     private static final String DEBUG_TAG = "ControlServerConnection";
     
     private static String hostname;
+    
+    private static String hostname4;
+    
+    private static String hostname6;
     
     private static int port;
     
@@ -63,7 +73,11 @@ public class ControlServerConnection
         return ConfigHelper.getUUID(context.getApplicationContext());
     }
     
-    private URI getUri(final String path)
+    private URI getUri(final String path) {
+    	return getUri(path, UriType.DEFAULT_HOSTNAME);
+    }
+    
+    private URI getUri(final String path, final UriType uriType)
     {
         try
         {
@@ -75,10 +89,24 @@ public class ControlServerConnection
             else
                 totalPath = Config.RMBT_CONTROL_PATH + path;
             
+            String host = hostname;
+            
+            switch(uriType) {
+            case HOSTNAME_IPV4:
+            	host = hostname4;
+            	break;
+            case HOSTNAME_IPV6:
+            	host = hostname6;
+            	break;
+            case DEFAULT_HOSTNAME:
+            default:
+            	host = hostname;
+            }
+            
             if (defaultPort == port)
-                return new URL(protocol, hostname, totalPath).toURI();
+                return new URL(protocol, host, totalPath).toURI();
             else
-                return new URL(protocol, hostname, port, totalPath).toURI();
+                return new URL(protocol, host, port, totalPath).toURI();
             
         }
         catch (final MalformedURLException e)
@@ -117,7 +145,9 @@ public class ControlServerConnection
         
         this.useMapServerPath = useMapServerPath;
         
-        
+        hostname4 = ConfigHelper.getCachedControlServerNameIpv4(context);
+        hostname6 = ConfigHelper.getCachedControlServerNameIpv6(context);
+
         if (useMapServerPath)
         {
             encryption = ConfigHelper.isMapSeverSSL(context);
@@ -142,7 +172,7 @@ public class ControlServerConnection
     private JSONArray sendRequest(final URI hostUrl, final JSONObject requestData, final String fieldName)
     {
         // getting JSON string from URL
-        Log.d(DEBUG_TAG, "request to "+ hostUrl);
+        //Log.d(DEBUG_TAG, "request to "+ hostUrl);
         final JSONObject response = jParser.sendJSONToUrl(hostUrl, requestData);
         
         if (response != null)
@@ -150,22 +180,27 @@ public class ControlServerConnection
             {
                 final JSONArray errorList = response.optJSONArray("error");
                 
-                // System.out.println(requestData.toString(4));
+                //System.out.println(requestData.toString(4));
                 
-                // System.out.println(response.toString(4));
+                //System.out.println(response.toString(4));
                 
                 if (errorList == null || errorList.length() == 0)
                 {
                     
-                    final JSONArray responseArray = response.getJSONArray(fieldName);
-                    
-                    return responseArray;
+                	
+                	if (fieldName != null) {
+                        return response.getJSONArray(fieldName);	
+                	}
+                	else {
+                		JSONArray array = new JSONArray();
+                		array.put(response);
+                		return array;
+                	}
                     
                 }
                 else
                 {
-                    
-                    hasError = true;
+                    //hasError = true;
                     for (int i = 0; i < errorList.length(); i++)
                     {
                         
@@ -200,7 +235,7 @@ public class ControlServerConnection
         
         final URI hostUrl = getUri(Config.RMBT_NEWS_HOST_URL);
         
-        System.out.println("Newsrequest to " + hostUrl);
+        Log.i(DEBUG_TAG,"Newsrequest to " + hostUrl);
         
         final JSONObject requestData = new JSONObject();
         
@@ -221,6 +256,35 @@ public class ControlServerConnection
         
     }
     
+    public JSONArray requestIp(boolean isIpv6)
+    {
+        
+        hasError = false;
+                
+        URI hostUrl = null;
+        
+        final JSONObject requestData = new JSONObject();
+        
+        try
+        {
+            hostUrl = isIpv6 ? new URL(ConfigHelper.getCachedIpv6CheckUrl(context)).toURI() : new URL(ConfigHelper.getCachedIpv4CheckUrl(context)).toURI();
+            
+            Log.i(DEBUG_TAG,"IP request to " + hostUrl);
+
+            InformationCollector.fillBasicInfo(requestData, context);
+            
+            requestData.put("uuid", getUUID());
+        }
+        catch (final Exception e)
+        {
+            hasError = true;
+            errorMsg = "Error gernerating request";
+		}
+        
+        return hostUrl != null ? sendRequest(hostUrl, requestData, null) : null;
+        
+    }
+    
     public JSONArray requestHistory(final String uuid, final ArrayList<String> devicesToShow,
             final ArrayList<String> networksToShow, final int resultLimit)
     {
@@ -229,7 +293,7 @@ public class ControlServerConnection
         
         final URI hostUrl = getUri(Config.RMBT_HISTORY_HOST_URL);
         
-        System.out.println("Historyrequest to " + hostUrl);
+        Log.i(DEBUG_TAG,"Historyrequest to " + hostUrl);
         
         final JSONObject requestData = new JSONObject();
         
@@ -269,7 +333,7 @@ public class ControlServerConnection
         {
             hasError = true;
             errorMsg = "Error gernerating request";
-            // e1.printStackTrace();
+            //e1.printStackTrace();
         }
         
         return sendRequest(hostUrl, requestData, "history");
@@ -283,7 +347,7 @@ public class ControlServerConnection
         
         final URI hostUrl = getUri(Config.RMBT_TESTRESULT_HOST_URL);
         
-        System.out.println("RMBTTest Result request to " + hostUrl);
+        Log.i(DEBUG_TAG,"RMBTTest Result request to " + hostUrl);
         
         final JSONObject requestData = new JSONObject();
         
@@ -303,6 +367,60 @@ public class ControlServerConnection
         return sendRequest(hostUrl, requestData, "testresult");
     }
     
+    public JSONObject requestOpenDataTestResult(final String testUuid, final String openTestUuid) {
+        hasError = false;
+        
+        final URI hostUrl = getUri(Config.RMBT_TESTRESULT_OPENDATA_HOST_URL + openTestUuid);
+        
+        Log.i(DEBUG_TAG,"RMBTTest OpenData Result request to " + hostUrl);
+        
+        final JSONObject requestData = new JSONObject();
+        
+        try
+        {
+            InformationCollector.fillBasicInfo(requestData, context);
+            requestData.put("test_uuid", testUuid);
+            requestData.put("open_test_uuid", openTestUuid);
+            requestData.put("uuid", getUUID());
+        }
+        catch (final JSONException e1)
+        {
+            hasError = true;
+            errorMsg = "Error gernerating request";
+            // e1.printStackTrace();
+        }
+        
+        return jParser.getURL(hostUrl);
+        //return sendRequest(hostUrl, requestData, null);
+    }
+    
+    public JSONArray requestTestResultQoS(final String testUuid)
+    {
+        
+        hasError = false;
+        
+        final URI hostUrl = getUri(Config.RMBT_TESTRESULT_QOS_HOST_URL);
+        
+        Log.i(DEBUG_TAG,"RMBTTest QoS Result request to " + hostUrl);
+        
+        final JSONObject requestData = new JSONObject();
+        
+        try
+        {
+            InformationCollector.fillBasicInfo(requestData, context);
+            requestData.put("test_uuid", testUuid);
+            requestData.put("uuid", getUUID());
+        }
+        catch (final JSONException e1)
+        {
+            hasError = true;
+            errorMsg = "Error gernerating request";
+            // e1.printStackTrace();
+        }
+        
+        return sendRequest(hostUrl, requestData, null);
+    }
+    
     public JSONArray requestTestResultDetail(final String testUuid)
     {
         
@@ -310,7 +428,7 @@ public class ControlServerConnection
         
         final URI hostUrl = getUri(Config.RMBT_TESTRESULT_DETAIL_HOST_URL);
         
-        System.out.println("RMBTTest Result request to " + hostUrl);
+        Log.i(DEBUG_TAG,"RMBTTest ResultDetail request to " + hostUrl);
         
         final JSONObject requestData = new JSONObject();
         
@@ -337,7 +455,7 @@ public class ControlServerConnection
         
         final URI hostUrl = getUri(Config.RMBT_SYNC_HOST_URL);
         
-        System.out.println("Sync request to " + hostUrl);
+        Log.i(DEBUG_TAG,"Sync request to " + hostUrl);
         
         final JSONObject requestData = new JSONObject();
         
@@ -384,7 +502,7 @@ public class ControlServerConnection
             Log.e(DEBUG_TAG, "version of the application cannot be found", e);
         }
         
-        System.out.println("Settings request to " + hostUrl);
+        Log.i(DEBUG_TAG,"Settings request to " + hostUrl);
         
         final JSONObject requestData = new JSONObject();
         
@@ -430,7 +548,7 @@ public class ControlServerConnection
             errorMsg = "Error gernerating request";
         }
         
-        Log.d(DEBUG_TAG, "request to " + hostUrl);
+        Log.i(DEBUG_TAG, "request to " + hostUrl);
         final JSONObject response = jParser.sendJSONToUrl(hostUrl, requestData);
         return response;
     }
@@ -442,7 +560,7 @@ public class ControlServerConnection
         
         final URI hostUrl = getUri(MapProperties.MARKER_PATH);
         
-        System.out.println("MapMarker request to " + hostUrl);
+        Log.i(DEBUG_TAG,"MapMarker request to " + hostUrl);
         
         final JSONObject requestData = new JSONObject();
         

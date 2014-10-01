@@ -17,6 +17,8 @@ package at.alladin.rmbt.db.fields;
 
 public abstract class NumberFieldAdapter<T extends Number> extends FieldAdapter<T>
 {
+    private static final long serialVersionUID = 1L;
+    
     public NumberFieldAdapter(final String dbKey, final String jsonKey, final boolean readOnly)
     {
         super(dbKey, jsonKey, readOnly);

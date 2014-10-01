@@ -16,14 +16,17 @@
 package at.alladin.rmbt.android.util;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 
 import android.os.AsyncTask;
-import android.support.v4.app.FragmentActivity;
+import at.alladin.rmbt.android.main.RMBTMainActivity;
+import at.alladin.rmbt.android.views.ResultDetailsView.ResultDetailType;
 
 public class CheckTestResultDetailTask extends AsyncTask<String, Void, JSONArray>
 {
+	private final ResultDetailType resultType;
     
-    private final FragmentActivity activity;
+    private final RMBTMainActivity activity;
     
     private JSONArray resultList;
     
@@ -33,19 +36,37 @@ public class CheckTestResultDetailTask extends AsyncTask<String, Void, JSONArray
     
     private boolean hasError = false;
     
-    public CheckTestResultDetailTask(final FragmentActivity activity)
+    public CheckTestResultDetailTask(final RMBTMainActivity activity2, final ResultDetailType resultType)
     {
-        this.activity = activity;
-        
+        this.activity = activity2;
+        this.resultType = resultType;
     }
     
     @Override
     protected JSONArray doInBackground(final String... uid)
     {
         serverConn = new ControlServerConnection(activity.getApplicationContext());
-        
-        if (uid != null && uid[0] != null)
-            resultList = serverConn.requestTestResultDetail(uid[0]);
+
+        try {
+            if (uid != null && uid[0] != null)
+            {
+            	switch(this.resultType) {
+            	case SPEEDTEST:
+                	resultList = serverConn.requestTestResultDetail(uid[0]);
+                	break;
+            	case QUALITY_OF_SERVICE_TEST:
+            		resultList = serverConn.requestTestResultQoS(uid[0]);
+            		break;
+            	case OPENDATA:
+            		resultList = new JSONArray();
+    				resultList.put(0, serverConn.requestOpenDataTestResult(uid[0], uid[1]));
+            		break;
+            	}
+            }	
+        }
+        catch (JSONException e) {
+        	e.printStackTrace();
+        }
         
         return resultList;
     }

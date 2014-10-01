@@ -94,23 +94,27 @@ public final class Helperfunctions
     
     public static String getLocationString(final Context context, final Resources res, final Location location, final int line)
     {
-        
-        if (line == 1)
-            return String.format("%s %s %s", convertLocation(res, location.getLatitude(), true),
-                    convertLocation(res, location.getLongitude(), false),
-                    convertLocationAltitude(res, location.hasAltitude(), location.getAltitude()));
-        else // 2nd line
-        if (!ConfigHelper.isDevEnabled(context))
-            return String.format("%s (%s)", convertLocationProvider(res, location.getProvider()),
-                    convertLocationAccuracy(res, location.hasAccuracy(), location.getAccuracy()));
-        else
-            // additional debug information
-            return String.format("%s (%s) %s %s",
-                    convertLocationProvider(res, location.getProvider()),
-                    convertLocationAccuracy(res, location.hasAccuracy(), location.getAccuracy()),
-                      convertLocationSpeed(res, location.hasSpeed(), location.getSpeed()),
-                    convertLocationTime(location.getTime()));
- 
+    	switch (line) {
+    	case 0: // used for main screen
+    		return String.format("%s %s", convertLocation(res, location.getLatitude(), true),
+    				convertLocation(res, location.getLongitude(), false));
+    	case 1: // used for test screen, additional altitude information
+    		return String.format("%s %s %s", convertLocation(res, location.getLatitude(), true),
+    				convertLocation(res, location.getLongitude(), false),
+    				convertLocationAltitude(res, location.hasAltitude(), location.getAltitude()));
+    	default:
+    		if (!ConfigHelper.isDevEnabled(context))
+    			return String.format("%s (%s)", convertLocationProvider(res, location.getProvider()),
+    					convertLocationAccuracy(res, location.hasAccuracy(), location.getAccuracy(),0));
+    		else
+    			// additional debug information
+    			return String.format("%s (%s) %s %s",
+    					convertLocationProvider(res, location.getProvider()),
+    					convertLocationAccuracy(res, location.hasAccuracy(), location.getAccuracy(),0),
+    					convertLocationSpeed(res, location.hasSpeed(), location.getSpeed()),
+    					convertLocationTime(location.getTime()));
+    	}
+
     }
     
     public static String convertLocation(final Resources res, final double coordinate, final boolean latitude)
@@ -154,18 +158,19 @@ public final class Helperfunctions
             return String.format ("%.0f %s", speed*3.6,res.getString(R.string.test_location_km_h));
     }
     
-    public static String convertLocationAccuracy(final Resources res, final boolean hasaccuracy, final float accuracy)
+    public static String convertLocationAccuracy(final Resources res, final boolean hasaccuracy, final float accuracy, final int satellites)
     {   
-        final String unit;
         if ((!hasaccuracy)  || (accuracy < 0)) // ignore negative or null
             return "";
-        else
-            return String.format ("+/-%.0f %s", accuracy,res.getString(R.string.test_location_m));
+        else 
+        	if (satellites > 0)
+           		return String.format ("+/-%.0f %s (%d %s)", accuracy,res.getString(R.string.test_location_m),satellites,res.getString(R.string.test_location_sat));
+        	else
+        		return String.format ("+/-%.0f %s", accuracy,res.getString(R.string.test_location_m));
     }
     
-    public static String convertLocationAltitude (final Resources res, final boolean hasaltitude, final double altitude)
+    public static String convertLocationAltitude(final Resources res, final boolean hasaltitude, final double altitude)
     {   
-        final String unit;
         if ((!hasaltitude)  || (altitude < 0)) // ignore negative or null
             return "";
         else
@@ -195,7 +200,7 @@ public final class Helperfunctions
         
         age = System.currentTimeMillis()-time; // in ms
         if (age < 1000) // < 1s
-            return "";
+            return "< 1s";
         else
             return String.format ("%d s", age/1000);
     }
@@ -238,6 +243,10 @@ public final class Helperfunctions
             return "LAN";
         case 99:
             return "WLAN";
+        case 106:
+        	return "ETHERNET";
+        case 107:
+        	return "BLUETOOTH";
         default:
             return "UNKNOWN";
         }
@@ -271,7 +280,7 @@ public final class Helperfunctions
         case UP:
             return res.getString(R.string.test_bottom_test_status_up);
             
-        case END:
+        case SPEEDTEST_END:
             return res.getString(R.string.test_bottom_test_status_end);
             
         case ERROR:

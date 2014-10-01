@@ -15,7 +15,10 @@
  ******************************************************************************/
 package at.alladin.rmbt.controlServer;
 
+import java.sql.Timestamp;
 import java.text.MessageFormat;
+import java.util.Date;
+import java.util.TimeZone;
 import java.util.UUID;
 
 import org.json.JSONException;
@@ -24,11 +27,16 @@ import org.restlet.resource.Get;
 import org.restlet.resource.Post;
 
 import at.alladin.rmbt.db.Client;
+import at.alladin.rmbt.db.GeoLocation;
 import at.alladin.rmbt.db.Test;
+import at.alladin.rmbt.db.fields.DoubleField;
 import at.alladin.rmbt.db.fields.IntField;
 
 public class ResultUpdateResource extends ServerResource
 {
+	private final static String GEO_PROVIDER_MANUAL = "manual";
+	private final static String GEO_PROVIDER_GEOCODER = "geocoder";
+	
     @Post("json")
     public String request(final String entity)
     {
@@ -50,7 +58,12 @@ public class ResultUpdateResource extends ServerResource
                 request = new JSONObject(entity);
                 final UUID clientUUID = UUID.fromString(request.getString("uuid"));
                 final UUID testUUID = UUID.fromString(request.getString("test_uuid"));
-                final int zipCode = request.getInt("zip_code");
+                final int zipCode = request.optInt("zip_code",0);
+                final double geoLat = request.optDouble("geo_lat", Double.NaN);
+                final double geoLong = request.optDouble("geo_long", Double.NaN);
+                final float geoAccuracy = (float) request.optDouble("accuracy", 0);
+                final String provider = request.optString("provider").toLowerCase();
+
                 
                 final Client client = new Client(conn);
                 final long clientId = client.getClientByUuid(clientUUID);
@@ -64,7 +77,28 @@ public class ResultUpdateResource extends ServerResource
                 if (test.getField("client_id").longValue() != clientId)
                     throw new IllegalArgumentException("client UUID does not match test");
                 
-                ((IntField)test.getField("zip_code")).setValue(zipCode);
+                if (zipCode > 0) {
+                	((IntField)test.getField("zip_code")).setValue(zipCode);
+                }
+                if (!Double.isNaN(geoLat) && !Double.isNaN(geoLong) && 
+                		(provider.equals(GEO_PROVIDER_GEOCODER) || provider.equals(GEO_PROVIDER_MANUAL))) {
+                	final GeoLocation geoloc = new GeoLocation(conn);
+                	geoloc.setTest_id(test.getUid());
+                	
+                	final Timestamp tstamp = java.sql.Timestamp.valueOf(new Timestamp(
+                            (new Date().getTime())).toString());
+                	geoloc.setTime(tstamp, TimeZone.getDefault().toString());
+                    geoloc.setAccuracy(geoAccuracy);
+                    geoloc.setGeo_lat(geoLat);
+                    geoloc.setGeo_long(geoLong);
+                    geoloc.setProvider(provider);
+                    geoloc.storeLocation();
+                	
+                	((DoubleField) test.getField("geo_lat")).setValue(geoLat);
+                	((DoubleField) test.getField("geo_long")).setValue(geoLong);
+                	((DoubleField) test.getField("geo_accuracy")).setValue(geoAccuracy);
+                	test.getField("geo_provider").setString(provider);
+                }
                 
                 test.updateTest();
                 

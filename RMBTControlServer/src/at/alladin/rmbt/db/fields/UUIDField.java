@@ -25,6 +25,8 @@ import org.json.JSONObject;
 
 public class UUIDField extends FieldAdapter<UUID>
 {
+    private static final long serialVersionUID = 1L;
+    
     public UUIDField(final String dbKey, final String jsonKey)
     {
         super(dbKey, jsonKey, false);

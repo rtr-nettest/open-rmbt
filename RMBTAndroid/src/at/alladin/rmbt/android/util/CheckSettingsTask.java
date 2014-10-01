@@ -103,6 +103,8 @@ public class CheckSettingsTask extends AsyncTask<Void, Void, JSONArray>
     @Override
     protected void onPostExecute(final JSONArray resultList)
     {
+        System.err.println("\n\n\n" + resultList + "\n\n\n");
+        
         try
         {
         if (serverConn.hasError())
@@ -136,8 +138,24 @@ public class CheckSettingsTask extends AsyncTask<Void, Void, JSONArray>
                         {
                             final String key = keys.next();
                             final String value = urls.optString(key, null);
-                            if (value != null)
+                            if (value != null) {
                                 volatileSettings.put("url_" + key, value);
+                                if ("statistics".equals(key)) {
+                                	ConfigHelper.setCachedStatisticsUrl(value, activity);
+                                }
+                                else if ("control_ipv4_only".equals(key)) {
+                                	ConfigHelper.setCachedControlServerNameIpv4(value, activity);
+                                }
+                                else if ("control_ipv6_only".equals(key)) {
+                                	ConfigHelper.setCachedControlServerNameIpv6(value, activity);
+                                }
+                                else if ("url_ipv4_check".equals(key)) {
+                                	ConfigHelper.setCachedIpv4CheckUrl(value, activity);
+                                }
+                                else if ("url_ipv6_check".equals(key)) {
+                                	ConfigHelper.setCachedIpv6CheckUrl(value, activity);
+                                }
+                            }
                         }
                     }
                     
@@ -151,6 +169,15 @@ public class CheckSettingsTask extends AsyncTask<Void, Void, JSONArray>
                         final boolean ssl = mapServer.optBoolean("ssl");
                         if (host != null && port > 0)
                             ConfigHelper.setMapServer(host, port, ssl);
+                    }
+                    
+                    /* control server version */
+                    final JSONObject versions = resultListItem.optJSONObject("versions");
+                    if (versions != null)
+                    {
+                    	if (versions.has("control_server_version")) {
+                    		ConfigHelper.setControlServerVersion(activity, versions.optString("control_server_version"));
+                    	}
                     }
                     
                     // ///////////////////////////////////////////////////////

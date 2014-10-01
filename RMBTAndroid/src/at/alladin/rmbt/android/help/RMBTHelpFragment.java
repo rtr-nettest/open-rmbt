@@ -16,9 +16,9 @@
 package at.alladin.rmbt.android.help;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.Fragment;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -62,7 +62,7 @@ public class RMBTHelpFragment extends Fragment
         if (url == null || url.length() == 0)
             url = this.getString(R.string.url_help);
         
-        final FragmentActivity activity = getActivity();
+        final Activity activity = getActivity();
         
         final WebView webview = new WebView(activity)
         {

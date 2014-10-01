@@ -62,10 +62,25 @@ as Operator of Argonne National Laboratory (http://miranda.ctd.anl.gov:7123/).
 
 package net.measurementlab.ndt;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.SocketException;
+import java.net.URL;
+import java.net.UnknownHostException;
+import java.util.Date;
+import java.util.Locale;
+import java.util.MissingResourceException;
+import java.util.Random;
+import java.util.ResourceBundle;
+import java.util.StringTokenizer;
 
+@SuppressWarnings({"unused", "resource"}) // we do not want to touch ndt code
 public class NdtTests implements Runnable {
   public static final String VERSION = "3.6.4";
 
@@ -404,7 +419,8 @@ public class NdtTests implements Runnable {
     return false;
   }
 
-  public boolean test_sfw(Protocol ctl) throws IOException
+
+public boolean test_sfw(Protocol ctl) throws IOException
   {
     Message msg = new Message();
     if ((tests & TEST_SFW) == TEST_SFW) {
@@ -866,7 +882,8 @@ public class NdtTests implements Runnable {
   private void dottcp() throws IOException {
       Socket ctlSocket = null;
       int ctlport = CONTROL_PORT;
-      	double wait2;
+      	
+        double wait2;
       	int sbuf, rbuf;
       	int i, wait, swait=0;
 

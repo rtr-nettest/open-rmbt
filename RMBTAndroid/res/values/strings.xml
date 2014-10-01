@@ -16,10 +16,9 @@
 -->
 <resources>
     
-    <string name="main_sub_text" translatable="false"></string>
-    
-    <string name="error_no_internet">Please activate your\ninternet connection</string>   
+    <string name="error_no_internet">No Internet connection\navailalbe</string>   
     <string name="error_no_data">No data available.</string>
+    <string name="error_history_no_data_no_connection">No Internet connection. Could not load data.</string>
     
     <string name="main_dialog_registration_title">Registration…</string>
     <string name="main_dialog_registration_text">Client is being registered. Please wait…</string>
@@ -38,10 +37,10 @@
     <string name="preferences_no_gps_sum">Do not use GPS during test</string>
     
     <string name="preferences_tag">Tag</string>
-    <string name="preferences_tag_sum">Tag to send with every test</string>
+    <string name="preferences_tag_sum">Add a custom test tag to every test</string>
     
     <string name="preferences_loop_mode">Loop</string>
-    <string name="preferences_loop_mode_sum">Test will run in a loop</string>
+    <string name="preferences_loop_mode_sum">Test will run in a loop mode</string>
     
     <string name="preferences_loop_mode_max_tests">Loop max tests</string>
     <string name="preferences_loop_mode_max_tests_sum">Maximum number of tests to run if loop mode is active (0 = run forever)</string>
@@ -55,7 +54,7 @@
     <string name="preferences_loop_mode_movement">Loop movement</string>
     <string name="preferences_loop_mode_movement_sum">Movement in meters after which a test in loop mode is triggered</string>
     
-    <string name="preferences_loop_mode_gps">Loop use GPS</string>
+    <string name="preferences_loop_mode_gps">Use GPS when loop mode is active</string>
     <string name="preferences_loop_mode_gps_sum">Use GPS between two tests in loop mode</string>
     
     <string name="preferences_ndt">NDT</string>
@@ -68,38 +67,48 @@
     <string name="preferences_category_loop_mode">Loop mode</string>
     <string name="preferences_category_developer_control_server">Control server</string>
     <string name="preferences_category_developer_map_server">Map server</string>
+    <string name="preferences_category_developer_qos_server">QoS server</string>
+    <string name="preferences_category_developer_debug">Debugging</string>
     
     <string name="preferences_dev_control_override">Override control server</string>
-    <string name="preferences_dev_control_override_sum">Activate control server settings below</string>
+    <string name="preferences_dev_control_override_sum">Activate custom control server settings</string>
     
-    <string name="preferences_dev_control_host">Control Host</string>
+    <string name="preferences_dev_control_host">Control host</string>
     <string name="preferences_dev_control_host_sum">Override address of the control server</string>
     
-    <string name="preferences_dev_control_port">Control Port</string>
+    <string name="preferences_dev_control_port">Control port</string>
     <string name="preferences_dev_control_port_sum">Override port of the control server</string>
     
     <string name="preferences_dev_control_ssl">Control server SSL</string>
     <string name="preferences_dev_control_ssl_sum">Use encrypted connection to control server</string>
     
     <string name="preferences_dev_map_override">Override map server</string>
-    <string name="preferences_dev_map_override_sum">Activate map server settings below</string>
+    <string name="preferences_dev_map_override_sum">Activate custom map server settings</string>
     
-    <string name="preferences_dev_map_host">Map Host</string>
+    <string name="preferences_dev_map_host">Map host</string>
     <string name="preferences_dev_map_host_sum">Override address of the map server</string>
     
-    <string name="preferences_dev_map_port">Map Port</string>
+    <string name="preferences_dev_map_port">Map port</string>
     <string name="preferences_dev_map_port_sum">Override port of the map server</string>
     
     <string name="preferences_dev_map_ssl">Map server SSL</string>
     <string name="preferences_dev_map_ssl_sum">Use encrypted connection to map server</string>
+
+    <string name="preferences_dev_qos_ssl">QoS server SSL</string>
+    <string name="preferences_dev_qos_ssl_sum">Use encrypted connection to QoS server</string>
     
+    <string name="preferences_dev_debug_sysout">Store error output in file</string>
+    <string name="preferences_dev_debug_sysout_sum">Stores error output in a text file located in the "qosdebug" folder</string>
+
     <string name="menu_button_start">START</string>
+    <string name="menu_button_title_page">Home</string>
     <string name="menu_button_map">Map</string>
     <string name="menu_button_history">History</string>
     <string name="menu_button_help">Help</string>
     <string name="menu_button_statistics">Statistics</string>
     <string name="menu_button_settings">Settings</string>
     <string name="menu_button_about">Info</string>
+    <string name="menu_button_share">Share</string>
     
     <string name="news_title">News</string>
     <string name="news_no_message">No message text.</string>
@@ -129,7 +138,7 @@
     <string name="terms_accept_button_continue">Continue</string>
     <string name="terms_decline_button">Decline</string>
 
-    <string name="terms_ndt_header">Optional NDT-Test</string>
+    <string name="terms_ndt_header">Optional, more comprehensive NDT-Test</string>
     <string name="terms_ndt_accept_text"><b>I wish to run the optional NDT-Test.</b></string>
     <string name="terms_ndt_back_button">Back</string>
     <string name="terms_ndt_accept_button">Continue</string>
@@ -138,10 +147,14 @@
     <string name="loop_notification_title">Loop mode is active</string>
     <string name="loop_notification_text">Touch to stop Loop mode</string>
     
-    <string name="test_mbps">Mbit/s</string>
+    <string name="loop_started">Loop mode started.</string>
+    <string name="loop_already_active">Loop mode is already active.</string>
+    
+    <string name="test_mbps">Mbps</string>
     <string name="test_dbm">dBm</string>
     <string name="test_location_km_h">km/h</string>
     <string name="test_location_m">m</string>
+    <string name="test_location_sat">satellites</string>
     <string name="test_location_gps">GPS</string>
     <string name="test_location_network">Network</string>
     <string name="test_location_dir_n">N</string>
@@ -150,17 +163,16 @@
     <string name="test_location_dir_w">W</string>
     
     <string name="test_notification_text">The test is still running in the background.</string>
-    <string name="test_loop">Loop</string>
     <string name="test_dialog_error_title">Error…</string>
     <string name="test_dialog_error_text">There has been an error during the test.</string>
+    <string name="test_dialog_error_control_server_conn">Connection to test server cannot be established.</string>
+    <string name="test_toast_error_text_qos">There has been an error during the QoS test.</string>
     
     <string name="test_dialog_abort_title">Abort…</string>
     <string name="test_dialog_abort_text">Do you really want to abort the running test?</string>
-    <string name="test_dialog_abort_extended_text">Do you really want to abort the extended test?</string>
     <string name="test_dialog_abort_yes">Abort test</string>
     <string name="test_dialog_abort_no">Continue test</string>
     
-    <string name="history">History</string>
     <string name="history_button_sync">Sync</string>
     <string name="history_button_filter">Filter</string>
     <string name="history_device">Device</string>
@@ -176,27 +188,13 @@
 	<string name="history_filter_result_number">NUMBER OF RESULTS</string>
 	<string name="history_filter_result_number_25">Show only the 25 newest results</string>
 	
-	<string name="result_header">TEST RESULT</string>
 	<string name="result_measurement">MEASUREMENT</string>
 	<string name="result_net">NETWORK</string>
-	<string name="result_details_button">DETAILS</string>
-	<string name="result_map_button">MAP</string>
 	
 	<string name="result_details">DETAILS</string>
 	
-	<string name="result_button_new_test">NEW TEST</string>
-	<string name="result_button_history">History</string>
-	<string name="result_button_map">Map</string>
-	
-	<string name="result_extended_test_header">EXTENDED TEST</string>
-	<string name="result_extended_test_not_started">Extended test not yet started</string>
-	<string name="result_extended_test_running">Extended test running</string>
-	<string name="result_extended_test_results">Finalizing extended test</string>
-	<string name="result_extended_test_finished">Extended test finished</string>
-	<string name="result_extended_test_aborted">Extended test aborted</string>
-	<string name="result_extended_test_error">Error during extended test</string>
-	<string name="result_extended_test_button_stop">Stop</string>
-	<string name="result_extended_test_button_detail">Details</string>
+	<string name="result_category_tests">TESTS</string>
+	<string name="result_description">DESCRIPTION</string>
 	
 	<string name="sync_info_text">You have the possibility to join the results from two different devices. To do so, you have to enter an already requested synchronisation code or request a new one.</string>
 	<string name="sync_request_code_button">Request Code</string>
@@ -249,4 +247,100 @@
 	<string name="test_bottom_test_status_aborted">Aborted</string>
 	<string name="test_bottom_text_empty" translatable="false">\n\n\n</string>
 	
+	
+	<!-- QoS values: -->
+	
+	<string name="about_control_server_version">Control server version</string>
+	
+	<string name="preferences_dont_show_menu_on_exit">No menu on close</string>
+    <string name="preferences_dont_show_menu_on_exit_sum">Don\'t show application menu before closing it.</string>
+	
+	<string name="term_signal">Signal</string>
+	
+	<string name="result_page_title_qos">QoS</string>
+	<string name="result_page_title_test">Details</string>
+	<string name="result_page_title_menu">Result</string>
+	<string name="result_page_title_graph">Graph</string>
+	<string name="result_page_title_map">Location</string>
+		
+	<string-array name="result_page_title">
+	  	<item>@string/result_page_title_menu</item>
+	    <item>@string/result_page_title_qos</item>
+	    <item>@string/result_page_title_test</item>
+		<item>@string/result_page_title_graph</item>
+	    <item>@string/result_page_title_map</item>
+	</string-array>
+	
+	<string name="qos_test_name_website">Reference web page</string>
+	<string name="qos_test_name_http_proxy">Unmodified content</string>
+	<string name="qos_test_name_non_transparent_proxy">Transparent connection</string>
+	<string name="qos_test_name_dns">DNS</string>
+	<string name="qos_test_name_tcp">TCP ports</string>	
+	<string name="qos_test_name_udp">UDP ports</string>
+	
+	<string name="qos_test_result_error">Error</string>
+	<string name="qos_test_result_all">Results</string>
+	
+	<string name="result_details_qos_failure">FAILED</string>
+	<string name="result_details_qos_success">SUCCEEDED</string>
+	
+	
+	<string name="page_title_title_page">Menu</string>
+	<string name="page_title_history">History</string>
+	<string name="page_title_help">Help</string>
+	<string name="page_title_statistics">Statistics</string>
+	<string name="page_title_information">Information</string>
+	<string name="page_title_map">Map</string>
+	<string name="page_title_settings">Settings</string>
+	<string name="page_title_about">About</string>
+	<string name="page_title_main_result">Test result</string>
+	<string name="page_title_sync">Sync</string>
+	<string name="page_title_qos_result">QoS results</string>
+	
+	<string-array name="navigation_main_titles">
+	    <item>@string/menu_button_title_page</item>
+    	<item>@string/page_title_history</item>
+    	<item>@string/page_title_map</item>    	
+    	<item>@string/menu_button_statistics</item>
+    	<item>@string/page_title_help</item>
+    	<item>@string/page_title_information</item>
+    	<item>@string/page_title_settings</item>
+	</string-array>
+	
+	<string name="result_qos_stats">Quality tests</string>
+	<string name="result_qos_error_no_data_available">The QoS test was not executed.</string>
+	
+	<string name="title_screen_ipv4">IPv4</string>
+	<string name="title_screen_ipv6">IPv6</string>
+	<string name="title_screen_traffic">Background traffic</string>
+	<string name="title_screen_network_id">Network ID:</string>
+	
+	<string name="title_screen_info_overlay_location">Location</string>
+	<string name="title_screen_info_overlay_ipv4_public">Public IPv4</string>
+	<string name="title_screen_info_overlay_ipv4_private">Private IPv4</string>
+	<string name="title_screen_info_overlay_ipv6_public">Public IPv6</string>
+	<string name="title_screen_info_overlay_ipv6_private">Private IPv6</string>
+	<string name="title_screen_info_overlay_ul_traffic">Upload traffic</string>
+	<string name="title_screen_info_overlay_dl_traffic">Download traffic</string>
+	<string name="title_screen_info_overlay_control_server_conn">ControlServer connection</string>
+	<string name="title_screen_info_overlay_captive_portal_status">Captive portal</string>
+	<string name="title_screen_info_overlay_is_loopback">Is loopback</string>
+	<string name="title_screen_info_overlay_is_link_local">Is link local</string>
+	<string name="title_screen_info_overlay_location_position">Position</string>
+	<string name="title_screen_info_overlay_location_source">Source</string>
+	<string name="title_screen_info_overlay_location_accuracy">Accuracy</string>
+	<string name="title_screen_info_overlay_location_altitude">Altitude</string>
+	<string name="title_screen_info_overlay_location_age">Age</string>
+	<string name="title_screen_empty">-</string>
+	
+		
+	<string name="captive_portal_found">found</string>
+	<string name="captive_portal_not_found">not found</string>
+	<string name="captive_portal_testing">test running…</string>
+	
+	<string name="not_available">not available</string>
+	
+	<string name="test_label_test_info">Test information</string>
+	<string name="test_label_progress">Progress</string>
+	<string name="test_label_quality_test">Quality test</string>
 </resources>

@@ -26,6 +26,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import at.alladin.rmbt.client.QualityOfServiceTest;
 import at.alladin.rmbt.client.RMBTClient;
 import at.alladin.rmbt.client.TestResult;
 import at.alladin.rmbt.client.helper.Config;
@@ -35,6 +36,9 @@ import at.alladin.rmbt.client.helper.NdtStatus;
 import at.alladin.rmbt.client.helper.RevisionHelper;
 import at.alladin.rmbt.client.helper.TestStatus;
 import at.alladin.rmbt.client.ndt.NDTRunner;
+import at.alladin.rmbt.client.v2.task.QoSTestEnum;
+import at.alladin.rmbt.client.v2.task.result.QoSResultCollector;
+import at.alladin.rmbt.client.v2.task.service.TestSettings;
 
 public class RMBTApplet extends Applet
 {
@@ -44,6 +48,7 @@ public class RMBTApplet extends Applet
     
     private volatile boolean start = false;
     private volatile boolean runRMBT = false;
+    private volatile boolean runQoS = false;
     private volatile boolean runNDT = false;
     private volatile boolean ndtActivated = false;
     
@@ -151,10 +156,29 @@ public class RMBTApplet extends Applet
                             
                             client.sendResult(jsonResult);
                         }
+                        
                         client.shutdown();
+
+                        //run QoS tests:
+                        if (runQoS)
+                        {
+                        	try {
+                            	final TestSettings qosTestSettings = new TestSettings(client.getControlConnection().getStartTimeNs());
+                            	qosTestSettings.setUseSsl(true);
+                            	final QualityOfServiceTest qosTest = new QualityOfServiceTest(client, qosTestSettings);
+								QoSResultCollector qosResult = qosTest.call();
+								if (qosResult != null && qosTest.getStatus().equals(QoSTestEnum.QOS_FINISHED)) {
+									client.sendQoSResult(qosResult);
+								}
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+                        }
+
+                        
                         if (client.getStatus() != TestStatus.END)
                             System.out.println("ERROR: " + client.getErrorMsg());
-                    }
+                    }                    
                     
                     if (runNDT)
                     {
@@ -189,6 +213,7 @@ public class RMBTApplet extends Applet
         
         start = true;
         runRMBT = true;
+        runQoS = true;
         runNDT = false;
         notify();
     }

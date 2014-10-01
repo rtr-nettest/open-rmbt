@@ -23,23 +23,22 @@
 
     <ImageView
         android:id="@+id/headerImageBg"
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="top|center"
-        android:layout_weight="1"
         android:adjustViewBounds="true"
-        android:contentDescription="Header image"
+        android:maxWidth="300dp"
+        android:paddingLeft="35dp"
+        android:paddingRight="35dp"
+        android:contentDescription="@string/header_image_description"
         android:src="@drawable/header" />
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
+            android:layout_height="0dp"
             android:layout_marginTop="10dp"
             android:layout_weight="3"
-            android:background="@drawable/about_box" >
+            android:background="@color/transparent" >
 
             <ListView
                 android:id="@+id/aboutList"
