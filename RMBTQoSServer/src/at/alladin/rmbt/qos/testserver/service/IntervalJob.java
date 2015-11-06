@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,9 @@
  ******************************************************************************/
 package at.alladin.rmbt.qos.testserver.service;
 
+import java.text.DecimalFormat;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import at.alladin.rmbt.qos.testserver.ServerPreferences.TestServerServiceEnum;
 
@@ -30,7 +32,23 @@ public abstract class IntervalJob<R> extends AbstractJob<R> {
 	 * 
 	 */
 	private final AtomicInteger interval = new AtomicInteger(0);
+	
+	/**
+	 * 
+	 */
+	private final AtomicLong executionCounter = new AtomicLong(0);
+	
+	/**
+	 * 
+	 */
+	private final AtomicLong executionDuration = new AtomicLong(0);
 
+	/**
+	 * tell the ServiceManager either to restart this service after an error occurred or to let it die
+	 * @return
+	 */
+	public abstract boolean restartOnError();
+	
 	/**
 	 * 
 	 * @param service
@@ -57,26 +75,50 @@ public abstract class IntervalJob<R> extends AbstractJob<R> {
 		interval.set(intervalMs);
 	}
 	
+	/**
+	 * 
+	 * @return
+	 */
+	public long getExecutionCounter() {
+		return executionCounter.get();
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * @see java.lang.Runnable#run()
 	 */
-	public void run() {		
-		log("STARTING SERVICE '" + service.getName() + "'", 0);
-		
+	public void run() {
 		try {
+			log("STARTING SERVICE '" + service.getName() + "'", 0);
+			
+			final DecimalFormat df = new DecimalFormat("##0.000");
+			
 			while (isRunning.get()) {
 				Thread.sleep(interval.get());
+				
+				final long tsStart = System.nanoTime();
 				result = execute();
-				log(result.toString(), 1);
+				final long timePassed = (System.nanoTime() - tsStart);
+				
+				executionCounter.addAndGet(1);
+				executionDuration.addAndGet(timePassed);
+				
+				log(result.toString(), 0);
+				log("times executed: " + executionCounter.get() + ",  this time it took: " + df.format(((double)(System.nanoTime() - tsStart) / 1000000d)) + "ms"
+						+ ", total time since start: " + df.format(((double)executionDuration.get()/1000000000d)) + "s", 1);
+
+				dispatchEvent(JobState.RUN, result);
 			}
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			error(e, 0);
+			state.set(JobState.ERROR);
 		}
 		finally {
 			isRunning.set(false);
 		}
+
+		dispatchEvent(getState(), result);
 		
 		log("STOPPED SERVICE '" + service.getName() + "'", 0);
 	}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 RTR-GmbH
+ * Copyright 2013-2015 RTR-GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -88,7 +88,7 @@ public class ImageExport extends ServerResource {
                 + " (t.ping_median::float / 1000000) ping_ms,"
                 + " t.signal_strength,"
                 + " COALESCE(prov.shortname, mprov.shortname, prov.name, mprov.name, network_operator_name, network_sim_operator) provider_name,"
-                + " plattform"
+                + " COALESCE(t.plattform, t.client_name) as platform "
                 //+ " network_operator network_mcc_mnc,"
                 //+ " network_operator_name network_name,"
                 //+ " network_sim_operator sim_mcc_mnc,"
@@ -126,7 +126,7 @@ public class ImageExport extends ServerResource {
             final String isp = rs.getString("provider_name");
             final String typ = rs.getString("network_type");
             final String signal = rs.getString("signal_strength");
-            final String os = rs.getString("plattform");
+            final String os = rs.getString("platform");
 
             final OutputRepresentation result = new OutputRepresentation(MediaType.IMAGE_PNG) {
                 @Override

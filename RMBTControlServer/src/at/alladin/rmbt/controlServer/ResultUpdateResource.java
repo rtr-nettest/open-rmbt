@@ -100,7 +100,7 @@ public class ResultUpdateResource extends ServerResource
                 	test.getField("geo_provider").setString(provider);
                 }
                 
-                test.updateTest();
+                test.storeTestResults(true);
                 
                 if (test.hasError())
                     errorList.addError(test.getError());

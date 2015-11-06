@@ -18,7 +18,6 @@ package at.alladin.rmbt.qos.testserver;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Date;
 import java.util.concurrent.ExecutorService;
 
 import javax.net.ssl.SSLContext;
@@ -33,11 +32,15 @@ import at.alladin.rmbt.qos.testserver.util.TestServerConsole;
  */
 public class QoSService implements Runnable {
 	
+	private final static String TAG = QoSService.class.getCanonicalName();
+	
 	protected final ExecutorService executor;
 	
 	protected final ServerSocket socket;
 	
 	protected final SSLContext sslContext;
+	
+	private final String name;
 	
 	/**
 	 * 
@@ -48,6 +51,7 @@ public class QoSService implements Runnable {
 		this.executor = executor;
 		this.socket = socket;
 		this.sslContext = sslContext;
+		this.name = "[QoSService " +  socket.getInetAddress() + ":" + socket.getLocalPort() +"]: ";
 	}
 
 	/*
@@ -59,42 +63,34 @@ public class QoSService implements Runnable {
 		TestServerConsole.log("QoSService started on: " + socket + ". Awaiting connections...", -1, TestServerServiceEnum.TEST_SERVER);
 		try {
 			while (true) {
-				if (Thread.interrupted()) {
-					throw new InterruptedException();
+				try {
+					if (Thread.interrupted() || socket.isClosed()) {
+						throw new InterruptedException();
+					}
+	
+					Socket client = socket.accept();					
+					executor.execute(new ClientHandler(socket, client));
 				}
-
-				Socket client = socket.accept();
-				
-				/*
-				 * not necessary anymore:
-
-				if (sslContext != null) {
-					SSLSocketFactory sslSf = sslContext.getSocketFactory();
-					SSLSocket sslSocket = (SSLSocket) sslSf.createSocket(client, null, client.getPort(), false);
-					
-					executor.execute(new ClientHandler(socket, sslSocket));
+				catch (Exception e) {
+					if (e instanceof InterruptedException) {
+						throw e;
+					}
+					TestServerConsole.error(name + "Exception. Trying to continue service:", e, 0, TestServerServiceEnum.TEST_SERVER);
 				}
-				else {
-				*/
-				if (TestServer.serverPreferences.getVerboseLevel() >= 2) {
-					TestServerConsole.log((new Date()) + " -> " + socket, 2, TestServerServiceEnum.TEST_SERVER);
-				}
-				executor.execute(new ClientHandler(socket, client));
 			}
 		}
 		catch (InterruptedException e) {
-			TestServerConsole.log("QoSService interrupted. Shutting down.", 0, TestServerServiceEnum.TEST_SERVER);
+			TestServerConsole.log(name +"Interrupted! Shutting down!", 0, TestServerServiceEnum.TEST_SERVER);
 		}
 		catch (Exception e) {
-			TestServerConsole.log("QoSService Exception. Shutting down.", 0, TestServerServiceEnum.TEST_SERVER);
-			e.printStackTrace();
+			TestServerConsole.error(name +"Exception. Shutting down.", e, 0, TestServerServiceEnum.TEST_SERVER);
 		}
 		finally {
-			if (!socket.isClosed()) {
+			if (socket != null && !socket.isClosed()) {
 				try {
 					socket.close();
 				} catch (IOException e) {
-					TestServerConsole.log("IOException: Could not close ServerSocket.", 0, TestServerServiceEnum.TEST_SERVER);
+					TestServerConsole.error(TAG, e, 0, TestServerServiceEnum.TEST_SERVER);
 					e.printStackTrace();
 				}
 			}

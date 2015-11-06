@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,11 @@
 package at.alladin.rmbt.client.v2.task;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import at.alladin.rmbt.client.QualityOfServiceTest;
 import at.alladin.rmbt.client.v2.task.result.QoSTestResult;
@@ -54,22 +56,22 @@ public class TcpTask extends AbstractQoSTask {
 	public final static String RESULT_RESPONSE_OUT = "tcp_result_out_response";
 	
 	public final static String RESULT_RESPONSE_IN = "tcp_result_in_response";
-		
+	
 	/**
 	 * 
 	 * @param taskDesc
 	 */
 	public TcpTask(QualityOfServiceTest nnTest, TaskDesc taskDesc, int threadId) {
-		super(nnTest, taskDesc, threadId);
+		super(nnTest, taskDesc, threadId, threadId);
 
 		String value = (String) taskDesc.getParams().get(PARAM_PORT_IN);
-		this.testPortIn = value != null ? new Integer(value) : null;	
+		this.testPortIn = value != null ? Integer.valueOf(value) : null;	
 
 		value = (String) taskDesc.getParams().get(PARAM_PORT_OUT);
-		this.testPortOut = value != null ? new Integer(value) : null;	
+		this.testPortOut = value != null ? Integer.valueOf(value) : null;	
 		
 		value = (String) taskDesc.getParams().get(PARAM_TIMEOUT);
-		this.timeout = value != null ? new Long(value) : DEFAULT_TIMEOUT;
+		this.timeout = value != null ? Long.valueOf(value) : DEFAULT_TIMEOUT;
 	}
 
 	/**
@@ -87,56 +89,74 @@ public class TcpTask extends AbstractQoSTask {
 				result.getResultMap().put(RESULT_OUT, "FAILED");			
 			}
 			
-			Socket initSocket = null;
-			Socket socketOut = null;
 			Socket socketIn = null;
 			
 			try {
 				System.out.println("TCPTASK: " + getTestServerAddr() + ":" + getTestServerPort());
 		    	
-				//TODO: Secure connection
-				try {
-					initSocket = connect(result, InetAddress.getByName(getTestServerAddr()), getTestServerPort(), 
-							QOS_SERVER_PROTOCOL_VERSION, "ACCEPT", getQoSTest().getTestSettings().isUseSsl() , CONTROL_CONNECTION_TIMEOUT);
-				}
-				catch (IOException e) {
-					result.setFatalError(true);
-					throw e;
-				}
-				
-		    	initSocket.setSoTimeout(5000);
-		    	
 		    	String response = null;
 		    	
 		    	if (this.testPortOut != null) {
-		    		sendMessage("TCPTEST OUT " + testPortOut + "\n");
-		    		response = reader.readLine();
-		    		if (response != null && response.startsWith("OK")) {
-		    			socketOut = getSocket(getTestServerAddr(), testPortOut, false, (int)(timeout/1000000));
-		    			socketOut.setSoTimeout((int)(timeout/1000000));
-		    			sendMessage(socketOut, "PING\n");
-		    			response = readLine(socketOut);
-					
-		    			System.out.println("TCP OUT TEST response: " + response);
-					
-		    			result.getResultMap().put(RESULT_RESPONSE_OUT, response);
-		    			socketOut.close();
-		    			result.getResultMap().put(RESULT_OUT, "OK");
-		    		}
+		    		//needed for timeout:
+		    		final CountDownLatch latch = new CountDownLatch(1);
+		    		
+		    		//response handler
+		    		final ControlConnectionResponseCallback callback = new ControlConnectionResponseCallback() {
+						
+						public void onResponse(final String response, final String request) {
+				    		if (response != null && response.startsWith("OK")) {
+				    			System.out.println("got response: " + response);
+				    			Socket socketOut = null;
+				    			
+				    			try {
+					    			socketOut = getSocket(getTestServerAddr(), testPortOut, false, (int)(timeout/1000000));
+					    			socketOut.setSoTimeout((int)(timeout/1000000));
+					    			sendMessage(socketOut, "PING\n");
+					    			final String testResponse = readLine(socketOut);
+								
+					    			System.out.println("TCP OUT TEST response: " + testResponse);
+								
+					    			result.getResultMap().put(RESULT_RESPONSE_OUT, testResponse);
+					    			socketOut.close();
+					    			result.getResultMap().put(RESULT_OUT, "OK");
+				    			}
+				    			catch (SocketTimeoutException e) {
+				    				result.getResultMap().put(RESULT_OUT, "TIMEOUT");
+				    			}
+				    			catch (Exception e) {
+				    				result.getResultMap().put(RESULT_OUT, "ERROR");
+				    			}
+				    			finally {
+					    			latch.countDown();
+				    				if (socketOut != null && !socketOut.isClosed()) {
+				    					try {
+											socketOut.close();
+										} catch (IOException e) {
+											e.printStackTrace();
+										}
+				    				}
+				    			}
+				    		}
+						}
+					};	    				
+		    		
+					sendCommand("TCPTEST OUT " + testPortOut, callback);
+					if(!latch.await(timeout, TimeUnit.NANOSECONDS)) {
+						result.getResultMap().put(RESULT_OUT, "TIMEOUT");
+					}
 		    	}
 				
 		    	if (this.testPortIn != null) {
 		    		ServerSocket serverSocket = null;
 		    		try {
 						serverSocket = new ServerSocket(testPortIn);
-						sendMessage("TCPTEST IN " + testPortIn + "\n");
+						sendCommand("TCPTEST IN " + testPortIn, null);
+
 						serverSocket.setSoTimeout((int)(timeout/1000000));
 						socketIn = serverSocket.accept();
 						socketIn.setSoTimeout((int)(timeout/1000000));
 						response = readLine(socketIn);
-						
-						System.out.println("TCP IN TEST response: " + response);
-						
+						System.out.println("TCP IN TEST response: " + response);						
 						result.getResultMap().put(RESULT_RESPONSE_IN, response);
 						socketIn.close();
 						result.getResultMap().put(RESULT_IN, "OK");	    				    			
@@ -148,18 +168,9 @@ public class TcpTask extends AbstractQoSTask {
 		    		}
 		    	}
 				
-				sendMessage("QUIT\n");
 			}
 			catch (Exception e) {
 				e.printStackTrace();
-			}
-			finally {
-				if (initSocket != null && initSocket.isConnected()) {
-					initSocket.close();
-				}
-				if (socketOut != null && socketOut.isConnected()) {
-					socketOut.close();
-				}
 			}
 			
 			if (this.testPortIn != null) {
@@ -196,5 +207,13 @@ public class TcpTask extends AbstractQoSTask {
 	 */
 	public QoSTestResultEnum getTestType() {
 		return QoSTestResultEnum.TCP;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see at.alladin.rmbt.client.v2.task.QoSTask#needsQoSControlConnection()
+	 */
+	public boolean needsQoSControlConnection() {
+		return true;
 	}
 }

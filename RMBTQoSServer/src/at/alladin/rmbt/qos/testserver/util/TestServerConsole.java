@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,19 +19,76 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.ServerSocket;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import at.alladin.rmbt.qos.testserver.ClientHandler;
 import at.alladin.rmbt.qos.testserver.ServerPreferences.TestServerServiceEnum;
 import at.alladin.rmbt.qos.testserver.TestServer;
-import at.alladin.rmbt.qos.testserver.tcp.TcpServer;
-import at.alladin.rmbt.qos.testserver.udp.UdpMultiClientServer;
+import at.alladin.rmbt.qos.testserver.service.ServiceManager.FutureService;
+import at.alladin.rmbt.qos.testserver.tcp.TcpMultiClientServer;
+import at.alladin.rmbt.qos.testserver.udp.AbstractUdpServer;
+import at.alladin.rmbt.qos.testserver.udp.UdpTestCandidate;
 
 
 public class TestServerConsole extends PrintStream {
+	
+	public final static class ErrorReport {
+		Date date;
+		Date lastDate;
+		int counter = 0;
+		String error;
+		
+		public ErrorReport(String error, Date date) {
+			this.date = date;
+			this.error = error;
+		}
+
+		public Date getDate() {
+			return date;
+		}
+
+		public void setDate(Date date) {
+			this.date = date;
+		}
+
+		public String getError() {
+			return error;
+		}
+
+		public void setError(String error) {
+			this.error = error;
+		}
+		
+		public void increaseCounter() {
+			this.counter++;
+			this.lastDate = new Date();
+		}
+		
+		public JSONObject toJson() throws JSONException {
+			JSONObject json = new JSONObject();
+			json.put("first_date", date);
+			json.put("counter", counter);
+			json.put("last_date", lastDate);
+			json.put("error", error);
+			return json;
+		}
+	}
+	
+	public final static ConcurrentMap<String, ErrorReport> errorReportMap = new ConcurrentHashMap<String, TestServerConsole.ErrorReport>();
+	
+	public final static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	
 	public final static String HINT_SHOW = "SHOW what? Available options: [tcp] [udp] [info]";
 	
 	public final static String COMMAND_EXIT_COMMAND_PROMPT = "exit";
@@ -48,11 +105,17 @@ public class TestServerConsole extends PrintStream {
 	
 	public final static String SUBCOMMAND_SHOW_INFO = "info";
 	
+	public final static String SUBCOMMAND_SHOW_CLIENTS = "clients";
+	
 	public final static String SUBCOMMAND_SHOW_OPENED_TCP_PORTS = "tcp";
 	
 	public final static String SUBCOMMAND_SHOW_OPENED_UDP_PORTS = "udp";
 	
 	public final static String SUBCOMMAND_FORCE = "force";
+	
+	public final static String DEBUG_COMMAND_LIST_SERVICES = "dls";
+	
+	public final static String DEBUG_COMMAND_FORCE_SERVICE_EVENT = "dfse";
 	
 	public final static String PROMPT = "\n\nEnter command:";
 	
@@ -88,6 +151,23 @@ public class TestServerConsole extends PrintStream {
 								case COMMAND_SHOW:
 									if (commands.length > 1) {
 										switch (commands[1]) {
+										case SUBCOMMAND_SHOW_CLIENTS:
+											printLine();
+											printlnCommand("\n");
+											printlnCommand("\nActive clients: " + TestServer.clientHandlerSet.size() + "\n");
+											for (ClientHandler client : TestServer.clientHandlerSet) {
+												printlnCommand(" - " + client.getName());
+												printlnCommand("\t UdpIncomingResults: ");
+												for (Entry<Integer, UdpTestCandidate> udpIn : client.getClientUdpInDataMap().entrySet()) {
+													printlnCommand("\t\t " + udpIn.toString());
+												}
+												printlnCommand("\t UdpOutgoingResults: ");
+												for (Entry<Integer, UdpTestCandidate> udpOut : client.getClientUdpOutDataMap().entrySet()) {
+													printlnCommand("\t\t " + udpOut.toString());
+												}
+											}
+											printLine();
+										break;
 										case SUBCOMMAND_SHOW_INFO:
 											printLine();
 											printlnCommand("\n" + TestServer.TEST_SERVER_VERSION_NAME);
@@ -104,11 +184,12 @@ public class TestServerConsole extends PrintStream {
 												showTcp = (commands.length > 2 && commands[2].equals(SUBCOMMAND_FORCE));
 											}
 
-											printlnCommand("\nFound " + TestServer.tcpServerMap.size() + " active TCP sockets.");
+											printlnCommand("\nFound " + TestServer.tcpServerMap.values().size() + " active TCP sockets.");
+											
 											if (showTcp) {
 												printlnCommand("\n\nList of all TCP sockets:\n");
-												for (Entry<Integer, List<TcpServer>> e : TestServer.tcpServerMap.entrySet()) {
-													for (TcpServer i : e.getValue()) {
+												for (Entry<Integer, List<TcpMultiClientServer>> e : TestServer.tcpServerMap.entrySet()) {
+													for (TcpMultiClientServer i : e.getValue()) {
 														printlnCommand("Port " + e.getKey() + " -> " + i.toString());	
 													}
 												}
@@ -125,8 +206,8 @@ public class TestServerConsole extends PrintStream {
 											if (commands.length > 2) {
 												if ("data".equals(commands[2])) {
 													printlnCommand("\nMultiClient UDP Server containing ClientData:");
-													for (List<UdpMultiClientServer> udpServerList : TestServer.udpServerMap.values()) {
-														for (UdpMultiClientServer udpServer : udpServerList) {
+													for (List<AbstractUdpServer<?>> udpServerList : TestServer.udpServerMap.values()) {
+														for (AbstractUdpServer<?> udpServer : udpServerList) {
 															if (!udpServer.getIncomingMap().isEmpty()) {
 																printlnCommand("\nUDP Server Info: " + udpServer.toString());
 															}
@@ -135,8 +216,8 @@ public class TestServerConsole extends PrintStream {
 												}
 												else if ("nodata".equals(commands[2])) {
 													printlnCommand("\nMultiClient UDP Server wihtout ClientData:");
-													for (List<UdpMultiClientServer> udpServerList : TestServer.udpServerMap.values()) {
-														for (UdpMultiClientServer udpServer : udpServerList) {
+													for (List<AbstractUdpServer<?>> udpServerList : TestServer.udpServerMap.values()) {
+														for (AbstractUdpServer<?> udpServer : udpServerList) {
 															if (udpServer.getIncomingMap().isEmpty()) {
 																printlnCommand("\nUDP Server Info: " + udpServer.toString());
 															}
@@ -145,8 +226,8 @@ public class TestServerConsole extends PrintStream {
 												}
 												else {
 													try {
-														List<UdpMultiClientServer> udpServerList = TestServer.udpServerMap.get(Integer.valueOf(commands[2]));
-														for (UdpMultiClientServer udpServer : udpServerList) {
+														List<AbstractUdpServer<?>> udpServerList = TestServer.udpServerMap.get(Integer.valueOf(commands[2]));
+														for (AbstractUdpServer<?> udpServer : udpServerList) {
 															printlnCommand("\nMultiClient UDP Server Info:\n" + udpServer.toString());
 														}
 													}
@@ -203,6 +284,18 @@ public class TestServerConsole extends PrintStream {
 									printHelp();
 									break;
 									
+								case DEBUG_COMMAND_LIST_SERVICES:
+									synchronized (TestServer.serviceManager.getServiceMap()) {
+										Iterator<Entry<String, FutureService>> entries = TestServer.serviceManager.getServiceMap().entrySet().iterator();
+										printlnCommand("\n" + TestServer.serviceManager.getServiceMap().size() + " services found:\n");
+										int i = 0;
+										while (entries.hasNext()) {
+											Entry<String, FutureService> e = entries.next();
+											printlnCommand("\t" + (++i) + ") " + e.getKey() + ":\n\t\t" + e.getValue().getService().toString());
+										}										
+									}
+									break;
+																		
 								default:
 									printCommand("\nUnknown command. Enter 'help' for more information.");
 									printHelp();
@@ -239,6 +332,7 @@ public class TestServerConsole extends PrintStream {
 				+ "\nshow tcp \t\t\t- shows tcp info"
 				+ "\nshow udp \t\t\t- shows udp info"
 				+ "\nshow info \t\t\t- shows qos test server info"
+				+ "\nshow clients \t\t\t- shows all active/opened client handlers"
 				+ "\nset \t\t\t\t- displays current test server settings"
 				+ "\nset verbose [0] [1] [2] \t- set verbose level to 0, 1 or 2"
 				+ "\nshutdown \t\t\t- testserver shutdown (alternative: CTRL+C)"
@@ -247,11 +341,11 @@ public class TestServerConsole extends PrintStream {
 	
 	public void start() {
 		if (TestServer.serverPreferences.isCommandConsoleEnabled()) {
-			log("Command Console enabled. Starting KeyListener", 1, TestServerServiceEnum.TEST_SERVER);
+			log("Command Console enabled. Starting KeyListener\n", 1, TestServerServiceEnum.TEST_SERVER);
 			keyListener.start();
 		}
 		else {
-			log("Command Console disabled. KeyListener not started", 1, TestServerServiceEnum.TEST_SERVER);
+			log("Command Console disabled. KeyListener not started\n", 1, TestServerServiceEnum.TEST_SERVER);
 		}
 	}
 	
@@ -293,7 +387,38 @@ public class TestServerConsole extends PrintStream {
 			System.out.println(msg);
 		}
 	}
+	
+	/**
+	 * 
+	 * @param t
+	 * @param verboseLevelNeeded
+	 * @param service
+	 */
+	public static void error(String info, Throwable t, int verboseLevelNeeded, TestServerServiceEnum service) {
+		log(info + " [" + t.getClass().getCanonicalName() + "]: " + t.getMessage(), verboseLevelNeeded, service);
+	}
+	
+	/**
+	 * 
+	 * @param info
+	 * @param t
+	 * @param verboseLevelNeeded
+	 * @param service
+	 */
+	public static void errorReport(String errorReportKey, String info, Throwable t, int verboseLevelNeeded, TestServerServiceEnum service) {
+		StringWriter stackTrace = new StringWriter();			
+		t.printStackTrace(new PrintWriter(stackTrace));
+		if (!errorReportMap.containsKey(errorReportKey)) {
+			errorReportMap.putIfAbsent(errorReportKey, new ErrorReport(info + ": [" + t.getClass().getCanonicalName() + " - " + t.getMessage() +"]", new Date()));	
+		}
+
+		ErrorReport er = errorReportMap.get(errorReportKey);
+		er.increaseCounter();
 		
+		
+		error(info, t, verboseLevelNeeded, service);
+	}
+	
 	/**
 	 * 
 	 * @param msg
@@ -308,7 +433,7 @@ public class TestServerConsole extends PrintStream {
 		
 		log(msg, verboseLevelNeeded, logFileName);
 	}
-	
+		
 	/**
 	 * 
 	 * @param msg
@@ -318,7 +443,7 @@ public class TestServerConsole extends PrintStream {
 	public static void log(String msg, int verboseLevelNeeded, String logFileName) {
 		log(msg, verboseLevelNeeded);
 		if (logFileName != null && (verboseLevelNeeded <= 0 
-				|| (TestServer.serverPreferences != null && TestServer.serverPreferences.getVerboseLevel() >= verboseLevelNeeded))) {
+				|| (TestServer.serverPreferences != null && TestServer.serverPreferences.getVerboseLevel() >= verboseLevelNeeded && TestServer.serverPreferences.isLoggingEnabled()))) {
 			appendToLogFile(msg, logFileName + getLogFileSuffix());
 		}
 	}
@@ -329,8 +454,7 @@ public class TestServerConsole extends PrintStream {
 	 * @return
 	 */
 	public static String getFormattedDate(Date date) {
-		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		return df.format(date);
+		return DATE_FORMAT.format(date);
 	}
 	
 	/**
@@ -338,18 +462,11 @@ public class TestServerConsole extends PrintStream {
 	 * @param msg
 	 * @param fileName
 	 */
-	public synchronized static void appendToLogFile(String msg, String fileName) {
-		PrintWriter out = null;
-		try {
-			out = new PrintWriter(new BufferedWriter(new FileWriter(fileName, true)));
-		    out.println(TestServerConsole.getFormattedDate(new Date()) + ": " + msg);
+	public static void appendToLogFile(String msg, String fileName) {
+		try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(fileName, true)))) {
+		    out.println(TestServerConsole.getFormattedDate(new Date()) + " [" + String.format("%5d", Thread.currentThread().getId()) + "]: " + msg);
 		}catch (Exception e) {
 			e.printStackTrace();
-		}
-		finally {
-			if (out != null) {
-				out.close();
-			}
 		}
 	}
 	
@@ -360,5 +477,13 @@ public class TestServerConsole extends PrintStream {
 	private static String getLogFileSuffix() {
 		SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd");
 		return "_" + df.format(new Date()) + ".log"; 
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public static String getPrefix() {
+		return TestServerConsole.getFormattedDate(new Date()) + " [T-" + Thread.currentThread().getId() +"]: ";
 	}
 }

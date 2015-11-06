@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 package at.alladin.rmbt.android.map;
 
 import java.util.Map;
+
+import at.alladin.rmbt.util.model.option.OptionFunctionCallback;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -78,6 +80,11 @@ public interface MapProperties
     public static final String MAP_OPTIONS_PATH = "/RMBTMapServer/tiles/info";
     
     /**
+     * 
+     */
+    public static final String MAP_OPTIONS_PATH_V2 = "/RMBTMapServer/v2/tiles/info";
+    
+    /**
 	 * 
 	 */
     public static final String MAP_SAT_KEY = "_SAT";
@@ -131,12 +138,12 @@ public interface MapProperties
     /**
      * 
      */
-    public static final int POINT_DIAMETER = 12;
+    public static final int POINT_DIAMETER = 8;
     
     /**
      * 
      */
     public static final double TAB_DIAMETER_FACTOR = 2;
 
-    public Map<String, String> getCurrentMapOptions();
+    public Map<String, String> getCurrentMapOptions(final OptionFunctionCallback callback);
 }

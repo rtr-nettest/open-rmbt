@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,10 +22,9 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 
@@ -33,18 +32,24 @@ import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.Restlet;
 import org.restlet.data.Form;
-import org.restlet.data.Parameter;
 
 import at.alladin.rmbt.mapServer.MapServerOptions.MapFilter;
 import at.alladin.rmbt.mapServer.MapServerOptions.MapOption;
 import at.alladin.rmbt.mapServer.MapServerOptions.SQLFilter;
+import at.alladin.rmbt.mapServer.parameters.TileParameters;
+import at.alladin.rmbt.mapServer.parameters.TileParameters.Path;
+import at.alladin.rmbt.shared.cache.CacheHelper;
+import at.alladin.rmbt.shared.cache.CacheHelper.ObjectWithTimestamp;
 
-public abstract class TileRestlet extends Restlet
+public abstract class TileRestlet<Params extends TileParameters> extends Restlet
 {
-    protected static final int[] TILE_SIZES = new int[] { 256, 512 };
-    protected static final Pattern PATH_PATTERN = Pattern.compile("(\\d+)/(\\d+)/(\\d+)");
+    protected static final int[] TILE_SIZES = new int[] { 256, 512, 768 };
     protected static final byte[][] EMPTY_IMAGES = new byte[TILE_SIZES.length][];
-    protected static final int MAX_ZOOM = 21;
+    protected static final byte[] EMPTY_MARKER = "EMPTY".getBytes();
+    
+    private static final int CACHE_STALE = 3600;
+    private static final int CACHE_EXPIRE = 7200;
+    private final CacheHelper cache = CacheHelper.getInstance();
     
     static
     {
@@ -144,111 +149,117 @@ public abstract class TileRestlet extends Restlet
         return r << 16 | g << 8 | b;
     }
     
-    public static AtomicInteger maxCount = new AtomicInteger();
-    
     @Override
     public void handle(final Request req, final Response res)
     {
-//        if (maxCount.get() > 40) // fast hack so that not the complete server is taken down with many requests
-//            return;
-        try
-        {
-            maxCount.incrementAndGet();
+        final String zoomStr = (String) req.getAttributes().get("zoom");
+        final String xStr = (String) req.getAttributes().get("x");
+        final String yStr = (String) req.getAttributes().get("y");
         
-            final Form params = req.getResourceRef().getQueryAsForm();
-            
-            final String zoomStr = (String) req.getAttributes().get("zoom");
-            final String xStr = (String) req.getAttributes().get("x");
-            final String yStr = (String) req.getAttributes().get("y");
-            
-            final int zoom, x, y;
-            if (zoomStr != null && xStr != null && yStr != null)
-            {
-                zoom = Integer.valueOf(zoomStr);
-                x = Integer.valueOf(xStr);
-                y = Integer.valueOf(yStr);
-            }
-            else
-            {
-                final String path = params.getFirstValue("path", true);
-                if (path == null)
-                    return;
-                final Matcher m = PATH_PATTERN.matcher(path);
-                if (!m.matches())
-                    return;
-                zoom = Integer.valueOf(m.group(1));
-                x = Integer.valueOf(m.group(2));
-                y = Integer.valueOf(m.group(3));
-            }
-            
-            if (zoom < 0 || zoom > MAX_ZOOM)
-                return;
-            
-            if (x < 0 || y < 0)
-                return;
-            
-            int pow = 1 << zoom;
-            if (x >= pow || y >= pow)
-                return;
-            
-            int tileSizeIdx = 0;
-            
-            final String sizeStr = params.getFirstValue("size");
-            if (sizeStr != null)
-            {
-                int size = Integer.valueOf(sizeStr);
-                for (int i = 0; i < TILE_SIZES.length; i++)
-                {
-                    if (size == TILE_SIZES[i])
-                    {
-                        tileSizeIdx = i;
-                        break;
-                    }
-                }
-            }
-            
-            String mapOptionStr = params.getFirstValue("map_options", true);
-            if (mapOptionStr == null) // set default
-                mapOptionStr = "mobile/download";
-            final MapOption mo = MapServerOptions.getMapOptionMap().get(mapOptionStr);
-            if (mo == null)
-                return;
-            
-            final List<SQLFilter> filters = new ArrayList<SQLFilter>(MapServerOptions.getDefaultMapFilters());
-            
-            // filters from params
-            for (final Parameter param : params)
-            {
-                final MapFilter mapFilter = MapServerOptions.getMapFilterMap().get(param.getName());
-                if (mapFilter != null)
-                    filters.add(mapFilter.getFilter(param.getValue()));
-            }
-            
-            final DBox box = GeoCalc.xyToMeters(TILE_SIZES[tileSizeIdx], x, y, zoom);
-            
-            float quantile = 0.5f; //median is default quantile
-            final String statisticalMethod = params.getFirstValue("statistical_method", true);
-            if (statisticalMethod != null)
-                try
-                {
-                    final float _quantile = Float.parseFloat(statisticalMethod);
-                    if (_quantile >= 0 && _quantile <= 1)
-                        quantile = _quantile;
-                }
-                catch (final NumberFormatException e)
-                {
-                }
-            if (mo.reverseScale)
-                quantile = 1 - quantile;
-            
-            handle(req, res, params, tileSizeIdx, zoom, box, mo, filters, quantile);
-        }
-        finally
-        {
-            maxCount.decrementAndGet();
-        }
+        final Path path = new Path(zoomStr, xStr, yStr, req.getResourceRef().getQueryAsForm().getFirstValue("path", true));
+        final Params p = getTileParameters(path, req.getResourceRef().getQueryAsForm());
+        res.setEntity(new PngOutputRepresentation(getTile(p)));
     }
     
-    protected abstract void handle(Request req, Response res, Form params, int tileSizeIdx, int zoom, DBox box, MapOption mo,
+    protected byte[] getTile(final Params p)
+    {
+        boolean useCache = true;
+        if (p.isNoCache())
+            useCache = false;
+        
+        final String cacheKey;
+        
+        if (useCache)
+        {
+            cacheKey = CacheHelper.getHash((TileParameters)p);
+            final ObjectWithTimestamp cacheObject = cache.getWithTimestamp(cacheKey, CACHE_STALE);
+            if (cacheObject != null)
+            {
+                System.out.println("cache hit for: " + cacheKey + "; is stale: " + cacheObject.stale);
+                byte[] data = (byte[]) cacheObject.o;
+                if (Arrays.equals(EMPTY_MARKER, data))
+                    data = EMPTY_IMAGES[getTileSizeIdx(p)];
+                if (cacheObject.stale)
+                {
+                    final Runnable refreshCacheRunnable = new Runnable()
+                    {
+                        @Override
+                        public void run()
+                        {
+                            System.out.println("adding in background: " + cacheKey);
+                            final byte[] newData = generateTile(p, getTileSizeIdx(p));
+                            cache.set(cacheKey, CACHE_EXPIRE, newData != null ? newData : EMPTY_MARKER, true);
+                        }
+                    };
+                    cache.getExecutor().execute(refreshCacheRunnable);
+                }
+                return data;
+            }
+        }
+        else
+            cacheKey = null;
+        
+        final int tileSizeIdx = getTileSizeIdx(p);
+        byte[] data = generateTile(p, tileSizeIdx);
+//        if (data == null)
+        
+        if (useCache)
+        {
+            System.out.println("adding to cache: " + cacheKey);
+            cache.set(cacheKey, CACHE_EXPIRE, data != null ? data : EMPTY_MARKER, true);
+        }
+        
+        if (data == null)
+            data = EMPTY_IMAGES[tileSizeIdx];
+        return data;
+    }
+
+    private int getTileSizeIdx(final Params p)
+    {
+        int tileSizeIdx = 0;
+        final int size = p.getSize();
+        for (int i = 0; i < TILE_SIZES.length; i++)
+        {
+            if (size == TILE_SIZES[i])
+            {
+                tileSizeIdx = i;
+                break;
+            }
+        }
+        return tileSizeIdx;
+    }
+
+    private byte[] generateTile(final Params p, int tileSizeIdx)
+    {
+        final MapOption mo = MapServerOptions.getMapOptionMap().get(p.getMapOption());
+        if (mo == null)
+            throw new IllegalArgumentException();
+
+        final List<SQLFilter> filters = new ArrayList<>(MapServerOptions.getDefaultMapFilters());
+        for (final Map.Entry<String, String> entry : p.getFilterMap().entrySet())
+        {
+            final MapFilter mapFilter = MapServerOptions.getMapFilterMap().get(entry.getKey());
+            if (mapFilter != null)
+            {
+                final SQLFilter filter = mapFilter.getFilter(entry.getValue());
+                if (filter != null)
+                    filters.add(filter);
+            }
+        }
+        
+        final Path path = p.getPath();
+        final DBox box = GeoCalc.xyToMeters(TILE_SIZES[tileSizeIdx], path.getX(), path.getY(), path.getZoom());
+        
+        float quantile = p.getQuantile();
+        if (mo.reverseScale)
+            quantile = 1 - quantile;
+        
+        final byte[] data = generateTile(p, tileSizeIdx, path.getZoom(), box, mo, filters, quantile);
+        return data;
+    }
+    
+    protected abstract Params getTileParameters(TileParameters.Path path, Form params);
+    
+    protected abstract byte[] generateTile(Params params, int tileSizeIdx, int zoom, DBox box, MapOption mo,
             List<SQLFilter> filters, float quantile);
 }

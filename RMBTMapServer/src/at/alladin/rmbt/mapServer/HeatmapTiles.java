@@ -15,28 +15,23 @@
  ******************************************************************************/
 package at.alladin.rmbt.mapServer;
 
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.ByteArrayOutputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
 import javax.imageio.ImageIO;
 
-import org.restlet.Request;
-import org.restlet.Response;
 import org.restlet.data.Form;
-import org.restlet.data.MediaType;
-import org.restlet.representation.OutputRepresentation;
-import org.restlet.representation.Representation;
 
 import at.alladin.rmbt.mapServer.MapServerOptions.MapOption;
 import at.alladin.rmbt.mapServer.MapServerOptions.SQLFilter;
+import at.alladin.rmbt.mapServer.parameters.HeatmapTileParameters;
+import at.alladin.rmbt.mapServer.parameters.TileParameters;
 
-public class HeatmapTiles extends TileRestlet
+public class HeatmapTiles extends TileRestlet<HeatmapTileParameters>
 {
     private final static int[] ZOOM_TO_PART_FACTOR = new int[] {
             // factor | zoomlevel
@@ -121,223 +116,191 @@ public class HeatmapTiles extends TileRestlet
     }
     
     @Override
-    protected void handle(final Request req, final Response res, final Form params, final int tileSizeIdx, final int zoom, final DBox box,
+    protected HeatmapTileParameters getTileParameters(TileParameters.Path path, Form params)
+    {
+        return new HeatmapTileParameters(path, params);
+    }
+    
+    @Override
+    protected byte[] generateTile(final HeatmapTileParameters params, final int tileSizeIdx, final int zoom, final DBox box,
             final MapOption mo, final List<SQLFilter> filters, final float quantile)
     {
         filters.add(MapServerOptions.getAccuracyMapFilter());
         
-        final int tileSize = TILE_SIZES[tileSizeIdx]; 
+        final int tileSize = TILE_SIZES[tileSizeIdx];
         
-        Connection con = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        try
+        final double transparency = params.getTransparency();
+        
+        final StringBuilder whereSQL = new StringBuilder(mo.sqlFilter);
+        for (final SQLFilter sf : filters)
+            whereSQL.append(" AND ").append(sf.where);
+        
+        final String sql = String.format("SELECT count(\"%1$s\") count," 
+                + " quantile(\"%1$s\",?) val,"
+                + " ST_X(ST_SnapToGrid(location, ?,?,?,?)) gx," 
+                + " ST_Y(ST_SnapToGrid(location, ?,?,?,?)) gy"
+                + " FROM v_test t" 
+                + " WHERE " 
+                + " %2$s"
+                + " AND location && ST_SetSRID(ST_MakeBox2D(ST_Point(?,?), ST_Point(?,?)), 900913)"
+                + " GROUP BY gx,gy", mo.valueColumnLog, whereSQL);
+        
+        final int partSizeFactor;
+        if (zoom >= ZOOM_TO_PART_FACTOR.length)
+            partSizeFactor = ZOOM_TO_PART_FACTOR[ZOOM_TO_PART_FACTOR.length - 1];
+        else
+            partSizeFactor = ZOOM_TO_PART_FACTOR[zoom];
+        final int partSizePixels = 1 << partSizeFactor;
+        
+        final int fetchPartsX = tileSize / partSizePixels + (HORIZON_OFFSET + 2) * 2;
+        final int fetchPartsY = tileSize / partSizePixels + (HORIZON_OFFSET + 2) * 2;
+        
+        final double[] values = new double[fetchPartsX * fetchPartsY];
+        // final int[] countsReal = new int[fetchPartsX * fetchPartsY];
+        final int[] countsRel = new int[fetchPartsX * fetchPartsY];
+        
+        Arrays.fill(values, Double.NaN);
+    
+        boolean _emptyTile = true;
+        
+        try (Connection con = DbConnection.getConnection())
         {
-            final String transparencyString = params.getFirstValue("transparency");
-            double _transparency = 0.75;
-            if (transparencyString != null)
-                try
-                {
-                    _transparency = Double.parseDouble(transparencyString);
-                }
-                catch (final NumberFormatException e)
-                {
-                }
-            if (_transparency < 0)
-                _transparency = 0;
-            if (_transparency > 1)
-                _transparency = 1;
-            final double transparency = _transparency;
-            
-            final StringBuilder whereSQL = new StringBuilder(mo.sqlFilter);
-            for (final SQLFilter sf : filters)
-                whereSQL.append(" AND ").append(sf.where);
-            
-            con = DbConnection.getConnection();
-            final String sql = String.format("SELECT count(\"%1$s\") count," 
-                    + " quantile(\"%1$s\",?) val,"
-                    + " ST_X(ST_SnapToGrid(location, ?,?,?,?)) gx," 
-                    + " ST_Y(ST_SnapToGrid(location, ?,?,?,?)) gy"
-                    + " FROM test t" 
-                    + " WHERE " 
-                    + " %2$s"
-                    + " AND location && ST_SetSRID(ST_MakeBox2D(ST_Point(?,?), ST_Point(?,?)), 900913)"
-                    + " GROUP BY gx,gy", mo.valueColumnLog, whereSQL);
-            
-            ps = con.prepareStatement(sql);
-            
-            int i = 1;
-            ps.setFloat(i++, quantile);
-            
-            // int _partSizeFactor = (int)Math.round((8d/11d) * zoom -
-            // (48d/11d));
-            // if (_partSizeFactor < 0)
-            // _partSizeFactor = 0;
-            // if (_partSizeFactor > 7)
-            // _partSizeFactor = 7;
-            // final int partSizeFactor = _partSizeFactor;
-            
-            final int partSizeFactor;
-            if (zoom >= ZOOM_TO_PART_FACTOR.length)
-                partSizeFactor = ZOOM_TO_PART_FACTOR[ZOOM_TO_PART_FACTOR.length - 1];
-            else
-                partSizeFactor = ZOOM_TO_PART_FACTOR[zoom];
-            final int partSizePixels = 1 << partSizeFactor;
-            
-            // System.out.println(partSizePixels);
-            
-            final double partSize = box.res * partSizePixels;
-            final double origX = box.x1 - box.res * (partSizePixels / 2) - partSize * (HORIZON_OFFSET + 1);
-            final double origY = box.y1 - box.res * (partSizePixels / 2) - partSize * (HORIZON_OFFSET + 1);
-            for (int j = 0; j < 2; j++)
+            try (PreparedStatement ps = con.prepareStatement(sql))
             {
-                ps.setDouble(i++, origX);
-                ps.setDouble(i++, origY);
-                ps.setDouble(i++, partSize);
-                ps.setDouble(i++, partSize);
-            }
-            
-            for (final SQLFilter sf : filters)
-                i = sf.fillParams(i, ps);
-            
-            final double margin = partSize * (HORIZON_OFFSET + 1);
-            ps.setDouble(i++, box.x1 - margin);
-            ps.setDouble(i++, box.y1 - margin);
-            ps.setDouble(i++, box.x2 + margin);
-            ps.setDouble(i++, box.y2 + margin);
-            
-//            System.out.println(ps);
-            
-            if (!ps.execute())
-                return;
-            
-            final int fetchPartsX = tileSize / partSizePixels + (HORIZON_OFFSET + 2) * 2;
-            final int fetchPartsY = tileSize / partSizePixels + (HORIZON_OFFSET + 2) * 2;
-            
-            final double[] values = new double[fetchPartsX * fetchPartsY];
-            // final int[] countsReal = new int[fetchPartsX * fetchPartsY];
-            final int[] countsRel = new int[fetchPartsX * fetchPartsY];
-            
-            Arrays.fill(values, Double.NaN);
-            
-            rs = ps.getResultSet();
-            boolean _emptyTile = true;
-            while (rs.next())
-            {
-                _emptyTile = false;
-                int count = rs.getInt(1);
-                final double val = rs.getDouble(2);
-                final double gx = rs.getDouble(3);
-                final double gy = rs.getDouble(4);
+                int p = 1;
+                ps.setFloat(p++, quantile);
                 
-                final int mx = (int) Math.round((gx - origX) / partSize);
-                final int my = (int) Math.round((gy - origY) / partSize);
+                // int _partSizeFactor = (int)Math.round((8d/11d) * zoom -
+                // (48d/11d));
+                // if (_partSizeFactor < 0)
+                // _partSizeFactor = 0;
+                // if (_partSizeFactor > 7)
+                // _partSizeFactor = 7;
+                // final int partSizeFactor = _partSizeFactor;
                 
-                // System.out.println(String.format("%f|%f %d|%d %d %f",gx, gy,
-                // mx, my, count, val));
+                // System.out.println(partSizePixels);
                 
-                if (mx >= 0 && mx < fetchPartsX && my >= 0 && my < fetchPartsY)
+                final double partSize = box.res * partSizePixels;
+                final double origX = box.x1 - box.res * (partSizePixels / 2) - partSize * (HORIZON_OFFSET + 1);
+                final double origY = box.y1 - box.res * (partSizePixels / 2) - partSize * (HORIZON_OFFSET + 1);
+                for (int j = 0; j < 2; j++)
                 {
-                    final int idx = mx + fetchPartsX * (fetchPartsY - 1 - my);
-                    values[idx] = val;
-                    // countsReal[idx] = count;
-                    if (count > ALPHA_MAX)
-                        count = ALPHA_MAX;
-                    countsRel[idx] = count;
+                    ps.setDouble(p++, origX);
+                    ps.setDouble(p++, origY);
+                    ps.setDouble(p++, partSize);
+                    ps.setDouble(p++, partSize);
                 }
-            }
-            
-            final boolean emptyTile = _emptyTile;
-            
-            final Representation output = new OutputRepresentation(MediaType.IMAGE_PNG)
-            {
-                @Override
-                public void write(final OutputStream s) throws IOException
+                
+                for (final SQLFilter sf : filters)
+                    p = sf.fillParams(p, ps);
+                
+                final double margin = partSize * (HORIZON_OFFSET + 1);
+                ps.setDouble(p++, box.x1 - margin);
+                ps.setDouble(p++, box.y1 - margin);
+                ps.setDouble(p++, box.x2 + margin);
+                ps.setDouble(p++, box.y2 + margin);
+                
+    //            System.out.println(ps);
+                
+                if (!ps.execute())
+                    throw new IllegalArgumentException(ps.getWarnings());
+                
+                try (ResultSet rs = ps.getResultSet())
                 {
-                    if (emptyTile)
+                    
+                    while (rs.next())
                     {
-                        s.write(EMPTY_IMAGES[tileSizeIdx]);
-                        return;
+                        _emptyTile = false;
+                        int count = rs.getInt(1);
+                        final double val = rs.getDouble(2);
+                        final double gx = rs.getDouble(3);
+                        final double gy = rs.getDouble(4);
+                        
+                        final int mx = (int) Math.round((gx - origX) / partSize);
+                        final int my = (int) Math.round((gy - origY) / partSize);
+                        
+                        // System.out.println(String.format("%f|%f %d|%d %d %f",gx, gy,
+                        // mx, my, count, val));
+                        
+                        if (mx >= 0 && mx < fetchPartsX && my >= 0 && my < fetchPartsY)
+                        {
+                            final int idx = mx + fetchPartsX * (fetchPartsY - 1 - my);
+                            values[idx] = val;
+                            // countsReal[idx] = count;
+                            if (count > ALPHA_MAX)
+                                count = ALPHA_MAX;
+                            countsRel[idx] = count;
+                        }
+                    }
+                }
+            }
+                    
+            if (_emptyTile)
+                return null;
+            
+            final Image img = images[tileSizeIdx].get();
+            
+            final int[] pixels = pixelBuffers[tileSizeIdx].get();
+            for (int y = 0; y < tileSize; y++)
+                for (int x = 0; x < tileSize; x++)
+                {
+                    final int mx = HORIZON_OFFSET + 1 + (x + partSizePixels / 2) / partSizePixels;
+                    final int my = HORIZON_OFFSET + 1 + (y + partSizePixels / 2) / partSizePixels;
+                    final int relX = (x + partSizePixels / 2) % partSizePixels;
+                    final int relY = (y + partSizePixels / 2) % partSizePixels;
+                    final int relOffset = (relY * partSizePixels + relX) * HORIZON_SIZE;
+                    
+                    double alphaWeigth = 0;
+                    double valueWeight = 0;
+                    double valueMissing = 0;
+                    final int startIdx = mx - HORIZON_OFFSET + fetchPartsX * (my - HORIZON_OFFSET);
+                    
+                    for (int i = 0; i < HORIZON_SIZE; i++)
+                    {
+                        final int idx = startIdx + i % HORIZON + fetchPartsX * (i / HORIZON);
+                        if (Double.isNaN(values[idx]))
+                            valueMissing += FACTORS[partSizeFactor][i + relOffset];
+                        else
+                            valueWeight += FACTORS[partSizeFactor][i + relOffset] * values[idx];
+                        alphaWeigth += FACTORS[partSizeFactor][i + relOffset] * countsRel[idx];
                     }
                     
-                    final Image img = images[tileSizeIdx].get();
+                    if (valueMissing > 0)
+                        valueWeight += valueWeight / (1 - valueMissing) * valueMissing;
                     
-                    final int[] pixels = pixelBuffers[tileSizeIdx].get();
-                    for (int y = 0; y < tileSize; y++)
-                        for (int x = 0; x < tileSize; x++)
-                        {
-                            final int mx = HORIZON_OFFSET + 1 + (x + partSizePixels / 2) / partSizePixels;
-                            final int my = HORIZON_OFFSET + 1 + (y + partSizePixels / 2) / partSizePixels;
-                            final int relX = (x + partSizePixels / 2) % partSizePixels;
-                            final int relY = (y + partSizePixels / 2) % partSizePixels;
-                            final int relOffset = (relY * partSizePixels + relX) * HORIZON_SIZE;
-                            
-                            double alphaWeigth = 0;
-                            double valueWeight = 0;
-                            double valueMissing = 0;
-                            final int startIdx = mx - HORIZON_OFFSET + fetchPartsX * (my - HORIZON_OFFSET);
-                            
-                            for (int i = 0; i < HORIZON_SIZE; i++)
-                            {
-                                final int idx = startIdx + i % HORIZON + fetchPartsX * (i / HORIZON);
-                                if (Double.isNaN(values[idx]))
-                                    valueMissing += FACTORS[partSizeFactor][i + relOffset];
-                                else
-                                    valueWeight += FACTORS[partSizeFactor][i + relOffset] * values[idx];
-                                alphaWeigth += FACTORS[partSizeFactor][i + relOffset] * countsRel[idx];
-                            }
-                            
-                            if (valueMissing > 0)
-                                valueWeight += valueWeight / (1 - valueMissing) * valueMissing;
-                            
-                            alphaWeigth /= ALPHA_TOP;
-                            if (alphaWeigth < 0)
-                                alphaWeigth = 0;
-                            if (alphaWeigth > 1)
-                                alphaWeigth = 1;
-                            
-                            alphaWeigth *= transparency;
-                            
-                            final int alpha = (int) (alphaWeigth * 255) << 24;
-                            assert alpha >= 0 || alpha <= 255 : alpha;
-                            if (alpha == 0)
-                                pixels[x + y * tileSize] = 0;
-                            else
-                                pixels[x + y * tileSize] = valueToColor(mo.colorsSorted, mo.intervalsSorted, valueWeight)
-                                        | alpha;
-                            // pixels[x + y * WIDTH] = 255 << 24 | alpha >>> 8 |
-                            // alpha >>> 16 | alpha >>> 24;
-                            
-                            if (DEBUG_LINES)
-                                if (relX == partSizePixels / 2 || relY == partSizePixels / 2)
-                                    pixels[x + y * tileSize] = 0xff000000;
-                        }
-                    img.bi.setRGB(0, 0, tileSize, tileSize, pixels, 0, tileSize);
-                    ImageIO.write(img.bi, "png", s);
+                    alphaWeigth /= ALPHA_TOP;
+                    if (alphaWeigth < 0)
+                        alphaWeigth = 0;
+                    if (alphaWeigth > 1)
+                        alphaWeigth = 1;
+                    
+                    alphaWeigth *= transparency;
+                    
+                    final int alpha = (int) (alphaWeigth * 255) << 24;
+                    assert alpha >= 0 || alpha <= 255 : alpha;
+                    if (alpha == 0)
+                        pixels[x + y * tileSize] = 0;
+                    else
+                        pixels[x + y * tileSize] = valueToColor(mo.colorsSorted, mo.intervalsSorted, valueWeight)
+                                | alpha;
+                    // pixels[x + y * WIDTH] = 255 << 24 | alpha >>> 8 |
+                    // alpha >>> 16 | alpha >>> 24;
+                    
+                    if (DEBUG_LINES)
+                        if (relX == partSizePixels / 2 || relY == partSizePixels / 2)
+                            pixels[x + y * tileSize] = 0xff000000;
                 }
-            };
-            res.setEntity(output);
+            img.bi.setRGB(0, 0, tileSize, tileSize, pixels, 0, tileSize);
             
+            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(img.bi, "png", baos);
+            return baos.toByteArray();
         }
         catch (final Exception e)
         {
             e.printStackTrace();
-        }
-        finally
-        {
-            try
-            {
-                if (rs != null)
-                    rs.close();
-                if (ps != null)
-                    ps.close();
-                if (con != null)
-                    con.close();
-            }
-            catch (final SQLException e)
-            {
-                e.printStackTrace();
-            }
+            throw new IllegalStateException(e);
         }
     }
+
 }

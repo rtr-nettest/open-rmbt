@@ -1,0 +1,32 @@
+{
+  "title": "All",
+  "options": [
+    {
+      "title": "Download",
+      "summary": "Map shows download speeds",
+      "params": {
+        "overlay_type": "shapes",
+        "map_options": "all/download"
+      }
+    },
+    {
+      "title": "Upload",
+      "summary": "Map shows upload speeds",
+      "params": {
+        "overlay_type": "shapes",
+        "map_options": "all/upload"
+      }
+    },
+    {
+      "title": "Ping",
+      "summary": "Map shows ping times",
+      "params": {
+        "overlay_type": "shapes",
+        "map_options": "all/ping"
+      }
+    }
+  ],
+  "params": {
+    "map_type_is_mobile": false
+  }
+}

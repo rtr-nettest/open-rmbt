@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,8 +35,13 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import at.alladin.openrmbt.android.R;
+import at.alladin.rmbt.android.graphview.CustomizableGraphView;
+import at.alladin.rmbt.android.graphview.GraphService;
 import at.alladin.rmbt.android.graphview.GraphView;
+import at.alladin.rmbt.android.graphview.GraphView.GraphLabel;
 import at.alladin.rmbt.android.main.RMBTMainActivity;
+import at.alladin.rmbt.android.test.RMBTTestFragment;
+import at.alladin.rmbt.android.test.SmoothGraph;
 import at.alladin.rmbt.android.test.StaticGraph;
 import at.alladin.rmbt.android.util.CheckTestResultDetailTask;
 import at.alladin.rmbt.android.util.EndTaskListener;
@@ -47,6 +52,17 @@ import at.alladin.rmbt.android.views.ResultDetailsView.ResultDetailType;
 import at.alladin.rmbt.client.helper.IntermediateResult;
 
 public class ResultGraphView extends ScrollView implements EndTaskListener {
+	
+	public final static List<GraphLabel> SPEED_LABELS;
+	
+	static {
+		SPEED_LABELS = new ArrayList<GraphView.GraphLabel>();
+		SPEED_LABELS.add(new GraphLabel("0.1", "#C800f940"));
+		SPEED_LABELS.add(new GraphLabel("1", "#C800f940"));
+		SPEED_LABELS.add(new GraphLabel("10", "#C800f940"));
+		SPEED_LABELS.add(new GraphLabel("100", "#C800f940"));
+		SPEED_LABELS.add(new GraphLabel("1000", "#C800f940"));
+	}
 	
 	private View view;
 	
@@ -79,9 +95,9 @@ public class ResultGraphView extends ScrollView implements EndTaskListener {
 	private JSONArray downloadArray;
 	private JSONArray signalArray;
 	
-	private GraphView signalGraph;
-	private GraphView ulGraph;
-	private GraphView dlGraph;
+	private CustomizableGraphView signalGraph;
+	private CustomizableGraphView ulGraph;
+	private CustomizableGraphView dlGraph;
 	
 	private ProgressBar dlProgress;
 	private ProgressBar ulProgress;
@@ -153,9 +169,9 @@ public class ResultGraphView extends ScrollView implements EndTaskListener {
 	    	//view = inflater.inflate(R.layout.result_graph, vg, false);
 			view = inflater.inflate(R.layout.result_graph, this);
 	    	
-	    	signalGraph = (GraphView) view.findViewById(R.id.graph_signal);
-	    	ulGraph = (GraphView) view.findViewById(R.id.graph_upload);
-	    	dlGraph = (GraphView) view.findViewById(R.id.graph_download);
+	    	signalGraph = (CustomizableGraphView) view.findViewById(R.id.graph_signal);
+	    	ulGraph = (CustomizableGraphView) view.findViewById(R.id.graph_upload);
+	    	dlGraph = (CustomizableGraphView) view.findViewById(R.id.graph_download);
 	    	
 	    	signalProgress = (ProgressBar) view.findViewById(R.id.signal_progress);
 	    	ulProgress = (ProgressBar) view.findViewById(R.id.upload_progress);
@@ -226,15 +242,16 @@ public class ResultGraphView extends ScrollView implements EndTaskListener {
 			
 			//System.out.println(signalArray);
 			
-			long timeElapsedUpload = Math.round((result.getJSONObject(0).optDouble("time_ul_ms") + result.getJSONObject(0).optDouble("duration_upload_ms")) / 1000);
-			long timeElapsed = timeElapsedUpload;
+			boolean signalLabelPositionEven = true;
+			long maxTimeUpload = result.getJSONObject(0).optLong("time_ul_ms") + result.getJSONObject(0).optLong("duration_upload_ms");
+			long timeElapsed = Math.round((double)maxTimeUpload / 1000);
 			
 			if (signalGraph != null && signalArray != null && signalArray.length() > 0 && signalGraph.getGraphs().size() < 1) {
 				Log.d("ResultGraphView", "DRAWING SIGNAL GRAPH\n" + signalArray);
-				final double maxTime = signalArray.optJSONObject(signalArray.length()-1).optLong("time_elapsed");
-				
-				long timeElapsedSignal = Math.round(maxTime / 1000);
-				timeElapsed = Math.max(timeElapsedUpload, timeElapsedSignal);
+
+				final long maxTimeSignal = signalArray.optJSONObject(signalArray.length()-1).optLong("time_elapsed");
+				final long timeElapsedMs = Math.max(maxTimeSignal, maxTimeUpload);
+				timeElapsed = Math.round((double)timeElapsedMs / 1000);
 				
 				signalGraph.getLabelHMaxList().clear();
 				signalGraph.addLabelHMax(String.valueOf(timeElapsed < 7 ? 7 : timeElapsed));
@@ -243,11 +260,11 @@ public class ResultGraphView extends ScrollView implements EndTaskListener {
 				 * {"network_type":"WLAN","time_elapsed":10121,"signal_strength":-55},
 				 * {"network_type":"WLAN","time_elapsed":37478,"signal_strength":-57}]
 				 */
-				MinMax<Integer> signalBoungsRsrp = NetworkUtil.getSignalStrengthBounds(InformationCollector.SINGAL_TYPE_RSRP);
-				MinMax<Integer> signalBoungsWlan = NetworkUtil.getSignalStrengthBounds(InformationCollector.SINGAL_TYPE_WLAN);
-				MinMax<Integer> signalBoungsMobile = NetworkUtil.getSignalStrengthBounds(InformationCollector.SINGAL_TYPE_MOBILE);
+				MinMax<Integer> signalBoundsRsrp = NetworkUtil.getSignalStrengthBounds(InformationCollector.SINGAL_TYPE_RSRP);
+				MinMax<Integer> signalBoundsWlan = NetworkUtil.getSignalStrengthBounds(InformationCollector.SINGAL_TYPE_WLAN);
+				MinMax<Integer> signalBoundsMobile = NetworkUtil.getSignalStrengthBounds(InformationCollector.SINGAL_TYPE_MOBILE);
 				
-				List<StaticGraph> signalList = new ArrayList<StaticGraph>(); 
+				List<GraphService> signalList = new ArrayList<GraphService>(); 
 				
 				boolean has4G = false;
 				boolean has3G = false;
@@ -255,13 +272,16 @@ public class ResultGraphView extends ScrollView implements EndTaskListener {
 				String lastNetworkType = "";
 				String lastCatTechnology = "";
 				
-				StaticGraph curGraph = null;
+				GraphService curGraph = null;
 
 				double prevValue = 0d;
 				
 				boolean hasSignalCategoryChanged = false;
 				double lastLabelYPosition = -1d;
-				double lastLabelXPosition = 0d;
+				double time = 0d;
+				double signalChangeStartTime = 0d;
+				double value = 0d;
+				double oldValidValue = 0d;
 				
 				for (int i = 0; i < signalArray.length(); i++) {
 					JSONObject signalObject = signalArray.getJSONObject(i);
@@ -270,48 +290,69 @@ public class ResultGraphView extends ScrollView implements EndTaskListener {
 					//set proper signal strength attribute
 					String signalAttribute = "signal_strength";
 					String signalColor = "#ffffff";
-					double value = 0d;
-					double time = i > 0 ? (signalObject.getInt("time_elapsed") / maxTime) : 0d; 
+					
+					time = i > 0 ? ((double)signalObject.getInt("time_elapsed") / (double)timeElapsedMs) : 0d;
+					
+					oldValidValue = value > 0d ? value : oldValidValue;
 					
 					if ("LTE".equals(networkType)) {
 						if (!lastNetworkType.equals(networkType) && !lastCatTechnology.equals(catTechnology)) {
-							StaticGraph newGraph = StaticGraph.addGraph(signalGraph, Color.parseColor(COLOR_SIGNAL_4G), 
+							if (curGraph != null) {
+								curGraph.addValue((1-prevValue), time);
+							}
+
+							GraphService newGraph = StaticGraph.addGraph(signalGraph, Color.parseColor(COLOR_SIGNAL_4G), 
 								 signalArray.length() == 1 ? true : false);
 							signalList.add(newGraph);
 							if (curGraph != null) {
 								curGraph.addValue((1-prevValue), time);
 							}
+							signalChangeStartTime = time;
 							hasSignalCategoryChanged = true;
 							curGraph = newGraph;
 						}
 						has4G = true;
 						signalAttribute = "lte_rsrp";
 						signalColor = COLOR_SIGNAL_4G;
-						value = ((double)(signalObject.getInt(signalAttribute) - signalBoungsRsrp.max) / (double)(signalBoungsRsrp.min - signalBoungsRsrp.max));
+						value = getRelativeSignal(signalBoundsRsrp, signalAttribute, signalObject);
 					}
 					else if ("WLAN".equals(networkType)) {
 						if (!lastNetworkType.equals(networkType) && !lastCatTechnology.equals(catTechnology)) {
-							StaticGraph newGraph = StaticGraph.addGraph(signalGraph, Color.parseColor(COLOR_SIGNAL_WLAN), 
-									signalArray.length() == 1 ? true : false);
-							signalList.add(newGraph);
 							if (curGraph != null) {
 								curGraph.addValue((1-prevValue), time);
 							}
+
+							GraphService newGraph = StaticGraph.addGraph(signalGraph, Color.parseColor(COLOR_SIGNAL_WLAN), 
+									signalArray.length() == 1 ? true : false);
+							signalList.add(newGraph);
+							
+							if (curGraph != null) {
+								curGraph.addValue((1-prevValue), time);
+							}
+							signalChangeStartTime = time;
 							hasSignalCategoryChanged = true;
 							curGraph = newGraph;
 						}
 						hasWlan = true;
 						signalAttribute = "signal_strength";
 						signalColor = COLOR_SIGNAL_WLAN;
-						value = ((double)(signalObject.getInt(signalAttribute) - signalBoungsWlan.max) / (double)(signalBoungsWlan.min - signalBoungsWlan.max));
+						value = getRelativeSignal(signalBoundsWlan, signalAttribute, signalObject);
 					}
 					else {
 						if (!lastNetworkType.equals(networkType)) {
+							signalChangeStartTime = time;
 							hasSignalCategoryChanged = true;
+							
+							if (curGraph != null) {
+								curGraph.addValue((1-prevValue), time);
+							}
+							
 							if ((!lastCatTechnology.equals(catTechnology)) && 
 									("4G".equals(lastCatTechnology) || "WLAN".equals(lastCatTechnology) || "".equals(lastCatTechnology))) {
-								StaticGraph newGraph = StaticGraph.addGraph(signalGraph, Color.parseColor(COLOR_SIGNAL_3G), 
+								
+								GraphService newGraph = StaticGraph.addGraph(signalGraph, Color.parseColor(COLOR_SIGNAL_3G), 
 										signalArray.length() == 1 ? true : false);
+
 								signalList.add(newGraph);
 								if (curGraph != null) {
 									curGraph.addValue((1-prevValue), time);
@@ -322,64 +363,86 @@ public class ResultGraphView extends ScrollView implements EndTaskListener {
 						has3G = true;
 						signalAttribute = "signal_strength";
 						signalColor = COLOR_SIGNAL_3G;
-						value = ((double)(signalObject.getInt(signalAttribute) - signalBoungsMobile.max) / (double)(signalBoungsMobile.min - signalBoungsMobile.max));
-					}
-										
-				
-					if (value <= prevValue && value == 0d && i > 0) {
-						value = prevValue;
-					}
+						value = getRelativeSignal(signalBoundsMobile, signalAttribute, signalObject);
+					}					
 					
-					value = value < 0d ? (i > 0 ? prevValue : 0d) : value;
-					if (value >= 0d && curGraph != null) {
-						if (hasSignalCategoryChanged) {
-							hasSignalCategoryChanged = false;
-							
-							if (lastLabelYPosition == -1d) {
-								lastLabelYPosition = (float) (1 - (value > 0d ? value : prevValue));
-							}
-							else {
-								if (Math.abs(lastLabelXPosition - time) < .125d) {
-									float curPosition = (float) (1 - (value > 0d ? value : prevValue));
-									if (Math.abs(curPosition - lastLabelYPosition) <= .11d) {
-										lastLabelYPosition = curPosition + (curPosition > lastLabelYPosition ? +.1d : -.1d);
-									}
-									else {
-										lastLabelYPosition = curPosition;
-									}
-								}
-								else {
+					if (value > 0d) {
+						if (value >= 0d && curGraph != null) {
+							if (hasSignalCategoryChanged) {
+								curGraph.addValue((1 - value), signalChangeStartTime);
+								hasSignalCategoryChanged = false;
+								
+								if (lastLabelYPosition == -1d) {
 									lastLabelYPosition = (float) (1 - (value > 0d ? value : prevValue));
 								}
-							}
-							
-							lastLabelXPosition = (float) time;
-							signalGraph.addLabel((float) lastLabelXPosition, (float) lastLabelYPosition, networkType, signalColor);
-						}
+								else {
+									if (Math.abs(signalChangeStartTime - time) < .125d) {
+										float curPosition = (float) (1 - (value > 0d ? value : prevValue));
+										if (Math.abs(curPosition - lastLabelYPosition) <= .11d) {
+											lastLabelYPosition = curPosition + (curPosition > lastLabelYPosition ? +.1d : -.1d);
+										}
+										else {
+											lastLabelYPosition = curPosition;
+										}
+									}
+									else {
+										lastLabelYPosition = (float) (1 - (value > 0d ? value : prevValue));
+									}
+								}
+								
+								//lastLabelXPosition = (float) time;								
+								double labelDiff = lastLabelYPosition - (1-value);
+								
+								System.out.println("i" + i + " -> " + lastLabelYPosition + " : " + (1-value) + " diff: " + Math.abs(labelDiff) + " istoolow (<.09d)? " + (Math.abs(labelDiff) < .09d));
+								if (Math.abs(labelDiff) < .09d && i == 0) {
+									if (labelDiff < 0d) {
+										lastLabelYPosition = lastLabelYPosition < .50d ? lastLabelYPosition - .075d : lastLabelYPosition + .075d;
+									}
+									else {
+										lastLabelYPosition = lastLabelYPosition < .50d ? lastLabelYPosition + .075d : lastLabelYPosition - .075d;
+									}
+								}
+								
+								float labelX = Math.min((float)signalChangeStartTime, .92f);
+								float labelY = signalLabelPositionEven ? .93f : .84f;
+								signalGraph.addLabel((float) labelX, labelY, networkType, signalColor);
+								signalLabelPositionEven = !signalLabelPositionEven;
+								
+								//addStaticMarker(signalGraph, signalColor, 70, labelX, labelX);
 
-						//System.out.println("ADDING VALUE TO GRAPH " + (1 - value) + " on: " + time);
-						curGraph.addValue((1 - value), time);
-						prevValue = value;
+								
+								//signalGraph.addLabel((float) signalChangeStartTime, (float) lastLabelYPosition, networkType, signalColor);
+							}
+	
+							//System.out.println("ADDING VALUE TO GRAPH " + (1 - value) + " on: " + time);
+							curGraph.addValue((1 - value), time);
+							prevValue = value;
+						}
 					}
 					
 					lastNetworkType = networkType;
 					lastCatTechnology = catTechnology;
 				}
 				
-				signalGraph.clearLabels(GraphView.LABELLIST_VERTICAL_MAX);
-				signalGraph.clearLabels(GraphView.LABELLIST_VERTICAL_MIN);
+				//draw signal graph to the end
+				if (prevValue > 0 && curGraph != null) {
+					curGraph.addValue((1 - prevValue), 1f);
+				}
+				
+				signalGraph.clearLabels(CustomizableGraphView.LABELLIST_VERTICAL_MAX);
+				signalGraph.clearLabels(CustomizableGraphView.LABELLIST_VERTICAL_MIN);
 				
 				if (has3G) {
-					signalGraph.addLabelVMax(String.valueOf(signalBoungsMobile.max), COLOR_SIGNAL_3G);
-					signalGraph.addLabelVMin(String.valueOf(signalBoungsMobile.min), COLOR_SIGNAL_3G);
+					signalGraph.addLabelVMax(String.valueOf(signalBoundsMobile.max), COLOR_SIGNAL_3G);
+					signalGraph.addLabelVMin(String.valueOf(signalBoundsMobile.min), COLOR_SIGNAL_3G);
 				}
 				if (has4G) {
-					signalGraph.addLabelVMax(String.valueOf(signalBoungsRsrp.max), COLOR_SIGNAL_4G);
-					signalGraph.addLabelVMin(String.valueOf(signalBoungsRsrp.min), COLOR_SIGNAL_4G);
+					signalGraph.addLabelVMax(String.valueOf(signalBoundsRsrp.max), COLOR_SIGNAL_4G);
+					signalGraph.addLabelVMin(String.valueOf(signalBoundsRsrp.min), COLOR_SIGNAL_4G);
 				}
 				if (hasWlan) {
-					signalGraph.addLabelVMax(String.valueOf(signalBoungsWlan.max), COLOR_SIGNAL_WLAN);
-					signalGraph.addLabelVMin(String.valueOf(signalBoungsWlan.min), COLOR_SIGNAL_WLAN);
+					signalGraph.addLabelVMax(String.valueOf(signalBoundsWlan.max), COLOR_SIGNAL_WLAN);
+					signalGraph.addLabelVMin(String.valueOf(signalBoundsWlan.min), COLOR_SIGNAL_WLAN);
 				}
 				//signalGraph.repaint(getContext());
 			}
@@ -393,15 +456,17 @@ public class ResultGraphView extends ScrollView implements EndTaskListener {
 			
 			if (uploadArray != null && uploadArray != null && uploadArray.length() > 0 && ulGraph.getGraphs().size() < 1) {
 				Log.d("ResultGraphView", "DRAWING UL GRAPH");
-				drawCurve(uploadArray, ulGraph, COLOR_UL_GRAPH, String.valueOf(Math.round(result.getJSONObject(0).optDouble("duration_upload_ms") / 1000d)));
+				drawCurve(uploadArray, ulGraph, COLOR_UL_GRAPH, 
+						String.valueOf(Math.round(result.getJSONObject(0).optDouble("duration_upload_ms") / 1000d)), false);
 				
-				addStaticMarker(signalArray, signalGraph, COLOR_UL_GRAPH, 70, 
+				addStaticMarker(signalGraph, COLOR_UL_GRAPH, 70, 
 						result.getJSONObject(0).optDouble("time_ul_ms"), 
 						result.getJSONObject(0).optDouble("time_ul_ms") + result.getJSONObject(0).optDouble("duration_upload_ms"), 
 						timeElapsed * 1000);
 				
 				double timeUl = result.getJSONObject(0).optDouble("duration_upload_ms");
 				long timeElapsedUl = Math.round(timeUl / 1000);
+				ulGraph.setRowLinesLabelList(SPEED_LABELS);
 				ulGraph.updateGrid((int) timeElapsedUl, 4);
 			}
 			else if (uploadArray.length() > 0 && ulGraph != null && ulGraph.getGraphs().size() > 0) {
@@ -414,14 +479,16 @@ public class ResultGraphView extends ScrollView implements EndTaskListener {
 
 			if (downloadArray != null && downloadArray != null && downloadArray.length() > 0 && dlGraph.getGraphs().size() < 1) {
 				Log.d("ResultGraphView", "DRAWING DL GRAPH");
-				drawCurve(downloadArray, dlGraph, COLOR_DL_GRAPH, String.valueOf(Math.round(result.getJSONObject(0).optDouble("duration_download_ms") / 1000d)));
-				addStaticMarker(signalArray, signalGraph, COLOR_DL_GRAPH, 70, 
+				drawCurve(downloadArray, dlGraph, COLOR_DL_GRAPH, 
+						String.valueOf(Math.round(result.getJSONObject(0).optDouble("duration_download_ms") / 1000d)), false);
+				addStaticMarker(signalGraph, COLOR_DL_GRAPH, 70, 
 						result.getJSONObject(0).optDouble("time_dl_ms"), 
 						result.getJSONObject(0).optDouble("time_dl_ms") + result.getJSONObject(0).optDouble("duration_download_ms"), 
 						timeElapsed * 1000);
 				
 				double timeDl = result.getJSONObject(0).optDouble("duration_download_ms");
 				long timeElapsedDl = Math.round(timeDl / 1000);
+				dlGraph.setRowLinesLabelList(SPEED_LABELS);
 				dlGraph.updateGrid((int) timeElapsedDl, 4);
 			}
 			else if (downloadArray.length() > 0 && dlGraph != null && dlGraph.getGraphs().size() > 0) {
@@ -448,6 +515,13 @@ public class ResultGraphView extends ScrollView implements EndTaskListener {
 		}
 	}
 	
+	public double getRelativeSignal(final MinMax<Integer> signalBounds, final String signalAttribute, final JSONObject signalObject) throws JSONException {
+		final int signal = signalObject.getInt(signalAttribute);
+		final double value = signal < 0? ((double)(signal - signalBounds.max) / (double)(signalBounds.min - signalBounds.max)) : signal;
+		System.out.println("signalAttrib: " + signalAttribute + ", signal: " + signal + " value: " + value);
+		return value;
+	}
+	
 	/**
 	 * 
 	 * @param graphArray
@@ -455,7 +529,7 @@ public class ResultGraphView extends ScrollView implements EndTaskListener {
 	 * @param color
 	 * @throws JSONException
 	 */
-	public void addStaticMarker(JSONArray graphArray, GraphView graphView, String color, double absoluteMarkerMs, double maxTimeMs) throws JSONException {
+	public void addStaticMarker(JSONArray graphArray, CustomizableGraphView graphView, String color, double absoluteMarkerMs, double maxTimeMs) throws JSONException {
 		StaticGraph markerGraph = StaticGraph.addGraph(graphView, Color.parseColor(color), false);
 		final double startTime = (absoluteMarkerMs / maxTimeMs);
 		markerGraph.addValue(1, startTime);
@@ -473,7 +547,13 @@ public class ResultGraphView extends ScrollView implements EndTaskListener {
 	 * @param maxTimeMs
 	 * @throws JSONException
 	 */
-	public void addStaticMarker(JSONArray graphArray, GraphView graphView, String color, int alpha, double absoluteMarkerStartMs, double absoluteMarkerEndMs, double maxTimeMs) throws JSONException {
+	public void addStaticMarker(CustomizableGraphView graphView, String color, int alpha, double absoluteMarkerStartMs, double absoluteMarkerEndMs, double maxTimeMs) throws JSONException {
+		final double startTime = (absoluteMarkerStartMs / maxTimeMs);
+		final double endTime = (absoluteMarkerEndMs / maxTimeMs);
+		addStaticMarker(graphView, color, alpha, startTime, endTime);
+	}
+	
+	public void addStaticMarker(CustomizableGraphView graphView, String color, int alpha, double relativeMarkerStart, double relativeMarkerEnd) {
 		StaticGraph markerGraph = StaticGraph.addGraph(graphView, Color.parseColor(color), false);
 		StaticGraph markerGraphStartLine = StaticGraph.addGraph(graphView, Color.parseColor(color), false);
 		StaticGraph markerGraphEndLine = StaticGraph.addGraph(graphView, Color.parseColor(color), false);
@@ -482,14 +562,12 @@ public class ResultGraphView extends ScrollView implements EndTaskListener {
 		markerGraphStartLine.setPaintAlpha(alpha);
 		markerGraphEndLine.setPaintAlpha(alpha);
 		
-		final double startTime = (absoluteMarkerStartMs / maxTimeMs);
-		final double endTime = (absoluteMarkerEndMs / maxTimeMs);
-		markerGraph.addValue(1, startTime);
-		markerGraph.addValue(1, endTime);
-		markerGraphStartLine.addValue(1, startTime);
-		markerGraphStartLine.addValue(0, startTime);
-		markerGraphEndLine.addValue(1, endTime);
-		markerGraphEndLine.addValue(0, endTime);
+		markerGraph.addValue(1, relativeMarkerStart);
+		markerGraph.addValue(1, relativeMarkerEnd);
+		markerGraphStartLine.addValue(1, relativeMarkerStart);
+		markerGraphStartLine.addValue(0, relativeMarkerStart);
+		markerGraphEndLine.addValue(1, relativeMarkerEnd);
+		markerGraphEndLine.addValue(0, relativeMarkerEnd);		
 	}
 
 	
@@ -499,42 +577,51 @@ public class ResultGraphView extends ScrollView implements EndTaskListener {
 	 * @param graphView
 	 * @throws JSONException
 	 */
-	public void drawCurve(JSONArray graphArray, GraphView graphView, String color, String labelHMax) throws JSONException {
+	public void drawCurve(JSONArray graphArray, CustomizableGraphView graphView, String color, String labelHMax, boolean isSmoothed) throws JSONException {
 		final double maxTime = graphArray.optJSONObject(graphArray.length()-1).optDouble("time_elapsed");
-		final double pointDistance = (0.25d / (maxTime / 1000));
-		double nextPoint = pointDistance;
 
 		graphView.getLabelHMaxList().clear();
 		graphView.addLabelHMax(labelHMax);
 		
-		StaticGraph signal = StaticGraph.addGraph(graphView, Color.parseColor(color));
+		GraphService signal;
+		//StaticGraph signal = StaticGraph.addGraph(graphView, Color.parseColor(color));
+		if (!isSmoothed) {
+			signal = StaticGraph.addGraph(graphView, Color.parseColor(color), graphArray.length() == 1 ? true : false);
+		}
+		else {
+			signal = SmoothGraph.addGraph(graphView, Color.parseColor(color), RMBTTestFragment.SMOOTHING_DATA_AMOUNT, 
+				RMBTTestFragment.SMOOTHING_FUNCTION, false);
+		}
+		
+		double lastTime = 0d;
 		
 		if (graphArray != null && graphArray.length() > 0) {
-			
-			double sum = 0D;
 			long bytes = 0;
-			int points = 0;
-			for (int i = 0; i < graphArray.length(); i++) {
+			for (int i = 0; i < graphArray.length(); i++) {				
 				JSONObject uploadObject = graphArray.getJSONObject(i);
-				double time_elapsed = uploadObject.getInt("time_elapsed");
+				double timeElapsed = uploadObject.getInt("time_elapsed");
 				bytes = uploadObject.getInt("bytes_total");
-				double bitPerSec = (bytes * 8000 / time_elapsed);
-				double time = (time_elapsed / maxTime);
-				points++;
-				sum += bitPerSec;
-				if (time >= nextPoint) {
-					bitPerSec = sum / points;
-					time -= (pointDistance / 2d);
-					if (time < 0D) {
-						time = 0.01D;
+				double bitPerSec = (bytes * 8000 / timeElapsed);
+				double time = (timeElapsed / maxTime);
+				
+				if (lastTime == 0d || (timeElapsed - lastTime >= 175d)) {
+					if (lastTime == 0d && !isSmoothed) {
+						time = 0d;
 					}
-					sum = 0D;
-					nextPoint = (time + pointDistance > 1D ? 1D : time + pointDistance);
-					signal.addValue(IntermediateResult.toLog((long) bitPerSec), time);
 					
-					points = 0;
-					bytes = 0;
-				}
+					System.out.println(bitPerSec + "bps (bytes: " + bytes + ", time: " + timeElapsed + ")");					
+					if (i+1 == graphArray.length()) {
+						signal.addValue(IntermediateResult.toLog((long) bitPerSec), time, SmoothGraph.FLAG_ALIGN_RIGHT);
+					}
+					else {
+						signal.addValue(IntermediateResult.toLog((long) bitPerSec), time, 
+								i == 0 ? SmoothGraph.FLAG_ALIGN_LEFT : SmoothGraph.FLAG_NONE);
+					}
+					
+					if (!isSmoothed) {
+						lastTime = timeElapsed;
+					}
+				}				
 			}
 		}
 	}

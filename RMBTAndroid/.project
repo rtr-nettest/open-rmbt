@@ -5,6 +5,7 @@
 	<projects>
 		<project>google-play-services_lib</project>
 		<project>RMBTClient</project>
+		<project>RMBTUtil</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

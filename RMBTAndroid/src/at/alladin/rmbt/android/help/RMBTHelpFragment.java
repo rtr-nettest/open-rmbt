@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import at.alladin.openrmbt.android.R;
+import at.alladin.rmbt.android.main.AppConstants;
 import at.alladin.rmbt.android.util.ConfigHelper;
 
 /**
@@ -79,6 +80,10 @@ public class RMBTHelpFragment extends Fragment
         };
         
         final WebSettings webSettings = webview.getSettings();
+        final String userAgent = AppConstants.getUserAgentString(getActivity());
+        if (userAgent != null) {
+        	webSettings.setUserAgentString(userAgent);
+        }
         webSettings.setJavaScriptEnabled(true);
         
         webview.setWebViewClient(new WebViewClient()

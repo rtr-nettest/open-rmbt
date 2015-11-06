@@ -62,7 +62,7 @@ public class QoSTestObjectiveDao implements PrimaryKeyDao<QoSTestObjective, Inte
 				+ " test_summary, ts.web_address_ipv4 as ipv4, ts.web_address_ipv6 as ipv6, ts.port_ssl as port "
 				+ " FROM qos_test_objective nnto LEFT JOIN test_server ts ON ts.uid = nnto.test_server " + whereClause;
 		
-		System.out.println(sql);
+		//System.out.println(sql);
 		
 		try (PreparedStatement psGetAll = conn.prepareStatement(sql))
 		{

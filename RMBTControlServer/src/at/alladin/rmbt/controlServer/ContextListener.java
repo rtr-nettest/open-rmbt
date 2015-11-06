@@ -108,15 +108,26 @@ public class ContextListener implements ServletContextListener
                 {
                     System.out.println("Cleaning IPs");
                     final Connection conn = DbConnection.getConnection();
-                    
-                    PreparedStatement ps = conn.prepareStatement("UPDATE test SET client_public_ip = NULL, public_ip_rdns = NULL WHERE time < NOW() - CAST('4 months' AS INTERVAL) AND (client_public_ip IS NOT NULL OR public_ip_rdns IS NOT NULL)");
+                    //purge test table
+                    PreparedStatement ps = conn.prepareStatement(
+                    "UPDATE test SET client_public_ip = NULL, public_ip_rdns = NULL, source_ip = NULL, client_ip_local = NULL "
+                    + "WHERE time < NOW() - CAST('4 months' AS INTERVAL) "
+                    + "AND (client_public_ip IS NOT NULL OR public_ip_rdns IS NOT NULL OR source_ip IS NOT NULL OR client_ip_local IS NOT NULL)");
                     ps.executeUpdate();
                     ps.close();
-                    
-                    ps = conn.prepareStatement("UPDATE test_ndt n SET main = NULL, stat = NULL, diag = NULL FROM test t WHERE t.uid = n.test_id AND t.time < NOW() - CAST('4 months' AS INTERVAL) AND (n.main IS NOT NULL OR n.stat IS NOT NULL OR n.diag IS NOT NULL)");
+                    //purge ndt table
+                    ps = conn.prepareStatement("UPDATE test_ndt n SET main = NULL, stat = NULL, diag = NULL FROM test t "
+                    		+ "WHERE t.uid = n.test_id AND t.time < NOW() - CAST('4 months' AS INTERVAL) "
+                    		+ "AND (n.main IS NOT NULL OR n.stat IS NOT NULL OR n.diag IS NOT NULL)");
                     ps.executeUpdate();
                     ps.close();
-                    
+                    //purge status table
+                    ps = conn.prepareStatement("UPDATE status SET ip = NULL "
+                    		+ "WHERE time < NOW() - CAST('4 months' AS INTERVAL) "
+                    		+ "AND (ip IS NOT NULL)");
+                    ps.executeUpdate();
+                    ps.close();
+                     
                     conn.close();
                 }
                 catch (Exception e)

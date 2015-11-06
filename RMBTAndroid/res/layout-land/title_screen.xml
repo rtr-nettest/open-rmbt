@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright 2013 alladin-IT OG
+  Copyright 2013, 2015 alladin-IT GmbH
   
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -14,17 +14,31 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:baselineAligned="false"
+    android:weightSum="3" >
+
+    <RelativeLayout
+        android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:baselineAligned="false"
-        android:weightSum="3" >
+        android:layout_weight="2"
+        android:gravity="center_horizontal"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/developerCodeInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:visibility="gone" />
 
         <LinearLayout
             android:id="@+id/title_screen_landscape_left_side"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="2"
             android:gravity="center_horizontal"
             android:orientation="vertical" >
 
@@ -59,10 +73,12 @@
                     layout="@layout/title_screen_status" />
             </RelativeLayout>
         </LinearLayout>
+    </RelativeLayout>
 
-        <include
-            android:layout_width="0dp"
-            android:layout_height="fill_parent"
-            android:layout_weight="1"
-            layout="@layout/title_page_button_menu_bar" />
-    </LinearLayout>
+    <include
+        android:layout_width="0dp"
+        android:layout_height="fill_parent"
+        android:layout_weight="1"
+        layout="@layout/title_page_button_menu_bar" />
+
+</LinearLayout>

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,10 +27,11 @@ public class RMBTTestParameter
     private final int pretestDuration = 2;
     private final int duration;
     private final int numThreads;
+    private final int numPings;
     private final long startTime;
     
     public RMBTTestParameter(final String host, final int port, final boolean encryption, final String token,
-            final int duration, final int numThreads, final long startTime)
+            final int duration, final int numThreads, final int numPings, final long startTime)
     {
         super();
         this.host = host;
@@ -39,11 +40,12 @@ public class RMBTTestParameter
         this.token = token;
         this.duration = duration;
         this.numThreads = numThreads;
+        this.numPings = numPings;
         this.startTime = startTime;
     }
     
     public RMBTTestParameter(final String host, final int port, final boolean encryption,
-            final int duration, final int numThreads)
+            final int duration, final int numThreads, final int numPings)
     {
         super();
         this.host = host;
@@ -51,6 +53,7 @@ public class RMBTTestParameter
         this.encryption = encryption;
         this.duration = duration;
         this.numThreads = numThreads;
+        this.numPings = numPings;
         this.token = null;
         this.startTime = 0;
     }
@@ -98,6 +101,11 @@ public class RMBTTestParameter
     public int getNumThreads()
     {
         return numThreads;
+    }
+    
+    public int getNumPings()
+    {
+        return numPings;
     }
     
     public long getStartTime()

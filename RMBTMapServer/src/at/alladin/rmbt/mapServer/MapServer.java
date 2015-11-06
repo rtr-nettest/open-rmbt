@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,6 +43,7 @@ public class MapServer extends Application
         router.attach("/tiles/markers", MarkerResource.class);
         
         router.attach("/tiles/info", InfoResource.class);
+        router.attach("/v2/tiles/info", at.alladin.rmbt.mapServer.v2.InfoResource.class);
         
         return router;
     }

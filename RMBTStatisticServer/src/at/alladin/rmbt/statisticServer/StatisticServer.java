@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,10 @@ import org.restlet.Restlet;
 import org.restlet.routing.Router;
 import org.restlet.routing.Template;
 
-import at.alladin.rmbt.statisticServer.OpenTestResource;
-import at.alladin.rmbt.statisticServer.OpenTestSearchResource;
 import at.alladin.rmbt.statisticServer.export.ExportResource;
 import at.alladin.rmbt.statisticServer.export.ImageExport;
+import at.alladin.rmbt.statisticServer.opendata.ChoicesResource;
+import at.alladin.rmbt.statisticServer.opendata.HistogramResource;
 
 public class StatisticServer extends Application
 {
@@ -62,15 +62,17 @@ public class StatisticServer extends Application
         router.attach("/{lang}/{open_test_uuid}/{size}.png", ImageExport.class);
         
         // administrative resources (access restrictions might be applied to /admin/ 
-      
-        router.attach("/opentests", OpenTestSearchResource.class);
+
+        router.attach("/opentests/histogram", HistogramResource.class);
+        //router.attach("/opentests/histogra{histogram}", OpenTestSearchResource.class);
         
-        router.attach("/opentests/histogra{histogram}", OpenTestSearchResource.class);
+        router.attach("/opentests/search", at.alladin.rmbt.statisticServer.opendata.OpenTestSearchResource.class, Template.MODE_STARTS_WITH);
+        //router.attach("/opentests/search", OpenTestSearchResource.class, Template.MODE_STARTS_WITH);
         
-        router.attach("/opentests/search", OpenTestSearchResource.class, Template.MODE_STARTS_WITH);
+        router.attach("/opentests/choices", ChoicesResource.class, Template.MODE_STARTS_WITH);
+        router.attach("/opentests", at.alladin.rmbt.statisticServer.opendata.OpenTestSearchResource.class);        
         
-        router.attach("/opentests/O{open_test_uuid}&sender={sender}", OpenTestResource.class);
-        router.attach("/opentests/O{open_test_uuid}", OpenTestResource.class);     
+        router.attach("/opentests/O{open_test_uuid}", OpenTestResource.class);
         
         router.attach("/admin/usage", UsageResource.class);
         router.attach("/admin/usageJSON", UsageJSONResource.class);

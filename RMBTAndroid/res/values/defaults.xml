@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright 2013-2014 alladin-IT GmbH
+  Copyright 2013-2015 alladin-IT GmbH
   
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -20,11 +20,13 @@
     <integer name="default_loop_max_delay">900</integer>
     <integer name="default_loop_max_movement">250</integer>
 
-    <string translatable="false" name="default_control_host">c01.control.netztest.at</string>
+    <integer name="default_map_host_port">443</integer>
+    <string translatable="false" name="default_map_host">m-cloud.netztest.at</string>
     
-    <string translatable="false" name="default_control_host_ipv4_only">c01v4.control.netztest.at</string>
-    <string translatable="false" name="default_control_host_ipv6_only">c01v6.control.netztest.at</string>
+	<string translatable="false" name="default_control_host">c01.netztest.at</string>
+    <string translatable="false" name="default_control_host_ipv4_only">c01v4.netztest.at</string>
+    <string translatable="false" name="default_control_host_ipv6_only">c01v6.netztest.at</string>
     
-    <string translatable="false" name="default_control_check_ipv4_url">https://c01v4.control.netztest.at/RMBTControlServer/ip</string>
-    <string translatable="false" name="default_control_check_ipv6_url">https://c01v6.control.netztest.at/RMBTControlServer/ip</string>
+    <string translatable="false" name="default_control_check_ipv4_url">https://c01v4.netztest.at/RMBTControlServer/ip</string>
+    <string translatable="false" name="default_control_check_ipv6_url">https://c01v6.netztest.at/RMBTControlServer/ip</string>
 </resources>

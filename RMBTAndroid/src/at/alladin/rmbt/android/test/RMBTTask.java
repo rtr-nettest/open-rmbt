@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -254,7 +254,7 @@ public class RMBTTask
                 setPreviousTestStatus();
                 QualityOfServiceTest qosTest = null;
                 
-                boolean runQoS = (client.getTaskDescList() != null && client.getTaskDescList().size() >= 1);
+                boolean runQoS = (! ConfigHelper.isSkipQoS(context) && client.getTaskDescList() != null && client.getTaskDescList().size() >= 1);
                     
                 //run qos test:
                 if (runQoS && !error && !cancelled.get()) {
@@ -510,6 +510,8 @@ public class RMBTTask
     
     public String getTestUuid()
     {
+        if (cancelled.get() || connectionError.get())
+            return null;
         if (client != null)
             return client.getTestUuid();
         else

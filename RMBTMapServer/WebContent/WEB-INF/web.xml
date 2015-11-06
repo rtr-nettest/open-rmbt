@@ -25,6 +25,10 @@
     <welcome-file>default.jsp</welcome-file>
   </welcome-file-list>
   
+  <listener>
+    <listener-class>at.alladin.rmbt.shared.cache.CacheContextListener</listener-class>
+   </listener>
+  
   <!-- Application class name -->
     <context-param>
         <param-name>org.restlet.application</param-name>

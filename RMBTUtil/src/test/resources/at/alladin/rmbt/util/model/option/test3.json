@@ -1,0 +1,40 @@
+{
+  "title": "test3",
+  "options": [
+    {
+      "params": {
+        "level1": "1",
+        "option": "a1"
+      },
+      "options": [
+        {
+          "params": {
+            "option": "a2"
+          },
+          "options": [
+            {
+              "params": {
+                "option": "a3"
+              },
+              "options": [
+                {
+                  "params": {
+                    "option": "a4"
+                  },
+                  "functions": [
+                    {
+                      "func_name": "drop_param",
+                      "func_params": {
+                        "key": "option"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

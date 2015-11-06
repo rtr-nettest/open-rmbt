@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright 2013-2014 alladin-IT GmbH
+  Copyright 2013-2015 alladin-IT GmbH
   
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -16,11 +16,11 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="at.alladin.openrmbt.android"
-    android:versionCode="20041"
-    android:versionName="2.0.41"
+    android:versionCode="20083"
+    android:versionName="2.0.83"
     android:installLocation="auto" >
 
-    <uses-sdk android:minSdkVersion="15" android:targetSdkVersion="19"/>
+    <uses-sdk android:minSdkVersion="15" android:targetSdkVersion="22"/>
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/> 

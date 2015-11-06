@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
@@ -28,6 +31,7 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import at.alladin.rmbt.qos.testserver.plugin.rest.RestService;
 import at.alladin.rmbt.qos.testserver.util.TestServerConsole;
 
 /**
@@ -51,6 +55,22 @@ public class ServerPreferences {
 			return name;
 		}
 	}
+	
+	public class UdpPort  {
+		final boolean isNio;
+		final int port;
+		
+		public UdpPort(final boolean isNio, final int port) {
+			this.isNio = isNio;
+			this.port = port;
+		}
+
+		@Override
+		public String toString() {
+			return "UdpPort [isNio=" + isNio + ", port=" + port + "]";
+		}	
+	}
+	
 	public final static int TEST_SERVER_ID = 0;
 	public final static int TCP_SERVICE_ID = 1;
 	public final static int UDP_SERVICE_ID = 2;
@@ -76,6 +96,8 @@ public class ServerPreferences {
 	public static final String PARAM_SERVER_UDP_MIN_PORT = "server.udp.minport";
 	public static final String PARAM_SERVER_UDP_MAX_PORT = "server.udp.maxport";
 	public static final String PARAM_SERVER_UDP_PORT_LIST = "server.udp.ports";
+	public static final String PARAM_SERVER_UDP_NIO_PORT_LIST = "server.udp.nio.ports";
+	public static final String PARAM_SERVER_LOGGING = "server.logging";
 	public static final String PARAM_SERVER_LOG_CONSOLE = "server.log.console";
 	public static final String PARAM_SERVER_COMMAND_CONSOLE = "server.console";
 	public static final String PARAM_SERVER_LOG_FILE = "server.log";
@@ -88,19 +110,33 @@ public class ServerPreferences {
 	public static final String REGEX_IP_LIST = "([a-fA-F0-9.:]+)[,]?";
 	
 	private int serverPort = 5234;
-	private int udpPortMin = 10000;
-	private int udpPortMax = 10050;
-	private final Set<Integer> udpPortSet = new TreeSet<>();
+	private int udpPortMin = 0;
+	private int udpPortMax = 0;
+	private final Set<UdpPort> udpPortSet = new TreeSet<>(new Comparator<UdpPort>() {
+		@Override
+		public int compare(UdpPort o1, UdpPort o2) {
+			return Integer.compare(o1.port, o2.port);
+		}
+		
+	});
+	
 	private int maxThreads = 100;
 	private boolean useSsl = false;
 	private int verboseLevel = 0;
 	private String secretKey = null;
 	private boolean isIpCheck = false;
+	private boolean isLoggingEnabled = true;
 	private boolean isConsoleLog = false;
 	private boolean isCommandConsoleEnabled = false;
 	private final TreeMap<TestServerServiceEnum, String> logFileMap = new TreeMap<>();
 	private final Set<InetAddress> inetAddrBindToSet = new HashSet<>();
 	private final long startTimestamp = System.currentTimeMillis();
+
+	///////////////////////////
+	// Plugins/Services:
+	///////////////////////////
+	public final static String PLUGIN_REST_SERVICE = "REST";
+	private final Map<String, ServiceSetting> pluginMap = new HashMap<>();
 	
 	/**
 	 * 
@@ -183,9 +219,11 @@ public class ServerPreferences {
 	 * 
 	 */
 	private void setUdpPortSet() {
-	    for (int port = udpPortMin; port <= udpPortMax; port++) {
-	    	udpPortSet.add(port);
-	    }
+		if (udpPortMin > 0) {
+			for (int port = udpPortMin; port <= udpPortMax; port++) {
+				udpPortSet.add(new UdpPort(false, port));
+			}
+		}
 	}
 	
 	/**
@@ -252,6 +290,11 @@ public class ServerPreferences {
 	   			isCommandConsoleEnabled = Boolean.parseBoolean(param.trim());
 	   		}
 
+	   		param = prop.getProperty(PARAM_SERVER_LOGGING);
+	   		if (param!=null) {
+	   			isLoggingEnabled = Boolean.parseBoolean(param.trim());
+	   		}
+
 	   		param = prop.getProperty(PARAM_SERVER_LOG_CONSOLE);
 	   		if (param!=null) {
 	   			isConsoleLog = Boolean.parseBoolean(param.trim());
@@ -277,18 +320,30 @@ public class ServerPreferences {
 	   			Pattern p = Pattern.compile(REGEX_PORT_LIST);
 	   			Matcher m = p.matcher(param);
    				while (m.find()) {
-   					udpPortSet.add(Integer.valueOf(m.group(1)));
+   					udpPortSet.add(new UdpPort(false, Integer.valueOf(m.group(1))));
    				}
 	   		}
 
-	   		param = prop.getProperty(PARAM_SERVER_UDP_PORT_LIST);
+	   		param = prop.getProperty(PARAM_SERVER_UDP_NIO_PORT_LIST);
 	   		if (param!=null) {
 	   			Pattern p = Pattern.compile(REGEX_PORT_LIST);
 	   			Matcher m = p.matcher(param);
    				while (m.find()) {
-   					udpPortSet.add(Integer.valueOf(m.group(1)));
+   					final UdpPort udpPort = new UdpPort(true, Integer.valueOf(m.group(1)));
+   					if (udpPortSet.contains(udpPort)) {
+   						throw new TestServerException("Cannot create non blocking datagram channel. UDP port: " + udpPort.port + " already defined as blocking.", null);
+   					}
+   					else {
+   						udpPortSet.add(udpPort);
+   					}
    				}
 	   		}
+
+	   		/////////////////////////////////
+	   		//	Services/Plugins:
+	   		/////////////////////////////////
+	   		
+	   		pluginMap.put("REST", new RestService(prop, this));
 
 	   	} catch (IOException ex) {
 	   		ex.printStackTrace();
@@ -444,6 +499,30 @@ public class ServerPreferences {
 
 	/**
 	 * 
+	 * @return
+	 */
+	public boolean isLoggingEnabled() {
+		return isLoggingEnabled;
+	}
+
+	/**
+	 * 
+	 * @param isLoggingEnabled
+	 */
+	public void setLoggingEnabled(boolean isLoggingEnabled) {
+		this.isLoggingEnabled = isLoggingEnabled;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public Map<String, ServiceSetting> getPluginMap() {
+		return pluginMap;
+	}
+
+	/**
+	 * 
 	 */
 	public static void writeErrorString() {
 		System.out.println("---------------------------------------------");
@@ -479,7 +558,7 @@ public class ServerPreferences {
 	 * 
 	 * @return
 	 */
-	public Set<Integer> getUdpPortSet() {
+	public Set<UdpPort> getUdpPortSet() {
 		return udpPortSet;
 	}
 
@@ -530,6 +609,10 @@ public class ServerPreferences {
 	public void setCommandConsoleEnabled(boolean isCommandConsoleEnabled) {
 		this.isCommandConsoleEnabled = isCommandConsoleEnabled;
 	}
+	
+	public long getStartTimestamp() {
+		return startTimestamp;
+	}
 
 	@Override
 	public String toString() {
@@ -537,11 +620,46 @@ public class ServerPreferences {
 				+ udpPortMin + ", udpPortMax=" + udpPortMax + ", udpPortSet="
 				+ udpPortSet + ", maxThreads=" + maxThreads + ", useSsl="
 				+ useSsl + ", verboseLevel=" + verboseLevel + ", secretKey="
-				+ secretKey + ", isIpCheck=" + isIpCheck + ", isConsoleLog="
+				+ secretKey + ", isIpCheck=" + isIpCheck
+				+ ", isLoggingEnabled=" + isLoggingEnabled + ", isConsoleLog="
 				+ isConsoleLog + ", isCommandConsoleEnabled="
 				+ isCommandConsoleEnabled + ", logFileMap=" + logFileMap
 				+ ", inetAddrBindToSet=" + inetAddrBindToSet
 				+ ", startTimestamp=" + startTimestamp + "]"
 				+ "\n\tOnline since: " + (new java.util.Date(startTimestamp)).toString();
 	}
+	
+	
+	
+	/////////////////////////////////////////////////////////
+	//
+	//		Server Services
+	//
+	/////////////////////////////////////////////////////////
+	
+	public static abstract class ServiceSetting {
+		protected boolean isEnabled;
+		protected final String name;
+		
+		public ServiceSetting(String name, boolean isEnabled) {
+			this.isEnabled = isEnabled;
+			this.name = name;
+		}
+		
+		public boolean isEnabled() {
+			return isEnabled;
+		}
+
+		public void setEnabled(boolean isEnabled) {
+			this.isEnabled = isEnabled;
+		}
+		
+		public String getName() {
+			return name;
+		}
+
+		public abstract void start() throws UnknownHostException;
+		public abstract void stop();
+		public abstract void setParam(Properties properties);
+	}	
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,11 @@
  ******************************************************************************/
 package at.alladin.rmbt.android.util;
 
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentMap;
 
 import org.json.JSONArray;
@@ -131,7 +135,6 @@ public class CheckSettingsTask extends AsyncTask<Void, Void, JSONArray>
                     final JSONObject urls = resultListItem.optJSONObject("urls");
                     if (urls != null)
                     {
-                        @SuppressWarnings("unchecked")
                         final Iterator<String> keys = urls.keys();
                         
                         while (keys.hasNext())
@@ -159,6 +162,17 @@ public class CheckSettingsTask extends AsyncTask<Void, Void, JSONArray>
                         }
                     }
                     
+                    /* qos names */
+                    final JSONArray qosNames = resultListItem.optJSONArray("qostesttype_desc");
+                    if (qosNames != null) {
+                    	final Map<String, String> qosNamesMap = new HashMap<String, String>();
+                    	for (int i = 0; i < qosNames.length(); i++) {
+                    		JSONObject json = qosNames.getJSONObject(i);
+                    		qosNamesMap.put(json.optString("test_type"), json.optString("name"));
+                    	}
+                    	ConfigHelper.setCachedQoSNames(qosNamesMap, activity);
+                    }
+                    
                     /* map server */
                     
                     final JSONObject mapServer = resultListItem.optJSONObject("map_server");
@@ -168,7 +182,7 @@ public class CheckSettingsTask extends AsyncTask<Void, Void, JSONArray>
                         final int port = mapServer.optInt("port");
                         final boolean ssl = mapServer.optBoolean("ssl");
                         if (host != null && port > 0)
-                            ConfigHelper.setMapServer(host, port, ssl);
+                            ConfigHelper.setMapServer(activity, host, port, ssl);
                     }
                     
                     /* control server version */
@@ -205,6 +219,29 @@ public class CheckSettingsTask extends AsyncTask<Void, Void, JSONArray>
                     
                     activity.setHistoryDirty(true);
                     
+                    // /////
+                    
+                    final Set<String> serverSet;
+                    final JSONArray servers = resultListItem.optJSONArray("servers");
+                    if (servers == null)
+                        serverSet = null;
+                    else
+                    {
+                        serverSet = new TreeSet<String>();
+                        for (int i = 0; i < servers.length(); i++)
+                        {
+                            final JSONObject serverObj = (JSONObject) servers.get(i);
+                            final String serverName = serverObj.getString("name");
+                            final String serverUuid = serverObj.getString("uuid");
+                            
+                            final Server server = new Server(serverName, serverUuid);
+                            
+                            serverSet.add(server.encode());
+                            
+                            System.out.println("server: " + serverName + " " + serverUuid);
+                        }
+                    }
+                    ConfigHelper.setServers(activity, serverSet);
                 }
                 catch (final JSONException e)
                 {

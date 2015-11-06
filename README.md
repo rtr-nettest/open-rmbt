@@ -9,7 +9,9 @@ C, consisting of:
 - Android client
 - control Servlet based on Restlet
 - map Servlet based on Restlet
+- statistics Servlet based on Restlet
 - test server (written in C)
+- qos test server
 
 *Open-RMBT* is released under the [Apache License, Version 2.0]. It was developed
 by [alladin-IT GmbH] and financed by the
@@ -21,10 +23,13 @@ by [alladin-IT GmbH] and financed by the
 
 The following Eclipse projects are distributed in this release:
 
-- **RMBTSharedCode** - common libraries and classes for *RMBTControlServer*
+- **RMBTSharedCode** - common libraries and classes
+- **RMBTUtil** - common libraries and classes
 - **RMBTControlServer** - Servlet acting as control server for the clients
 - **RMBTMapServer** - Servlet acting as map server
-- **server** - actual test server
+- **RMBTStatisticServer** - Servlet acting as statistics server
+- **RMBTServer** - speed test server
+- **RMBTQoSServer** - qos test server
 - **RMBTClient** - client code used by *RMBTAndroid*, the command line client and the Applet
 - **RMBTAndroid** - Android App
 
@@ -43,13 +48,13 @@ The following third party libraries are required dependencies:
 ### Android Support Library ###
 
 - see <http://developer.android.com/tools/extras/support-library.html>
-- copy as "RMBTAndroid/libs/android-support-v4.jar"
+- copy as "RMBTAndroid/libs/android-support-v13.jar"
 
 ### Guava ###
 
 - Apache 2.0. License
 - available at <https://code.google.com/p/guava-libraries/>
-- copy as "RMBTSharedCode/lib/guava-14.0.jar"
+- copy as "RMBTSharedCode/lib/guava-18.0.jar"
 
 
 ### dnsjava ###

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,6 @@ import at.alladin.rmbt.client.v2.task.service.TestProgressListener.TestProgressE
  *
  */
 public abstract class AbstractQoSTask extends AbstractRMBTTest implements QoSTask {
-	
 	/**
 	 * timeout to establish a control connection for a test
 	 */
@@ -87,12 +86,16 @@ public abstract class AbstractQoSTask extends AbstractRMBTTest implements QoSTas
 	
 	protected final QualityOfServiceTest qoSTest;
 	
+	protected final int id;
+	
+	protected QoSControlConnection controlConnection;
+	
 	/**
 	 * this constructor set the priority to max 
 	 * @param taskDesc
 	 */
-	public AbstractQoSTask(QualityOfServiceTest nnTest, TaskDesc taskDesc, int threadId) {
-		this(nnTest, taskDesc, threadId, Integer.MAX_VALUE);
+	public AbstractQoSTask(QualityOfServiceTest nnTest, TaskDesc taskDesc, int threadId, int id) {
+		this(nnTest, taskDesc, threadId, id, Integer.MAX_VALUE);
 	}
 	
 	/**
@@ -100,11 +103,12 @@ public abstract class AbstractQoSTask extends AbstractRMBTTest implements QoSTas
 	 * @param taskDesc
 	 * @param priority the higher the value, the higher the priority
 	 */
-	public AbstractQoSTask(QualityOfServiceTest nnTest, TaskDesc taskDesc, int threadId, int priority) {
+	public AbstractQoSTask(QualityOfServiceTest nnTest, TaskDesc taskDesc, int threadId, int id, int priority) {
 		super(nnTest.getRMBTClient(), taskDesc, threadId);
 		this.qoSTest = nnTest;
 		this.taskDesc = taskDesc;
 		this.priority = priority;
+		this.id = id;
 		
 		String value = (String) taskDesc.getParams().get(PARAM_QOS_TEST_OBJECTIVE_ID);
 		this.qoSTestObjectiveUid = value != null ? Long.valueOf(value) : null;
@@ -215,7 +219,7 @@ public abstract class AbstractQoSTask extends AbstractRMBTTest implements QoSTas
 	 * @return
 	 */
 	public QoSTestResult initQoSTestResult(QoSTestResultEnum testType) {
-		QoSTestResult nnResult = new QoSTestResult(testType);
+		QoSTestResult nnResult = new QoSTestResult(testType, this);
 		nnResult.getResultMap().put(PARAM_QOS_TEST_OBJECTIVE_ID, qoSTestObjectiveUid);
 		return nnResult;
 	}
@@ -288,5 +292,51 @@ public abstract class AbstractQoSTask extends AbstractRMBTTest implements QoSTas
 	 */
 	public long getRelativeDurationNs(long timeStampNs) {
 		return ((timeStampNs - getQoSTest().getTestSettings().getStartTimeNs()) - this.testStartTimestampNs);
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public QoSControlConnection getControlConnection() {
+		return controlConnection;
+	}
+
+	/**
+	 * 
+	 * @param controlConnection
+	 */
+	public void setControlConnection(QoSControlConnection controlConnection) {
+		this.controlConnection = controlConnection;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public int getId() {
+		return id;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public boolean hasConnectionError() {
+		if (needsQoSControlConnection()) {
+			return (getControlConnection() == null || getControlConnection().couldNotConnect.get());
+		}
+		
+		return false;
+	}
+
+	/**
+	 * 
+	 * @param command
+	 * @param listener
+	 * @throws IOException 
+	 */
+	public void sendCommand(String command, ControlConnectionResponseCallback callback) throws IOException {
+		controlConnection.sendTaskCommand(this, command, callback);
 	}
 }

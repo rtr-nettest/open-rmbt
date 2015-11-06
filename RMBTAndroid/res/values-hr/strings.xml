@@ -131,69 +131,177 @@
     <string name="history_button_sync">Sync</string>
     <string name="history_button_filter">Filter</string>
     <string name="history_device">Uređaj</string>
-	<string name="history_type">Veza</string>
-	<string name="history_date">Datum</string>
-	<string name="history_down">Down\nMbit/s</string>
-	<string name="history_up">Up\nMbit/s</string>
-	<string name="history_ping">Ping\nms</string>
-	
-	<string name="history_filter">FILTER</string>
-	<string name="history_filter_networks">TIP MREŽE</string>
-	<string name="history_filter_devices">UREĐAJ</string>
-	<string name="history_filter_result_number">BROJ REZULTATA</string>
-	<string name="history_filter_result_number_25">Pokaži samo najnovijih 25 rezultata</string>
-	
-	<string name="result_measurement">MJERENJE</string>
-	<string name="result_net">MREŽA</string>
-	
-	<string name="result_details">DETALJI</string>
-	
-	<string name="sync_info_text">Možete združiti rezultate dvoje različitih uređaja. Za to morate unijeti već dobiveni sinkronizacijski kod ili zatražiti novi.</string>
-	<string name="sync_request_code_button">Zatraži kod</string>
-	<string name="sync_enter_code_button">Unesi kod</string>
-	
-	<string name="sync_enter_code_header">Unos koda</string>
-	<string name="sync_enter_code_msg">Kod</string>
-	<string name="sync_enter_code_desc">Molimo unesite kod kojeg ste primili na drugom uređaju.</string>
-	<string name="sync_enter_code_length">Duljina koda mora biti 12 znakova</string>
-	
-	<string name="sync_request_code_header">Vaš sinkronizacijski kod je:</string>
-	<string name="sync_request_code_msg">Dobivam kod…</string>
-	<string name="sync_request_code_desc">Molimo unesite prikazani kod na drugom uređaju kako bi ih sinkronizirali.</string>
-	<string name="sync_request_code_context_copy">Kopiraj kod</string>
-	
-	<!-- Map -->
-	<string name="map_filter_header">FILTER KARTE</string>
-	<string name="map_choose_header">IZBOR KARTE</string>
-	
-	<string name="map_appearance_header">IZGLED KARTE</string>
-	<string name="map_appearance_nosat_title">Normalni pogled</string>
-	<string name="map_appearance_nosat_summary">Karta pokazuje normalni pogled</string>
-	<string name="map_appearance_sat_title">Satelitski pogled</string>
-	<string name="map_appearance_sat_summary">Karta pokazuje satelitski pogled</string>
-	
-	<string name="map_overlay_header">OVERLAY KARTE</string>
-	<string name="map_overlay_auto_title">Automatski</string>
-	<string name="map_overlay_auto_summary">Karta mijenja automatski između heatmap i točaka</string>
-	<string name="map_overlay_heatmap_title">Heatmap</string>
-	<string name="map_overlay_heatmap_summary">Karta pokazuje testove kao heatmap</string>
-	<string name="map_overlay_points_title">Točke</string>
-	<string name="map_overlay_points_summary">Karta pokazuje testove kao točke</string>
-	
-	<string name="map_balloon_overlay_header">MJERENJA</string>
-	
-	<!-- Test -->
-	<string name="test_progress_title">Povezivanje…</string>
-	<string name="test_progress_text">Veza sa test serverom se uspostavlja. Molimo pričekajte…</string>
-	<string name="test_progress_text_wait">Test server je zauzet. Test će početi {0,choice,0#ubrzo|1#za 1 sekundu|1&lt;za {0} sekundi}. Molimo pričekajte…</string>
-	<string name="test_bottom_test">Status: {0}\nServer: {1}\nIP: {2}\n{3}\n{4}</string>
-	<string name="test_bottom_test_status_init">Inicijalizacija</string>
-	<string name="test_bottom_test_status_ping">Ping</string>
-	<string name="test_bottom_test_status_down">Download</string>
-	<string name="test_bottom_test_status_init_up">Inicijalizacija uploada</string>
-	<string name="test_bottom_test_status_up">Upload</string>
-	<string name="test_bottom_test_status_end">Finalizacija</string>
-	<string name="test_bottom_test_status_error">Greška</string>
-	<string name="test_bottom_test_status_aborted">Prekid</string>
-	
+    <string name="history_type">Veza</string>
+    <string name="history_date">Datum</string>
+    <string name="history_down">Down\nMbit/s</string>
+    <string name="history_up">Up\nMbit/s</string>
+    <string name="history_ping">Ping\nms</string>
+    
+    <string name="history_filter">FILTER</string>
+    <string name="history_filter_networks">TIP MREŽE</string>
+    <string name="history_filter_devices">UREĐAJ</string>
+    <string name="history_filter_result_number">BROJ REZULTATA</string>
+    <string name="history_filter_result_number_25">Pokaži samo najnovijih 25 rezultata</string>
+    
+    <string name="result_measurement">MJERENJE</string>
+    <string name="result_net">MREŽA</string>
+    
+    <string name="result_details">DETALJI</string>
+    
+    <string name="sync_info_text">Možete združiti rezultate dvoje različitih uređaja. Za to morate unijeti već dobiveni sinkronizacijski kod ili zatražiti novi.</string>
+    <string name="sync_request_code_button">Zatraži kod</string>
+    <string name="sync_enter_code_button">Unesi kod</string>
+    
+    <string name="sync_enter_code_header">Unos koda</string>
+    <string name="sync_enter_code_msg">Kod</string>
+    <string name="sync_enter_code_desc">Molimo unesite kod kojeg ste primili na drugom uređaju.</string>
+    <string name="sync_enter_code_length">Duljina koda mora biti 12 znakova</string>
+    
+    <string name="sync_request_code_header">Vaš sinkronizacijski kod je:</string>
+    <string name="sync_request_code_msg">Dobivam kod…</string>
+    <string name="sync_request_code_desc">Molimo unesite prikazani kod na drugom uređaju kako bi ih sinkronizirali.</string>
+    <string name="sync_request_code_context_copy">Kopiraj kod</string>
+    
+    <!-- Map -->
+    <string name="map_filter_header">FILTER KARTE</string>
+    <string name="map_choose_header">IZBOR KARTE</string>
+    
+    <string name="map_appearance_header">IZGLED KARTE</string>
+    <string name="map_appearance_nosat_title">Normalni pogled</string>
+    <string name="map_appearance_nosat_summary">Karta pokazuje normalni pogled</string>
+    <string name="map_appearance_sat_title">Satelitski pogled</string>
+    <string name="map_appearance_sat_summary">Karta pokazuje satelitski pogled</string>
+    
+    <string name="map_overlay_header">OVERLAY KARTE</string>
+    <string name="map_overlay_auto_title">Automatski</string>
+    <string name="map_overlay_auto_summary">Karta mijenja automatski između heatmap i točaka</string>
+    <string name="map_overlay_heatmap_title">Heatmap</string>
+    <string name="map_overlay_heatmap_summary">Karta pokazuje testove kao heatmap</string>
+    <string name="map_overlay_points_title">Točke</string>
+    <string name="map_overlay_points_summary">Karta pokazuje testove kao točke</string>
+    
+    <string name="map_balloon_overlay_header">MJERENJA</string>
+    
+    <!-- Test -->
+    <string name="test_progress_title">Povezivanje…</string>
+    <string name="test_progress_text">Veza sa test serverom se uspostavlja. Molimo pričekajte…</string>
+    <string name="test_progress_text_wait">Test server je zauzet. Test će početi {0,choice,0#ubrzo|1#za 1 sekundu|1&lt;za {0} sekundi}. Molimo pričekajte…</string>
+    <string name="test_bottom_test">Status: {0}\nServer: {1}\nIP: {2}\n{3}\n{4}</string>
+    <string name="test_bottom_test_status_init">Inicijalizacija</string>
+    <string name="test_bottom_test_status_ping">Ping</string>
+    <string name="test_bottom_test_status_down">Download</string>
+    <string name="test_bottom_test_status_init_up">Inicijalizacija uploada</string>
+    <string name="test_bottom_test_status_up">Upload</string>
+    <string name="test_bottom_test_status_end">Finalizacija</string>
+    <string name="test_bottom_test_status_error">Greška</string>
+    <string name="test_bottom_test_status_aborted">Prekid</string>
+    
+<!-- App version 2.0 -->
+<!-- Not translated -->
+    <string name="error_history_no_data_no_connection">No Internet connection. Could not load data.</string>
+    <string name="preferences_tag">Tag</string>
+    <string name="preferences_tag_sum">Add a custom test tag to every test</string>
+    <string name="preferences_loop_mode_max_tests">Loop max tests</string>
+    <string name="preferences_loop_mode_max_tests_sum">Maximum number of tests to run if loop mode is active (0 = run forever)</string>
+    <string name="preferences_loop_mode_min_delay">Loop min delay</string>
+    <string name="preferences_loop_mode_min_delay_sum">Minimum time in seconds between two tests if loop mode is active</string>
+    <string name="preferences_loop_mode_max_delay">Loop max delay</string>
+    <string name="preferences_loop_mode_max_delay_sum">Maximum time in seconds between two tests if loop mode is active</string>
+    <string name="preferences_loop_mode_movement">Loop movement</string>
+    <string name="preferences_loop_mode_movement_sum">Movement in meters after which a test in loop mode is triggered</string>
+    <string name="preferences_loop_mode_gps">Use GPS when loop mode is active</string>
+    <string name="preferences_loop_mode_gps_sum">Use GPS between two tests in loop mode</string>
+    <string name="loop_notification_ticker">Loop mode is active…</string>
+    <string name="loop_notification_title">Loop mode is active</string>
+    <string name="loop_notification_text">Touch to stop Loop mode</string>
+    <string name="loop_started">Loop mode started.</string>
+    <string name="loop_already_active">Loop mode is already active.</string>
+    <string name="preferences_category_loop_mode">Loop mode</string>
+    <string name="preferences_category_developer_qos_server">QoS server</string>
+    <string name="preferences_category_developer_debug">Debugging</string>
+    <string name="preferences_dev_qos_ssl">QoS server SSL</string>
+    <string name="preferences_dev_qos_ssl_sum">Use encrypted connection to QoS server</string>
+    <string name="preferences_dev_debug_sysout">Store error output in file</string>
+    <string name="preferences_dev_debug_sysout_sum">Stores error output in a text file located in the "qosdebug" folder</string>
+    <string name="test_dialog_error_control_server_conn">Connection to test server cannot be established.</string>
+    <string name="map_overlay_shapes_title">Shapes</string>
+    <string name="map_overlay_shapes_summary">Map shows tests as postal code shapes</string>
+
+    <!-- QoS values: -->
+    <string name="about_control_server_version">Control server version</string>
+    <string name="preferences_dont_show_menu_on_exit">No menu on close</string>
+    <string name="preferences_dont_show_menu_on_exit_sum">Don\'t show application menu before closing it.</string>
+    <string name="qos_test_name_website">Reference web page</string>
+    <string name="qos_test_name_http_proxy">Unmodified content</string>
+    <string name="qos_test_name_non_transparent_proxy">Transparent connection</string>
+    <string name="qos_test_name_dns">DNS</string>
+    <string name="qos_test_name_tcp">TCP ports</string> 
+    <string name="qos_test_name_udp">UDP ports</string>
+    
+    <string name="qos_test_result_error">Error</string>
+    <string name="qos_test_result_all">Results</string>
+    
+    <string name="result_details_qos_failure">FAILED</string>
+    <string name="result_details_qos_success">SUCCEEDED</string>
+    <string name="result_qos_stats">Quality tests</string>
+    <string name="result_qos_error_no_data_available">The QoS test was not executed.</string>
+    
+    <string name="title_screen_ipv4">IPv4</string>
+    <string name="title_screen_ipv6">IPv6</string>
+    <string name="title_screen_traffic">Background traffic</string>
+    <string name="title_screen_network_id">Network ID:</string>
+    
+    <string name="title_screen_info_overlay_location">Location</string>
+    <string name="title_screen_info_overlay_ipv4_public">Public IPv4</string>
+    <string name="title_screen_info_overlay_ipv4_private">Private IPv4</string>
+    <string name="title_screen_info_overlay_ipv6_public">Public IPv6</string>
+    <string name="title_screen_info_overlay_ipv6_private">Private IPv6</string>
+    <string name="title_screen_info_overlay_ul_traffic">Upload traffic</string>
+    <string name="title_screen_info_overlay_dl_traffic">Download traffic</string>
+    <string name="title_screen_info_overlay_control_server_conn">ControlServer connection</string>
+    <string name="title_screen_info_overlay_captive_portal_status">Captive portal</string>
+    <string name="title_screen_info_overlay_is_loopback">Is loopback</string>
+    <string name="title_screen_info_overlay_is_link_local">Is link local</string>
+    <string name="title_screen_info_overlay_location_position">Position</string>
+    <string name="title_screen_info_overlay_location_source">Source</string>
+    <string name="title_screen_info_overlay_location_accuracy">Accuracy</string>
+    <string name="title_screen_info_overlay_location_altitude">Altitude</string>
+    <string name="title_screen_info_overlay_location_age">Age</string>
+    
+    <string name="captive_portal_found">found</string>
+    <string name="captive_portal_not_found">not found</string>
+    <string name="captive_portal_testing">test running…</string>
+    
+    <string name="not_available">not available</string>
+    
+    <string name="test_label_test_info">Test information</string>
+    <string name="test_label_progress">Progress</string>
+    <string name="test_label_quality_test">Quality test</string>
+    <string name="test_toast_error_text_qos">There has been an error during the QoS test.</string>
+
+<!-- Translated, with examples in English and German at the end of the line-->
+    <string name="menu_button_title_page">Početak</string> <!--Home,Startseite-->
+    <string name="menu_button_share">Podijeli</string> <!--Share,Teilen-->
+    <string name="test_location_sat">Sateliti</string> <!--satellites,Satelliten-->
+    <string name="result_category_tests">TESTOVI</string> <!--TESTS,TESTS-->
+    <string name="result_description">OPIS</string> <!--DESCRIPTION,BESCHREIBUNG-->
+    <string name="term_signal">Signal</string> <!--Signal,Signal-->
+    <string name="result_page_title_qos">QoS</string> <!--QoS,QoS-->
+    <string name="result_page_title_test">Detalji</string> <!--Details,Details-->
+    <string name="result_page_title_menu">Rezultati</string> <!--Result,Ergebnisse-->
+    <string name="result_page_title_graph">Graf</string> <!--Graph,Graph-->
+    <string name="result_page_title_map">Lokacija</string> <!--Location,Standort-->
+    <string name="page_title_title_page">Izbornik</string> <!--Menu,Menü-->
+    <string name="page_title_history">Povijest</string> <!--History,Verlauf-->
+    <string name="page_title_help">Pomoć</string> <!--Help,Hilfe-->
+    <string name="page_title_statistics">Statistika</string> <!--Statistics,Statistik-->
+    <string name="page_title_information">Informacije</string> <!--Information,Information-->
+    <string name="page_title_map">Karta</string> <!--Map,Karte-->
+    <string name="page_title_settings">Postavke</string> <!--Settings,Einstellungen-->
+    <string name="page_title_about">Info</string> <!--About,Info-->
+    <string name="page_title_main_result">Rezultati</string> <!--Test result,Ergebnisse-->
+    <string name="page_title_sync">Sync</string> <!--Sync,Sync-->
+    <string name="page_title_qos_result">QoS</string> <!--QoS results,QoS-->
+
+    
 </resources>

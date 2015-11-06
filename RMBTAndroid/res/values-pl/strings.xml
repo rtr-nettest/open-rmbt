@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright 2013 RTR-GmbH
+  Copyright 2013, 2014 RTR-GmbH
   
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -63,6 +63,10 @@
     <string name="preferences_ipv4_only">Tylko IPv4</string>
     <string name="preferences_ipv4_only_sum"> Nie zastosowany protokół IPv6</string>
         
+    <string name="preferences_dont_show_menu_on_exit">No menu on close</string>
+    <string name="preferences_dont_show_menu_on_exit_sum">Don\'t show application menu before closing it.</string>
+    
+    
     <string name="preferences_category_developer">ROZWÓJ</string>
     <string name="preferences_category_loop_mode">Pętla nieskończona</string>
     <string name="preferences_category_developer_control_server">serwer sterujący</string>
@@ -226,6 +230,9 @@
 	
 	<string name="map_balloon_overlay_header">MIERZENIA</string>
 	
+	<string name="map_overlay_shapes_title">Shapes</string>
+	<string name="map_overlay_shapes_summary">Map shows tests as postal code shapes</string>
+	
 	<!-- Test -->
 	<string name="test_progress_title">Połączenie …</string>
 	<string name="test_progress_text"> Połączenie z serwerem testów jest nawiązane. Proszę czekać…</string>
@@ -312,8 +319,6 @@
 	<string name="title_screen_info_overlay_location_accuracy">dokładność</string>
 	<string name="title_screen_info_overlay_location_altitude">wysokość</string>
 	<string name="title_screen_info_overlay_location_age">wiek</string>
-	<string name="title_screen_empty">-</string>
-	
 		
 	<string name="captive_portal_found">znaleziono</string>
 	<string name="captive_portal_not_found">nie znaleziono</string>
@@ -324,6 +329,14 @@
 	<string name="test_label_test_info">Informacje testu</string>
 	<string name="test_label_progress">Postęp</string>
 	<string name="test_label_quality_test">Testy jakości</string>
+	
+	<string name="qos_test_name_website">Reference web page</string>
+	<string name="qos_test_name_http_proxy">Unmodified content</string>
+	<string name="qos_test_name_non_transparent_proxy">Transparent connection</string>
+	<string name="qos_test_name_dns">DNS</string>
+	<string name="qos_test_name_tcp">TCP ports</string>	
+	<string name="qos_test_name_udp">UDP ports</string>
+	
 </resources>
 
 

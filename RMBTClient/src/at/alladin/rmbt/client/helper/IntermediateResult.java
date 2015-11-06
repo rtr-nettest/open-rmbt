@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,13 +34,13 @@ public class IntermediateResult
     
     public static double toLog(final long value)
     {
-        if (value < 10000)
+        if (value < 1e5)
             return 0;
-        return (2d + Math.log10(value / 1e6)) / 4d;
+        return (2d + Math.log10(value / 1e7)) / 4d;
         // value in bps
-        // < 0.01 -> 0
-        // 0.01 Mbps -> 0
-        // 100 Mbps -> 1
-        // > 100 Mbps -> >1
+        // < 0.1 -> 0
+        // 0.1 Mbps -> 0
+        // 1000 Mbps -> 1
+        // > 1000 Mbps -> >1
     }
 }

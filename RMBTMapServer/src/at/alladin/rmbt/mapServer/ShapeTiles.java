@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.Path2D;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.ByteArrayOutputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -35,19 +34,16 @@ import org.postgis.MultiPolygon;
 import org.postgis.PGgeometry;
 import org.postgis.Point;
 import org.postgis.Polygon;
-import org.restlet.Request;
-import org.restlet.Response;
 import org.restlet.data.Form;
-import org.restlet.data.MediaType;
-import org.restlet.representation.OutputRepresentation;
-import org.restlet.representation.Representation;
 
 import at.alladin.rmbt.mapServer.MapServerOptions.MapOption;
 import at.alladin.rmbt.mapServer.MapServerOptions.SQLFilter;
+import at.alladin.rmbt.mapServer.parameters.ShapeTileParameters;
+import at.alladin.rmbt.mapServer.parameters.TileParameters.Path;
 
 import com.google.common.base.Strings;
 
-public class ShapeTiles extends TileRestlet
+public class ShapeTiles extends TileRestlet<ShapeTileParameters>
 {
     
     private static class GeometryColor
@@ -63,27 +59,20 @@ public class ShapeTiles extends TileRestlet
     }
     
     @Override
-    protected void handle(final Request req, final Response res, final Form params, final int tileSizeIdx, final int zoom, final DBox box,
+    protected ShapeTileParameters getTileParameters(Path path, Form params)
+    {
+        return new ShapeTileParameters(path, params);
+    }
+    
+    @Override
+    protected byte[] generateTile(final ShapeTileParameters params, final int tileSizeIdx, final int zoom, final DBox box,
             final MapOption mo, final List<SQLFilter> filters, final float quantile)
     {
         Connection con = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
         
-        final String transparencyString = params.getFirstValue("transparency");
-        double _transparency = 0.4;
-        if (transparencyString != null)
-            try
-            {
-                _transparency = Double.parseDouble(transparencyString);
-            }
-            catch (final NumberFormatException e)
-            {
-            }
-        if (_transparency < 0)
-            _transparency = 0;
-        if (_transparency > 1)
-            _transparency = 1;
+        double _transparency = params.getTransparency();
         
         try
         {
@@ -93,6 +82,9 @@ public class ShapeTiles extends TileRestlet
             for (final SQLFilter sf : filters)
                 whereSQL.append(" AND ").append(sf.where);
             
+            /*
+             * old zip code
+             * 
             final String sql = String.format(
                     "WITH box AS" 
                     + " (SELECT ST_SetSRID(ST_MakeBox2D(ST_Point(?,?),"
@@ -102,11 +94,28 @@ public class ShapeTiles extends TileRestlet
                     + " count(\"%1$s\") count,"
                     + " quantile(\"%1$s\",?) val" 
                     + " FROM box, plz2001 p" 
-                    + " JOIN test t ON t.zip_code=p.plz_4"
+                    + " JOIN v_test t ON t.zip_code=p.plz_4"
                     + " WHERE" + " %2$s" 
                     + " AND p.the_geom && box.box" 
                     + " AND ST_intersects(p.the_geom, box.box)"
                     + " GROUP BY p.the_geom, box.box", mo.valueColumnLog, whereSQL);
+            */
+            
+            final String sql = String.format(
+                    "WITH box AS" 
+                    + " (SELECT ST_SetSRID(ST_MakeBox2D(ST_Point(?,?),"
+                    + " ST_Point(?,?)), 900913) AS box)" 
+                    + " SELECT"
+                    + " ST_SnapToGrid(ST_intersection(p.the_geom, box.box), ?,?,?,?) AS geom," 
+                    + " count(\"%1$s\") count,"
+                    + " quantile(\"%1$s\",?) val" 
+                    + " FROM box, kategorisierte_gemeinden p" 
+                    + " JOIN v_test t ON t.gkz=p.gemeinde_i"
+                    + " WHERE" + " %2$s" 
+                    + " AND p.the_geom && box.box" 
+                    + " AND ST_intersects(p.the_geom, box.box)"
+                    + " GROUP BY p.the_geom, box.box", mo.valueColumnLog, whereSQL);
+            
             
             ps = con.prepareStatement(sql);
             
@@ -134,7 +143,7 @@ public class ShapeTiles extends TileRestlet
             if (rs == null)
                 throw new IllegalArgumentException();
             
-            final List<GeometryColor> geoms = new ArrayList<GeometryColor>();
+            final List<GeometryColor> geoms = new ArrayList<>();
             while (rs.next())
             {
                 final String geomStr = rs.getString("geom");
@@ -155,70 +164,62 @@ public class ShapeTiles extends TileRestlet
                 }
             }
             
-            final Representation output = new OutputRepresentation(MediaType.IMAGE_PNG)
-            {
-                @Override
-                public void write(final OutputStream s) throws IOException
-                {
-                    if (geoms.isEmpty())
-                    {
-                        s.write(EMPTY_IMAGES[tileSizeIdx]);
-                        return;
-                    }
-                    
-                    final Image img = images[tileSizeIdx].get();
-                    final Graphics2D g = img.g;
-                    
-                    g.setBackground(new Color(0, 0, 0, 0));
-                    g.clearRect(0, 0, img.width, img.height);
-//                    g.setComposite(AlphaComposite.Src);
-                    g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                    
-                    final Path2D.Double path = new Path2D.Double();
-                    
-                    for (final GeometryColor geomColor : geoms)
-                    {
-                        final Geometry geom = geomColor.geometry;
-                        
-                        final Polygon[] polys;
-                        if (geom instanceof MultiPolygon)
-                            polys = ((MultiPolygon) geom).getPolygons();
-                        else if (geom instanceof Polygon)
-                            polys = new Polygon[] { (Polygon) geom };
-                        else
-                            polys = new Polygon[] {};
-                        
-                        for (final Polygon poly : polys)
-                            for (int i = 0; i < poly.numRings(); i++)
-                            {
-                                final Point[] points = poly.getRing(i).getPoints();
-                                
-                                path.reset();
-                                boolean initial = true;
-                                for (final Point point : points)
-                                {
-                                    final double relX = (point.x - box.x1) / box.res;
-                                    final double relY = TILE_SIZES[tileSizeIdx] - (point.y - box.y1) / box.res;
-                                    if (initial)
-                                    {
-                                        initial = false;
-                                        path.moveTo(relX, relY);
-                                    }
-                                    path.lineTo(relX, relY);
-                                }
-                                g.setPaint(geomColor.color);
-                                g.fill(path);
-                            }
-                    }
-                    ImageIO.write(img.bi, "png", s);
-                }
-            };
-            res.setEntity(output);
+            if (geoms.isEmpty())
+                return null;
             
+            final Image img = images[tileSizeIdx].get();
+            final Graphics2D g = img.g;
+            
+            g.setBackground(new Color(0, 0, 0, 0));
+            g.clearRect(0, 0, img.width, img.height);
+//                    g.setComposite(AlphaComposite.Src);
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            
+            final Path2D.Double path = new Path2D.Double();
+            
+            for (final GeometryColor geomColor : geoms)
+            {
+                final Geometry geom = geomColor.geometry;
+                
+                final Polygon[] polys;
+                if (geom instanceof MultiPolygon)
+                    polys = ((MultiPolygon) geom).getPolygons();
+                else if (geom instanceof Polygon)
+                    polys = new Polygon[] { (Polygon) geom };
+                else
+                    polys = new Polygon[] {};
+                
+                for (final Polygon poly : polys)
+                    for (int i = 0; i < poly.numRings(); i++)
+                    {
+                        final Point[] points = poly.getRing(i).getPoints();
+                        
+                        path.reset();
+                        boolean initial = true;
+                        for (final Point point : points)
+                        {
+                            final double relX = (point.x - box.x1) / box.res;
+                            final double relY = TILE_SIZES[tileSizeIdx] - (point.y - box.y1) / box.res;
+                            if (initial)
+                            {
+                                initial = false;
+                                path.moveTo(relX, relY);
+                            }
+                            path.lineTo(relX, relY);
+                        }
+                        g.setPaint(geomColor.color);
+                        g.fill(path);
+                    }
+            }
+            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(img.bi, "png", baos);
+            final byte[] data = baos.toByteArray();
+            return data;
         }
         catch (final Exception e)
         {
             e.printStackTrace();
+            throw new IllegalStateException(e);
         }
         finally
         {
@@ -234,6 +235,7 @@ public class ShapeTiles extends TileRestlet
             catch (final SQLException e)
             {
                 e.printStackTrace();
+                throw new IllegalStateException(e);
             }
         }
     }

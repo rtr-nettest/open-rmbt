@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 Thomas Schreiber
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,13 +30,14 @@ import org.restlet.data.Form;
 import org.restlet.resource.Get;
 
 //Statistics for internal purpose
-//breaks the mvvm-pattern
 
 public class UsageJSONResource extends ServerResource
 {
     @Get("json")
     public String request(final String entity)
     {
+    	addAllowOrigin();
+    	
     	JSONObject result = new JSONObject();
     	int month = -1;
     	int year = -1;

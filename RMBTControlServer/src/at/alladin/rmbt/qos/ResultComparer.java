@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -151,6 +151,8 @@ public class ResultComparer {
 	private static int compareFields(Field f, String operator, boolean controlFlag, Object result, Object expectedResult) {
 		String leftPart, rightPart;
 		
+		//System.out.println("comparing: " + f.getName() + " operator: " + operator  + " result: " + result + " expectedResult: " + expectedResult);
+		
 		try {
 			//make sure also private fields can be compared:
 			f.setAccessible(true);
@@ -211,7 +213,7 @@ public class ResultComparer {
 			}	
 		}
 		catch (Throwable t) {
-			t.printStackTrace();
+			System.out.println(t.getClass().getCanonicalName() + ": " + t.getLocalizedMessage());
 			return ResultComparer.RESULT_COULD_NOT_COMPARE;
 		}
 		

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,9 @@
  ******************************************************************************/
 package at.alladin.rmbt.client;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import at.alladin.rmbt.client.helper.TestStatus;
 import at.alladin.rmbt.client.v2.task.service.TestMeasurement;
@@ -106,6 +108,38 @@ public class TotalTestResult extends TestResult
     public void calculateUpload(final long[][] bytes, final long[][] nsecs)
     {
         calculate(bytes, nsecs, true);
+    }
+    
+    public static TotalTestResult calculateAndGet(final Map<Integer, List<SpeedItem>> speedMap) {
+    	final int threads = speedMap.keySet().size();
+    	
+    	long[][] allBytes = null;
+    	long[][] allNsecs = null;
+    	
+    	int threadCounter = 0;
+    	for (Entry<Integer, List<SpeedItem>> e : speedMap.entrySet()) {
+    		final List<SpeedItem> speedList = e.getValue();
+    		
+    		if (allBytes == null) {
+    			allBytes = new long[threads][speedList.size()];
+    			allNsecs = new long[threads][speedList.size()];
+    		}
+    		
+    		for (int i = 0; i < speedList.size(); i++) {
+    			allBytes[threadCounter][i] = speedList.get(i).bytes;
+    			allNsecs[threadCounter][i] = speedList.get(i).time;
+    		}
+    		
+    		threadCounter++;
+    	}
+    	
+    	return TotalTestResult.calculateAndGet(allBytes, allNsecs, false);
+    }
+    
+    public static TotalTestResult calculateAndGet(final long[][] allBytes, final long[][] allNsecs, final boolean upload) {
+    	final TotalTestResult totalResult = new TotalTestResult();
+    	totalResult.calculate(allBytes, allNsecs, upload);
+    	return totalResult;
     }
     
     private void calculate(final long[][] allBytes, final long[][] allNsecs, final boolean upload)

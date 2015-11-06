@@ -41,6 +41,9 @@ public class HttpProxyResult extends AbstractResult<HttpProxyResult> {
 	
 	@HstoreKey("http_result_hash")
 	private String hash;
+	
+	@HstoreKey("http_result_duration")
+	private String duration;
 
 	public HttpProxyResult() {
 		
@@ -77,7 +80,6 @@ public class HttpProxyResult extends AbstractResult<HttpProxyResult> {
 	public void setHash(String hash) {
 		this.hash = hash;
 	}
-
 	
 	public String getTarget() {
 		return target;
@@ -95,15 +97,20 @@ public class HttpProxyResult extends AbstractResult<HttpProxyResult> {
 		this.range = range;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
+	public String getDuration() {
+		return duration;
+	}
+
+	public void setDuration(String duration) {
+		this.duration = duration;
+	}
+
 	@Override
 	public String toString() {
-		return "HttpProxyResult [length=" + length + ", header=" + header
-				+ ", status=" + status + ", hash=" + hash
-				+ ", getComparator()=" + getOperator() + ", getOnFailure()="
+		return "HttpProxyResult [target=" + target + ", range=" + range
+				+ ", length=" + length + ", header=" + header + ", status="
+				+ status + ", hash=" + hash + ", duration=" + duration
+				+ ", getOperator()=" + getOperator() + ", getOnFailure()="
 				+ getOnFailure() + ", getOnSuccess()=" + getOnSuccess() + "]";
 	}
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,8 @@ public class HistoryResource extends ServerResource
     
     @Post("json")
     public String request(final String entity)
-    {
+    {   	
+    	long startTime = System.currentTimeMillis();
         addAllowOrigin();
         
         JSONObject request = null;
@@ -54,7 +55,10 @@ public class HistoryResource extends ServerResource
         final JSONObject answer = new JSONObject();
         String answerString;
         
-        System.out.println(MessageFormat.format(labels.getString("NEW_HISTORY"), getIP()));
+        final String clientIpRaw = getIP();
+        System.out.println(MessageFormat.format(labels.getString("NEW_HISTORY"), clientIpRaw));
+        
+        final boolean fourColorClassifcation = false; //possible future extension when supported by clients
         
         if (entity != null && !entity.isEmpty())
             // try parse the string to a JSON object
@@ -223,6 +227,7 @@ public class HistoryResource extends ServerResource
                                 final long time = date.getTime();
                                 final String tzString = rs.getString("timezone");
                                 final TimeZone tz = TimeZone.getTimeZone(tzString);
+                                
                                 jsonItem.put("time", time);
                                 jsonItem.put("timezone", tzString);
                                 final DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM,
@@ -240,18 +245,20 @@ public class HistoryResource extends ServerResource
                                 jsonItem.put("model", rs.getString("model"));
                                 jsonItem.put("network_type", rs.getString("network_type_group_name"));
                                 
+                                
+                                
                                 //for appscape-iPhone-Version: also add classification to the response
-                                jsonItem.put("speed_upload_classification", Classification.classify(Classification.THRESHOLD_UPLOAD, rs.getInt("speed_upload")));
-                                jsonItem.put("speed_download_classification", Classification.classify(Classification.THRESHOLD_DOWNLOAD, rs.getInt("speed_download")));
-                                jsonItem.put("ping_classification", Classification.classify(Classification.THRESHOLD_PING, rs.getLong("ping_median")));
+                                jsonItem.put("speed_upload_classification", Classification.classify(Classification.THRESHOLD_UPLOAD, rs.getInt("speed_upload"), fourColorClassifcation ));
+                                jsonItem.put("speed_download_classification", Classification.classify(Classification.THRESHOLD_DOWNLOAD, rs.getInt("speed_download"), fourColorClassifcation));
+                                jsonItem.put("ping_classification", Classification.classify(Classification.THRESHOLD_PING, rs.getLong("ping_median"), fourColorClassifcation));
                                 // backwards compatibility for old clients
-                                jsonItem.put("ping_shortest_classification", Classification.classify(Classification.THRESHOLD_PING, rs.getLong("ping_median")));
+                                jsonItem.put("ping_shortest_classification", Classification.classify(Classification.THRESHOLD_PING, rs.getLong("ping_median"), fourColorClassifcation));
                                 
                                 historyList.put(jsonItem);
                             }
                             
-                            if (historyList.length() == 0)
-                                errorList.addError("ERROR_DB_GET_HISTORY");
+//                            if (historyList.length() == 0)
+//                                errorList.addError("ERROR_DB_GET_HISTORY");
                             // errorList.addError(MessageFormat.format(labels.getString("ERROR_DB_GET_CLIENT"),
                             // new Object[] {uuid}));
                             
@@ -297,6 +304,10 @@ public class HistoryResource extends ServerResource
         }
         
         answerString = answer.toString();
+        
+        long elapsedTime = System.currentTimeMillis() - startTime;
+        System.out.println(MessageFormat.format(labels.getString("NEW_HISTORY_SUCCESS"), clientIpRaw, Long.toString(elapsedTime)));
+
         
         return answerString;
     }

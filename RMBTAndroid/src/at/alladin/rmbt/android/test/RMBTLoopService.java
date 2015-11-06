@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,10 @@
 package at.alladin.rmbt.android.test;
 
 import java.text.MessageFormat;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -30,10 +32,12 @@ import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.location.Location;
 import android.os.Binder;
+import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.os.SystemClock;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
 import at.alladin.openrmbt.android.R;
@@ -60,7 +64,7 @@ public class RMBTLoopService extends Service
     {
         public LocalGeoLocation(Context ctx)
         {
-            super(ctx, ConfigHelper.isLoopModeGPS(ctx), 10000, maxMovement); // TODO: smaller than maxMovement for minDistance??
+            super(ctx, ConfigHelper.isLoopModeGPS(ctx), 1000, 5);
         }
 
         @Override
@@ -69,29 +73,18 @@ public class RMBTLoopService extends Service
             if (lastTestLocation != null)
             {
                 final float distance = curLocation.distanceTo(lastTestLocation);
-                Log.d(TAG, "location distance: " + distance);
-                if (distance >= maxMovement)
-                    onAlarmOrLocation();
+                lastDistance = distance;
+                Log.d(TAG, "location distance: " + distance + "; maxMovement: " + maxMovement);
+                onAlarmOrLocation(false);    
             }
             lastLocation = curLocation;
         }
     }
     
-    private class Receiver extends BroadcastReceiver
-    {
-        @Override
-        public void onReceive(Context context, Intent intent)
-        {
-            if (maxTests == 0 || numberOfTests < maxTests)
-                setAlarm(maxDelay);
-            else
-                stopSelf();
-        }
-    }
-
     private static final String ACTION_ALARM = "at.alladin.rmbt.android.Alarm";
     private static final String ACTION_WAKEUP_ALARM = "at.alladin.rmbt.android.WakeupAlarm";
     private static final String ACTION_STOP = "at.alladin.rmbt.android.Stop";
+    private static final String ACTION_FORCE = "at.alladin.rmbt.android.Force";
     
     private static final long ACCEPT_INACCURACY = 1000; // accept 1 sec inaccuracy
     
@@ -101,21 +94,35 @@ public class RMBTLoopService extends Service
     private PendingIntent alarm;
     private PendingIntent wakeupAlarm;
     private NotificationManager notificationManager;
-    private Notification.Builder notificationBuilder;
+    private NotificationCompat.Builder notificationBuilder;
     
     private LocalGeoLocation geoLocation;
-    private Receiver receiver = new Receiver();
 
     private int numberOfTests;
+    
+    private AtomicBoolean isRunning = new AtomicBoolean();
     
     private Location lastLocation;
     private Location lastTestLocation;
     private long lastTestTime; // SystemClock.elapsedRealtime()
+    private float lastDistance;
     
     private long minDelay;
     private long maxDelay;
     private float maxMovement;
     private int maxTests;
+
+    private BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent)
+        {
+            if (RMBTService.BROADCAST_TEST_FINISHED.equals(intent.getAction()))
+            {
+                isRunning.set(false);
+                onAlarmOrLocation(false);
+            }
+        }
+    };
     
     @Override
     public IBinder onBind(Intent intent)
@@ -127,8 +134,10 @@ public class RMBTLoopService extends Service
     {
         numberOfTests++;
         lastTestLocation = lastLocation;
+        lastDistance = 0;
         lastTestTime = SystemClock.elapsedRealtime();
         final Intent service = new Intent(RMBTService.ACTION_LOOP_TEST, null, this, RMBTService.class);
+        isRunning.set(true);
         startService(service);
         
         updateNotification();
@@ -152,10 +161,6 @@ public class RMBTLoopService extends Service
                 PowerManager.PARTIAL_WAKE_LOCK, "RMBTLoopWakeLock");
         partialWakeLock.acquire();
         
-        dimWakeLock = ((PowerManager) getApplicationContext().getSystemService(Context.POWER_SERVICE)).newWakeLock(
-                PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.ON_AFTER_RELEASE, "RMBTLoopDimWakeLock");
-        dimWakeLock.acquire();
-        
         alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         
@@ -166,17 +171,25 @@ public class RMBTLoopService extends Service
         
         notificationBuilder = createNotificationBuilder();
         
-        startForeground(NotificationIDs.LOOP_ACTIVE, notificationBuilder.getNotification());
-        registerReceiver(receiver, new IntentFilter(RMBTService.BROADCAST_TEST_FINISHED));
+        startForeground(NotificationIDs.LOOP_ACTIVE, notificationBuilder.build());
+        registerReceiver(receiver , new IntentFilter(RMBTService.BROADCAST_TEST_FINISHED));
         
         final Intent alarmIntent = new Intent(ACTION_ALARM, null, this, getClass());
         alarm = PendingIntent.getService(this, 0, alarmIntent, 0);
         
-        final Intent wakeupAlarmIntent = new Intent(ACTION_WAKEUP_ALARM, null, this, getClass());
-        wakeupAlarm = PendingIntent.getService(this, 0, wakeupAlarmIntent, 0);
+        if (ConfigHelper.isLoopModeWakeLock(this))
+        {
+            Log.d(TAG, "using dimWakeLock");
+            dimWakeLock = ((PowerManager) getApplicationContext().getSystemService(Context.POWER_SERVICE)).newWakeLock(
+                    PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.ON_AFTER_RELEASE, "RMBTLoopDimWakeLock");
+            dimWakeLock.acquire();
         
-        final long now = SystemClock.elapsedRealtime();
-        alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, now + 10000, 10000, wakeupAlarm);
+            final Intent wakeupAlarmIntent = new Intent(ACTION_WAKEUP_ALARM, null, this, getClass());
+            wakeupAlarm = PendingIntent.getService(this, 0, wakeupAlarmIntent, 0);
+            
+            final long now = SystemClock.elapsedRealtime();
+            alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, now + 10000, 10000, wakeupAlarm);
+        }
     }
     
     private void setAlarm(long millis)
@@ -198,8 +211,10 @@ public class RMBTLoopService extends Service
             final String action = intent.getAction();
             if (action != null && action.equals(ACTION_STOP))
                 stopSelf();
+            else if (action != null && action.equals(ACTION_FORCE))
+                onAlarmOrLocation(true);
             else if (action != null && action.equals(ACTION_ALARM))
-                onAlarmOrLocation();
+                onAlarmOrLocation(false);
             else if (action != null && action.equals(ACTION_WAKEUP_ALARM))
                 onWakeup();
             else
@@ -207,10 +222,13 @@ public class RMBTLoopService extends Service
                 if (lastTestTime == 0)
                 {
                     Toast.makeText(this, R.string.loop_started, Toast.LENGTH_LONG).show();
-                    onAlarmOrLocation();
+                    onAlarmOrLocation(true);
                 }
                 else
+                {
                     Toast.makeText(this, R.string.loop_already_active, Toast.LENGTH_LONG).show();
+                    onAlarmOrLocation(true);
+                }
             }
         }
         return START_NOT_STICKY;
@@ -227,21 +245,60 @@ public class RMBTLoopService extends Service
         }
     }
     
-    private void onAlarmOrLocation()
+    private void onAlarmOrLocation(boolean force)
     {
-        if (lastTestTime == 0)
-        {
-            triggerTest();
-            return;
-        }
+        updateNotification();
         final long now = SystemClock.elapsedRealtime();
         final long lastTestDelta = now - lastTestTime;
-        if (lastTestDelta + ACCEPT_INACCURACY >= minDelay)
+        
+        Log.d(TAG, "onAlarmOrLocation; force:" + force);
+        
+        if (isRunning.get())
         {
-            triggerTest();
-            return;
+            if (lastTestDelta >= RMBTService.DEADMAN_TIME)
+            {
+                Log.e(TAG, "still running after " + lastTestDelta + " - assuming crash");
+                isRunning.set(false); // assume crash and carry on
+            }
+            else
+            {
+                setAlarm(10000); // check again in 10s
+                return;
+            }
         }
-        setAlarm(minDelay - lastTestDelta);
+        
+        boolean run = false;
+
+        if (force)
+            run = true;
+        
+        if (! run)
+        {
+            Log.d(TAG, "lastTestDelta: " + lastTestDelta);
+            
+            long delay = maxDelay;
+            if (lastDistance >= maxMovement)
+            {
+                Log.d(TAG, "lastDistance >= maxMovement; triggerTest");
+                delay = minDelay;
+            }
+        
+            if (lastTestDelta + ACCEPT_INACCURACY >= delay)
+            {
+                Log.d(TAG, "accept delay (" + delay + "); triggerTest");
+                run = true;
+            }
+        }
+        
+        if (run)
+            triggerTest();
+        
+        if (maxTests == 0 || numberOfTests < maxTests)
+            setAlarm(10000);
+        else
+            stopSelf();
+
+        //setAlarm(delay - lastTestDelta);
     }
 
     @Override
@@ -264,12 +321,11 @@ public class RMBTLoopService extends Service
         }
     }
     
-    private Notification.Builder createNotificationBuilder()
+    private NotificationCompat.Builder createNotificationBuilder()
     {
         final Resources res = getResources();
         
-        final CharSequence textTemplate = res.getText(R.string.loop_notification_text);
-        final CharSequence text = MessageFormat.format(textTemplate.toString(), numberOfTests);
+        
         
 //        final PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(), 0, new Intent(
 //                getApplicationContext(), RMBTMainActivity.class), 0);
@@ -277,29 +333,58 @@ public class RMBTLoopService extends Service
         final Intent stopIntent = new Intent(ACTION_STOP, null, getApplicationContext(), getClass());
         final PendingIntent stopPIntent = PendingIntent.getService(getApplicationContext(), 0, stopIntent, 0);
         
-        final Notification.Builder builder = new Notification.Builder(this)
+        final NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
             .setSmallIcon(R.drawable.stat_icon_loop)
             .setContentTitle(res.getText(R.string.loop_notification_title))
-            .setContentText(text)
             .setTicker(res.getText(R.string.loop_notification_ticker))
             .setContentIntent(stopPIntent);
         
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
-//            addActionToNotificationBuilder(builder, stopPIntent);
-//        else
-//            builder.setContentIntent(stopPIntent);
+        setNotificationText(builder);
+                
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
+        {
+            final Intent forceIntent = new Intent(ACTION_FORCE, null, getApplicationContext(), getClass());
+            final PendingIntent forcePIntent = PendingIntent.getService(getApplicationContext(), 0, forceIntent, 0);
+            addActionToNotificationBuilder(builder, stopPIntent, forcePIntent);
+            
+        }
+        
         return builder;
     }
     
-//    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-//    private void addActionToNotificationBuilder(Notification.Builder builder, PendingIntent intent)
-//    {
-//        builder.addAction(R.drawable.stat_icon_test, "stop", intent);
-//    }
+    private NotificationCompat.BigTextStyle bigTextStyle;
+    
+    private void setNotificationText(NotificationCompat.Builder builder)
+    {
+        final Resources res = getResources();
+        
+        final long now = SystemClock.elapsedRealtime();
+        final long lastTestDelta = lastTestTime == 0 ? 0 : now - lastTestTime;
+        
+        final CharSequence textTemplate = res.getText(R.string.loop_notification_text);
+        final CharSequence text = MessageFormat.format(textTemplate.toString(), numberOfTests, Math.round(lastTestDelta / 1000), Math.round(lastDistance));
+        builder.setContentText(text);
+        
+        if (bigTextStyle == null)
+        {
+            bigTextStyle = (new NotificationCompat.BigTextStyle());
+            builder.setStyle(bigTextStyle);
+        }
+        
+        bigTextStyle.bigText(text);
+    }
+    
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    private static void addActionToNotificationBuilder(NotificationCompat.Builder builder, PendingIntent stopIntent, PendingIntent forceIntent)
+    {
+        builder.addAction(android.R.drawable.ic_menu_delete, "stop", stopIntent);
+        builder.addAction(android.R.drawable.ic_media_play, "force", forceIntent);
+    }
     
     private void updateNotification()
     {
-        final Notification notification = notificationBuilder.setNumber(numberOfTests).getNotification();
+        setNotificationText(notificationBuilder);
+        final Notification notification = notificationBuilder.build();
         notificationManager.notify(NotificationIDs.LOOP_ACTIVE, notification);
     }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  ******************************************************************************/
 package at.alladin.rmbt.android.map;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
@@ -22,8 +23,10 @@ import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnKeyListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -35,13 +38,15 @@ import android.widget.TextView;
 import at.alladin.openrmbt.android.R;
 import at.alladin.rmbt.android.main.RMBTMainActivity;
 import at.alladin.rmbt.android.util.SectionListAdapter;
+import at.alladin.rmbt.util.model.option.ServerOption;
+import at.alladin.rmbt.util.model.option.ServerOptionContainer;
 
 /**
  * 
  * @author bp
  * 
  */
-public class RMBTMapFilterFragment extends Fragment implements OnItemClickListener
+public class RMBTMapFilterFragment extends Fragment implements OnItemClickListener, OnKeyListener
 {
     
     // private static final String DEBUG_TAG = "RMBTMapFilterFragment";
@@ -49,6 +54,10 @@ public class RMBTMapFilterFragment extends Fragment implements OnItemClickListen
     private Runnable recheckRunnable;
     private Handler handler;
     private View view;
+    private ServerOptionContainer options;
+    private boolean isRoot = true;
+    
+    private List<ServerOption> currentOptionList;
     
     /**
 	 * 
@@ -59,7 +68,7 @@ public class RMBTMapFilterFragment extends Fragment implements OnItemClickListen
         super.onCreate(savedInstanceState);
         handler = new Handler();
     }
-    
+
     /**
 	 * 
 	 */
@@ -82,7 +91,7 @@ public class RMBTMapFilterFragment extends Fragment implements OnItemClickListen
             public void run()
             {
                 final RMBTMainActivity activity = getRMBTMainActivity();
-                if (activity.getMapFilterListSelectionList() == null)
+                if (activity.getMapOptions() == null)
                 {
                     activity.fetchMapOptions();
                     handler.postDelayed(recheckRunnable, 500);
@@ -90,22 +99,20 @@ public class RMBTMapFilterFragment extends Fragment implements OnItemClickListen
                 else
                 {
                     progressBar.setVisibility(View.GONE);
-                    populateList();
+                    options = activity.getMapOptions();
+                    populateList(options.getRootOptions(), true);
                 }
             }
         };
         recheckRunnable.run();
-        // /
         
-//        final TextView infoTextView = (TextView) rl.findViewById(R.id.infoText);
-//        infoTextView.setText(getString(R.string.error_no_data));
-            
-        // /
-        
+        view.setFocusableInTouchMode(true);
+        view.requestFocus();
+        view.setOnKeyListener(this);
         
         return view;
     }
-    
+        
     @Override
     public void onDestroy()
     {
@@ -119,24 +126,28 @@ public class RMBTMapFilterFragment extends Fragment implements OnItemClickListen
         return (RMBTMainActivity) getActivity();
     }
     
-    protected void populateList()
+    protected void populateList(List<ServerOption> optionList, boolean isRoot)
     {
+    	this.isRoot = isRoot;
+    	this.currentOptionList = optionList;
         final RMBTMainActivity activity = getRMBTMainActivity();
-        final SectionListAdapter sectionListAdapter = new SectionListAdapter(activity,
-                R.layout.preferences_category);
-        
+        final SectionListAdapter sectionListAdapter = new SectionListAdapter(activity, R.layout.preferences_category, !isRoot);
+     
         // add filter options
-        
-        for (final MapListSection mapListSection : activity.getMapFilterListSelectionList())
-            sectionListAdapter.addSection(mapListSection.getTitle(), new MapListSectionAdapter(activity,
-                    mapListSection));
-        
-        // /
-        
+        if (optionList != null && optionList.size() > 0) {
+	        for (final ServerOption option : optionList) {
+	        	if (option.isEnabled()) {
+	        		if (option.getOptionList() != null && option.getOptionList().size() > 0 && !options.isAnyChildSelected(option)) {
+	        			options.select(option.getOptionList().get(0));
+	        		}
+	        		sectionListAdapter.addSection(option.getTitle(), new MapListSectionAdapter(activity, option, isRoot));
+	        	}
+	        }
+        }
+
         final ListView listView = (ListView) view.findViewById(R.id.valueList);
-        
-        listView.setAdapter(sectionListAdapter);
-        
+        listView.setAdapter(sectionListAdapter);        	
+
         listView.setItemsCanFocus(true);
         listView.setOnItemClickListener(this);
     }
@@ -150,48 +161,21 @@ public class RMBTMapFilterFragment extends Fragment implements OnItemClickListen
         
         final SectionListAdapter sectionListAdapter = (SectionListAdapter) parent.getAdapter();
         
-        final MapListSectionAdapter mapListSectionAdapter = (MapListSectionAdapter) sectionListAdapter
-                .getAdapter(position);
-        
-        // /
         final Object item = sectionListAdapter.getItem(position);
-        if (item instanceof MapListEntry)
-        {
-            final MapListEntry clickedEntry = (MapListEntry) item;
-            
-            final List<MapListEntry> mapListEntryList = mapListSectionAdapter.mapListSection.getMapListEntryList();
-            
-            // uncheck all entries in section:
-            for (final MapListEntry mapListEntry : mapListEntryList)
-                mapListEntry.setChecked(false);
-            
-            // recheck checked entry:
-            clickedEntry.setChecked(true);
-            
-            // handle sat differently
-            final String value = clickedEntry.getValue();
-            final RMBTMainActivity activity = getRMBTMainActivity();
-            if (MapProperties.MAP_SAT_KEY.equals(clickedEntry.getKey()))
-                activity.setMapTypeSatellite(MapProperties.MAP_SAT_VALUE.equals(value));
-            else if (MapProperties.MAP_OVERLAY_KEY.equals(clickedEntry.getKey()))
-            {
-                if (MapProperties.MAP_AUTO_VALUE.equals(value))
-                    activity.setMapOverlayType(MapProperties.MAP_OVERLAY_TYPE_AUTO);
-                else if (MapProperties.MAP_HEATMAP_VALUE.equals(value))
-                    activity.setMapOverlayType(MapProperties.MAP_OVERLAY_TYPE_HEATMAP);
-                else if (MapProperties.MAP_POINTS_VALUE.equals(value))
-                    activity.setMapOverlayType(MapProperties.MAP_OVERLAY_TYPE_POINTS);
-                else if (MapProperties.MAP_SHAPES_VALUE.equals(value))
-                    activity.setMapOverlayType(MapProperties.MAP_OVERLAY_TYPE_SHAPES);
-            }
-            else
-                // set new filter options:
-                activity.updateMapFilter();
-            
-            // reload list view:
-            ((SectionListAdapter) parent.getAdapter()).notifyDataSetChanged();
+        
+        if (options.select((ServerOption) item) != null) {
+        	final List<ServerOption> newOptionList = new ArrayList<ServerOption>();
+        	newOptionList.add((ServerOption) item);
+        	populateList(newOptionList, false);
         }
+        else if (((ServerOption) item).getParent() != null) {
+        	populateList(options.getRootOptions(), true);
+        }
+                
+        ((SectionListAdapter) parent.getAdapter()).notifyDataSetChanged();
+        ((RMBTMainActivity) getActivity()).updateMapFilter(null);
     }
+       
     
     /**
      * 
@@ -204,7 +188,7 @@ public class RMBTMapFilterFragment extends Fragment implements OnItemClickListen
         /**
 		 * 
 		 */
-        private final MapListSection mapListSection;
+        private final ServerOption option;
         
         /**
 		 * 
@@ -213,12 +197,18 @@ public class RMBTMapFilterFragment extends Fragment implements OnItemClickListen
         
         /**
          * 
+         */
+        private final boolean isRootElement;
+        
+        /**
+         * 
          * @param mapListSection
          */
-        public MapListSectionAdapter(final Context context, final MapListSection mapListSection)
+        public MapListSectionAdapter(final Context context, final ServerOption option, final boolean isRootElement)
         {
             this.context = context;
-            this.mapListSection = mapListSection;
+            this.option = option;
+            this.isRootElement = isRootElement;
         }
         
         /**
@@ -227,7 +217,13 @@ public class RMBTMapFilterFragment extends Fragment implements OnItemClickListen
         @Override
         public int getCount()
         {
-            return mapListSection.getMapListEntryList().size();
+        	if (option.isEnabled() && isRootElement) {
+        		return 1;
+        	}
+        	else if (option.isEnabled() && option.getEnabledOptionList() != null) {
+       			return option.getEnabledOptionList().size();
+        	}
+            return 0;
         }
         
         /**
@@ -236,7 +232,10 @@ public class RMBTMapFilterFragment extends Fragment implements OnItemClickListen
         @Override
         public Object getItem(final int position)
         {
-            return mapListSection.getMapListEntryList().get(position);
+        	if (isRootElement) {
+        		return option;
+        	}
+       		return (option.getEnabledOptionList().get(position));
         }
         
         /**
@@ -262,21 +261,44 @@ public class RMBTMapFilterFragment extends Fragment implements OnItemClickListen
             
             final TextView titleTextView = (TextView) convertView.findViewById(android.R.id.title);
             final TextView summaryTextView = (TextView) convertView.findViewById(android.R.id.summary);
+            final TextView subselectTextView = (TextView) convertView.findViewById(R.id.subselect);
             
             final RadioButton checkedTextView = (RadioButton) convertView.findViewById(R.id.radiobutton);
             
             // /
             
-            final MapListEntry entry = (MapListEntry) getItem(position);
+            final ServerOption entry = (ServerOption) getItem(position);
+            
+            if (isRootElement) {
+            	checkedTextView.setVisibility(View.GONE);
+            }
+            
+            String subOptions = "";
+            if (entry.isChecked()) {
+	            for (ServerOption o : options.getSelectedSubOptions(entry)) {
+	            	subOptions = o.getTitle() + (subOptions.length() > 0 ? ", " : "") + subOptions ; 
+	            }
+            }
             
             // /
             
+            subselectTextView.setText(subOptions);
             titleTextView.setText(entry.getTitle());
             summaryTextView.setText(entry.getSummary());
-            
             checkedTextView.setChecked(entry.isChecked());
             
             return convertView;
         }
     }
+
+	@Override
+	public boolean onKey(View v, int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
+			if (currentOptionList != null && !isRoot) {
+				populateList(options.getRootOptions(), true);
+				return true;
+			}
+		}
+		return false;
+	}
 }

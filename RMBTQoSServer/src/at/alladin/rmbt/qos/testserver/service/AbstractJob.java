@@ -15,7 +15,9 @@
  ******************************************************************************/
 package at.alladin.rmbt.qos.testserver.service;
 
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import at.alladin.rmbt.qos.testserver.ServerPreferences.TestServerServiceEnum;
 import at.alladin.rmbt.qos.testserver.util.TestServerConsole;
@@ -28,6 +30,19 @@ import at.alladin.rmbt.qos.testserver.util.TestServerConsole;
 public abstract class AbstractJob<R> implements Runnable {
 	
 	/**
+	 * job states
+	 * @author lb
+	 *
+	 */
+	public static enum JobState {
+		INIT,
+		START,
+		RUN,
+		STOP,
+		ERROR
+	}
+	
+	/**
 	 * the main execution procedure, a result can be returned
 	 * @return
 	 * @throws Exception
@@ -35,10 +50,32 @@ public abstract class AbstractJob<R> implements Runnable {
 	public abstract R execute() throws Exception;
 	
 	/**
+	 * needed to create a new instance of s service
+	 * @return
+	 */
+	public abstract AbstractJob<R> getNewInstance();
+	
+	/**
+	 * id used by the service manager to maintain a service map
+	 * @return
+	 */
+	public abstract String getId();
+	
+	/**
 	 * 
 	 */
-	public final AtomicBoolean isRunning = new AtomicBoolean(true);
+	protected final AtomicBoolean isRunning = new AtomicBoolean(true);
+	
+	/**
+	 * 
+	 */
+	protected final AtomicReference<JobState> state = new AtomicReference<AbstractJob.JobState>(JobState.INIT);
 
+	/**
+	 * 
+	 */
+	protected final ConcurrentHashMap<JobState, JobCallback> callbackMap = new ConcurrentHashMap<>();
+	
 	/**
 	 * 
 	 */
@@ -62,6 +99,7 @@ public abstract class AbstractJob<R> implements Runnable {
 	public synchronized void stop() {
 		log("STOPPING SERVICE!", 0);
 		isRunning.set(false);
+		dispatchEvent(JobState.STOP, result);
 	}
 
 	/**
@@ -69,6 +107,7 @@ public abstract class AbstractJob<R> implements Runnable {
 	 */
 	public void start() {
 		isRunning.set(true);
+		dispatchEvent(JobState.START, result);
 	}
 	
 	/**
@@ -109,15 +148,67 @@ public abstract class AbstractJob<R> implements Runnable {
 	
 	/**
 	 * 
+	 * @param t
+	 * @param verboseLevelNeeded
+	 */
+	public void error(Throwable t, int verboseLevelNeeded) {
+		TestServerConsole.error("[" + getService().getName() + "]", t, verboseLevelNeeded, getService());	
+	}
+	
+	/**
+	 * 
 	 * @return
 	 */
 	public TestServerServiceEnum getService() {
 		return service;
 	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public JobState getState() {
+		return state.get();
+	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString() {
-		return "AbstractJob [isRunning=" + isRunning + ", service=" + service
+		return "AbstractJob [isRunning=" + isRunning + ", state=" + state
+				+ ", callbackMap=" + callbackMap + ", service=" + service
 				+ ", result=" + result + "]";
+	}
+	
+	/**
+	 * 	
+	 * @return
+	 */
+	public boolean getIsRunning() {
+		return isRunning.get();
+	}
+
+	/**
+	 * 
+	 * @param onState
+	 * @param callback
+	 */
+	public void setCallback(JobState onState, JobCallback callback) {
+		callbackMap.put(onState, callback);
+	}
+	
+	/**
+	 * 
+	 * @param newState
+	 */
+	public void dispatchEvent(JobState newState, R result) {
+		state.set(newState);
+		
+		JobCallback callback = callbackMap.get(newState);
+		if (callback != null) {
+			callback.onEvent(this, newState, result);
+		}
 	}
 }

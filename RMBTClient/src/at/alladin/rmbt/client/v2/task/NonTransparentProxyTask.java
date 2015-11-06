@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.Locale;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import at.alladin.rmbt.client.QualityOfServiceTest;
 import at.alladin.rmbt.client.v2.task.result.QoSTestResult;
@@ -35,7 +37,7 @@ public class NonTransparentProxyTask extends AbstractQoSTask {
 
 	public final static long DEFAULT_TIMEOUT = 5000000000L;
 	
-	private final String request;
+	private final String testRequest;
 	
 	private final int port;
 	
@@ -63,7 +65,7 @@ public class NonTransparentProxyTask extends AbstractQoSTask {
 	 * @param taskDesc
 	 */
 	public NonTransparentProxyTask(QualityOfServiceTest nnTest, TaskDesc taskDesc, int threadId) {
-		super(nnTest, taskDesc, threadId);
+		super(nnTest, taskDesc, threadId, threadId);
 		
 		String requestString = (String)taskDesc.getParams().get(PARAM_PROXY_REQUEST);;
 		
@@ -71,7 +73,7 @@ public class NonTransparentProxyTask extends AbstractQoSTask {
 			requestString += "\n";
 		}
 
-		this.request = requestString;
+		this.testRequest = requestString;
 		this.port = Integer.valueOf((String)taskDesc.getParams().get(PARAM_PROXY_PORT));
 		
 		String value = (String) taskDesc.getParams().get(PARAM_PROXY_TIMEOUT);
@@ -87,64 +89,65 @@ public class NonTransparentProxyTask extends AbstractQoSTask {
 		try {
 			onStart(result);
 			result.getResultMap().put(RESULT_PORT, port);
-			String response = "";
+
+			final CountDownLatch latch = new CountDownLatch(1);
 			
-			Socket initSocket = null;
-			try {
-				try {
-					initSocket = connect(result, InetAddress.getByName(getTestServerAddr()), getTestServerPort(), 
-		    			QOS_SERVER_PROTOCOL_VERSION, "ACCEPT", getQoSTest().getTestSettings().isUseSsl(), CONTROL_CONNECTION_TIMEOUT);
-				}
-				catch (IOException e) {
-                    result.setFatalError(true);
-                    throw e;
-                }
-
-		    	initSocket.setSoTimeout((int)(timeout/1000000));
-		    	
-				sendMessage("NTPTEST " + port + "\n");
-				response = reader.readLine();
+			final ControlConnectionResponseCallback callback = new ControlConnectionResponseCallback() {
 				
-				//wait for ok -> server has opened requested socket
-				if (response.startsWith("OK")) {
-					//reset response string:
-					response = "";
-					//open test socket
-					InetSocketAddress socketAddr = new InetSocketAddress(InetAddress.getByName(getTestServerAddr()), port);
-					Socket testSocket = new Socket();
-					testSocket.connect(socketAddr, (int)(timeout/1000000));
-					testSocket.setSoTimeout((int)(timeout/1000000));
-					
-					//send request to echo service				
-					sendMessage(testSocket, request);
-					
-					//read response from echo service
-					response = readLine(testSocket);
-					System.out.println("NON_TRANSPARENT_PROXY response: " + response);
-					if (response != null) {		
-						response = String.format(Locale.US, "%s", response);
+				public void onResponse(final String controlResponse, final String controlRequest) {
+					try {
+						//wait for ok -> server has opened requested socket
+						if (controlResponse.startsWith("OK")) {
+							//reset response string:
+							//open test socket
+							InetSocketAddress socketAddr = new InetSocketAddress(InetAddress.getByName(getTestServerAddr()), port);
+							Socket testSocket = new Socket();
+							testSocket.connect(socketAddr, (int)(timeout/1000000));
+							testSocket.setSoTimeout((int)(timeout/1000000));
+							
+							//send request to echo service				
+							sendMessage(testSocket, testRequest);
+							
+							//read response from echo service
+							String testResponse = readLine(testSocket);
+							System.out.println("NON_TRANSPARENT_PROXY response: " + testResponse);
+							if (testResponse != null) {		
+								testResponse = String.format(Locale.US, "%s", testResponse);
+								result.getResultMap().put(RESULT_RESPONSE, (testResponse != null ? testResponse.trim() : ""));
+							}
+							else {
+								throw new IOException();
+							}
+							
+							result.getResultMap().put(RESULT_STATUS, "OK");
+						}
+						else {
+							result.getResultMap().put(RESULT_STATUS, "ERROR");
+						}
 					}
-					else {
-						throw new IOException();
+					catch (SocketTimeoutException e) {
+						e.printStackTrace();
+						result.getResultMap().put(RESULT_STATUS, "TIMEOUT");
 					}
-
-					//close connection:
-					sendMessage("QUIT\n");
+					catch (Exception e) {
+						e.printStackTrace();
+						result.getResultMap().put(RESULT_STATUS, "ERROR");
+					}
+					finally {
+						latch.countDown();
+					}
 				}
-				
-				result.getResultMap().put(RESULT_STATUS, "OK");
-			}
-			catch (SocketTimeoutException e) {
-				e.printStackTrace();
+			};
+			
+			sendCommand("NTPTEST " + port, callback);
+			if (!latch.await(timeout, TimeUnit.NANOSECONDS)) {
 				result.getResultMap().put(RESULT_STATUS, "TIMEOUT");
 			}
-			catch (Exception e) {
-				e.printStackTrace();
-				result.getResultMap().put(RESULT_STATUS, "ERROR");
-			}
 			
-			result.getResultMap().put(RESULT_REQUEST, (request != null ? request.trim() : ""));
-			result.getResultMap().put(RESULT_RESPONSE, (response != null ? response.trim() : ""));
+			if (!result.getResultMap().containsKey(RESULT_RESPONSE)) {
+				result.getResultMap().put(RESULT_RESPONSE, "");
+			}
+			result.getResultMap().put(RESULT_REQUEST, (testRequest != null ? testRequest.trim() : ""));
 			result.getResultMap().put(RESULT_TIMEOUT, timeout);
 			
 			return result;			
@@ -174,6 +177,14 @@ public class NonTransparentProxyTask extends AbstractQoSTask {
 	 */
 	public QoSTestResultEnum getTestType() {
 		return QoSTestResultEnum.NON_TRANSPARENT_PROXY;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see at.alladin.rmbt.client.v2.task.QoSTask#needsQoSControlConnection()
+	 */
+	public boolean needsQoSControlConnection() {
+		return true;
 	}
 
 }

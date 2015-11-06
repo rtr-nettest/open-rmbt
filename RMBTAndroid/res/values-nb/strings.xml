@@ -194,6 +194,114 @@
 	<string name="test_bottom_test_status_error">Feil</string>
 	<string name="test_bottom_test_status_aborted">Avbrutt</string>
 	
+		<!-- App version 2.0 -->
+<!-- Not translated -->
+    <string name="error_history_no_data_no_connection">No Internet connection. Could not load data.</string>
+    <string name="preferences_tag">Tag</string>
+    <string name="preferences_tag_sum">Add a custom test tag to every test</string>
+    <string name="preferences_loop_mode_max_tests">Loop max tests</string>
+    <string name="preferences_loop_mode_max_tests_sum">Maximum number of tests to run if loop mode is active (0 = run forever)</string>
+    <string name="preferences_loop_mode_min_delay">Loop min delay</string>
+    <string name="preferences_loop_mode_min_delay_sum">Minimum time in seconds between two tests if loop mode is active</string>
+    <string name="preferences_loop_mode_max_delay">Loop max delay</string>
+    <string name="preferences_loop_mode_max_delay_sum">Maximum time in seconds between two tests if loop mode is active</string>
+    <string name="preferences_loop_mode_movement">Loop movement</string>
+    <string name="preferences_loop_mode_movement_sum">Movement in meters after which a test in loop mode is triggered</string>
+    <string name="preferences_loop_mode_gps">Use GPS when loop mode is active</string>
+    <string name="preferences_loop_mode_gps_sum">Use GPS between two tests in loop mode</string>
+    <string name="loop_notification_ticker">Loop mode is active…</string>
+    <string name="loop_notification_title">Loop mode is active</string>
+    <string name="loop_notification_text">Touch to stop Loop mode</string>
+    <string name="loop_started">Loop mode started.</string>
+    <string name="loop_already_active">Loop mode is already active.</string>
+    <string name="preferences_category_loop_mode">Loop mode</string>
+    <string name="preferences_category_developer_qos_server">QoS server</string>
+    <string name="preferences_category_developer_debug">Debugging</string>
+    <string name="preferences_dev_qos_ssl">QoS server SSL</string>
+    <string name="preferences_dev_qos_ssl_sum">Use encrypted connection to QoS server</string>
+    <string name="preferences_dev_debug_sysout">Store error output in file</string>
+    <string name="preferences_dev_debug_sysout_sum">Stores error output in a text file located in the "qosdebug" folder</string>
+    <string name="test_dialog_error_control_server_conn">Connection to test server cannot be established.</string>
+    <string name="map_overlay_shapes_title">Shapes</string>
+    <string name="map_overlay_shapes_summary">Map shows tests as postal code shapes</string>
+
+    <!-- QoS values: -->
+    <string name="about_control_server_version">Control server version</string>
+    <string name="preferences_dont_show_menu_on_exit">No menu on close</string>
+    <string name="preferences_dont_show_menu_on_exit_sum">Don\'t show application menu before closing it.</string>
+    <string name="qos_test_name_website">Reference web page</string>
+    <string name="qos_test_name_http_proxy">Unmodified content</string>
+    <string name="qos_test_name_non_transparent_proxy">Transparent connection</string>
+    <string name="qos_test_name_dns">DNS</string>
+    <string name="qos_test_name_tcp">TCP ports</string> 
+    <string name="qos_test_name_udp">UDP ports</string>
+    
+    <string name="qos_test_result_error">Error</string>
+    <string name="qos_test_result_all">Results</string>
+    
+    <string name="result_details_qos_failure">FAILED</string>
+    <string name="result_details_qos_success">SUCCEEDED</string>
+    <string name="result_qos_stats">Quality tests</string>
+    <string name="result_qos_error_no_data_available">The QoS test was not executed.</string>
+    
+    <string name="title_screen_ipv4">IPv4</string>
+    <string name="title_screen_ipv6">IPv6</string>
+    <string name="title_screen_traffic">Background traffic</string>
+    <string name="title_screen_network_id">Network ID:</string>
+    
+    <string name="title_screen_info_overlay_location">Location</string>
+    <string name="title_screen_info_overlay_ipv4_public">Public IPv4</string>
+    <string name="title_screen_info_overlay_ipv4_private">Private IPv4</string>
+    <string name="title_screen_info_overlay_ipv6_public">Public IPv6</string>
+    <string name="title_screen_info_overlay_ipv6_private">Private IPv6</string>
+    <string name="title_screen_info_overlay_ul_traffic">Upload traffic</string>
+    <string name="title_screen_info_overlay_dl_traffic">Download traffic</string>
+    <string name="title_screen_info_overlay_control_server_conn">ControlServer connection</string>
+    <string name="title_screen_info_overlay_captive_portal_status">Captive portal</string>
+    <string name="title_screen_info_overlay_is_loopback">Is loopback</string>
+    <string name="title_screen_info_overlay_is_link_local">Is link local</string>
+    <string name="title_screen_info_overlay_location_position">Position</string>
+    <string name="title_screen_info_overlay_location_source">Source</string>
+    <string name="title_screen_info_overlay_location_accuracy">Accuracy</string>
+    <string name="title_screen_info_overlay_location_altitude">Altitude</string>
+    <string name="title_screen_info_overlay_location_age">Age</string>
+    
+    <string name="captive_portal_found">found</string>
+    <string name="captive_portal_not_found">not found</string>
+    <string name="captive_portal_testing">test running…</string>
+    
+    <string name="not_available">not available</string>
+    
+    <string name="test_label_test_info">Test information</string>
+    <string name="test_label_progress">Progress</string>
+    <string name="test_label_quality_test">Quality test</string>
+    <string name="test_toast_error_text_qos">There has been an error during the QoS test.</string>
+
+<!-- Translated, with examples in English and German at the end of the line-->
+    <string name="menu_button_title_page">Home</string> <!--Home,Startseite-->
+    <string name="menu_button_share">Share</string> <!--Share,Teilen-->
+    <string name="test_location_sat">satellites</string> <!--satellites,Satelliten-->
+    <string name="result_category_tests">TESTS</string> <!--TESTS,TESTS-->
+    <string name="result_description">DESCRIPTION</string> <!--DESCRIPTION,BESCHREIBUNG-->
+    <string name="term_signal">Signal</string> <!--Signal,Signal-->
+    <string name="result_page_title_qos">QoS</string> <!--QoS,QoS-->
+    <string name="result_page_title_test">Details</string> <!--Details,Details-->
+    <string name="result_page_title_menu">Result</string> <!--Result,Ergebnisse-->
+    <string name="result_page_title_graph">Graph</string> <!--Graph,Graph-->
+    <string name="result_page_title_map">Location</string> <!--Location,Standort-->
+    <string name="page_title_title_page">Menu</string> <!--Menu,Menü-->
+    <string name="page_title_history">History</string> <!--History,Verlauf-->
+    <string name="page_title_help">Help</string> <!--Help,Hilfe-->
+    <string name="page_title_statistics">Statistics</string> <!--Statistics,Statistik-->
+    <string name="page_title_information">Information</string> <!--Information,Information-->
+    <string name="page_title_map">Map</string> <!--Map,Karte-->
+    <string name="page_title_settings">Settings</string> <!--Settings,Einstellungen-->
+    <string name="page_title_about">About</string> <!--About,Info-->
+    <string name="page_title_main_result">Test result</string> <!--Test result,Ergebnisse-->
+    <string name="page_title_sync">Sync</string> <!--Sync,Sync-->
+    <string name="page_title_qos_result">QoS</string> <!--QoS results,QoS-->
+	
+	
 </resources>
 
 

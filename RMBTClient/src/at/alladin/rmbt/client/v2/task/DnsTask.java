@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,7 +85,7 @@ public class DnsTask extends AbstractQoSTask {
 	 * @param taskDesc
 	 */
 	public DnsTask(QualityOfServiceTest nnTest, TaskDesc taskDesc, int threadId) {
-		super(nnTest, taskDesc, threadId);
+		super(nnTest, taskDesc, threadId, threadId);
 		this.record = (String)taskDesc.getParams().get(PARAM_DNS_RECORD);
 		this.host = (String)taskDesc.getParams().get(PARAM_DNS_HOST);
 		this.resolver = (String)taskDesc.getParams().get(PARAM_DNS_RESOLVER);
@@ -221,5 +221,13 @@ public class DnsTask extends AbstractQoSTask {
 	 */
 	public QoSTestResultEnum getTestType() {
 		return QoSTestResultEnum.DNS;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see at.alladin.rmbt.client.v2.task.QoSTask#needsQoSControlConnection()
+	 */
+	public boolean needsQoSControlConnection() {
+		return false;
 	}
 }

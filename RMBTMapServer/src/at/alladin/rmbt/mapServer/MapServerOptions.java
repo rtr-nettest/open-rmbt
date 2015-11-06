@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -133,8 +133,8 @@ final public class MapServerOptions
                         true));
             
             put("mobile/signal",
-                    new MapOption("signal_strength",
-                    "signal_strength is not null AND network_type not in (0, 97, 98, 99)",
+                    new MapOption("merged_signal",
+                    "merged_signal is not null AND network_type not in (0, 97, 98, 99)",
                     colors_ryg_short,
                     new double[] { -123.5, -108.5, -93.5, -78.5, -63.5 },
                     new String[] { "", "-108", "-94", "-78", "" },
@@ -142,19 +142,7 @@ final public class MapServerOptions
                     Classification.THRESHOLD_SIGNAL_MOBILE_CAPTIONS,
                     "heatmap",
                     false));
-            
-            //  filter for LTE signal strength
-            put("mobile/lte_rsrp",
-                    new MapOption("lte_rsrp",
-                    "lte_rsrp is not null AND network_type not in (0, 97, 98, 99)",
-                    colors_ryg_short,
-                    new double[] { -133.5, -118.5, -103.5, -88.5, -73.5 },
-                    new String[] { "", "-118", "-104", "-88", "" },
-                    Classification.THRESHOLD_SIGNAL_RSRP,
-                    Classification.THRESHOLD_SIGNAL_RSRP_CAPTIONS,
-                    "heatmap",
-                    false));
-            
+                        
             put("wifi/download", new MapOption("speed_download",
                     "speed_download_log",
                     "speed_download is not null AND network_type = 99",
@@ -377,9 +365,10 @@ final public class MapServerOptions
                         return null;
                     try
                     {
-                        final int period = Integer.parseInt(input);
-                        if (period <= 0 || period > 730)
-                            return null;
+                        int _period = Integer.parseInt(input);
+                        if (_period <= 0 || _period > 1460)
+                            _period = 1;
+                        final int period = _period;
                         
                         return new SQLFilter("t.time > NOW() - CAST(? AS INTERVAL)")
                         {
@@ -395,6 +384,23 @@ final public class MapServerOptions
                     {
                         return null;
                     }
+                }
+            });
+            
+            put("developer_code", new MapFilter()
+            {
+            	@Override
+                SQLFilter getFilter(final String input)
+                {            	
+        			return new SQLFilter("t.developer_code = ?") {
+
+        				@Override
+        				int fillParams(int i, final PreparedStatement ps) throws SQLException
+        				{
+        					ps.setString(i++, input);
+        					return i;
+        				}
+        			};
                 }
             });
             
@@ -429,7 +435,7 @@ final public class MapServerOptions
         }
     });
     
-    static class MapOption
+    public static class MapOption
     {
         public MapOption(final String valueColumn, final String sqlFilter, final int[] colors,
                 final double[] intervals, final String[] captions, final int[] classification,
@@ -481,22 +487,22 @@ final public class MapServerOptions
             
         }
         
-        final String valueColumn;
-        final String valueColumnLog;
-        final String sqlFilter;
-        final int[] colorsSorted;
-        final double[] intervalsSorted;
-        final String[] colorsHexStrings;
-        final double[] intervals;
-        final String[] captions;
-        final int[] classification;
-        final String[] classificationCaptions;
-        final String overlayType;
-        final boolean reverseScale;
+        public final String valueColumn;
+        public final String valueColumnLog;
+        public final String sqlFilter;
+        public final int[] colorsSorted;
+        public final double[] intervalsSorted;
+        public final String[] colorsHexStrings;
+        public final double[] intervals;
+        public final String[] captions;
+        public final int[] classification;
+        public final String[] classificationCaptions;
+        public final String overlayType;
+        public final boolean reverseScale;
         
         public int getClassification(final long value)
         {
-            return Classification.classify(classification, value);
+            return Classification.classify(classification, value, true);
         }
     }
     
@@ -542,6 +548,11 @@ final public class MapServerOptions
     public static Map<String, MapFilter> getMapFilterMap()
     {
         return mapFilterMap;
+    }
+    
+    public static boolean isValidFilter(String name)
+    {
+        return mapFilterMap.containsKey(name);
     }
     
     public static List<SQLFilter> getDefaultMapFilters()

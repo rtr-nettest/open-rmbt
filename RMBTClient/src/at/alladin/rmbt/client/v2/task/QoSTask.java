@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,4 +68,10 @@ public interface QoSTask extends Callable<QoSTestResult>, Comparable<QoSTask> {
 	 * @return
 	 */
 	public QoSTestResultEnum getTestType();
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public boolean needsQoSControlConnection();
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,9 +37,9 @@ import android.widget.ScrollView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import at.alladin.openrmbt.android.R;
-import at.alladin.rmbt.android.adapter.result.QoSCategoryPagerAdapter;
 import at.alladin.rmbt.android.main.RMBTMainActivity;
 import at.alladin.rmbt.android.util.CheckTestResultDetailTask;
+import at.alladin.rmbt.android.util.ConfigHelper;
 import at.alladin.rmbt.android.util.EndTaskListener;
 import at.alladin.rmbt.android.views.ResultDetailsView.ResultDetailType;
 import at.alladin.rmbt.client.v2.task.result.QoSServerResult.DetailType;
@@ -151,12 +151,13 @@ public class ResultQoSDetailView extends ScrollView implements EndTaskListener, 
 			View successList = view.findViewById(R.id.qos_success_list);
 
 			List<HashMap<String, String>> itemList = new ArrayList<HashMap<String,String>>();
+			int index = 0;
 			for (QoSTestResultEnum type : QoSTestResultEnum.values()) {
 				if (results.getQoSStatistics().getTestCounter(type) > 0) {
 					HashMap<String, String> listItem = new HashMap<String, String>();
-					listItem.put("name", activity.getResources().getString(QoSCategoryPagerAdapter.TITLE_MAP.get(type)));
-					listItem.put("type", results.getTestDescMap().get(type).getName());
+					listItem.put("name", ConfigHelper.getCachedQoSNameByTestType(type, activity));
 					listItem.put("type_name", type.toString());
+					listItem.put("index", String.valueOf(index++));
 					itemList.add(listItem);
 				}
 			}
@@ -216,10 +217,10 @@ public class ResultQoSDetailView extends ScrollView implements EndTaskListener, 
 		ListView listView = (ListView) adapter;
 		HashMap<String, String> item = (HashMap<String, String>) listView.getAdapter().getItem(position);
 		if (listView.getId() == R.id.qos_success_list) {
-			activity.showExpandedResultDetail(results, DetailType.OK, QoSTestResultEnum.valueOf(item.get("type_name")));
+			activity.showExpandedResultDetail(results, DetailType.OK, Integer.valueOf(item.get("index")));
 		}
 		else if (listView.getId() == R.id.qos_error_list) {
-			activity.showExpandedResultDetail(results, DetailType.FAIL, QoSTestResultEnum.valueOf(item.get("type_name")));
+			activity.showExpandedResultDetail(results, DetailType.FAIL, Integer.valueOf(item.get("index")));
 		}
 	}
 	
@@ -229,10 +230,10 @@ public class ResultQoSDetailView extends ScrollView implements EndTaskListener, 
 		try {
 			HashMap<String, String> item = (HashMap<String, String>) v.getTag();
 			if (((View) v.getParent()).getId() == R.id.qos_success_list) {
-				activity.showExpandedResultDetail(results, DetailType.OK, QoSTestResultEnum.valueOf(item.get("type_name")));
+				activity.showExpandedResultDetail(results, DetailType.OK, Integer.valueOf(item.get("index")));
 			}
 			else if (((View) v.getParent()).getId() == R.id.qos_error_list) {
-				activity.showExpandedResultDetail(results, DetailType.FAIL, QoSTestResultEnum.valueOf(item.get("type_name")));
+				activity.showExpandedResultDetail(results, DetailType.FAIL, Integer.valueOf(item.get("index")));
 			}
 		}
 		catch (Exception e) {

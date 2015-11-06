@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,6 +56,9 @@ public class RMBTClientRunner
             {
                 acceptsAll(Arrays.asList("?", "help"), "show help");
                 
+                acceptsAll(Arrays.asList("token"), "token to access rmbt server directly; in this case the controlserver is not contacted").withRequiredArg()
+                        .ofType(String.class);
+                
                 acceptsAll(Arrays.asList("h", "host"), "RMBT server IP or hostname (required)").withRequiredArg()
                         .ofType(String.class);
                 
@@ -66,16 +69,18 @@ public class RMBTClientRunner
                 
                 acceptsAll(Arrays.asList("ssl-no-verify"), "turn off SSL/TLS certificate validation");
                 
-                acceptsAll(Arrays.asList("t", "threads"), "number of threads (required when dev-mode)")
+                acceptsAll(Arrays.asList("t", "threads"), "number of threads")
                         .withRequiredArg().ofType(Integer.class);
                 
-                acceptsAll(Arrays.asList("d", "duration"), "test duration in seconds (required when dev-mode)")
+                acceptsAll(Arrays.asList("d", "duration"), "test duration in seconds")
                         .withRequiredArg().ofType(Integer.class);
                 
                 acceptsAll(Arrays.asList("n", "ndt"), "run NDT after RMBT");
                 
                 acceptsAll(Arrays.asList("ndt-host"), "NDT host to use").withRequiredArg()
                         .ofType(String.class);
+                
+                acceptsAll(Arrays.asList("q", "qos"), "run qos tests");
                 
             }
         };
@@ -127,7 +132,7 @@ public class RMBTClientRunner
         
         final ArrayList<String> geoInfo = null;
         
-        final String uuid = "1cc2d6bb-2f07-4cb8-8fd6-fb5ffcf10cb0";
+        final String uuid = "246c1ad3-35bc-43d4-a299-f89b2f7dda41";
         
         final JSONObject additionalValues = new JSONObject();
         try
@@ -147,13 +152,36 @@ public class RMBTClientRunner
             numThreads = (Integer) options.valueOf("t");
         if (options.has("d"))
             duration = (Integer) options.valueOf("d");
-            
+        
+        int numPings = 10;
+        
         RMBTTestParameter overrideParams = null;
         if (numThreads > 0 || duration > 0)
-            overrideParams = new RMBTTestParameter(null, 0, false, duration, numThreads);
+            overrideParams = new RMBTTestParameter(null, 0, false, duration, numThreads, numPings);
             
-        client = RMBTClient.getInstance(host, null, port, encryption, geoInfo, uuid,
-                "DESKTOP", Config.RMBT_CLIENT_NAME, Config.RMBT_VERSION_NUMBER, overrideParams, null);
+        
+        if (options.has("token")) // direct mode
+        {
+            // set defaults
+            if (numThreads == 0)
+                numThreads = 3;
+            
+            if (duration == 0)
+                duration = 7;
+            
+            final String token = (String) options.valueOf("token");
+            final long startTime = System.currentTimeMillis(); // startTime = now
+            
+            final RMBTTestParameter params = new RMBTTestParameter(host, port, encryption, token, duration, numPings, numPings, startTime);
+            
+            client = new RMBTClient(params, null);
+        }
+        else
+        {
+            // standard mode with contact to control server
+            client = RMBTClient.getInstance(host, null, port, encryption, geoInfo, uuid,
+                    "DESKTOP", Config.RMBT_CLIENT_NAME, Config.RMBT_VERSION_NUMBER, overrideParams, null);
+        }
         
         if (client != null)
         {
@@ -177,27 +205,33 @@ public class RMBTClientRunner
             client.shutdown();
             
 			try {
-				System.out.print("Starting QoS Test... ");
-            	TestSettings nnTestSettings = new TestSettings(client.getControlConnection().getStartTimeNs());
-				QualityOfServiceTest nnTest = new QualityOfServiceTest(client, nnTestSettings);
-				QoSResultCollector nnResult = nnTest.call();
-            	System.out.println("finished.");
-				if (nnResult != null && nnTest.getStatus().equals(QoSTestEnum.QOS_FINISHED)) {
-					System.out.print("Sending QoS results... ");
-					client.sendQoSResult(nnResult);
-					System.out.println("finished");
-				}
-				else {
-					System.out.println("Error during QoS test.");
-				}
+			    if (options.has("q") && client.getControlConnection() != null)
+			    {
+    				System.out.print("Starting QoS Test... ");
+                	TestSettings nnTestSettings = new TestSettings(client.getControlConnection().getStartTimeNs());
+    				QualityOfServiceTest nnTest = new QualityOfServiceTest(client, nnTestSettings);
+    				QoSResultCollector nnResult = nnTest.call();
+                	System.out.println("finished.");
+    				if (nnResult != null && nnTest.getStatus().equals(QoSTestEnum.QOS_FINISHED)) {
+    					System.out.print("Sending QoS results... ");
+    					client.sendQoSResult(nnResult);
+    					System.out.println("finished");
+    				}
+    				else {
+    					System.out.println("Error during QoS test.");
+    				}
+			    }
             	
 			} catch (Exception e) {
 				e.printStackTrace();
 			}                            	                    	
 
                        
-            if (client.getStatus() != TestStatus.END)
+            if (client.getStatus() != TestStatus.SPEEDTEST_END && client.getStatus() != TestStatus.QOS_END)
+            {
                 System.out.println("ERROR: " + client.getErrorMsg());
+                System.out.println("Status: " + client.getStatus());
+            }
             else
             {
                 if (options.has("n"))

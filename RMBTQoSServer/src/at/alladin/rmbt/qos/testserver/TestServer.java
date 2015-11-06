@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  ******************************************************************************/
 package at.alladin.rmbt.qos.testserver;
 
+import java.io.Closeable;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,7 +23,9 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
+import java.net.Socket;
 import java.net.SocketAddress;
+import java.nio.channels.DatagramChannel;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
@@ -32,11 +35,14 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -48,15 +54,22 @@ import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 
+import at.alladin.rmbt.qos.testserver.ServerPreferences.ServiceSetting;
 import at.alladin.rmbt.qos.testserver.ServerPreferences.TestServerServiceEnum;
+import at.alladin.rmbt.qos.testserver.ServerPreferences.UdpPort;
+import at.alladin.rmbt.qos.testserver.entity.TestCandidate;
 import at.alladin.rmbt.qos.testserver.service.EventJob.EventType;
 import at.alladin.rmbt.qos.testserver.service.ServiceManager;
-import at.alladin.rmbt.qos.testserver.tcp.TcpServer;
+import at.alladin.rmbt.qos.testserver.tcp.TcpMultiClientServer;
 import at.alladin.rmbt.qos.testserver.tcp.TcpWatcherRunnable;
+import at.alladin.rmbt.qos.testserver.udp.AbstractUdpServer;
+import at.alladin.rmbt.qos.testserver.udp.NioUdpMultiClientServer;
 import at.alladin.rmbt.qos.testserver.udp.UdpMultiClientServer;
+import at.alladin.rmbt.qos.testserver.udp.UdpTestCandidate;
 import at.alladin.rmbt.qos.testserver.udp.UdpWatcherRunnable;
 import at.alladin.rmbt.qos.testserver.util.RuntimeGuardService;
 import at.alladin.rmbt.qos.testserver.util.TestServerConsole;
+import at.alladin.rmbt.util.Randomizer;
 
 /**
  * 
@@ -67,17 +80,36 @@ public class TestServer {
 	/**
 	 * major version number
 	 */
-	public final static String TEST_SERVER_VERSION_MAJOR = "0";
+	public final static String TEST_SERVER_VERSION_MAJOR = "2";
 	
 	/**
 	 * minor version number
 	 */
-	public final static String TEST_SERVER_VERSION_MINOR = "57";
+	public final static String TEST_SERVER_VERSION_MINOR = "30";
+	
+	/**
+	 * server code name
+	 * <ul>
+	 * 	<li><b>0.01 - 0.61</b> - ANONYMOUS PROXY</li>
+	 * 	<li><b>0.61 - 0.91</b> - BANDWIDTH THROTTLING
+	 * 		<p>major changes: support for multiple tests with single connection (client and server side)</p>  
+	 * 	</li>
+	 * 	<li><b>1.00 - 1.04</b> - CENSORSHIP'N CONTROL
+	 * 		<p>major changes: implement rest services</p>
+	 * 	</li>
+	 * 	<li><b>2.00 - 2.19</b> - DROPPED PACKET
+	 * 		<p>major changes: voip test, rmbtutil</p></li>
+	 * 	<li><b>2.20 - x.xx</b> - ???
+	 * 		<p>major changes: non blocking udp server for udp and voip tests</p>
+	 * 	</li>
+	 * </ul>
+	 */
+	public final static String TEST_SERVER_CODENAME = "DROPPED PACKET";
 	
 	/**
 	 * full version string
 	 */
-	public final static String TEST_SERVER_VERSION_NAME = "QoSTS " + TEST_SERVER_VERSION_MAJOR + "." + TEST_SERVER_VERSION_MINOR;
+	public final static String TEST_SERVER_VERSION_NAME = "QoSTS \"" + TEST_SERVER_CODENAME + "\" " + TEST_SERVER_VERSION_MAJOR + "." + TEST_SERVER_VERSION_MINOR;
 	
 	/**
 	 * key path
@@ -99,9 +131,8 @@ public class TestServer {
 	public final static boolean USE_FIXED_THREAD_POOL = true;
 	public final static int MAX_THREADS = 200;
 	
-	public final static TreeMap<Integer, List<UdpMultiClientServer>> udpServerMap = new TreeMap<Integer, List<UdpMultiClientServer>>();
-	public volatile static TreeMap<Integer, List<TcpServer>> tcpServerMap = new TreeMap<Integer, List<TcpServer>>();
-	public volatile static TreeMap<Integer, ServerSocket> tcpServerSocketMap = new TreeMap<Integer, ServerSocket>();
+	public final static TreeMap<Integer, List<AbstractUdpServer<?>>> udpServerMap = new TreeMap<Integer, List<AbstractUdpServer<?>>>();
+	public final static ConcurrentHashMap<Integer, List<TcpMultiClientServer>> tcpServerMap = new ConcurrentHashMap<Integer, List<TcpMultiClientServer>>();
 	
 	/**
 	 * server socket list (=awaiting client test requests)
@@ -112,7 +143,22 @@ public class TestServer {
 	public static ServerPreferences serverPreferences;
 	public final static ServiceManager serviceManager = new ServiceManager(); 
 	
-    private static ExecutorService pool;
+	public final static Set<ClientHandler> clientHandlerSet = new HashSet<>();
+	
+	/**
+	 * 
+	 */
+	public final static Randomizer randomizer = new Randomizer(8000, 12000, 3);
+	
+	/**
+	 * is used for all control connection threads
+	 */
+    private static ExecutorService mainServerPool;
+    
+    /**
+     * is used for all other threads
+     */
+    private static final ExecutorService COMMON_THREAD_POOL = Executors.newCachedThreadPool();
 	
 	/**
 	 * 
@@ -138,31 +184,20 @@ public class TestServer {
 			System.exit(0);
 		}
 	
-	    TestServerConsole.log("Starting QoSTestServer (" + TEST_SERVER_VERSION_NAME + ") with settings: " + serverPreferences.toString(), 
-	    		0, TestServerServiceEnum.TEST_SERVER);
+	    TestServerConsole.log("\nStarting QoSTestServer (" + TEST_SERVER_VERSION_NAME + ") with settings: \n" + serverPreferences.toString() + "\n\n", 
+	    		-1, TestServerServiceEnum.TEST_SERVER);
 	    
 		console.start();
 	    
 	    if (!USE_FIXED_THREAD_POOL) {
-	    	pool = Executors.newCachedThreadPool();
+	    	mainServerPool = Executors.newCachedThreadPool();
 	    } 
 	    else {
-	    	pool = Executors.newFixedThreadPool(serverPreferences.getMaxThreads());
+	    	mainServerPool = Executors.newFixedThreadPool(serverPreferences.getMaxThreads());
 	    }
 	    
 	    try {
 	    	
-	    	/*
-		    switch (serverPreferences.getVerboseLevel()) {
-		    case 1:
-		    	System.setProperty("javax.net.debug", "ssl,handshake");
-		    	break;
-		    case 2:
-		    	System.setProperty("javax.net.debug", "all");
-		    	break;
-		    }
-		    */
-		    
 		    if (serverPreferences.useSsl()) {
 			    /*******************************
 			     * initialize SSLContext and SSLServerSocketFactory:
@@ -183,8 +218,6 @@ public class TestServer {
 				sslServerSocketFactory = (SSLServerSocketFactory) sslContext.getServerSocketFactory();    	
 		    }
 		    
-		    TestServerConsole.log("\n\nStarting QoSTestServer with settings: " + serverPreferences.toString() +" \n", -1);
-		    
 			for (InetAddress addr : serverPreferences.getInetAddrBindToSet()) {
 				ServerSocket serverSocket;
 				if (serverPreferences.useSsl()) {
@@ -198,23 +231,34 @@ public class TestServer {
 				serverSocket.bind(new InetSocketAddress(addr, serverPreferences.getServerPort()));
 				serverSocketList.add(serverSocket);
 				
-				Thread mainThread = new Thread(new QoSService(pool, serverSocket, null));
+				Thread mainThread = new Thread(new QoSService(mainServerPool, serverSocket, null));
 			    mainThread.start();
 			}
 
-		    Iterator<Integer> portIterator = serverPreferences.getUdpPortSet().iterator();
+		    Iterator<UdpPort> portIterator = serverPreferences.getUdpPortSet().iterator();
 
 		    while (portIterator.hasNext()) {
-		    	final List<UdpMultiClientServer> udpServerList = new ArrayList<UdpMultiClientServer>();
-	    		final int port = portIterator.next();
+		    	final List<AbstractUdpServer<?>> udpServerList = new ArrayList<AbstractUdpServer<?>>();
+	    		final UdpPort udpPort = portIterator.next();
 		    	for (InetAddress addr : serverPreferences.getInetAddrBindToSet()) {
-		    		UdpMultiClientServer udpServer = new UdpMultiClientServer(port, addr);
-		    		udpServerList.add(udpServer);
-		    		Thread t2 = new Thread(udpServer);
-		    		t2.start();
+		    		AbstractUdpServer<?> udpServer = null;
+		    		try {
+		    			//udpServer = new UdpMultiClientServer(port, addr);
+		    			udpServer = udpPort.isNio ? new NioUdpMultiClientServer(udpPort.port, addr) : new UdpMultiClientServer(udpPort.port, addr);
+		    		}
+		    		catch (Exception e) { 
+		    			TestServerConsole.error("TestServer INIT; Opening UDP Server on port: " + udpPort, e, 0, TestServerServiceEnum.TEST_SERVER); 
+		    		}
+		    		
+		    		if (udpServer != null) {
+		    			udpServerList.add(udpServer);
+		    			getCommonThreadPool().execute(udpServer);
+		    		}
 		    	}
 			    
-			    udpServerMap.put(port, udpServerList);		    	
+		    	if (udpServerList.size() > 0) {
+		    		udpServerMap.put(udpPort.port, udpServerList);
+		    	}
 		    }
 		    
 		    //start UDP watcher service:
@@ -230,6 +274,12 @@ public class TestServer {
 		    //dispatch onStart event:
 		    serviceManager.dispatchEvent(EventType.ON_TEST_SERVER_START);
 
+		    //finally, start all plugins & services:
+		    for (ServiceSetting service : serverPreferences.getPluginMap().values()) {
+		    	TestServerConsole.log("Starting plugin '" + service.getName() + "'...", 0, TestServerServiceEnum.TEST_SERVER);
+		    	service.start();
+		    }
+		    
 		    //add shutdown hook (ctrl+c):
 		    Runtime.getRuntime().addShutdownHook(
 		    		new Thread() {
@@ -250,6 +300,13 @@ public class TestServer {
 	public static void shutdown() 
 	{
 		TestServerConsole.log("Shutting down QoS TestServer...", 0, TestServerServiceEnum.TEST_SERVER);
+
+		
+	    //stop all plugins & services:
+	    for (ServiceSetting service : serverPreferences.getPluginMap().values()) {
+	    	service.stop();
+	    	TestServerConsole.log("Plugin '" + service.getName() + "' stopped.", 0, TestServerServiceEnum.TEST_SERVER);
+	    }
 		
 		//dispatch onStop event:
 		serviceManager.dispatchEvent(EventType.ON_TEST_SERVER_STOP);
@@ -263,9 +320,9 @@ public class TestServer {
 			}
 		}
 		
-		pool.shutdownNow(); 
+		mainServerPool.shutdownNow(); 
 		try {
-			pool.awaitTermination(4L, TimeUnit.SECONDS);
+			mainServerPool.awaitTermination(4L, TimeUnit.SECONDS);
 		} 
 		catch (InterruptedException e) { 
 			e.printStackTrace();
@@ -302,7 +359,14 @@ public class TestServer {
 			socket = TestServer.sslServerSocketFactory.createServerSocket();
 		}
 		
-		socket.bind(sa);
+		try {
+			socket.bind(sa);
+		}
+		catch (Exception e) {
+			TestServerConsole.errorReport("TCP " + port, "TCP Socket on port " + port, e, 0, TestServerServiceEnum.TCP_SERVICE);
+			throw e;
+		}
+		
 		socket.setReuseAddress(true);
 		return socket;
 	}
@@ -320,6 +384,25 @@ public class TestServer {
 		else {
 			return new DatagramSocket(port, addr);
 		}
+	}
+	
+	/**
+	 * 
+	 * @param port
+	 * @param addr
+	 * @return
+	 * @throws Exception
+	 */
+	public static DatagramChannel createDatagramChannel(int port, InetAddress addr) throws Exception {
+		final DatagramChannel channel = DatagramChannel.open();
+		if (addr == null) {
+			channel.bind(new InetSocketAddress(port));
+		}
+		else {
+			channel.bind(new InetSocketAddress(addr, port));
+		}
+		
+		return channel;
 	}
 	
 	
@@ -429,7 +512,104 @@ public class TestServer {
 	     * 
 	     * @return
 	     */
-	    public static synchronized TreeMap<Integer, List<TcpServer>> getTcpServerMap() {
+	    public static ConcurrentHashMap<Integer, List<TcpMultiClientServer>> getTcpServerMap() {
 	    	return tcpServerMap;
 	    }
+	    
+	    /**
+	     * 
+	     * @param port
+	     */
+	    public static synchronized void unregisterTcpServer(Integer port) {
+	    	if (TestServer.tcpServerMap.remove(port) != null) {
+		    	TestServerConsole.log("Removed TCP server object on port: " + port, 1, TestServerServiceEnum.TCP_SERVICE);	
+	    	}
+	    }
+	    
+	    /**
+	     * 
+	     * @param port
+	     * @param server
+	     * @throws Exception 
+	     */
+	    public static List<TcpMultiClientServer> registerTcpCandidate(Integer port, Socket socket) throws Exception {
+	    	List<TcpMultiClientServer> tcpServerList;
+
+	    	synchronized(TestServer.tcpServerMap) {
+		    	//if port not mapped create complete tcp server list
+				if ((tcpServerList = TestServer.tcpServerMap.get(port)) == null) {
+					tcpServerList = new ArrayList<>();
+					for (InetAddress addr : TestServer.serverPreferences.getInetAddrBindToSet()) {
+						tcpServerList.add(new TcpMultiClientServer(port, addr));
+					}
+					TestServer.tcpServerMap.put(port, tcpServerList);
+				}
+				else {
+					//there are some tcp servers active on this port, compare ip list with tcp server list and create missing servers
+					tcpServerList = TestServer.tcpServerMap.get(port);
+	
+					Set<InetAddress> inetAddrSet = new HashSet<>();
+					for (TcpMultiClientServer tcpServer : tcpServerList) {
+						inetAddrSet.add(tcpServer.getInetAddr());
+					}
+					Set<InetAddress> inetAddrBindToSet = new HashSet<>(TestServer.serverPreferences.getInetAddrBindToSet());
+					inetAddrBindToSet.removeAll(inetAddrSet);
+					for (InetAddress addr : inetAddrBindToSet) {
+						tcpServerList.add(new TcpMultiClientServer(port, addr));
+					}
+				}
+	
+				//if ip check is enabled register the candidate's ip on the server's whitelist
+				if (TestServer.serverPreferences.isIpCheck()) {
+					for (TcpMultiClientServer tcpServer : tcpServerList) {
+						tcpServer.registerCandidate(socket.getInetAddress(), TestCandidate.DEFAULT_TTL);	
+					}
+				}
+				
+				//prepare all servers on this port for incoming connections (open sockets/refresh ttl)
+				for (TcpMultiClientServer tcpServer : tcpServerList) {
+					tcpServer.prepare();
+				}
+	    	}
+	    	
+			return tcpServerList;
+	    }
+	    
+	    /**
+	     * 
+	     * @param <T>
+	     * @param localAddr
+	     * @param port
+	     * @param uuid
+	     * @param udpData
+	     * @return
+	     */
+	    @SuppressWarnings("unchecked")
+		public static synchronized <T extends Closeable> AbstractUdpServer<T> registerUdpCandidate(final InetAddress localAddr, final int port, final String uuid, final UdpTestCandidate udpData) {
+			try {
+				TestServerConsole.log("Trying to register UDP Candidate on " + localAddr + ":" + port , 0, TestServerServiceEnum.UDP_SERVICE);
+				for (AbstractUdpServer<?> udpServer : TestServer.udpServerMap.get(port)) {
+					TestServerConsole.log("Comparing: " + localAddr + " <-> " + udpServer.getAddress(), 0, TestServerServiceEnum.UDP_SERVICE);
+					if (udpServer.getAddress().equals(localAddr)) {
+						TestServerConsole.log("Registering UDP Candidate on " + localAddr + ":" + port , 0, TestServerServiceEnum.UDP_SERVICE);
+						TestServerConsole.log("Registering UDP Candidate for UdpServer: " + udpServer.toString(), 2, TestServerServiceEnum.UDP_SERVICE);
+						((AbstractUdpServer<T>) udpServer).getIncomingMap().put(uuid, udpData);
+						return (AbstractUdpServer<T>) udpServer;
+					}
+				}				
+			}
+			catch (Exception e) {
+				TestServerConsole.error("Register UDP candidate on port: " + port, e, 1, TestServerServiceEnum.UDP_SERVICE);
+			}
+			
+			return null;
+		}	
+
+	    /**
+	     * 
+	     * @return
+	     */
+		public static ExecutorService getCommonThreadPool() {
+			return COMMON_THREAD_POOL;
+		}
 }

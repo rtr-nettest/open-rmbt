@@ -26,7 +26,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import at.alladin.rmbt.qos.testserver.ServerPreferences.TestServerServiceEnum;
+import at.alladin.rmbt.qos.testserver.service.AbstractJob.JobState;
 import at.alladin.rmbt.qos.testserver.service.EventJob.EventType;
+import at.alladin.rmbt.qos.testserver.util.TestServerConsole;
 
 /**
  * 
@@ -34,6 +36,8 @@ import at.alladin.rmbt.qos.testserver.service.EventJob.EventType;
  *
  */
 public class ServiceManager {
+	
+	public final static String TAG = ServiceManager.class.getSimpleName() + ": ";
 
 	/**
 	 * 
@@ -66,7 +70,7 @@ public class ServiceManager {
 	/**
 	 * 
 	 */
-	private final ConcurrentMap<TestServerServiceEnum, FutureService> serviceMap = new ConcurrentHashMap<>();
+	private final ConcurrentMap<String, FutureService> serviceMap = new ConcurrentHashMap<>();
 	
 	/**
 	 * 
@@ -74,11 +78,48 @@ public class ServiceManager {
 	 */
 	public void addService(AbstractJob<?> service) {
 		if (service instanceof IntervalJob<?>) {
-			Future<?> future = executor.submit(service);
-			serviceMap.putIfAbsent(service.getService(), new FutureService(future, service));
+
+			//in case of an error check if the job should be restarted
+			service.setCallback(JobState.ERROR, new JobCallback () {
+				
+				@Override
+				public boolean onEvent(AbstractJob<?> service, JobState state, Object newResult) {
+					if (JobState.ERROR.equals(state) && ((IntervalJob<?>) service).restartOnError()) {
+						synchronized (serviceMap) {
+							log("Forcing service restart after error.", 0, service.getService());
+							final FutureService fs = serviceMap.get(service.getService());
+							if (fs != null && fs.getService().getIsRunning()) {
+								log("Service still running. Waiting for termination...", 0, service.getService());
+								fs.getFuture().cancel(true);
+							}
+							else {					
+								final AbstractJob<?> newService = service.getNewInstance();
+								/*
+								 * to prevent infinite loops with this callback involved it is not added to 
+								 * a service that didn't run at least 1 time before the error occurred 
+								 */
+								if (((IntervalJob<?>) service).getExecutionCounter() >= 1) {
+									newService.setCallback(JobState.ERROR, this);
+								}
+								else {
+									service.log("Beware: This service did not complete at least 1 run successfully. Another error won't restart it again. This is the last chance!", 0);
+								}
+								final Future<?> future = executor.submit(newService);
+								serviceMap.replace(newService.getId(), new FutureService(future, newService));
+							}
+						}
+						return true;
+					}
+					return false;
+				}
+			}); 
+					
+					
+			final Future<?> future = executor.submit(service);
+			serviceMap.putIfAbsent(service.getId(), new FutureService(future, service));
 		}
 		else if (service instanceof EventJob<?>) {
-			serviceMap.putIfAbsent(service.getService(), new FutureService(null, service));			
+			serviceMap.putIfAbsent(service.getId(), new FutureService(null, service));			
 		}
 	}
 	
@@ -87,7 +128,7 @@ public class ServiceManager {
 	 */
 	public Map<String, Object> shutdownAll(boolean mayInterruptIfRunning) {
 		Map<String, Object> resultMap = new HashMap<>();
-		for (Entry<TestServerServiceEnum, FutureService> e : serviceMap.entrySet()) {
+		for (Entry<String, FutureService> e : serviceMap.entrySet()) {
 			try {
 				if (e.getValue().getFuture() != null) {
 					if (!e.getValue().getFuture().isDone()) {
@@ -102,7 +143,7 @@ public class ServiceManager {
 				}
 				Object result;
 				result = e.getValue().getService().getResult();
-				resultMap.put(e.getKey().getName(), result);
+				resultMap.put(e.getKey(), result);
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
@@ -150,7 +191,21 @@ public class ServiceManager {
 		return null;
 	}
 
-	public ConcurrentMap<TestServerServiceEnum, FutureService> getServiceMap() {
+	/**
+	 * 
+	 * @return
+	 */
+	public ConcurrentMap<String, FutureService> getServiceMap() {
 		return serviceMap;
+	}
+	
+	/**
+	 * 
+	 * @param log
+	 * @param verboseLevelNeeded
+	 * @param service
+	 */
+	public void log(String log, int verboseLevelNeeded, TestServerServiceEnum service) {
+		TestServerConsole.log(TAG + log, verboseLevelNeeded, service);
 	}
 }

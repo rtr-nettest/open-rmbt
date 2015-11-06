@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import org.restlet.resource.Post;
 import at.alladin.rmbt.qos.QoSUtil;
 import at.alladin.rmbt.qos.QoSUtil.TestUuid;
 import at.alladin.rmbt.qos.QoSUtil.TestUuid.UuidType;
+import at.alladin.rmbt.shared.ResourceManager;
 import at.alladin.rmbt.shared.hstoreparser.HstoreParseException;
 
 public class QoSResultResource extends ServerResource
@@ -46,7 +47,7 @@ public class QoSResultResource extends ServerResource
         final JSONObject answer = new JSONObject();
         String answerString;
         
-        System.out.println(MessageFormat.format(labels.getString("NEW_TESTRESULT_DETAIL"), getIP()));
+        System.out.println(MessageFormat.format(labels.getString("NEW_QOS_TESTRESULT_DETAIL"), getIP()));
         
         if (entity != null && !entity.isEmpty())
             // try parse the string to a JSON object
@@ -63,8 +64,6 @@ public class QoSResultResource extends ServerResource
                 if (langs.contains(lang))
                 {
                     errorList.setLanguage(lang);
-                    labels = (PropertyResourceBundle) ResourceBundle.getBundle("at.alladin.rmbt.res.SystemMessages",
-                            new Locale(lang));
                 }
                 else
                     lang = settings.getString("RMBT_DEFAULT_LANGUAGE");
@@ -96,7 +95,7 @@ public class QoSResultResource extends ServerResource
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (UnsupportedOperationException e) {
-				errorList.addError("ERROR_REQUEST_TEST_RESULT_DETAIL_NO_UUID");
+				errorList.addError("ERROR_REQUEST_QOS_RESULT_DETAIL_NO_UUID");
 			}
 
         else

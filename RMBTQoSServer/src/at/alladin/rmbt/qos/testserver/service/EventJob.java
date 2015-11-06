@@ -126,9 +126,11 @@ public abstract class EventJob<R> extends AbstractJob<R> {
 					log(result.toString(), 1);
 				}
 			}
+			dispatchEvent(JobState.RUN, result);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			error(e, 0);
+			dispatchEvent(JobState.ERROR, result);
 		}
 		
 		log("Service call to '" + service.getName() + "' completed", 0);

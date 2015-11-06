@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,15 @@ package at.alladin.rmbt.android.preferences;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import android.app.ActionBar;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
+import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.view.MenuItem;
@@ -30,6 +33,7 @@ import android.widget.ListView;
 import at.alladin.openrmbt.android.R;
 import at.alladin.rmbt.android.terms.RMBTTermsActivity;
 import at.alladin.rmbt.android.util.ConfigHelper;
+import at.alladin.rmbt.android.util.Server;
 
 public class RMBTPreferenceActivity extends PreferenceActivity
 {
@@ -152,6 +156,58 @@ public class RMBTPreferenceActivity extends PreferenceActivity
         // v.setScrollBarStyle(View.SCROLLBARS_OUTSIDE_INSET);
         
         // addPreferencesFromResource(R.xml.preferences);
+        
+        final Preference serverSelectionPrefCat = findPreference("server_selection_preferences");
+        if (serverSelectionPrefCat != null)
+        {
+            if (! ConfigHelper.isServerSelectionEnabled(this) || ConfigHelper.getServers(this) == null)
+                getPreferenceScreen().removePreference(serverSelectionPrefCat);
+            else
+            {
+                final ListPreference serverSelectionPref = (ListPreference) findPreference("server_selection");
+                if (serverSelectionPref != null)
+                {
+                    boolean foundCurrentSelection = false;
+                    String currentSelection = ConfigHelper.getServerSelection(this);
+                    if (currentSelection == null)
+                    {
+                        ConfigHelper.setServerSelection(this, ConfigHelper.DEFAULT_SERVER);
+                        currentSelection = ConfigHelper.DEFAULT_SERVER;
+                    }
+                    
+                    if (currentSelection.equals(ConfigHelper.DEFAULT_SERVER))
+                        foundCurrentSelection = true;
+                    
+                    final Set<String> servers = ConfigHelper.getServers(this);
+                    if (servers != null)
+                    {
+                        final List<String> entries = new ArrayList<String>();
+                        final List<String> entryValues = new ArrayList<String>();
+                        entries.add("Default");
+                        entryValues.add(ConfigHelper.DEFAULT_SERVER);
+                        for (String serverStr : servers)
+                        {
+                            final Server server = Server.decode(serverStr);
+                            entries.add(server.getName());
+                            final String serverUuid = server.getUuid();
+                            if (currentSelection.equals(serverUuid))
+                                foundCurrentSelection = true;
+                            entryValues.add(serverUuid);
+                        }
+                        serverSelectionPref.setEntries(entries.toArray(new String[]{}));
+                        serverSelectionPref.setEntryValues(entryValues.toArray(new String[]{}));
+                        
+                        if (! foundCurrentSelection)
+                        {
+                            ConfigHelper.setServerSelection(this, ConfigHelper.DEFAULT_SERVER);
+                            recreate();
+                        }
+        //                    final String serverSelection = ConfigHelper.getServerSelection(this);
+        //                    serverSelectionPref.setSummary(serverSelection != null ? serverSelection : "");
+                    }
+                }
+            }
+        }
     }
     
     @Override

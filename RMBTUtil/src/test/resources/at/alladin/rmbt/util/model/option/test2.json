@@ -1,0 +1,42 @@
+{
+  "title": "test2",
+  "options": [
+    {
+      "params": {
+        "title": "a1",
+        "option": "a1",
+        "parent_param": true
+      }
+    },
+    {
+      "params": {
+        "title": "a2",
+        "option": "a2"
+      }
+    },
+    {
+      "params": {
+        "titles": "a3",
+        "option": "a3",
+        "param3": 0.5
+      }
+    },
+    {
+      "title": "no_params"
+    }
+  ],
+  "params": {
+    "parent_param": false
+  },
+  "functions": [
+    {
+      "func_name": "drop_param",
+      "func_params": {
+        "key": "title"
+      }
+    },
+    {
+      "func_name": "unknown_func"
+    }
+  ]
+}

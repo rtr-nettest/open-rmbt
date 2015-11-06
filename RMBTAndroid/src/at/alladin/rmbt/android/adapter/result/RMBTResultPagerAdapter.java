@@ -861,10 +861,12 @@ public class RMBTResultPagerAdapter extends PagerAdapter {
     	try {
         	JSONObject resultListItem = testResult.getJSONObject(0);
         	final String shareText = resultListItem.getString("share_text");
+        	final String shareSubject = resultListItem.getString("share_subject");
         	
             final Intent sendIntent = new Intent();
             sendIntent.setAction(Intent.ACTION_SEND);
             sendIntent.putExtra(Intent.EXTRA_TEXT, shareText);
+            sendIntent.putExtra(Intent.EXTRA_SUBJECT, shareSubject);
             sendIntent.setType("text/plain");
             activity.startActivity(Intent.createChooser(sendIntent, null));            		
     	}

@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2013-2014 alladin-IT GmbH
+  
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+    http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  
+  Original author: 
+  Matyáš Latner <matyas.latner@nic.cz>
+  original commit: 8935358473c85d529c656de581b2c8b67f0bed54 on netmetr
+  
+  
+-->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:locale="cs">
+    
+    <string name="error_no_internet">Není dostupné připojení k\ninternetu</string>
+    <string name="error_no_data">Žádná dostupná data.</string>
+    <string name="error_history_no_data_no_connection">Nedostupné připojení k internetu: Nemohu načíst data.</string>
+    
+    <string name="main_dialog_registration_title">Registruji…</string>
+    <string name="main_dialog_registration_text">Klient se registruje. Prosím čekejte…</string>
+    
+    <string name="main_dialog_reload_title">Obnovoji…</string>
+    <string name="main_dialog_reload_text">Obnovuji data. Prosím čekejte…</string>
+    
+    <string name="preferences">Nastavení</string>
+    
+    <string name="preferences_category_test">Nastavení</string>
+    
+    <string name="preferences_location_settings">Poloha</string>
+    <string name="preferences_location_settings_sum">Změny nastavení polohy</string>
+    
+    <string name="preferences_no_gps">Bez GPS</string>
+    <string name="preferences_no_gps_sum">Nepoužívat GPS během testu</string>
+    
+    <string name="preferences_tag">Značka</string>
+    <string name="preferences_tag_sum">Přidá vlastní značku ke každému testu</string>
+    
+    <string name="preferences_loop_mode">Loop</string>
+    <string name="preferences_loop_mode_sum">Test poběží ve smyčce</string>
+    
+    <string name="preferences_loop_mode_max_tests">Maximální počet testů ve smyčce</string>
+    <string name="preferences_loop_mode_max_tests_sum">Maximální počet testů pro spuštění ve smyčce, pokud je aktivní (0 = neomezeně)</string>
+    
+    <string name="preferences_loop_mode_min_delay">Minimální trvání smyčky</string>
+    <string name="preferences_loop_mode_min_delay_sum">Minimální čas v sekundách mezi dvěma testy, pokud je aktivní Loop mód</string>
+    
+    <string name="preferences_loop_mode_max_delay">Maximální trvání smyčky</string>
+    <string name="preferences_loop_mode_max_delay_sum">Maximální čas v sekundách mezi dvěma testy, pokud je aktivní Loop mód</string>
+    
+    <string name="preferences_loop_mode_movement">Pohyb v Loop módu</string>
+    <string name="preferences_loop_mode_movement_sum">Pohyb v metrech, po kterém se spustí nový test, pokud je aktivní Loop mód</string>
+    
+    <string name="preferences_loop_mode_gps">Používání GPS v Loop módu</string>
+    <string name="preferences_loop_mode_gps_sum">Použití GPS mezi dvěma testy v Loop módu</string>
+    
+    <string name="preferences_ndt">NDT</string>
+    <string name="preferences_ndt_sum">Aktivovat rozšířený test</string>
+    
+    <string name="preferences_ipv4_only">Jen IPv4</string>
+    <string name="preferences_ipv4_only_sum">Nikdy nepoužívat IPv6</string>
+    
+    <string name="preferences_category_developer">Vývoj</string>
+    <string name="preferences_category_loop_mode">Kategorie Loop mód</string>
+    <string name="preferences_category_developer_control_server">Control-Server</string>
+    <string name="preferences_category_developer_map_server">Map-Server</string>
+    <string name="preferences_category_developer_qos_server">QoS-Server</string>
+    
+    <string name="preferences_dev_control_override">Přepsat Control-Server</string>
+    <string name="preferences_dev_control_override_sum">Aktivování vlastního Control-Serveru</string>
+    
+    <string name="preferences_dev_control_host">Control Host</string>
+    <string name="preferences_dev_control_host_sum">Přepíše adresu Control-Serveru</string>
+    
+    <string name="preferences_dev_control_port">Control Port</string>
+    <string name="preferences_dev_control_port_sum">Přepíše port Control-Serveru</string>
+    
+    <string name="preferences_dev_control_ssl">Control-Server SSL</string>
+    <string name="preferences_dev_control_ssl_sum">Použije šifrované spojení s Control-Serverem</string>
+    
+    <string name="preferences_dev_map_override">Přepsat Map-Server</string>
+    <string name="preferences_dev_map_override_sum">Aktivování vlastního Map-Serveru</string>
+    
+    <string name="preferences_dev_map_host">Map Host</string>
+    <string name="preferences_dev_map_host_sum">Přepíše adresu Map-Serveru</string>
+    
+    <string name="preferences_dev_map_port">Map Port</string>
+    <string name="preferences_dev_map_port_sum">Přepíše port Map-Serveru</string>
+    
+    <string name="preferences_dev_map_ssl">Map-Server SSL</string>
+    <string name="preferences_dev_map_ssl_sum">Použije šifrované spojení s Map-Serverem</string>
+    
+    <string name="menu_button_start">START</string>
+    <string name="menu_button_title_page">Startovní stránka</string>
+    <string name="menu_button_map">Mapa</string>
+    <string name="menu_button_history">Historie</string>
+    <string name="menu_button_help">Nápověda</string>
+    <string name="menu_button_statistics">Statistiky</string>
+    <string name="menu_button_settings">Nastavení</string>
+    <string name="menu_button_about">Informace</string>
+    <string name="menu_button_share">Sdílet</string>
+    
+    <string name="news_title">Novinky</string>
+    <string name="news_no_message">Žádné novinky.</string>
+    
+    <string name="about_version_title">Verze</string>
+    <string name="about_clientid_title">UUID klienta</string>
+    <string name="about_clientid_toast">UUID klienta bylo zkopírováno do klipboardu.</string>
+    <string name="about_web_title">Web</string>
+    <string name="about_email_title">E-Mail</string>
+    <string name="about_email_sending">Odesílání E-Mailu…</string>
+    <string name="about_terms_title">Ochrana osobních údajů</string>
+    <string name="about_terms_line1">Ochrana osobních údajů a podmínky použití</string>
+    <string name="about_dev_title">Vývoj</string>
+    <string name="about_gms_legal_title">Google Play</string>
+    <string name="about_gms_legal_line1">Google Play Services právní doložka</string>
+    <string name="about_test_counter_title">Čítač testů</string>
+    
+    <string name="terms">Ochrana osobních údajů a smluvní podmínky</string>
+    <string name="terms_accept_button">Souhlasím</string>
+    <string name="terms_accept_button_continue">Pokračovat</string>
+    <string name="terms_decline_button">Zamítnout</string>
+    
+    <string name="terms_ndt_header">Volitelný, více obsáhlý NDT-Test</string>
+    <string name="terms_ndt_accept_text"><b>Přeji si spouštět volitelný NDT-Test.</b></string>
+    <string name="terms_ndt_back_button">Zpět</string>
+    <string name="terms_ndt_accept_button">Pokračovat</string>
+    
+    <string name="loop_notification_ticker">Loop mód je aktivní…</string>
+    <string name="loop_notification_title">Loop mód je aktivní</string>
+    <string name="loop_notification_text">Stiskem ukončíte Loop mód</string>
+    
+    <string name="loop_started">Loop mód spuštěn.</string>
+    <string name="loop_already_active">Loop mód je již spuštěn.</string>
+
+    <string name="test_mbps">Mbit/s</string>
+    <string name="test_dbm">dBm</string>
+    <string name="test_location_km_h">km/h</string>
+    <string name="test_location_m">m</string>
+    <string name="test_location_sat"> Satelity</string>
+    <string name="test_location_gps">GPS</string>
+    <string name="test_location_network">Síť</string>
+    <string name="test_location_dir_n">N</string>
+    <string name="test_location_dir_e">O</string>
+    <string name="test_location_dir_s">S</string>
+    <string name="test_location_dir_w">W</string>
+    
+    <string name="test_notification_text">Test stále běží na pozadí.</string>
+    <string name="test_dialog_error_title">Chyba…</string>
+    <string name="test_dialog_error_text">Během testu nastala chyba.</string>
+    <string name="test_dialog_error_control_server_conn">Nemohu navázat spojení s test serverem.</string>
+    <string name="test_toast_error_text_qos">Nastala chyba během QoS testu.</string>
+    
+    <string name="test_dialog_abort_title">Přerušit…</string>
+    <string name="test_dialog_abort_text">Skutečně si přejete přerušit test?</string>
+    <string name="test_dialog_abort_yes">Přerušit test</string>
+    <string name="test_dialog_abort_no">Pokračovat v testu</string>
+    
+    <string name="history_button_sync">Synchronizace</string>
+    <string name="history_button_filter">Filtr</string>
+    <string name="history_device">Zařízení</string>
+	<string name="history_type">Přístup</string>
+	<string name="history_date">Datum</string>
+	<string name="history_down">Down\nMbit/s</string>
+	<string name="history_up">Up\nMbit/s</string>
+	<string name="history_ping">Ping\nms</string>
+	
+	<string name="history_filter">FILTR</string>
+	<string name="history_filter_networks">TYP SÍTĚ</string>
+	<string name="history_filter_devices">ZAŘÍZENÍ</string>
+	<string name="history_filter_result_number">POČET VÝSLEDKŮ</string>
+	<string name="history_filter_result_number_25">Zobrazit pouze 25 nejnovějších výsledků</string>
+	
+	<string name="result_measurement">MĚŘENÍ</string>
+	<string name="result_net">SÍŤ</string>
+	
+	<string name="result_category_tests">TESTY</string>
+	<string name="result_description">POPIS</string>
+	
+	<string name="result_details">DETAILY</string>
+	
+	<string name="sync_info_text">Máte možnost sjednotit výsledky ze dvou různých zařízení. Musíte zadat synchronizační kód z druhého zařízení a nebo si vyžádat kód tohoto zařízení.</string>
+	<string name="sync_request_code_button">Získat kód</string>
+	<string name="sync_enter_code_button">Zadat kód</string>
+	
+	<string name="sync_enter_code_header">Zadat kód</string>
+	<string name="sync_enter_code_msg">Kód</string>
+	<string name="sync_enter_code_desc">Prosím zadejte kód, který jste získali z jiného zařízení.</string>
+	<string name="sync_enter_code_length">Kód musí být dlouhý 12 znaků.</string>
+	
+	<string name="sync_request_code_header">Váš synchronizační kód je:</string>
+	<string name="sync_request_code_msg">Získávání kódu....</string>
+	<string name="sync_request_code_desc">Prosím zadejte kód uvedený výše do druhého zařízení, aby jste ho synchronizovali.</string>
+	<string name="sync_request_code_context_copy">Kopírovat kód</string>
+
+	<!-- Map -->
+	<string name="map_filter_header">FILTR MAPY</string>
+	<string name="map_choose_header">VYBRAT MAPU</string>
+	
+	<string name="map_appearance_header">VZHLED MAPY</string>
+	<string name="map_appearance_nosat_title">Normální pohled</string>
+	<string name="map_appearance_nosat_summary">Mapa zaobrazuje normální pohled</string>
+	<string name="map_appearance_sat_title">Satelitní pohled</string>
+	<string name="map_appearance_sat_summary">Mapa zobrazuje satelitní pohled</string>
+	
+	<string name="map_overlay_header">VRSTVA MAPY</string>
+	<string name="map_overlay_auto_title">Automatická</string>
+	<string name="map_overlay_auto_summary">Mapa se přepíná automaticky mezi heat mapou a body</string>
+	<string name="map_overlay_heatmap_title">Heat mapa</string>
+	<string name="map_overlay_heatmap_summary">Mapa zaobrazuje testy jako heat mapu</string>
+	<string name="map_overlay_points_title">Body</string>
+	<string name="map_overlay_points_summary">Mapa zobrazuje testy jako body</string>
+	<string name="map_overlay_shapes_title">Tvary</string>
+	<string name="map_overlay_shapes_summary">Mapa zobrazuje testy jako tvary podle poštovních směrovacích čísel</string>
+	
+	<string name="map_balloon_overlay_header">MĚŘENÍ</string>
+	
+	<!-- Test -->
+	<string name="test_progress_title">Připojování…</string>
+	<string name="test_progress_text">Navazuji spojení s test serverem. Prosím čekejte…</string>
+	<string name="test_progress_text_wait">Test server je momentálně zaneprázdněn. Test začne {0,choice,0#brzy|1#za 1 sekundu|1&lt;za {0} sekund}. Prosím čekejte…</string>
+	<string name="test_bottom_test">Stav: {0}\nServer: {1}\nIP: {2}\n{3}\n{4}</string>
+	<string name="test_bottom_test_status_init">Inicializace</string>
+	<string name="test_bottom_test_status_ping">Ping</string>
+	<string name="test_bottom_test_status_down">Download</string>
+	<string name="test_bottom_test_status_init_up">Inicializace uploadu</string>
+	<string name="test_bottom_test_status_up">Upload</string>
+	<string name="test_bottom_test_status_end">Dokončování</string>
+	<string name="test_bottom_test_status_error">Chyba</string>
+	<string name="test_bottom_test_status_aborted">Přerušeno</string>
+
+	<!-- QoS -->	
+	<string name="result_qos_stats">Test kvality služeb</string>
+	<string name="about_control_server_version">Verze control serveru</string>
+	
+	<string name="result_qos_error_no_data_available">QoS test nebyl spuštěn.</string>
+	
+	<string name="preferences_dont_show_menu_on_exit">Nezobrazovat menu před ukončením</string>
+    <string name="preferences_dont_show_menu_on_exit_sum">Nezobrazovat menu aplikace před ukončením.</string>
+	
+	<string name="term_signal">Signál</string>
+	
+	<string name="result_page_title_qos">QoS</string>
+	<string name="result_page_title_test">Detaily</string>
+	<string name="result_page_title_menu">Výsledek</string>
+	<string name="result_page_title_graph">Grafy</string>
+	<string name="result_page_title_map">Poloha</string>
+		
+	<string name="qos_test_name_website">Referenční webová stránka</string>
+	<string name="qos_test_name_http_proxy">Nepozměněný obsah</string>
+	<string name="qos_test_name_non_transparent_proxy">Transparentní spojení</string>
+	<string name="qos_test_name_dns">DNS</string>
+	<string name="qos_test_name_tcp">TCP porty</string>	
+	<string name="qos_test_name_udp">UDP porty</string>
+	
+	<string name="qos_test_result_error">Chyba</string>
+	<string name="qos_test_result_all">Výsledky</string>
+	
+	<string name="result_details_qos_failure">SELHÁNÍ</string>
+	<string name="result_details_qos_success">ÚSPĚŠNÉ</string>
+	
+	<string name="page_title_title_page">Menu</string>
+	<string name="page_title_history">Historie</string>
+	<string name="page_title_help">Nápověda</string>
+	<string name="page_title_statistics">Statistiky</string>
+	<string name="page_title_information">Informace</string>
+	<string name="page_title_map">Mapa</string>
+	<string name="page_title_settings">Nastavení</string>
+	<string name="page_title_about">O aplikaci</string>
+	<string name="page_title_main_result">Výsledky testů</string>
+	<string name="page_title_sync">Synchronizace</string>
+	<string name="page_title_qos_result">QoS</string>
+	
+	<string name="title_screen_ipv4">IPv4</string>
+	<string name="title_screen_ipv6">IPv6</string>
+	<string name="title_screen_traffic">Provoz na pozadí</string>
+	<string name="title_screen_network_id">ID sítě:</string>
+	
+	<string name="title_screen_info_overlay_location">Poloha</string>
+	<string name="title_screen_info_overlay_ipv4_public">Veřejná IPv4</string>
+	<string name="title_screen_info_overlay_ipv4_private">Privátní IPv4</string>
+	<string name="title_screen_info_overlay_ipv6_public">Veřejná IPv6</string>
+	<string name="title_screen_info_overlay_ipv6_private">Privátní IPv6</string>
+	<string name="title_screen_info_overlay_ul_traffic">Upload</string>
+	<string name="title_screen_info_overlay_dl_traffic">Download</string>
+	<string name="title_screen_info_overlay_control_server_conn">Spojení s ControlServerem</string>
+	<string name="title_screen_info_overlay_captive_portal_status">Captive Portal</string>
+	<string name="title_screen_info_overlay_is_loopback">Loopback</string>
+	<string name="title_screen_info_overlay_is_link_local">Link-Local</string>
+	<string name="title_screen_info_overlay_location_position">Poloha</string>
+	<string name="title_screen_info_overlay_location_source">Přesnost</string>
+	<string name="title_screen_info_overlay_location_altitude">Nadmořská výška</string>
+	<string name="title_screen_info_overlay_location_accuracy">Přesnost</string>
+	<string name="title_screen_info_overlay_location_age">Věk</string>
+	
+	<string name="captive_portal_found">nalezeno</string>
+	<string name="captive_portal_not_found">nenalezeno</string>
+	<string name="captive_portal_testing">Test běží…</string>
+	
+	<string name="not_available">Není k dispozici</string>
+	
+	<string name="test_label_test_info">Informace o testu</string>
+	<string name="test_label_progress">Průběh</string>
+	<string name="test_label_quality_test">Test kvality</string>
+	
+	<string name="preferences_category_developer_debug">Debugging</string>
+	<string name="preferences_dev_qos_ssl" >QoS server SSL</string>
+    <string name="preferences_dev_qos_ssl_sum" >Use encrypted connection to QoS server</string>
+    
+    <string name="preferences_dev_debug_sysout" >Store error output in file</string>
+    <string name="preferences_dev_debug_sysout_sum" >Stores error output in a text file located in the "qosdebug" folder</string>
+	
+	
+</resources>
+
+

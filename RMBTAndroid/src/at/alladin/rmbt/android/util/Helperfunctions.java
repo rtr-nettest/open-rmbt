@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -151,7 +151,6 @@ public final class Helperfunctions
     
     public static String convertLocationSpeed(final Resources res, final boolean hasspeed, final float speed)
     {   
-        final String unit;
         if ((!hasspeed) || (speed <= 1.0)) // ignore speed < 3.6km
             return "";
         else 
@@ -288,6 +287,9 @@ public final class Helperfunctions
             
         case ABORTED:
             return res.getString(R.string.test_bottom_test_status_aborted);
+            
+		default:
+			break;
             
         }
         return null;

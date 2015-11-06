@@ -75,7 +75,7 @@ public abstract class AbstractRMBTTest {
         }
         
         if (socket != null) {
-        	System.out.println("Connecting to " + sockAddr + " with timout: " + timeOut + "ms " + socket);
+        	System.out.println("Connecting to " + sockAddr + " with timout: " + timeOut + "ms " + socket + " [SSL: " + isSecure + "]");
         	socket.connect(sockAddr, timeOut);
         }
         
@@ -87,20 +87,22 @@ public abstract class AbstractRMBTTest {
         
         final InetAddress inetAddress = host;
         
-        System.out.println("connecting to: " + inetAddress.getHostName());
         final Socket s = getSocket(inetAddress.getHostAddress(), port, isSecure, connTimeOut);
         s.setSoTimeout(12000);
         
-        testResult.ip_local = s.getLocalAddress();
-        testResult.ip_server = s.getInetAddress();
-        
-        testResult.port_remote = s.getPort();
+        if (testResult != null) {
+        	testResult.ip_local = s.getLocalAddress();
+        	testResult.ip_server = s.getInetAddress();
+        	testResult.port_remote = s.getPort();
+        }
         
         if (s instanceof SSLSocket)
         {
             final SSLSocket sslSocket = (SSLSocket) s;
             final SSLSession session = sslSocket.getSession();
-            testResult.encryption = String.format(Locale.US, "%s (%s)", session.getProtocol(), session.getCipherSuite());
+            if (testResult != null) {
+            	testResult.encryption = String.format(Locale.US, "%s (%s)", session.getProtocol(), session.getCipherSuite());
+            }
         }
         
         log(String.format(Locale.US, "thread %d: ReceiveBufferSize: '%s'.", threadId, s.getReceiveBufferSize()));

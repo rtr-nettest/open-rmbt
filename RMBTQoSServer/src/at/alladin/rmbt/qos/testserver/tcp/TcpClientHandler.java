@@ -44,37 +44,38 @@ public class TcpClientHandler implements Runnable {
 	 */
 	private final Socket clientSocket;
 	
+	private final String name;
+	
 	/**
 	 * 
 	 */
-	private final AtomicReference<TcpServer> tcpServer;
+	private final AtomicReference<TcpMultiClientServer> tcpServer;
 	
-	public TcpClientHandler(Socket clientSocket, TcpServer tcpServer) {
+	public TcpClientHandler(Socket clientSocket, TcpMultiClientServer tcpServer) {
 		this.clientSocket = clientSocket;
-		this.tcpServer = new AtomicReference<TcpServer>(tcpServer);
+		this.tcpServer = new AtomicReference<TcpMultiClientServer>(tcpServer);
+		this.name = "[TcpClientHandler " + clientSocket.getInetAddress().toString() + "]";
 	}
 	
 	@Override
 	public void run() {
-		BufferedReader br = null;
-		FilterOutputStream fos = null;
-		
 		TestServerConsole.log("New TCP ClientHander Thread started. Client: " + clientSocket, 1, TestServerServiceEnum.TCP_SERVICE);
 		
-		try {
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+				FilterOutputStream fos = new FilterOutputStream(clientSocket.getOutputStream());) {
 			clientSocket.setSoTimeout(TCP_HANDLER_TIMEOUT);
 			
 			boolean validCandidate = false;
 	
 			if (TestServer.serverPreferences.isIpCheck()) {
 				//check for test candidate if ip check is enabled
-				if (!tcpServer.get().getCandidateSet().containsKey(clientSocket.getInetAddress())) {
+				if (!tcpServer.get().getCandidateMap().containsKey(clientSocket.getInetAddress())) {
 					if (clientSocket != null && !clientSocket.isClosed()) {
 						clientSocket.close();
 					}
 	
 					TestServerConsole.log(clientSocket.getInetAddress() + ": not a valid candidate for TCP/NTP", 
-							TcpServer.VERBOSE_LEVEL_REQUEST_RESPONSE, TestServerServiceEnum.TCP_SERVICE);
+							TcpMultiClientServer.VERBOSE_LEVEL_REQUEST_RESPONSE, TestServerServiceEnum.TCP_SERVICE);
 				}
 				else {
 					validCandidate = true;
@@ -86,51 +87,40 @@ public class TcpClientHandler implements Runnable {
 			}
 			
 			if (validCandidate) {
-				tcpServer.get().refreshTtl();
+				tcpServer.get().refreshTtl(TcpMultiClientServer.TTL);
 				
 				//remove test candidate if ip check is enabled
 				if (TestServer.serverPreferences.isIpCheck()) {
 					tcpServer.get().removeCandidate(clientSocket.getInetAddress());
 				}
 				
-				br = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));		
-				fos = new FilterOutputStream(clientSocket.getOutputStream());
-				
 				String clientRequest = br.readLine();
 				
 				TestServerConsole.log("TCP/NTP Server (" + tcpServer.get().getServerSocket() + ") (:" + tcpServer.get().getPort() + "), connection from: " + clientSocket.getInetAddress().toString() + ", request: " + clientRequest, 
-						TcpServer.VERBOSE_LEVEL_REQUEST_RESPONSE, TestServerServiceEnum.TCP_SERVICE);
+						TcpMultiClientServer.VERBOSE_LEVEL_REQUEST_RESPONSE, TestServerServiceEnum.TCP_SERVICE);
 	
 				//send echo
 				byte[] response = ClientHandler.getBytesWithNewline(clientRequest);
 				
 				TestServerConsole.log("TCP/NTP Server (" + tcpServer.get().getServerSocket() + ") (:" + tcpServer.get().getPort() + "), response: " + new String(response) + " to: " + clientSocket.getInetAddress().toString(), 
-						TcpServer.VERBOSE_LEVEL_REQUEST_RESPONSE, TestServerServiceEnum.TCP_SERVICE);
+						TcpMultiClientServer.VERBOSE_LEVEL_REQUEST_RESPONSE, TestServerServiceEnum.TCP_SERVICE);
 	
 				fos.write(response);				
 			}
 		}
 		catch (SocketTimeoutException e) {
-			TestServerConsole.log("TcpClientHandler Therad " + clientSocket.toString() + " " + e.getLocalizedMessage(), 2, TestServerServiceEnum.TCP_SERVICE);
+			TestServerConsole.error("TcpClientHandler Thread " + clientSocket.toString(), e, 2, TestServerServiceEnum.TCP_SERVICE);
 		}
 		catch (Exception e) {
-			TestServerConsole.log("TcpClientHandler Therad " + clientSocket.toString() + " " + e.getLocalizedMessage(), 1, TestServerServiceEnum.TCP_SERVICE);
+			TestServerConsole.error("TcpClientHandler Thread " + clientSocket.toString(), e, 1, TestServerServiceEnum.TCP_SERVICE);
 		}
 		finally {
 			try {
 				if (clientSocket != null && !clientSocket.isClosed()) {
-					clientSocket.shutdownInput();
-					clientSocket.shutdownOutput();
 					clientSocket.close();
 				}
-				if (br != null) {
-					br.close();
-				}
-				if (fos != null) {
-					fos.close();
-				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				TestServerConsole.error(name, e, 2, TestServerServiceEnum.TCP_SERVICE);
 			}
 		}
 	}

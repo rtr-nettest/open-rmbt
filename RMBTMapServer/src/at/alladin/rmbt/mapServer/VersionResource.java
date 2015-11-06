@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package at.alladin.rmbt.mapServer;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.restlet.resource.Get;
-import org.restlet.resource.ServerResource;
 
 import at.alladin.rmbt.shared.RevisionHelper;
 
@@ -27,6 +26,7 @@ public class VersionResource extends ServerResource
     @Get("json")
     public String request(final String entity)
     {
+    	addAllowOrigin();
         try
         {
             final JSONObject answer = new JSONObject();

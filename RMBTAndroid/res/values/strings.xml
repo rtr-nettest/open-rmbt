@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright 2013-2014 alladin-IT GmbH
+  Copyright 2013-2015 alladin-IT GmbH
   
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 -->
 <resources>
     
-    <string name="error_no_internet">No Internet connection\navailalbe</string>   
+    <string name="error_no_internet">No Internet connection\navailable</string>   
     <string name="error_no_data">No data available.</string>
     <string name="error_history_no_data_no_connection">No Internet connection. Could not load data.</string>
     
@@ -39,6 +39,9 @@
     <string name="preferences_tag">Tag</string>
     <string name="preferences_tag_sum">Add a custom test tag to every test</string>
     
+    <string name="preferences_skip_qos">Skip QoS</string>
+    <string name="preferences_skip_qos_sum">Skip QoS tests</string>
+    
     <string name="preferences_loop_mode">Loop</string>
     <string name="preferences_loop_mode_sum">Test will run in a loop mode</string>
     
@@ -56,6 +59,9 @@
     
     <string name="preferences_loop_mode_gps">Use GPS when loop mode is active</string>
     <string name="preferences_loop_mode_gps_sum">Use GPS between two tests in loop mode</string>
+    
+    <string name="preferences_loop_mode_wake_lock">Loop WakeLock</string>
+    <string name="preferences_loop_mode_wake_lock_sum">Workaround for some devices: Leaves the display on to keep GPS working</string>
     
     <string name="preferences_ndt">NDT</string>
     <string name="preferences_ndt_sum">Activate extended test</string>
@@ -94,11 +100,11 @@
     <string name="preferences_dev_map_ssl">Map server SSL</string>
     <string name="preferences_dev_map_ssl_sum">Use encrypted connection to map server</string>
 
-    <string name="preferences_dev_qos_ssl">QoS server SSL</string>
-    <string name="preferences_dev_qos_ssl_sum">Use encrypted connection to QoS server</string>
+    <string name="preferences_dev_qos_ssl" >QoS server SSL</string>
+    <string name="preferences_dev_qos_ssl_sum" >Use encrypted connection to QoS server</string>
     
-    <string name="preferences_dev_debug_sysout">Store error output in file</string>
-    <string name="preferences_dev_debug_sysout_sum">Stores error output in a text file located in the "qosdebug" folder</string>
+    <string name="preferences_dev_debug_sysout" >Store error output in file</string>
+    <string name="preferences_dev_debug_sysout_sum" >Stores error output in a text file located in the "qosdebug" folder</string>
 
     <string name="menu_button_start">START</string>
     <string name="menu_button_title_page">Home</string>
@@ -132,6 +138,12 @@
     <string name="about_gms_legal_line1">Google Play Services Legal Notice</string>
     <string name="about_test_counter_title">Test Counter</string>
     
+   	<string name="about_developer_feature_dialog_title" translatable="false">Code</string>	
+    <string name="about_developer_feature_dialog_enter_code" translatable="false">Please enter the code:</string>
+    <string name="about_developer_feature_dialog_msg_deactivated" translatable="false">Deactivated.</string>
+    <string name="about_developer_feature_dialog_msg_activated" translatable="false">Activated.</string>
+    <string name="about_developer_feature_dialog_msg_try_again" translatable="false">Try again!</string>
+    
     <string name="terms">Privacy Policy and Terms of Use</string>
     
     <string name="terms_accept_button">Agree</string>
@@ -145,7 +157,7 @@
     
     <string name="loop_notification_ticker">Loop mode is active…</string>
     <string name="loop_notification_title">Loop mode is active</string>
-    <string name="loop_notification_text">Touch to stop Loop mode</string>
+    <string name="loop_notification_text">{0}x; {1}s; {2}m; Touch to stop Loop mode.</string>
     
     <string name="loop_started">Loop mode started.</string>
     <string name="loop_already_active">Loop mode is already active.</string>
@@ -232,6 +244,14 @@
 	
 	<string name="map_balloon_overlay_header">MEASUREMENTS</string>
 	
+	<string name="map_search_location_dialog_title">Search</string>
+	<string name="map_search_location_progress_title">Searching</string>
+	<string name="map_search_location_progress_message">Looking for your location. Please wait…</string>	
+    <string name="map_search_location_dialog_info">Search for an address or city:</string>
+    <string name="map_search_location_dialog_not_found">Address not found.</string>
+    <string name="map_search_location_not_supported">Sorry, this function is not supported by your device.</string>
+	
+	
 	<!-- Test -->
 	<string name="test_progress_title">Connecting…</string>
 	<string name="test_progress_text">The connection to the test server is being established. Please wait…</string>
@@ -283,7 +303,7 @@
 	
 	<string name="result_details_qos_failure">FAILED</string>
 	<string name="result_details_qos_success">SUCCEEDED</string>
-	
+	<string name="result_details_qos_info">ADDITIONAL RESULTS</string>
 	
 	<string name="page_title_title_page">Menu</string>
 	<string name="page_title_history">History</string>
@@ -331,7 +351,7 @@
 	<string name="title_screen_info_overlay_location_accuracy">Accuracy</string>
 	<string name="title_screen_info_overlay_location_altitude">Altitude</string>
 	<string name="title_screen_info_overlay_location_age">Age</string>
-	<string name="title_screen_empty">-</string>
+	<string name="title_screen_empty" translatable="false"></string>
 	
 		
 	<string name="captive_portal_found">found</string>
@@ -343,4 +363,6 @@
 	<string name="test_label_test_info">Test information</string>
 	<string name="test_label_progress">Progress</string>
 	<string name="test_label_quality_test">Quality test</string>
+	
+	<string name="server_selection">Server selection</string>
 </resources>

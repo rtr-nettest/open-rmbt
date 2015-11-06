@@ -42,21 +42,22 @@ import at.alladin.rmbt.client.v2.task.service.TestSettings;
 
 public class RMBTApplet extends Applet
 {
+	public final static String PARAM_RUN_QOS = "runQos";
+	public final static String PARAM_RUN_NDT = "runNdt";
+	public final static String PARAM_QOS_SSL = "qosSsl";
+	
     private static final long serialVersionUID = 1L;
 
     private RMBTClient client;
     
     private volatile boolean start = false;
     private volatile boolean runRMBT = false;
-    private volatile boolean runQoS = false;
-    private volatile boolean runNDT = false;
     private volatile boolean ndtActivated = false;
     
     private volatile String uuid;
     
     private volatile ArrayList<String> geoInfo = null;
     
-    private final AtomicReference<String> testUuid = new AtomicReference<String>();
     private final AtomicReference<NDTRunner> ndtRunnerHolder = new AtomicReference<NDTRunner>();
     
     private volatile Integer zip;
@@ -66,6 +67,19 @@ public class RMBTApplet extends Applet
     public void init()
     {
         System.out.println(String.format("initializing applet %s", RevisionHelper.getVerboseRevision()));
+        System.out.println("supported HTML named parameters: ");
+        System.out.println("runNdt \n\toptions: true, false \t default: false \t functionality: run NDT test");
+        System.out.println("runQos \n\toptions: true, false \t default: false \t functionality: run QoS test");
+        System.out.println("qosSsl \n\toptions: true, false \t default: true  \t functionality: run QoS test with SSL");
+        
+        String param = getParameter(PARAM_RUN_QOS);
+        final boolean runQoS= Boolean.parseBoolean(param == null ? "false" : param.trim());
+        
+        param = getParameter(PARAM_QOS_SSL);
+        final boolean useSslForQoS = Boolean.parseBoolean(param == null ? "true" : param.trim());
+        
+        param = getParameter(PARAM_RUN_NDT);
+        final boolean runNdt = Boolean.parseBoolean(param == null ? "false" : param.trim());
 
         final Runnable runnable = new Runnable()
         {
@@ -80,7 +94,7 @@ public class RMBTApplet extends Applet
                     }
                     
                     System.out.println("got start signal");
-                    
+                                                            
                     final int port = 443;
                     final boolean encryption = true;
                     
@@ -105,7 +119,7 @@ public class RMBTApplet extends Applet
                         client = RMBTClient.getInstance(getParameter("host"), getParameter("path"),
                                 port, encryption, geoInfo, uuid, "DESKTOP", Config.RMBT_CLIENT_NAME,
                                 Config.RMBT_VERSION_NUMBER, null, additionalValues);
-                        
+                                                
                         final TestResult result = client.runTest();
                         if (result != null)
                         {
@@ -157,31 +171,42 @@ public class RMBTApplet extends Applet
                             client.sendResult(jsonResult);
                         }
                         
-                        client.shutdown();
-
-                        //run QoS tests:
-                        if (runQoS)
+                        System.out.println("Status: " + client.getStatus());
+                        System.out.println("Checking QoS...");
+                        if (runQoS && client.getStatus() == TestStatus.SPEEDTEST_END)
                         {
+                        	System.out.println("On. Starting QoS...");
                         	try {
+                        		client.setStatus(TestStatus.QOS_TEST_RUNNING);
                             	final TestSettings qosTestSettings = new TestSettings(client.getControlConnection().getStartTimeNs());
-                            	qosTestSettings.setUseSsl(true);
+                            	System.out.println(qosTestSettings);
+                            	qosTestSettings.setUseSsl(useSslForQoS);
                             	final QualityOfServiceTest qosTest = new QualityOfServiceTest(client, qosTestSettings);
 								QoSResultCollector qosResult = qosTest.call();
 								if (qosResult != null && qosTest.getStatus().equals(QoSTestEnum.QOS_FINISHED)) {
+	                                System.out.println("Sending QoS results...");
 									client.sendQoSResult(qosResult);
 								}
+								System.out.println("QoS finished.");
 							} catch (Exception e) {
 								e.printStackTrace();
+							} finally {
+		                        client.setStatus(TestStatus.QOS_END);
 							}
                         }
-
+                        else {
+                        	System.out.println("Off. Not running QoS.");
+                            client.setStatus(TestStatus.QOS_END);
+                        }
                         
-                        if (client.getStatus() != TestStatus.END)
-                            System.out.println("ERROR: " + client.getErrorMsg());
+                        client.shutdown();
                     }                    
                     
-                    if (runNDT)
+                    System.out.println("Status: " + client.getStatus());
+                    System.out.println("Checking NDT...");
+                    if (runNdt && (client.getStatus() == TestStatus.QOS_END || client.getStatus() == TestStatus.SPEEDTEST_END))
                     {
+                    	System.out.println("On. Starting NDT...");
                         final NDTRunner ndtRunner = new NDTRunner();
                         ndtRunnerHolder.set(ndtRunner);
                         ndtRunner.runNDT(NdtTests.NETWORK_WIRED, ndtRunner.new UiServices()
@@ -189,11 +214,25 @@ public class RMBTApplet extends Applet
                             @Override
                             public void sendResults()
                             {
+                                System.out.println("Sending NDT results...");
                                 final ControlServerConnection csc = new ControlServerConnection();
                                 csc.sendNDTResult(getParameter("host"), getParameter("path"),
-                                        port, encryption, uuid, this, testUuid.get());
+                                        port, encryption, uuid, this, client.getTestUuid());
+                                System.out.println("NDT finished.");
                             }
                         });
+                    }
+                    else {
+                    	System.out.println("Off. Not running NDT.");
+                    }
+                    
+                    //set status to end:
+                    if (client.getStatus() != TestStatus.ERROR ) {
+                    	client.setStatus(TestStatus.END);
+                    	System.out.println("TEST FINISHED. Status: " + client.getStatus());
+                    }
+                    else {
+                    	System.out.println("ERROR: " + client.getErrorMsg());
                     }
                 }
                 catch (final InterruptedException e)
@@ -213,21 +252,6 @@ public class RMBTApplet extends Applet
         
         start = true;
         runRMBT = true;
-        runQoS = true;
-        runNDT = false;
-        notify();
-    }
-    
-    synchronized public void startNdt(final String uuid, final String testUuid)
-    {
-        System.out.println(String.format("starting ndt. client_uuid: %s; test_uuid: %s", uuid, testUuid));
-        
-        this.uuid = uuid;
-        
-        start = true;
-        runRMBT = false;
-        runNDT = true;
-        this.testUuid.set(testUuid);
         notify();
     }
     

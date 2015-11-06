@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright 2013-2014 alladin-IT GmbH
+  Copyright 2013-2015 alladin-IT GmbH
   
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -65,6 +65,11 @@
         <item name="android:textStyle">bold</item>
     </style>
 
+    <style name="textTinyLightGrey" parent="@style/textTinyLight">
+        <item name="android:textColor">#aaaaaa</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    
     <style name="textMediumGrey" parent="@style/textMediumLight">
         <item name="android:textColor">#cccccc</item>
         <item name="android:textStyle">bold</item>
@@ -243,6 +248,10 @@
         <item name="android:textStyle">normal</item>
     </style>
 
+    <style name="preferenceSuboption" parent="@style/textTinyLightGrey">
+        <item name="android:textStyle">normal</item>
+    </style>
+    
     <style name="preferenceListView" parent="@style/listViewDefault"></style>
 
     <!-- Test Screen -->

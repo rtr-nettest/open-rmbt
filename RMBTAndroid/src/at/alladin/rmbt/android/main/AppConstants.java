@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,14 @@
 package at.alladin.rmbt.android.main;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import at.alladin.openrmbt.android.R;
+import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.os.Build;
 
 public class AppConstants {
 	public final static String PAGE_TITLE_MAIN = "main";
@@ -34,7 +39,7 @@ public class AppConstants {
 	public final static String PAGE_TITLE_RESULT_DETAIL = "result_detail";
 	public final static String PAGE_TITLE_RESULT_QOS = "result_detail_expanded";
 	public final static String PAGE_TITLE_TEST_DETAIL_QOS = "result_qos_test_detail";
-	public final static String PAGE_TITLE_TERMS_CHECK = "tegetrms_check";
+	public final static String PAGE_TITLE_TERMS_CHECK = "terms_check";
 	public final static String PAGE_TITLE_HELP = "help";
 	public final static String PAGE_TITLE_STATISTICS = "statistics";
 	public final static String BACK_PRESSED = "back_pressed";
@@ -58,5 +63,22 @@ public class AppConstants {
 		TITLE_MAP.put(PAGE_TITLE_TEST_DETAIL_QOS, R.string.page_title_qos_result);
 		TITLE_MAP.put(PAGE_TITLE_STATISTICS, R.string.page_title_statistics);
 		TITLE_MAP.put(PAGE_TITLE_NDT_CHECK, R.string.terms);
+	}
+	
+	/**
+	 * 
+	 * @param context
+	 * @return
+	 */
+	public static String getUserAgentString(Context context) {
+		PackageInfo pInfo;
+		try {
+			pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+			return "(Android; " + Locale.getDefault().toString()  + "; API" + Build.VERSION.SDK_INT + ") Open-RMBT/" + pInfo.versionCode;
+		} catch (NameNotFoundException e) {
+			e.printStackTrace();
+		}
+		
+		return null;
 	}
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,10 +32,10 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.security.GeneralSecurityException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -46,20 +46,29 @@ import org.postgresql.util.Base64;
 
 import at.alladin.rmbt.qos.testserver.ServerPreferences.TestServerServiceEnum;
 import at.alladin.rmbt.qos.testserver.entity.ClientToken;
-import at.alladin.rmbt.qos.testserver.tcp.TcpServer;
-import at.alladin.rmbt.qos.testserver.udp.ClientUdpData;
-import at.alladin.rmbt.qos.testserver.udp.UdpMultiClientServer;
+import at.alladin.rmbt.qos.testserver.udp.AbstractUdpServer;
 import at.alladin.rmbt.qos.testserver.udp.UdpPacketReceivedCallback;
-import at.alladin.rmbt.qos.testserver.udp.UdpSingleClientServer;
+import at.alladin.rmbt.qos.testserver.udp.UdpTestCandidate;
 import at.alladin.rmbt.qos.testserver.udp.UdpTestCompleteCallback;
-import at.alladin.rmbt.qos.testserver.udp.util.UdpUtil;
 import at.alladin.rmbt.qos.testserver.util.TestServerConsole;
 
+/**
+ * handles all client requests
+ * @author lb
+ *
+ */
 public class ClientHandler implements Runnable {
 	
-	public final static int SOCKET_TIMEOUT = 15000;
-	
 	public final static boolean ABORT_ON_DUPLICATE_UDP_PACKETS = false;
+	
+	public final static Pattern ID_REGEX_PATTERN = Pattern.compile("\\+ID([\\d]*)");
+	
+	public final static Pattern TOKEN_REGEX_PATTERN = Pattern.compile("TOKEN ([\\d\\w-]*)_([\\d]*)_(.*)");
+	
+	/**
+	 * enable/disable token check
+	 */
+	public final static boolean CHECK_TOKEN = false;
 	
 	private final ServerSocket serverSocket;
 	
@@ -70,6 +79,17 @@ public class ClientHandler implements Runnable {
 	protected final FilterOutputStream out;
 	
 	protected final BufferedReader reader;
+	
+	protected final String name;
+	
+	protected ConcurrentHashMap<Integer, UdpTestCandidate> clientUdpOutDataMap = new ConcurrentHashMap<>();
+	
+	protected ConcurrentHashMap<Integer, UdpTestCandidate> clientUdpInDataMap = new ConcurrentHashMap<>();
+	
+	/**
+	 * protocol version used by the client 
+	 */
+	protected String clientProtocolVersion = QoSServiceProtocol.PROTOCOL_VERSION_1;
 	
 	/**
 	 * 
@@ -83,6 +103,7 @@ public class ClientHandler implements Runnable {
 		this.in = new BufferedInputStream(socket.getInputStream());
 		this.out = new FilterOutputStream(socket.getOutputStream());
 		this.reader = new BufferedReader(new InputStreamReader(in));
+		this.name = "[ClientHandler " + socket.getInetAddress().toString() + "]";
 	}
 	
 	/*
@@ -94,12 +115,13 @@ public class ClientHandler implements Runnable {
 		TestServerConsole.log("New connection from: " + socket.getInetAddress().toString(), 
 				0, TestServerServiceEnum.TEST_SERVER);
 		String message;
+		String command = null;
 		
 		try {
-			socket.setSoTimeout(SOCKET_TIMEOUT);
+			socket.setSoTimeout(QoSServiceProtocol.TIMEOUT_CLIENTHANDLER_CONNECTION_MIN_VALUE);
 			
-			out.write(getBytesWithNewline(QoSServiceProtocol.GREETING));
-			out.write(getBytesWithNewline(QoSServiceProtocol.ACCEPT_TOKEN));
+			out.write(getBytesWithNewline(QoSServiceProtocol.RESPONSE_GREETING));
+			out.write(getBytesWithNewline(QoSServiceProtocol.RESPONSE_ACCEPT_TOKEN));
 			message = reader.readLine();
 			TestServerConsole.log("GOT: " + message, 1, TestServerServiceEnum.TEST_SERVER);
 			
@@ -107,70 +129,86 @@ public class ClientHandler implements Runnable {
 			
 			TestServerConsole.log("TOKEN OK", 1, TestServerServiceEnum.TEST_SERVER);
 			
-			out.write(getBytesWithNewline(QoSServiceProtocol.TOKEN_OK_RESPONSE));
-			out.write(getBytesWithNewline(QoSServiceProtocol.ACCEPT_COMMANDS));
+			out.write(getBytesWithNewline(QoSServiceProtocol.RESPONSE_OK));
+			out.write(getBytesWithNewline(QoSServiceProtocol.RESPONSE_ACCEPT_COMMANDS));
 			
 			boolean quit = false;
 			
+			TestServer.clientHandlerSet.add(this);
+			
 			while(!quit) {
-				String command = reader.readLine();
-				TestServerConsole.log("COMMAND: " + command + " from: " + socket.getInetAddress().toString(), 0, TestServerServiceEnum.TEST_SERVER);
-				if (command != null) {
-					if (command.startsWith(QoSServiceProtocol.NON_TRANSPARENT_PROXY_TEXT)) {
-						runNonTransparentProxyTest(command);
-						quit = true;
-					}
-					else if (command.startsWith(QoSServiceProtocol.TCP_TEST_IN)) {
-						runIncomingTcpTest(command, token);
-					}
-					else if (command.startsWith(QoSServiceProtocol.TCP_TEST_OUT)) {
-						runOutgoingTcpTest(command, token);
-					}
-					else if (command.startsWith(QoSServiceProtocol.UDP_TEST_OUT)) {
-						runOutgoingUdpTestOnMultiClientServer(command, token);
-					}
-					else if (command.startsWith(QoSServiceProtocol.UDP_TEST_IN)) {
-						runIncomingUdpTest(command, token);
-					}
-					else if (command.startsWith(QoSServiceProtocol.REQUEST_UDP_PORT_RANGE)) {
-						out.write(getBytesWithNewline(TestServer.serverPreferences.getUdpPortMin() +  " " + TestServer.serverPreferences.getUdpPortMax()));
-					}
-					else if (command.startsWith(QoSServiceProtocol.REQUEST_UDP_PORT)) {
-						sendRandomUdpPort();
-					}
-					else if (command.startsWith(QoSServiceProtocol.REQUEST_QUIT)) {
-						quit = true;
+				try {
+					command = reader.readLine();
+					TestServerConsole.log("COMMAND: " + command + " from: " + socket.getInetAddress().toString(), 0, TestServerServiceEnum.TEST_SERVER);
+					if (command != null) {
+						if (command.startsWith(QoSServiceProtocol.CMD_NON_TRANSPARENT_PROXY_TEXT)) {
+							runNonTransparentProxyTest(command);
+						}
+						else if (command.startsWith(QoSServiceProtocol.CMD_TCP_TEST_IN)) {
+							runIncomingTcpTest(command, token);
+						}
+						else if (command.startsWith(QoSServiceProtocol.CMD_TCP_TEST_OUT)) {
+							runOutgoingTcpTest(command, token);
+						}
+						else if (command.startsWith(QoSServiceProtocol.CMD_UDP_TEST_OUT)) {
+							runOutgoingUdpTest(command, token);
+						}
+						else if (command.startsWith(QoSServiceProtocol.CMD_UDP_TEST_IN)) {
+							runIncomingUdpTest(command, token);
+						}
+						else if (command.startsWith(QoSServiceProtocol.REQUEST_UDP_PORT_RANGE)) {
+							sendCommand(TestServer.serverPreferences.getUdpPortMin() +  " " + TestServer.serverPreferences.getUdpPortMax(), command);
+						}
+						else if (command.startsWith(QoSServiceProtocol.REQUEST_UDP_PORT)) {
+							sendRandomUdpPort(command);
+						}
+						else if (command.startsWith(QoSServiceProtocol.REQUEST_UDP_RESULT_OUT)) {
+							runRcvCommand(command, token, false);
+						}
+						else if (command.startsWith(QoSServiceProtocol.REQUEST_UDP_RESULT_IN)) {
+							runRcvCommand(command, token, true);
+						}
+						else if (command.startsWith(QoSServiceProtocol.REQUEST_QUIT)) {
+							quit = true;
+						}
+						else if (command.startsWith(QoSServiceProtocol.REQUEST_NEW_CONNECTION_TIMEOUT)) {
+							requestNewConnectionTimeout(command);
+						}
+						else if (command.startsWith(QoSServiceProtocol.REQUEST_PROTOCOL_VERSION)) {
+							
+						}
+						else if (command.startsWith(QoSServiceProtocol.REQUEST_PROTOCOL_KEEPALIVE)) {
+							
+						}
+						else {
+							sendCommand(QoSServiceProtocol.RESPONSE_ACCEPT_COMMANDS, command);
+							quit = true;
+						}
 					}
 					else {
-						out.write(getBytesWithNewline(QoSServiceProtocol.ACCEPT_COMMANDS));
 						quit = true;
 					}
 				}
-				else {
-					quit = true;
+				catch (Exception e) {
+					TestServerConsole.error("ClientHandler: " + socket.getInetAddress().toString() 
+							+ (command == null ? " [No command submitted]" : " [Command: " + command + "] - Exception catched and consumed."), 
+							e, 0, TestServerServiceEnum.TEST_SERVER);
+					throw e;
 				}
 			}
 		} 
-		catch (IOException e) {
-			TestServerConsole.log("ClientHandler IOException from: " + socket.getInetAddress().toString(), 
-					0, TestServerServiceEnum.TEST_SERVER);
-			e.printStackTrace();
-		}
 		catch (Exception e) {
-			TestServerConsole.log("ClientHandler unknown exception from: " + socket.getInetAddress().toString(), 
-					0, TestServerServiceEnum.TEST_SERVER);
-			e.printStackTrace();			
+			TestServerConsole.error(name, e, 0, TestServerServiceEnum.TEST_SERVER);		
 		}
 		finally {
-			if (!socket.isClosed()) {
+			TestServer.clientHandlerSet.remove(this);
+			if (socket != null && !socket.isClosed()) {
 				try {
 					socket.close();
-					TestServerConsole.log("ClientHandler closed connection to: " + socket.getInetAddress().toString(), 
+					TestServerConsole.log(name + " Connection closed!", 
 							0, TestServerServiceEnum.TEST_SERVER);
-				} catch (IOException e) {
-					TestServerConsole.log("ClientHandler: Could not close socket from: " + socket.getInetAddress().toString(), 
-							0, TestServerServiceEnum.TEST_SERVER);
-					e.printStackTrace();
+				} catch (Exception e) {
+					TestServerConsole.error(name + " Could not close socket!", e, 0, TestServerServiceEnum.TEST_SERVER);
 				}
 			}
 		}
@@ -178,8 +216,7 @@ public class ClientHandler implements Runnable {
 
 	/**
 	 * 
-	 * @param string
-	 * @return
+	 * @param string	 * @return
 	 */
 	public synchronized static byte[] getBytesWithNewline(String string) {
 		if (string.endsWith("\n")) {
@@ -215,9 +252,8 @@ public class ClientHandler implements Runnable {
 		ClientToken clientToken;
 		
 		try {
-			Pattern p = Pattern.compile("TOKEN ([\\d\\w-]*)_([\\d]*)_(.*)");
 			TestServerConsole.log("Got token: " + token, 0, TestServerServiceEnum.TEST_SERVER);
-			Matcher m = p.matcher(token);
+			Matcher m = TOKEN_REGEX_PATTERN.matcher(token);
 			m.find();
 			
 			if (m.groupCount()!=3) {
@@ -228,13 +264,18 @@ public class ClientHandler implements Runnable {
 				long timeStamp = Long.parseLong(m.group(2));
 				String hmac = m.group(3);
 
-				String controlHmac = calculateHMAC(TestServer.serverPreferences.getSecretKey(), uuid + "_" + timeStamp);
-				if (controlHmac.equals(hmac)) {
-					clientToken = new ClientToken(uuid, timeStamp, hmac);	
-					return clientToken;
+				if (CHECK_TOKEN) {
+					String controlHmac = calculateHMAC(TestServer.serverPreferences.getSecretKey(), uuid + "_" + timeStamp);
+					if (controlHmac.equals(hmac) && (timeStamp + QoSServiceProtocol.TOKEN_LEGAL_TIME >= System.currentTimeMillis())) {
+						clientToken = new ClientToken(uuid, timeStamp, hmac);	
+						return clientToken;
+					}
+					else {
+						throw new IOException("BAD TOKEN. Bad Key!\n" + controlHmac + " <-> " + hmac + "\n");
+					}
 				}
 				else {
-					throw new IOException("BAD TOKEN. Bad Key!\n" + controlHmac + " <-> " + hmac + "\n");
+					return new ClientToken(uuid, timeStamp, hmac);
 				}
 			}
 		}
@@ -278,12 +319,16 @@ public class ClientHandler implements Runnable {
      * @param token
      * @throws IOException 
      */
-    private void sendRandomUdpPort() throws IOException {
+    private void sendRandomUdpPort(final String command) throws IOException {
+    	int randomPort = 0;
 		Random rand = new Random();
-		int randomPort = rand.nextInt(TestServer.serverPreferences.getUdpPortMax() - TestServer.serverPreferences.getUdpPortMin()) + 
-				TestServer.serverPreferences.getUdpPortMin();
+		if ((TestServer.serverPreferences.getUdpPortMax() > 0) && (TestServer.serverPreferences.getUdpPortMin() <= TestServer.serverPreferences.getUdpPortMax())) {
+			randomPort = rand.nextInt(TestServer.serverPreferences.getUdpPortMax() - TestServer.serverPreferences.getUdpPortMin()) + 
+					TestServer.serverPreferences.getUdpPortMin();			
+			
+		}
 		TestServerConsole.log("Requested UDP Port. Picked random port number: " + randomPort, 0, TestServerServiceEnum.TEST_SERVER);
-		out.write(getBytesWithNewline(String.valueOf(randomPort)));
+		sendCommand(String.valueOf(randomPort), command);
     }
 
     /**
@@ -293,9 +338,9 @@ public class ClientHandler implements Runnable {
      * @throws IOException
      */
     private void runIncomingTcpTest(String command, ClientToken token) throws IOException {
-    	int port;
+    	final int port;
     	
-		Pattern p = Pattern.compile(QoSServiceProtocol.TCP_TEST_IN + " ([\\d]*)");
+		Pattern p = Pattern.compile(QoSServiceProtocol.CMD_TCP_TEST_IN + " ([\\d]*)");
 		Matcher m = p.matcher(command);
 		m.find();
 		if (m.groupCount()!=1) {
@@ -305,22 +350,34 @@ public class ClientHandler implements Runnable {
 			port = Integer.parseInt(m.group(1));
 		}
 		
-		Socket testSocket = null;
-		try {
-			testSocket = new Socket(socket.getInetAddress(), port);
-			BufferedOutputStream out = new BufferedOutputStream(testSocket.getOutputStream());
-			out.write(getBytesWithNewline("HELLO TO " + port));
-			out.flush();
-			testSocket.close();
-		}
-		catch (Exception e) {
-			throw e;
-		}
-		finally {
-			if (testSocket != null && !testSocket.isClosed()) {
-				testSocket.close();
-			}			
-		}
+		Runnable tcpInRunnable = new Runnable() {
+			
+			@Override
+			public void run() {
+				Socket testSocket = null;
+				try {
+					testSocket = new Socket(socket.getInetAddress(), port);
+					BufferedOutputStream out = new BufferedOutputStream(testSocket.getOutputStream());
+					out.write(getBytesWithNewline("HELLO TO " + port));
+					out.flush();
+					testSocket.close();
+				}
+				catch (Exception e) {
+					TestServerConsole.error(name, e, 2, TestServerServiceEnum.TCP_SERVICE);
+				}
+				finally {
+					if (testSocket != null && !testSocket.isClosed()) {
+						try {
+							testSocket.close();
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					}			
+				}				
+			}
+		};
+		
+		TestServer.getCommonThreadPool().execute(tcpInRunnable);
     }
     
     /**
@@ -333,7 +390,7 @@ public class ClientHandler implements Runnable {
     private void runOutgoingTcpTest(String command, ClientToken token) throws Exception {
     	int port;
     	
-		Pattern p = Pattern.compile(QoSServiceProtocol.TCP_TEST_OUT + " ([\\d]*)");
+		Pattern p = Pattern.compile(QoSServiceProtocol.CMD_TCP_TEST_OUT + " ([\\d]*)");
 		Matcher m = p.matcher(command);
 		m.find();
 		if (m.groupCount()!=1) {
@@ -342,36 +399,15 @@ public class ClientHandler implements Runnable {
 		else {
 			port = Integer.parseInt(m.group(1));
 		}
-
-		List<TcpServer> tcpServerList;
-		
-		synchronized (TestServer.tcpServerMap) {
-			if ((tcpServerList = TestServer.tcpServerMap.get(port)) == null) {
-				tcpServerList = new ArrayList<>();
-				for (InetAddress addr : TestServer.serverPreferences.getInetAddrBindToSet()) {
-					tcpServerList.add(new TcpServer(port, false, addr));
-				}
-				TestServer.tcpServerMap.put(port, tcpServerList);
-			}
-			
-			if (TestServer.serverPreferences.isIpCheck()) {
-				for (TcpServer tcpServer : tcpServerList) {
-					tcpServer.registerCandidate(socket.getInetAddress());	
-				}
-			}
-		}
 		
 		try {
-			for (TcpServer tcpServer : tcpServerList) {
-				tcpServer.open();
-				Thread tcpThread = new Thread(tcpServer);
-				tcpThread.start();
-			}
-			
-			out.write(getBytesWithNewline("OK"));		
+			TestServer.registerTcpCandidate(port, socket);
+						
+			sendCommand(QoSServiceProtocol.RESPONSE_OK, command);
 		}
 		catch (Exception e) {
-			throw e;
+			TestServerConsole.error(name + (command == null ? 
+					" [No command submitted]" : " [Command: " + command + "]"), e, 1, TestServerServiceEnum.TCP_SERVICE);
 		}
 		finally {
 			//is beeing done inside TcpServer now:
@@ -386,11 +422,12 @@ public class ClientHandler implements Runnable {
      * @throws IOException
      * @throws InterruptedException 
      */
-    private void runIncomingUdpTest(String command, ClientToken token) throws IOException, InterruptedException {
-    	int port, numPackets;
-    	//int timeout = 8000;
+    private void runIncomingUdpTest(final String command, final ClientToken token) throws IOException, InterruptedException {
+    	final int port;
+    	final int timeout = 5000;
+		final int numPackets;
     	
-		Pattern p = Pattern.compile(QoSServiceProtocol.UDP_TEST_IN + " ([\\d]*) ([\\d]*)");
+		Pattern p = Pattern.compile(QoSServiceProtocol.CMD_UDP_TEST_IN + " ([\\d]*) ([\\d]*)");
 		Matcher m = p.matcher(command);
 		m.find();
 		if (m.groupCount()!=2) {
@@ -402,26 +439,45 @@ public class ClientHandler implements Runnable {
 		}	
 		
 		//DatagramSocket sock = new DatagramSocket(port);
-		DatagramSocket sock = new DatagramSocket();
-		ClientUdpData clientData = sendUdpPackets(socket.getInetAddress(), sock, port, 3000, numPackets, true, token);
-
+		final UdpTestCandidate clientData = new UdpTestCandidate();
+		clientData.setNumPackets(numPackets);
+		final DatagramSocket sock = new DatagramSocket();
 		
-		TestServerConsole.log(socket.getInetAddress() + ": RESULT OK, RCV PACKETS: " + clientData.getPacketsReceived().size() 
-				+ ", DUP: " + clientData.getPacketDuplicates().size(), 2, TestServerServiceEnum.UDP_SERVICE);
-		out.write(getBytesWithNewline(QoSServiceProtocol.RESPONSE_UDP_NUM_PACKETS_RECEIVED + " " 
-				+ clientData.getPacketsReceived().size() + " " + clientData.getPacketDuplicates().size()));
+		final CountDownLatch latch = new CountDownLatch(1);
+		final Runnable sendUdpPacketsRunnable = new Runnable() {
+			
+			@Override
+			public void run() {
+				sendUdpPackets(socket.getInetAddress(), sock, port, 3000, numPackets, true, 100, token, clientData);
+				latch.countDown();
+			}
+		};
+		
+		TestServer.getCommonThreadPool().execute(sendUdpPacketsRunnable);
+		
+		final Matcher idMatcher = ID_REGEX_PATTERN.matcher(command);
+		if (!idMatcher.find()) {
+			latch.await(timeout, TimeUnit.MILLISECONDS);
+			sendRcvResult(clientData, port, command);
+		}
     }
-    
+
     /**
      * 
+     * @param targetHost
      * @param sock
+     * @param port
      * @param timeOut
      * @param numPackets
+     * @param awaitResponse
+     * @param delay
      * @param token
      * @return
      */
-    private ClientUdpData sendUdpPackets(InetAddress targetHost, DatagramSocket sock, int port, int timeOut, int numPackets, boolean awaitResponse, ClientToken token) {
-    	final ClientUdpData clientData = new ClientUdpData(numPackets);
+    private UdpTestCandidate sendUdpPackets(InetAddress targetHost, DatagramSocket sock, int port, int timeOut, 
+    		int numPackets, boolean awaitResponse, int delay, ClientToken token, final UdpTestCandidate clientData) {
+    	clientUdpInDataMap.put(port, clientData);
+    	
 	    ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
 	    DataOutputStream dataOut = new DataOutputStream(byteOut);
 	 
@@ -443,14 +499,15 @@ public class ClientHandler implements Runnable {
             
 	    	byteOut.reset();
 	    	try {
+	    		Thread.sleep(delay);
 	    		dataOut.writeByte(QoSServiceProtocol.UDP_TEST_AWAIT_RESPONSE_IDENTIFIER);
 	    		dataOut.writeByte(i);
     			dataOut.write(token.getUuid().getBytes());
-	    	} catch (IOException e) {
+	    	} catch (IOException | InterruptedException e) {
 	    		e.printStackTrace();
 	    		sock.close();
 	    		return clientData;
-	    	}
+			}
 	      	 
 	    	try {
 		    	byteOut.flush();
@@ -474,7 +531,6 @@ public class ClientHandler implements Runnable {
 	    				//check udp packet:
 	    				if (buffer[0] != QoSServiceProtocol.UDP_TEST_RESPONSE) {
 	    					TestServerConsole.log(dp.getAddress() + ": bad UDP IN TEST packet identifier", 0, TestServerServiceEnum.UDP_SERVICE);
-	    					socket.close();
 	    					throw new IOException("bad UDP IN TEST packet identifier");
 	    				}
 	    				
@@ -483,7 +539,6 @@ public class ClientHandler implements Runnable {
 	    					TestServerConsole.log(dp.getAddress() + ": duplicate UDP IN TEST packet id", 0, TestServerServiceEnum.UDP_SERVICE);
 	    					clientData.getPacketDuplicates().add(packetNumber);
 	    					if (ABORT_ON_DUPLICATE_UDP_PACKETS) {
-	    						socket.close();
 	    						throw new IOException("duplicate UDP IN TEST packet id");
 	    					}
 	    				}
@@ -516,6 +571,9 @@ public class ClientHandler implements Runnable {
 	    	sock.close();
 	    }
 	    
+		TestServerConsole.log(socket.getInetAddress() + ": Udp Incoming finished! RCV PACKETS: " + clientData.getPacketsReceived().size() 
+				+ ", DUP: " + clientData.getPacketDuplicates().size(), 2, TestServerServiceEnum.UDP_SERVICE);
+	    
 	    return clientData;
     }
     
@@ -525,67 +583,76 @@ public class ClientHandler implements Runnable {
      * @throws IOException 
      * @throws InterruptedException 
      */
-    private void runOutgoingUdpTestOnMultiClientServer(final String command, final ClientToken token) throws IOException, InterruptedException {
-    	final int port;
-		int numPackets = 0;
-    	long timeout = 5000;
-    	
-		Pattern p = Pattern.compile(QoSServiceProtocol.UDP_TEST_OUT + " ([\\d]*) ([\\d]*)");
-		Matcher m = p.matcher(command);
+    private void runOutgoingUdpTest(final String command, final ClientToken token) throws IOException, InterruptedException {
+    	final long timeout = 5000;
+		final Pattern p = Pattern.compile(QoSServiceProtocol.CMD_UDP_TEST_OUT + " ([\\d]*) ([\\d]*)");
+		final Matcher m = p.matcher(command);
 		m.find();
 
 		if (m.groupCount()!=2) {
 			throw new IOException("udp outgoing test command syntax error: " + command);
 		}
-		else {
-			port = Integer.parseInt(m.group(1));
-			numPackets = Integer.parseInt(m.group(2));
-		}
+
+    	
+    	final int port = Integer.parseInt(m.group(1));
+		final int numPackets = Integer.parseInt(m.group(2));
 
 		TestServerConsole.log("Starting UDP OUT TEST (requested packets: " + numPackets + ") on port :" + port + " for " + socket.getInetAddress().toString(), 
 				1, TestServerServiceEnum.UDP_SERVICE);
 
-		final AtomicBoolean udpTestFinished = new AtomicBoolean(false);
-		final AtomicBoolean resetTimeout = new AtomicBoolean(true); 
-		final ClientUdpData udpData = new ClientUdpData(numPackets);
+		final UdpTestCandidate udpData = new UdpTestCandidate();
+		udpData.setNumPackets(numPackets);
 		
-		//packet receive callback
-		udpData.setOnUdpPacketReceivedCallback(new UdpPacketReceivedCallback() {
+		clientUdpOutDataMap.put(port, udpData);
+		
+		final UdpPacketReceivedCallback receiveCallback = new UdpPacketReceivedCallback() {
 			
 			@Override
-			public boolean onReceive(final DatagramPacket dp, final UdpMultiClientServer udpServer) {
-				resetTimeout.set(true);
-				
+			public boolean onReceive(final DatagramPacket dp, final String uuid, final AbstractUdpServer<?> udpServer) {				
 				final byte[] data = dp.getData();
 				final int packetNumber = data[1];
+				final UdpTestCandidate clientUdpData = udpServer.getClientData(uuid);
 
 				//check udp packet:
 				if (data[0] != QoSServiceProtocol.UDP_TEST_ONE_DIRECTION_IDENTIFIER && data[0] != QoSServiceProtocol.UDP_TEST_AWAIT_RESPONSE_IDENTIFIER) {
 					TestServerConsole.log(dp.getAddress() +  ": bad UDP IN TEST packet identifier", 0, TestServerServiceEnum.UDP_SERVICE);
-					udpData.setError(true);
-					udpData.setErrorMsg("bad UDP IN TEST packet identifier");
+					clientUdpData.setError(true);
+					clientUdpData.setErrorMsg("bad UDP IN TEST packet identifier");
 				}
 								
 				//check for duplicate packets:
-				if (udpData.getPacketsReceived().contains(packetNumber)) {
+				if (clientUdpData.getPacketsReceived().contains(packetNumber)) {
+					//DUP
 					TestServerConsole.log(dp.getAddress() + ": duplicate UDP IN TEST packet id", 0, TestServerServiceEnum.UDP_SERVICE);
-					udpData.getPacketDuplicates().add(packetNumber);
+					clientUdpData.getPacketDuplicates().add(packetNumber);
 					if (ABORT_ON_DUPLICATE_UDP_PACKETS) {
-						udpData.setError(true);
-						udpData.setErrorMsg("duplicate UDP IN TEST packet id");
+						clientUdpData.setError(true);
+						clientUdpData.setErrorMsg("duplicate UDP IN TEST packet id");
 					}
 				}
 				else {
-					udpData.getPacketsReceived().add(new Integer(packetNumber));
+					//regular packet received:
+					clientUdpData.getPacketsReceived().add(new Integer(packetNumber));
 
 					if (data[0] == QoSServiceProtocol.UDP_TEST_AWAIT_RESPONSE_IDENTIFIER) {
 						data[0] = QoSServiceProtocol.UDP_TEST_RESPONSE;
 						DatagramPacket response = new DatagramPacket(data, dp.getLength(), dp.getAddress(), dp.getPort());
 						try {
-							udpServer.getDatagramSocket().send(response);
+							udpServer.send(response);
 						}
 						catch (Exception e) {
 							//ignore exception (can be a blocked outgoing port; in this case the test should continue normally)
+						}
+					}
+					
+					TestServerConsole.log(name + " received regular Packet #"+ packetNumber, 2, TestServerServiceEnum.UDP_SERVICE);
+					
+					//if all packets have been received and an onComplete callback exists run it and remove the client data
+					//from the udp server
+					if (clientUdpData.getPacketsReceived().size() >= clientUdpData.getNumPackets() 
+							&& clientUdpData.getOnUdpTestCompleteCallback() != null) {
+						if (clientUdpData.getOnUdpTestCompleteCallback().onComplete(udpServer)) {
+							udpServer.pollClientData(token.getUuid());
 						}
 					}
 					
@@ -594,17 +661,21 @@ public class ClientHandler implements Runnable {
 				
 				return false;
 			}
-		});
+		};
 		
-		//add callback to udp client data in case all udp packets will arrive. in this case we can send back "RCV" before the
-		//final timeout is reached
-		udpData.setOnUdpTestCompleteCallback(new UdpTestCompleteCallback() {
+		//packet receive callback
+		udpData.setOnUdpPacketReceivedCallback(receiveCallback);
+		
+		final CountDownLatch latch = new CountDownLatch(1);
+		
+		final UdpTestCompleteCallback finishCallback = new UdpTestCompleteCallback() {
 			
 			@Override
-			public boolean onComplete(ClientUdpData udpData) {
+			public boolean onComplete(final AbstractUdpServer<?> udpServer) {
 				try {
-					udpTestFinished.set(true);
-					sendRcvResult(udpData, port);
+					TestServerConsole.log("UDP OUT TEST on port :" + port + " for " + socket.getInetAddress().toString() + ":" + socket.getPort() 
+							+ " finished successfully...", 1, TestServerServiceEnum.UDP_SERVICE);
+					latch.countDown();
 					return true;
 				}
 				catch (Exception e) {
@@ -613,75 +684,60 @@ public class ClientHandler implements Runnable {
 				
 				return false;
 			}
-		});
+		};
+		
+		//add callback to udp client data in case all udp packets will arrive. in this case we can send back "RCV" before the
+		//final timeout is reached
+		udpData.setOnUdpTestCompleteCallback(finishCallback);
 		
 		//register udp client data
-		UdpMultiClientServer udpServer = UdpUtil.registerCandidate(socket.getLocalAddress(), port, token, udpData);
-		
-		//tell the client that we are ready
-		out.write(getBytesWithNewline(QoSServiceProtocol.OK_RESPONSE));
-		
-		boolean abortTimeoutLoop = false;
+		TestServer.registerUdpCandidate(socket.getLocalAddress(), port, token.getUuid(), udpData);
 
-		//let the udpserver do its work and wait until the final timeout is reached
-		while (!udpTestFinished.get() && !abortTimeoutLoop) {
-			if (!udpTestFinished.get() && resetTimeout.getAndSet(false)) {
-				Thread.sleep(timeout);
-			}
-			else {
-				abortTimeoutLoop = true;
-			}
+		//tell the client that we are ready
+		try {
+			sendCommand(QoSServiceProtocol.RESPONSE_OK, command);
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 		
-		//if not all packets were received by the test server already, interrupt the test and send the current results back to the client
-		if (!udpTestFinished.get() && udpServer != null) {
-			final ClientUdpData result = udpServer.pollClientData(token.getUuid());
-			TestServerConsole.log("UDP OUT TEST on port :" + port + " for " + socket.getInetAddress().toString() + ":" + socket.getPort() 
-					+ " finished...", 1, TestServerServiceEnum.UDP_SERVICE);
-			sendRcvResult(result, port);
-		}
-    }
-    
-    private void sendRcvResult(ClientUdpData result, int port) throws IOException {
-		TestServerConsole.log("UDP OUT TEST on port :" + port + " for " + socket.getInetAddress().toString() + ":" 
-				+ socket.getPort() + " finished...", 1, TestServerServiceEnum.UDP_SERVICE);
-		if (result != null && result.getPacketsReceived() != null && !result.isError()) {
-			TestServerConsole.log("RESULT OK, RCV PACKETS: " + result.getPacketsReceived().size() + ", DUP: " + result.getPacketDuplicates().size(), 1, TestServerServiceEnum.UDP_SERVICE);
-			out.write(getBytesWithNewline(QoSServiceProtocol.RESPONSE_UDP_NUM_PACKETS_RECEIVED + " " + result.getPacketsReceived().size() + " " + result.getPacketDuplicates().size()));
-		}
-		else {
-			TestServerConsole.log("RESULT ERROR, error: " + (result != null ? result.getErrorMsg() : "sorry, no error message available!"), 
-					1, TestServerServiceEnum.UDP_SERVICE);
-			out.write(getBytesWithNewline(QoSServiceProtocol.RESPONSE_UDP_NUM_PACKETS_RECEIVED + " 0 0"));
+		final Matcher idMatcher = ID_REGEX_PATTERN.matcher(command);
+		if (!idMatcher.find()) {
+			latch.await(timeout, TimeUnit.MILLISECONDS);
+			sendRcvResult(clientUdpOutDataMap.get(port), port, command);
 		}
     }
     
     /**
      * 
      * @param command
-     * @throws IOException 
-     * @throws InterruptedException 
+     * @param token
+     * @throws IOException
      */
-    @SuppressWarnings("unused")
-	@Deprecated
-    private void runOutgoingUdpTestOnSingleClientServer(String command, ClientToken token) throws IOException, InterruptedException {
-    	int port, numPackets;
-    	
-		Pattern p = Pattern.compile(QoSServiceProtocol.UDP_TEST_IN + " ([\\d]*) ([\\d]*)");
+    private void runRcvCommand(String command, ClientToken token, boolean isIncoming) throws IOException {
+		Pattern p = Pattern.compile((isIncoming ? QoSServiceProtocol.REQUEST_UDP_RESULT_IN : QoSServiceProtocol.REQUEST_UDP_RESULT_OUT) + " ([\\d]*)");
 		Matcher m = p.matcher(command);
 		m.find();
-		if (m.groupCount()!=2) {
-			throw new IOException("udp incoming test command syntax error: " + command);
+
+		if (m.groupCount()!=1) {
+			throw new IOException("RCV command syntax error: " + command);
 		}
 		else {
-			port = Integer.parseInt(m.group(1));
-			numPackets = Integer.parseInt(m.group(2));
+			final int port = Integer.parseInt(m.group(1));
+			sendRcvResult(isIncoming ? clientUdpInDataMap.get(port) : clientUdpOutDataMap.get(port), port, command);
 		}
-		
-		UdpSingleClientServer udpServer = new UdpSingleClientServer(port, numPackets, 10000, token);
-		out.write(getBytesWithNewline(QoSServiceProtocol.OK_RESPONSE));
-		int result = udpServer.call();
-		out.write(getBytesWithNewline(QoSServiceProtocol.RESPONSE_UDP_NUM_PACKETS_RECEIVED + " " + result));
+    }
+
+    
+    private void sendRcvResult(final UdpTestCandidate result, final int port, final String command) throws IOException {
+		if (result != null && result.getPacketsReceived() != null && !result.isError()) {
+			TestServerConsole.log("RESULT OK, RCV PACKETS: " + result.getPacketsReceived().size() + ", DUP: " + result.getPacketDuplicates().size(), 1, TestServerServiceEnum.UDP_SERVICE);
+			sendCommand(QoSServiceProtocol.RESPONSE_UDP_NUM_PACKETS_RECEIVED + " " + result.getPacketsReceived().size() + " " + result.getPacketDuplicates().size(), command);
+		}
+		else {
+			TestServerConsole.log("RESULT ERROR, error: " + (result != null ? result.getErrorMsg() : "sorry, no error message available!"), 
+					1, TestServerServiceEnum.UDP_SERVICE);
+			sendCommand(QoSServiceProtocol.RESPONSE_UDP_NUM_PACKETS_RECEIVED + " 0 0", command);
+		}
     }
     
     /**
@@ -698,7 +754,7 @@ public class ClientHandler implements Runnable {
     private void runNonTransparentProxyTest(String command) throws Exception {
 		int echoPort;
 		
-		Pattern p = Pattern.compile(QoSServiceProtocol.NON_TRANSPARENT_PROXY_TEXT + " ([\\d]*)");
+		Pattern p = Pattern.compile(QoSServiceProtocol.CMD_NON_TRANSPARENT_PROXY_TEXT + " ([\\d]*)");
 		Matcher m = p.matcher(command);
 		m.find();
 		if (m.groupCount()!=1) {
@@ -708,39 +764,14 @@ public class ClientHandler implements Runnable {
 			echoPort = Integer.parseInt(m.group(1));
 		}
 		
-		TestServerConsole.log("NTP TEST, opening socket on port: " + echoPort, 1, TestServerServiceEnum.TCP_SERVICE);
-
-		List<TcpServer> tcpServerList;
-		
-		synchronized (TestServer.tcpServerMap) {
-			if ((tcpServerList = TestServer.tcpServerMap.get(echoPort)) == null) {
-				tcpServerList = new ArrayList<>();
-				for (InetAddress addr : TestServer.serverPreferences.getInetAddrBindToSet()) {
-					tcpServerList.add(new TcpServer(echoPort, false, addr));
-				}
-				TestServer.tcpServerMap.put(echoPort, tcpServerList);
-			}
-			
-			if (TestServer.serverPreferences.isIpCheck()) {
-				for (TcpServer tcpServer : tcpServerList) {
-					tcpServer.registerCandidate(socket.getInetAddress());	
-				}
-			}
-		}
-		
 		try {
-			for (TcpServer tcpServer : tcpServerList) {
-				tcpServer.open();
-				Thread tcpThread = new Thread(tcpServer);
-				tcpThread.start();
-			}
+			TestServer.registerTcpCandidate(echoPort, socket);
 			
-			out.write(getBytesWithNewline(QoSServiceProtocol.OK_RESPONSE));
+			sendCommand(QoSServiceProtocol.RESPONSE_OK, command);
 			TestServerConsole.log("NTP: sendind OK. waiting for request...", 1, TestServerServiceEnum.TCP_SERVICE);
-
 		}
 		catch (Exception e) {
-			throw e;
+			TestServerConsole.error(name, e, 1, TestServerServiceEnum.TCP_SERVICE);
 		}
 		finally {
 			//is beeing done inside TcpServer now:
@@ -750,9 +781,124 @@ public class ClientHandler implements Runnable {
     
     /**
      * 
+     * @param command
+     * @throws IOException
+     */
+    public void requestNewConnectionTimeout(String command) throws IOException {
+		final Pattern p = Pattern.compile(QoSServiceProtocol.REQUEST_NEW_CONNECTION_TIMEOUT + " ([\\d]*)");
+		final Matcher m = p.matcher(command);
+		m.find();
+
+		if (m.groupCount()!=1) {
+			throw new IOException("request new connection timeout command syntax error: " + command);
+		}
+		
+		Integer requestedConnTimeout = Integer.parseInt(m.group(1));
+		if (requestedConnTimeout < QoSServiceProtocol.TIMEOUT_CLIENTHANDLER_CONNECTION_MIN_VALUE) {
+			sendErrorCommand(QoSServiceProtocol.RESPONSE_ERROR_ILLEGAL_ARGUMENT + " " + requestedConnTimeout, command);
+		}
+		else {
+			socket.setSoTimeout(requestedConnTimeout);
+			sendCommand(QoSServiceProtocol.RESPONSE_OK, command);
+		}
+    }
+
+    /**
+     * 
+     * @param command
+     * @throws IOException
+     */
+    public void requestProtocolVersion(String command) throws IOException {
+		final Pattern p = Pattern.compile(QoSServiceProtocol.REQUEST_PROTOCOL_VERSION + " ([a-zA-Z0-9]*)");
+		final Matcher m = p.matcher(command);
+		m.find();
+
+		if (m.groupCount()!=1) {
+			throw new IOException("request protocol version command syntax error: " + command);
+		}
+		
+		String requestedProtocolVersion = m.group(1);
+		if (!QoSServiceProtocol.SUPPORTED_PROTOCOL_VERSION_SET.contains(requestedProtocolVersion)) {
+			sendErrorCommand(QoSServiceProtocol.RESPONSE_ERROR_UNSUPPORTED + " " + requestedProtocolVersion, command);
+		}
+		else {
+			clientProtocolVersion = requestedProtocolVersion;
+			sendCommand(QoSServiceProtocol.RESPONSE_OK, command);
+		}
+    }
+
+    /**
+     * 
      * @return
      */
     public ServerSocket getServerSocket() {
     	return this.serverSocket;
-    }    
+    }
+    
+    /**
+     * 
+     * @param outCommand
+     * @throws IOException
+     */
+    public synchronized void sendCommand(String outCommand) throws IOException {
+    	sendCommand(outCommand, null);
+    }
+
+    /**
+     * 
+     * @param outCommand
+     * @param inCommand
+     * @throws IOException 
+     */
+    public synchronized void sendCommand(String outCommand, String inCommand) throws IOException {
+    	String id = null;
+    	if (inCommand != null) {
+			Matcher m = ID_REGEX_PATTERN.matcher(inCommand);
+			if (m.find()) {
+				id = m.group(1);
+				outCommand = outCommand + (id != null ? " +ID" + id : "");
+			}
+    	}
+
+    	TestServerConsole.log(name + " sending answer: [" + outCommand + "] to: [" + inCommand +"] ", 2, TestServerServiceEnum.TEST_SERVER);
+		out.write(getBytesWithNewline(outCommand));
+    }
+
+    /**
+     * 
+     * @param error
+     * @throws IOException
+     */
+    public synchronized void sendErrorCommand(String error) throws IOException {
+    	sendCommand(QoSServiceProtocol.RESPONSE_ERROR_RESPONSE + error);
+    }
+    
+    /**
+     * 
+     * @param error
+     * @param inCommand
+     * @throws IOException
+     */
+    public synchronized void sendErrorCommand(String error, String inCommand) throws IOException {
+    	sendCommand(QoSServiceProtocol.RESPONSE_ERROR_RESPONSE + error, inCommand);
+    }
+
+	@Override
+	public String toString() {
+		return "ClientHandler [socket=" + socket + ", name=" + name
+				+ ", clientUdpOutDataMap=" + clientUdpOutDataMap
+				+ ", clientUdpInDataMap=" + clientUdpInDataMap + "]";
+	}
+	
+	public String getName() {
+		return name;
+	}
+
+	public ConcurrentHashMap<Integer, UdpTestCandidate> getClientUdpOutDataMap() {
+		return clientUdpOutDataMap;
+	}
+
+	public ConcurrentHashMap<Integer, UdpTestCandidate> getClientUdpInDataMap() {
+		return clientUdpInDataMap;
+	}
 }

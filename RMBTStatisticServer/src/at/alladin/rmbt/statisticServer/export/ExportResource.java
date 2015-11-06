@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -131,7 +131,7 @@ public class ExportResource extends ServerResource
         final String sql = "SELECT" +
                 " ('P' || t.open_uuid) open_uuid," +
                 " ('O' || t.open_test_uuid) open_test_uuid," + 
-                " to_char(t.time AT TIME ZONE 'UTC', 'YYYY-MM-DD HH24:MI') \"time\"," +
+                " to_char(t.time AT TIME ZONE 'UTC', 'YYYY-MM-DD HH24:MI:SS') time_utc," +
                 " nt.group_name cat_technology," +
                 " nt.name network_type," +
                 " (CASE WHEN (t.geo_accuracy < ?) AND (t.geo_provider != 'manual') AND (t.geo_provider != 'geocoder') THEN" +
@@ -151,15 +151,18 @@ public class ExportResource extends ServerResource
                 " ELSE t.geo_provider" +
                 " END) loc_src," + 
                 " (CASE WHEN (t.geo_accuracy < ?) AND (t.geo_provider != 'manual') AND (t.geo_provider != 'geocoder') " +
-                " THEN t.geo_accuracy " +
+                " THEN round(t.geo_accuracy::float * 10)/10 " +
                 " WHEN (t.geo_accuracy < 100) AND ((t.geo_provider = 'manual') OR (t.geo_provider = 'geocoder')) THEN 100" + // limit accuracy to 100m
-                " WHEN (t.geo_accuracy < ?) THEN t.geo_accuracy" +
+                " WHEN (t.geo_accuracy < ?) THEN round(t.geo_accuracy::float * 10)/10" +
                 " ELSE null END) loc_accuracy, " +
                 " (CASE WHEN (t.zip_code < 1000 OR t.zip_code > 9999) THEN null ELSE t.zip_code END) zip_code," +
+                " t.gkz gkz," +
+                " t.country_location country_location," + 
                 " t.speed_download download_kbit," +
                 " t.speed_upload upload_kbit," +
-                " (t.ping_shortest::float / 1000000) ping_ms," +
+                " round(t.ping_median::float / 100000)/10 ping_ms," +
                 " t.lte_rsrp," +
+                " t.lte_rsrq," +
                 " ts.name server_name," +
                 " duration test_duration," +
                 " num_threads," +

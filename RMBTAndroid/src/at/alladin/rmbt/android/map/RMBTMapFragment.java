@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,10 @@
  ******************************************************************************/
 package at.alladin.rmbt.android.map;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.json.JSONArray;
@@ -27,6 +31,7 @@ import android.app.FragmentTransaction;
 import android.content.Context;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -46,6 +51,9 @@ import at.alladin.rmbt.android.util.CheckMarker;
 import at.alladin.rmbt.android.util.ConfigHelper;
 import at.alladin.rmbt.android.util.EndTaskListener;
 import at.alladin.rmbt.android.util.GeoLocation;
+import at.alladin.rmbt.util.model.option.OptionFunction;
+import at.alladin.rmbt.util.model.option.OptionFunctionCallback;
+import at.alladin.rmbt.util.model.option.ServerOption;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -73,6 +81,75 @@ import com.google.android.gms.maps.model.TileOverlayOptions;
 public class RMBTMapFragment extends MapFragment implements OnClickListener, OnCameraChangeListener, OnMapClickListener, InfoWindowAdapter, OnInfoWindowClickListener, OnMyLocationChangeListener, OnMarkerClickListener
 {
 //    private static final String DEBUG_TAG = "RMBTMapFragment";
+	
+	protected class TileOverlayHolder {
+		final TileOverlay tileOverlay;
+		final MapOverlayType overlayType;
+		
+		public TileOverlayHolder(final TileOverlay tileOverlay, final MapOverlayType overlayType) {
+			this.tileOverlay = tileOverlay;
+			this.overlayType = overlayType;
+		}
+
+		public TileOverlay getTileOverlay() {
+			return tileOverlay;
+		}
+
+		public MapOverlayType getOverlayType() {
+			return overlayType;
+		}
+
+		@Override
+		public String toString() {
+			return "TileOverlayHolder [tileOverlay=" + tileOverlay
+					+ ", overlayType=" + overlayType + "]";
+		}
+	}
+	
+	protected class MapOverlayType {
+		String path;
+		String type;
+		long zIndex;
+		int tileSize;
+		
+		public MapOverlayType(final OptionFunction function) {
+			this.path = (String) function.getParameterMap().get("path");
+			this.type = (String) function.getParameterMap().get("type");
+			this.zIndex = ((Double) function.getParameterMap().get("z_index")).longValue();
+			this.tileSize = ((Double) function.getParameterMap().get("tile_size")).intValue();
+		}
+		
+		public String getPath() {
+			return path;
+		}
+		public void setPath(String path) {
+			this.path = path;
+		}
+		public long getzIndex() {
+			return zIndex;
+		}
+		public void setzIndex(long zIndex) {
+			this.zIndex = zIndex;
+		}
+		public int getTileSize() {
+			return tileSize;
+		}
+		public void setTileSize(int tileSize) {
+			this.tileSize = tileSize;
+		}
+		public String getType() {
+			return type;
+		}
+		public void setType(String type) {
+			this.type = type;
+		}
+
+		@Override
+		public String toString() {
+			return "MapOverlayType [path=" + path + ", type=" + type
+					+ ", zIndex=" + zIndex + ", tileSize=" + tileSize + "]";
+		}
+	}
     
 	public final static String OPTION_SHOW_INFO_TOAST = "show_info_toast";
 	public final static String OPTION_ENABLE_ALL_GESTURES = "enable_all_gestures";
@@ -81,15 +158,15 @@ public class RMBTMapFragment extends MapFragment implements OnClickListener, OnC
 	
     private GoogleMap gMap;
     
-    private TileOverlay heatmapOverlay;
-    private TileOverlay pointsOverlay;
-    private TileOverlay shapesOverlay;
+    private List<TileOverlayHolder> tileOverlayList = new ArrayList<TileOverlayHolder>();
     
     private Marker myLocationMarker;
     private MyGeoLocation geoLocation;
     private BitmapDescriptor markerIconBitmapDescriptor;
     
     private boolean firstStart = true;
+    private Handler handler = new Handler();
+    private Runnable checkSettingsRunnable;
 
     private RMBTMapFragmentOptions options = new RMBTMapFragmentOptions();
     
@@ -177,10 +254,29 @@ public class RMBTMapFragment extends MapFragment implements OnClickListener, OnC
         gMap = getMap();
         if (gMap != null)
         {
+            checkSettingsRunnable = new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    final RMBTMainActivity activity = (RMBTMainActivity) getActivity();
+                    if (activity.getMapOptions() == null)
+                    {
+                        activity.fetchMapOptions();
+                        handler.postDelayed(checkSettingsRunnable, 500);
+                    }
+                    else {
+                    	setFilter();
+                    }
+                }
+            };
+            
+            checkSettingsRunnable.run();
+        	
             if (firstStart)
             {
                 final Bundle bundle = getArguments();
-                
+                                
                 firstStart = false;
                 
                 final UiSettings uiSettings = gMap.getUiSettings();
@@ -251,92 +347,97 @@ public class RMBTMapFragment extends MapFragment implements OnClickListener, OnC
                 if (myLocation != null)
                     onMyLocationChange(myLocation);
             }
-            
-            
-            final RMBTMainActivity activity = (RMBTMainActivity) getActivity();
-            gMap.setMapType(activity.getMapTypeSatellite() ? GoogleMap.MAP_TYPE_SATELLITE : GoogleMap.MAP_TYPE_NORMAL);
-            
-            final Map<String, String> mapOptions = ((MapProperties) getActivity()).getCurrentMapOptions();
-            
-            boolean needHeatmapOverlay = false;
-            boolean needPointsOverlay = false;
-            boolean needShapesOverlay = false;
-            
-            final int mapOverlayType = activity.getMapOverlayType();
-            final String mapType = activity.getCurrentMainMapType();
-            if (mapOverlayType == MapProperties.MAP_OVERLAY_TYPE_AUTO)
-            {
-                gMap.setOnCameraChangeListener(this);
-                needPointsOverlay = true;
-                if (mapType != null && mapType.equals("browser")) {
-                	needShapesOverlay = true;
-                	needHeatmapOverlay = false;	
-                }
-                else
-                    needShapesOverlay = false;
-                	needHeatmapOverlay = true;  
+        }
+    }
+    
+    private void setFilter() {
+        final RMBTMainActivity activity = (RMBTMainActivity) getActivity();
+        gMap.setMapType(activity.getMapTypeSatellite() ? GoogleMap.MAP_TYPE_SATELLITE : GoogleMap.MAP_TYPE_NORMAL);
+        
+        final List<MapOverlayType> overlayList = new ArrayList<RMBTMapFragment.MapOverlayType>();
+        final Map<String, String> mapOptions = ((MapProperties) getActivity()).getCurrentMapOptions(new OptionFunctionCallback() {
+			
+			@Override
+			public boolean onCall(final ServerOption callingOption, final OptionFunction function) {
+				if ("set_overlay".equals(function.getName().toLowerCase(Locale.US))) {
+					final MapOverlayType type = new MapOverlayType(function);
+					if ("automatic".equals(type.getType())) {
+						overlayList.add(type);
+						MapOverlayType altPointsType = null;
+						MapOverlayType altHeatmapType = null;
+						for (final OptionFunction func : callingOption.getFunctionList()) {
+							if ("add_alt_overlay".equals(func.getName())) {
+								final MapOverlayType altType = new MapOverlayType(func);
+								if ("heatmap".equals(altType.getType())) {
+									altHeatmapType = altType;
+								}
+								else if ("points".equals(altType.getType())) {
+									altPointsType = altType;
+								}
+							}
+						}
+						
+						if (altHeatmapType != null) {
+							overlayList.add(altHeatmapType);
+						}
+						if (altPointsType != null) {
+							overlayList.add(altPointsType);
+						}
+					}
+					else {
+						overlayList.add(type);
+					}
+				}
+				else if ("change_appearance".equals(function.getName().toLowerCase(Locale.US))) {
+					boolean isSatAppearance = "sat".equals(function.getParameterMap().get("type"));
+					gMap.setMapType(isSatAppearance ? GoogleMap.MAP_TYPE_SATELLITE : GoogleMap.MAP_TYPE_NORMAL);
+				}
+				return false;
+			}
+		});
+        
+        System.out.println(mapOptions);
+        
+        final String protocol = ConfigHelper.isMapSeverSSL(getActivity()) ? "https" : "http";
+        final String host = ConfigHelper.getMapServerName(getActivity());
+        final int port = ConfigHelper.getMapServerPort(getActivity());
+        
+        if (overlayList.size() > 0) {
+            if ("automatic".equals(overlayList.get(0).getType())) {
+            	//automatic ?
+            	System.out.println(overlayList);
+            	gMap.setOnCameraChangeListener(this);
+            	if (overlayList.size() > 1) {            		
+            		for (MapOverlayType autoOverlay : overlayList) {
+                		if (autoOverlay != null) {            		
+    		                final RMBTTileSourceProvider heatmapProvider = new RMBTTileSourceProvider(protocol, host, port, autoOverlay.getTileSize());
+    		                heatmapProvider.setOptionMap(mapOptions);
+    		                heatmapProvider.setPath(autoOverlay.getPath());
+    	
+    		                tileOverlayList.add(new TileOverlayHolder(
+    		                		gMap.addTileOverlay(new TileOverlayOptions().tileProvider(heatmapProvider).zIndex(autoOverlay.getzIndex())), autoOverlay));
+                		}
+            		}
+            	}
+            	
+            	onCameraChange(gMap.getCameraPosition());
             }
-            else
-            {
+            else {
                 gMap.setOnCameraChangeListener(null);
-                if (mapOverlayType == MapProperties.MAP_OVERLAY_TYPE_HEATMAP) {
-                	needPointsOverlay = false;
-                    needShapesOverlay = false;
-                    needHeatmapOverlay = true;
-                }
-                else if (mapOverlayType == MapProperties.MAP_OVERLAY_TYPE_POINTS) {
-                    needPointsOverlay = true;
-                    needShapesOverlay = false;
-                    needHeatmapOverlay = false;
-                }
-                else if (mapOverlayType == MapProperties.MAP_OVERLAY_TYPE_SHAPES) {
-                	gMap.setOnCameraChangeListener(this);
-                    needPointsOverlay = true;	
-                	needShapesOverlay = true;
-                	needHeatmapOverlay = false;
-                }	
-            }
-            
-            if (!options.isEnableOverlay()) {
-            	needHeatmapOverlay = false;
-            	needShapesOverlay = false;
-            	needPointsOverlay = false;
-            }
-              
-            final String protocol = ConfigHelper.isMapSeverSSL(getActivity()) ? "https" : "http";
-            final String host = ConfigHelper.getMapServerName(getActivity());
-            final int port = ConfigHelper.getMapServerPort(getActivity());
-            
-            if (needHeatmapOverlay)
-            {
-                final RMBTTileSourceProvider heatmapProvider = new RMBTTileSourceProvider(protocol, host, port, MapProperties.TILE_SIZE);
-                heatmapProvider.setOptionMap(mapOptions);
-                heatmapProvider.setPath(MapProperties.HEATMAP_PATH);
-                heatmapOverlay = gMap.addTileOverlay(new TileOverlayOptions().tileProvider(heatmapProvider).zIndex(100000000));
-            }
-            
-            if (needShapesOverlay)
-            {
-                final RMBTTileSourceProvider shapesProvider = new RMBTTileSourceProvider(protocol, host, port, MapProperties.TILE_SIZE);
-                shapesProvider.setOptionMap(mapOptions);
-                shapesProvider.setPath(MapProperties.SHAPES_PATH);
-                shapesOverlay = gMap.addTileOverlay(new TileOverlayOptions().tileProvider(shapesProvider).zIndex(100000000));
-            }
-            
-            if (needPointsOverlay)
-            {
-                final RMBTTileSourceProvider pointsProvider = new RMBTTileSourceProvider(protocol, host, port, MapProperties.TILE_SIZE * 2);
-                pointsProvider.setOptionMap(mapOptions);
-                pointsProvider.setPath(MapProperties.POINTS_PATH);
-                pointsOverlay = gMap.addTileOverlay(new TileOverlayOptions().tileProvider(pointsProvider).zIndex(200000000));
-                
-                if ((mapOverlayType == MapProperties.MAP_OVERLAY_TYPE_AUTO) || (mapOverlayType == MapProperties.MAP_OVERLAY_TYPE_SHAPES))
-                    onCameraChange(gMap.getCameraPosition());
+            	for (MapOverlayType overlay : overlayList) {
+	                final RMBTTileSourceProvider tileProvider = new RMBTTileSourceProvider(protocol, host, port, overlay.getTileSize());
+	                tileProvider.setOptionMap(mapOptions);
+	                tileProvider.setPath(overlay.getPath());
+	                tileOverlayList.add(new TileOverlayHolder(
+	                		gMap.addTileOverlay(new TileOverlayOptions().tileProvider(tileProvider).zIndex(overlay.getzIndex())), overlay));
+	                if ("shapes".equals(overlay.getType())) {
+	                	gMap.setOnCameraChangeListener(this);
+	                }
+            	}
             }
         }
         
-        //gMap.getUiSettings().setAllGesturesEnabled(options.isEnableAllGestures());
-        //gMap.getUiSettings().setCompassEnabled(false);
+        System.out.println(tileOverlayList);
     }
     
     @Override
@@ -372,23 +473,16 @@ public class RMBTMapFragment extends MapFragment implements OnClickListener, OnC
         super.onStop();
         cancelCheckMarker();
         geoLocation.stop();
-        if (heatmapOverlay != null)
-        {
-            heatmapOverlay.clearTileCache();
-            heatmapOverlay.remove();
-            heatmapOverlay = null;
-        }
-        if (pointsOverlay != null)
-        {
-            pointsOverlay.clearTileCache();
-            pointsOverlay.remove();
-            pointsOverlay = null;
-        }        
-        if (shapesOverlay != null)
-        {
-            shapesOverlay.clearTileCache();
-            shapesOverlay.remove();
-            shapesOverlay = null;
+        Iterator<TileOverlayHolder> it = tileOverlayList.iterator();
+        
+        if (checkSettingsRunnable != null)
+            handler.removeCallbacks(checkSettingsRunnable);
+        
+        while (it.hasNext()) {
+        	final TileOverlayHolder overlay = it.next();
+        	overlay.getTileOverlay().clearTileCache();
+        	overlay.getTileOverlay().remove();
+        	it.remove();
         }
     }
     
@@ -445,44 +539,44 @@ public class RMBTMapFragment extends MapFragment implements OnClickListener, OnC
     private void registerListeners(View view)
     {
         final Button mapChooseButton = (Button) view.findViewById(R.id.mapChooseButton);
-        final Button mapFilterButton = (Button) view.findViewById(R.id.mapFilterButton);
         final Button mapLocateButton = (Button) view.findViewById(R.id.mapLocateButton);
         final Button mapHelpButton = (Button) view.findViewById(R.id.mapHelpButton);
-        final Button mapInfoButton = (Button) view.findViewById(R.id.mapInfoButton);
         final Button mapZoomInButton = (Button) view.findViewById(R.id.mapZoomInButton);
         final Button mapZoomOutButton = (Button) view.findViewById(R.id.mapZoomOutButton);
+        final Button mapLocationSearchButton = (Button) view.findViewById(R.id.mapLocationSearchButton);
 
         if (options.isEnableControlButtons()) {
             mapChooseButton.setOnClickListener(this);
-            mapFilterButton.setOnClickListener(this);
             mapLocateButton.setOnClickListener(this);
             mapHelpButton.setOnClickListener(this);
-            mapInfoButton.setOnClickListener(this);
             mapZoomInButton.setOnClickListener(this);
-            mapZoomOutButton.setOnClickListener(this);	
+            mapZoomOutButton.setOnClickListener(this);
+            mapLocationSearchButton.setOnClickListener(this);
         }        
         else {
         	mapChooseButton.setVisibility(View.GONE);
-        	mapFilterButton.setVisibility(View.GONE);
         	mapLocateButton.setVisibility(View.GONE);
         	mapHelpButton.setVisibility(View.GONE);
-        	mapInfoButton.setVisibility(View.GONE);
         	mapZoomInButton.setVisibility(View.GONE);
         	mapZoomOutButton.setVisibility(View.GONE);
+        	mapLocationSearchButton.setVisibility(View.GONE);
         }
     }
     
     @Override
     public void onCameraChange(CameraPosition cp)
     {
-        if (pointsOverlay != null)
-        {
-            final boolean automaticShowPoints = cp.zoom >= MapProperties.MAP_AUTO_SWITCH_VALUE;
-            if (automaticShowPoints && ! pointsOverlay.isVisible())
-                pointsOverlay.setVisible(true);
-            else if (! automaticShowPoints && pointsOverlay.isVisible())
-                pointsOverlay.setVisible(false);
-        }
+    	for (TileOverlayHolder overlay : tileOverlayList) {
+    		if ("points".equals(overlay.getOverlayType().getType())) {
+    			final boolean automaticShowPoints = cp.zoom >= MapProperties.MAP_AUTO_SWITCH_VALUE;
+    			if (automaticShowPoints && !overlay.getTileOverlay().isVisible()) {
+    				overlay.getTileOverlay().setVisible(true);
+    			}
+    			else if (!automaticShowPoints && overlay.getTileOverlay().isVisible()) {
+    				overlay.getTileOverlay().setVisible(false);
+    			}
+    		}
+    	}
     }
     
     @Override
@@ -499,21 +593,12 @@ public class RMBTMapFragment extends MapFragment implements OnClickListener, OnC
         case R.id.mapChooseButton:
 
             ft = fm.beginTransaction();
-            ft.replace(R.id.fragment_content, new RMBTMapChooseFragment(), "map_choose");
-            ft.addToBackStack("map_choose");
-            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-            ft.commit();
-
-            break;
-
-        case R.id.mapFilterButton:
-
-            ft = fm.beginTransaction();
-            ft.replace(R.id.fragment_content, new RMBTMapFilterFragment(), "map_filter");
+            final RMBTMapFilterFragment mapFilterFragment = new RMBTMapFilterFragment();
+            ft.replace(R.id.fragment_content, mapFilterFragment, "map_filter");
             ft.addToBackStack("map_filter");
             ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
             ft.commit();
-
+            
             break;
 
         case R.id.mapLocateButton:
@@ -534,10 +619,6 @@ public class RMBTMapFragment extends MapFragment implements OnClickListener, OnC
                                                         // help url
             break;
 
-        case R.id.mapInfoButton:
-            showInfoToast();
-            break;
-
         case R.id.mapZoomInButton:
 
             if (map != null)
@@ -552,6 +633,14 @@ public class RMBTMapFragment extends MapFragment implements OnClickListener, OnC
 
             break;
 
+        case R.id.mapLocationSearchButton:
+        	
+        	if (map != null) {
+        		MapLocationSearch.showDialog(this);
+        	}
+        	
+        	break;
+            
         default:
             break;
         }

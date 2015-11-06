@@ -8,5 +8,6 @@
 	<classpathentry kind="lib" path="lib/org.apache.httpclient.jar"/>
 	<classpathentry kind="lib" path="lib/org.apache.httpcore.jar"/>
 	<classpathentry kind="lib" path="lib/dnsjava-2.1.6.jar"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/RMBTUtil"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

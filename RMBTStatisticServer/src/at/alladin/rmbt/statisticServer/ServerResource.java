@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  ******************************************************************************/
 package at.alladin.rmbt.statisticServer;
 
+import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -24,12 +25,23 @@ import java.util.ResourceBundle;
 
 import javax.naming.NamingException;
 
+import org.joda.time.DateTime;
 import org.restlet.data.Reference;
 import org.restlet.engine.header.Header;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Options;
 import org.restlet.resource.ResourceException;
 import org.restlet.util.Series;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 
 import at.alladin.rmbt.db.DbConnection;
 import at.alladin.rmbt.shared.ResourceManager;
@@ -39,6 +51,29 @@ public class ServerResource extends org.restlet.resource.ServerResource
     protected Connection conn;
     protected ResourceBundle labels;
     protected ResourceBundle settings;
+    
+    public static class MyDateTimeAdapter implements JsonSerializer<DateTime>, JsonDeserializer<DateTime>
+    {
+        public JsonElement serialize(DateTime src, Type typeOfSrc, JsonSerializationContext context)
+        {
+            return new JsonPrimitive(src.toString());
+        }
+        
+        public DateTime deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+                throws JsonParseException
+        {
+            return new DateTime(json.getAsJsonPrimitive().getAsString());
+        }
+    }
+    
+    public static Gson getGson(boolean prettyPrint)
+    {
+        GsonBuilder gb = new GsonBuilder()
+                .registerTypeAdapter(DateTime.class, new MyDateTimeAdapter());
+        if (prettyPrint)
+            gb = gb.setPrettyPrinting();
+        return gb.create();
+    }
     
     @Override
     public void doInit() throws ResourceException
@@ -95,7 +130,7 @@ public class ServerResource extends org.restlet.resource.ServerResource
         responseHeaders.add("Access-Control-Allow-Credentials", "false");
         responseHeaders.add("Access-Control-Max-Age", "60");
     }
-    
+
     @Options
     public void doOptions(final Representation entity)
     {

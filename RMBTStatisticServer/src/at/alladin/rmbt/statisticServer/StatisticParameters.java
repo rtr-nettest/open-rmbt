@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,19 @@
 package at.alladin.rmbt.statisticServer;
 
 import java.io.Serializable;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.TimeZone;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class StatisticParameters implements Serializable
+import com.google.common.base.Strings;
+import com.google.common.hash.Funnel;
+import com.google.common.hash.PrimitiveSink;
+
+public class StatisticParameters implements Serializable, Funnel<StatisticParameters>
 {
     private static final long serialVersionUID = 1L;
     
@@ -32,6 +40,9 @@ public class StatisticParameters implements Serializable
     private final String networkTypeGroup;
     private final double accuracy;
     private final String country;
+    private final String developerCode;
+    private final java.sql.Timestamp endDate;
+    private final int province;
     
     public StatisticParameters(String defaultLang, String params)
     {
@@ -43,6 +54,9 @@ public class StatisticParameters implements Serializable
         String _networkTypeGroup = null;
         double _accuracy = -1;
         String _country = null;
+        String _developerCode = null;
+        java.sql.Timestamp _endDate = null; 
+        int _province = -1;
         
         if (params != null && !params.isEmpty())
             // try parse the string to a JSON object
@@ -82,6 +96,23 @@ public class StatisticParameters implements Serializable
                 final String __country = request.optString("country", null);
                 if (__country != null && __country.length() == 2)
                 	_country = __country;
+
+                final String __developerCode = request.optString("developer_code", null);
+                if (__developerCode != null) {
+                    _developerCode = __developerCode;
+                }
+                
+                final String __endDateString = request.optString("end_date", null);
+                if (__endDateString != null) {
+                   final java.sql.Timestamp __endDate = parseSqlTimestamp(__endDateString);
+                    _endDate = __endDate;
+                }
+                
+                final int __province = request.optInt("province", 0); 
+                if (__province > 0)
+                    _province = __province;
+                
+                
             }
             catch (final JSONException e)
             {
@@ -94,6 +125,9 @@ public class StatisticParameters implements Serializable
         networkTypeGroup = _networkTypeGroup;
         accuracy = _accuracy;
         country = _country;
+        developerCode = _developerCode;
+        endDate = _endDate;
+        province = _province;
     }
 
     public static long getSerialversionuid()
@@ -138,7 +172,38 @@ public class StatisticParameters implements Serializable
     public String getCountry() {
     	return country;
     }
+    
+    public String getDeveloperCode() {
+        return developerCode;
+    }
+    
+    public java.sql.Timestamp getEndDate() {
+    	return endDate;
+    }
+    
+    public int getProvince() {
+    	return province;
+    }
 
+    @Override
+    public void funnel(StatisticParameters o, PrimitiveSink into)
+    {
+        into
+            .putUnencodedChars(o.getClass().getCanonicalName())
+            .putChar(':')
+            .putUnencodedChars(Strings.nullToEmpty(o.lang))
+            .putFloat(o.quantile)
+            .putInt(o.duration)
+            .putUnencodedChars(Strings.nullToEmpty(o.type))
+            .putInt(o.maxDevices)
+            .putUnencodedChars(Strings.nullToEmpty(o.networkTypeGroup))
+            .putDouble(o.accuracy)
+            .putUnencodedChars(Strings.nullToEmpty(o.country))
+            .putUnencodedChars(Strings.nullToEmpty(o.developerCode))
+            .putInt((endDate == null) ? 0 : (int) endDate.getTime())
+            .putInt(o.province);
+    }
+    
     @Override
     public int hashCode()
     {
@@ -152,9 +217,12 @@ public class StatisticParameters implements Serializable
         result = prime * result + ((type == null) ? 0 : type.hashCode());
         result = prime * result + ((accuracy == -1) ? 0 : (int) accuracy);
         result = prime * result + ((country == null) ? 0 : country.hashCode());
+        result = prime * result + ((developerCode == null) ? 0 : developerCode.hashCode());
+        result = prime * result + ((endDate == null) ? 0 : endDate.hashCode());
+        result = prime * result + ((province == -1) ? 0 : (int) province);
         return result;
     }
-
+    
     @Override
     public boolean equals(Object obj)
     {
@@ -191,6 +259,10 @@ public class StatisticParameters implements Serializable
         if (country != null && other.country != null && !country.equals(other.country)) {
         	return false;
         }
+        if (developerCode == null || (developerCode == null) != (other.developerCode == null) ||
+                developerCode.equals(other.developerCode)) {
+            return false;
+        }
         if (type == null)
         {
             if (other.type != null)
@@ -201,5 +273,22 @@ public class StatisticParameters implements Serializable
         return true;
     }
     
+    private static java.sql.Timestamp parseSqlTimestamp(final String textual_date)
+    {
+        if (textual_date == null)
+          return null;
+    	final SimpleDateFormat date_formatter = new SimpleDateFormat(
+                "yyyy-MM-dd HH:mm:ss");
+    	// interpret at UTC time
+    	date_formatter.setTimeZone(TimeZone.getTimeZone("GMT"));  
+        try {
+            java.util.Date parsed = date_formatter.parse(textual_date);
+            java.sql.Timestamp sql = new java.sql.Timestamp(parsed.getTime());
+            return sql;
+        } catch (ParseException ex) {
+            return null;
+        }
+    }
     
+
 }

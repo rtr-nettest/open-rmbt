@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,5 +16,5 @@
 package at.alladin.rmbt.client.v2.task.result;
 
 public enum QoSTestResultEnum {
-	HTTP_PROXY, WEBSITE, NON_TRANSPARENT_PROXY, DNS, TCP, UDP;
+	TRACEROUTE, VOIP, HTTP_PROXY, WEBSITE, NON_TRANSPARENT_PROXY, DNS, TCP, UDP;
 }

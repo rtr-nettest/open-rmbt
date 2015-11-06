@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package at.alladin.rmbt.controlServer;
 
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -42,6 +43,8 @@ import at.alladin.rmbt.db.fields.IntField;
 import at.alladin.rmbt.db.fields.LongField;
 import at.alladin.rmbt.shared.Helperfunctions;
 import at.alladin.rmbt.shared.ResourceManager;
+import at.alladin.rmbt.shared.model.SpeedItems;
+import at.alladin.rmbt.shared.model.SpeedItems.SpeedItem;
 
 import com.google.common.net.InetAddresses;
 
@@ -51,10 +54,8 @@ public class ResultResource extends ServerResource
     final static Pattern MCC_MNC_PATTERN = Pattern.compile("\\d{3}-\\d+");
     
     @Post("json")
-    public String request(final String entity)
+    public String request(final String entity) 
     {
-        final String secret = getContext().getParameters().getFirstValue("RMBT_SECRETKEY");
-        
         addAllowOrigin();
         
         JSONObject request = null;
@@ -100,16 +101,10 @@ public class ResultResource extends ServerResource
                         try
                         {
                             
-                            // Check if UUID
                             final UUID testUuid = UUID.fromString(token[0]);
                             
-                            final String data = token[0] + "_" + token[1];
+//                                errorList.addError("ERROR_TEST_TOKEN");
                             
-                            final String hmac = Helperfunctions.calculateHMAC(secret, data);
-                            if (hmac.length() == 0)
-                                errorList.addError("ERROR_TEST_TOKEN");
-                            
-                            if (token[2].length() > 0 && hmac.equals(token[2]))
                             {
                                 
                                 final List<String> clientNames = Arrays.asList(settings.getString("RMBT_CLIENT_NAME")
@@ -143,8 +138,16 @@ public class ResultResource extends ServerResource
                                         if (ipLocalRaw != null)
                                         {
                                             final InetAddress ipLocalAddress = InetAddresses.forString(ipLocalRaw);
-                                            test.getField("client_local_ip").setString(
-                                                    Helperfunctions.filterIp(ipLocalAddress));
+                                            // original address (not filtered)
+                                            test.getField("client_ip_local").setString(
+                                            		InetAddresses.toAddrString(ipLocalAddress));
+                                            // anonymized local address
+                                            final String ipLocalAnonymized = Helperfunctions.anonymizeIp(ipLocalAddress);
+                                            test.getField("client_ip_local_anonymized").setString(ipLocalAnonymized);
+                                            // type of local ip
+                                            test.getField("client_ip_local_type").setString(
+                                                    Helperfunctions.IpType(ipLocalAddress));
+                                            // public ip
                                             final InetAddress ipPublicAddress = InetAddresses.forString(test.getField("client_public_ip").toString());
                                             test.getField("nat_type")
                                                     .setString(Helperfunctions.getNatType(ipLocalAddress, ipPublicAddress));
@@ -162,6 +165,17 @@ public class ResultResource extends ServerResource
                                         final String ipSource = getIP();
                                         test.getField("source_ip").setString(ipSource);
                                         
+                                        //log anonymized address
+                                        try{
+                                        	final InetAddress ipSourceIP = InetAddress.getByName(ipSource);
+                                            final String ipSourceAnonymized = Helperfunctions.anonymizeIp(ipSourceIP);
+                                            test.getField("source_ip_anonymized").setString(ipSourceAnonymized);
+                                        } catch(UnknownHostException e){
+                                            System.out.println("Exception thrown:" + e);
+                                        }
+                                        
+
+                                        
                                         
                                         
                                         // Additional Info
@@ -170,23 +184,51 @@ public class ResultResource extends ServerResource
                                         
                                         if (speedData != null && !test.hasError())
                                         {
-                                            final PreparedStatement psSpeed = conn.prepareStatement("INSERT INTO test_speed (test_id, upload, thread, time, bytes) VALUES (?,?,?,?,?)");
-                                            psSpeed.setLong(1, test.getUid());
+                                            
+                                            // old version
+                                            
+                                            /*
+                                                final PreparedStatement psSpeed = conn.prepareStatement("INSERT INTO test_speed (test_id, upload, thread, time, bytes) VALUES (?,?,?,?,?)");
+                                                psSpeed.setLong(1, test.getUid());
+                                                for (int i = 0; i < speedData.length(); i++)
+                                                {
+                                                    final JSONObject item = speedData.getJSONObject(i);
+                                                    
+                                                    final String direction = item.optString("direction");
+                                                    if (direction != null && (direction.equals("download") || direction.equals("upload")))
+                                                    {
+                                                        psSpeed.setBoolean(2, direction.equals("upload"));
+                                                        psSpeed.setInt(3, item.optInt("thread"));
+                                                        psSpeed.setLong(4, item.optLong("time"));
+                                                        psSpeed.setLong(5, item.optLong("bytes"));
+                                                        
+                                                        psSpeed.executeUpdate();
+                                                    }
+                                                }
+                                            */
+                                            
+                                            
+                                            // new version
+                                            
+                                            final SpeedItems speedItems = new SpeedItems();
                                             for (int i = 0; i < speedData.length(); i++)
                                             {
                                                 final JSONObject item = speedData.getJSONObject(i);
-                                                
                                                 final String direction = item.optString("direction");
                                                 if (direction != null && (direction.equals("download") || direction.equals("upload")))
                                                 {
-                                                    psSpeed.setBoolean(2, direction.equals("upload"));
-                                                    psSpeed.setInt(3, item.optInt("thread"));
-                                                    psSpeed.setLong(4, item.optLong("time"));
-                                                    psSpeed.setLong(5, item.optLong("bytes"));
+                                                    final boolean upload = direction.equals("upload");
+                                                    final int thread = item.optInt("thread");
+                                                    final SpeedItem speedItem = new SpeedItem(item.optLong("time"), item.optLong("bytes"));
                                                     
-                                                    psSpeed.executeUpdate();
+                                                    if (upload)
+                                                        speedItems.addSpeedItemUpload(speedItem, thread);
+                                                    else
+                                                        speedItems.addSpeedItemDownload(speedItem, thread);
                                                 }
                                             }
+                                            final String speedItemsJson = getGson(false).toJson(speedItems);
+                                            test.getField("speed_items").setString(speedItemsJson);
                                         }
                                         
                                         final JSONArray pingData = request.optJSONArray("pings");
@@ -476,7 +518,7 @@ public class ResultResource extends ServerResource
                                         else
                                             test.getField("status").setString("ERROR");
                                         
-                                        test.updateTest();
+                                        test.storeTestResults(false);
                                         
                                         if (test.hasError())
                                             errorList.addError(test.getError());
@@ -485,8 +527,6 @@ public class ResultResource extends ServerResource
                                     else
                                         errorList.addError("ERROR_CLIENT_VERSION");
                             }
-                            else
-                                errorList.addError("ERROR_TEST_TOKEN_MALFORMED");
                         }
                         catch (final IllegalArgumentException e)
                         {

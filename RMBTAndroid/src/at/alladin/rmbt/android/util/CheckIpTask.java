@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,24 +24,22 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.Activity;
 import android.os.AsyncTask;
 import android.util.Log;
 import at.alladin.rmbt.android.adapter.result.OnCompleteListener;
-import at.alladin.rmbt.android.main.RMBTMainActivity;
-import at.alladin.rmbt.android.util.net.NetworkInfoCollector;
+import at.alladin.rmbt.android.main.titlepage.IpCheckRunnable;
 
 public class CheckIpTask extends AsyncTask<Void, Void, JSONArray>
 {
-    private final RMBTMainActivity activity;
+    private final Activity activity;
     
     private JSONArray newsList;
     
     String lastIp;
     
-    InetAddress privateIpv6; 
-    InetAddress privateIpv4;
-    String publicIpv4;
-    String publicIpv6;
+    InetAddress privateIp; 
+    String publicIp;
     
     boolean needsRetry = false;
     
@@ -49,16 +47,21 @@ public class CheckIpTask extends AsyncTask<Void, Void, JSONArray>
     
     private OnCompleteListener onCompleteListener;
     
+    private final IpVersionType ipVersionType; 
+    
+    public enum IpVersionType {
+    	V4, V6
+    }
+    
     /**
   	 * 
   	 */
     private static final String DEBUG_TAG = "CheckIpTask";
-    
-    
-    public CheckIpTask(final RMBTMainActivity activity)
+        
+    public CheckIpTask(final Activity activity, final IpVersionType ipVersionType)
     {
         this.activity = activity;
-        
+        this.ipVersionType = ipVersionType;
     }
     
     /**
@@ -73,29 +76,25 @@ public class CheckIpTask extends AsyncTask<Void, Void, JSONArray>
     protected JSONArray doInBackground(final Void... params)
     {
     	needsRetry = false;
-        serverConn = new ControlServerConnection(activity.getApplicationContext());
-        
-
-        try {
-        	Socket s = new Socket();
-        	InetSocketAddress addr = new InetSocketAddress(ConfigHelper.getCachedControlServerNameIpv4(activity.getApplicationContext()), 
-        			ConfigHelper.getControlServerPort(activity.getApplicationContext()));
-        	s.connect(addr, 5000);
-        	
-        	privateIpv4 = s.getLocalAddress();
-        	s.close();
-        }
-        catch (Exception e) {
-        	e.printStackTrace();
-        }
+        serverConn = new ControlServerConnection(activity);
         
         try { 
         	Socket s = new Socket();
-        	InetSocketAddress addr = new InetSocketAddress(ConfigHelper.getCachedControlServerNameIpv6(activity.getApplicationContext()), 
-        			ConfigHelper.getControlServerPort(activity.getApplicationContext()));
+        	InetSocketAddress addr = null;
+        	switch(ipVersionType) {
+        	case V4:
+            	addr = new InetSocketAddress(ConfigHelper.getCachedControlServerNameIpv4(activity.getApplicationContext()), 
+            			ConfigHelper.getControlServerPort(activity.getApplicationContext()));
+            	break;
+        	case V6:
+            	addr = new InetSocketAddress(ConfigHelper.getCachedControlServerNameIpv6(activity.getApplicationContext()), 
+            			ConfigHelper.getControlServerPort(activity.getApplicationContext()));
+            	break;
+        	}
+        	Log.d(DEBUG_TAG, "Connecting to: " + addr);
         	s.connect(addr, 5000);
-        	
-        	privateIpv6 = s.getLocalAddress();
+
+        	privateIp = s.getLocalAddress();
         	s.close();        	
         }
         catch (SocketTimeoutException e) {
@@ -109,24 +108,19 @@ public class CheckIpTask extends AsyncTask<Void, Void, JSONArray>
 
         newsList = new JSONArray();
         
-        if (privateIpv4 != null) {
-        	JSONArray response = serverConn.requestIp(false);
-        	if (response != null && response.length() >= 1) {
-        		newsList.put(response.opt(0));
-        	}
-        }
-        else {
-        	Log.d(DEBUG_TAG, "no private ipv4 found");
-        }
-        
-        if (privateIpv6 != null) {
-        	JSONArray response = serverConn.requestIp(true);
-        	if (response != null && response.length() >= 1) {
-        		newsList.put(response.opt(0));
-        	}
-        }
-        else {
-        	Log.d(DEBUG_TAG, "no private ipv6 found");
+        try {
+	        if (privateIp != null) {
+	        	JSONArray response = serverConn.requestIp(ipVersionType == IpVersionType.V6);
+	        	if (response != null && response.length() >= 1) {
+	        		newsList.put(response.opt(0));
+	        	}
+	        }
+	        else {
+	        	Log.d(DEBUG_TAG, "no private ip found");
+	        }
+        } 
+        catch (Exception e) {
+        	e.printStackTrace();
         }
         
         return newsList;
@@ -145,7 +139,6 @@ public class CheckIpTask extends AsyncTask<Void, Void, JSONArray>
     @Override
     protected void onPostExecute(final JSONArray newsList)
     {
-        
     	try {
         	Log.d(DEBUG_TAG, "News: " + newsList);
             int ipv = 4;
@@ -154,53 +147,40 @@ public class CheckIpTask extends AsyncTask<Void, Void, JSONArray>
                 for (int i = 0; i < newsList.length(); i++) {
                     if (!isCancelled() && !Thread.interrupted()) {
                         try
-                        {
-                            
+                        {                            
                             final JSONObject newsItem = newsList.getJSONObject(i);
                             
                             if (newsItem.has("v"))
                             {
                             	ipv = newsItem.getInt("v");
+								publicIp = newsItem.getString("ip");
                             	
-                                if (ipv == 6) {
-                                	try {
-        								publicIpv6 = newsItem.getString("ip");
-        							} catch (Exception e) {
-        								e.printStackTrace();
-        							}
+								if (onCompleteListener != null && !needsRetry) {                            	
+									onCompleteListener.onComplete(IpCheckRunnable.FLAG_IP_PRIVATE, privateIp);
+                                	onCompleteListener.onComplete(IpCheckRunnable.FLAG_IP_PUBLIC, publicIp);
+                                	onCompleteListener.onComplete(IpCheckRunnable.FLAG_IP_FINISHED, null);
                                 }
-                                else {
-                                	try {
-        								publicIpv4 = newsItem.getString("ip");
-        							} catch (Exception e) {
-        								e.printStackTrace();
-        							}                        	
-                                }
+                            	else if (onCompleteListener != null) {
+                            		onCompleteListener.onComplete(IpCheckRunnable.FLAG_IP_CHECK_ERROR, null);
+                            	}
+
+                                
                             }
+                            else if (onCompleteListener != null) {
+                            	onCompleteListener.onComplete(IpCheckRunnable.FLAG_IP_CHECK_ERROR, null);
+                        	}                            
                         }
                         catch (final JSONException e)
                         {
                             e.printStackTrace();
                         }
                     }
-                }
-            	
-            	if (onCompleteListener != null && !needsRetry) {
-           			onCompleteListener.onComplete(NetworkInfoCollector.FLAG_PRIVATE_IPV6, privateIpv6);
-            		onCompleteListener.onComplete(NetworkInfoCollector.FLAG_PRIVATE_IPV4, privateIpv4);
-            		onCompleteListener.onComplete(NetworkInfoCollector.FLAG_IPV4, publicIpv4);
-            		onCompleteListener.onComplete(NetworkInfoCollector.FLAG_IPV6, publicIpv6);
-            		onCompleteListener.onComplete(NetworkInfoCollector.FLAG_IP_TASK_COMPLETED, null);
-            	}
-            	else if (onCompleteListener != null) {
-            		onCompleteListener.onComplete(OnCompleteListener.ERROR, NetworkInfoCollector.FLAG_IP_TASK_NEEDS_RETRY);
-            	}
-            	
+                }            	
         	}
             else {
             	ConfigHelper.setLastIp(activity.getApplicationContext(), null);
             	if (onCompleteListener != null) {
-            		onCompleteListener.onComplete(OnCompleteListener.ERROR, null);
+            		onCompleteListener.onComplete(IpCheckRunnable.FLAG_IP_CHECK_ERROR, null);
             	}
             }
     	}

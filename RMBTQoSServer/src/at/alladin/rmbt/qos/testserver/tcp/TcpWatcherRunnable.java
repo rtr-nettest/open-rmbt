@@ -22,7 +22,9 @@ import java.util.Map.Entry;
 
 import at.alladin.rmbt.qos.testserver.ServerPreferences.TestServerServiceEnum;
 import at.alladin.rmbt.qos.testserver.TestServer;
+import at.alladin.rmbt.qos.testserver.entity.TestCandidate;
 import at.alladin.rmbt.qos.testserver.service.IntervalJob;
+import at.alladin.rmbt.qos.testserver.util.TestServerConsole;
 
 /**
  * 
@@ -34,6 +36,16 @@ public class TcpWatcherRunnable extends IntervalJob<String> {
 	/**
 	 * 
 	 */
+	public final static String TAG = TcpWatcherRunnable.class.getCanonicalName();
+	
+	/**
+	 * 
+	 */
+	public final static boolean RESTART_ON_ERROR = true;
+
+	/**
+	 * 
+	 */
 	public TcpWatcherRunnable() {
 		super(TestServerServiceEnum.TCP_SERVICE);
 	}
@@ -42,49 +54,78 @@ public class TcpWatcherRunnable extends IntervalJob<String> {
 	 * 
 	 */
 	protected long removeCounter = 0;
-	
-	/**
-	 * 
-	 */
-	protected long executionCounter = 0;
-	
 	/*
 	 * (non-Javadoc)
 	 * @see at.alladin.rmbt.qos.testserver.service.AbstractJob#execute()
 	 */
 	@Override
 	public String execute() throws Exception {
-		executionCounter++;
-		if (TestServer.udpServerMap != null) {
-			Iterator<List<TcpServer>> tcpListIterator = TestServer.tcpServerMap.values().iterator();
-			while(tcpListIterator.hasNext()) {
-				Iterator<TcpServer> iterator = tcpListIterator.next().iterator();
-				while (iterator.hasNext()) {
-					TcpServer tcpServer = iterator.next();
+		if (TestServer.tcpServerMap != null) {
+			synchronized (TestServer.tcpServerMap) {
+				Iterator<List<TcpMultiClientServer>> tcpListIterator = TestServer.tcpServerMap.values().iterator();
+				while(tcpListIterator.hasNext()) {
+					List<TcpMultiClientServer> tcpServerList = tcpListIterator.next();
+					Iterator<TcpMultiClientServer> iterator = tcpServerList.iterator();
 					
-					if (!TestServer.serverPreferences.isIpCheck()) {
-						//if ip checking is disabled and the ttl has been reached: close tcp socket
-						if (System.currentTimeMillis() >= tcpServer.getTtlTimestamp()) {
-							tcpServer.close();
-						}
-					}
-					else {
-						//if ip checking is enabled
-						//iterate through all test candidates and remove all where the ttl has been reached
-						Iterator<Entry<InetAddress, TcpTestCandidate>> incomingMapIterator = tcpServer.getCandidateSet().entrySet().iterator();
-						while (incomingMapIterator.hasNext()) {
-							Entry<InetAddress, TcpTestCandidate> entry = incomingMapIterator.next();
-							if (entry.getValue().getTtl() < System.currentTimeMillis()) {
-								log("TCP Client (ServerPort: " + tcpServer.getPort() + ") TTL reached and removed: " + entry.getValue(), 0);
-								incomingMapIterator.remove();
-								removeCounter++;
+					while (iterator.hasNext()) {
+						TcpMultiClientServer tcpServer = iterator.next();
+						
+						if (!TestServer.serverPreferences.isIpCheck()) {
+							//if ip checking is disabled and the ttl has been reached: close tcp socket
+							if (System.currentTimeMillis() >= tcpServer.getTtlTimestamp().get()) {
+								if (tcpServer.close()) {
+									iterator.remove();
+									TestServerConsole.log(service.getName() + " Removed object: " + tcpServer.getName(), 1, TestServerServiceEnum.TCP_SERVICE);
+								}
 							}
 						}
+						else {
+							//if ip checking is enabled
+							//iterate through all test candidates and remove all where the ttl has been reached
+							synchronized (tcpServer.getCandidateMap()) {
+								Iterator<Entry<InetAddress, TestCandidate>> incomingMapIterator = tcpServer.getCandidateMap().entrySet().iterator();
+								while (incomingMapIterator.hasNext()) {
+									Entry<InetAddress, TestCandidate> entry = incomingMapIterator.next();
+									if (entry.getValue().getTtl() < System.currentTimeMillis()) {
+										log(service.getName() + " TCP Client TTL reached and removed: " + entry.getValue(), 0);
+										incomingMapIterator.remove();
+										removeCounter++;
+									}
+								}								
+							}
+						}				
 					}
 				}
 			}
 		}
 		
-		return "times executed: " + executionCounter + ",  removed dead candidates: " + removeCounter;
+		return "removed dead candidates: " + removeCounter;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see at.alladin.rmbt.qos.testserver.service.IntervalJob#restartOnError()
+	 */
+	@Override
+	public boolean restartOnError() {
+		return RESTART_ON_ERROR;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see at.alladin.rmbt.qos.testserver.service.AbstractJob#getNewInstance()
+	 */
+	@Override
+	public TcpWatcherRunnable getNewInstance() {
+		return new TcpWatcherRunnable(); 
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see at.alladin.rmbt.qos.testserver.service.AbstractJob#getId()
+	 */
+	@Override
+	public String getId() {
+		return TAG;
 	}
 }

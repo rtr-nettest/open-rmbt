@@ -17,7 +17,9 @@ package at.alladin.rmbt.qos.testserver.udp;
 
 import java.util.TreeSet;
 
-public class ClientUdpData {
+import at.alladin.rmbt.qos.testserver.entity.TestCandidate;
+
+public class ClientUdpData extends TestCandidate {
 	public final static int TTL = 30000;
 	
 	private TreeSet<Integer> packetsReceived;
@@ -26,17 +28,14 @@ public class ClientUdpData {
 	private int remotePort;
 	private boolean error;
 	private String errorMsg;
-	private long ttl;
 	
 	private UdpTestCompleteCallback onUdpTestCompleteCallback;
 	private UdpPacketReceivedCallback onUdpPacketReceivedCallback;
 	
-	public ClientUdpData(int numPackets) {
+	public ClientUdpData() {
 		this.packetsReceived = new TreeSet<>();
 		this.packetDuplicates = new TreeSet<>();
 		this.error = false;
-		this.ttl = System.currentTimeMillis() + TTL;
-		this.numPackets = numPackets;
 	}
 
 	/**
@@ -123,22 +122,6 @@ public class ClientUdpData {
 	 * 
 	 * @return
 	 */
-	public long getTtl() {
-		return ttl;
-	}
-
-	/**
-	 * 
-	 * @param ttl
-	 */
-	public void setTtl(long ttl) {
-		this.ttl = ttl;
-	}	
-	
-	/**
-	 * 
-	 * @return
-	 */
 	public int getNumPackets() {
 		return numPackets;
 	}
@@ -193,7 +176,6 @@ public class ClientUdpData {
 	public String toString() {
 		return "ClientUdpData [packetsReceived=" + packetsReceived
 				+ ", numPackets=" + numPackets + ", remotePort=" + remotePort
-				+ ", error=" + error + ", errorMsg=" + errorMsg + ", ttl="
-				+ ttl + "]";
+				+ ", error=" + error + ", errorMsg=" + errorMsg + "]";
 	}
 }

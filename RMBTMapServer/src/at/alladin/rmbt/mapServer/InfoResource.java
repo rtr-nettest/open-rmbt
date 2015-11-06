@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -172,6 +172,13 @@ public class InfoResource extends ServerResource
         obj.put("title", labels.getString("MAP_FILTER_PERIOD_730_DAYS"));
         obj.put("summary", labels.getString("MAP_FILTER_PERIOD_730_DAYS"));
         obj.put("period", 730);
+
+        obj = new JSONObject();
+        options.put(obj);
+        obj.put("title", labels.getString("MAP_FILTER_PERIOD_1460_DAYS"));
+        obj.put("summary", labels.getString("MAP_FILTER_PERIOD_1460_DAYS"));
+        obj.put("period", 1460);
+
 
         final JSONObject result = new JSONObject();
 

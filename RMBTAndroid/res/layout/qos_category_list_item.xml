@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright 2013 alladin-IT OG
+  Copyright 2013, 2015 alladin-IT GmbH
   
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -35,13 +35,23 @@
         android:gravity="left" />
 
     <ImageView
+        android:id="@+id/info_sub_view"
+        android:layout_width="wrap_content" 
+        android:layout_height="wrap_content"
+        android:src="@android:drawable/ic_menu_info_details"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="8dp" />
+    
+    
+    <ImageView
         android:id="@+id/status"
         android:layout_width="wrap_content" 
         android:layout_height="wrap_content"
         android:src="@drawable/traffic_lights_green"
         android:layout_centerVertical="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginRight="25dp" />
+        android:layout_toLeftOf="@id/info_sub_view"
+        android:layout_marginRight="8dp" />
     
     <TextView
         style="@style/textMediumLight"

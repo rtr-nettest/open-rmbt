@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import at.alladin.rmbt.db.fields.BooleanField;
 import at.alladin.rmbt.db.fields.DoubleField;
 import at.alladin.rmbt.db.fields.Field;
 import at.alladin.rmbt.db.fields.IntField;
+import at.alladin.rmbt.db.fields.JsonField;
 import at.alladin.rmbt.db.fields.LongField;
 import at.alladin.rmbt.db.fields.StringField;
 import at.alladin.rmbt.db.fields.TimestampField;
@@ -40,7 +41,12 @@ public class Test extends Table
             " pMob.shortname mobile_provider_name," +
             " pSim.shortname network_sim_operator_mcc_mnc_text," +
             " pPro.shortname provider_id_name," +
-            " COALESCE(adm.fullname, t.model) model_fullname" +
+            " k.gemeinde community," +
+            " k.bezirk district," +
+            " k.land province," +
+            " k.anhang cov800cat," +
+            " COALESCE(adm.fullname, t.model) model_fullname," +
+            " pServ.name server_name" +
             " FROM test t" +
             " LEFT JOIN provider pSim" +
             " ON t.network_sim_operator=pSim.mcc_mnc" +
@@ -48,18 +54,31 @@ public class Test extends Table
             " ON t.provider_id=pPro.uid" +
             " LEFT JOIN provider pMob" +
             " ON t.mobile_provider_id=pMob.uid" +
-            " LEFT JOIN device_map adm ON adm.codename=t.model";
+            " LEFT JOIN device_map adm ON adm.codename=t.model" +
+            " LEFT JOIN test_server pServ ON t.server_id=pServ.uid" +
+            " LEFT JOIN kategorisierte_gemeinden k ON t.gkz=k.gemeinde_i";
     
     private final static ThreadLocal<Field[]> PER_THREAD_FIELDS = new ThreadLocal<Field[]>() {
         protected Field[] initialValue() {
             return new Field[] {
-            //   <sql-column> <json-field-name>
+            //   <sql-column> <json-field-name> [<not in test-table]
+            // 
+            // when receiving results from client:
+            //<a> null => field <a> is expected in results from client, stored as <a> in database
+            //<a> <b>  => field <b> is expected in results from client, stored as <a> in database
+            //<a> <b> true => nothing is expected/stored
+            //the fields are selected by the list, there is no additional mechanism to select fields
+            // when sending results to client:
+            //<a> is read from database, sent as <a> to client (<b> is ignored)
+            //the fields are selected in TestResult(Detail)Resource, this is just a list of available fields	
             new UUIDField("uuid", null),
             new LongField("client_id", null),
             new StringField("client_version", "client_version"),
             new StringField("client_name", "client_name"),
             new StringField("client_language", "client_language"),
-            new StringField("client_local_ip", "client_local_ip"),
+            new StringField("client_ip_local",null),
+            new StringField("client_ip_local_anonymized",null),
+            new StringField("client_ip_local_type","client_local_ip"),
             new StringField("token", null),
             new IntField("server_id", null),
             new IntField("port", null), // "test_port_remote"
@@ -74,6 +93,7 @@ public class Test extends Table
             new StringField("client_public_ip", null),
             new StringField("client_public_ip_anonymized", null),
             new StringField("plattform", "plattform"),
+            new StringField("server_name", null, true),            
             new StringField("os_version", "os_version"),
             new StringField("api_level", "api_level"),
             new StringField("device", "device"),
@@ -104,6 +124,7 @@ public class Test extends Table
             new LongField("nsec_upload", "test_nsec_upload"), 
             new StringField("server_ip", null),           
             new StringField("source_ip", null),
+            new StringField("source_ip_anonymized",null),
             new StringField("client_software_version", "client_software_version"),
             new DoubleField("geo_lat", "geo_lat"), 
             new DoubleField("geo_long", "geo_long"),
@@ -127,6 +148,11 @@ public class Test extends Table
             new BooleanField("network_is_roaming", "telephony_network_is_roaming"),
             new IntField("zip_code", "zip_code"),
             new IntField("zip_code_geo", null), 
+            new IntField("gkz",null,true),
+            new StringField("community",null,true),
+            new StringField("district",null,true),
+            new StringField("province",null,true),
+            new StringField("cov800cat",null,true),
             new StringField("provider_id_name", null, true),
             new StringField("geo_provider", "provider"),
             new DoubleField("geo_accuracy", "accuracy"),
@@ -142,6 +168,10 @@ public class Test extends Table
             new LongField("time_ul_ns", "time_ul_ns"), 
             new IntField("num_threads_ul", "num_threads_ul"),
             new StringField("tag", "tag"),
+            new StringField("hidden_code", "hidden_code"),
+            new StringField("developer_code", "developer_code"),
+            new JsonField("speed_items", null),
+            new BooleanField("dual_sim", "dual_sim"),
             };
         };
     };
@@ -151,7 +181,7 @@ public class Test extends Table
         super(PER_THREAD_FIELDS.get(), conn);
     }
     
-    public void updateTest()
+    public void storeTestResults(boolean update)
     {
         
         try
@@ -162,10 +192,18 @@ public class Test extends Table
                 if (!field.isReadOnly())
                     field.appendDbKeyValue(sqlBuilder);
             
+            final String updateString;
+
+            if (update) // allow to update previous test results
+            	updateString = ""; // update allowed
+            else
+            	updateString =" AND status = 'STARTED' "; //results are only stored when status was "STARTED"
+            
             PreparedStatement st;
-            // allow updates only max 2min after test was started
+            // allow updates only when previous status was 'started' and max 2min after test was started 
             st = conn.prepareStatement("UPDATE test " + "SET " + sqlBuilder
-                    + ", location = ST_TRANSFORM(ST_SetSRID(ST_Point(?, ?), 4326), 900913) WHERE uid = ? and (now() - time  < interval '2' minute)");
+                    + ", location = ST_TRANSFORM(ST_SetSRID(ST_Point(?, ?), 4326), 900913) WHERE uid = ? " + 
+            		updateString + " AND (now() - time  < interval '2' minute)");
             
             int idx = 1;
             for (final Field field : fields)

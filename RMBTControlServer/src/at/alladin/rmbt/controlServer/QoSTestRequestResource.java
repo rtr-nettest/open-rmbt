@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,7 +58,7 @@ public class QoSTestRequestResource extends ServerResource {
         final InetAddress clientAddress = InetAddresses.forString(clientIpRaw);
         final String clientIpString = InetAddresses.toAddrString(clientAddress);
         
-        System.out.println(MessageFormat.format(labels.getString("NEW_REQUEST"), clientIpRaw));
+        System.out.println(MessageFormat.format(labels.getString("NEW_QOS_REQUEST"), clientIpRaw));
         
         if (entity != null && !entity.isEmpty()) {
             // try parse the string to a JSON object
@@ -124,6 +124,7 @@ public class QoSTestRequestResource extends ServerResource {
                                 
                 answer.put("test_duration", settings.getString("RMBT_DURATION"));
                 answer.put("test_numthreads", settings.getString("RMBT_NUM_THREADS"));
+                answer.put("test_numpings", settings.getString("RMBT_NUM_PINGS"));
                 answer.put("client_remote_ip", clientIpString);
                 
             } catch(JSONException | SQLException e) {

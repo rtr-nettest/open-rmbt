@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,17 @@ public class QoSServerResult implements Serializable {
 		FAIL
 	}
 
+	//////////////////////
+	// on_failure_behaviour constants:
+	//////////////////////
+	public final static String ON_FAILURE_BEHAVIOUR_NONE = "none";
+	
+	public final static String ON_FAILURE_BEHAVIOUR_HIDE_SUCCESS = "hide_success";
+	
+	public final static String ON_FAILURE_BEHAVIOUR_INFO_SUCCESS = "info_success";
+	
+	private final static String DEFAULT_ON_FAILURE_BEHAVIOUR = ON_FAILURE_BEHAVIOUR_NONE;
+
 	public final static String JSON_KEY_TESTTYPE = "test_type";
 	
 	public final static String JSON_KEY_SUCCESS_COUNT = "success_count";
@@ -50,6 +61,8 @@ public class QoSServerResult implements Serializable {
 	public final static String JSON_KEY_TEST_DESCRIPTION = "test_desc";
 	
 	public final static String JSON_KEY_TEST_SUMMARY = "test_summary";
+	
+	public final static String JSON_KEY_ON_FAILURE_BEHAVIOUR = "on_failure_behaviour";
 	
 	public final static String JSON_KEY_UID = "uid";
 	
@@ -69,6 +82,8 @@ public class QoSServerResult implements Serializable {
 	
 	private int displayPosition;
 	
+	private String onFailureBehaviour;
+	
 	/**
 	 * 
 	 * @param json
@@ -81,6 +96,7 @@ public class QoSServerResult implements Serializable {
 			testSummary = json.optString(JSON_KEY_TEST_SUMMARY);
 			successCount = Integer.valueOf(json.optString(JSON_KEY_SUCCESS_COUNT));
 			failureCount = Integer.valueOf(json.optString(JSON_KEY_FAILURE_COUNT));
+			onFailureBehaviour = json.optString(JSON_KEY_ON_FAILURE_BEHAVIOUR, DEFAULT_ON_FAILURE_BEHAVIOUR);
 			uid = json.optLong(JSON_KEY_UID);
 			JSONObject resultObj = json.optJSONObject(JSON_KEY_RESULT_MAP);
 		
@@ -161,6 +177,14 @@ public class QoSServerResult implements Serializable {
 	public void setDisplayPosition(int displayPosition) {
 		this.displayPosition = displayPosition;
 	}
+	
+	public String getOnFailureBehaviour() {
+		return onFailureBehaviour;
+	}
+
+	public void setOnFailureBehaviour(String onFailureBehaviour) {
+		this.onFailureBehaviour = onFailureBehaviour;
+	}
 
 	@Override
 	public String toString() {
@@ -168,6 +192,7 @@ public class QoSServerResult implements Serializable {
 				+ successCount + ", failureCount=" + failureCount
 				+ ", resultMap=" + resultMap + ", testDescription="
 				+ testDescription + ", testSummary=" + testSummary + ", uid="
-				+ uid + ", displayPosition=" + displayPosition + "]";
+				+ uid + ", displayPosition=" + displayPosition
+				+ ", onFailureBehaviour=" + onFailureBehaviour + "]";
 	}
 }

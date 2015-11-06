@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,29 +19,34 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import at.alladin.rmbt.qos.testserver.ServerPreferences.TestServerServiceEnum;
 import at.alladin.rmbt.qos.testserver.TestServer;
 import at.alladin.rmbt.qos.testserver.util.TestServerConsole;
+import at.alladin.rmbt.util.net.rtp.RealtimeTransportProtocol.RtpVersion;
+import at.alladin.rmbt.util.net.rtp.RtpUtil;
 
 /**
  * 
  * @author lb
  *
  */
-public class UdpMultiClientServer implements Runnable {
-	
+public class UdpMultiClientServer extends AbstractUdpServer<DatagramSocket> implements Runnable {
+
+	private final static String TAG = UdpMultiClientServer.class.getCanonicalName();
+		
 	private final AtomicBoolean isRunning;
 	
 	public final static int BUFFER_LENGTH = 1024;
 
-	final DatagramSocket socket;
-	
 	final InetAddress address;
 	
-	private ConcurrentHashMap<String, ClientUdpData> incomingMap;
+	final int port;
+	
+	private final String name;
+	
+	protected final DatagramSocket socket;
 	
 	/**
 	 * 
@@ -50,12 +55,14 @@ public class UdpMultiClientServer implements Runnable {
 	 * @throws Exception 
 	 */
 	public UdpMultiClientServer(int port, InetAddress address) throws Exception {
-		TestServerConsole.log("Initializing UdpMultiServer on " + address + ":" + port, 1, TestServerServiceEnum.TEST_SERVER);
+		super(DatagramSocket.class);
+		TestServerConsole.log("Initializing " + TAG + " on " + address + ":" + port, 1, TestServerServiceEnum.TEST_SERVER);
 		//this.socket = new DatagramSocket(port, TestServer.serverPreferences.getInetAddrBindTo());
 		this.socket = TestServer.createDatagramSocket(port, address);
+		this.port = port;
 		this.isRunning = new AtomicBoolean(false);
-		this.incomingMap = new ConcurrentHashMap<>();
 		this.address = address;
+		this.name = "UdpMultiClientServer [" + address + ":" + port + "]";
 	}
 	
 	/**
@@ -63,10 +70,12 @@ public class UdpMultiClientServer implements Runnable {
 	 * @param socket
 	 */
 	public UdpMultiClientServer(DatagramSocket socket) {
+		super(DatagramSocket.class);
 		this.socket = socket;
+		this.port = socket.getLocalPort();
 		this.address = socket.getLocalAddress();
 		this.isRunning = new AtomicBoolean(false);
-		this.incomingMap = new ConcurrentHashMap<>();		
+		this.name = "UdpMultiClientServer [" + address + ":" + socket.getLocalPort() + "]";
 	}
 	
 	/*
@@ -77,21 +86,24 @@ public class UdpMultiClientServer implements Runnable {
 	public void run() {
 		isRunning.set(true);
 
-		TestServerConsole.log("Starting UdpMultiServer on address: " + socket.getLocalAddress() + ":" + socket.getLocalPort() + " ...", 2, TestServerServiceEnum.UDP_SERVICE);
+		TestServerConsole.log("Starting " + TAG + " on address: " + socket.getLocalAddress() + ":" + socket.getLocalPort() + " ...", 2, TestServerServiceEnum.UDP_SERVICE);
 		
 		try {
 			while (isRunning.get()) {
 				byte[] buffer = new byte[BUFFER_LENGTH];
-				DatagramPacket dp = new DatagramPacket(buffer, BUFFER_LENGTH);
-				
+				final DatagramPacket dp = new DatagramPacket(buffer, BUFFER_LENGTH);				
 				socket.receive(dp);
 				
-				synchronized(this) {
-					byte[] data = dp.getData();
-					
+				final byte[] data = dp.getData();
+				
+				final RtpVersion rtpVersion = RtpUtil.getVersion(data[0]);
+				
+				String clientUuid = null;
+				
+				if (!RtpVersion.VER2.equals(rtpVersion)) {
+					//Non RTP packet:
 					final int packetNumber = data[1];
 					
-					String clientUuid = null;
 					String timeStamp = null;
 					
 					try {
@@ -108,48 +120,56 @@ public class UdpMultiClientServer implements Runnable {
 						}
 						
 						timeStamp = String.valueOf(ts);
-
+	
 					}
 					catch (Exception e) {
-						e.printStackTrace();
+						TestServerConsole.error(getName(), e, 1, TestServerServiceEnum.UDP_SERVICE);
 					}
 					
 					TestServerConsole.log("received UDP from: " + dp.getAddress().toString() + ":" + dp.getPort() 
 							+ " (on local port :" + socket.getLocalPort() + ") , #" + packetNumber + " TimeStamp: " + timeStamp + ", containing: " + clientUuid, 1, TestServerServiceEnum.UDP_SERVICE);
 					
-					if (clientUuid != null) {
-						//synchronized (incomingMap) {
-							ClientUdpData clientData;
-							if (!incomingMap.containsKey(clientUuid)) {
-								clientData = new ClientUdpData(Integer.MAX_VALUE);
-								clientData.setRemotePort(dp.getPort());
-								incomingMap.put(clientUuid, clientData);
+				}
+				else {
+					//RtpPacket received:
+					clientUuid = "VOIP_" + RtpUtil.getSsrc(data);
+				}
+				
+				if (clientUuid != null) {
+					synchronized (incomingMap) {
+						final UdpTestCandidate clientData;
+						final String uuid = clientUuid;
+						if (!incomingMap.containsKey(clientUuid)) {
+							clientData = new UdpTestCandidate();
+							clientData.setNumPackets(Integer.MAX_VALUE);
+							clientData.setRemotePort(dp.getPort());
+							incomingMap.put(clientUuid, clientData);
+						}
+						else {
+							clientData = (UdpTestCandidate) incomingMap.get(clientUuid);
+							if (clientData.isError()) {
+								continue;
 							}
-							else {
-								clientData = incomingMap.get(clientUuid);
-								if (clientData.isError()) {
-									continue;
+						}
+						
+						//if a callback has been provided by the clienthandler run it in the background:
+						if (clientData.getOnUdpPacketReceivedCallback() != null) {
+							Runnable onReceiveRunnable = new Runnable() {
+								
+								@Override
+								public void run() {
+									clientData.getOnUdpPacketReceivedCallback().onReceive(dp, uuid, UdpMultiClientServer.this);									
 								}
-							}
+							};
 							
-							if (clientData.getOnUdpPacketReceivedCallback() != null) {
-								clientData.getOnUdpPacketReceivedCallback().onReceive(dp, this);
-							}
-							
-							
-							if (clientData.getPacketsReceived().size() >= clientData.getNumPackets() 
-									&& clientData.getOnUdpTestCompleteCallback() != null) {
-								if (clientData.getOnUdpTestCompleteCallback().onComplete(clientData)) {
-									pollClientData(clientUuid);
-								}
-							}
-						//}
+							TestServer.getCommonThreadPool().submit(onReceiveRunnable);
+						}						
 					}
 				}
 			}		
 		} 
 		catch (IOException e) {
-			e.printStackTrace();
+			TestServerConsole.error(getName(), e, 0, TestServerServiceEnum.UDP_SERVICE);
 		}
 		finally {
 			if (!socket.isClosed()) {
@@ -176,39 +196,6 @@ public class UdpMultiClientServer implements Runnable {
 		TestServerConsole.log("UdpServer received quit command on port: " + socket.getLocalPort(), 1, TestServerServiceEnum.UDP_SERVICE);
 	}
 	
-	/**
-	 * 
-	 * @param uuid
-	 */
-	public synchronized ClientUdpData getClientData(String uuid) {
-		return incomingMap.get(uuid);
-	}
-	
-	/**
-	 * 
-	 * @param uuid
-	 * @return
-	 */
-	public synchronized ClientUdpData pollClientData(String uuid) {
-		return incomingMap.remove(uuid);
-	}
-
-	/**
-	 * 
-	 * @return
-	 */
-	public synchronized ConcurrentHashMap<String, ClientUdpData> getIncomingMap() {
-		return incomingMap;
-	}
-
-	/**
-	 * 
-	 * @return
-	 */
-	public DatagramSocket getDatagramSocket() {
-		return socket;
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * @see java.lang.Object#toString()
@@ -217,7 +204,7 @@ public class UdpMultiClientServer implements Runnable {
 	public String toString() {
 		return "UdpMultiClientServer [isRunning=" + isRunning + ", socket="
 				+ socket + ", address=" + address + ", incomingMap="
-				+ incomingMap + "]";
+				+ incomingMap + "]" + toStringExtra();
 	}
 	
 	/**
@@ -225,8 +212,16 @@ public class UdpMultiClientServer implements Runnable {
 	 * @return
 	 */
 	public String toStringExtra() {
-		return " // Socket additional info [local port=" + socket.getLocalPort() + ", connected=" 
+		return " \n\t Socket additional info [local port=" + socket.getLocalPort() + ", connected=" 
 				+ socket.isConnected() + ", bound=" + socket.isBound() + ", closed=" + socket.isClosed() +"]";
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public String getName() {
+		return name;
 	}
 
 	/**
@@ -235,5 +230,30 @@ public class UdpMultiClientServer implements Runnable {
 	 */
 	public InetAddress getAddress() {
 		return address;
+	}
+	
+	/**
+	 * 
+	 */
+	public int getLocalPort() {
+		return port;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see at.alladin.rmbt.qos.testserver.udp.AbstractCandidateHandler#getSocket()
+	 */
+	@Override
+	public DatagramSocket getSocket() {
+		return socket;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see at.alladin.rmbt.qos.testserver.udp.AbstractUdpServer#send(java.net.DatagramPacket)
+	 */
+	@Override
+	public void send(DatagramPacket dp) throws IOException {
+		socket.send(dp);
 	}
 }

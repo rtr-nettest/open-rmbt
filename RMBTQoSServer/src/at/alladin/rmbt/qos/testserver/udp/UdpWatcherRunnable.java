@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,16 @@ public class UdpWatcherRunnable extends IntervalJob<String> {
 	/**
 	 * 
 	 */
+	public final static String TAG = UdpWatcherRunnable.class.getCanonicalName();
+	
+	/**
+	 * 
+	 */
+	public final static boolean RESTART_ON_ERROR = true;
+	
+	/**
+	 * 
+	 */
 	public UdpWatcherRunnable() {
 		super(TestServerServiceEnum.UDP_SERVICE);
 	}
@@ -42,36 +52,60 @@ public class UdpWatcherRunnable extends IntervalJob<String> {
 	 */
 	protected long removeCounter = 0;
 	
-	/**
-	 * 
-	 */
-	protected long executionCounter = 0;
-	
 	/*
 	 * (non-Javadoc)
 	 * @see at.alladin.rmbt.qos.testserver.service.AbstractJob#execute()
 	 */
 	@Override
 	public String execute() {
-		executionCounter++;
 		if (TestServer.udpServerMap != null) {
-			Iterator<List<UdpMultiClientServer>> listIterator = TestServer.udpServerMap.values().iterator();
-			while (listIterator.hasNext()) {
-				Iterator<UdpMultiClientServer> iterator = listIterator.next().iterator();
-				while (iterator.hasNext()) {
-					UdpMultiClientServer udpServer = iterator.next();
-					Iterator<Entry<String, ClientUdpData>> incomingMapIterator = udpServer.getIncomingMap().entrySet().iterator();
-					while (incomingMapIterator.hasNext()) {
-						Entry<String, ClientUdpData> entry = incomingMapIterator.next();
-						if (entry.getValue().getTtl() < System.currentTimeMillis()) {
-							log("UDP Client (ServerPort: " + udpServer.getDatagramSocket().getLocalPort() + ") TTL reached and removed: " + entry.getValue(), 0);
-							incomingMapIterator.remove();
-							removeCounter++;
+			synchronized (TestServer.udpServerMap) {
+				Iterator<List<AbstractUdpServer<?>>> listIterator = TestServer.udpServerMap.values().iterator();
+				while (listIterator.hasNext()) {
+					Iterator<AbstractUdpServer<?>> iterator = listIterator.next().iterator();
+					while (iterator.hasNext()) {
+						AbstractUdpServer<?> udpServer = iterator.next();
+						Iterator<?> incomingMapIterator = udpServer.getIncomingMap().entrySet().iterator();
+						while (incomingMapIterator.hasNext()) {
+							@SuppressWarnings("unchecked")
+							Entry<String, UdpTestCandidate> entry = (Entry<String, UdpTestCandidate>) incomingMapIterator.next();
+							if (entry.getValue().getTtl() < System.currentTimeMillis()) {
+								log("UDP Client (ServerPort: " + udpServer.getLocalPort() + ") TTL reached and removed: " + entry.getValue(), 0);
+								incomingMapIterator.remove();
+								removeCounter++;
+							}
 						}
 					}
 				}
 			}
 		}
-		return "times executed: " + executionCounter + ",  removed dead candidates: " + removeCounter;
+		return "removed dead candidates: " + removeCounter;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see at.alladin.rmbt.qos.testserver.service.IntervalJob#restartOnError()
+	 */
+	@Override
+	public boolean restartOnError() {
+		return RESTART_ON_ERROR;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see at.alladin.rmbt.qos.testserver.service.AbstractJob#getNewInstance()
+	 */
+	@Override
+	public UdpWatcherRunnable getNewInstance() {
+		return new UdpWatcherRunnable();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see at.alladin.rmbt.qos.testserver.service.AbstractJob#getId()
+	 */
+	@Override
+	public String getId() {
+		return TAG;
 	}	
 }

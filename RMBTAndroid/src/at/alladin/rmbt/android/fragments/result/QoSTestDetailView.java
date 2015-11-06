@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,6 +76,8 @@ public class QoSTestDetailView extends ScrollView {
         List<HashMap<String, String>> failureList = new ArrayList<HashMap<String, String>>();
         HashMap<String, String> viewItem;
 
+        System.out.println(result);
+        
         if (descList != null) {
             for (int i = 0; i < descList.size(); i++) {
             	QoSServerResultDesc desc = descList.get(i);
@@ -106,7 +108,10 @@ public class QoSTestDetailView extends ScrollView {
         	
         	successListView.invalidate();
         }
-        else {
+        
+        //hide success results if success list is empty or failure list is not empty and "on_failure_behaviour" is set to "hide_success"
+        if (successList.size() == 0 || 
+        		(failureList.size() > 0 && QoSServerResult.ON_FAILURE_BEHAVIOUR_HIDE_SUCCESS.equals(result.getOnFailureBehaviour()))) {
         	View group = view.findViewById(R.id.result_text_layout_success);
         	if (group != null) {
         		group.setVisibility(View.GONE);
@@ -116,10 +121,21 @@ public class QoSTestDetailView extends ScrollView {
         	}
         }
 
-        
     	LinearLayout failureListView = (LinearLayout) view.findViewById(R.id.value_list_fail);
     	
-        if (failureList.size() > 0) {            
+        if (failureList.size() > 0) {
+        	if (QoSServerResult.ON_FAILURE_BEHAVIOUR_INFO_SUCCESS.equals(result.getOnFailureBehaviour())) {
+        		View group = view.findViewById(R.id.result_text_layout_success);
+            	if (group != null) {
+            		group.setBackgroundResource(R.color.result_info);
+            	}
+            	
+            	TextView textSuccess = (TextView) view.findViewById(R.id.subheader_text_success);
+            	if (textSuccess != null) {
+            		textSuccess.setText(R.string.result_details_qos_info);
+            	}
+        	}
+        	
         	failureListAdapter = new SimpleAdapter(activity, failureList, R.layout.qos_category_test_desc_item, new String[] {
             "name"}, new int[] { R.id.name });
         	

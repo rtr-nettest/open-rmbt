@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package at.alladin.rmbt.android.test;
 import java.text.DecimalFormat;
 import java.text.Format;
 import java.text.MessageFormat;
+import java.util.List;
 import java.util.Locale;
 
 import android.app.AlertDialog;
@@ -48,14 +49,19 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import at.alladin.openrmbt.android.R;
+import at.alladin.rmbt.android.graphview.GraphService;
+import at.alladin.rmbt.android.graphview.GraphService.GraphData;
+import at.alladin.rmbt.android.graphview.GraphView;
 import at.alladin.rmbt.android.main.RMBTMainActivity;
 import at.alladin.rmbt.android.test.RMBTService.RMBTBinder;
+import at.alladin.rmbt.android.test.SmoothGraph.SmoothingFunction;
 import at.alladin.rmbt.android.util.Helperfunctions;
 import at.alladin.rmbt.android.util.InformationCollector;
 import at.alladin.rmbt.android.util.net.NetworkUtil;
 import at.alladin.rmbt.android.util.net.NetworkUtil.MinMax;
 import at.alladin.rmbt.android.views.GroupCountView;
 import at.alladin.rmbt.android.views.ProgressView;
+import at.alladin.rmbt.android.views.ResultGraphView;
 import at.alladin.rmbt.client.helper.IntermediateResult;
 import at.alladin.rmbt.client.helper.NdtStatus;
 import at.alladin.rmbt.client.helper.TestStatus;
@@ -64,6 +70,17 @@ import at.alladin.rmbt.client.v2.task.QoSTestEnum;
 public class RMBTTestFragment extends Fragment implements ServiceConnection
 {
     private static final String TAG = "RMBTTestFragment";
+
+    /**
+     * used for smoothing the speed graph: amount of data needed for smoothing function
+     */
+    public static final int SMOOTHING_DATA_AMOUNT = 3; // min 3
+    
+    /**
+     * smoothing function used for speed graph.
+     * BEWARE: different functions could require different data amounts
+     */
+    public static final SmoothingFunction SMOOTHING_FUNCTION = SmoothingFunction.CENTERED_MOVING_AVARAGE;
     
     private static final long UPDATE_DELAY = 100;
     private static final int SLOW_UPDATE_COUNT = 20;
@@ -222,7 +239,7 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
     {
         final View view = inflater.inflate(R.layout.test, container, false);
         
-        return createView(view, inflater);
+        return createView(view, inflater, savedInstanceState);
     }
     
     /**
@@ -231,7 +248,7 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
      * @param inflater
      * @return
      */
-    private View createView(View view, LayoutInflater inflater) {
+    private View createView(final View view, final LayoutInflater inflater, final Bundle savedInstanceState) {
         testView = (TestView) view.findViewById(R.id.test_view);
         graphView = (GraphView) view.findViewById(R.id.test_graph);
         infoView = (ViewGroup) view.findViewById(R.id.test_view_info_container);
@@ -241,10 +258,19 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
         
         if (graphView != null)
         {
-            speedGraph = Graph.addGraph(graphView, Color.parseColor("#00f940"), GRAPH_MAX_NSECS);
-            signalGraph = Graph.addGraph(graphView, Color.parseColor("#f8a000"), GRAPH_MAX_NSECS);
+        	if (savedInstanceState == null || savedInstanceState.getBoolean(OPTION_ON_CREATE_VIEW_CREATE_SPEED_GRAPH, true)) {
+        		speedGraph = SmoothGraph.addGraph(graphView, Color.parseColor("#00f940"), SMOOTHING_DATA_AMOUNT, SMOOTHING_FUNCTION, false);
+        		speedGraph.setMaxTime(GRAPH_MAX_NSECS);
+        	}
+        	
+        	if (savedInstanceState == null || savedInstanceState.getBoolean(OPTION_ON_CREATE_VIEW_CREATE_SIGNAL_GRAPH, true)) {
+        		signalGraph = SimpleGraph.addGraph(graphView, Color.parseColor("#f8a000"), GRAPH_MAX_NSECS);
+        	}
+        	
+        	//graphView.getLabelInfoVerticalList().add(new GraphLabel(getActivity().getString(R.string.test_dbm), "#f8a000"));
+        	graphView.setRowLinesLabelList(ResultGraphView.SPEED_LABELS);
         }
-        uploadGraph = false;
+        //uploadGraph = false;
         graphStarted = false;
         
         textView.setText("\n\n\n");
@@ -336,7 +362,7 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
             
             if (rmbtService != null) {
 //            	System.out.println(rmbtService.isCompleted() + " - " + rmbtService.isConnectionError());
-                if (rmbtService.isCompleted() && rmbtService.getTestUuid() != null) {
+                if (rmbtService.isCompleted() && rmbtService.getTestUuid(false) != null) {
                    	handler.postDelayed(resultSwitcherRunnable, 300);
                 }
             }
@@ -383,7 +409,7 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
                 }
             }
             
-            if (!rmbtService.isTestRunning() && updateCounter > MAX_COUNTER_WITHOUT_RESULT)
+            if (!rmbtService.isTestRunning() && updateCounter > MAX_COUNTER_WITHOUT_RESULT && ! (errorDialog != null && errorDialog.isShowing()))
                 getActivity().getFragmentManager().popBackStack(); // leave
             return;
         }
@@ -501,16 +527,16 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
         }
         
         Double relativeSignal = null;
-        MinMax<Integer> signalBoungs = NetworkUtil.getSignalStrengthBounds(signalType);
-        if (! (signalBoungs.min == Integer.MIN_VALUE || signalBoungs.max == Integer.MAX_VALUE))
-            relativeSignal = (double)(signal - signalBoungs.min) / (double)(signalBoungs.max - signalBoungs.min);
+        MinMax<Integer> signalBounds = NetworkUtil.getSignalStrengthBounds(signalType);
+        if (! (signalBounds.min == Integer.MIN_VALUE || signalBounds.max == Integer.MAX_VALUE))
+            relativeSignal = (double)(signal - signalBounds.min) / (double)(signalBounds.max - signalBounds.min);
         
         if (signalTypeChanged && graphView != null)
         {
             if (signalGraph != null)
                 signalGraph.clearGraphDontResetTime();
             if (relativeSignal != null)
-                graphView.setSignalRange(signalBoungs.min, signalBoungs.max);
+                graphView.setSignalRange(signalBounds.min, signalBounds.max);
             else
                 graphView.removeSignalRange();
             graphView.invalidate();
@@ -548,7 +574,7 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
                 if (graphStarted || speedValueRelative != 0)
                 {
                     graphStarted = true;
-                    speedGraph.addValue(speedValueRelative);
+                    speedGraph.addValue(speedValueRelative, SmoothGraph.FLAG_USE_CURRENT_NODE_TIME);
                     if (relativeSignal != null)
                         signalGraph.addValue(relativeSignal);
                     graphView.invalidate();
@@ -576,7 +602,7 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
                 if (graphStarted || speedValueRelative != 0)
                 {
                     graphStarted = true;
-                    speedGraph.addValue(speedValueRelative);
+                    speedGraph.addValue(speedValueRelative, SmoothGraph.FLAG_USE_CURRENT_NODE_TIME);
                     if (relativeSignal != null)
                         signalGraph.addValue(relativeSignal);
                     graphView.invalidate();
@@ -599,12 +625,9 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
             progressSegments = 0;
             resetGraph();
             
-            if (intermediateResult.status == TestStatus.ERROR) // && !ConfigHelper.isRepeatTest(getActivity()))
-            {
-                if (! rmbtService.isLoopMode())
-                    showErrorDialog(R.string.test_dialog_error_text);
-                return;
-            }
+            if (! rmbtService.isLoopMode())
+                showErrorDialog(R.string.test_dialog_error_text);
+            return;
         }
         testView.setSpeedValue(speedValueRelative);
         
@@ -615,8 +638,8 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
             testView.setSignalValue(relativeSignal);
         
         final double progressValue = (double) progressSegments / PROGRESS_SEGMENTS_TOTAL;
-        testView.setProgressValue(progressValue);
-        testView.setProgressString(percentFormat.format(progressValue));
+        final double correctProgressValue = testView.setProgressValue(progressValue);
+        testView.setProgressString(percentFormat.format(correctProgressValue));
         
         final String pingStr;
         if (intermediateResult.pingNano < 0)
@@ -738,7 +761,7 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
         
         dismissDialogs();
         
-        final String testUuid = rmbtService == null ? null : rmbtService.getTestUuid();
+        final String testUuid = rmbtService == null ? null : rmbtService.getTestUuid(true);
         if (testUuid == null)
         {
         	showErrorDialog(R.string.test_dialog_error_text);
@@ -873,8 +896,8 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
             if (relativeSignal != null)
                 testView.setSignalValue(relativeSignal);
             
-            testView.setProgressValue(progressValue);
-            testView.setProgressString(percentFormat.format(progressValue));
+            final double correctProgressValue = testView.setProgressValue(progressValue);
+            testView.setProgressString(percentFormat.format(correctProgressValue));
             testView.invalidate();
             
             if (status == QoSTestEnum.QOS_RUNNING && extendedResultButtonCancel != null && extendedResultButtonCancel.getVisibility() == View.GONE)
@@ -927,12 +950,15 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
     	populateViewForOrientation(inflater, (ViewGroup) getView());
     }
 
+    private final String OPTION_ON_CREATE_VIEW_CREATE_SPEED_GRAPH = "create_speed_graph";
+    private final String OPTION_ON_CREATE_VIEW_CREATE_SIGNAL_GRAPH = "create_signal_graph";
+    
     /**
      * 
      * @param inflater
      * @param view
      */
-	private void populateViewForOrientation(LayoutInflater inflater, ViewGroup view) {
+	private void populateViewForOrientation(final LayoutInflater inflater, final ViewGroup view) {
 		
 		GroupCountView groupCountView = null;
 		if (groupCountContainerView != null && groupCountContainerView.getChildAt(0) != null) {
@@ -948,10 +974,43 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
 		final String resultDown = testView.getResultDownString();
 		final String resultUp = testView.getResultUpString();
 		
+		final GraphData signalGraphData;
+		final GraphData speedGraphData;
+		
+		final MinMax<Integer> currentSignalBounds;
+		final List<GraphView.GraphLabel> graphLabelList;
+		
+		if (graphView != null) {
+			graphLabelList = graphView.getLabelInfoVerticalList();
+			currentSignalBounds = graphView.getSignalRange();
+		}
+		else {
+			graphLabelList = null;
+			currentSignalBounds = null;
+		}
+		
+		if (signalGraph != null) {
+			signalGraphData = signalGraph.getGraphData();
+		}
+		else {
+			signalGraphData = null;
+		}
+		
+		if (speedGraph != null) {
+			speedGraphData = speedGraph.getGraphData();
+		}
+		else {
+			speedGraphData = null;
+		}
+		
 		view.removeAllViewsInLayout();
-        View v = inflater.inflate(R.layout.test, view);
-        createView(v, inflater);
+        final View v = inflater.inflate(R.layout.test, view);
+
+        final Bundle options = new Bundle();
+        options.putBoolean(OPTION_ON_CREATE_VIEW_CREATE_SIGNAL_GRAPH, false);
+        options.putBoolean(OPTION_ON_CREATE_VIEW_CREATE_SPEED_GRAPH, false);
         
+        createView(v, inflater, options);
         
         if (groupCountContainerView != null && groupCountView != null && qosProgressView != null) {
             groupCountContainerView.addView(groupCountView);
@@ -977,5 +1036,23 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
         if (textView != null) {
         	textView.setText(infoText);
         }
+        
+        if (graphView != null) {
+        	graphView.setRowLinesLabelList(ResultGraphView.SPEED_LABELS);
+        	
+        	if (signalGraphData != null) {
+        		signalGraph = SimpleGraph.addGraph(graphView, GRAPH_MAX_NSECS, signalGraphData);
+        		
+        		if (currentSignalBounds != null) {
+       				graphView.setLabelInfoVerticalList(graphLabelList);
+        			graphView.setSignalRange(currentSignalBounds.min, currentSignalBounds.max);
+        		}
+        	}
+        	if (speedGraphData != null) {
+        		speedGraph = SmoothGraph.addGraph(graphView, SMOOTHING_DATA_AMOUNT, SMOOTHING_FUNCTION, false, speedGraphData);
+        		speedGraph.setMaxTime(GRAPH_MAX_NSECS);
+        	}
+        }
+        
 	}
 }

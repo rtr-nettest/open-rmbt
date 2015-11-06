@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,30 +22,41 @@ import android.graphics.Paint.Join;
 import android.graphics.Paint.Style;
 import android.graphics.Path;
 import android.graphics.PointF;
+import at.alladin.rmbt.android.graphview.GraphService;
+import at.alladin.rmbt.android.graphview.GraphView;
 
 public class StaticGraph implements GraphService {
     // private final float width;
     private final float height;
     private final float width;
     
-    private final Path pathStroke = new Path();
-    private final Path pathFill = new Path();
-    private final Paint paintStroke = new Paint();
-    private final Paint paintFill = new Paint();
+    private final Path pathStroke;
+    private final Path pathFill;
+    private final Paint paintStroke;
+    private final Paint paintFill;
     private PointF firstPoint;
     
     private int values;
     
     private boolean matchHorizontally = false;
     
-    public static StaticGraph addGraph(final at.alladin.rmbt.android.graphview.GraphView graphView, final int color) {
+    public static StaticGraph addGraph(final GraphView graphView, final int color) {
     	return StaticGraph.addGraph(graphView, color, true);
     }
     
-    public static StaticGraph addGraph(final at.alladin.rmbt.android.graphview.GraphView graphView, final int color, final boolean matchHorizontally)
+    public static StaticGraph addGraph(final GraphView graphView, final int color, final boolean matchHorizontally)
     {
         final StaticGraph graph = new StaticGraph(color, graphView.getGraphWidth(), graphView.getGraphHeight(),
                 graphView.getGraphStrokeWidth());
+        graph.setMatchHorizontally(matchHorizontally);
+        graphView.addGraph(graph);
+        return graph;
+    }
+    
+    public static StaticGraph addGraph(final GraphView graphView, final boolean matchHorizontally, 
+    		final Path pathStroke, final Path pathFill, final Paint paintStroke, final Paint paintFill)
+    {
+        final StaticGraph graph = new StaticGraph(graphView.getGraphWidth(), graphView.getGraphHeight(), pathStroke, pathFill, paintStroke, paintFill);
         graph.setMatchHorizontally(matchHorizontally);
         graphView.addGraph(graph);
         return graph;
@@ -55,6 +66,11 @@ public class StaticGraph implements GraphService {
     {
         this.height = height;
         this.width = width;
+        
+        pathStroke = new Path();
+        pathFill = new Path();
+        paintStroke = new Paint();
+        paintFill = new Paint();
         
         paintStroke.setColor(color);
         paintStroke.setAlpha(204); // 80%
@@ -70,13 +86,37 @@ public class StaticGraph implements GraphService {
         paintFill.setAntiAlias(true);
     }
     
+	private StaticGraph(final float width, final float height, final Path pathStroke, final Path pathFill, final Paint paintStroke, final Paint paintFill) {
+		this.height = height;
+		this.width = width;
+		this.paintFill = new Paint(paintFill);
+		this.paintStroke = new Paint(paintStroke);
+		this.pathFill = new Path(pathFill);
+		this.pathStroke = new Path(pathStroke);
+	}
+    
     /*
      * (non-Javadoc)
      * @see at.alladin.rmbt.android.test.Graph#addValue(double)
      */
     public void addValue(double value) {
-    	addValue(value, 0);
+    	addValue(value, 0d);
     }
+    
+    /*
+     * 
+     */
+    public void addValue(double value, int flag) {
+    	addValue(value, 0d);
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see at.alladin.rmbt.android.graphview.GraphService#addValue(double, double, int)
+     */
+	public void addValue(double value, double time, int flag) {
+		addValue(value, time);
+	}
 
     /*
      * (non-Javadoc)
@@ -112,7 +152,6 @@ public class StaticGraph implements GraphService {
             final float y = (float) (height * (1 - value));
             pathStroke.lineTo(x, y);
             //System.out.println("x=" + x + ", y=" + y);
-            
             pathFill.rewind();
             pathFill.addPath(pathStroke);
             pathFill.lineTo(x, height);
@@ -197,4 +236,38 @@ public class StaticGraph implements GraphService {
     public int getFillAlpha() {
     	return paintFill.getAlpha();
     }
+
+	@Override
+	public void setMaxTime(long maxTimeNs) {
+		//nothing
+	}
+	
+	@Override
+	public Path getPathStroke() {
+		return pathStroke;
+	}
+
+	@Override
+	public Path getPathFill() {
+		return pathFill;
+	}
+
+	@Override
+	public Paint getPaintStroke() {
+		return paintStroke;
+	}
+
+	@Override
+	public Paint getPaintFill() {
+		return paintFill;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see at.alladin.rmbt.android.graphview.GraphService#getGraphData()
+	 */
+	@Override
+	public GraphData getGraphData() {
+		return new GraphData(pathStroke, pathFill, paintStroke, paintFill, null);
+	}
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,44 +17,49 @@ package at.alladin.rmbt.shared;
 
 public final class Classification
 {
-    public static final int[] THRESHOLD_UPLOAD = { 1000, 500 };
+    public static final int[] THRESHOLD_UPLOAD = { 10000, 1000, 500 }; // 10Mbit/s, 1Mbit/s, 500kbit/s
     public static final String[] THRESHOLD_UPLOAD_CAPTIONS = { "1", "0.5" };
     
-    public static final int[] THRESHOLD_DOWNLOAD = { 2000, 1000 };
+    public static final int[] THRESHOLD_DOWNLOAD = { 30000, 2000, 1000 }; // 30Mbit/s, 2Mbit/s, 1Mbit/s
     public static final String[] THRESHOLD_DOWNLOAD_CAPTIONS = { "2", "1" };
     
-    public static final int[] THRESHOLD_PING = { 25000000, 75000000 };
+    public static final int[] THRESHOLD_PING = { 10000000, 25000000, 75000000 }; // 5ms, 25ms, 75ms
     public static final String[] THRESHOLD_PING_CAPTIONS = { "25", "75" };
     
     // RSSI limits used for 2G,3G (and 4G when RSSI is used)
     // only odd values are reported by 2G/3G 
-    public static final int[] THRESHOLD_SIGNAL_MOBILE = { -85, -101 }; // -85 is still green, -101 is still yellow
+    public static final int[] THRESHOLD_SIGNAL_MOBILE = { -75, -85, -101 }; // -75 is still ultra-green, -85 is still green, -101 is still yellow
     public static final String[] THRESHOLD_SIGNAL_MOBILE_CAPTIONS = { "-85", "-101" };
     
     // RSRP limit used for 4G
-    public static final int[] THRESHOLD_SIGNAL_RSRP = { -95, -111 };
+    public static final int[] THRESHOLD_SIGNAL_RSRP = { -85, -95, -111 };
     public static final String[] THRESHOLD_SIGNAL_RSRP_CAPTIONS = { "-95", "-111" };
 
     // RSSI limits used for Wifi
-    public static final int[] THRESHOLD_SIGNAL_WIFI = { -61, -76 };
+    public static final int[] THRESHOLD_SIGNAL_WIFI = { -51, -61, -76 };
     public static final String[] THRESHOLD_SIGNAL_WIFI_CAPTIONS = { "-61", "-76" };
     
-    public static int classify(final int[] threshold, final long value)
+
+    public static int classify(final int[] threshold, final long value, boolean fourColor)
     {
         final boolean inverse = threshold[0] < threshold[1];
         
         if (!inverse)
         {
-            if (value >= threshold[0])
+            if (fourColor && (value >= threshold[0]))
+                return 4; // ULTRA_GREEN
+            if (value >= threshold[1])
                 return 3; // GREEN
-            else if (value >= threshold[1])
+            else if (value >= threshold[2])
                 return 2; // YELLOW
             else
                 return 1; // RED
         }
-        else if (value <= threshold[0])
-            return 3;
+        else if (fourColor && (value <= threshold[0]))
+            return 4;
         else if (value <= threshold[1])
+            return 3;
+        else if (value <= threshold[2])
             return 2;
         else
             return 1;

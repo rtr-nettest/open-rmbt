@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import android.view.ViewGroup;
 import at.alladin.openrmbt.android.R;
 import at.alladin.rmbt.android.fragments.result.QoSCategoryView;
 import at.alladin.rmbt.android.main.RMBTMainActivity;
+import at.alladin.rmbt.android.util.ConfigHelper;
 import at.alladin.rmbt.client.v2.task.result.QoSServerResult;
 import at.alladin.rmbt.client.v2.task.result.QoSServerResultCollection;
 import at.alladin.rmbt.client.v2.task.result.QoSServerResultDesc;
@@ -73,8 +74,8 @@ public class QoSCategoryPagerAdapter extends PagerAdapter {
 
 	@Override
 	public CharSequence getPageTitle(int position) {
-		//return activity.getString(TITLE_MAP.get(QoSTestResultEnum.values()[position]));
-		return activity.getString(TITLE_MAP.get(titleList.get(position)));
+		//return results.getTestDescMap().get(titleList.get(position)).getName();
+		return ConfigHelper.getCachedQoSNameByTestType(titleList.get(position), activity);
 	}
 
 	/**

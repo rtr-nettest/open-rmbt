@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright 2013-2014 alladin-IT GmbH
+  Copyright 2013-2015 alladin-IT GmbH
   
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -30,6 +30,12 @@
                 android:summary="@string/preferences_tag_sum"
                 android:layout="@layout/preferences_item"
                 />
+            
+            <CheckBoxPreference
+                android:key="skip_qos"
+                android:title="@string/preferences_skip_qos" 
+                android:summary="@string/preferences_skip_qos_sum" 
+                android:layout="@layout/preferences_item"/>
             
         </PreferenceCategory>
             
@@ -69,7 +75,7 @@
                 />
             
             <EditTextPreference
-                android:key="loop_mode_movement"
+                android:key="loop_mode_max_movement"
                 android:title="@string/preferences_loop_mode_movement"
                 android:summary="@string/preferences_loop_mode_movement_sum"
                 android:layout="@layout/preferences_item"
@@ -82,6 +88,14 @@
                 android:title="@string/preferences_loop_mode_gps"
                 android:summary="@string/preferences_loop_mode_gps_sum"
                 android:defaultValue="true"
+                android:layout="@layout/preferences_item"
+                />
+            
+            <CheckBoxPreference
+                android:key="loop_mode_wake_lock"
+                android:title="@string/preferences_loop_mode_wake_lock"
+                android:summary="@string/preferences_loop_mode_wake_lock_sum"
+                android:defaultValue="false"
                 android:layout="@layout/preferences_item"
                 />
             

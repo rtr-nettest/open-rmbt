@@ -1,3 +1,18 @@
+/*******************************************************************************
+ * Copyright 2015 alladin-IT GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *******************************************************************************/
 /**
  * <h1>QoS Testserver Documentation</h1>
  * <ol>
@@ -35,24 +50,31 @@
  * <h3>2.3 Close connection</h3>
  * By using the <b>QUIT</b> command the client can close a connection by itself    
  * <h3>2.4 Command overview</h3> 
- * <h4>2.4.1 Server side commands</h4>
+ * All commands can have appendices with a special functionality. See 2.4.3<br>
+ * <h4>2.4.1 Server side responses</h4>
  * <ul>
  * 		<li><b>ACCEPT [?]</b> - by sending this command the server is telling the client which commands it will accept for the next request. Example: <i>ACCEPT [TOKEN string]</i> -> means that the server will only accept a <i>TOKEN</i> command followed by a string (=this one is needed to complete the handshake and identify the client)</li>
  * 		<li><b>OK</b> - each command that is beeing received by the server, that is valid and doesn't need a different reply from the server is confirmed with this command</li>
  * 		<li><b>RCV ? ?</b> - this is used after an UDP test to tell the client how much packtes have been received (first INTEGER) and how many of them have been duplicates (second INTEGER)</li>
+ * 		<li><b>ERR ?</b> - if an error occurs this message followed by the specific error is beeing returned. Possible errors are:
+ * 			<ul>
+ * 				<li><b>ERR ILLARG</b> - illegal argument. This is returned if an argument could be parsed but is illegal (out of range, etc.).</li>
+ * 				<li><b>ERR UNSUPP</b> - argument unsupported. This is returned if an argument could be parsed but is not valid because it's not supported (old protocol version, etc.).</li>
+ * 			</ul>
+ * 		</li>
  * </ul>
  * <h4>2.4.2 Client side commands and possible responses</h4>
  * <ul>
  * 		<li><b>TOKEN string</b> - sends a token (received from the control server) tnat is used to identify the client.<br>The response is: <b>OK</b> and an <b>ACCEPT</b> command</li>
  * 		<li><b>UDPTEST IN int int</b> - sends an UDP incoming (servers sends packets to client) test request. First parameter is the port number, the second one is the number of packets.
- *			<p>RETURNS: <b>nothing</b>
+ *			<p>RETURNS: <b>nothing</b><br>
  * 				The response are UDP packets, that are sent to the client.
  * 			</p>
  * 		</li> 
  * 		<li><b>UDPTEST OUT int int</b> - sends an UDP outgoing (servers receives packets) test request. First parameter is the port number (see <i>GET UDPPORT</i>), the second one is the number of packets.
  *			<p>RETURNS:
  *				<ul>
- *					<li><b>RCV ? ?</b> containing the number of received packets and the number duplicates.</li>
+ *					<li><b>OK</b> test request successful</li>
  *				</ul>
  *			</p>
  *		</li> 
@@ -64,7 +86,7 @@
  *			</p>
  *		</li>
  * 		<li><b>TCPTEST IN int</b> - TCP incoming (server tries to establish a connection to client) test request. The only parameter is the port number.
- *			<p>RETURNS: <b>nothing</b>
+ *			<p>RETURNS: <b>nothing</b><br>
  *			The response is a <b>HELLO TO port_number</b> message to the requested port_number.
  *			</p>
  *		</li>
@@ -82,7 +104,43 @@
  * 				</ul>
  * 			</p>
  * 		</li>
+ * 		<li><b>GET UDPRESULT IN int</b> - Requests result for an incoming UDP test on a specific port. This can requested any time by the client. The UDP test doesn't need to be finished.
+ *			<p>RETURNS:
+ *	 			<ul>
+ * 					<li><b>RCV int int</b> - see 2.4.1 RCV</li>
+ * 				</ul>
+ * 			</p>
+ * 		</li>
+ * 		<li><b>GET UDPRESULT OUT int</b> - Requests result for an outgoing UDP test on a specific port. This can requested any time by the client. The UDP test doesn't need to be finished.
+ *			<p>RETURNS:
+ *	 			<ul>
+ * 					<li><b>RCV int int</b> - see 2.4.1 RCV</li>
+ * 				</ul>
+ * 			</p>
+ * 		</li>
+ * 		<li><b>REQUEST CONN TIMEOUT int</b> - Request a new connection timeout, in case the tests on the client side could last much longer than the default timeout (=15s). This value may not be lower than the default timeout (=15s).
+ * 			<p>RETURNS:
+ * 				<ul>
+ * 					<li><b>OK</b> - connection timeout has been changed</li>
+ * 					<li><b>ERR ILLARG</b> - requested timeout is invalid (too small, not a number, etc.)</li>
+ * 				</ul>
+ * 			</p>
+ * 		</li>
+ * 		<li><b>REQUEST PROTOCOL VERSION int</b> - If the client wish to use a different protocol version as the default one it can request a specific version by using this command.
+ * 			<p>RETURNS:
+ * 				<ul>
+ * 					<li><b>OK</b> - the version has been changed</li>
+ * 					<li><b>ERR UNSUPP</b> - protocol version is not supported by the server</li>
+ *	 			</ul>
+ * 			</p>
+ * 		</li>
  * 	 	<li><b>QUIT</b> - closes the connection.<br>There is no response to this command</li>
+ * </ul>
+ * <h4>2.4.3 Command appendices</h4>
+ * An appendix can be added to each command for extended functionality. Each appendix is added after a command, but before the new-line chanaracter. An appendix must follow a plus (+) sign. Example: <b>TCPTEST OUT 80 +ID17</b>
+ * <br>The following appendices are supported:
+ * <ul>
+ * 		<li><b>ID</b> - If this appendix is added to a command the server will answer this command by adding this same appendix to the response. This is used for multi-threaded environments. The example from above<b>TCPTEST OUT 80 +ID17</b> would produce a reponse that will look like this: <b>OK +ID17</b></li>
  * </ul>
  * <br>
  * <h2>3. Server Settings</h3>

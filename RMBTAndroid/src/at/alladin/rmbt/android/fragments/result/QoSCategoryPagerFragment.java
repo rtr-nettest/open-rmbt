@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,6 @@ import at.alladin.rmbt.android.main.ExtendedViewPager;
 import at.alladin.rmbt.android.main.RMBTMainActivity;
 import at.alladin.rmbt.client.v2.task.result.QoSServerResult.DetailType;
 import at.alladin.rmbt.client.v2.task.result.QoSServerResultCollection;
-import at.alladin.rmbt.client.v2.task.result.QoSTestResultEnum;
 
 /**
  * Pager Fragment that manages all qos test category fragments
@@ -59,7 +58,7 @@ public class QoSCategoryPagerFragment extends Fragment implements OnPageChangeLi
     private Handler handler = new Handler();
     final AtomicInteger counter = new AtomicInteger(0);
     
-    private QoSTestResultEnum initTestType;
+    private Integer initPosition;
 	private TabHost tabHost;
 	private HorizontalScrollView scroller;
     
@@ -112,8 +111,8 @@ public class QoSCategoryPagerFragment extends Fragment implements OnPageChangeLi
     	scroller = (HorizontalScrollView) v.findViewById(R.id.tabwidget_scrollview);
     	
 
-        if (initTestType != null) {
-        	viewPager.setCurrentItem(initTestType.ordinal());
+        if (initPosition != null) {
+        	viewPager.setCurrentItem(initPosition);
         }
     	
         return v;
@@ -129,14 +128,14 @@ public class QoSCategoryPagerFragment extends Fragment implements OnPageChangeLi
         super.onDestroyView();
     }
     
-    public void setCurrentPosition(final QoSTestResultEnum testType) {
-    	initTestType = testType;
-    }
-    
-    
     public void setCurrentPosition(final int pos)
     {
-        viewPager.setCurrentItem(pos);
+    	if (viewPager != null) {
+    		viewPager.setCurrentItem(pos);
+    	}
+    	else {
+        	initPosition = pos;    		
+    	}
     }
     
     public boolean onBackPressed()

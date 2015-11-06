@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,8 +39,6 @@ public class WebsiteTask extends AbstractQoSTask {
 	
 	private final static long DEFAULT_TIMEOUT = 10000000000L;
 	
-	private boolean running = false;
-	
 	public final static String PARAM_URL = "url";
 	
 	public final static String PARAM_TIMEOUT = "timeout";
@@ -67,7 +65,7 @@ public class WebsiteTask extends AbstractQoSTask {
 	 * @param threadId
 	 */
 	public WebsiteTask(QualityOfServiceTest nnTest, TaskDesc taskDesc, int threadId) {
-		super(nnTest, taskDesc, threadId);
+		super(nnTest, taskDesc, threadId, threadId);
 		this.testImpl = nnTest.getTestSettings().getWebsiteTestService().getInstance();
 
 		String value = (String) taskDesc.getParams().get(PARAM_URL);
@@ -90,8 +88,6 @@ public class WebsiteTask extends AbstractQoSTask {
 			result.getResultMap().put(RESULT_TIMEOUT, String.valueOf(timeout));
 
 			final CountDownLatch latch = new CountDownLatch(1);
-			
-			running = true;
 			
 			testImpl.setOnRenderingFinishedListener(new RenderingListener() {
 					
@@ -168,5 +164,13 @@ public class WebsiteTask extends AbstractQoSTask {
 	 */
 	public QoSTestResultEnum getTestType() {
 		return QoSTestResultEnum.WEBSITE;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see at.alladin.rmbt.client.v2.task.QoSTask#needsQoSControlConnection()
+	 */
+	public boolean needsQoSControlConnection() {
+		return false;
 	}
 }

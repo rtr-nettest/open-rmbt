@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -365,9 +365,11 @@ public class TestView extends View
         speedGauge.setValue(speedValueRelative);
     }
     
-    public void setProgressValue(final double progressValue)
+    public double setProgressValue(final double progressValue)
     {
-        progressGauge.setValue(progressValue);
+    	final double currentValue = progressGauge.value;
+        progressGauge.setValue(progressValue >= currentValue ? progressValue : currentValue);
+        return progressGauge.value;
     }
     
     public void setSignalValue(final double relativeSignal)

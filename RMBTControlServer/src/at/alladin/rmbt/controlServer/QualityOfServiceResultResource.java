@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  ******************************************************************************/
 package at.alladin.rmbt.controlServer;
 
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.Arrays;
@@ -52,8 +53,6 @@ public class QualityOfServiceResultResource extends ServerResource
     @Post("json")
     public String request(final String entity)
     {
-        final String secret = getContext().getParameters().getFirstValue("RMBT_SECRETKEY");
-        
         addAllowOrigin();
         
         JSONObject request = null;
@@ -98,16 +97,8 @@ public class QualityOfServiceResultResource extends ServerResource
                         
                         try
                         {
-                            // Check if UUID
                             final UUID testUuid = UUID.fromString(token[0]);
                             
-                            final String data = token[0] + "_" + token[1];
-                            
-                            final String hmac = Helperfunctions.calculateHMAC(secret, data);
-                            if (hmac.length() == 0)
-                                errorList.addError("ERROR_TEST_TOKEN");
-                            
-                            if (token[2].length() > 0 && hmac.equals(token[2]))
                             {
                                 
                                 final List<String> clientNames = Arrays.asList(settings.getString("RMBT_CLIENT_NAME")
@@ -142,6 +133,7 @@ public class QualityOfServiceResultResource extends ServerResource
                                         }
                                         
                                         QoSTestResultDao resultDao = new QoSTestResultDao(conn);
+                                        PreparedStatement updateCounterPs = resultDao.getUpdateCounterPreparedStatement();
                                         List<QoSTestResult> testResultList = resultDao.getByTestUid(test.getUid());
                                         //map that contains all test types and their result descriptions determined by the test result <-> test objectives comparison
                                     	Map<TestType,TreeSet<ResultDesc>> resultKeys = new HashMap<>();
@@ -213,15 +205,13 @@ public class QualityOfServiceResultResource extends ServerResource
                                         	//resultList.put(testResult.toJson());
                                         	
                                             //save all test results after the success and failure counters have been set
-                                        	resultDao.updateCounter(testResult);
+                                        	resultDao.updateCounter(testResult, updateCounterPs);
                                         	//System.out.println("UPDATING: " + testResult.toString());
                                         }
                                     }
                                     else
                                         errorList.addError("ERROR_CLIENT_VERSION");
                             }
-                            else
-                                errorList.addError("ERROR_TEST_TOKEN_MALFORMED");
                         }
                         catch (final IllegalArgumentException e)
                         {

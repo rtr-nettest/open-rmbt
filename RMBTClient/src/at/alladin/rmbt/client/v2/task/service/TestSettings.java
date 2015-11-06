@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import java.util.List;
 import at.alladin.rmbt.client.QualityOfServiceTest;
 import at.alladin.rmbt.client.v2.task.AbstractQoSTask;
 import at.alladin.rmbt.client.v2.task.service.TestProgressListener.TestProgressEvent;
+import at.alladin.rmbt.util.tools.TracerouteService;
 
 public class TestSettings {
 	private boolean useSsl;
@@ -29,6 +30,7 @@ public class TestSettings {
 	private File cacheFolder;
 	private TrafficService trafficService;
 	private WebsiteTestService websiteTestService;
+	private Class<? extends TracerouteService> tracerouteServiceClazz;
 	private final List<TestProgressListener> testProgressListenerList = new ArrayList<TestProgressListener>();
 	
 	public TestSettings() { }
@@ -60,7 +62,22 @@ public class TestSettings {
 	public void setWebsiteTestService(WebsiteTestService websiteTestService) {
 		this.websiteTestService = websiteTestService;
 	}
-	
+
+	/**
+	TracerouteServicehe {@link TracerouteService} implementation for traceroute functionalitTracerouteServiceeturn
+	 */
+	public Class<? extends TracerouteService> getTracerouteServiceClazz() {
+		return tracerouteServiceClazz;
+	}
+
+	/**
+	 * set the {@link TracerouteService} implementation for traceroute functionality
+	 * @TracerouteServicengTool
+	 */
+	public void setTracerouteServiceClazz(Class<? extends TracerouteService> tracerouteServiceClazz) {
+		this.tracerouteServiceClazz = tracerouteServiceClazz;
+	}
+
 	public List<TestProgressListener> getTestProgressListener() {
 		return testProgressListenerList;
 	}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,10 +24,8 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import android.util.Log;
@@ -50,8 +48,8 @@ public class NetworkUtil {
 	/**
 	 * 
 	 */
-	public static final String WALLED_GARDEN_URL = "http://webtest.netztest.at/generate_204";
-	
+	public static final String WALLED_GARDEN_URL = "http://webtest.nettest.at/generate_204";
+    	
 	/**
 	 * 
 	 */
@@ -119,7 +117,7 @@ public class NetworkUtil {
 	public static boolean isWalledGardenConnection() {
 	    HttpURLConnection urlConnection = null;
 	    try {
-	    	Log.d(DEBUG_TAG, "checking for walled garden...");
+	    	Log.i(DEBUG_TAG, "checking for walled garden...");
 	        URL url = new URL(WALLED_GARDEN_URL);
 	        urlConnection = (HttpURLConnection) url.openConnection();
 	        urlConnection.setInstanceFollowRedirects(false);
@@ -127,7 +125,7 @@ public class NetworkUtil {
 	        urlConnection.setReadTimeout(WALLED_GARDEN_SOCKET_TIMEOUT_MS);
 	        urlConnection.setUseCaches(false);
 	        urlConnection.getInputStream();
-	        Log.d(DEBUG_TAG, "check completed");
+	        Log.d(DEBUG_TAG, "check completed, response: " + urlConnection.getResponseCode());
 	        // We got a valid response, but not from the real google
 	        return urlConnection.getResponseCode() != 204;
 	    } catch (IOException e) {
@@ -142,9 +140,7 @@ public class NetworkUtil {
 	
 	public static NetworkInterface46 getLocalIpAddresses(InetAddress privateIp) {
 	    try {
-        	StringBuilder sb = new StringBuilder();
 	    	NetworkInterface46 iface = null;
-	    	List<NetworkInterface46> ifaceList = new ArrayList<NetworkInterface46>();
 	        for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
 	            NetworkInterface intf = en.nextElement();
 	            //if (NetworkInfoCollector.DJ_DEBUG) {
@@ -161,17 +157,6 @@ public class NetworkUtil {
                	}                	
 	        }
 
-
-	        if (NetworkInfoCollector.DJ_DEBUG) {
-	        	if (ifaceList != null) {
-	        		for (NetworkInterface46 ni : ifaceList) {
-	        			sb.append(ni.toString() + "\n");
-	        		}
-	        		System.err.println("\n-----------------------------------------\n");
-	        		System.err.println(sb.toString());
-	        		System.err.println("\n-----------------------------------------\n");
-	        	}
-	        }
 
 	        return iface;
 	    } catch (Exception ex) {
@@ -209,17 +194,9 @@ public class NetworkUtil {
 	 */
 	public static NetworkInterface46 getLocalIpAddresses(boolean isLoopback) {
 	    try {
-        	StringBuilder sb = new StringBuilder();
 	    	NetworkInterface46 iface = null;
-	    	List<NetworkInterface46> ifaceList = new ArrayList<NetworkInterface46>();
 	        for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
 	            NetworkInterface intf = en.nextElement();
-	            if (NetworkInfoCollector.DJ_DEBUG) {
-	            	sb.append(intf.toString() + ", isUp: " + intf.isUp() 
-	            		+ ", isLoopback: " + intf.isLoopback() 
-	            		+ ", isP2P: " + intf.isPointToPoint() 
-	            		+ ", isVirtual: " + intf.isVirtual() + "\n");
-	            }
 	            //ifaceList.add(new NetworkInterface46(intf, isLoopback));
 	            //System.out.println(intf.toString() + " isUp: " + intf.isUp());
 	            //xnor:
@@ -237,17 +214,6 @@ public class NetworkUtil {
 	            }
 	        }
 
-
-	        if (NetworkInfoCollector.DJ_DEBUG) {
-	        	if (ifaceList != null) {
-	        		for (NetworkInterface46 ni : ifaceList) {
-	        			sb.append(ni.toString() + "\n");
-	        		}
-	        		System.err.println("\n-----------------------------------------\n");
-	        		System.err.println(sb.toString());
-	        		System.err.println("\n-----------------------------------------\n");
-	        	}
-	        }
 
 	        return iface;
 	    } catch (Exception ex) {
@@ -293,7 +259,6 @@ public class NetworkUtil {
 		private NetworkInterface networkInterface;
 		
 		public NetworkInterface46(NetworkInterface networkInterface, boolean isLoopback) {
-			if (NetworkInfoCollector.DJ_DEBUG) System.err.println("new NetworkInterface46\n");
 			registerNetworkIface(networkInterface, isLoopback);
 		}
 		
@@ -305,21 +270,17 @@ public class NetworkUtil {
 
             	if (inetAddress instanceof Inet6Address) {
             		if (ipv6 == null || (!inetAddress.isLinkLocalAddress() && (inetAddress.isLoopbackAddress() == isLoopback))) {
-                		if (NetworkInfoCollector.DJ_DEBUG) System.err.println("LO: " + isLoopback + "/" + inetAddress.isLoopbackAddress() + ", Found IPV6 " + inetAddress);
             			ipv6 = (Inet6Address) inetAddress;
             		}
             	}
             	else if (inetAddress instanceof Inet4Address) {
             		if (ipv4 == null || (!inetAddress.isLinkLocalAddress() && (inetAddress.isLoopbackAddress() == isLoopback))) {
-            			if (NetworkInfoCollector.DJ_DEBUG) System.err.println("LO: " + isLoopback + "/" + inetAddress.isLoopbackAddress() + ", Found IPV4 " + inetAddress);
             			ipv4 = (Inet4Address) inetAddress;
             		}
             	}
             	else {
-            		if (NetworkInfoCollector.DJ_DEBUG) System.err.println("LO: " + isLoopback + "/" + inetAddress.isLoopbackAddress() + ", Found different Ip: " + inetAddress);
             		ip = inetAddress;
             	}
-            	if (NetworkInfoCollector.DJ_DEBUG) System.err.println("\n----ni64----\n");
             }
 		}
 

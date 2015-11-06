@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,11 +74,22 @@ public class QoSTestTypeDesc implements Serializable {
 	 * @return
 	 * @throws JSONException 
 	 */
-	public JSONObject toJson() throws JSONException {
-		JSONObject json = new JSONObject();
-		json.put("test_type", getTestType().name());
-		json.put("desc", getDescription());
-		json.put("name", getName());
+	public JSONObject toJson() {
+		final JSONObject json = new JSONObject();
+	
+		try {
+			if (getTestType() == null) {
+				throw new IllegalArgumentException("test_type not found: " + getName());
+			}
+			json.put("test_type", getTestType().name());
+			json.put("desc", getDescription());
+			json.put("name", getName());
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+		
 		return json;
 	}
 

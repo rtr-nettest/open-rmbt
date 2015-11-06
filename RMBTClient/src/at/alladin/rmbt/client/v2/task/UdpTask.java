@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,15 @@
  ******************************************************************************/
 package at.alladin.rmbt.client.v2.task;
 
-import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.Socket;
-import java.net.SocketTimeoutException;
+import java.nio.channels.DatagramChannel;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -35,6 +34,11 @@ import at.alladin.rmbt.client.QualityOfServiceTest;
 import at.alladin.rmbt.client.RMBTClient;
 import at.alladin.rmbt.client.v2.task.result.QoSTestResult;
 import at.alladin.rmbt.client.v2.task.result.QoSTestResultEnum;
+import at.alladin.rmbt.util.net.udp.NioUdpStreamSender;
+import at.alladin.rmbt.util.net.udp.StreamSender.UdpStreamCallback;
+import at.alladin.rmbt.util.net.udp.StreamSender.UdpStreamSenderSettings;
+import at.alladin.rmbt.util.net.udp.UdpStreamReceiver;
+import at.alladin.rmbt.util.net.udp.UdpStreamReceiver.UdpStreamReceiverSettings;
 
 /**
  * 
@@ -115,17 +119,20 @@ public class UdpTask extends AbstractQoSTask {
 		int remotePort;
 		int numPackets;
 		int dupNumPackets;
+		int rcvServerResponse;
 		
 		public UdpPacketData(int remotePort, int numPackets, int dupNumPackets) {
 			this.remotePort = remotePort;
 			this.numPackets = numPackets;
 			this.dupNumPackets = dupNumPackets;
+			this.rcvServerResponse = 0;
 		}
 
 		@Override
 		public String toString() {
 			return "UdpPacketData [remotePort=" + remotePort + ", numPackets="
-					+ numPackets + ", dupNumPackets=" + dupNumPackets + "]";
+					+ numPackets + ", dupNumPackets=" + dupNumPackets
+					+ ", rcvServerResponse=" + rcvServerResponse + "]";
 		}
 	}
 	/**
@@ -133,7 +140,7 @@ public class UdpTask extends AbstractQoSTask {
 	 * @param taskDesc
 	 */
 	public UdpTask(QualityOfServiceTest nnTest, TaskDesc taskDesc, int threadId) {
-		super(nnTest, taskDesc, threadId);
+		super(nnTest, taskDesc, threadId, threadId);
 		String value = (String) taskDesc.getParams().get(PARAM_NUM_PACKETS_INCOMING);
 		this.packetCountIncoming = value != null ? Integer.valueOf(value) : null;
 		
@@ -162,156 +169,135 @@ public class UdpTask extends AbstractQoSTask {
 			onStart(result);
 
 		    DatagramSocket socket = null;
-		    Socket initSocket;
 		    
-		    int outgoingPacketsRequest = 0;
-		    int incomingPacketsResponse = 0;
-		    
-		    boolean outgoingTimeoutReached = false;
-		    boolean incomingTimeoutReached = false;
-		    
-		    UdpPacketData outgoingPacketData = new UdpPacketData(0,0, 0);
-		    UdpPacketData incomingPacketData = null;
+		    final UdpPacketData outgoingPacketData = new UdpPacketData(0, 0, 0);
+		    final UdpPacketData incomingPacketData = new UdpPacketData(0, 0, 0);
 
 		    try {
-				//TODO: Secure connection
-		    	try {
-		    		initSocket = connect(result, InetAddress.getByName(getTestServerAddr()), getTestServerPort(), 
-		    			QOS_SERVER_PROTOCOL_VERSION, "ACCEPT", getQoSTest().getTestSettings().isUseSsl(), CONTROL_CONNECTION_TIMEOUT);
-				}
-		    	catch (IOException e) {
-                    result.setFatalError(true);
-                    throw e;
-                }
-
-		    	initSocket.setSoTimeout(15000);
+		    	final CountDownLatch outgoingLatch = new CountDownLatch(1);
 		    	
 		    	//run UDP OUT test:
 		    	if (this.packetCountOutgoing != null) {
 		    		
-			    	/**
-			    	 * method 1: get udp port range and pick a random port:
-			    	 */
-			    	/*
-			    	sendMessage("GET UDPPORTS\n");
-					String response = reader.readLine();
-					
-					if (response != null) {
-						System.out.println("UDPTEST opened udp ports range: " + response);
-						String[] ports = response.split("[ ]");
-						Random rand = new Random();
-						int minPort = Integer.valueOf(ports[0]);
-						int maxPort = Integer.valueOf(ports[1]);
-						
-						outgoingPort = rand.nextInt(maxPort - minPort) + minPort; 
-					}
-					*/
-			    	
-			    	/**
-			    	 * method 2: get udp port from test server / or use port from settings
-			    	 */
-		    		String response = null;
-		    		
-		    		if (outgoingPort == null) {
-		    			sendMessage("GET UDPPORT\n");
-		    			response = reader.readLine();
-					
-		    			if (response != null) {
-		    				outgoingPort = Integer.valueOf(response); 
-		    			}
-		    		}
-					
-					sendMessage("UDPTEST OUT " + outgoingPort + " " + packetCountOutgoing + "\n");
-					response = reader.readLine();
-					if (response != null && response.startsWith("OK")) {
+	    			ControlConnectionResponseCallback outgoingRequestCallback = new ControlConnectionResponseCallback() {
+						public void onResponse(final String response, final String request) {
+							try {
+								if (request.startsWith("GET UDPPORT")) {
+					    			if (response != null && !response.startsWith("ERR")) {
+					    				outgoingPort = Integer.valueOf(response);
+										sendCommand("UDPTEST OUT " + outgoingPort + " " + packetCountOutgoing, this);
+					    			}
+								}
+								else if (request.startsWith("UDPTEST OUT")) {
+									if (response != null && response.startsWith("OK")) {
 
-						Future<UdpPacketData> udpOutTimeoutTask = RMBTClient.getCommonThreadPool().submit(new Callable<UdpPacketData>() {
+										Future<UdpPacketData> udpOutTimeoutTask = RMBTClient.getCommonThreadPool().submit(new Callable<UdpPacketData>() {
 
-							public UdpPacketData call() throws Exception {
-								final UdpPacketData packetData = new UdpPacketData(0, 0, 0);
-								sendUdpPackets(packetData);
-								return packetData;
-							}
-							
-						});
-						
-						try {
-							outgoingPacketData = udpOutTimeoutTask.get((int)(timeout/1000000), TimeUnit.MILLISECONDS);
-							
-							//wait for response. number of packets received
-							response = reader.readLine();
-							
-							if (response != null && response.startsWith("RCV")) {
-								System.out.println("UDPTASK OUT :" + outgoingPort + " -> " + response);
-								
-								Matcher m = QOS_RECEIVE_RESPONSE_PATTERN.matcher(response);
-								if (m.find()) {
-									outgoingPacketsRequest = Integer.valueOf(m.group(1));	
+											public UdpPacketData call() throws Exception {
+												sendUdpPackets(outgoingPacketData);
+												return outgoingPacketData;
+											}
+											
+										});
+										
+										try {
+											udpOutTimeoutTask.get(timeout, TimeUnit.NANOSECONDS);
+										}
+										catch (Exception e) {
+											System.err.println("UDP Outgoing Timeout reached!");
+											e.printStackTrace();
+											udpOutTimeoutTask.cancel(true);
+										}
+										
+										outgoingLatch.countDown();
+									}	
 								}
 							}
-							
-							if (socket != null && !socket.isClosed()) {
-								socket.close(); 
+							catch (Exception e) {
+								e.printStackTrace();
 							}
 						}
-						catch (TimeoutException e) {
-							System.err.println("UDP Outgoing Timeout reached!");
-							udpOutTimeoutTask.cancel(true);
-							outgoingTimeoutReached = true;
+					};
+					
+		    		if (outgoingPort == null) {
+		    			sendCommand("GET UDPPORT", outgoingRequestCallback);
+		    		}
+		    		else {
+		    			sendCommand("UDPTEST OUT " + outgoingPort + " " + packetCountOutgoing, outgoingRequestCallback);
+		    		}
+		    		
+	    			if (!outgoingLatch.await(timeout, TimeUnit.NANOSECONDS)) {
+	    				System.out.println("OUT " + outgoingPort + " TIMEOUT REACHED: " + outgoingPacketData);
+	    			}
+
+	    			//request results;
+    				final CountDownLatch outgoingResultLatch = new CountDownLatch(1);
+    				final ControlConnectionResponseCallback outgoingResultRequestCallback = new ControlConnectionResponseCallback() {
+						
+						public void onResponse(final String response, final String request) {
+							if (response != null && response.startsWith("RCV")) {
+								System.out.println("UDPTASK OUT :" + outgoingPort + " -> " + response);
+									
+								Matcher m = QOS_RECEIVE_RESPONSE_PATTERN.matcher(response);
+								if (m.find()) {
+									outgoingPacketData.rcvServerResponse = Integer.valueOf(m.group(1));	
+								}
+								
+								outgoingResultLatch.countDown();
+							}						
 						}
-					}
+					};
+		    		
+					sendCommand("GET UDPRESULT OUT " + outgoingPort, outgoingResultRequestCallback);
+					outgoingResultLatch.await(CONTROL_CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS);
+
 		    	}
 				
 				//run UDP IN test:
 				if (this.packetCountIncoming != null && this.incomingPort != null) {
 					socket = new DatagramSocket(incomingPort);
 					final DatagramSocket dgSocket = socket;
-					sendMessage("UDPTEST IN " + incomingPort + " " + packetCountIncoming + "\n");
+					sendCommand("UDPTEST IN " + incomingPort + " " + packetCountIncoming, null);
 					socket.setSoTimeout((int)(timeout/1000000));
 					
 					Future<UdpPacketData> udpInTimeoutTask = RMBTClient.getCommonThreadPool().submit(new Callable<UdpPacketData>() {
 
 						public UdpPacketData call() throws Exception {
-							UdpPacketData incomingPacketData = receiveUdpPackets(dgSocket, packetCountIncoming);
+							receiveUdpPackets(dgSocket, packetCountIncoming, incomingPacketData);
 							return incomingPacketData;
 						}
 						
 					});
 					
 					try {
-						incomingPacketData = udpInTimeoutTask.get((int)(timeout/1000000), TimeUnit.MILLISECONDS);
-						
-						System.out.println(incomingPacketData);
-						
-						String response = reader.readLine();
-						
-						if (response != null && response.startsWith("RCV")) {
-							System.out.println("UDPTASK IN :" + incomingPort + " -> " + response);
-							Matcher m = QOS_RECEIVE_RESPONSE_PATTERN.matcher(response);
-							if (m.find()) {
-								incomingPacketsResponse = Integer.valueOf(m.group(1));	
-							}
-						}
+						udpInTimeoutTask.get(timeout, TimeUnit.NANOSECONDS);
 					}
 					catch (TimeoutException e) {
 						System.err.println("UDP Incoming Timeout reached!");
 						udpInTimeoutTask.cancel(true);
-						incomingTimeoutReached = true;
 					}
 
-				}				
-				//close connection:
-				sendMessage("QUIT\n");
-				
-		    }
-		    catch (InterruptedException e) {
-		    	e.printStackTrace();
-		    }
-		    catch (SocketTimeoutException e) {
-		    	e.printStackTrace();
-		    }
-		    catch (IOException e) {
-		    	e.printStackTrace();
+					final CountDownLatch incomingLatch = new CountDownLatch(1);
+					final ControlConnectionResponseCallback incomingResultRequestCallback = new ControlConnectionResponseCallback() {
+						
+						public void onResponse(final String response, final String request) {
+							if (response != null && response.startsWith("RCV")) {
+								System.out.println("UDPTASK IN :" + incomingPort + " -> " + response);
+								Matcher m = QOS_RECEIVE_RESPONSE_PATTERN.matcher(response);
+								if (m.find()) {
+									incomingPacketData.rcvServerResponse = Integer.valueOf(m.group(1));	
+								}
+								incomingLatch.countDown();
+							}
+						}
+					};
+					
+					//wait a short amount of time until requesting results
+					Thread.sleep(150);
+					//request server results:
+					sendCommand("GET UDPRESULT IN " + incomingPort, incomingResultRequestCallback);
+					incomingLatch.await(CONTROL_CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS);					
+				}								
 		    }
 		    catch (Exception e) {
 		    	e.printStackTrace();
@@ -323,19 +309,12 @@ public class UdpTask extends AbstractQoSTask {
 		    }
 	   		
 	   		if (this.packetCountOutgoing != null) {
+	   			System.out.println("OUT " + outgoingPort + ": " + outgoingPacketData);
 	   			result.getResultMap().put(RESULT_NUM_PACKETS_OUTGOING, packetCountOutgoing);
 	   			result.getResultMap().put(RESULT_PORT_OUTGOING, outgoingPort);
-	   	   		result.getResultMap().put(RESULT_OUTGOING_PACKETS, outgoingPacketsRequest);
+	   	   		result.getResultMap().put(RESULT_OUTGOING_PACKETS, outgoingPacketData != null ? outgoingPacketData.rcvServerResponse : 0);
 	   			result.getResultMap().put(RESULT_NUM_PACKETS_OUTGOING_RESPONSE, outgoingPacketData != null ? outgoingPacketData.numPackets : 0);
 	   			
-	   			/*
-	   			 * METHOD 1:
-	   	   			final int outgoingPackets = ((outgoingPacketData != null ? outgoingPacketData.numPackets : 0) + outgoingPacketsRequest);
-	   				final int lostPackets = (packetCountOutgoing * 2) - outgoingPackets;
-	   			*/
-	   			
-	   			
-	   			//METHOD 2:
 	   			final int outgoingPackets = (outgoingPacketData != null ? outgoingPacketData.numPackets : 0);
 	   	   		final int lostPackets = packetCountOutgoing - outgoingPackets;
 	   	   		
@@ -349,19 +328,15 @@ public class UdpTask extends AbstractQoSTask {
 	   	   		}
 	   		}
 	   		
-	   		else if (this.packetCountIncoming != null && this.incomingPort != null) {
+	   		if (this.packetCountIncoming != null && this.incomingPort != null) {
+	   			System.out.println("IN " + incomingPort + ": " + incomingPacketData);
+	   	   		final int incomingPackets = incomingPacketData != null ? incomingPacketData.rcvServerResponse : 0;
+	   	   		
 	   	   		result.getResultMap().put(RESULT_NUM_PACKETS_INCOMING, packetCountIncoming);
 	   	   		result.getResultMap().put(RESULT_PORT_INCOMING, incomingPort);
 	   	   		result.getResultMap().put(RESULT_INCOMING_PACKETS, incomingPacketData != null ? incomingPacketData.numPackets : 0);
-	   	   		result.getResultMap().put(RESULT_NUM_PACKETS_INCOMING_RESPONSE, incomingPacketsResponse);
-	   	   		/*
-	   	   		 * METHOD 1:
-	   	   			final int incomingPackets = ((incomingPacketData != null ? incomingPacketData.numPackets : 0) + incomingPacketsResponse);
-	   	   			final int lostPackets = (packetCountIncoming * 2) - incomingPackets;
-	   	   		*/
-	   	   		
-	   	   		//METHOD 2:
-	   	   		final int incomingPackets = incomingPacketsResponse;
+	   	   		result.getResultMap().put(RESULT_NUM_PACKETS_INCOMING_RESPONSE, incomingPackets);
+
 	   	   		final int lostPackets = packetCountIncoming - incomingPackets;
 	   	   		if (lostPackets > 0) {
 	   	   			int packetLossRate = (int) (((float)lostPackets / (float)packetCountIncoming) * 100f);
@@ -397,161 +372,35 @@ public class UdpTask extends AbstractQoSTask {
 
 	/**
 	 * 
-	 * @param socket
 	 * @return
-	 * @throws InterruptedException
+	 * @throws Exception 
 	 */
-	public DatagramSocket sendUdpPackets(DatagramSocket socket, int packets, int port, boolean awaitResponse, UdpPacketData packetData) throws InterruptedException {
-		final TreeSet<Integer> packetsReceived = new TreeSet<Integer>();
-		final TreeSet<Integer> duplicatePackets = new TreeSet<Integer>();
-		
-	    ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-	    DataOutputStream dataOut = new DataOutputStream(byteOut);
+	public DatagramChannel sendUdpPackets(final UdpPacketData packetData) throws Exception {
+	    final UdpStreamSenderSettings<DatagramChannel> udpSettings = new UdpStreamSenderSettings<DatagramChannel>(null, true, 
+	    		InetAddress.getByName(getTestServerAddr()), outgoingPort, packetCountOutgoing, delay, 
+	    		timeout, TimeUnit.NANOSECONDS, false, 10000);
 	    
-	    byte[] data;
-
-	    for (int i = 0; i < packets; i++) {
-	    	if (Thread.interrupted()) {
-	    		socket.close();
-	            throw new InterruptedException();	
-            }
-
-	    	Thread.sleep((int)(delay/1000000));
+	    final NioUdpStreamSender udpStreamSender = new NioUdpStreamSender(udpSettings, new UdpStreamCallback() {			
+			final TreeSet<Integer> packetsReceived = new TreeSet<Integer>();
+			final TreeSet<Integer> duplicatePackets = new TreeSet<Integer>();
 	    	
-	    	byteOut.reset();
-	    	try {
-	    		dataOut.writeByte(awaitResponse ? UDP_TEST_AWAIT_RESPONSE_IDENTIFIER : UDP_TEST_ONE_DIRECTION_IDENTIFIER);
-	    		dataOut.writeByte(i);
+			public boolean onSend(DataOutputStream dataOut, int packetNumber) throws IOException {
+				System.out.println("UDP OUT Test: seinding packet #" + packetNumber);
+	    		dataOut.writeByte(UDP_TEST_AWAIT_RESPONSE_IDENTIFIER);
+	    		dataOut.writeByte(packetNumber);
     			dataOut.write(params.getUUID().getBytes());
     			dataOut.write(String.valueOf(System.currentTimeMillis()).getBytes());
-	    	} catch (IOException e) {
-	    		e.printStackTrace();
-	    		socket.close();
-	    		return null;
-	    	}
-	      	 
-	    	try {
-
-		    	data = byteOut.toByteArray();
-		    	
-		    	DatagramPacket packet = null;
-		    	if (!socket.isConnected()) {
-				    packet = new DatagramPacket(data, data.length, InetAddress.getByName(getTestServerAddr()), port);		    		
-		    	}
-		    	else {
-		    		packet = new DatagramPacket(data, data.length);
-		    	}
-		    	
-	    		socket.send(packet);
-	    		System.out.println("UDP Test: sent packet. Udp FLAG: " + packet.getData()[0] + " #" + packet.getData()[1] + " to " +  packet.getAddress() + ":" + packet.getPort());
-	    		
-	    		if (awaitResponse) {
-	    			try {
-	    			    byte buffer[] = new byte[1024];
-
-	    			    DatagramPacket dp = new DatagramPacket(buffer, buffer.length);
-	    			    socket.setSoTimeout((int)(timeout/1000000));
-	    			    socket.receive(dp);
-	    				int packetNumber = buffer[1];
-	    			    
-	    			    System.out.println("UDP Test: received packet: #" + packetNumber + " -> " + buffer);
-	    			    
-	    				//check udp packet:
-	    				if (buffer[0] != UDP_TEST_RESPONSE) {
-	    					socket.close();
-	    					throw new IOException("bad UDP IN TEST packet identifier");
-	    				}
-	    				
-	    				//check for duplicate packets:
-	    				if (packetsReceived.contains(packetNumber)) {
-	    					duplicatePackets.add(packetNumber);
-	    					if (ABORT_ON_DUPLICATE_UDP_PACKETS) {
-	    						socket.close();
-	    						throw new IOException("duplicate UDP IN TEST packet id");
-	    					}
-	    					else {
-	    						System.out.println("duplicate UDP IN TEST packet id");
-	    					}
-	    				}
-	    				else {
-	    					packetsReceived.add(packetNumber);
-	    				}
-	    				
-	    				if (packetData == null) {
-	    					packetData = new UdpPacketData(dp.getPort(), packetsReceived.size(), duplicatePackets.size());
-	    				}
-	    			}
-	    			catch (SocketTimeoutException e) {
-	    				e.printStackTrace();
-	    			}
-	    		}
-	    	} catch (IOException e) {
-	    		e.printStackTrace();
-	    		socket.close();
-	    		return null;
-	    	}
-	    }
-
-	    if (packetData != null && packetsReceived != null) {
-	    	packetData.numPackets = packetsReceived.size();
-	    }
-	    return socket;
-	}
-	
-	/**
-	 * 
-	 * @return
-	 * @throws InterruptedException 
-	 */
-	public DatagramSocket sendUdpPackets(UdpPacketData packetData) throws InterruptedException {
-	    DatagramSocket sock = null;
-	 
-	    try {
-	    	//sock =  new DatagramSocket(outgoingPort);
-	    	sock = new DatagramSocket();
-			sock.setSoTimeout((int)(timeout/1000000));
-	    } catch (Exception e) {
-	    	e.printStackTrace();
-			return null;
-		}
-	 
-	    return sendUdpPackets(sock, packetCountOutgoing, outgoingPort, true, packetData);
-	}
-	
-	/**
-	 * 
-	 * @param socket
-	 * @return
-	 * @throws InterruptedException
-	 */
-	public UdpPacketData receiveUdpPackets(DatagramSocket socket, int packets) throws InterruptedException {
-		final TreeSet<Integer> packetsReceived = new TreeSet<Integer>();
-		final TreeSet<Integer> duplicatePackets = new TreeSet<Integer>();
-		int incomingCounter = 0;
-		int remotePort = 0;
-		
-		try {			
-			socket.setSoTimeout((int)(timeout/1000000));
+    			return true;
+			}
 			
-			while(true) {
-				
-		    	if (Thread.interrupted()) {
-		    		socket.close();
-		            throw new InterruptedException();	
-	            }
-				
-			    byte data[] = new byte[1024];
-			    DatagramPacket packet = new DatagramPacket(data, data.length);
+			public synchronized void onReceive(final DatagramPacket dp) throws IOException {
+				final byte[] buffer = dp.getData();
+				int packetNumber = buffer[1];
 			    
-			    System.out.println("UDP Test: waiting for incoming data on port: " + socket.getLocalPort());
-			    socket.receive(packet);
-				int packetNumber = data[1];
-			    
-			    System.out.println("UDP Test: received packet #" + packetNumber + " on port: " + socket.getLocalPort() + " -> " + data);
-			    
+			    System.out.println("UDP OUT Test: received packet: #" + packetNumber + " -> " + buffer);
 				//check udp packet:
-				if (data[0] != UDP_TEST_ONE_DIRECTION_IDENTIFIER && data[0] != UDP_TEST_AWAIT_RESPONSE_IDENTIFIER) {
-					socket.close();
+				if (buffer[0] != UDP_TEST_RESPONSE) {
+					udpSettings.getSocket().close();
 					throw new IOException("bad UDP IN TEST packet identifier");
 				}
 				
@@ -559,29 +408,91 @@ public class UdpTask extends AbstractQoSTask {
 				if (packetsReceived.contains(packetNumber)) {
 					duplicatePackets.add(packetNumber);
 					if (ABORT_ON_DUPLICATE_UDP_PACKETS) {
-						socket.close();
+						udpSettings.getSocket().close();
 						throw new IOException("duplicate UDP IN TEST packet id");
+					}
+					else {
+						System.out.println("duplicate UDP IN TEST packet id");
 					}
 				}
 				else {
 					packetsReceived.add(packetNumber);
-				    incomingCounter++;
+				}
+				
+				packetData.numPackets = packetsReceived.size();
+				packetData.dupNumPackets = duplicatePackets.size();
+			}
+
+			public void onBind(Integer port) throws IOException {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+	    
+	    return udpStreamSender.send();
+	}
+	
+	/**
+	 * 
+	 * @param socket
+	 * @return
+	 * @throws InterruptedException
+	 */
+	public void receiveUdpPackets(final DatagramSocket socket, int packets, final UdpPacketData packetData) throws InterruptedException {
+		final TreeSet<Integer> packetsReceived = new TreeSet<Integer>();
+		final TreeSet<Integer> duplicatePackets = new TreeSet<Integer>();
+	
+		try {			
+			final int timeOutMs = (int) TimeUnit.MILLISECONDS.convert(timeout, TimeUnit.NANOSECONDS);
+			socket.setSoTimeout(timeOutMs);
+			
+			final UdpStreamReceiverSettings settings = new UdpStreamReceiverSettings(socket, packets, true);
+			
+			final UdpStreamReceiver udpStreamReceiver = new UdpStreamReceiver(settings, new UdpStreamCallback() {
+				
+				public boolean onSend(DataOutputStream dataOut, int packetNumber)
+						throws IOException {
+		    		dataOut.writeByte(UDP_TEST_RESPONSE);
+		    		dataOut.writeByte(packetNumber);
+	    			dataOut.write(params.getUUID().getBytes());
+	    			dataOut.write(String.valueOf(System.currentTimeMillis()).getBytes());
+					return true;
+				}
+				
+				public void onReceive(DatagramPacket dp) throws IOException {
+					final byte[] data = dp.getData();
+					final int packetNumber = data[1];
 				    
-				    if (data[0] == UDP_TEST_AWAIT_RESPONSE_IDENTIFIER) {
-				    	data[0] = UDP_TEST_RESPONSE;
-				    	DatagramPacket dp = new DatagramPacket(data, packet.getLength(), packet.getAddress(), packet.getPort());
-				    	socket.send(dp);
-				    }
+				    System.out.println("UDP IN Test: received packet #" + packetNumber + " on port: " + socket.getLocalPort() + " -> " + data);
+				    
+					//check udp packet:
+					if (data[0] != UDP_TEST_ONE_DIRECTION_IDENTIFIER && data[0] != UDP_TEST_AWAIT_RESPONSE_IDENTIFIER) {
+						throw new IOException("bad UDP IN TEST packet identifier");
+					}
+					
+					//check for duplicate packets:
+					if (packetsReceived.contains(packetNumber)) {
+						duplicatePackets.add(packetNumber);
+						if (ABORT_ON_DUPLICATE_UDP_PACKETS) {
+							throw new IOException("duplicate UDP IN TEST packet id");
+						}
+					}
+					else {
+						packetsReceived.add(packetNumber);					    
+					}
+					
+					packetData.dupNumPackets = duplicatePackets.size();
+					packetData.numPackets = packetsReceived.size();
 				}
 
-				if (remotePort == 0 && packet != null) {
-					remotePort = packet.getPort();
+				public void onBind(Integer port) throws IOException {
+					// TODO Auto-generated method stub
+					
 				}
-			    
-			    if (incomingCounter >= packets) {
-			    	break;
-			    }
-			}			
+			});
+			
+
+			udpStreamReceiver.receive();
 		}
 		catch (IOException e) {
 			e.printStackTrace();
@@ -589,10 +500,8 @@ public class UdpTask extends AbstractQoSTask {
 		finally {
 			if (socket != null && !socket.isClosed()) {
 				socket.close();
-			}
-		}
-
-		return new UdpPacketData(remotePort, packetsReceived.size(), duplicatePackets.size());
+			}			
+		}		
 	}
 	
 	/*
@@ -601,5 +510,13 @@ public class UdpTask extends AbstractQoSTask {
 	 */
 	public QoSTestResultEnum getTestType() {
 		return QoSTestResultEnum.UDP;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see at.alladin.rmbt.client.v2.task.QoSTask#needsQoSControlConnection()
+	 */
+	public boolean needsQoSControlConnection() {
+		return true;
 	}
 }

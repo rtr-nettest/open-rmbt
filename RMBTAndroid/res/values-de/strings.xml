@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright 2013-2014 alladin-IT GmbH
+  Copyright 2013-2015 alladin-IT GmbH
   
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -39,6 +39,9 @@
     <string name="preferences_tag">Kennzeichen</string>
     <string name="preferences_tag_sum">Kennzeichen für die Tests</string>
     
+    <string name="preferences_skip_qos">QoS-Tests überspringen</string>
+    <string name="preferences_skip_qos_sum">QoS-Tests werden nicht durchgeführt</string>
+    
     <string name="preferences_loop_mode">Wiederholung</string>
     <string name="preferences_loop_mode_sum">Test läuft in einer Endlosschleife</string>
     
@@ -56,6 +59,9 @@
     
     <string name="preferences_loop_mode_gps">Wiederholung GPS</string>
     <string name="preferences_loop_mode_gps_sum">Verwendet GPS zwischen zwei Tests im Wiederholungs-Modus</string>
+    
+    <string name="preferences_loop_mode_wake_lock">Wiederholung WakeLock</string>
+    <string name="preferences_loop_mode_wake_lock_sum">Workaround für manche Geräte: Lässt das Display aktiv um GPS aktiv zu halten.</string>
     
     <string name="preferences_ndt">NDT</string>
     <string name="preferences_ndt_sum">Erweiterten Test aktivieren</string>
@@ -92,6 +98,12 @@
     
     <string name="preferences_dev_map_ssl">Map-Server SSL</string>
     <string name="preferences_dev_map_ssl_sum">Verschlüsselte Verbindung zum Map-Server</string>
+    
+    <string name="preferences_dev_qos_ssl">QoS Server SSL</string>
+    <string name="preferences_dev_qos_ssl_sum">Verwende verschlüsselte Verbindung zum QoS-Server</string>
+    <string name="preferences_dev_debug_sysout">Speichere Fehlermeldungen</string>
+    <string name="preferences_dev_debug_sysout_sum">Speichere Fehlermeldungen im "qosdebug" Verzeichnis</string>
+    <string name="preferences_category_developer_debug">Debugging</string>
     
     <string name="menu_button_start">START</string>
     <string name="menu_button_title_page">Startseite</string>
@@ -131,7 +143,7 @@
     
     <string name="loop_notification_ticker">Wiederholungs-Modus is aktiv…</string>
     <string name="loop_notification_title">Wiederholungs-Modus is aktiv</string>
-    <string name="loop_notification_text">Berühren um Wiederholungs-Modus zu stoppen</string>
+    <string name="loop_notification_text">{0}x; {1}s; {2}m; Berühren um Wiederholungs-Modus zu stoppen.</string>
     
     <string name="loop_started">Wiederholungs-Modus wurde gestartet.</string>
     <string name="loop_already_active">Wiederholungs-Modus ist bereits aktiv.</string>
@@ -217,6 +229,13 @@
 	<string name="map_overlay_shapes_summary">Karte zeigt Tests nach Postleitzahl-Gebieten an</string>
 	
 	<string name="map_balloon_overlay_header">MESSUNGEN</string>
+	
+	<string name="map_search_location_dialog_title">Suche</string>	
+	<string name="map_search_location_progress_title">Suche läuft</string>
+	<string name="map_search_location_progress_message">Suche nach Ihrer Adresse läuft. Bitte warten…</string>	
+    <string name="map_search_location_dialog_info">Suche nach einer Adresse oder Stadt:</string>
+    <string name="map_search_location_dialog_not_found">Adresse nicht gefunden.</string>
+    <string name="map_search_location_not_supported">Ihr Gerät unterstützt diese Funktion nicht.</string>
 	
 	<!-- Test -->
 	<string name="test_progress_title">Verbindungsaufbau…</string>
@@ -305,6 +324,8 @@
 	<string name="test_label_test_info">Test Information</string>
 	<string name="test_label_progress">Fortschritt</string>
 	<string name="test_label_quality_test">Qualitätstest</string>
+	
+	<string name="server_selection">Serverauswahl</string>
 </resources>
 
 

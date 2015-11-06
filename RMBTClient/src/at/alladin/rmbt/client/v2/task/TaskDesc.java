@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,14 +44,14 @@ public class TaskDesc extends RMBTTestParameter {
 	 * @param startTime
 	 */
 	public TaskDesc(String host, int port, boolean encryption, String token,
-			int duration, int numThreads, long startTime, HashMap<String, Object> params) {
-		super(host, port, encryption, token, duration, numThreads, startTime);
+			int duration, int numThreads, int numPings, long startTime, HashMap<String, Object> params) {
+		super(host, port, encryption, token, duration, numThreads, numPings, startTime);
 		this.params = params;
 	}
 	
 	public TaskDesc(String host, int port, boolean encryption, String token,
-			int duration, int numThreads, long startTime, HashMap<String, Object> params, String qosTestId) {
-		this(host, port, encryption, token, duration, numThreads, startTime, params);
+			int duration, int numThreads, int numPings, long startTime, HashMap<String, Object> params, String qosTestId) {
+		this(host, port, encryption, token, duration, numThreads, numPings, startTime, params);
 		params.put(QOS_TEST_IDENTIFIER_KEY, qosTestId);
 	}
 

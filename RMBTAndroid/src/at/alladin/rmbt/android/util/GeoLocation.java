@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,6 +57,18 @@ public abstract class GeoLocation
         this.gpsEnabled = gpsEnabled;
         this.minTime = minTime;
         this.minDistance = minDistance;
+    }
+    
+    public static Location getLastKnownLocation(Context context) {
+        LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        
+        final Criteria criteria = new Criteria();
+        criteria.setAccuracy(Criteria.ACCURACY_FINE);
+        criteria.setPowerRequirement(Criteria.POWER_HIGH);
+        final String providerName = locationManager.getBestProvider(criteria, true);
+        if (providerName == null)
+            return null;
+        return locationManager.getLastKnownLocation(providerName);
     }
     
     /** Load Listeners */

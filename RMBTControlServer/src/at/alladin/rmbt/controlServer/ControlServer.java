@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import org.restlet.Application;
 import org.restlet.Context;
 import org.restlet.Restlet;
 import org.restlet.routing.Router;
-import org.restlet.routing.Template;
 
 
 public class ControlServer extends Application
@@ -69,6 +68,9 @@ public class ControlServer extends Application
         
         router.attach("/ip", IpResource.class);
         
+        router.attach("/status", StatusResource.class);
+        
+        
         // send history list to client
         router.attach("/history", HistoryResource.class);
         
@@ -78,6 +80,9 @@ public class ControlServer extends Application
         // send detailed test results to client
         router.attach("/testresultdetail", TestResultDetailResource.class);
         
+        // was just used for migration
+//        router.attach("/migrateTestSpeed", MigrateTestSpeed.class);
+
         router.attach("/sync", SyncResource.class);
         
         router.attach("/settings", SettingsResource.class);
@@ -86,6 +91,9 @@ public class ControlServer extends Application
         
         router.attach("/opentests/O{open_test_uuid}&sender={sender}", OpenTestResource.class);
         router.attach("/opentests/O{open_test_uuid}", OpenTestResource.class);
+
+        router.attach("/v2/opentests/O{open_test_uuid}&sender={sender}", at.alladin.rmbt.controlServer.v2.OpenTestResource.class);
+        router.attach("/v2/opentests/O{open_test_uuid}", at.alladin.rmbt.controlServer.v2.OpenTestResource.class);
         
         router.attach("/qos/O{open_test_uuid}", OpenTestQoSResource.class);
         router.attach("/qos/O{open_test_uuid}/{lang}", OpenTestQoSResource.class);
@@ -95,7 +103,18 @@ public class ControlServer extends Application
         
         // administrative resources (access restrictions might be applied to /admin/ 
         router.attach("/admin/qosObjectives", QualityOfServiceExportResource.class);
-                        
+        router.attach("/admin/setImplausible", ImplausibilityHelperResource.class);
+
+        /*
+         * 
+         * use for request time measurements:
+
+	        TimerFilter filter = new TimerFilter();
+	        filter.setNext(router);
+	        
+	        return filter;
+        */
+        
         return router;
     }
     

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package at.alladin.rmbt.android.test;
 
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -67,7 +68,9 @@ public class RMBTService extends Service implements EndTaskListener
     
     private boolean loopMode;
     
-    private static long DEADMAN_TIME = 120 * 1000;
+    private static AtomicBoolean running = new AtomicBoolean(); 
+    
+    public static long DEADMAN_TIME = 120 * 1000;
     private final Runnable deadman = new Runnable()
     {
         @Override
@@ -160,6 +163,8 @@ public class RMBTService extends Service implements EndTaskListener
         handler.removeCallbacks(addNotificationRunnable);
         handler.removeCallbacks(deadman);
         
+        running.set(false);
+        
         // unregisterReceiver(mNetworkStateIntentReceiver);
     }
     
@@ -190,12 +195,15 @@ public class RMBTService extends Service implements EndTaskListener
 
             completed = false;
             
+            running.set(true);
+            
             // lock wifi + power
             lock();
             testTask = new RMBTTask(getApplicationContext());
             
             testTask.setEndTaskListener(this);
             testTask.execute(handler);
+            
             Log.d(DEBUG_TAG, "RMBTTest started");
             
             handler.postDelayed(addNotificationRunnable, 200);
@@ -360,13 +368,13 @@ public class RMBTService extends Service implements EndTaskListener
             return null;
     }
     
-    public String getTestUuid()
+    public String getTestUuid(boolean clearUUID)
     {
         if (testTask != null) {
             return testTask.getTestUuid();
         }
         else {
-            return ConfigHelper.getLastTestUuid(getApplicationContext(), true);
+            return ConfigHelper.getLastTestUuid(getApplicationContext(), clearUUID);
         }
     }
     
@@ -475,6 +483,7 @@ public class RMBTService extends Service implements EndTaskListener
     @Override
     public void taskEnded()
     {
+        running.set(false);
         unlock();
         removeNotification();
         handler.removeCallbacks(deadman);
@@ -501,5 +510,10 @@ public class RMBTService extends Service implements EndTaskListener
     public boolean isLoopMode()
     {
         return loopMode;
+    }
+    
+    public static boolean isRunning()
+    {
+        return running.get();
     }
 }

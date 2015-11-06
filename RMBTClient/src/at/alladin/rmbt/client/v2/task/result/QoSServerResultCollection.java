@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -228,6 +228,7 @@ public class QoSServerResultCollection implements Serializable {
 	
 	public QoSServerResultCollection(JSONArray json) throws JSONException {
 		this.testResultArray = json;
+
 		try {
 			this.testResultDetails = json.getJSONObject(0).getJSONArray(JSON_KEY_DETAIL);
 	        this.testResultDesc = json.getJSONObject(0).getJSONArray(JSON_KEY_DESC);
@@ -262,12 +263,18 @@ public class QoSServerResultCollection implements Serializable {
         //read test descriptions:
         try {
             for (int i = 0; i < testResultTestDesc.length(); i++) {
-            	JSONObject desc = testResultTestDesc.getJSONObject(i);
-            	QoSTestResultEnum type = QoSTestResultEnum.valueOf(desc.optString("test_type").toUpperCase(Locale.US));
-            	String testDesc = desc.optString("desc");
-            	String testName = desc.optString("name");
-            	QoSServerResultTestDesc test = new QoSServerResultTestDesc(type, testDesc, testName);
-            	testDescMap.put(type, test);
+            	try {
+	            	JSONObject desc = testResultTestDesc.getJSONObject(i);
+	            	QoSTestResultEnum type = QoSTestResultEnum.valueOf(desc.optString("test_type").toUpperCase(Locale.US));
+	            	String testDesc = desc.optString("desc");
+	            	String testName = desc.optString("name");
+	            	QoSServerResultTestDesc test = new QoSServerResultTestDesc(type, testDesc, testName);
+	            	testDescMap.put(type, test);
+            	}
+	            catch (IllegalArgumentException e) {
+	            	//illegal argument: occurs if qos test type is not implemented. in this case continue loop
+	            	e.printStackTrace();
+            	}
             }        		       	
         }
         catch (Throwable t) {

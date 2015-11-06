@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,8 @@
  * limitations under the License.
  ******************************************************************************/
 package at.alladin.rmbt.client;
+
+import java.util.Arrays;
 
 public class Results
 {
@@ -33,4 +35,10 @@ public class Results
         this.bytes = bytes;
         this.nsec = nsec;
     }
+
+	@Override
+	public String toString() {
+		return "Results [bytes=" + Arrays.toString(bytes) + ", nsec="
+				+ Arrays.toString(nsec) + "]";
+	}
 }

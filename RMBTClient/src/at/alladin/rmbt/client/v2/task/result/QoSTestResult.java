@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.Locale;
 
 import at.alladin.rmbt.client.TestResult;
+import at.alladin.rmbt.client.v2.task.AbstractQoSTask;
 
 /**
  * 
@@ -45,8 +46,14 @@ public class QoSTestResult extends TestResult {
 	/**
 	 * 
 	 */
-	public QoSTestResult(QoSTestResultEnum testType) {
+	private final AbstractQoSTask qosTask;
+	
+	/**
+	 * 
+	 */
+	public QoSTestResult(QoSTestResultEnum testType, AbstractQoSTask qosTask) {
 		this.testType = testType;
+		this.qosTask = qosTask;
 		resultMap = new HashMap<String, Object>();
 		resultMap.put("test_type", testType.name().toLowerCase(Locale.US));
 	}
@@ -81,6 +88,14 @@ public class QoSTestResult extends TestResult {
 	 */
 	public void setFatalError(boolean fatalError) {
 		this.fatalError = fatalError;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public AbstractQoSTask getQosTask() {
+		return qosTask;
 	}
 
 	@Override

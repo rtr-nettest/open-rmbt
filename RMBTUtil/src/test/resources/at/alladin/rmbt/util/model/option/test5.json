@@ -1,0 +1,39 @@
+[
+  {
+    "title": "test5-option0",
+    "options": [
+      {
+        "params": {
+          "test": 1,
+          "option": "a1"
+        },
+        "default": true
+      },
+      {
+        "params": {
+          "test": 2,
+          "option": "a2"
+        }
+      }
+    ]
+  },
+  {
+    "title": "test5-option1",
+    "options": [
+      {
+        "params": {
+          "option": "a3"
+        }
+      },
+      {
+        "params": {
+          "option": "a4"
+        }
+      }
+    ],
+    "params": {
+      "suboption": "option1"
+    },
+    "default": true
+  }
+]

@@ -194,6 +194,7 @@ public class ResultDesc implements Comparable<ResultDesc> {
 	public JSONObject toJson() throws JSONException {
 		JSONObject json = new JSONObject();
 		json.put("status", getStatusCode());
+		json.put("key", getKey());
 		json.put("desc", getParsedValue());
 		json.put("test", getTestType());
 		json.put("uid", testResultUidList);		

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ public class QoSTestResultDao implements PrimaryKeyDao<QoSTestResult, Long> {
 		
 		try (PreparedStatement psGetAll = conn.prepareStatement("SELECT nntr.uid, test_uid, success_count, failure_count, nnto.test, hstore2json(result) AS result, "
 				+ " nnto.results::text[] as results, qos_test_uid, nnto.test_desc, nnto.test_summary FROM qos_test_result nntr "
-				+ " JOIN qos_test_objective nnto ON nntr.qos_test_uid = nnto.uid WHERE test_uid = ?"))
+				+ " JOIN qos_test_objective nnto ON nntr.qos_test_uid = nnto.uid WHERE test_uid = ? AND nntr.deleted = 'FALSE' and nntr.implausible = 'FALSE'"))
 		{
     		psGetAll.setLong(1, testUid);
     		
@@ -82,7 +82,7 @@ public class QoSTestResultDao implements PrimaryKeyDao<QoSTestResult, Long> {
 	public QoSTestResult getById(Long id) throws SQLException {
 		try (PreparedStatement psGetById = conn.prepareStatement("SELECT nntr.uid, test_uid, nnto.test, success_count, failure_count, hstore2json(result) AS result, "
 				+ " nnto.results::text[] as results, qos_test_uid, nnto.test_desc, nnto.test_summary FROM qos_test_result nntr "
-				+ " JOIN qos_test_objective nnto ON nntr.qos_test_uid = nnto.uid WHERE nntr.uid = ?"))
+				+ " JOIN qos_test_objective nnto ON nntr.qos_test_uid = nnto.uid WHERE nntr.uid = ? AND nntr.deleted = 'FALSE' and nntr.implausible = 'FALSE'"))
 		{
     		psGetById.setLong(1, id);
     		
@@ -175,6 +175,29 @@ public class QoSTestResultDao implements PrimaryKeyDao<QoSTestResult, Long> {
 			save(result);
 		}
 	}
+
+	/**
+	 * 
+	 * @return
+	 * @throws SQLException
+	 */
+	public PreparedStatement getUpdateCounterPreparedStatement() throws SQLException {
+		String sql = "UPDATE qos_test_result SET success_count = ?, failure_count = ? WHERE uid = ?";
+		PreparedStatement ps = conn.prepareStatement(sql);
+		return ps;
+	}
+	
+	/**
+	 * 
+	 * @param result
+	 * @return
+	 * @throws SQLException
+	 */
+	public int updateCounter(QoSTestResult result) throws SQLException {
+		String sql = "UPDATE qos_test_result SET success_count = ?, failure_count = ? WHERE uid = ?";
+		PreparedStatement ps = conn.prepareStatement(sql);
+		return updateCounter(result, ps);
+	}
 	
 	/**
 	 * 
@@ -182,9 +205,7 @@ public class QoSTestResultDao implements PrimaryKeyDao<QoSTestResult, Long> {
 	 * @param columnNames
 	 * @throws SQLException
 	 */
-	public int updateCounter(QoSTestResult result) throws SQLException {
-		String sql = "UPDATE qos_test_result SET success_count = ?, failure_count = ? WHERE uid = ?";
-		PreparedStatement ps = conn.prepareStatement(sql);
+	public int updateCounter(QoSTestResult result, PreparedStatement ps) throws SQLException {
 		ps.setInt(1, result.getSuccessCounter());
 		ps.setInt(2, result.getFailureCounter());
 		ps.setLong(3, result.getUid());
@@ -198,8 +219,11 @@ public class QoSTestResultDao implements PrimaryKeyDao<QoSTestResult, Long> {
 	 * @throws SQLException
 	 */
 	public void updateCounterAll(Collection<QoSTestResult> resultCollection) throws SQLException {
+		String sql = "UPDATE qos_test_result SET success_count = ?, failure_count = ? WHERE uid = ?";
+		PreparedStatement ps = conn.prepareStatement(sql);
+
 		for (QoSTestResult result : resultCollection) {
-			updateCounter(result);
+			updateCounter(result, ps);
 		}
 	}
 

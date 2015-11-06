@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,13 +30,15 @@ public class SectionListAdapter extends BaseAdapter
     
     private final ArrayAdapter<String> sectionAdapter;
     private final Map<String, Adapter> sectionMap;
+    private final boolean hasSectionHeader;
     
     public final static int TYPE_SECTION_HEADER = 0;
     
-    public SectionListAdapter(final Context context, final int sectionLayoutId)
+    public SectionListAdapter(final Context context, final int sectionLayoutId, final boolean hasSectionHeader)
     {
         sectionAdapter = new ArrayAdapter<String>(context, sectionLayoutId, android.R.id.title);
         sectionMap = new LinkedHashMap<String, Adapter>();
+        this.hasSectionHeader = hasSectionHeader;
     }
     
     public void addSection(final String sectionName, final Adapter sectionContentAdapter)
@@ -78,9 +80,9 @@ public class SectionListAdapter extends BaseAdapter
         {
             
             final Adapter adapter = sectionMap.get(section);
-            final int size = adapter.getCount() + 1;
+            final int size = adapter.getCount() + (hasSectionHeader ? 1 : 0);
             
-            if (position == 0)
+            if (position == 0 && hasSectionHeader)
                 return TYPE_SECTION_HEADER;
             
             if (position < size)
@@ -100,7 +102,7 @@ public class SectionListAdapter extends BaseAdapter
         int count = 0;
         
         for (final Adapter adapter : sectionMap.values())
-            count += adapter.getCount() + 1;
+            count += adapter.getCount() + (hasSectionHeader ? 1 : 0);
         
         return count;
     }
@@ -113,9 +115,9 @@ public class SectionListAdapter extends BaseAdapter
         {
             final Adapter adapter = entry.getValue();
             
-            final int size = adapter.getCount() + 1;
+            final int size = adapter.getCount() + (hasSectionHeader ? 1 : 0);
             
-            if (position == 0)
+            if (position == 0 && hasSectionHeader)
                 return entry.getKey();
             
             if (position < size)
@@ -131,9 +133,9 @@ public class SectionListAdapter extends BaseAdapter
     {
         for (final Adapter adapter : sectionMap.values())
         {
-            final int size = adapter.getCount() + 1;
+            final int size = adapter.getCount() + (hasSectionHeader ? 1 : 0);
             
-            if (position == 0)
+            if (position == 0 && hasSectionHeader)
                 return null;
             
             if (position < size)
@@ -158,10 +160,10 @@ public class SectionListAdapter extends BaseAdapter
             for (int i = 0; i < adapter.getCount(); i++)
             {
                 if (object.equals(adapter.getItem(i)))
-                    return idx + 1 + i;
+                    return idx + (hasSectionHeader ? 1 : 0) + i;
             }
             
-            idx += adapter.getCount() + 1;
+            idx += adapter.getCount() + (hasSectionHeader ? 1 : 0);
         }
         return -1;
     }
@@ -180,12 +182,11 @@ public class SectionListAdapter extends BaseAdapter
         
         for (final String sectionName : sectionMap.keySet())
         {
-            
             final Adapter adapter = sectionMap.get(sectionName);
             
-            final int size = adapter.getCount() + 1;
+            final int size = adapter.getCount() + (hasSectionHeader ? 1 : 0);
             
-            if (position == 0)
+            if (position == 0 && hasSectionHeader)
                 return sectionAdapter.getView(sectionNum, convertView, parent);
             
             if (position < size)

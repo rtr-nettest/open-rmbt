@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,23 +15,30 @@
  ******************************************************************************/
 package at.alladin.rmbt.android.util;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.preference.PreferenceManager;
 import at.alladin.openrmbt.android.R;
+import at.alladin.rmbt.android.adapter.result.QoSCategoryPagerAdapter;
 import at.alladin.rmbt.client.helper.Config;
+import at.alladin.rmbt.client.v2.task.result.QoSTestResultEnum;
 
 public final class ConfigHelper
 {
 	public final static String PREF_KEY_SWIPE_INTRO_COUNTER = "swipe_intro_counter";
 	public final static int SWIPE_INTRO_COUNTER_MAX = 2; 
+	
+	public static final String DEFAULT_SERVER = "default";
 	
     public static SharedPreferences getSharedPreferences(final Context context)
     {
@@ -109,6 +116,11 @@ public final class ConfigHelper
         return ! getSharedPreferences(context).getBoolean("no_gps", false);
     }
     
+    public static boolean isSkipQoS(final Context context)
+    {
+        return getSharedPreferences(context).getBoolean("skip_qos", false);
+    }
+    
     public static boolean isLoopMode(final Context context)
     {
         if (! isDevEnabled(context))
@@ -119,6 +131,11 @@ public final class ConfigHelper
     public static boolean isLoopModeGPS(final Context context)
     {
         return getSharedPreferences(context).getBoolean("loop_mode_gps", true);
+    }
+    
+    public static boolean isLoopModeWakeLock(final Context context)
+    {
+        return getSharedPreferences(context).getBoolean("loop_mode_wake_lock", true);
     }
     
     private static int getInt(final Context context, String key, int defaultId)
@@ -173,6 +190,47 @@ public final class ConfigHelper
     public static void setNDTDecisionMade(final Context context, final boolean value)
     {
         getSharedPreferences(context).edit().putBoolean("ndt_decision", value).apply();
+    }
+    
+    public static String getDeveloperCode(final Context context)
+    {
+        return getSharedPreferences(context).getString("developer_code", null);
+    }
+    
+    public static String getServerSelection(final Context context)
+    {
+        return getSharedPreferences(context).getString("server_selection", DEFAULT_SERVER);
+    }
+    
+    public static void setServerSelection(final Context context, final String server)
+    {
+        getSharedPreferences(context).edit().putString("server_selection", server).apply();
+    }
+    
+    public static boolean isServerSelectionEnabled(final Context context)
+    {
+        return ConfigHelper.getDeveloperCode(context) != null; // TODO: use specific code?
+    }
+    
+    public static Set<String> getServers(final Context context)
+    {
+        return getSharedPreferences(context).getStringSet("servers", null);
+    }
+    
+    public static void setServers(final Context context, final Set<String> servers)
+    {
+        final Set<String> oldServers = getServers(context);
+        if (oldServers == null && servers == null)
+            return;
+        if (oldServers != null && servers != null
+                && servers.equals(oldServers))
+            return;
+        getSharedPreferences(context).edit().putStringSet("servers", servers).apply();
+    }
+    
+    public static void setDeveloperCode(final Context context, final String code)
+    {
+        getSharedPreferences(context).edit().putString("developer_code", code).apply();
     }
     
     public static String getPreviousTestStatus(final Context context)
@@ -285,6 +343,30 @@ public final class ConfigHelper
     public static String getCachedControlServerNameIpv6(Context context) {
     	return getSharedPreferences(context).getString("cache_control_ipv6", context.getString(R.string.default_control_host_ipv6_only));
     }
+    
+    public static void setCachedMapServerPort(final int port, Context context) {
+    	getSharedPreferences(context).edit().putString("cache_map_server_port", String.valueOf(port)).apply();
+    }
+
+    public static void setCachedMapServerSsl(final boolean isSsl, Context context) {
+    	getSharedPreferences(context).edit().putBoolean("cache_map_server_ssl", isSsl).apply();
+    }
+    
+    public static void setCachedMapServerName(final String url, Context context) {
+    	getSharedPreferences(context).edit().putString("cache_map_server", url).apply();
+    }
+    
+    public static int getCachedMapServerPort(Context context) {
+    	return getInt(context, "cache_map_server_port", R.integer.default_map_host_port);
+    }
+
+    public static boolean getCachedMapServerSsl(Context context) {
+    	return getSharedPreferences(context).getBoolean("cache_map_server_ssl", true);
+    }
+    
+    public static String getCachedMapServerName(Context context) {
+    	return getSharedPreferences(context).getString("cache_map_server", context.getString(R.string.default_map_host));
+    }
 
     public static String getControlServerName(final Context context)
     {
@@ -355,11 +437,7 @@ public final class ConfigHelper
             return pref.getString("dev_map_hostname", "develop");
         else
         {
-            final String host = mapHost.get();
-            if (host != null)
-                return host;
-            else
-                return getControlServerName(context);
+        	return getCachedMapServerName(context);
         }
     }
     
@@ -381,10 +459,7 @@ public final class ConfigHelper
         }
         else
         {
-            if (mapHost.get() != null)
-                return mapPort.get();
-            else
-                return getControlServerPort(context);
+        	return getCachedMapServerPort(context);
         }
     }
     
@@ -396,10 +471,7 @@ public final class ConfigHelper
             return pref.getBoolean("dev_map_ssl", true);
         else
         {
-            if (mapHost.get() != null)
-                return mapSSL.get();
-            else
-                return isControlSeverSSL(context);
+        	return getCachedMapServerSsl(context);
         }
     }
     
@@ -408,15 +480,11 @@ public final class ConfigHelper
         return getSharedPreferences(context).getString("tag", null);
     }
     
-    private static AtomicReference<String> mapHost = new AtomicReference<String>();
-    private static AtomicInteger mapPort = new AtomicInteger();
-    private static AtomicBoolean mapSSL = new AtomicBoolean();
-    
-    public static void setMapServer(final String host, final int port, final boolean ssl)
+    public static void setMapServer(final Context context, final String host, final int port, final boolean isSsl)
     {
-        mapHost.set(host);
-        mapPort.set(port);
-        mapSSL.set(ssl);
+    	setCachedMapServerName(host, context);
+    	setCachedMapServerPort(port, context);
+    	setCachedMapServerSsl(isSsl, context);
     }
     
     private static ConcurrentMap<String, String> volatileSettings = new ConcurrentHashMap<String, String>();
@@ -447,6 +515,76 @@ public final class ConfigHelper
     	return getSharedPreferences(context).getString("cache_help_url", null);
     }
 
+    /**
+     * 
+     * @param context
+     * @param qosNamesMap
+     */
+    public static void setCachedQoSNames(Map<String, String> qosNamesMap, Context context) {
+    	System.out.println("new qos names: " + qosNamesMap);
+    	final SharedPreferences prefs = context.getSharedPreferences("cache_qos_names", Context.MODE_PRIVATE);
+    	final SharedPreferences.Editor edit = prefs.edit();
+    	for (Entry<String, String> e : qosNamesMap.entrySet()) {
+    		edit.putString(e.getKey(), e.getValue());
+    	}
+    	edit.apply();
+    }
+    
+    /**
+     * 
+     * @param context
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+	public static Map<QoSTestResultEnum, String> getCachedQoSNames(Context context) {
+    	final Map<QoSTestResultEnum, String> namesMap = new HashMap<QoSTestResultEnum, String>();
+    	final SharedPreferences prefs = context.getSharedPreferences("cache_qos_names", Context.MODE_PRIVATE);
+    	final Map<String, ?> cacheMap = prefs.getAll();
+    	
+    	if (cacheMap != null && cacheMap.size() > 0) {
+    		Iterator<?> namesIterator = cacheMap.entrySet().iterator();
+    		while(namesIterator.hasNext()) {
+    			Entry<String, String> name = (Entry<String, String>) namesIterator.next();
+    			try {
+    				namesMap.put(QoSTestResultEnum.valueOf(name.getKey().toUpperCase(Locale.US)), name.getValue());
+    			}
+    			catch (IllegalArgumentException e) {
+    				//in case the qos type doesn't exist
+    				e.printStackTrace();
+    			}
+    		}
+    	}
+    	else {
+    		for (Entry<QoSTestResultEnum, Integer> e : QoSCategoryPagerAdapter.TITLE_MAP.entrySet()) {
+    			String name = context.getString(e.getValue());
+    			namesMap.put(e.getKey(), name);
+    		}
+    	}
+    	
+    	return namesMap;
+    }
+    
+    /**
+     * 
+     * @param testType
+     * @param context
+     * @return
+     */
+    public static String getCachedQoSNameByTestType(QoSTestResultEnum testType, Context context) {
+    	final SharedPreferences prefs = context.getSharedPreferences("cache_qos_names", Context.MODE_PRIVATE);
+    	String name = prefs.getString(testType.name(), null);
+    	if (name == null) {
+    		if (QoSCategoryPagerAdapter.TITLE_MAP.containsKey(testType)) {
+    			name = context.getString(QoSCategoryPagerAdapter.TITLE_MAP.get(testType));
+    		}
+    		else {
+    			name = testType.name();
+    		}
+    	}
+
+    	return name;
+    }
+    
     public static boolean isDevEnabled(final Context ctx)
     {
         return PackageManager.SIGNATURE_MATCH == ctx.getPackageManager().checkSignatures(ctx.getPackageName(), at.alladin.rmbt.android.util.Config.RMBT_DEV_UNLOCK_PACKAGE_NAME);

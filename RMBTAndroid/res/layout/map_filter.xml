@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright 2013-2014 alladin-IT GmbH
+  Copyright 2013-2015 alladin-IT GmbH
   
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -21,19 +21,21 @@
     android:layout_marginTop="10dp">
 
     <TextView
+        android:visibility="gone"
         android:id="@+id/mapFilterHeaderText"
         style="@style/blockHeader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/map_filter_header" />
 
-     <!--  <at.alladin.rmbt.android.map.SectionCheckListView -->
+	<!--  <at.alladin.rmbt.android.map.SectionCheckListView
+	        android:layout_alignParentBottom="true" -->
+	
    <ListView
         android:id="@+id/valueList"
         style="@style/listViewDefault"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
         android:layout_below="@+id/mapFilterHeaderText"
         android:layout_marginBottom="10dp"
         android:layout_marginLeft="10dp"

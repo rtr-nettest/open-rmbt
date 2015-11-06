@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,29 +21,26 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import javax.imageio.ImageIO;
 
-import org.restlet.Request;
-import org.restlet.Response;
 import org.restlet.data.Form;
-import org.restlet.data.MediaType;
-import org.restlet.representation.OutputRepresentation;
-import org.restlet.representation.Representation;
 
 import at.alladin.rmbt.mapServer.MapServerOptions.MapOption;
 import at.alladin.rmbt.mapServer.MapServerOptions.SQLFilter;
+import at.alladin.rmbt.mapServer.parameters.PointTileParameters;
+import at.alladin.rmbt.mapServer.parameters.TileParameters.Path;
 
-public class PointTiles extends TileRestlet
+public class PointTiles extends TileRestlet<PointTileParameters>
 {
     static class Dot
     {
@@ -62,101 +59,76 @@ public class PointTiles extends TileRestlet
     }
     
     @Override
-    protected void handle(final Request req, final Response res, final Form params,  final int tileSizeIdx,
+    protected PointTileParameters getTileParameters(Path path, Form params)
+    {
+        return new PointTileParameters(path, params);
+    }
+
+    @Override
+    protected byte[] generateTile(PointTileParameters params, final int tileSizeIdx,
             final int zoom, final DBox box,
             final MapOption mo, final List<SQLFilter> filters, final float quantile)
     {
+        
+        final UUID highlightUUID;
+        final byte[] baseTile;
+        
+        if (params.getGenericParameters() != null)
+        {
+            // recursive call to get generic tile w/o highlight probably from cache
+            
+            final PointTileParameters genericParams = params.getGenericParameters();
+            baseTile = getTile(genericParams);
+            
+            highlightUUID = params.getHighlight();
+        }
+        else
+        {
+            highlightUUID = null;
+            baseTile = null;
+        }
+        
+        
         filters.add(MapServerOptions.getAccuracyMapFilter());
         
-        final String diameterString = params.getFirstValue("point_diameter");
-        double _diameter = 5.0;
-        if (diameterString != null)
-            try
-            {
-                _diameter = Double.parseDouble(diameterString);
-            }
-            catch (final NumberFormatException e)
-            {
-            }
+        final StringBuilder whereSQL = new StringBuilder(mo.sqlFilter);
+        for (final SQLFilter sf : filters)
+            whereSQL.append(" AND ").append(sf.where);
         
-        final String transparencyString = params.getFirstValue("transparency");
-        double _transparency = 0.6;
-        if (transparencyString != null)
-            try
-            {
-                _transparency = Double.parseDouble(transparencyString);
-            }
-            catch (final NumberFormatException e)
-            {
-            }
-        if (_transparency < 0)
-            _transparency = 0;
-        if (_transparency > 1)
-            _transparency = 1;
+        final String sql = String.format("SELECT ST_X(t.location) x, ST_Y(t.location) y, \"%s\" val"
+                + " FROM v_test t"
+                + (highlightUUID == null ? "" : " JOIN client c ON (t.client_id=c.uid AND c.uuid=?)")
+                + " WHERE "
+                + " %s"
+                + " AND location && ST_SetSRID(ST_MakeBox2D(ST_Point(?,?), ST_Point(?,?)), 900913)"
+                + " ORDER BY"
+                + " t.uid", mo.valueColumn, whereSQL);
         
-        final String noFillString = params.getFirstValue("no_fill");
-        boolean _noFill = false;
-        if (noFillString != null)
-            _noFill = Boolean.parseBoolean(noFillString);
-        
-        final String noColorString = params.getFirstValue("no_color");
-        boolean _noColor = false;
-        if (noColorString != null)
-            _noColor = Boolean.parseBoolean(noColorString);
-        
-        final String hightlightUUIDString = params.getFirstValue("highlight");
-        UUID hightlightUUID = null;
-        if (hightlightUUIDString != null)
-            try
-            {
-                hightlightUUID = UUID.fromString(hightlightUUIDString);
-            }
-            catch (final Exception e)
-            {
-            }
-        
-        final double diameter = _diameter;
+        final double diameter = params.getPointDiameter();
         final double radius = diameter / 2d;
-        final double triangleSide = diameter * 1.5;
+        final double triangleSide = diameter * 1.75;
         final double triangleHeight = Math.sqrt(3) / 2d * triangleSide;
-        final int transparency = (int) Math.round(_transparency * 255);
-        final boolean noFill = _noFill;
-        final boolean noColor = _noColor;
+        final int transparency = (int) Math.round(params.getTransparency() * 255);
+        final boolean noFill = params.isNoFill();
+        final boolean noColor = params.isNoColor();
         
         final Color borderColor = new Color(0, 0, 0, transparency);
         final Color highlightBorderColor = new Color(0, 0, 0, transparency);
+        final Color colorUltraGreen = new Color(0, 153, 0, transparency);
         final Color colorGreen = new Color(0, 255, 0, transparency);
         final Color colorYellow = new Color(255, 255, 0, transparency);
         final Color colorRed = new Color(255, 0, 0, transparency);
         final Color colorGray = new Color(128, 128, 128, transparency);
         
-        Connection con = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        try
+        final List<Dot> dots = new ArrayList<>();
+        
+        try (Connection con = DbConnection.getConnection();
+            PreparedStatement ps = con.prepareStatement(sql))
         {
-            final List<Dot> dots = new ArrayList<Dot>();
-            
-            final StringBuilder whereSQL = new StringBuilder(mo.sqlFilter);
-            for (final SQLFilter sf : filters)
-                whereSQL.append(" AND ").append(sf.where);
-            
-            con = DbConnection.getConnection();
-            final String sql = String.format("SELECT ST_X(t.location) x, ST_Y(t.location) y, \"%s\" val"
-                    + (hightlightUUID == null ? "" : " , c.uid") + " FROM test t"
-                    + (hightlightUUID == null ? "" : " LEFT JOIN client c ON (t.client_id=c.uid AND c.uuid=?)")
-                    + " WHERE "
-                    + " %s"
-                    + " AND location && ST_SetSRID(ST_MakeBox2D(ST_Point(?,?), ST_Point(?,?)), 900913)"
-                    + " ORDER BY"
-                    + (hightlightUUID == null ? "" : " c.uid DESC, ") + " t.uid", mo.valueColumn, whereSQL);
-            
-            ps = con.prepareStatement(sql);
-            
             int i = 1;
             
-            if (hightlightUUID != null)
-                ps.setObject(i++, hightlightUUID);
+            if (highlightUUID != null)
+                ps.setObject(i++, highlightUUID);
             
             for (final SQLFilter sf : filters)
                 i = sf.fillParams(i, ps);
@@ -170,132 +142,112 @@ public class PointTiles extends TileRestlet
 //            System.out.println(ps);
             
             if (!ps.execute())
-                return;
+                throw new IllegalArgumentException(ps.getWarnings());
             
-            rs = ps.getResultSet();
-            boolean _emptyTile = true;
-            while (rs.next())
+            try (ResultSet rs = ps.getResultSet())
             {
-                _emptyTile = false;
-                
-                final double cx = rs.getDouble(1);
-                final double cy = rs.getDouble(2);
-                final long value = rs.getLong(3);
-                
-                final boolean highlight;
-                if (hightlightUUID != null)
+                boolean _emptyTile = true;
+                while (rs.next())
                 {
-                    final Object clientUUID = rs.getObject(4);
-                    highlight = clientUUID != null;
-                }
-                else
-                    highlight = false;
-                
-                final int classification = noColor || noFill ? 0 : mo.getClassification(value);
-                
-                final Color color;
-                switch (classification)
-                {
-                case 3:
-                    color = colorGreen;
-                    break;
-                case 2:
-                    color = colorYellow;
-                    break;
-                case 1:
-                    color = colorRed;
-                    break;
-                default:
-                    color = colorGray;
-                    break;
-                }
-                
-                dots.add(new Dot(cx, cy, color, highlight));
-            }
-            
-            final boolean emptyTile = _emptyTile;
-            
-            final Representation output = new OutputRepresentation(MediaType.IMAGE_PNG)
-            {
-                @Override
-                public void write(final OutputStream s) throws IOException
-                {
-                    if (emptyTile)
+                    _emptyTile = false;
+                    
+                    final double cx = rs.getDouble(1);
+                    final double cy = rs.getDouble(2);
+                    final long value = rs.getLong(3);
+                    
+                    final boolean highlight = highlightUUID != null;
+                    
+                    final int classification = noColor || noFill ? 0 : mo.getClassification(value);
+                    
+                    final Color color;
+                    switch (classification)
                     {
-                        s.write(EMPTY_IMAGES[tileSizeIdx]);
-                        return;
+                    case 4:
+                        color = colorUltraGreen;
+                        break;               
+                    case 3:
+                        color = colorGreen;
+                        break;
+                    case 2:
+                        color = colorYellow;
+                        break;
+                    case 1:
+                        color = colorRed;
+                        break;
+                    default:
+                        color = colorGray;
+                        break;
                     }
                     
-                    final Image img = images[tileSizeIdx].get();
-                    final Graphics2D g = img.g;
-                    
-                    g.setBackground(new Color(0, 0, 0, 0));
-                    g.clearRect(0, 0, img.width, img.height);
-                    g.setComposite(AlphaComposite.Src);
-                    g.setStroke((new BasicStroke(((float) diameter / 8f))));
-                    
-                    final Path2D.Double triangle = new Path2D.Double();
-                    final Ellipse2D.Double shape = new Ellipse2D.Double(0, 0, diameter, diameter);
-                    
-                    for (final Dot dot : dots)
-                    {
-                        final double relX = (dot.x - box.x1) / box.res;
-                        final double relY = TILE_SIZES[tileSizeIdx] - (dot.y - box.y1) / box.res;
+                    dots.add(new Dot(cx, cy, color, highlight));
+                }
+                
+                if (_emptyTile)
+                    return baseTile;
                         
-                        if (dot.highlight)
-                        {
-                            triangle.reset();
-                            triangle.moveTo(relX, relY - triangleHeight / 3 * 2);
-                            triangle.lineTo(relX - triangleSide / 2, relY + triangleHeight / 3);
-                            triangle.lineTo(relX + triangleSide / 2, relY + triangleHeight / 3);
-                            triangle.closePath();
-                            if (!noFill)
-                            {
-                                g.setPaint(dot.color);
-                                g.fill(triangle);
-                            }
-                            g.setPaint(highlightBorderColor);
-                            g.draw(triangle);
-                        }
-                        else
-                        {
-                            shape.x = relX - radius;
-                            shape.y = relY - radius;
-                            if (!noFill)
-                            {
-                                g.setPaint(dot.color);
-                                g.fill(shape);
-                            }
-                            g.setPaint(borderColor);
-                            g.draw(shape);
-                        }
-                    }
-                    
-                    ImageIO.write(img.bi, "png", s);
+                final Image img = images[tileSizeIdx].get();
+                final Graphics2D g = img.g;
+                
+                g.setBackground(new Color(0, 0, 0, 0));
+                g.clearRect(0, 0, img.width, img.height);
+                
+                if (baseTile != null)
+                {
+                    final ByteArrayInputStream bais = new ByteArrayInputStream(baseTile);
+                    final BufferedImage image = ImageIO.read(bais);
+                    g.drawImage(image, 0, 0, null);
                 }
-            };
-            res.setEntity(output);
-            
+                
+                g.setComposite(AlphaComposite.Src);
+                g.setStroke((new BasicStroke(((float) diameter / 8f))));
+                
+                final Path2D.Double triangle = new Path2D.Double();
+                final Ellipse2D.Double shape = new Ellipse2D.Double(0, 0, diameter, diameter);
+                
+                for (final Dot dot : dots)
+                {
+                    final double relX = (dot.x - box.x1) / box.res;
+                    final double relY = TILE_SIZES[tileSizeIdx] - (dot.y - box.y1) / box.res;
+                    
+                    if (dot.highlight) // triangle
+                    {
+                        triangle.reset();
+                        triangle.moveTo(relX, relY - triangleHeight / 3 * 2);
+                        triangle.lineTo(relX - triangleSide / 2, relY + triangleHeight / 3);
+                        triangle.lineTo(relX + triangleSide / 2, relY + triangleHeight / 3);
+                        triangle.closePath();
+                        if (!noFill)
+                        {
+                            g.setPaint(dot.color);
+                            g.fill(triangle);
+                        }
+                        g.setPaint(highlightBorderColor);
+                        g.draw(triangle);
+                    }
+                    else // circle
+                    {
+                        shape.x = relX - radius;
+                        shape.y = relY - radius;
+                        if (!noFill)
+                        {
+                            g.setPaint(dot.color);
+                            g.fill(shape);
+                        }
+                        g.setPaint(borderColor);
+                        g.draw(shape);
+                    }
+                }
+                
+                final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                ImageIO.write(img.bi, "png", baos);
+                final byte[] data = baos.toByteArray();
+                return data;
+            }
         }
         catch (final Exception e)
         {
             e.printStackTrace();
-        }
-        finally
-        {
-            try
-            {
-                if (rs != null)
-                    rs.close();
-                if (ps != null)
-                    ps.close();
-                if (con != null)
-                    con.close();
-            }
-            catch (final SQLException e)
-            {
-                e.printStackTrace();
-            }
+            throw new IllegalStateException(e);
         }
     }
 }

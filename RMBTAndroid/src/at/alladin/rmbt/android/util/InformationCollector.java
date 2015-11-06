@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,11 +26,13 @@ import java.util.Properties;
 import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.Fragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -50,11 +52,23 @@ import android.telephony.SignalStrength;
 import android.telephony.TelephonyManager;
 import android.telephony.gsm.GsmCellLocation;
 import android.util.Log;
+import at.alladin.rmbt.android.main.RMBTMainActivity;
+import at.alladin.rmbt.android.main.RMBTMainMenuFragment;
 import at.alladin.rmbt.client.helper.RevisionHelper;
 import at.alladin.rmbt.client.v2.task.result.QoSResultCollector;
 
 public class InformationCollector
 {
+	/**
+	 * set to true if location information should be included to server request
+	 */
+	public final static boolean BASIC_INFORMATION_INCLUDE_LOCATION = true;
+	
+	/**
+	 * set to true if last signal information should be included to server request
+	 */
+	public final static boolean BASIC_INFORMATION_INCLUDE_LAST_SIGNAL_ITEM = true;
+	
     private static final int UNKNOWN = Integer.MIN_VALUE;
     
     private static final String PLATTFORM_NAME = "Android";
@@ -99,6 +113,9 @@ public class InformationCollector
     private Context context = null;
     private boolean collectInformation;
     private boolean registerNetworkReiceiver;
+    private boolean enableGeoLocation;
+    
+    private DualSimDetector dualSimDetector;
     
     private final List<GeoLocationItem> geoLocations = new ArrayList<GeoLocationItem>();
     private final List<CellLocationItem> cellLocations = new ArrayList<CellLocationItem>();
@@ -108,18 +125,24 @@ public class InformationCollector
     private final AtomicInteger signalType = new AtomicInteger(SINGAL_TYPE_NO_SIGNAL);
     private final AtomicInteger signalRsrq = new AtomicInteger(UNKNOWN);
     
+    private final AtomicReference<SignalItem> lastSignalItem = new AtomicReference<InformationCollector.SignalItem>();
     private final AtomicInteger lastNetworkType = new AtomicInteger(TelephonyManager.NETWORK_TYPE_UNKNOWN);
     private final AtomicBoolean illegalNetworkTypeChangeDetcted = new AtomicBoolean(false);
     
     public static QoSResultCollector qoSResult;
     
-    public InformationCollector(final Context context, final boolean collectInformation, final boolean registerNetworkReceiver)
+    public InformationCollector(final Context context, final boolean collectInformation, final boolean registerNetworkReceiver) {
+    	this(context, collectInformation, registerNetworkReceiver, true);
+    }
+    
+    public InformationCollector(final Context context, final boolean collectInformation, final boolean registerNetworkReceiver, final boolean enableGeoLocation)
     {
         // create and load default properties
         
         this.context = context;
         this.collectInformation = collectInformation;
         this.registerNetworkReiceiver = registerNetworkReceiver;
+        this.enableGeoLocation = enableGeoLocation;
         
         init();
         
@@ -201,9 +224,9 @@ public class InformationCollector
     
     public void reset()
     {
-        
         testServerName = "";
        	lastLocation = null;
+       	dualSimDetector = null;
         
         lastNetworkType.set(TelephonyManager.NETWORK_TYPE_UNKNOWN);
         illegalNetworkTypeChangeDetcted.set(false);
@@ -367,10 +390,67 @@ public class InformationCollector
             object.put("softwareVersionName", pInfo.versionName);
         }
         object.put("type", at.alladin.rmbt.android.util.Config.RMBT_CLIENT_TYPE);
+        
+        addDeveloperCode(object, ctx);
+        
+        if (BASIC_INFORMATION_INCLUDE_LOCATION) {
+	        Location loc = GeoLocation.getLastKnownLocation(ctx);
+	        if (loc != null) {
+	        JSONObject locationJson = new JSONObject();
+		        locationJson.put("lat", loc.getLatitude());
+		        locationJson.put("long", loc.getLongitude());
+		        locationJson.put("provider", loc.getProvider());
+		        if (loc.hasSpeed())
+		        	locationJson.put("speed", loc.getSpeed());
+		        if (loc.hasAltitude())
+		        	locationJson.put("altitude", loc.getAltitude());
+		        locationJson.put("age", System.currentTimeMillis() - loc.getTime()); //getElapsedRealtimeNanos() would be better, but require higher API-level
+		        if (loc.hasAccuracy())
+		        	locationJson.put("accuracy", loc.getAccuracy());
+		        if (loc.hasSpeed())
+		        	locationJson.put("speed", loc.getSpeed());
+		        /*
+		         *  would require API level 18
+		        if (loc.isFromMockProvider())
+		        	locationJson.put("mock",loc.isFromMockProvider());
+		        */
+		        object.put("location", locationJson);
+	        }
+        }
+        
+        InformationCollector infoCollector = null;
+        
+        if (ctx instanceof RMBTMainActivity) {
+        	Fragment curFragment = ((RMBTMainActivity) ctx).getCurrentFragment();
+            if (curFragment != null) {
+	        	if (curFragment instanceof RMBTMainMenuFragment) {
+	        		infoCollector = ((RMBTMainMenuFragment) curFragment).getInformationCollector();
+	        	}
+            }
+        }
+
+        if (BASIC_INFORMATION_INCLUDE_LAST_SIGNAL_ITEM && (infoCollector != null)) {
+        	SignalItem signalItem = infoCollector.getLastSignalItem();
+        	if (signalItem != null) {
+        		object.put("last_signal_item", signalItem.toJson());
+        	}
+        	else {
+        		object.put("last_signal_item", JSONObject.NULL);
+        	}
+        }
+
         return object;
     }
-    
-    public JSONObject getInitialInfo()
+
+    private static void addDeveloperCode(JSONObject object, Context ctx) throws JSONException
+    {
+        final String code = ConfigHelper.getDeveloperCode(ctx);
+        if (code != null && ! code.isEmpty())
+            object.put("developer_code", code);
+    }
+
+
+	public JSONObject getInitialInfo()
     {
         try
         {
@@ -382,6 +462,14 @@ public class InformationCollector
             result.put("testCounter", ConfigHelper.incAndGetNextTestCounter(context));
             result.put("previousTestStatus", ConfigHelper.getPreviousTestStatus(context));
             ConfigHelper.setPreviousTestStatus(context, null);
+            
+            if (ConfigHelper.isServerSelectionEnabled(context))
+            {
+                final String serverSelection = ConfigHelper.getServerSelection(context);
+                if (serverSelection != null && ! serverSelection.equals(ConfigHelper.DEFAULT_SERVER))
+                    result.put("prefer_server", serverSelection);
+            }
+            
             return result;
         }
         catch (final JSONException e)
@@ -418,17 +506,18 @@ public class InformationCollector
             {
                 
                 final int rssi = wifiInfo.getRssi();
-                if (rssi >= ACCEPT_WIFI_RSSI_MIN)
+                if (rssi != -1 && rssi >= ACCEPT_WIFI_RSSI_MIN)
                 {
                     int linkSpeed = wifiInfo.getLinkSpeed();
                     if (linkSpeed < 0) {
                         linkSpeed = 0;
                     }
                     
+                    final SignalItem signalItem = SignalItem.getWifiSignalItem(linkSpeed, rssi);
                     if (this.collectInformation) {
-                        signals.add(SignalItem.getWifiSignalItem(linkSpeed, rssi));	
+                        signals.add(signalItem);	
                     }
-                    
+                    lastSignalItem.set(signalItem);
                     signal.set(rssi);
                     signalType.set(SINGAL_TYPE_WLAN);
 //                    Log.i(DEBUG_TAG, "Signals1: " + signals.toString());
@@ -442,8 +531,17 @@ public class InformationCollector
         initNetwork();
         if (telManager != null)
         {
-            // Get Cell Location
-            CellLocation.requestLocationUpdate();
+            try
+            {
+                // Get Cell Location
+                CellLocation.requestLocationUpdate();
+            }
+            catch (Exception e)
+            {
+                // some devices with Android 5.1 seem to throw a NPE is some cases
+                e.printStackTrace();
+            }
+            
             final CellLocation cellLocation = telManager.getCellLocation();
             if (cellLocation != null && (cellLocation instanceof GsmCellLocation))
             {
@@ -476,7 +574,27 @@ public class InformationCollector
             }
             
             fullInfo.setProperty("TELEPHONY_PHONE_TYPE", String.valueOf(telManager.getPhoneType()));
-            fullInfo.setProperty("TELEPHONY_DATA_STATE", String.valueOf(telManager.getDataState()));
+            
+            try // some devices won't allow this w/o READ_PHONE_STATE. conflicts with Android API doc
+            {
+                fullInfo.setProperty("TELEPHONY_DATA_STATE", String.valueOf(telManager.getDataState()));
+            }
+            catch (SecurityException e)
+            {
+                e.printStackTrace();
+                fullInfo.setProperty("TELEPHONY_DATA_STATE", "s.exception");
+            }
+            
+            try
+            {
+                if (dualSimDetector == null)
+                    dualSimDetector = new DualSimDetector(context);
+                boolean isDualSIM = dualSimDetector.isDualSIM();
+                fullInfo.setProperty("DUAL_SIM", String.valueOf(isDualSIM));
+            }
+            catch (Exception e) // never fail b/c of dual sim detection
+            {
+            }
             
             // telManager.listen(telListener,
             // PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
@@ -485,26 +603,31 @@ public class InformationCollector
     
     public Location getLocationInfo()
     {
-        
-        if (locationManager == null)
-        {
-            // init location Manager
-            locationManager = new InfoGeoLocation(context);
-            locationManager.start();
+        if (enableGeoLocation) {
+	        if (locationManager == null)
+	        {
+	            // init location Manager
+	            locationManager = new InfoGeoLocation(context);
+	            locationManager.start();
+	        }
+	        final Location curLocation = locationManager.getLastKnownLocation();
+	        
+	        if (curLocation != null && this.collectInformation)
+	        {
+	            geoLocations.add(new GeoLocationItem(curLocation.getTime(), curLocation.getLatitude(), curLocation
+	                    .getLongitude(), curLocation.getAccuracy(), curLocation.getAltitude(), curLocation.getBearing(),
+	                    curLocation.getSpeed(), curLocation.getProvider()));
+	            Log.i(DEBUG_TAG, "Location: " + curLocation.toString());
+	        }
+	        
+	        return curLocation;
         }
-        final Location curLocation = locationManager.getLastKnownLocation();
-        
-        if (curLocation != null && this.collectInformation)
-        {
-            geoLocations.add(new GeoLocationItem(curLocation.getTime(), curLocation.getLatitude(), curLocation
-                    .getLongitude(), curLocation.getAccuracy(), curLocation.getAltitude(), curLocation.getBearing(),
-                    curLocation.getSpeed(), curLocation.getProvider()));
-            Log.i(DEBUG_TAG, "Location: " + curLocation.toString());
+        else {
+        	return null;
         }
-        
-        return curLocation;
         
     }
+
     
     // public boolean setInfo(String key, String value) {
     // if (fullInfo.containsKey(key)) {
@@ -672,30 +795,9 @@ public class InformationCollector
             {
                 final SignalItem tmpItem = signals.get(i);
                 
-                final JSONObject jsonItem = new JSONObject();
-                
-                jsonItem.put("time", tmpItem.tstamp); //add for backward compatibility
-                jsonItem.put("time_ns", tmpItem.tstampNano - startTimestampNs);
-                jsonItem.put("network_type_id", tmpItem.networkId);
-                if (tmpItem.signalStrength != UNKNOWN)
-                    jsonItem.put("signal_strength", tmpItem.signalStrength);
-                if (tmpItem.gsmBitErrorRate != UNKNOWN)
-                    jsonItem.put("gsm_bit_error_rate", tmpItem.gsmBitErrorRate);
-                if (tmpItem.wifiLinkSpeed != UNKNOWN)
-                    jsonItem.put("wifi_link_speed", tmpItem.wifiLinkSpeed);
-                if (tmpItem.wifiRssi != UNKNOWN)
-                    jsonItem.put("wifi_rssi", tmpItem.wifiRssi);
-                if (tmpItem.lteRsrp != UNKNOWN)
-                    jsonItem.put("lte_rsrp", tmpItem.lteRsrp);
-                if (tmpItem.lteRsrq != UNKNOWN)
-                    jsonItem.put("lte_rsrq", tmpItem.lteRsrq);
-                if (tmpItem.lteRssnr != UNKNOWN)
-                    jsonItem.put("lte_rssnr", tmpItem.lteRssnr);
-                if (tmpItem.lteCqi != UNKNOWN)
-                    jsonItem.put("lte_cqi", tmpItem.lteCqi);
-                
+                final JSONObject jsonItem = tmpItem.toJson();
+                jsonItem.put("time_ns", tmpItem.tstampNano - startTimestampNs);                
                 itemList.put(jsonItem);
-                //System.out.println(itemList);
             }
             
             result.put("signals", itemList);
@@ -704,6 +806,8 @@ public class InformationCollector
         final String tag = ConfigHelper.getTag(context);
         if (tag != null && ! tag.isEmpty())
             result.put("tag", tag);
+        
+        addDeveloperCode(result, context);
         
         return result;
     }
@@ -782,9 +886,9 @@ public class InformationCollector
         if (result != TelephonyManager.NETWORK_TYPE_UNKNOWN && lastNetworkType != TelephonyManager.NETWORK_TYPE_UNKNOWN)
         {
             if (
-                (result == ConnectivityManager.TYPE_WIFI && lastNetworkType != ConnectivityManager.TYPE_WIFI)
+                (result == NETWORK_WIFI && lastNetworkType != NETWORK_WIFI)
                     ||
-                (result != ConnectivityManager.TYPE_WIFI && lastNetworkType == ConnectivityManager.TYPE_WIFI)
+                (result != NETWORK_WIFI && lastNetworkType == NETWORK_WIFI)
                 )
                 illegalNetworkTypeChangeDetcted.set(true);
         }
@@ -835,7 +939,6 @@ public class InformationCollector
         
         if (telListener == null)
         {
-            
             telListener = new TelephonyStateListener();
             
             telManager.listen(telListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS
@@ -897,6 +1000,10 @@ public class InformationCollector
         return signalType.get();
     }
     
+    public SignalItem getLastSignalItem() {
+    	return lastSignalItem.get();
+    }
+    
     public void setTestServerName(final String serverName)
     {
         testServerName = serverName;
@@ -925,11 +1032,13 @@ public class InformationCollector
                 {
                     final WifiInfo wifiInfo = wifiManager.getConnectionInfo();
                     final int rssi = wifiInfo.getRssi();
-                    if (rssi >= ACCEPT_WIFI_RSSI_MIN)
+                    if (rssi != -1 && rssi >= ACCEPT_WIFI_RSSI_MIN)
                     {
+                    	final SignalItem signalItem = SignalItem.getWifiSignalItem(wifiInfo.getLinkSpeed(), rssi);
                     	if (InformationCollector.this.collectInformation) {
-                            signals.add(SignalItem.getWifiSignalItem(wifiInfo.getLinkSpeed(), rssi));	
+                            signals.add(signalItem);	
                     	}
+                    	lastSignalItem.set(signalItem);
                         signal.set(rssi);
                         signalType.set(SINGAL_TYPE_WLAN);
                     }
@@ -939,7 +1048,7 @@ public class InformationCollector
         }
     }
     
-    private class TelephonyStateListener extends PhoneStateListener
+    public class TelephonyStateListener extends PhoneStateListener
     {
         @Override
         public void onSignalStrengthsChanged(final SignalStrength signalStrength)
@@ -1038,9 +1147,19 @@ public class InformationCollector
                     
                     signalRsrq.set(lteRsrq);
                 }
-                if (InformationCollector.this.collectInformation) {
-                    signals.add(SignalItem.getCellSignalItem(network, strength, errorRate, lteRsrp, lteRsrq, lteRsssnr, lteCqi));	
+                
+                final SignalItem lastSignal = lastSignalItem.get();
+                if (strength == UNKNOWN && lastSignal != null && lastSignal.networkId != NETWORK_WIFI 
+                		&& lastSignal.signalStrength != strength && lastSignal.signalStrength != UNKNOWN) {
+                	strength = lastSignal.signalStrength;
                 }
+                
+                final SignalItem signalItem = SignalItem.getCellSignalItem(network, strength, errorRate, lteRsrp, lteRsrq, lteRsssnr, lteCqi);
+                if (InformationCollector.this.collectInformation) {
+                    signals.add(signalItem);	
+                }
+                                
+                lastSignalItem.set(signalItem);
             }
         }
         
@@ -1208,7 +1327,7 @@ public class InformationCollector
             tstamp = System.currentTimeMillis();
             tstampNano = System.nanoTime();
             this.networkId = networkId;
-            this.signalStrength = signalStrength;
+           	this.signalStrength = signalStrength;
             this.gsmBitErrorRate = gsmBitErrorRate;
             this.wifiLinkSpeed = wifiLinkSpeed;
             this.wifiRssi = wifiRssi;
@@ -1218,5 +1337,48 @@ public class InformationCollector
             this.lteCqi = lteCqi;
         }
         
+        public JSONObject toJson() throws JSONException {
+            final JSONObject jsonItem = new JSONObject();
+            
+            jsonItem.put("time", tstamp); //add for backward compatibility
+            jsonItem.put("network_type_id", networkId);
+            if (signalStrength != UNKNOWN) {
+                jsonItem.put("signal_strength", signalStrength);
+            }
+            if (gsmBitErrorRate != UNKNOWN) {
+                jsonItem.put("gsm_bit_error_rate", gsmBitErrorRate);
+            }
+            if (wifiLinkSpeed != UNKNOWN) {
+                jsonItem.put("wifi_link_speed", wifiLinkSpeed);
+            }
+            if (wifiRssi != UNKNOWN) {
+                jsonItem.put("wifi_rssi", wifiRssi);
+            }
+            if (lteRsrp != UNKNOWN) {
+                jsonItem.put("lte_rsrp", lteRsrp);
+            }
+            if (lteRsrq != UNKNOWN) {
+                jsonItem.put("lte_rsrq", lteRsrq);
+            }
+            if (lteRssnr != UNKNOWN) {
+                jsonItem.put("lte_rssnr", lteRssnr);
+            }
+            if (lteCqi != UNKNOWN) {
+                jsonItem.put("lte_cqi", lteCqi);
+            }
+            
+            return jsonItem;
+        }
+
+		@Override
+		public String toString() {
+			return "SignalItem [tstamp=" + tstamp + ", networkId=" + networkId
+					+ ", signalStrength=" + signalStrength
+					+ ", gsmBitErrorRate=" + gsmBitErrorRate
+					+ ", wifiLinkSpeed=" + wifiLinkSpeed + ", wifiRssi="
+					+ wifiRssi + ", lteRsrp=" + lteRsrp + ", lteRsrq="
+					+ lteRsrq + ", lteRssnr=" + lteRssnr + ", lteCqi=" + lteCqi
+					+ ", tstampNano=" + tstampNano + "]";
+		}        
     }
 }

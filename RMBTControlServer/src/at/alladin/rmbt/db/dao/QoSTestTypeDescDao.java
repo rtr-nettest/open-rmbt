@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -168,7 +168,12 @@ public class QoSTestTypeDescDao implements PrimaryKeyDao<QoSTestTypeDesc, Long> 
 		result.setUid(rs.getLong("uid"));
 		result.setDescription(rs.getString("value"));
 		result.setName(rs.getString("value_name"));
-		result.setTestType(TestType.valueOf(rs.getString("test").toUpperCase()));
+		try {
+			result.setTestType(TestType.valueOf(rs.getString("test").toUpperCase()));
+		}
+		catch (Exception e) {
+			result.setTestType(null);
+		}
 		
 		return result;
 	}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,6 @@ import at.alladin.rmbt.db.QoSTestResult;
 import at.alladin.rmbt.db.QoSTestResult.TestType;
 import at.alladin.rmbt.db.QoSTestTypeDesc;
 import at.alladin.rmbt.db.Test;
-import at.alladin.rmbt.db.Test_Server;
 import at.alladin.rmbt.db.dao.QoSTestDescDao;
 import at.alladin.rmbt.db.dao.QoSTestResultDao;
 import at.alladin.rmbt.db.dao.QoSTestTypeDescDao;
@@ -121,7 +120,6 @@ public class QoSUtil {
         {
         	
             final Client client = new Client(conn);
-            final Test_Server server = new Test_Server(conn);
             final Test test = new Test(conn);
             
             boolean necessaryDataAvailable = false;
@@ -130,14 +128,12 @@ public class QoSUtil {
             	switch (uuid.getType()) {
             	case OPEN_TEST_UUID:
             		if (test.getTestByOpenTestUuid(UUID.fromString(uuid.getUuid())) > 0
-            				&& server.getServerByUid(test.getField("server_id").intValue())
             				&& client.getClientByUid(test.getField("client_id").intValue())) {
             			necessaryDataAvailable = true;
             		}
             		break;
             	case TEST_UUID:
             		if (test.getTestByUuid(UUID.fromString(uuid.getUuid())) > 0
-            				&& server.getServerByUid(test.getField("server_id").intValue())
             				&& client.getClientByUid(test.getField("client_id").intValue())) {
             			necessaryDataAvailable = true;
             		}
@@ -166,14 +162,28 @@ public class QoSUtil {
             	Set<String> testSummarySet = new TreeSet<>();
             	
                 //iterate through all result entries
-                for (QoSTestResult testResult : testResultList) {
+                for (final QoSTestResult testResult : testResultList) {
                 	
                 	//reset test counters
                 	testResult.setFailureCounter(0);
                 	testResult.setSuccessCounter(0);
                 	
                 	//get the correct class of the result;
-                	TestType testType = TestType.valueOf(testResult.getTestType().toUpperCase());
+                	TestType testType = null;
+                	try {
+                		testType = TestType.valueOf(testResult.getTestType().toUpperCase(Locale.US));
+                	}
+                	catch(IllegalArgumentException e) {
+                		final String errorMessage = "WARNING: QoS TestType '" + testResult.getTestType().toUpperCase(Locale.US) + "' not supported by ControlServer. Test with UID: " + testResult.getUid() + " skipped.";
+                		System.out.println(errorMessage);
+                		errorList.addErrorString(errorMessage);
+                		testType = null;
+                	}
+                	
+                	if (testType == null) {
+                		continue;
+                	}
+                	
                 	Class<? extends AbstractResult<?>> clazz = testType.getClazz();
                 	//parse hstore data
                 	AbstractResult<?> result = QoSUtil.HSTORE_PARSER.fromJSON(new JSONObject(testResult.getResults()), clazz);
@@ -298,14 +308,17 @@ public class QoSUtil {
                     }
                     
                 }
-                System.out.println(resultDescArray);
+                //System.out.println(resultDescArray);
                 //put result descriptions to json
                 answer.put("testresultdetail_desc", resultDescArray);
 
                 QoSTestTypeDescDao testTypeDao = new QoSTestTypeDescDao(conn, locale);
                 JSONArray testTypeDescArray = new JSONArray();
                 for (QoSTestTypeDesc desc : testTypeDao.getAll()) {
-                	testTypeDescArray.put(desc.toJson());
+                	final JSONObject testTypeDesc = desc.toJson();
+                	if (testTypeDesc != null) {
+                		testTypeDescArray.put(testTypeDesc);
+                	}
                 }
 
                 //put result descriptions to json

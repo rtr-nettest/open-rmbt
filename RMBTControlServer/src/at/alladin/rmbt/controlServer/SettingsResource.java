@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,12 +29,12 @@ import java.util.UUID;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.restlet.data.Parameter;
 import org.restlet.resource.Get;
 import org.restlet.resource.Post;
-import org.restlet.util.Series;
 
 import at.alladin.rmbt.db.Client;
+import at.alladin.rmbt.db.QoSTestTypeDesc;
+import at.alladin.rmbt.db.dao.QoSTestTypeDescDao;
 import at.alladin.rmbt.shared.Helperfunctions;
 import at.alladin.rmbt.shared.ResourceManager;
 import at.alladin.rmbt.shared.RevisionHelper;
@@ -51,7 +51,7 @@ public class SettingsResource extends ServerResource
      */
     @Post("json")
     public String request(final String entity)
-    {
+    {   long startTime = System.currentTimeMillis();
         addAllowOrigin();
         
         JSONObject request = null;
@@ -60,7 +60,8 @@ public class SettingsResource extends ServerResource
         final JSONObject answer = new JSONObject();
         String answerString;
         
-        System.out.println(MessageFormat.format(labels.getString("NEW_SETTINGS_REQUEST"), getIP()));
+        final String clientIpRaw = getIP();
+        System.out.println(MessageFormat.format(labels.getString("NEW_SETTINGS_REQUEST"), clientIpRaw));
         
         if (entity != null && !entity.isEmpty())
             // try parse the string to a JSON object
@@ -104,13 +105,7 @@ public class SettingsResource extends ServerResource
                     
                     if (clientNames.contains(request.optString("name")) && typeId > 0)
                     {
-                        
-                        // String clientName = request.getString("name");
-                        // String clientVersionCode =
-                        // request.getString("version_name");
-                        // String clientVersionName =
-                        // request.optString("version_code", "");
-                        
+
                         UUID uuid = null;
                         long clientUid = 0;
                         
@@ -159,25 +154,24 @@ public class SettingsResource extends ServerResource
                             
                             if (client.getUid() > 0)
                             {
-                                /* map server */
-                                
-                                final Series<Parameter> ctxParams = getContext().getParameters();
-                                final String host = ctxParams.getFirstValue("RMBT_MAP_HOST");
-                                final String sslStr = ctxParams.getFirstValue("RMBT_MAP_SSL");
-                                final String portStr = ctxParams.getFirstValue("RMBT_MAP_PORT");
-                                if (host != null && sslStr != null && portStr != null)
-                                {
-                                    JSONObject mapServer = new JSONObject();
-                                    mapServer.put("host", host);
-                                    mapServer.put("port", Integer.parseInt(portStr));
-                                    mapServer.put("ssl", Boolean.parseBoolean(sslStr));
-                                    jsonItem.put("map_server", mapServer);
-                                }
-                                
-                                // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-                                // HISTORY / FILTER
-                                
-                                final JSONObject subItem = new JSONObject();
+                            	JSONObject mapServer = new JSONObject();
+                            	//for clients backwards compatibility, shall be obsoleted by url_map_server
+                            	mapServer.put("host", getSetting("host_map_server", lang));
+                            	try
+                            	{
+                            		mapServer.put("port", Integer.parseInt(getSetting("port_map_server", lang)));
+                            	}
+                            	catch (NumberFormatException e)
+                            	{
+                            		mapServer.put("port",443);
+                            	}
+                            	mapServer.put("ssl", Boolean.parseBoolean(getSetting("ssl_map_server", lang)));
+                            	jsonItem.put("map_server", mapServer);
+
+                            	// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                            	// HISTORY / FILTER
+
+                            	final JSONObject subItem = new JSONObject();
                                 
                                 final JSONArray netList = new JSONArray();
                                 
@@ -227,8 +221,6 @@ public class SettingsResource extends ServerResource
                                     jsonItem.put("history", subItem);
                                 
                             }
-                            else
-                                errorList.addError("ERROR_CLIENT_UUID");
                         }
                         
                         //also put there: basis-urls for all services
@@ -239,6 +231,7 @@ public class SettingsResource extends ServerResource
                         jsonItemURLs.put("control_ipv6_only", getSetting("control_ipv6_only", lang));
                         jsonItemURLs.put("url_ipv4_check", getSetting("url_ipv4_check", lang));
                         jsonItemURLs.put("url_ipv6_check", getSetting("url_ipv6_check", lang));
+                        jsonItemURLs.put("url_map_server", getSetting("url_map_server", lang));
                     
                         jsonItem.put("urls",jsonItemURLs);
                         
@@ -246,11 +239,39 @@ public class SettingsResource extends ServerResource
                         jsonControlServerVersion.put("control_server_version",  RevisionHelper.getVerboseRevision());
                         jsonItem.put("versions", jsonControlServerVersion);
                         
+                        final String developerCode = request.optString("developer_code", null);
+                        if (developerCode != null)
+                        {
+                        	jsonItem.put("servers", getServers());
+                        	jsonItem.put("servers_ws", getServersWs());
+                        	jsonItem.put("servers_qos", getServersQos());
+                        	
+                        }
+                        
+                        try {
+                            final Locale locale = new Locale(lang);
+                            final QoSTestTypeDescDao testTypeDao = new QoSTestTypeDescDao(conn, locale);
+                            final JSONArray testTypeDescArray = new JSONArray();
+                            for (QoSTestTypeDesc desc : testTypeDao.getAll()) {
+                            	if (desc.getTestType()!=null) {
+                            		//in case a qos module is not included but the entry hasn't beed removed from the db
+	                            	JSONObject json = new JSONObject();
+	                        		json.put("test_type", desc.getTestType().name());
+	                        		json.put("name", desc.getName());
+	                            	testTypeDescArray.put(json);
+                            	}
+                            }
+                            jsonItem.put("qostesttype_desc", testTypeDescArray);
+                        } catch (SQLException e) {
+                        	errorList.addError("ERROR_DB_CONNECTION");
+						}
+
                         settingsList.put(jsonItem);
                         
                         answer.put("settings", settingsList);
                         
-                        System.out.println(settingsList);
+                        //debug: print settings response (JSON)
+                        //System.out.println(settingsList);
                         
                     }
                     else
@@ -289,9 +310,96 @@ public class SettingsResource extends ServerResource
 //            e.printStackTrace();
 //        }
         
+        
+        answerString = answer.toString();
+        long elapsedTime = System.currentTimeMillis() - startTime;
+        System.out.println(MessageFormat.format(labels.getString("NEW_SETTINGS_REQUEST_SUCCESS"), clientIpRaw, Long.toString(elapsedTime)));
+        
+
+        
+        
         return answerString;
     }
     
+ // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    
+    private JSONArray getServers() throws JSONException
+    {
+        final String sql = "SELECT * FROM test_server WHERE active AND selectable AND server_type = 'RMBT'";
+        final JSONArray result = new JSONArray();
+        try (PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery())
+        {
+            while (rs.next())
+            {
+                final JSONObject obj = new JSONObject();
+                
+                obj.put("name", rs.getString("name"));
+                obj.put("uuid", rs.getString("uuid"));
+                
+                result.put(obj);
+            }
+        }
+        catch (SQLException e)
+        {
+            e.printStackTrace();
+        }
+        return result;
+    }
+    
+// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    
+    private JSONArray getServersWs() throws JSONException
+    {
+        final String sql = "SELECT * FROM test_server WHERE selectable AND server_type = 'RMBTws'";
+        final JSONArray result = new JSONArray();
+        try (PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery())
+        {
+            while (rs.next())
+            {
+                final JSONObject obj = new JSONObject();
+                
+                obj.put("name", rs.getString("name"));
+                obj.put("uuid", rs.getString("uuid"));
+                
+                result.put(obj);
+            }
+        }
+        catch (SQLException e)
+        {
+            e.printStackTrace();
+        }
+        return result;
+    }
+// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    
+    private JSONArray getServersQos() throws JSONException
+    {
+        final String sql = "SELECT * FROM test_server WHERE selectable AND server_type = 'QoS'";
+        final JSONArray result = new JSONArray();
+        try (PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery())
+        {
+            while (rs.next())
+            {
+                final JSONObject obj = new JSONObject();
+                
+                obj.put("name", rs.getString("name"));
+                obj.put("uuid", rs.getString("uuid"));
+                
+                result.put(obj);
+            }
+        }
+        catch (SQLException e)
+        {
+            e.printStackTrace();
+        }
+        return result;
+    }
+    
+ // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     /**
      * 
      * @param entity
@@ -314,7 +422,7 @@ public class SettingsResource extends ServerResource
                 .prepareStatement("SELECT DISTINCT COALESCE(adm.fullname, t.model) model"
                         + " FROM test t"
                         + " LEFT JOIN device_map adm ON adm.codename=t.model"
-                        + " WHERE (t.client_id = ? OR t.client_id IN (SELECT uid FROM client WHERE sync_group_id = ?)) AND t.deleted = false AND t.implausible = false AND t.status = 'FINISHED' ORDER BY model ASC");
+                        + " WHERE (t.client_id IN (SELECT ? UNION SELECT uid FROM client WHERE sync_group_id = ? )) AND t.deleted = false AND t.implausible = false AND t.status = 'FINISHED' ORDER BY model ASC");
         
         st.setLong(1, client.getUid());
         st.setInt(2, client.getSync_group_id());

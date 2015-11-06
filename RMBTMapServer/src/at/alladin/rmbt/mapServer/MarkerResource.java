@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -128,6 +128,8 @@ public class MarkerResource extends ServerResource
                         
                         String hightlightUUIDString = null;
                         UUID highlightUUID = null;
+                        // old client only support classification for 3 colors (red, yellow, green)
+                        boolean fourColorClassification = false; 
                         
                         final JSONObject mapOptionsObj = request.getJSONObject("options");
                         String optionStr = mapOptionsObj.optString("map_options");
@@ -149,8 +151,11 @@ public class MarkerResource extends ServerResource
                             final String key = (String) keys.next();
                             if (mapFilterObj.get(key) instanceof Object)
                                 if (key.equals("highlight"))
-                                    hightlightUUIDString = mapFilterObj.getString(key);
-                                else
+                                    hightlightUUIDString =  mapFilterObj.getString(key);
+                                // clients supporting four color classification will add this key
+                                else if (key.equals("four_color"))
+                                fourColorClassification =  mapFilterObj.getBoolean(key);
+                            else
                                 {
                                     final MapFilter mapFilter = MapServerOptions.getMapFilterMap().get(key);
                                     if (mapFilter != null)
@@ -189,7 +194,7 @@ public class MarkerResource extends ServerResource
                                             + " COALESCE(mnwk.shortname,mnwk.name) mobile_network_name,"
                                             + " COALESCE(msim.shortname,msim.name) mobile_sim_name"
                                             + (highlightUUID == null ? "" : " , c.uid, c.uuid")
-                                            + " FROM test t"
+                                            + " FROM v_test t"
                                             + " LEFT JOIN mccmnc2name mnwk ON t.mobile_network_id=mnwk.uid"
                                             + " LEFT JOIN mccmnc2name msim ON t.mobile_sim_id=msim.uid"
                                             + " LEFT JOIN provider prov"
@@ -257,6 +262,10 @@ public class MarkerResource extends ServerResource
                                     dateFormat.setTimeZone(tz);
                                     jsonItem.put("time_string", dateFormat.format(date));
                                     
+                                    //time as UNIX time (UTC) e.g. 1445361731053
+                                    final long time = date.getTime();
+                                    jsonItem.put("time", time);
+                                    
                                     final int fieldDown = rs.getInt("speed_download");
                                     JSONObject singleItem = new JSONObject();
                                     singleItem.put("title", labels.getString("RESULT_DOWNLOAD"));
@@ -264,8 +273,8 @@ public class MarkerResource extends ServerResource
                                             format.format(fieldDown / 1000d), labels.getString("RESULT_DOWNLOAD_UNIT"));
                                     singleItem.put("value", downloadString);
                                     singleItem.put("classification",
-                                            Classification.classify(Classification.THRESHOLD_DOWNLOAD, fieldDown));
-                                    // singleItem.put("help", "www.rtr.at");
+                                            Classification.classify(Classification.THRESHOLD_DOWNLOAD, fieldDown,fourColorClassification));
+
                                     
                                     jsonItemList.put(singleItem);
                                     
@@ -276,8 +285,7 @@ public class MarkerResource extends ServerResource
                                             labels.getString("RESULT_UPLOAD_UNIT"));
                                     singleItem.put("value", uploadString);
                                     singleItem.put("classification",
-                                            Classification.classify(Classification.THRESHOLD_UPLOAD, fieldUp));
-                                    // singleItem.put("help", "www.rtr.at");
+                                            Classification.classify(Classification.THRESHOLD_UPLOAD, fieldUp, fourColorClassification));
                                     
                                     jsonItemList.put(singleItem);
                                     
@@ -289,8 +297,7 @@ public class MarkerResource extends ServerResource
                                             labels.getString("RESULT_PING_UNIT"));
                                     singleItem.put("value", pingString);
                                     singleItem.put("classification",
-                                            Classification.classify(Classification.THRESHOLD_PING, fieldPing));
-                                    // singleItem.put("help", "www.rtr.at");
+                                            Classification.classify(Classification.THRESHOLD_PING, fieldPing, fourColorClassification));
                                     
                                     jsonItemList.put(singleItem);
                                     
@@ -307,7 +314,7 @@ public class MarkerResource extends ServerResource
                                         singleItem.put("value",
                                                 signalValue + " " + labels.getString("RESULT_SIGNAL_UNIT"));
                                         singleItem.put("classification",
-                                                Classification.classify(threshold, signalValue));
+                                                Classification.classify(threshold, signalValue, fourColorClassification));
                                         jsonItemList.put(singleItem);
                                     }
 
@@ -321,7 +328,7 @@ public class MarkerResource extends ServerResource
                                         singleItem.put("value",
                                                 lteRsrpValue + " " + labels.getString("RESULT_LTE_RSRP_UNIT"));
                                         singleItem.put("classification",
-                                                Classification.classify(threshold, lteRsrpValue));
+                                                Classification.classify(threshold, lteRsrpValue, fourColorClassification));
                                         jsonItemList.put(singleItem);
                                     }
 

@@ -1,0 +1,37 @@
+[
+  {
+    "title": "test4-option0",
+    "options": [
+      {
+        "params": {
+          "test": 1,
+          "option0": "a1"
+        }
+      },
+      {
+        "params": {
+          "test": 2,
+          "option0": "a2"
+        }
+      }
+    ]
+  },
+  {
+    "title": "test4-option1",
+    "options": [
+      {
+        "params": {
+          "option1": "a3"
+        }
+      },
+      {
+        "params": {
+          "option1": "a4"
+        },
+        "depends_on": {
+          "test": 1
+        }
+      }
+    ]
+  }
+]

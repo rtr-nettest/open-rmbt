@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,6 @@ import org.restlet.resource.Post;
 import at.alladin.rmbt.db.Client;
 import at.alladin.rmbt.db.Test;
 import at.alladin.rmbt.db.TestNdt;
-import at.alladin.rmbt.db.Test_Server;
 import at.alladin.rmbt.db.fields.Field;
 import at.alladin.rmbt.db.fields.TimestampField;
 import at.alladin.rmbt.shared.Helperfunctions;
@@ -49,6 +48,7 @@ import at.alladin.rmbt.shared.SignificantFormat;
 
 public class TestResultDetailResource extends ServerResource
 {
+	
     private JSONObject addObject(final JSONArray array, final String key) throws JSONException
     {
         final JSONObject newObject = new JSONObject();
@@ -90,6 +90,7 @@ public class TestResultDetailResource extends ServerResource
     @Post("json")
     public String request(final String entity)
     {
+    	long startTime = System.currentTimeMillis();
         addAllowOrigin();
         
         JSONObject request = null;
@@ -98,7 +99,8 @@ public class TestResultDetailResource extends ServerResource
         final JSONObject answer = new JSONObject();
         String answerString;
         
-        System.out.println(MessageFormat.format(labels.getString("NEW_TESTRESULT_DETAIL"), getIP()));
+        final String clientIpRaw = getIP();
+        System.out.println(MessageFormat.format(labels.getString("NEW_TESTRESULT_DETAIL"), clientIpRaw));
         
         if (entity != null && !entity.isEmpty())
             // try parse the string to a JSON object
@@ -126,13 +128,11 @@ public class TestResultDetailResource extends ServerResource
                 {
                     
                     final Client client = new Client(conn);
-                    final Test_Server server = new Test_Server(conn);
                     final Test test = new Test(conn);
                     TestNdt ndt = new TestNdt(conn);
                     
                     final String testUuid = request.optString("test_uuid");
                     if (testUuid != null && test.getTestByUuid(UUID.fromString(testUuid)) > 0
-                            && server.getServerByUid(test.getField("server_id").intValue())
                             && client.getClientByUid(test.getField("client_id").intValue()))
                     {
                         
@@ -144,6 +144,11 @@ public class TestResultDetailResource extends ServerResource
                         
                         final JSONArray resultList = new JSONArray();
 
+                        boolean dualSim = false;
+                    	final Field dualSimField = test.getField("dual_sim");
+                        if (! dualSimField.isNull() && (dualSimField.toString() == "true"))
+                        	  dualSim = true;
+                        
                         final JSONObject singleItem = addObject(resultList, "time");
                         final Field timeField = test.getField("time");
                         if (!timeField.isNull()) {
@@ -196,7 +201,7 @@ public class TestResultDetailResource extends ServerResource
                         
                         // signal strength RSSI in dBm - csv 13
                         final Field signalStrengthField = test.getField("signal_strength");
-                        if (!signalStrengthField.isNull())
+                        if (!dualSim && !signalStrengthField.isNull())
                             addString(
                                     resultList,
                                     "signal_strength",
@@ -205,7 +210,7 @@ public class TestResultDetailResource extends ServerResource
 
                         //signal strength RSRP in dBm (LTE) - csv 29
                         final Field lteRsrpField = test.getField("lte_rsrp");
-                        if (!lteRsrpField.isNull())
+                        if (!dualSim && !lteRsrpField.isNull())
                             addString(
                                     resultList,
                                     "signal_rsrp",
@@ -214,7 +219,7 @@ public class TestResultDetailResource extends ServerResource
 
                         //signal quality in LTE, RSRQ in dB
                         final Field lteRsrqField = test.getField("lte_rsrq");
-                        if (!lteRsrqField.isNull())
+                        if (!dualSim && !lteRsrqField.isNull())
                             addString(
                                     resultList,
                                     "signal_rsrq",
@@ -224,7 +229,7 @@ public class TestResultDetailResource extends ServerResource
                         // network, eg. "3G (HSPA+)
                         //TODO fix helper-function
                         final Field networkTypeField = test.getField("network_type");
-                        if (!networkTypeField.isNull())
+                        if (!dualSim && !networkTypeField.isNull())
                         	addString(resultList, "network_type",
                         			Helperfunctions.getNetworkTypeName(networkTypeField.intValue()));
                         
@@ -262,6 +267,40 @@ public class TestResultDetailResource extends ServerResource
                             	addString(resultList, "zip_code", zipCode);
                         }
                         
+                        /*
+                        final Field gkzField = test.getField("gkz");
+                        if (!gkzField.isNull())
+                        {
+                            	addString(resultList, "gkz", gkzField.toString());
+                        }
+                        */
+                        
+                        final Field communityField = test.getField("community");
+                        if (!communityField.isNull())
+                        {
+                            	addString(resultList, "community", communityField.toString());
+                        }
+
+                        final Field cov800catField = test.getField("cov800cat");
+                        if (!cov800catField.isNull())
+                        {
+                            	addString(resultList, "cov800cat", cov800catField.toString());
+                        }
+
+
+                        final Field districtField = test.getField("district");
+                        if (!districtField.isNull())
+                        {
+                            	addString(resultList, "district", districtField.toString());
+                        }
+
+                        final Field provinceField = test.getField("province");
+                        if (!provinceField.isNull())
+                        {
+                            	addString(resultList, "province", provinceField.toString());
+                        }
+
+                        
                         // public client ip (private)
                         addString(resultList, "client_public_ip", test.getField("client_public_ip"));
 
@@ -278,8 +317,8 @@ public class TestResultDetailResource extends ServerResource
                         //TODO replace provider-information by more generic information
                         addString(resultList, "provider", test.getField("provider_id_name"));
                         
-                        // local ip of client (or info private ip) (private)
-                        addString(resultList, "client_local_ip", test.getField("client_local_ip"));
+                        // type of client local ip (private)
+                        addString(resultList, "client_local_ip", test.getField("client_ip_local_type"));
                         
                         // nat-translation of client - csv 23
                         addString(resultList, "nat_type", test.getField("nat_type"));
@@ -298,37 +337,41 @@ public class TestResultDetailResource extends ServerResource
                                     String.format("%s %s", linkSpeedField.toString(),
                                             labels.getString("RESULT_WIFI_LINK_SPEED_UNIT")));
                         // name of mobile network operator (eg. 'T-Mobile AT')
-                        addString(resultList, "network_operator_name", test.getField("network_operator_name"));
+                        if (!dualSim)
+                           addString(resultList, "network_operator_name", test.getField("network_operator_name"));
                         
                         // mobile network name derived from MCC/MNC of network, eg. '232-01'
                         final Field networkOperatorField = test.getField("network_operator");
                         
-                        // mobile provider name, eg. 'Hutchison Drei' (derived from mobile_provider_id)
-                        final Field mobileProviderNameField = test.getField("mobile_provider_name");
-                        if (mobileProviderNameField.isNull()) // eg. '248-02'
-                            addString(resultList, "network_operator", networkOperatorField);
-                        else
-                        {
-                            if (networkOperatorField.isNull())
-                                addString(resultList, "network_operator", mobileProviderNameField);
-                            else // eg. 'Hutchison Drei (232-10)'
-                                addString(resultList, "network_operator",
-                                    String.format("%s (%s)", mobileProviderNameField, networkOperatorField));
-                        }
                         
-                        addString(resultList, "network_sim_operator_name", test.getField("network_sim_operator_name"));
-                        
-                        final Field networkSimOperatorField = test.getField("network_sim_operator");
-                        final Field networkSimOperatorTextField = test.getField("network_sim_operator_mcc_mnc_text");
-                        if (networkSimOperatorTextField.isNull())
-                            addString(resultList, "network_sim_operator", networkSimOperatorField);
-                        else
-                            addString(resultList, "network_sim_operator",
-                                    String.format("%s (%s)", networkSimOperatorTextField, networkSimOperatorField));
-                        
-                        final Field roamingTypeField = test.getField("roaming_type");
-                        if (!roamingTypeField.isNull())
-                            addString(resultList, "roaming", Helperfunctions.getRoamingType(labels, roamingTypeField.intValue()));
+                        if (!dualSim)
+                        {   // mobile provider name, eg. 'Hutchison Drei' (derived from mobile_provider_id)
+                        	final Field mobileProviderNameField = test.getField("mobile_provider_name");
+                        	if (mobileProviderNameField.isNull()) // eg. '248-02'
+                        		addString(resultList, "network_operator", networkOperatorField);
+                        	else
+                        	{
+                        		if (networkOperatorField.isNull())
+                        			addString(resultList, "network_operator", mobileProviderNameField);
+                        		else // eg. 'Hutchison Drei (232-10)'
+                        			addString(resultList, "network_operator",
+                        					String.format("%s (%s)", mobileProviderNameField, networkOperatorField));
+                        	}
+
+                        	addString(resultList, "network_sim_operator_name", test.getField("network_sim_operator_name"));
+
+                        	final Field networkSimOperatorField = test.getField("network_sim_operator");
+                        	final Field networkSimOperatorTextField = test.getField("network_sim_operator_mcc_mnc_text");
+                        	if (networkSimOperatorTextField.isNull())
+                        		addString(resultList, "network_sim_operator", networkSimOperatorField);
+                        	else
+                        		addString(resultList, "network_sim_operator",
+                        				String.format("%s (%s)", networkSimOperatorTextField, networkSimOperatorField));
+
+                        	final Field roamingTypeField = test.getField("roaming_type");
+                        	if (!roamingTypeField.isNull())
+                        		addString(resultList, "roaming", Helperfunctions.getRoamingType(labels, roamingTypeField.intValue()));
+                        } //dualSim
                         
                         final long totalDownload = test.getField("total_bytes_download").longValue();
                         final long totalUpload = test.getField("total_bytes_upload").longValue();
@@ -394,7 +437,7 @@ public class TestResultDetailResource extends ServerResource
                         	final String testUlIfBytesDownloadString = format.format(testUlIfBytesDownload / (1000d * 1000d));
                         	addString(
                         			resultList,
-                        			"testul_if_bytes_upload",
+                        			"testul_if_bytes_download",
                         			String.format("%s %s", testUlIfBytesDownloadString,
                         					labels.getString("RESULT_TOTAL_BYTES_UNIT")));
                         }
@@ -448,6 +491,7 @@ public class TestResultDetailResource extends ServerResource
                             // labels.getString("RESULT_PING_UNIT")));
                         }
                         
+                        addString(resultList, "server_name", test.getField("server_name"));
                         addString(resultList, "plattform", test.getField("plattform"));
                         addString(resultList, "os_version", test.getField("os_version"));
                         addString(resultList, "model", test.getField("model_fullname"));
@@ -462,10 +506,10 @@ public class TestResultDetailResource extends ServerResource
                                     "encryption",
                                     "NONE".equals(encryption) ? labels
                                             .getString("key_encryption_false") : labels.getString("key_encryption_true"));
-                            addString(resultList, "client_version", test.getField("client_version"));
                         }
                         
-                        addString(resultList, "server_name", server.getName());
+                        addString(resultList, "client_version", test.getField("client_version"));
+                                               
                         addString(
                                 resultList,
                                 "duration",
@@ -491,7 +535,15 @@ public class TestResultDetailResource extends ServerResource
                         final Field openTestUUIDField = test.getField("open_test_uuid");
                         if (! openTestUUIDField.isNull())
                             addString(resultList, "open_test_uuid", String.format("O%s", openTestUUIDField));
-                        
+
+                        final Field openUUIDField = test.getField("open_uuid");
+                        if (! openUUIDField.isNull())
+                            addString(resultList, "open_uuid", String.format("P%s", openUUIDField));
+
+                        final Field developerCodeDField = test.getField("developer_code");
+                        if (! developerCodeDField.isNull() && !developerCodeDField.toString().isEmpty() && !developerCodeDField.toString().equals("0"))
+                            addString(resultList, "developer_code", test.getField("developer_code"));
+
                         //number of threads for upload-test
                         final Field tag = test.getField("tag");
                         if (!tag.isNull()) {                   
@@ -512,7 +564,7 @@ public class TestResultDetailResource extends ServerResource
                     }
                     else
                         errorList.addError("ERROR_REQUEST_TEST_RESULT_DETAIL_NO_UUID");
-                    
+
                 }
                 else
                     errorList.addError("ERROR_DB_CONNECTION");
@@ -536,6 +588,9 @@ public class TestResultDetailResource extends ServerResource
         }
         
         answerString = answer.toString();
+        
+        long elapsedTime = System.currentTimeMillis() - startTime;
+        System.out.println(MessageFormat.format(labels.getString("NEW_TESTRESULT_DETAIL_SUCCESS"), clientIpRaw, Long.toString(elapsedTime)));
         
         return answerString;
     }

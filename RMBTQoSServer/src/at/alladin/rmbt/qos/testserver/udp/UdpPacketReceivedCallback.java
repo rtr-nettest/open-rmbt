@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,5 +29,5 @@ public interface UdpPacketReceivedCallback {
 	 * @param data
 	 * @return
 	 */
-	public boolean onReceive(final DatagramPacket dp, final UdpMultiClientServer udpServer);
+	public boolean onReceive(final DatagramPacket dp, final String uuid, final AbstractUdpServer<?> udpServer);
 }

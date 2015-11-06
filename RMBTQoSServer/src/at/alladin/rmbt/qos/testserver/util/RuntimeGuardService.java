@@ -35,6 +35,11 @@ public class RuntimeGuardService extends EventJob<String> {
 	/**
 	 * 
 	 */
+	public final static String TAG = RuntimeGuardService.class.getCanonicalName();
+
+	/**
+	 * 
+	 */
 	public final static String GUARD_FILE = "guard.properties";
 
 	/**
@@ -136,5 +141,23 @@ public class RuntimeGuardService extends EventJob<String> {
 			prop.setProperty(PROPERTY_KEY_STARTUP, (new Date()).toString());
 		}
 		prop.store(new FileOutputStream(GUARD_FILE), "Automatically generated guard file.\nPlease do not change manually!");
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see at.alladin.rmbt.qos.testserver.service.AbstractJob#getNewInstance()
+	 */
+	@Override
+	public RuntimeGuardService getNewInstance() {
+		return new RuntimeGuardService();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see at.alladin.rmbt.qos.testserver.service.AbstractJob#getId()
+	 */
+	@Override
+	public String getId() {
+		return TAG;
 	}
 }

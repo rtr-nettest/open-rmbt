@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,26 +24,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.net.URI;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
-import org.apache.http.ProtocolException;
-import org.apache.http.client.RedirectHandler;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
-import org.apache.http.protocol.HttpContext;
 
 import at.alladin.rmbt.client.QualityOfServiceTest;
 import at.alladin.rmbt.client.RMBTClient;
@@ -95,12 +88,18 @@ public class HttpProxyTask extends AbstractQoSTask {
 	
 	public final AtomicBoolean timeOutReached = new AtomicBoolean(false);
 	
+	public static class Md5Result {
+		String md5;
+		long contentLength = 0;
+		long generatingTimeNs = 0;
+	}
+	
 	/**
 	 * 
 	 * @param taskDesc
 	 */
 	public HttpProxyTask(QualityOfServiceTest nnTest, TaskDesc taskDesc, int threadId) {
-		super(nnTest, taskDesc, threadId);
+		super(nnTest, taskDesc, threadId, threadId);
 		this.target = (String)taskDesc.getParams().get(PARAM_TARGET);
 		this.range = (String)taskDesc.getParams().get(PARAM_RANGE);
 		
@@ -117,6 +116,9 @@ public class HttpProxyTask extends AbstractQoSTask {
 	public QoSTestResult call() throws Exception {
 		final QoSTestResult result = initQoSTestResult(QoSTestResultEnum.HTTP_PROXY);
 		try {
+			result.getResultMap().put(RESULT_RANGE, range);
+			result.getResultMap().put(RESULT_TARGET, target);	
+
 			onStart(result);
 			
 			Future<QoSTestResult> httpTimeoutTask = RMBTClient.getCommonThreadPool().submit(new Callable<QoSTestResult>() {
@@ -128,7 +130,7 @@ public class HttpProxyTask extends AbstractQoSTask {
 				
 			});
 			
-			final QoSTestResult testResult = httpTimeoutTask.get((int)(downloadTimeout/1000000), TimeUnit.SECONDS);
+			final QoSTestResult testResult = httpTimeoutTask.get(downloadTimeout, TimeUnit.NANOSECONDS);
 			return testResult;	
 		}
 		catch (TimeoutException e) {
@@ -145,104 +147,78 @@ public class HttpProxyTask extends AbstractQoSTask {
 		return result;
 	}
 	
-	/**
-	 * 
-	 * @return
-	 */
 	private QoSTestResult httpGet(final QoSTestResult result) throws Exception {
-		final HttpGet httpGet = new HttpGet(new URI(this.target));
-		
-		if (range != null && range.startsWith("bytes")) {
-			httpGet.addHeader("Range", range);	
-		}
-
-		HttpParams httpParameters = new BasicHttpParams();
-
-		// Set the timeout
-		HttpConnectionParams.setConnectionTimeout(httpParameters, (int)(connectionTimeout / 1000000));
-		// Set the default socket timeout (SO_TIMEOUT) in milliseconds which is the timeout for waiting for data.
-		HttpConnectionParams.setSoTimeout(httpParameters, (int)(downloadTimeout / 1000000));
-
-		System.out.println("Downloading: " + target);
-		
-		DefaultHttpClient httpClient = new DefaultHttpClient(httpParameters);
-		
-		//prevent redirects:
-		httpClient.setRedirectHandler(new RedirectHandler() {
-			
-			public boolean isRedirectRequested(HttpResponse response, HttpContext context) {
-				return false;
-			}
-			
-			public URI getLocationURI(HttpResponse response, HttpContext context)
-					throws ProtocolException {
-				return null;
-			}
-		});
-		
-		
-		Thread timeoutThread = new Thread(new Runnable() {
-			
-			public void run() {
-				try {
-					System.out.println("HTTP PROXY TIMEOUT THREAD: " + downloadTimeout + " ms");
-					Thread.sleep((int)(downloadTimeout / 1000000));
-					
-					if (!downloadCompleted.get()) {
-						if (httpGet != null && !httpGet.isAborted()) {
-							httpGet.abort();
-						}
-						timeOutReached.set(true);
-						System.out.println("HTTP PROXY TIMEOUT REACHED");
-					}
-					
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-	                
-			}
-	     });
-		
-		timeoutThread.start();
-
+		final URL url = new URL(this.target);
+		final HttpURLConnection httpGet;
 		String hash = null;
-		long duration = 0;
 		
 		try {
-			final long start = System.nanoTime();
-			HttpResponse response = httpClient.execute(httpGet);
+			Thread timeoutThread = new Thread(new Runnable() {
+				
+				public void run() {
+					try {
+						System.out.println("HTTP PROXY TIMEOUT THREAD: " + downloadTimeout + " ms");
+						Thread.sleep((int)(downloadTimeout / 1000000));
+						
+						if (!downloadCompleted.get()) {
+							timeOutReached.set(true);
+							System.out.println("HTTP PROXY TIMEOUT REACHED");
+						}
+						
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+		                
+				}
+		     });
 			
-			//get the content:
-			long contentLength = -1;
-			if (getQoSTest().getTestSettings().getCacheFolder() != null) {
-				File cacheFile = new File(getQoSTest().getTestSettings().getCacheFolder(), "proxy" + threadId);
-				contentLength = writeFileFromInputStream(response.getEntity().getContent(), cacheFile);
-				duration = System.nanoTime() - start;
-				hash = generateChecksum(cacheFile);
-				cacheFile.delete();
+			timeoutThread.start();
+		
+			final long start = System.nanoTime();
+			httpGet = (HttpURLConnection) url.openConnection();
+			if (range != null && range.startsWith("bytes")) {
+				httpGet.addRequestProperty("Range", range);	
+			}
+			
+			httpGet.setConnectTimeout((int) TimeUnit.MILLISECONDS.convert(connectionTimeout, TimeUnit.NANOSECONDS));
+			httpGet.setReadTimeout((int) TimeUnit.MILLISECONDS.convert(downloadTimeout, TimeUnit.NANOSECONDS));
+			httpGet.setInstanceFollowRedirects(false);		
+
+			Md5Result md5 = generateChecksum(httpGet.getInputStream());
+			downloadCompleted.set(true);
+			hash = md5.md5;
+			
+			final long duration = System.nanoTime() - start;
+			result.getResultMap().put(RESULT_DURATION, duration - md5.generatingTimeNs);
+			result.getResultMap().put(RESULT_STATUS, httpGet.getResponseCode());
+			result.getResultMap().put(RESULT_LENGTH, md5.contentLength);
+			
+			final String headers;
+			if (httpGet.getHeaderFields() != null) {
+				final StringBuilder sb = new StringBuilder();
+				final Iterator<Entry<String, List<String>>> headerIterator = httpGet.getHeaderFields().entrySet().iterator();
+				while (headerIterator.hasNext()) {
+					final Entry<String, List<String>> e = headerIterator.next();
+					if (e.getKey() != null && !e.getKey().equals("null")) {
+						sb.append(e.getKey());
+						sb.append(": ");
+						final List<String> values = e.getValue();
+						for (int i = 0; i < values.size(); i++) {
+							sb.append(values.get(i));
+							if (i+1 < values.size()) {
+								sb.append(",");
+							}
+						}
+						sb.append("\n");
+					}
+				}				
+				headers = sb.toString();
 			}
 			else {
-				//get Content:
-				String content = getStringFromInputStream(response.getEntity().getContent());
-				duration = System.nanoTime() - start;
-				//calculate md5 hash:
-				hash = generateChecksum(content.getBytes("UTF-8"));
+				headers = null;
 			}
 			
-			//result.getResultMap().put(RESULT_DURATION, (duration / 1000000));
-			result.getResultMap().put(RESULT_STATUS, response.getStatusLine().getStatusCode());
-			result.getResultMap().put(RESULT_LENGTH, contentLength);
-			
-			StringBuilder header = new StringBuilder();
-			
-			for (Header h : response.getAllHeaders()) {
-				header.append(h.getName());
-				header.append(": ");
-				header.append(h.getValue());
-				header.append("\n");
-			}
-			
-			result.getResultMap().put(RESULT_HEADER, header.toString());
+			result.getResultMap().put(RESULT_HEADER, headers);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -261,13 +237,10 @@ public class HttpProxyTask extends AbstractQoSTask {
 				result.getResultMap().put(RESULT_HASH, "ERROR");
 			}
 		}
-
-		result.getResultMap().put(RESULT_RANGE, range);
-		result.getResultMap().put(RESULT_TARGET, target);	
 		
 		return result;
 	}
-
+	
 	/**
 	 * 
 	 * @param is
@@ -318,6 +291,7 @@ public class HttpProxyTask extends AbstractQoSTask {
 			output.write(buffer, 0, n);
 			count += n;
 		}
+
 		downloadCompleted.set(true);
 		output.close();
 		return count;
@@ -343,15 +317,36 @@ public class HttpProxyTask extends AbstractQoSTask {
 	 * @throws NoSuchAlgorithmException
 	 * @throws IOException 
 	 */
-	public static String generateChecksum(File file) throws NoSuchAlgorithmException, IOException {
+	public static Md5Result generateChecksum(File file) throws NoSuchAlgorithmException, IOException {
+        return generateChecksum(new FileInputStream(file)); 
+	}
+	
+	/**
+	 * 
+	 * @param inputStream
+	 * @return
+	 * @throws NoSuchAlgorithmException
+	 * @throws IOException
+	 */
+	public static Md5Result generateChecksum(InputStream inputStream) throws NoSuchAlgorithmException, IOException {
+		Md5Result md5 = new Md5Result();
 		MessageDigest md = MessageDigest.getInstance("MD5");
-		DigestInputStream dis = new DigestInputStream(new FileInputStream(file), md);
-		int ch;
-		while ((ch = dis.read()) != -1) { 
-			//empty block
-		}
-		dis.close();
-		return generateChecksumFromDigest(md.digest());
+		DigestInputStream dis = new DigestInputStream(inputStream, md);
+		
+		byte[] dataBytes = new byte[4096];
+       
+        int nread = 0; 
+        while ((nread = dis.read(dataBytes)) != -1) {
+        	md5.contentLength += nread;
+        };
+        
+        dis.close();
+        
+        long startNs = System.nanoTime();
+        md5.md5 = generateChecksumFromDigest(md.digest());
+        md5.generatingTimeNs = System.nanoTime() - startNs;
+        
+        return md5;
 	}
 
 	/**
@@ -389,5 +384,13 @@ public class HttpProxyTask extends AbstractQoSTask {
 	 */
 	public QoSTestResultEnum getTestType() {
 		return QoSTestResultEnum.HTTP_PROXY;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see at.alladin.rmbt.client.v2.task.QoSTask#needsQoSControlConnection()
+	 */
+	public boolean needsQoSControlConnection() {
+		return false;
 	}
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,6 +64,7 @@ public class ControlServerConnection
     
     private int testDuration = 0;
     private int testNumThreads = 0;
+    private int testNumPings = 0;
     
     private String clientUUID = "";
     
@@ -204,7 +205,7 @@ public class ControlServerConnection
                 	for (Entry<String, Object> e : testParams.entrySet()) {
                 		List<HashMap<String, Object>> paramList = (List<HashMap<String, Object>>) e.getValue();
                 		for (HashMap<String, Object> params : paramList) {
-                			TaskDesc taskDesc = new TaskDesc(testHost, testPort, encryption, testToken, 0, 1, System.nanoTime(), params, e.getKey());
+                			TaskDesc taskDesc = new TaskDesc(testHost, testPort, encryption, testToken, 0, 1, 0, System.nanoTime(), params, e.getKey());
             				v2TaskDesc.add(taskDesc);
                 		}
                 	}                    
@@ -320,6 +321,7 @@ public class ControlServerConnection
                     
                     testDuration = response.getInt("test_duration");
                     testNumThreads = response.getInt("test_numthreads");
+                    testNumPings = response.optInt("test_numpings", 10); // pings default to 10
                     
                     remoteIp = response.getString("client_remote_ip");
                                         
@@ -657,6 +659,7 @@ public class ControlServerConnection
         boolean encryption = testEncryption;
         int duration = testDuration;
         int numThreads = testNumThreads;
+        int numPings = testNumPings;
         
         if (overrideParams != null)
         {
@@ -671,7 +674,7 @@ public class ControlServerConnection
             if (overrideParams.getNumThreads() > 0)
                 numThreads = overrideParams.getNumThreads();
         }
-        return new RMBTTestParameter(host, port, encryption, testToken, duration, numThreads, testTime);
+        return new RMBTTestParameter(host, port, encryption, testToken, duration, numThreads, numPings, testTime);
     }
     
 }

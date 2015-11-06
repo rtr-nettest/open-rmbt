@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright 2013-2014 alladin-IT GmbH
+  Copyright 2013-2015 alladin-IT GmbH
   
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -23,11 +23,16 @@
     android:paddingLeft="25dp"
     android:paddingRight="25dp" >
 
-        <at.alladin.rmbt.android.test.GraphView
+        <at.alladin.rmbt.android.graphview.CustomizableGraphView
             android:id="@+id/test_graph"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="15dp"
-            android:layout_marginRight="15dp"/>
+            android:layout_marginRight="15dp"
+            grid_cells="8"
+            grid_rows="4"
+            labelh_max="8"
+            labelh_min="0"
+            labelh="sec" />
 
 </RelativeLayout>

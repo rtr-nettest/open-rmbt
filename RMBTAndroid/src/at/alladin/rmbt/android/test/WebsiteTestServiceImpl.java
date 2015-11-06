@@ -22,6 +22,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.TrafficStats;
 import android.os.Handler;
+import android.os.Process;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import at.alladin.rmbt.android.util.AsyncHtmlContentRetriever;
@@ -34,6 +35,18 @@ import at.alladin.rmbt.client.v2.task.service.WebsiteTestService;
  *
  */
 public class WebsiteTestServiceImpl implements WebsiteTestService {
+	
+	/**
+	 * <p>
+	 * 	if set to true the traffic will be recorded using 
+	 * 	{@link TrafficStats#getUidRxBytes(int)} and {@link TrafficStats#getUidTxPackets(int)}
+	 * </p>
+	 * <p>
+	 * 	otherwise this service will call: 
+	 * {@link TrafficStats#getTotalRxBytes()} and {@link TrafficStats#getTotalTxPackets()}
+	 * </p> 
+	 */
+	private final static boolean USE_PROCESS_UID_FOR_TRAFFIC_MEASUREMENT = true;
 	
 	private WebView webView;
 	
@@ -62,6 +75,8 @@ public class WebsiteTestServiceImpl implements WebsiteTestService {
 	private long trafficTxEnd;
 	
 	private final Handler handler;
+	
+	private int processUid;
 	
 	public WebsiteTestServiceImpl(final Context context) {
 		this.context = context;
@@ -106,6 +121,8 @@ public class WebsiteTestServiceImpl implements WebsiteTestService {
 	    handler.post(new Runnable() {
 			@Override
 			public void run() {
+				WebsiteTestServiceImpl.this.processUid = Process.myUid();
+				
 				//webView.removeAllViews();
 				
 			    if (webView == null)
@@ -116,17 +133,26 @@ public class WebsiteTestServiceImpl implements WebsiteTestService {
 				
 				System.out.println("Running WEBSITETASK " + targetUrl);
 				
-				//if ((trafficRxStart = TrafficStats.getUidRxBytes(processUid)) == TrafficStats.UNSUPPORTED) {
-				if ((trafficRxStart = TrafficStats.getTotalRxBytes()) == TrafficStats.UNSUPPORTED) {
+				boolean isTrafficServiceSupported = USE_PROCESS_UID_FOR_TRAFFIC_MEASUREMENT ?
+					TrafficStats.getUidRxBytes(processUid) != TrafficStats.UNSUPPORTED :
+					TrafficStats.getTotalRxBytes() != TrafficStats.UNSUPPORTED;
+				
+				
+				if (!isTrafficServiceSupported) {
 					trafficRxStart = -1;
 					trafficTxStart = -1;
 					trafficRxEnd = -1;
 					trafficTxEnd = -1;
 				}
 				else {
-					//trafficTxStart = TrafficStats.getUidTxBytes(processUid);
-					trafficTxStart = TrafficStats.getTotalTxBytes();
-					trafficRxStart = TrafficStats.getTotalRxBytes();
+					if (USE_PROCESS_UID_FOR_TRAFFIC_MEASUREMENT) {
+						trafficTxStart = TrafficStats.getUidTxBytes(processUid);
+						trafficRxStart = TrafficStats.getUidRxBytes(processUid);
+					}
+					else {
+						trafficTxStart = TrafficStats.getTotalTxBytes();
+						trafficRxStart = TrafficStats.getTotalRxBytes();						
+					}
 				}
 				
 				Thread timeoutThread = new Thread(new Runnable() {
@@ -272,8 +298,14 @@ public class WebsiteTestServiceImpl implements WebsiteTestService {
 	 * 
 	 */
 	private void setEndTrafficCounter() {
-		this.trafficRxEnd = TrafficStats.getTotalRxBytes();
-		this.trafficTxEnd = TrafficStats.getTotalTxBytes();
+		if (USE_PROCESS_UID_FOR_TRAFFIC_MEASUREMENT) {
+			this.trafficRxEnd = TrafficStats.getUidRxBytes(processUid);
+			this.trafficTxEnd = TrafficStats.getUidTxBytes(processUid);			
+		}
+		else {
+			this.trafficRxEnd = TrafficStats.getTotalRxBytes();
+			this.trafficTxEnd = TrafficStats.getTotalTxBytes();			
+		}
 	}
 
 	/*
