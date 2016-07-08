@@ -1,5 +1,6 @@
 /*******************************************************************************
  * Copyright 2016 Specure GmbH
+ * Copyright 2016 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +35,7 @@ import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
-import at.alladin.openrmbt.android.R;
+import at.alladin.rmbt.android.R;
 import at.alladin.rmbt.android.main.RMBTMainActivity;
 
 public abstract class PermissionHelper

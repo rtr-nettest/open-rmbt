@@ -1,5 +1,6 @@
 /*******************************************************************************
  * Copyright 2013-2015 alladin-IT GmbH
+ * Copyright 2013-2015 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +27,7 @@ import android.graphics.Paint.Align;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.view.View;
-import at.alladin.openrmbt.android.R;
+import at.alladin.rmbt.android.R;
 import at.alladin.rmbt.android.util.InformationCollector;
 import at.alladin.rmbt.client.helper.TestStatus;
 

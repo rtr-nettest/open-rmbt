@@ -1,5 +1,6 @@
 /*******************************************************************************
  * Copyright 2013-2016 alladin-IT GmbH
+ * Copyright 2013-2016 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +30,7 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.util.Log;
-import at.alladin.openrmbt.android.R;
+import at.alladin.rmbt.android.R;
 import at.alladin.rmbt.android.main.AppConstants;
 import at.alladin.rmbt.android.map.MapProperties;
 import at.alladin.rmbt.client.helper.Config;

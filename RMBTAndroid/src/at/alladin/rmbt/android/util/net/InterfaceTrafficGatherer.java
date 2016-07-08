@@ -1,5 +1,6 @@
 /*******************************************************************************
  * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2014 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +17,7 @@
 package at.alladin.rmbt.android.util.net;
 
 import android.net.TrafficStats;
-import at.alladin.openrmbt.android.R;
+import at.alladin.rmbt.android.R;
 
 
 /**

@@ -1,5 +1,6 @@
 /*******************************************************************************
  * Copyright 2015 alladin-IT GmbH
+ * Copyright 2015 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +24,7 @@ import android.app.ProgressDialog;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.AsyncTask;
-import at.alladin.openrmbt.android.R;
+import at.alladin.rmbt.android.R;
 
 public class MapLocationRequestTask extends AsyncTask<String, Void, Address>  {
 

@@ -1,5 +1,6 @@
 /*******************************************************************************
  * Copyright 2015, 2016 alladin-IT GmbH
+ * Copyright 2015, 2016 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +30,7 @@ import android.text.InputType;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.Toast;
-import at.alladin.openrmbt.android.R;
+import at.alladin.rmbt.android.R;
 import at.alladin.rmbt.android.map.MapLocationRequestTask.OnRequestFinished;
 
 public class MapLocationSearch {

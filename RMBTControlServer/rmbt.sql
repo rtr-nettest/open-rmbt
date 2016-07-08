@@ -3621,25 +3621,26 @@ BEGIN
          NEW.geo_accuracy = 99999;
     END IF;
  
-    IF ((TG_OP = 'UPDATE' AND OLD.STATUS='STARTED' AND NEW.STATUS='FINISHED' )  
+    IF ((TG_OP = 'UPDATE' AND OLD.STATUS='STARTED' AND NEW.STATUS='FINISHED')
       AND (NEW.time > (now() - INTERVAL '5 minutes')) 
       AND NEW.geo_accuracy is not null
       AND NEW.geo_accuracy <= 10000 ) THEN
-      
+
      SELECT INTO _tmp_uid uid FROM test
         WHERE client_id=NEW.client_id
+        AND time < NEW.time -- #668 allow only past tests
         AND (NEW.time - INTERVAL '24 hours' < time)
         AND geo_accuracy is not null 
         AND geo_accuracy <= 10000
         ORDER BY uid DESC LIMIT 1;
 
       IF _tmp_uid is not null THEN
-        SELECT INTO NEW.dist_prev ST_Distance(t.location,NEW.location) 
+        SELECT INTO NEW.dist_prev ST_Distance(ST_Transform(t.location,4326)::geography,ST_Transform(NEW.location,4326)::geography) -- #668 improve geo precision for the calculation of the distance (in meters) to a previous test
         FROM test t WHERE uid=_tmp_uid;
         IF NEW.dist_prev is not null THEN
             SELECT INTO _tmp_time time FROM test t
             WHERE uid=_tmp_uid;
-            NEW.speed_prev = NEW.dist_prev/EXTRACT(EPOCH FROM (NEW.time - _tmp_time));
+            NEW.speed_prev = NEW.dist_prev/GREATEST(0.000001, EXTRACT(EPOCH FROM (NEW.time - _tmp_time)))*3.6; -- #668 speed in km/h and don't allow division by zero
         END IF;
       END IF;
     END IF;
@@ -3686,7 +3687,10 @@ BEGIN
         NEW.timestamp = now();
         
         SELECT INTO NEW.location_max_distance
-          round(|/((xmax(st_extent(location))-xmin(st_extent(location)))^2+(ymax(st_extent(location))-ymin(st_extent(location)))^2))
+          round(ST_Distance( -- #668 improve geo precision for the calculation of the diagonal length (in meters) of the bounding box of one test
+           ST_SetSRID(ST_MakePoint(ST_XMin(ST_Extent(ST_Transform(location,4326))),ST_YMin(ST_Extent(ST_Transform(location,4326)))),4326)::geography,
+           ST_SetSRID(ST_MakePoint(ST_XMax(ST_Extent(ST_Transform(location,4326))),ST_YMax(ST_Extent(ST_Transform(location,4326)))),4326)::geography)
+          )
           FROM geo_location
           WHERE test_id=NEW.uid;
     END IF;
@@ -3704,11 +3708,51 @@ BEGIN
     END IF;
 
     IF ((NEW.time > (now() - INTERVAL '5 minutes')) -- update only new entries, skip old entries
+       AND NEW.network_type in (97, 98, 99, 106, 107) -- CLI, LAN, WLAN, Ethernet, Bluetooth
+       AND ( 
+           (NEW.provider_id IS NOT NULL) -- Austrian operator
+           )
+       AND ST_Distance(
+             ST_Transform (NEW.location, 4326), -- location of the test
+             ST_Transform ((select the_geom from ne_50m_admin_0_countries where sovereignt ilike 'Austria'),4326)::geography -- Austria shape
+           ) > 3000 -- location is outside of the Austria shape with a tolerance of +3 km
+    ) -- if
+    THEN NEW.provider_id=NULL; NEW.comment=concat('No provider_id outside of Austria for e.g. VPNs, HotSpots, manual location/geocoder etc. per #664; ', NEW.comment, NULLIF(OLD.comment, NEW.comment));
+    END IF;
+
+    IF ((NEW.time > (now() - INTERVAL '5 minutes')) -- update only new entries, skip old entries
        AND (NEW.model='unknown') -- model is 'unknown'
        ) 
     THEN NEW.status='UPDATE ERROR'; NEW.comment='Automatic update error due to unknown model per #356';
     END IF;
 
+    IF ((TG_OP = 'UPDATE' AND OLD.STATUS='STARTED' AND NEW.STATUS='FINISHED')  
+       AND (NEW.time > (now() - INTERVAL '5 minutes'))) -- update only new entries, skip old entries
+    THEN -- Returns the uid of a previous similar test, otherwise -1. Also IF similar_test_uid = -1 then pinned = TRUE ELSE pinned=FALSE. Column similar_test_uid has a default value NULL, meaning the evaluation for similar test(s) wasn't performed yet.
+       SELECT INTO NEW.similar_test_uid
+          uid FROM test 
+          WHERE (similar_test_uid = -1 OR similar_test_uid IS NULL)       -- consider only unsimilar or not yet evaluated tests
+          AND NEW.open_uuid = open_uuid                                   -- with the same open_uuid
+          AND NEW.time > time AND (NEW.time - time) < '4 hours'::INTERVAL -- in the last 4 hours
+          AND NEW.public_ip_asn = public_ip_asn                           -- from the same network based on AS
+          AND NEW.network_type = network_type                             -- of the same network_type
+          AND CASE 
+                WHEN (NEW.location IS NOT NULL AND NEW.geo_accuracy IS NOT NULL AND NEW.geo_accuracy < 2000 
+                     AND  location IS NOT NULL AND     geo_accuracy IS NOT NULL AND     geo_accuracy < 2000) 
+                THEN ST_Distance(
+                       ST_Transform (NEW.location, 4326),
+                       ST_Transform (location,4326)::geography
+                     ) < GREATEST (100, NEW.geo_accuracy)                 -- either within a radius of 100 m
+                ELSE TRUE                                                 -- or if no or inaccurate location, only other criteria count
+              END
+          ORDER BY time DESC                                              -- consider the last, most previous test
+          LIMIT 1;
+       IF NEW.similar_test_uid IS NULL -- no similar test found
+       then NEW.similar_test_uid = -1; -- indicate that we have searched for a similar test but nothing found
+            NEW.pinned = TRUE;         -- and set the pinned for the statistics
+       ELSE NEW.pinned = FALSE;        -- else in similar_test_uid the uid of a previous test is stored so the test shouldn't go into the statistics
+       END IF;
+    END IF;
 
     RETURN NEW;
 

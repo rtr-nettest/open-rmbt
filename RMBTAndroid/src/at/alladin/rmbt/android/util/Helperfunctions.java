@@ -1,5 +1,6 @@
 /*******************************************************************************
  * Copyright 2013-2015 alladin-IT GmbH
+ * Copyright 2013-2015 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +28,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.location.Location;
 import android.os.Build;
-import at.alladin.openrmbt.android.R;
+import at.alladin.rmbt.android.R;
 import at.alladin.rmbt.client.helper.TestStatus;
 
 public final class Helperfunctions

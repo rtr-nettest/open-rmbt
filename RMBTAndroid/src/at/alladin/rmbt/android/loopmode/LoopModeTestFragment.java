@@ -1,5 +1,6 @@
 /*******************************************************************************
  * Copyright 2016 Specure GmbH
+ * Copyright 2016 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +44,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import at.alladin.openrmbt.android.R;
+import at.alladin.rmbt.android.R;
 import at.alladin.rmbt.android.loopmode.LoopModeResults.Status;
 import at.alladin.rmbt.android.loopmode.info.AdditionalInfoFragment;
 import at.alladin.rmbt.android.loopmode.info.DetailsInfoListAdapter;

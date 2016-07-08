@@ -1,5 +1,6 @@
 /*******************************************************************************
  * Copyright 2013-2016 alladin-IT GmbH
+ * Copyright 2013-2016 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +47,7 @@ import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
-import at.alladin.openrmbt.android.R;
+import at.alladin.rmbt.android.R;
 import at.alladin.rmbt.android.loopmode.LoopModeCurrentTest;
 import at.alladin.rmbt.android.loopmode.LoopModeLastTestResults;
 import at.alladin.rmbt.android.loopmode.LoopModeLastTestResults.RMBTLoopFetchingResultsStatus;

@@ -1,5 +1,6 @@
 /*******************************************************************************
  * Copyright 2015 alladin-IT GmbH
+ * Copyright 2015 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import android.app.Activity;
 import android.util.Log;
-import at.alladin.openrmbt.android.R;
+import at.alladin.rmbt.android.R;
 import at.alladin.rmbt.android.adapter.result.OnCompleteListener;
 import at.alladin.rmbt.android.util.CheckIpTask;
 import at.alladin.rmbt.android.util.CheckIpTask.IpVersionType;

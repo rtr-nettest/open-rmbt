@@ -1,5 +1,6 @@
 /*******************************************************************************
  * Copyright 2013-2016 alladin-IT GmbH
+ * Copyright 2013-2016 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +29,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.preference.PreferenceManager;
-import at.alladin.openrmbt.android.R;
+import at.alladin.rmbt.android.R;
 import at.alladin.rmbt.android.adapter.result.QoSCategoryPagerAdapter;
 import at.alladin.rmbt.android.main.AppConstants;
 import at.alladin.rmbt.client.helper.Config;

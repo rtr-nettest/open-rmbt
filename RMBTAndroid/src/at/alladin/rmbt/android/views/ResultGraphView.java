@@ -1,5 +1,6 @@
 /*******************************************************************************
  * Copyright 2013-2016 alladin-IT GmbH
+ * Copyright 2013-2016 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +35,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
-import at.alladin.openrmbt.android.R;
+import at.alladin.rmbt.android.R;
 import at.alladin.rmbt.android.graphview.CustomizableGraphView;
 import at.alladin.rmbt.android.graphview.GraphService;
 import at.alladin.rmbt.android.graphview.GraphView;

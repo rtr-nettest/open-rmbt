@@ -1,5 +1,6 @@
 /*******************************************************************************
  * Copyright 2015 alladin-IT GmbH
+ * Copyright 2015 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +27,7 @@
  * </ol>
  * 
  * <h2>1.1 QoS test tesult</h2>
- * There are 6 different test results so far. The numbers in the brackets equal the numbers as defined by the RTR in the document "Pflichtenheft Open-RMBT 2" (02.10.2013)<br>
+ * There are 6 different test results so far. The numbers in the brackets equal the numbers as defined by the RTR in the document "Pflichtenheft RTR-Netztest 2" (02.10.2013)<br>
  * <ul>
  * <li>WEBSITE (1.1)</li>
  * <li>HTTP PROXY (1.2)</li>

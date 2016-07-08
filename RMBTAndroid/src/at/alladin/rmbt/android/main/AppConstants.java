@@ -1,5 +1,6 @@
 /*******************************************************************************
  * Copyright 2013-2016 alladin-IT GmbH
+ * Copyright 2013-2016 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +24,7 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Build;
-import at.alladin.openrmbt.android.R;
+import at.alladin.rmbt.android.R;
 import at.alladin.rmbt.util.capability.Capabilities;
 
 public class AppConstants {
@@ -55,22 +56,22 @@ public class AppConstants {
 	public final static boolean LOOP_MODE_DEFAULT_USES_WAKELOCK = false;
 	
 
-	public final static int LOOP_MODE_UNLOCK_CODE = 1234;
-	public final static int LOOP_MODE_LOCK_CODE = 1234;
+	public final static int LOOP_MODE_UNLOCK_CODE = 123456789;
+	public final static int LOOP_MODE_LOCK_CODE = 123456789;
 	
 	
 	//////////////////////////////////////////////////
 	// server selection values 
 	////////////////////////////////////////////////
 
-	public final static int SERVER_SELECTION_UNLOCK_CODE = 1234;
-	public final static int SERVER_SELECTION_LOCK_CODE = 1234;
+	public final static int SERVER_SELECTION_UNLOCK_CODE = 123456789;
+	public final static int SERVER_SELECTION_LOCK_CODE = 123456789;
 	//////////////////////////////////////////////////
 	// server selection values 
 	////////////////////////////////////////////////
 
-	public final static int DEVELOPER_UNLOCK_CODE = 1234;
-	public final static int DEVELOPER_LOCK_CODE = 1234;
+	public final static int DEVELOPER_UNLOCK_CODE = 123456789;
+	public final static int DEVELOPER_LOCK_CODE = 123456789;
 	
 	
 	//////////////////////////////////////////////////
@@ -128,7 +129,7 @@ public class AppConstants {
 		PackageInfo pInfo;
 		try {
 			pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
-			return "(Android; " + Locale.getDefault().toString()  + "; API" + Build.VERSION.SDK_INT + ") Open-RMBT/" + pInfo.versionCode;
+			return "(Android; " + Locale.getDefault().toString()  + "; API" + Build.VERSION.SDK_INT + ") RTR-NetTest/" + pInfo.versionCode;
 		} catch (NameNotFoundException e) {
 			e.printStackTrace();
 		}

@@ -1,5 +1,6 @@
 /*******************************************************************************
  * Copyright 2015 alladin-IT GmbH
+ * Copyright 2015 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +30,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import at.alladin.openrmbt.android.R;
+import at.alladin.rmbt.android.R;
 import at.alladin.rmbt.android.util.ConfigHelper;
 import at.alladin.rmbt.client.QualityOfServiceTest;
 import at.alladin.rmbt.client.QualityOfServiceTest.Counter;

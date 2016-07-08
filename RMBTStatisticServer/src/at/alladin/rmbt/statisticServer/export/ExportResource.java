@@ -1,5 +1,6 @@
 /*******************************************************************************
  * Copyright 2013-2015 alladin-IT GmbH
+ * Copyright 2013-2015 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +53,7 @@ public class ExportResource extends ServerResource
     private static final String FILENAME_ZIP_HOURS = "netztest-opendata_hours-%HOURS%.zip";
     private static final String FILENAME_CSV = "netztest-opendata-%YEAR%-%MONTH%.csv";
     private static final String FILENAME_ZIP = "netztest-opendata-%YEAR%-%MONTH%.zip";
-    private static final String FILENAME_CSV_CURRENT = "opendata.csv";
+    private static final String FILENAME_CSV_CURRENT = "netztest-opendata.csv";
     private static final String FILENAME_ZIP_CURRENT = "netztest-opendata.zip";
     
     private static final CSVFormat csvFormat = CSVFormat.RFC4180;

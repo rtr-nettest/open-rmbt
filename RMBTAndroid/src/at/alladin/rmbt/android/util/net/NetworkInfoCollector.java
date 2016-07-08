@@ -1,5 +1,6 @@
 /*******************************************************************************
  * Copyright 2013-2015 alladin-IT GmbH
+ * Copyright 2013-2015 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +22,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import android.content.Context;
 import android.net.NetworkInfo;
-import at.alladin.openrmbt.android.R;
+import at.alladin.rmbt.android.R;
 import at.alladin.rmbt.android.main.RMBTMainActivity;
 import at.alladin.rmbt.android.util.net.NetworkInfoCollector.OnNetworkInfoChangedListener.InfoFlagEnum;
 

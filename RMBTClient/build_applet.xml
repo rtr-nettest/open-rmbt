@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+    Copyright 2015, 2016 alladin-IT GmbH
+    Copyright 2015, 2016 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
+   
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+   
+      http://www.apache.org/licenses/LICENSE-2.0
+   
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+ -->
+
+<project default="create_run_jar" name="Create Runnable Jar for Project RMBTClient">
+    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
+    <!--ANT 1.7 is required                                        -->
+    <target name="create_run_jar">
+        <jar destfile="/tmp/RMBTApplet.jar" filesetmanifest="mergewithoutmain">
+            <manifest>
+                <attribute name="Application-Name" value="RTR-Netztest"/>
+                <attribute name="Main-Class" value="at.alladin.rmbt.client.RMBTClientRunner"/>
+                <attribute name="Class-Path" value="."/>
+                <attribute name="Trusted-Library" value="true"/>
+                <attribute name="Permissions" value="all-permissions"/>
+                <attribute name="Codebase" value="https://*.netztest.at"/>
+                <attribute name="Application-Library-Allowable-Codebase" value="https://*.netztest.at"/>
+                <attribute name="Caller-Allowable-Codebase" value="*.netztest.at"/>
+            </manifest>
+            <fileset dir="bin"/>
+            <fileset dir="../RMBTUtil/bin"/>
+            <zipfileset excludes="META-INF/*.SF,META-INF/LICENSE,META-INF/NOTICE" src="lib/jopt-simple-3.2.jar"/>
+            <zipfileset excludes="META-INF/*.SF,META-INF/LICENSE,META-INF/NOTICE" src="lib/dnsjava-2.1.6.jar"/>
+            <zipfileset excludes="META-INF/*.SF,META-INF/LICENSE,META-INF/NOTICE" src="lib/org.json.jar"/>
+            <zipfileset excludes="META-INF/*.SF,META-INF/LICENSE,META-INF/NOTICE" src="lib/commons-logging-1.1.1.jar"/>
+            <zipfileset excludes="META-INF/*.SF,META-INF/LICENSE,META-INF/NOTICE" src="lib/org.apache.httpclient.jar"/>
+            <zipfileset excludes="META-INF/*.SF,META-INF/LICENSE,META-INF/NOTICE" src="lib/org.apache.httpcore.jar"/>
+        </jar>
+    </target>
+</project>

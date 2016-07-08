@@ -1,5 +1,6 @@
 /*******************************************************************************
  * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2014 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +34,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
-import at.alladin.openrmbt.android.R;
+import at.alladin.rmbt.android.R;
 import at.alladin.rmbt.android.main.RMBTMainActivity;
 import at.alladin.rmbt.android.util.CheckTestResultDetailTask;
 import at.alladin.rmbt.android.util.EndTaskListener;
