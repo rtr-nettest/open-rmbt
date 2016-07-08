@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2015 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,9 @@ package at.alladin.rmbt.android.map;
 
 import java.util.Map;
 
-import at.alladin.rmbt.util.model.option.OptionFunctionCallback;
-
 import com.google.android.gms.maps.model.LatLng;
+
+import at.alladin.rmbt.util.model.option.OptionFunctionCallback;
 
 /**
  * 

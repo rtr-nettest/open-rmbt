@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@ import at.alladin.rmbt.client.v2.task.service.TestSettings;
 
 public class RMBTApplet extends Applet
 {
+    public final static String PARAM_UUID = "uuid";
 	public final static String PARAM_RUN_QOS = "runQos";
 	public final static String PARAM_RUN_NDT = "runNdt";
 	public final static String PARAM_QOS_SSL = "qosSsl";
@@ -80,6 +81,14 @@ public class RMBTApplet extends Applet
         
         param = getParameter(PARAM_RUN_NDT);
         final boolean runNdt = Boolean.parseBoolean(param == null ? "false" : param.trim());
+        
+        param = getParameter(PARAM_UUID);
+        if (param != null)
+        {
+            uuid = param;
+            runRMBT = true;
+            start = true;
+        }
 
         final Runnable runnable = new Runnable()
         {

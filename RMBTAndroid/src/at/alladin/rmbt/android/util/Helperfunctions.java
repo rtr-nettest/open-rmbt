@@ -357,6 +357,8 @@ public final class Helperfunctions
             return R.drawable.traffic_lights_yellow;
         case 3:
             return R.drawable.traffic_lights_green;
+        case 4:
+        	return R.drawable.traffic_lights_ultra_green;
         default:
             return R.drawable.traffic_lights_none;
         }

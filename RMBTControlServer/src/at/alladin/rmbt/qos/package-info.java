@@ -375,6 +375,28 @@
  * 		<li><i>RANDOMURL prefix number_of_random_digits suffix%</i> => generates a random url by using the prefix and suffix as constants and generating a random hexadecimal hash with the length of <i>number_of_random_digits</i>. Example: <b>%RANDOMURL www.unknown 10 .com%</b> could genrate the following url: <b>www.unknown4e87a4be91.com</b></li>
  * 		<li><i>EVAL javascript</i> => this command is put through a JS parser. To reaplce this command with a value (like PARAM or RANDOM) the variable <i>result</i> needs to be set in the javascript code
  * 			<p>
+ * 			The <i>result</i> object can contain any value, for example:
+ * 			<ul>
+ * 				<li>result = 10;</li>
+ * 				<li>result = true;</li>
+ * 				<li>result = "resultString";</li>
+ * 			</ul>
+ * 			Or it may contain an array object, that needs to contain 2 key-value pairs: <b>type</b> and <b>key</b>. This can be used to replace the complicated "<b>operator</b> and <b>on_success</b> and/or <b>on_failure</b>" syntax.
+ * 			<br>This object should be used only for the <b>evaluate</b> field. Here is a description of what these parameters can hold and are used for:
+ * 			<ul>
+ * 				<li>type: either <b>"SUCCESS"</b> or <b>"FAILURE"</b> - it tells the script interpreter that the result will be of this type (replaces: on_success and on_failure)</li>
+ * 				<li>key: holds the message key</li>
+ * 			</ul>
+ * 			Code example (what it should look like in the database, all special characters escaped):
+ * 			<pre>
+ * 			\"evaluate\"=>\"%EVAL 
+ * 				if (tcp_result_out=='TIMEOUT') result = {type: 'FAILURE', key: 'tcp.timeout'};
+ * 				else if (tcp_result_out=='ERROR') result = {type: 'FAILURE', key: 'tcp.error'};
+ * 				else if (tcp_result_out=='OK') result = {type: 'SUCCESS', key: 'tcp.success'};
+ * 				else result=null;%\"
+ * 			</pre>
+ * 			</p>
+ * 			<p>
  * 			All test result values can be used in the js code, the variables have the same names as defined in 1.2<br>
  * 			This js parser has an own QoSTestScript library included to make some evaluations easier. To access functions from this library you need to address the "nn" object. The following functions are available:
  * 			<ul>

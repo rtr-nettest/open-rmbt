@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2015 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import java.util.Locale;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
@@ -39,6 +38,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -145,6 +145,10 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
     
     private static final long MAX_COUNTER_WITHOUT_RESULT = 100;
     
+	GraphData signalGraphData;
+	GraphData speedGraphData;
+
+    
     private final Runnable resultSwitcherRunnable = new Runnable()
     {
         @Override
@@ -167,6 +171,7 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
     public void onCreate(final Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        setRetainInstance(true);
         
         handler = new Handler();
         context = getActivity().getApplicationContext();
@@ -203,6 +208,9 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
     public void onStop()
     {
         super.onStop();
+
+        speedGraphData = speedGraph.getGraphData();
+        signalGraphData = signalGraph.getGraphData();
         
         handler.removeCallbacks(updateTask);
         handler.removeCallbacks(resultSwitcherRunnable);
@@ -256,15 +264,42 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
         qosProgressView = (ViewGroup) view.findViewById(R.id.test_view_qos_container);
         groupCountContainerView = (ViewGroup) view.findViewById(R.id.test_view_group_count_container);
         
-        if (graphView != null)
-        {
-        	if (savedInstanceState == null || savedInstanceState.getBoolean(OPTION_ON_CREATE_VIEW_CREATE_SPEED_GRAPH, true)) {
-        		speedGraph = SmoothGraph.addGraph(graphView, Color.parseColor("#00f940"), SMOOTHING_DATA_AMOUNT, SMOOTHING_FUNCTION, false);
-        		speedGraph.setMaxTime(GRAPH_MAX_NSECS);
+        
+        if (savedInstanceState != null) {
+        	if (testView != null) {
+        		testView.setHeaderString(savedInstanceState.getString("header_string"));
+        		testView.setSubHeaderString(savedInstanceState.getString("sub_header_string", testView.getSubHeaderString()));
+        		testView.setResultPingString(savedInstanceState.getString("ping_string", testView.getResultPingString()));
+        		testView.setResultDownString(savedInstanceState.getString("down_string", testView.getResultDownString()));
+        		testView.setResultUpString(savedInstanceState.getString("up_string", testView.getResultUpString()));
         	}
         	
-        	if (savedInstanceState == null || savedInstanceState.getBoolean(OPTION_ON_CREATE_VIEW_CREATE_SIGNAL_GRAPH, true)) {
+            if (textView != null) {
+            	textView.setText(savedInstanceState.getString("test_info"));
+            }
+        }
+        else {
+        	if (textView != null) {
+        		textView.setText("\n\n\n");
+        	}
+        }
+        
+        if (graphView != null)
+        {
+        	if (speedGraphData == null) {
+        		speedGraph = SmoothGraph.addGraph(graphView, Color.parseColor("#00f940"), SMOOTHING_DATA_AMOUNT, SMOOTHING_FUNCTION, false);
+        	}
+        	else {
+        		speedGraph = SmoothGraph.addGraph(graphView, SMOOTHING_DATA_AMOUNT, SMOOTHING_FUNCTION, false, speedGraphData);
+        	}
+        	
+    		speedGraph.setMaxTime(GRAPH_MAX_NSECS);
+        	
+        	if (signalGraphData == null) {
         		signalGraph = SimpleGraph.addGraph(graphView, Color.parseColor("#f8a000"), GRAPH_MAX_NSECS);
+        	}
+        	else {
+        		signalGraph = SimpleGraph.addGraph(graphView, GRAPH_MAX_NSECS, signalGraphData);
         	}
         	
         	//graphView.getLabelInfoVerticalList().add(new GraphLabel(getActivity().getString(R.string.test_dbm), "#f8a000"));
@@ -272,8 +307,6 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
         }
         //uploadGraph = false;
         graphStarted = false;
-        
-        textView.setText("\n\n\n");
         
         final Resources res = getActivity().getResources();
         final String progressTitle = res.getString(R.string.test_progress_title);
@@ -410,7 +443,7 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
             }
             
             if (!rmbtService.isTestRunning() && updateCounter > MAX_COUNTER_WITHOUT_RESULT && ! (errorDialog != null && errorDialog.isShowing()))
-                getActivity().getFragmentManager().popBackStack(); // leave
+                getActivity().getSupportFragmentManager().popBackStack(); // leave
             return;
         }
         
@@ -683,7 +716,7 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
             (progressDialog != null && progressDialog.isShowing()))
         {
             if (rmbtService != null)
-                rmbtService.stopTest();
+                rmbtService.stopTest(RMBTService.BROADCAST_TEST_ABORTED);
             else
             {
                 // to be sure test is stopped:
@@ -691,7 +724,7 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
                 context.startService(service);
             }
             dismissDialogs();
-            activity.getFragmentManager().popBackStack();
+            activity.getSupportFragmentManager().popBackStack();
             return true;
         }
         
@@ -712,8 +745,8 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
                 public void onClick(final DialogInterface dialog, final int which)
                 {
                     if (rmbtService != null)
-                        rmbtService.stopTest();
-                    getActivity().getFragmentManager().popBackStack();
+                        rmbtService.stopTest(RMBTService.BROADCAST_TEST_ABORTED);
+                    getActivity().getSupportFragmentManager().popBackStack();
                 }
             });
             builder.setNegativeButton(R.string.test_dialog_abort_no, null);
@@ -741,7 +774,7 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
             {
                 final RMBTMainActivity activity = (RMBTMainActivity) getActivity();
                 if (activity != null)
-                    activity.getFragmentManager().popBackStack();
+                    activity.getSupportFragmentManager().popBackStack();
             }
         });
         errorDialog.show();
@@ -944,6 +977,22 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
     }
     
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+    	super.onSaveInstanceState(outState);
+    	if (testView != null) {
+        	outState.putString("header_string", testView.getHeaderString());
+        	outState.putString("sub_header_string", testView.getSubHeaderString());
+        	outState.putString("ping_string", testView.getResultPingString());
+        	outState.putString("down_string", testView.getResultDownString());
+        	outState.putString("up_string", testView.getResultUpString());
+    	}
+    	
+        if (textView != null) {
+        	outState.putString("test_info", textView.getText().toString());
+        }
+    }
+    
+    @Override
     public void onConfigurationChanged(Configuration newConfig) {
     	super.onConfigurationChanged(newConfig);
     	LayoutInflater inflater = LayoutInflater.from(getActivity());
@@ -959,6 +1008,8 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
      * @param view
      */
 	private void populateViewForOrientation(final LayoutInflater inflater, final ViewGroup view) {
+		
+		System.out.println("RECREATING INSTANCE FOR ORIENTATION CHANGE");
 		
 		GroupCountView groupCountView = null;
 		if (groupCountContainerView != null && groupCountContainerView.getChildAt(0) != null) {
@@ -1054,5 +1105,56 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
         	}
         }
         
+	}
+	
+	public static double calculateProgress(IntermediateResult result, final float qosTestProgress, final int qosTestSize) {
+		double progressSegments = 0;
+        switch (result.status)
+        {
+        case WAIT:
+            break;
+        
+        case INIT:
+            progressSegments = Math.round(PROGRESS_SEGMENTS_INIT * result.progress);
+            break;
+        
+        case PING:
+            progressSegments = PROGRESS_SEGMENTS_INIT + Math.round(PROGRESS_SEGMENTS_PING * result.progress);
+            break;
+        
+        case DOWN:
+            progressSegments = PROGRESS_SEGMENTS_INIT + PROGRESS_SEGMENTS_PING + Math.round(PROGRESS_SEGMENTS_DOWN * result.progress);
+            break;
+        
+        case INIT_UP:
+            progressSegments = PROGRESS_SEGMENTS_INIT + PROGRESS_SEGMENTS_PING + PROGRESS_SEGMENTS_DOWN;
+            break;
+        
+        case UP:
+            progressSegments = PROGRESS_SEGMENTS_INIT + PROGRESS_SEGMENTS_PING + PROGRESS_SEGMENTS_DOWN
+                    + Math.round(PROGRESS_SEGMENTS_UP * result.progress);
+            break;
+                    
+        case SPEEDTEST_END:
+            progressSegments = PROGRESS_SEGMENTS_INIT + PROGRESS_SEGMENTS_PING + PROGRESS_SEGMENTS_DOWN + PROGRESS_SEGMENTS_UP;
+            break;
+
+        case QOS_TEST_RUNNING:
+        	progressSegments = PROGRESS_SEGMENTS_INIT + PROGRESS_SEGMENTS_PING + PROGRESS_SEGMENTS_DOWN +
+    		PROGRESS_SEGMENTS_UP + Math.round((PROGRESS_SEGMENTS_QOS-1) * (float)(qosTestProgress / qosTestSize));
+        	break;
+
+        case QOS_END:
+        	progressSegments = PROGRESS_SEGMENTS_TOTAL - 1;
+        	break;
+        	
+        case ERROR:
+        case ABORTED:
+            progressSegments = 0;
+            break;
+		default:
+			break;
+        }
+        return (progressSegments / (double)PROGRESS_SEGMENTS_TOTAL);
 	}
 }

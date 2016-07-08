@@ -33,6 +33,10 @@ import org.restlet.resource.Options;
 import org.restlet.resource.ResourceException;
 import org.restlet.util.Series;
 
+import at.alladin.rmbt.db.DbConnection;
+import at.alladin.rmbt.shared.ResourceManager;
+import at.alladin.rmbt.util.capability.Capabilities;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
@@ -43,14 +47,12 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
-import at.alladin.rmbt.db.DbConnection;
-import at.alladin.rmbt.shared.ResourceManager;
-
 public class ServerResource extends org.restlet.resource.ServerResource
 {
     protected Connection conn;
     protected ResourceBundle labels;
     protected ResourceBundle settings;
+    protected Capabilities capabilities = new Capabilities();
     
     public static class MyDateTimeAdapter implements JsonSerializer<DateTime>, JsonDeserializer<DateTime>
     {
@@ -85,6 +87,14 @@ public class ServerResource extends org.restlet.resource.ServerResource
         Locale.setDefault(new Locale(settings.getString("RMBT_DEFAULT_LANGUAGE")));
         labels = ResourceManager.getSysMsgBundle();
         
+        try {
+	        if (getQuery().getNames().contains("capabilities")) {
+	        	capabilities = new Gson().fromJson(getQuery().getValues("capabilities"), Capabilities.class);
+	        }
+        } catch (final Exception e) {
+        	e.printStackTrace();
+        }
+
         // Get DB-Connection
         try
         {

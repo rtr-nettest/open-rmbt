@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2015 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import android.content.pm.PackageManager;
 import android.preference.PreferenceManager;
 import at.alladin.openrmbt.android.R;
 import at.alladin.rmbt.android.adapter.result.QoSCategoryPagerAdapter;
+import at.alladin.rmbt.android.main.AppConstants;
 import at.alladin.rmbt.client.helper.Config;
 import at.alladin.rmbt.client.v2.task.result.QoSTestResultEnum;
 
@@ -121,10 +122,15 @@ public final class ConfigHelper
         return getSharedPreferences(context).getBoolean("skip_qos", false);
     }
     
+    public static void setLoopMode(final Context context, final boolean value) {
+    	getSharedPreferences(context).edit().putBoolean("loop_mode", value).apply();
+    }
+    
     public static boolean isLoopMode(final Context context)
     {
-        if (! isDevEnabled(context))
+        if (!isDevEnabled(context) && !isUserLoopModeActivated(context)) {
             return false;
+        }
         return getSharedPreferences(context).getBoolean("loop_mode", false);
     }
     
@@ -138,9 +144,9 @@ public final class ConfigHelper
         return getSharedPreferences(context).getBoolean("loop_mode_wake_lock", true);
     }
     
-    private static int getInt(final Context context, String key, int defaultId)
+    private static int getInt(final Context context, String key, int defaultId, boolean lookup)
     {
-        final int def = context.getResources().getInteger(defaultId);
+        final int def = lookup ? context.getResources().getInteger(defaultId) : defaultId;
         final String string = getSharedPreferences(context).getString(key, Integer.toString(def));
         try
         {
@@ -152,24 +158,42 @@ public final class ConfigHelper
         }
     }
     
-    public static int getLoopModeMaxTests(final Context context)
-    {
-        return getInt(context, "loop_mode_max_tests", R.integer.default_loop_max_tests);
+    public static void setLoopModeMaxTests(final Context context, final int value) {
+    	getSharedPreferences(context).edit().putString("loop_mode_max_tests", Integer.toString(value)).apply();
     }
     
+    public static void setLoopModeTestCounter(final Context context, final int value) {
+    	getSharedPreferences(context).edit().putString("loop_mode_test_counter", Integer.toString(value)).apply();
+    }
+    
+    public static void incLoopModeTestCounter(final Context context) {
+    	setLoopModeTestCounter(context, getLoopModeTestCounter(context) + 1);
+    }
+
+    public static int getLoopModeMaxTests(final Context context)
+    {
+    	final boolean isDevEnabled = isDevEnabled(context);
+        return getInt(context, "loop_mode_max_tests", 
+        		isDevEnabled ? R.integer.default_loop_max_tests : AppConstants.LOOP_MODE_DEFAULT_TESTS, isDevEnabled);
+    }
+        
     public static int getLoopModeMinDelay(final Context context)
     {
-        return getInt(context, "loop_mode_min_delay", R.integer.default_loop_min_delay);
+        return getInt(context, "loop_mode_min_delay", R.integer.default_loop_min_delay, true);
     }
     
     public static int getLoopModeMaxDelay(final Context context)
     {
-        return getInt(context, "loop_mode_max_delay", R.integer.default_loop_max_delay);
+        return getInt(context, "loop_mode_max_delay", R.integer.default_loop_max_delay, true);
     }
     
     public static int getLoopModeMaxMovement(final Context context)
     {
-        return getInt(context, "loop_mode_max_movement", R.integer.default_loop_max_movement);
+        return getInt(context, "loop_mode_max_movement", R.integer.default_loop_max_movement, true);
+    }
+    
+    public static int getLoopModeTestCounter(final Context context) {
+    	return getInt(context, "loop_mode_test_counter", 0, false);
     }
     
     public static boolean isNDT(final Context context)
@@ -191,25 +215,16 @@ public final class ConfigHelper
     {
         getSharedPreferences(context).edit().putBoolean("ndt_decision", value).apply();
     }
-    
-    public static String getDeveloperCode(final Context context)
-    {
-        return getSharedPreferences(context).getString("developer_code", null);
-    }
-    
+     
     public static String getServerSelection(final Context context)
     {
         return getSharedPreferences(context).getString("server_selection", DEFAULT_SERVER);
     }
-    
+
     public static void setServerSelection(final Context context, final String server)
     {
         getSharedPreferences(context).edit().putString("server_selection", server).apply();
-    }
-    
-    public static boolean isServerSelectionEnabled(final Context context)
-    {
-        return ConfigHelper.getDeveloperCode(context) != null; // TODO: use specific code?
+       
     }
     
     public static Set<String> getServers(final Context context)
@@ -226,11 +241,6 @@ public final class ConfigHelper
                 && servers.equals(oldServers))
             return;
         getSharedPreferences(context).edit().putStringSet("servers", servers).apply();
-    }
-    
-    public static void setDeveloperCode(final Context context, final String code)
-    {
-        getSharedPreferences(context).edit().putString("developer_code", code).apply();
     }
     
     public static String getPreviousTestStatus(final Context context)
@@ -357,7 +367,7 @@ public final class ConfigHelper
     }
     
     public static int getCachedMapServerPort(Context context) {
-    	return getInt(context, "cache_map_server_port", R.integer.default_map_host_port);
+    	return getInt(context, "cache_map_server_port", R.integer.default_map_host_port, true);
     }
 
     public static boolean getCachedMapServerSsl(Context context) {
@@ -584,9 +594,42 @@ public final class ConfigHelper
 
     	return name;
     }
-    
+/*
+ *  Dev mode activation using separate app (obsolete)
+ *     
+ *     
     public static boolean isDevEnabled(final Context ctx)
     {
         return PackageManager.SIGNATURE_MATCH == ctx.getPackageManager().checkSignatures(ctx.getPackageName(), at.alladin.rmbt.android.util.Config.RMBT_DEV_UNLOCK_PACKAGE_NAME);
+    }
+*/    
+    public static boolean isUserLoopModeActivated(final Context ctx) {
+    	return getSharedPreferences(ctx).getBoolean("user_loop_mode", false);
+    }
+    
+    public static void setUserLoopModeState(final Context ctx, final boolean isEnabled) {
+    	getSharedPreferences(ctx).edit().putBoolean("user_loop_mode", isEnabled).apply();
+    }
+    
+    public static boolean isUserServerSelectionActivated(final Context ctx) {
+    	return getSharedPreferences(ctx).getBoolean("user_server_selection", false);
+    }
+      
+    public static void setServerSelectionState(final Context ctx, final boolean isEnabled) {
+    	getSharedPreferences(ctx).edit().putBoolean("user_server_selection", isEnabled).apply();
+    }
+    
+    public static boolean isDevEnabled(final Context ctx) {
+    	return getSharedPreferences(ctx).getBoolean("developer_mode", false);
+    }
+    
+    public static void setDevModeState(final Context ctx, final boolean isEnabled) {
+    	getSharedPreferences(ctx).edit().putBoolean("developer_mode", isEnabled).apply();
+    }
+        
+    public static boolean isValidCheckSum(final int dataInput) {
+        final int testInput = dataInput % 100;
+        final int testResult = (90 - (dataInput - testInput) % 89 + 77) % 100; //modified IBAN check sum with 89 as prime and offset of 77
+        return testResult == testInput;
     }
 }

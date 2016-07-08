@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2015 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,6 @@
 package at.alladin.rmbt.android.util;
 
 import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -32,6 +30,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.util.Log;
 import at.alladin.openrmbt.android.R;
+import at.alladin.rmbt.android.main.AppConstants;
 import at.alladin.rmbt.android.map.MapProperties;
 import at.alladin.rmbt.client.helper.Config;
 import at.alladin.rmbt.client.helper.JSONParser;
@@ -41,7 +40,7 @@ import at.alladin.rmbt.util.model.shared.MapOptions;
 public class ControlServerConnection
 {
     
-	public static enum UriType {
+	public static enum UrlType {
 		DEFAULT_HOSTNAME,
 		HOSTNAME_IPV4,
 		HOSTNAME_IPV6
@@ -59,8 +58,6 @@ public class ControlServerConnection
     
     private boolean encryption;
     
-    private JSONParser jParser;
-    
     private Context context;
     
     private String errorMsg = "";
@@ -74,11 +71,11 @@ public class ControlServerConnection
         return ConfigHelper.getUUID(context.getApplicationContext());
     }
     
-    private URI getUri(final String path) {
-    	return getUri(path, UriType.DEFAULT_HOSTNAME);
+    private URL getUrl(final String path) {
+        return getUrl(path, UrlType.DEFAULT_HOSTNAME);
     }
     
-    private URI getUri(final String path, final UriType uriType)
+    private URL getUrl(final String path, final UrlType urlType)
     {
         try
         {
@@ -92,7 +89,7 @@ public class ControlServerConnection
             
             String host = hostname;
             
-            switch(uriType) {
+            switch(urlType) {
             case HOSTNAME_IPV4:
             	host = hostname4;
             	break;
@@ -105,16 +102,12 @@ public class ControlServerConnection
             }
             
             if (defaultPort == port)
-                return new URL(protocol, host, totalPath).toURI();
+                return new URL(protocol, host, totalPath);
             else
-                return new URL(protocol, host, port, totalPath).toURI();
+                return new URL(protocol, host, port, totalPath);
             
         }
         catch (final MalformedURLException e)
-        {
-            return null;
-        }
-        catch (final URISyntaxException e)
         {
             return null;
         }
@@ -138,7 +131,8 @@ public class ControlServerConnection
     
     private void setupServer(final Context context, final boolean useMapServerPath)
     {    	 
-        jParser = new JSONParser();
+        JSONParser.setCapabilities(AppConstants.getCapabilities());
+        
         hasError = false;
         
         this.context = context;
@@ -162,18 +156,17 @@ public class ControlServerConnection
         }
     }
     
-    public boolean unload()
-    {
-        jParser = null;
-        
-        return true;
-    }
+//    @Deprecated
+//    private JSONArray sendRequest(final URI hostUrl, final JSONObject requestData, final String fieldName)
+//    {
+//        return sendRequest(hostUrl.toURL(), requestData, fieldName);
+//    }
     
-    private JSONArray sendRequest(final URI hostUrl, final JSONObject requestData, final String fieldName)
+    private JSONArray sendRequest(final URL hostUrl, final JSONObject requestData, final String fieldName)
     {
         // getting JSON string from URL
         //Log.d(DEBUG_TAG, "request to "+ hostUrl);    	
-        final JSONObject response = jParser.sendJSONToUrl(hostUrl, requestData);
+        final JSONObject response = JSONParser.sendJSONToUrl(hostUrl, requestData);
         
         if (response != null)
             try
@@ -234,7 +227,7 @@ public class ControlServerConnection
         
         hasError = false;
         
-        final URI hostUrl = getUri(Config.RMBT_NEWS_HOST_URL);
+        final URL hostUrl = getUrl(Config.RMBT_NEWS_HOST_URL);
         
         Log.i(DEBUG_TAG,"Newsrequest to " + hostUrl);
         
@@ -262,13 +255,13 @@ public class ControlServerConnection
         
         hasError = false;
                 
-        URI hostUrl = null;
+        URL hostUrl = null;
         
         final JSONObject requestData = new JSONObject();
         
         try
         {
-            hostUrl = isIpv6 ? new URL(ConfigHelper.getCachedIpv6CheckUrl(context)).toURI() : new URL(ConfigHelper.getCachedIpv4CheckUrl(context)).toURI();
+            hostUrl = isIpv6 ? new URL(ConfigHelper.getCachedIpv6CheckUrl(context)) : new URL(ConfigHelper.getCachedIpv4CheckUrl(context));
             
             Log.i(DEBUG_TAG,"IP request to " + hostUrl);
 
@@ -292,7 +285,7 @@ public class ControlServerConnection
         
         hasError = false;
         
-        final URI hostUrl = getUri(Config.RMBT_HISTORY_HOST_URL);
+        final URL hostUrl = getUrl(Config.RMBT_HISTORY_HOST_URL);
         
         Log.i(DEBUG_TAG,"Historyrequest to " + hostUrl);
         
@@ -346,7 +339,7 @@ public class ControlServerConnection
         
         hasError = false;
         
-        final URI hostUrl = getUri(Config.RMBT_TESTRESULT_HOST_URL);
+        final URL hostUrl = getUrl(Config.RMBT_TESTRESULT_HOST_URL);
         
         Log.i(DEBUG_TAG,"RMBTTest Result request to " + hostUrl);
         
@@ -368,30 +361,14 @@ public class ControlServerConnection
         return sendRequest(hostUrl, requestData, "testresult");
     }
     
-    public JSONObject requestOpenDataTestResult(final String testUuid, final String openTestUuid) {
+    public JSONObject requestOpenDataTestResult(final String openTestUuid) {
         hasError = false;
         
-        final URI hostUrl = getUri(Config.RMBT_TESTRESULT_OPENDATA_HOST_URL + openTestUuid);
+        final URL hostUrl = getUrl(Config.RMBT_TESTRESULT_OPENDATA_HOST_URL + openTestUuid);
         
         Log.i(DEBUG_TAG,"RMBTTest OpenData Result request to " + hostUrl);
         
-        final JSONObject requestData = new JSONObject();
-        
-        try
-        {
-            InformationCollector.fillBasicInfo(requestData, context);
-            requestData.put("test_uuid", testUuid);
-            requestData.put("open_test_uuid", openTestUuid);
-            requestData.put("uuid", getUUID());
-        }
-        catch (final JSONException e1)
-        {
-            hasError = true;
-            errorMsg = "Error gernerating request";
-            // e1.printStackTrace();
-        }
-        
-        return jParser.getURL(hostUrl);
+        return JSONParser.getURL(hostUrl);
         //return sendRequest(hostUrl, requestData, null);
     }
     
@@ -400,7 +377,7 @@ public class ControlServerConnection
         
         hasError = false;
         
-        final URI hostUrl = getUri(Config.RMBT_TESTRESULT_QOS_HOST_URL);
+        final URL hostUrl = getUrl(Config.RMBT_TESTRESULT_QOS_HOST_URL + "?api=2");
         
         Log.i(DEBUG_TAG,"RMBTTest QoS Result request to " + hostUrl);
         
@@ -427,7 +404,7 @@ public class ControlServerConnection
         
         hasError = false;
         
-        final URI hostUrl = getUri(Config.RMBT_TESTRESULT_DETAIL_HOST_URL);
+        final URL hostUrl = getUrl(Config.RMBT_TESTRESULT_DETAIL_HOST_URL);
         
         Log.i(DEBUG_TAG,"RMBTTest ResultDetail request to " + hostUrl);
         
@@ -454,7 +431,7 @@ public class ControlServerConnection
         
         hasError = false;
         
-        final URI hostUrl = getUri(Config.RMBT_SYNC_HOST_URL);
+        final URL hostUrl = getUrl(Config.RMBT_SYNC_HOST_URL);
         
         Log.i(DEBUG_TAG,"Sync request to " + hostUrl);
         
@@ -484,7 +461,7 @@ public class ControlServerConnection
         
         hasError = false;
         
-        final URI hostUrl = getUri(Config.RMBT_SETTINGS_HOST_URL);
+        final URL hostUrl = getUrl(Config.RMBT_SETTINGS_HOST_URL);
         
         PackageInfo pInfo;
         String clientVersionName = "";
@@ -533,7 +510,7 @@ public class ControlServerConnection
     public MapOptions requestMapOptions() {
        hasError = false;
         
-        final URI hostUrl = getUri(MapProperties.MAP_OPTIONS_PATH_V2);
+        final URL hostUrl = getUrl(MapProperties.MAP_OPTIONS_PATH_V2);
         
         final JSONObject requestData = new JSONObject();
         
@@ -548,7 +525,7 @@ public class ControlServerConnection
         }
         
         Log.i(DEBUG_TAG, "request to " + hostUrl);
-        final JSONObject response = jParser.sendJSONToUrl(hostUrl, requestData);
+        final JSONObject response = JSONParser.sendJSONToUrl(hostUrl, requestData);
         return ServerOption.getGson().fromJson(response.toString(), MapOptions.class);
     }
     
@@ -557,7 +534,7 @@ public class ControlServerConnection
         
         hasError = false;
         
-        final URI hostUrl = getUri(MapProperties.MAP_OPTIONS_PATH);
+        final URL hostUrl = getUrl(MapProperties.MAP_OPTIONS_PATH);
         
         final JSONObject requestData = new JSONObject();
         
@@ -572,7 +549,7 @@ public class ControlServerConnection
         }
         
         Log.i(DEBUG_TAG, "request to " + hostUrl);
-        final JSONObject response = jParser.sendJSONToUrl(hostUrl, requestData);
+        final JSONObject response = JSONParser.sendJSONToUrl(hostUrl, requestData);
         return response;
     }
     
@@ -581,7 +558,7 @@ public class ControlServerConnection
     {
         hasError = false;
         
-        final URI hostUrl = getUri(MapProperties.MARKER_PATH);
+        final URL hostUrl = getUrl(MapProperties.MARKER_PATH);
         
         Log.i(DEBUG_TAG,"MapMarker request to " + hostUrl);
         

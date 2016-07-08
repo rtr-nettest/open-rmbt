@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,19 +15,24 @@
  ******************************************************************************/
 package at.alladin.rmbt.controlServer;
 
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 
 import at.alladin.rmbt.shared.ResourceManager;
+import at.alladin.rmbt.util.model.shared.exception.ErrorStatus;
 
 public class ErrorList
 {
     
     private JSONArray errorList = null;
+    
+    private Set<ErrorStatus> errorFlags = new HashSet<>();
     
     private ResourceBundle labels = null;
     
@@ -43,6 +48,13 @@ public class ErrorList
         {
             final String errorText = labels.getString(errorLabel);
             addErrorString(errorText);
+            
+            if ("ERROR_REQUEST_REJECTED".equals(errorLabel)) {
+            	errorFlags.add(ErrorStatus.TEST_REJECTED);
+            }
+            else {
+            	errorFlags.add(ErrorStatus.OTHER);
+            }
         }
         catch (final MissingResourceException e)
         {
@@ -89,4 +101,7 @@ public class ErrorList
         return errorList;
     }
     
+    public JSONArray getErrorFlags() {
+    	return new JSONArray(errorFlags);
+    }
 }

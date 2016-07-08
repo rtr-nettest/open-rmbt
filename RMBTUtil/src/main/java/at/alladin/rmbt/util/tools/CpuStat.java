@@ -113,7 +113,7 @@ public abstract class CpuStat {
 		protected int numCores;
 		protected float[] lastCpuUsage;
 		protected boolean detectedIdleOrIoWaitDrop = false;
-		protected List<CoreUsage> coreUsageList = new ArrayList<CpuStat.CpuUsage.CoreUsage>();
+		protected List<CoreUsage> coreUsageList = new ArrayList<>();
 
 		public int getNumCores() {
 			return numCores;

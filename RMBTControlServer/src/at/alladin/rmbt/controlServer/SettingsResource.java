@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2015 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -106,54 +106,63 @@ public class SettingsResource extends ServerResource
                     if (clientNames.contains(request.optString("name")) && typeId > 0)
                     {
 
-                        UUID uuid = null;
-                        long clientUid = 0;
-                        
-                        final String uuidString = request.optString("uuid", "");
-                        try
-                        {
-                            if (! Strings.isNullOrEmpty(uuidString))
-                                uuid = UUID.fromString(uuidString);
-                        }
-                        catch (IllegalArgumentException e) // not a valid uuid
-                        {
-                        }
-                        
-                        if (uuid != null && errorList.getLength() == 0)
-                        {
-                            clientUid = client.getClientByUuid(uuid);
-                            if (client.hasError())
-                                errorList.addError(client.getError());
-                        }
-                        
-                        boolean tcAccepted = request.optInt("terms_and_conditions_accepted_version", 0) > 0; // accept any version for now
-                        if (! tcAccepted) // allow old non-version parameter
-                            tcAccepted = request.optBoolean("terms_and_conditions_accepted", false);
-                        {
-                            if (tcAccepted && (uuid == null || clientUid == 0))
-                            {
-                                
-                                final Timestamp tstamp = java.sql.Timestamp.valueOf(new Timestamp(System
-                                        .currentTimeMillis()).toString());
-                                
-                                final Calendar timeWithZone = Helperfunctions.getTimeWithTimeZone(Helperfunctions
-                                        .getTimezoneId());
-                                
-                                client.setTimeZone(timeWithZone);
-                                client.setTime(tstamp);
-                                client.setClient_type_id(typeId);
-                                client.setTcAccepted(tcAccepted);
-                                
-                                uuid = client.storeClient();
-                                
-                                if (client.hasError())
-                                    errorList.addError(client.getError());
-                                else
-                                    jsonItem.put("uuid", uuid.toString());
-                            }
-                            
+                    	UUID uuid = null;
+                    	long clientUid = 0;
+                    	boolean existingClient = false;
+
+                    	final int tcAcceptedVersion = request.optInt("terms_and_conditions_accepted_version", 0);
+                    	boolean tcAccepted = tcAcceptedVersion > 0;
+                    	if (! tcAccepted) // for clients backwards compatibility
+                    		tcAccepted = request.optBoolean("terms_and_conditions_accepted", false);
+
+                    	final String uuidString = request.optString("uuid", "");
+                    	try
+                    	{
+                    		if (! Strings.isNullOrEmpty(uuidString))
+                    			uuid = UUID.fromString(uuidString);
+                    	}
+                    	catch (IllegalArgumentException e) // uuid invalid
+                    	{
+                    	}
+
+                    	if (uuid != null && errorList.getLength() == 0)
+                    	{
+                    		clientUid = client.getClientByUuid(uuid);
+                    		if (!client.hasError() && clientUid > 0) {
+                    			existingClient = true;
+
+                    			if (client.getTcAcceptedVersion()< tcAcceptedVersion) {
+                    				client.updateTcAcceptedVersion(uuid,tcAcceptedVersion);
+                    			}
+                    		}
+                    	}
+
+                    	if (tcAccepted && !existingClient)
+                    	{
+                    		final Timestamp tstamp = java.sql.Timestamp.valueOf(new Timestamp(System
+                    				.currentTimeMillis()).toString());
+
+                    		final Calendar timeWithZone = Helperfunctions.getTimeWithTimeZone(Helperfunctions
+                    				.getTimezoneId());
+
+                    		client.setTimeZone(timeWithZone);
+                    		client.setTime(tstamp);
+                    		client.setClient_type_id(typeId);
+                    		client.setTcAccepted(tcAccepted);
+                    		client.setTcAcceptedVersion(tcAcceptedVersion);
+                    		uuid = client.storeClient(uuid);
+
+                    		if (client.hasError())
+                    			errorList.addError(client.getError());
+                    		else {
+                    			jsonItem.put("uuid", uuid.toString());
+                    		}
+                    	}
+
                             if (client.getUid() > 0)
                             {
+                            	client.updateLastSeen(uuid);
+                            	
                             	JSONObject mapServer = new JSONObject();
                             	//for clients backwards compatibility, shall be obsoleted by url_map_server
                             	mapServer.put("host", getSetting("host_map_server", lang));
@@ -221,7 +230,7 @@ public class SettingsResource extends ServerResource
                                     jsonItem.put("history", subItem);
                                 
                             }
-                        }
+                        
                         
                         //also put there: basis-urls for all services
                         final JSONObject jsonItemURLs = new JSONObject();
@@ -239,14 +248,20 @@ public class SettingsResource extends ServerResource
                         jsonControlServerVersion.put("control_server_version",  RevisionHelper.getVerboseRevision());
                         jsonItem.put("versions", jsonControlServerVersion);
                         
-                        final String developerCode = request.optString("developer_code", null);
-                        if (developerCode != null)
+                        
+                        /// servers
+                        
+                        final Boolean userServerSelection = request.optBoolean("user_server_selection"); 
+                        // It returns false if there is no such key, or if the value is not Boolean.TRUE or the String "true". 
+                        if (userServerSelection)
                         {
                         	jsonItem.put("servers", getServers());
                         	jsonItem.put("servers_ws", getServersWs());
                         	jsonItem.put("servers_qos", getServersQos());
                         	
                         }
+                        
+                        /// qos
                         
                         try {
                             final Locale locale = new Locale(lang);
@@ -266,12 +281,30 @@ public class SettingsResource extends ServerResource
                         	errorList.addError("ERROR_DB_CONNECTION");
 						}
 
+                        /// android permissions
+                        final JSONArray androidPermissionStatus = request.optJSONArray("android_permission_status");
+                        if (androidPermissionStatus != null)
+                        {
+                            final JSONArray requestAndroidPermissions = new JSONArray();
+                            
+                            // for now request all permissions every time. see #1248 / comment:6
+                            addRequestPermission(requestAndroidPermissions, "android.permission.ACCESS_FINE_LOCATION", true);
+                            addRequestPermission(requestAndroidPermissions, "android.permission.ACCESS_COARSE_LOCATION", true);
+                            addRequestPermission(requestAndroidPermissions, "android.permission.READ_PHONE_STATE", true);
+                            
+                            jsonItem.put("request_android_permissions", requestAndroidPermissions);
+                        }
+                        
+                        
                         settingsList.put(jsonItem);
                         
                         answer.put("settings", settingsList);
                         
-                        //debug: print settings response (JSON)
-                        //System.out.println(settingsList);
+                        // debug: print settings request (JSON)
+                        // System.out.println(request);
+                        
+                        // debug: print settings response (JSON)
+                        // System.out.println(settingsList.toString(3));
                         
                     }
                     else
@@ -323,6 +356,14 @@ public class SettingsResource extends ServerResource
     
  // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
+    private static void addRequestPermission(JSONArray requestAndroidPermissions, String permission, boolean request) throws JSONException
+    {
+        final JSONObject requestObj = new JSONObject();
+        requestObj.put("permission", permission);
+        requestObj.put("request", request);
+        requestAndroidPermissions.put(requestObj);
+    }
+
     private JSONArray getServers() throws JSONException
     {
         final String sql = "SELECT * FROM test_server WHERE active AND selectable AND server_type = 'RMBT'";

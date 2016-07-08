@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2015 alladin-IT GmbH
+ * Copyright 2016 Specure GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package at.alladin.rmbt.qos.testserver.tcp;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.text.DateFormat;
+import java.util.Date;
 
 import at.alladin.rmbt.qos.testserver.ServerPreferences.TestServerServiceEnum;
 import at.alladin.rmbt.qos.testserver.TestServer;
@@ -65,6 +67,11 @@ public class TcpMultiClientServer extends AbstractTcpServer {
 	 * set a socket timeout?
 	 */
 	public final static boolean HAS_TIMEOUT = false;
+	
+	/**
+	 * start up timestamp
+	 */
+	private final long startUp = System.currentTimeMillis();
 			
 	/**
 	 * 
@@ -185,5 +192,23 @@ public class TcpMultiClientServer extends AbstractTcpServer {
 				+ ", ttlTimestamp=" + ttlTimestamp + ", serverSocket="
 				+ serverSocket + ", port=" + port + ", inetAddr=" + inetAddr
 				+ "]";
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see at.alladin.rmbt.qos.testserver.entity.Observable#isHealthy()
+	 */
+	@Override
+	public boolean isHealthy() {
+		return serverSocket != null && serverSocket.isBound();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see at.alladin.rmbt.qos.testserver.entity.Observable#getStatusMessage()
+	 */
+	@Override
+	public String getStatusMessage() {
+		return "Server start up: " + DateFormat.getDateTimeInstance().format(new Date(startUp));
 	}
 }

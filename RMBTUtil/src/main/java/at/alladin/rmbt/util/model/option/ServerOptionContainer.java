@@ -31,14 +31,14 @@ public class ServerOptionContainer implements Serializable {
 
 	private final String FUNCTION_DROP_PARAM = "drop_param";
 	
-	public Map<ServerOption, ServerOption> selectedMap = new HashMap<ServerOption, ServerOption>();
+	public Map<ServerOption, ServerOption> selectedMap = new HashMap<>();
 	
 	public List<ServerOption> rootOptionList;
 	
 	private OptionFunctionCallback functionCallback;
 	
 	public ServerOptionContainer(final List<ServerOption> serverOptionList) {
-		this.rootOptionList = new ArrayList<ServerOption>();
+		this.rootOptionList = new ArrayList<>();
 		this.rootOptionList.addAll(serverOptionList);		
 		
 		for (final ServerOption o : rootOptionList) {
@@ -152,7 +152,7 @@ public class ServerOptionContainer implements Serializable {
 	 * @return
 	 */
 	private Map<String, Object> getSelectedParams(boolean isUserRequest) {
-		final Map<String, Object> paramMap = new HashMap<String, Object>();
+		final Map<String, Object> paramMap = new HashMap<>();
 		for (Entry<ServerOption, ServerOption> e : selectedMap.entrySet()) {
 			if (e.getValue() != null && e.getKey().isEnabled()) {
 				generateSelectedParams(paramMap, e.getValue(), isUserRequest);
@@ -291,7 +291,7 @@ public class ServerOptionContainer implements Serializable {
 			return getSelectedSubOptionsRecursive(parent.getParent(), option);
 		}
 		else {
-			final List<ServerOption> subList = new ArrayList<ServerOption>();
+			final List<ServerOption> subList = new ArrayList<>();
 			ServerOption selectedOption = selectedMap.get(parent);
 			if (selectedOption != null) {
 				while (selectedOption.getParent() != null && !selectedOption.equals(option)) {

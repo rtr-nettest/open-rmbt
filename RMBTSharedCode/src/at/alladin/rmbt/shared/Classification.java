@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2015 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ public final class Classification
     public static final int[] THRESHOLD_DOWNLOAD = { 30000, 2000, 1000 }; // 30Mbit/s, 2Mbit/s, 1Mbit/s
     public static final String[] THRESHOLD_DOWNLOAD_CAPTIONS = { "2", "1" };
     
-    public static final int[] THRESHOLD_PING = { 10000000, 25000000, 75000000 }; // 5ms, 25ms, 75ms
+    public static final int[] THRESHOLD_PING = { 10000000, 25000000, 75000000 }; // 10ms, 25ms, 75ms
     public static final String[] THRESHOLD_PING_CAPTIONS = { "25", "75" };
     
     // RSSI limits used for 2G,3G (and 4G when RSSI is used)
@@ -40,28 +40,36 @@ public final class Classification
     public static final String[] THRESHOLD_SIGNAL_WIFI_CAPTIONS = { "-61", "-76" };
     
 
-    public static int classify(final int[] threshold, final long value, boolean fourColor)
+    public static int classify(final int[] threshold, final long value, int classificationItems)
     {
+    	int init = threshold.length-(classificationItems-1);
         final boolean inverse = threshold[0] < threshold[1];
         
         if (!inverse)
         {
-            if (fourColor && (value >= threshold[0]))
-                return 4; // ULTRA_GREEN
-            if (value >= threshold[1])
-                return 3; // GREEN
-            else if (value >= threshold[2])
-                return 2; // YELLOW
-            else
-                return 1; // RED
+        	/*
+        	 * 1 = RED
+        	 * classificationItems = ULTRA GREEN
+        	 */
+        	
+        	int c = 0;
+        	for (int i = init; i < threshold.length; i++, c++) {
+        		if (value >= threshold[i]) {
+        			return classificationItems-c;
+        		}
+        	}
+        	
+        	return 1;
         }
-        else if (fourColor && (value <= threshold[0]))
-            return 4;
-        else if (value <= threshold[1])
-            return 3;
-        else if (value <= threshold[2])
-            return 2;
-        else
-            return 1;
+        
+
+        int c = 0;
+    	for (int i = init; i < threshold.length; i++, c++) {
+    		if (value <= threshold[i]) {
+    			return classificationItems-c;
+    		}
+    	}        	
+
+    	return 1;
     }
 }

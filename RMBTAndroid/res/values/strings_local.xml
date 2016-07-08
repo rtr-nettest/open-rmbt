@@ -17,6 +17,7 @@
 <resources>
     
     <string name="app_name">Open-RMBT</string>
+    <string name="app_name_api" translatable="false">RMBT</string>
     
     <string name="test_notification_ticker">Open-RMBT running…</string>
     <string name="test_notification_title">Open-RMBT</string>
@@ -32,8 +33,11 @@
     <string name="about_email_subject">Support request Open-RMBT</string>
     
     <string name="terms_accept_text"></string>
+    <integer name="rmbt_terms_version" translatable="false">1</integer>
     
     <string name="url_help"></string>
     <string name="url_help_result"></string>
     <string name="url_terms"></string>
+
+    <string name="header_image_description" translatable="false">Header image</string>
 </resources>

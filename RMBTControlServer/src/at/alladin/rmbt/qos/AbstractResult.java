@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,13 @@
  ******************************************************************************/
 package at.alladin.rmbt.qos;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.json.JSONObject;
+
+import at.alladin.rmbt.qos.annotations.NonComparableField;
+import at.alladin.rmbt.qos.testscript.TestScriptInterpreter;
 import at.alladin.rmbt.shared.hstoreparser.annotation.HstoreKey;
 
 /**
@@ -38,26 +45,95 @@ public abstract class AbstractResult<T> {
 	
 	public final static String COMPARATOR_CONTAINS = "contains";
 	
+	public final static String RESULT_TYPE_INFO = "info";
+	
+	public final static String RESULT_TYPE_DEFAULT = "default";
+	
+	public final static String BEHAVIOUR_ABORT = "abort";
+	
+	public final static String BEHAVIOUR_NOTHING = "nothing";
+	
+	@NonComparableField
+	protected Map<String, Object> resultMap = new HashMap<String, Object>();
+	
 	@HstoreKey("operator")
+	@NonComparableField
 	protected String operator;
 	
 	@HstoreKey("on_failure")
+	@NonComparableField
 	protected String onFailure;
 	
 	@HstoreKey("on_success")
+	@NonComparableField
 	protected String onSuccess;
 	
 	@HstoreKey("evaluate")
-	protected String evaluate;
+	protected Object evaluate;
 	
 	@HstoreKey("end_time_ns")
-	protected String endTimeNs;
+	protected Long endTimeNs;
 	
 	@HstoreKey("start_time_ns")
-	protected String startTimeNs;
+	protected Long startTimeNs;
 	
 	@HstoreKey("duration_ns")
-	protected String testDuration;
+	protected Long testDuration;
+	
+	///////////////////////////////////////
+	//	Advanced implementations:
+	///////////////////////////////////////
+	
+	@HstoreKey("success_condition")
+	@NonComparableField
+	protected String successCondition = "true";
+	
+	/**
+	 * can hold following values:
+	 * <ul>
+	 * <li>default: {@link AbstractResult#RESULT_TYPE_DEFAULT}</li>
+	 * <li>{@link AbstractResult#RESULT_TYPE_INFO}: Will not count as a success or failure. The status of the result will be "info"</li>
+	 * </ul>
+	 */
+	@HstoreKey("failure_type")
+	@NonComparableField
+	protected String failureType = RESULT_TYPE_DEFAULT;
+
+	/**
+	 * @see AbstractResult#failureType
+	 */
+	@HstoreKey("success_type")
+	@NonComparableField
+	protected String successType = RESULT_TYPE_DEFAULT;
+	
+	/**
+	 * the behaviour of the evaluation if the test fails
+	 * <ul>
+	 * <li>default: {@link AbstractResult#BEHAVIOUR_NOTHING}</li>
+	 * <li>{@link AbstractResult#BEHAVIOUR_ABORT}: Will cause the evaluation to abort. All following expected results will be ignored.</li>
+	 * </ul>
+	 */
+	@HstoreKey("on_failure_behaviour")
+	@NonComparableField
+	protected String onFailureBehaivour = BEHAVIOUR_NOTHING;
+
+	/**
+	 * the behaviour of the evaluation if the test succeeds
+	 * @see AbstractResult#onFailureBehaivour
+	 */
+	@HstoreKey("on_success_behaviour")
+	@NonComparableField
+	protected String onSuccessBehaivour = BEHAVIOUR_NOTHING;
+	
+	/**
+	 * Test evaluation priority. 
+	 * The lower the value the higher the priority
+	 * <br>
+	 * default: {@link Integer#MAX_VALUE} 
+	 */
+	@HstoreKey("priority")
+	@NonComparableField
+	protected Integer priority = Integer.MAX_VALUE;
 	
 	/**
 	 * 
@@ -90,36 +166,92 @@ public abstract class AbstractResult<T> {
 		this.onSuccess = onSuccess;
 	}
 
-	public String getEvaluate() {
+	public Object getEvaluate() {
 		return evaluate;
 	}
 
-	public void setEvaluate(String evaluate) {
+	public void setEvaluate(Object evaluate) {
 		this.evaluate = evaluate;
 	}
 
-	public String getEndTimeNs() {
+	public Long getEndTimeNs() {
 		return endTimeNs;
 	}
 
-	public void setEndTimeNs(String endTimeNs) {
+	public void setEndTimeNs(Long endTimeNs) {
 		this.endTimeNs = endTimeNs;
 	}
 
-	public String getStartTimeNs() {
+	public Long getStartTimeNs() {
 		return startTimeNs;
 	}
 
-	public void setStartTimeNs(String startTimeNs) {
+	public void setStartTimeNs(Long startTimeNs) {
 		this.startTimeNs = startTimeNs;
 	}
 
-	public String getTestDuration() {
+	public Long getTestDuration() {
 		return testDuration;
 	}
 
-	public void setTestDuration(String testDuration) {
+	public void setTestDuration(Long testDuration) {
 		this.testDuration = testDuration;
+	}
+
+	public String getSuccessCondition() {
+		return successCondition;
+	}
+
+	public void setSuccessCondition(String successCondition) {
+		this.successCondition = successCondition;
+	}
+	
+	public String getFailureType() {
+		return failureType;
+	}
+
+	public void setFailureType(String failureType) {
+		this.failureType = failureType;
+	}
+
+	public String getSuccessType() {
+		return successType;
+	}
+
+	public void setSuccessType(String successType) {
+		this.successType = successType;
+	}
+	
+	public String getOnFailureBehaivour() {
+		return onFailureBehaivour;
+	}
+
+	public void setOnFailureBehaivour(String onFailureBehaivour) {
+		this.onFailureBehaivour = onFailureBehaivour;
+	}
+
+	public String getOnSuccessBehaivour() {
+		return onSuccessBehaivour;
+	}
+
+	public void setOnSuccessBehaivour(String onSuccessBehaivour) {
+		this.onSuccessBehaivour = onSuccessBehaivour;
+	}
+
+	public Integer getPriority() {
+		return priority;
+	}
+
+	public void setPriority(Integer priority) {
+		this.priority = priority;
+	}
+	
+	public Map<String, Object> getResultMap() {
+		return resultMap;
+	}
+
+	public void setResultJson(JSONObject resultJson) {
+		this.resultMap = TestScriptInterpreter.jsonToMap(resultJson);
 	}
 
 	@Override
@@ -127,6 +259,11 @@ public abstract class AbstractResult<T> {
 		return "AbstractResult [operator=" + operator + ", onFailure="
 				+ onFailure + ", onSuccess=" + onSuccess + ", evaluate="
 				+ evaluate + ", endTimeNs=" + endTimeNs + ", startTimeNs="
-				+ startTimeNs + ", testDuration=" + testDuration + "]";
+				+ startTimeNs + ", testDuration=" + testDuration
+				+ ", successCondition=" + successCondition + ", failureType="
+				+ failureType + ", successType=" + successType
+				+ ", onFailureBehaivour=" + onFailureBehaivour
+				+ ", onSuccessBehaivour=" + onSuccessBehaivour + ", priority="
+				+ priority + "]";
 	}
 }

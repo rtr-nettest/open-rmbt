@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,187 +15,130 @@
  ******************************************************************************/
 package at.alladin.rmbt.client.helper;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.HttpResponseException;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.conn.ConnectTimeoutException;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.BasicResponseHandler;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicHeader;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
-import org.apache.http.protocol.HTTP;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class JSONParser
+import com.google.gson.Gson;
+
+import at.alladin.rmbt.util.capability.Capabilities;
+
+public abstract class JSONParser
 {
-    // Start filing Errors
-    JSONArray errorList = null;
+    public static int CONNECT_TIMEOUT = 5000;
+    public static int READ_TIMEOUT = 8000;
     
-    // constructor
-    public JSONParser()
-    {
-        // Start filing Errors
-        errorList = new JSONArray();
-    }
+    protected static JSONObject CAPABILITIES = null;
     
-    public JSONObject getURL(final URI uri)
+    
+    public static void setCapabilities(Capabilities capabilities)
     {
-        JSONObject jObj = null;
-        String responseBody;
-        
         try
         {
-            final HttpParams params = new BasicHttpParams();
-            HttpConnectionParams.setConnectionTimeout(params, 20000);
-            HttpConnectionParams.setSoTimeout(params, 20000);
-            final HttpClient client = new DefaultHttpClient(params);
-            
-            final HttpGet httpget = new HttpGet(uri);
-            
-            final ResponseHandler<String> responseHandler = new BasicResponseHandler();
-            responseBody = client.execute(httpget, responseHandler);
-            
-            // try parse the string to a JSON object
-            try
-            {
-                jObj = new JSONObject(responseBody);
-            }
-            catch (final JSONException e)
-            {
-                writeErrorList("Error parsing JSON " + e.toString());
-            }
-            
+            if (capabilities == null)
+                CAPABILITIES = null;
+            else
+                CAPABILITIES = new JSONObject(new Gson().toJson(capabilities).toString());
         }
-        catch (final UnsupportedEncodingException e)
+        catch (JSONException e)
         {
-            writeErrorList("Wrong encoding");
-            // e.printStackTrace();
-        }
-        catch (final HttpResponseException e)
-        {
-            writeErrorList("Server responded with Code " + e.getStatusCode() + " and message '" + e.getMessage() + "'");
-        }
-        catch (final ClientProtocolException e)
-        {
-            writeErrorList("Wrong Protocol");
-            // e.printStackTrace();
-        }
-        catch (final IOException e)
-        {
-            writeErrorList("IO Exception");
+            // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        
-        // return JSONObject
-        return jObj;
     }
     
-    public JSONObject sendJSONToUrl(final URI uri, final JSONObject data)
+    public static String readUrl(final URL url) throws IOException 
     {
-        JSONObject jObj = null;
-        String responseBody;
-        
+        final URLConnection urlConnection = url.openConnection();
+        try {
+            urlConnection.setConnectTimeout(CONNECT_TIMEOUT);
+            urlConnection.setReadTimeout(READ_TIMEOUT);
+            
+            final StringBuilder stringBuilder = new StringBuilder();
+            final BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+            int read;
+            final char[] chars = new char[1024];
+            while ((read = reader.read(chars)) != -1)
+                stringBuilder.append(chars, 0, read);
+            return stringBuilder.toString();
+        } finally {
+            if (urlConnection instanceof HttpURLConnection)
+                ((HttpURLConnection)urlConnection).disconnect();
+        }
+    }
+    
+    public static String sendToUrl(final URL url, final String data) throws IOException 
+    {
+        final HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+        try {
+            urlConnection.setDoOutput(true);
+            urlConnection.setDoInput(true);
+            
+            urlConnection.setConnectTimeout(CONNECT_TIMEOUT);
+            urlConnection.setReadTimeout(READ_TIMEOUT);
+            
+            urlConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+            urlConnection.setRequestProperty("Accept", "application/json");
+            
+            final byte[] bytes = data.getBytes(Charset.forName("UTF-8"));
+            urlConnection.setFixedLengthStreamingMode(bytes.length);
+            urlConnection.getOutputStream().write(bytes);
+            
+            final StringBuilder stringBuilder = new StringBuilder();
+            final BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+            int read;
+            final char[] chars = new char[1024];
+            while ((read = reader.read(chars)) != -1)
+                stringBuilder.append(chars, 0, read);
+            return stringBuilder.toString();
+        } finally {
+            urlConnection.disconnect();
+        }
+    }
+    
+    public static JSONObject getURL(final URL url)
+    {
+        // try parse the string to a JSON object
         try
         {
-            final HttpParams params = new BasicHttpParams();
-            HttpConnectionParams.setConnectionTimeout(params, 20000);
-            HttpConnectionParams.setSoTimeout(params, 20000);
-            final HttpClient client = new DefaultHttpClient(params);
-            
-            final HttpPost httppost = new HttpPost(uri);
-            
-            final StringEntity se = new StringEntity(data.toString(), "UTF-8");
-            
-            httppost.setEntity(se);
-            httppost.setHeader(new BasicHeader(HTTP.CONTENT_TYPE, "application/json;charset=UTF-8"));
-            
-            final ResponseHandler<String> responseHandler = new BasicResponseHandler();
-            responseBody = client.execute(httppost, responseHandler);
-            
-            // try parse the string to a JSON object
-            try
-            {
-                jObj = new JSONObject(responseBody);
-            }
-            catch (final JSONException e)
-            {
-                writeErrorList("Error parsing JSON " + e.toString());
-            }
-            
+            final String data = readUrl(url);
+            return new JSONObject(data);
         }
-        catch (final UnsupportedEncodingException e)
+        catch (final Exception e)
         {
-            writeErrorList("Wrong encoding");
-            // e.printStackTrace();
+            //e.printStackTrace();
+            return null;
         }
-        catch (final HttpResponseException e)
+    }
+    
+    
+    public static JSONObject sendJSONToUrl(final URL url, final JSONObject data)
+    {
+        try
         {
-            writeErrorList("Server responded with Code " + e.getStatusCode() + " and message '" + e.getMessage() + "'");
+            if (CAPABILITIES != null)
+                data.put("capabilities", CAPABILITIES);
+            final String output = sendToUrl(url, data.toString());
+            return new JSONObject(output);
         }
-        catch (final ClientProtocolException e)
+        catch (final Exception e)
         {
-            writeErrorList("Wrong Protocol");
-            // e.printStackTrace();
-        }
-        catch (final ConnectTimeoutException e) {
-        	writeErrorList("ConnectionTimeoutException");
-        	e.printStackTrace();
-        }
-        catch (final IOException e)
-        {
-            writeErrorList("IO Exception");
             e.printStackTrace();
+            return null;
         }
-        
-        if (jObj == null)
-            jObj = createErrorJSON();
-        
-        // return JSONObject
-        return jObj;
-    }
-    
-    private void writeErrorList(final String errorText)
-    {
-        try
-        {
-            errorList.put(errorList.length(), errorText);
-            System.out.println(errorText);
-        }
-        catch (final JSONException e)
-        {
-            System.out.println("Error writing ErrorList: " + e.toString());
-        }
-    }
-    
-    private JSONObject createErrorJSON()
-    {
-        final JSONObject errorAnswer = new JSONObject();
-        try
-        {
-            errorAnswer.putOpt("error", errorList);
-        }
-        catch (final JSONException e)
-        {
-            System.out.println("Error saving ErrorList: " + e.toString());
-        }
-        return errorAnswer;
     }
     
     /**

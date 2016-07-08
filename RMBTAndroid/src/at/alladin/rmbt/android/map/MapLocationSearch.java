@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2015 alladin-IT GmbH
+ * Copyright 2015, 2016 alladin-IT GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,9 @@ package at.alladin.rmbt.android.map;
 
 import java.util.concurrent.TimeUnit;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.model.LatLng;
+
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
@@ -28,9 +31,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 import at.alladin.openrmbt.android.R;
 import at.alladin.rmbt.android.map.MapLocationRequestTask.OnRequestFinished;
-
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.model.LatLng;
 
 public class MapLocationSearch {
 	

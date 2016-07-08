@@ -61,16 +61,6 @@ public class CheckMarker extends AsyncTask<Void, Void, JSONArray>
     }
     
     @Override
-    protected void onCancelled()
-    {
-        if (serverConn != null)
-        {
-            serverConn.unload();
-            serverConn = null;
-        }
-    }
-    
-    @Override
     protected void onPostExecute(final JSONArray resultList)
     {
         if (serverConn.hasError())

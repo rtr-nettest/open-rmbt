@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,10 +37,10 @@ public class DnsResult extends AbstractResult<DnsResult> {
 		private String address;
 		
 		@HstoreKey("dns_result_ttl")
-		private String ttl;
+		private Long ttl;
 		
 		@HstoreKey("dns_result_priority")
-		private String priority;
+		private Short priority;
 		
 		public DnsEntry() {
 			
@@ -54,19 +54,19 @@ public class DnsResult extends AbstractResult<DnsResult> {
 			this.address = address;
 		}
 
-		public String getTtl() {
+		public Long getTtl() {
 			return ttl;
 		}
 
-		public void setTtl(String ttl) {
+		public void setTtl(Long ttl) {
 			this.ttl = ttl;
 		}
 
-		public String getPriority() {
+		public Short getPriority() {
 			return priority;
 		}
 
-		public void setPriority(String priority) {
+		public void setPriority(Short priority) {
 			this.priority = priority;
 		}
 
@@ -144,13 +144,13 @@ public class DnsResult extends AbstractResult<DnsResult> {
 	private String record;
 	
 	@HstoreKey("dns_objective_timeout")
-	private String timeout;
+	private Object timeout;
 	
 	@HstoreKey("dns_result_entries_found")
-	private String entriesFound;
+	private Object entriesFound;
 	
 	@HstoreKey("dns_result_duration")
-	private String duration;
+	private Object duration;
 	
 	@HstoreKey("dns_result_entries")
 	@HstoreCollection(DnsEntry.class)
@@ -195,11 +195,11 @@ public class DnsResult extends AbstractResult<DnsResult> {
 		this.resultEntries = resultEntries;
 	}
 
-	public String getEntriesFound() {
+	public Object getEntriesFound() {
 		return entriesFound;
 	}
 
-	public void setEntriesFound(String entriesFound) {
+	public void setEntriesFound(Object entriesFound) {
 		this.entriesFound = entriesFound;
 	}
 
@@ -219,19 +219,19 @@ public class DnsResult extends AbstractResult<DnsResult> {
 		this.status = status;
 	}
 
-	public String getTimeout() {
+	public Object getTimeout() {
 		return timeout;
 	}
 
-	public void setTimeout(String timeout) {
+	public void setTimeout(Object timeout) {
 		this.timeout = timeout;
 	}
 
-	public String getDuration() {
+	public Object getDuration() {
 		return duration;
 	}
 
-	public void setDuration(String duration) {
+	public void setDuration(Object duration) {
 		this.duration = duration;
 	}
 

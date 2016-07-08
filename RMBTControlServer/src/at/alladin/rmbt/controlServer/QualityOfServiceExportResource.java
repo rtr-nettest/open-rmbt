@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,6 @@ import org.restlet.representation.OutputRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
 
-import at.alladin.rmbt.controlServer.ServerResource;
 import at.alladin.rmbt.db.QoSTestDesc;
 import at.alladin.rmbt.db.QoSTestObjective;
 import at.alladin.rmbt.db.dao.QoSTestDescDao;

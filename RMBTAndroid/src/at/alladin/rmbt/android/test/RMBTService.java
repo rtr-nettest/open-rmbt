@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2015 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,10 @@
  ******************************************************************************/
 package at.alladin.rmbt.android.test;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import android.app.Notification;
@@ -32,19 +35,26 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import at.alladin.openrmbt.android.R;
 import at.alladin.rmbt.android.main.RMBTMainActivity;
 import at.alladin.rmbt.android.test.RMBTTask.EndTaskListener;
+import at.alladin.rmbt.android.test.RMBTTask.RMBTTaskError;
 import at.alladin.rmbt.android.util.ConfigHelper;
 import at.alladin.rmbt.android.util.InformationCollector;
 import at.alladin.rmbt.android.util.NotificationIDs;
 import at.alladin.rmbt.client.QualityOfServiceTest;
 import at.alladin.rmbt.client.QualityOfServiceTest.Counter;
+import at.alladin.rmbt.client.RMBTClient;
 import at.alladin.rmbt.client.helper.IntermediateResult;
 import at.alladin.rmbt.client.helper.NdtStatus;
+import at.alladin.rmbt.client.helper.TestStatus;
 import at.alladin.rmbt.client.v2.task.QoSTestEnum;
 import at.alladin.rmbt.client.v2.task.result.QoSTestResultEnum;
+import at.alladin.rmbt.client.v2.task.service.TestMeasurement;
+import at.alladin.rmbt.client.v2.task.service.TrafficService;
+import at.alladin.rmbt.util.model.shared.exception.ErrorStatus;
 
 public class RMBTService extends Service implements EndTaskListener
 {
@@ -52,6 +62,9 @@ public class RMBTService extends Service implements EndTaskListener
     public static String ACTION_LOOP_TEST = "at.alladin.rmbt.android.loopTest";
     public static String ACTION_ABORT_TEST = "at.alladin.rmbt.android.abortTest";
     public static String BROADCAST_TEST_FINISHED = "at.alladin.rmbt.android.test.RMBTService.testFinished";
+    public static String BROADCAST_TEST_ABORTED = "at.alladin.rmbt.android.test.RMBTService.testAborted";
+    
+    private final int FLAG_ABORTED = 1;
     
     private RMBTTask testTask;
     // private InformationCollector fullInfo;
@@ -76,7 +89,8 @@ public class RMBTService extends Service implements EndTaskListener
         @Override
         public void run()
         {
-            stopTest();
+        	System.err.println("DEADMAN");
+            stopTest(BROADCAST_TEST_FINISHED);
         }
     };
     
@@ -180,7 +194,7 @@ public class RMBTService extends Service implements EndTaskListener
         if (ACTION_ABORT_TEST.equals(action))
         {
             Log.i(DEBUG_TAG, "ACTION_ABORT_TEST received");
-            stopTest();
+            stopTest(BROADCAST_TEST_ABORTED);
             return START_NOT_STICKY;
         }
         
@@ -214,14 +228,14 @@ public class RMBTService extends Service implements EndTaskListener
         return START_NOT_STICKY;
     }
     
-    public void stopTest()
-    {
-        
+    public void stopTest(final String broadcastMessage)
+    {        
         if (testTask != null)
         {
             Log.d(DEBUG_TAG, "RMBTTest stopped");
             testTask.cancel();
-            taskEnded();
+            taskEnded(FLAG_ABORTED);
+            sendBroadcast(new Intent(broadcastMessage));
         }
     }
     
@@ -239,13 +253,13 @@ public class RMBTService extends Service implements EndTaskListener
             final PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(), 0, new Intent(
                     getApplicationContext(), RMBTMainActivity.class), 0);
             
-            final Notification notification = new Notification.Builder(this)
+            final Notification notification = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.stat_icon_test)
                 .setContentTitle(res.getText(R.string.test_notification_title))
                 .setContentText(res.getText(R.string.test_notification_text))
                 .setTicker(res.getText(R.string.test_notification_ticker))
                 .setContentIntent(contentIntent)
-                .getNotification();
+                .build();
             
             startForeground(NotificationIDs.TEST_RUNNING, notification);
         }
@@ -302,6 +316,15 @@ public class RMBTService extends Service implements EndTaskListener
             return testTask.isConnectionError();
         else
             return false;
+    }
+    
+    public RMBTTaskError getError() {
+    	if (testTask != null) {
+    		return testTask.getError();
+    	}
+    	else {
+    		return RMBTTaskError.NONE;
+    	}
     }
 
     public Integer getSignal()
@@ -366,6 +389,10 @@ public class RMBTService extends Service implements EndTaskListener
             return testTask.getIP();
         else
             return null;
+    }
+    
+    public long getStartTimeMillis() {
+    	return testTask != null ? testTask.getStartTimeMillis() : 0;
     }
     
     public String getTestUuid(boolean clearUUID)
@@ -481,19 +508,24 @@ public class RMBTService extends Service implements EndTaskListener
     }
     
     @Override
-    public void taskEnded()
+	public void taskEnded(int... flag)
     {
-        running.set(false);
-        unlock();
-        removeNotification();
-        handler.removeCallbacks(deadman);
-        completed = true;
-        sendBroadcast(new Intent(BROADCAST_TEST_FINISHED));
-        stopSelf();
-        if (testTask != null) {
-        	ConfigHelper.setLastTestUuid(getApplicationContext(), testTask.getTestUuid());
-        }
-        Log.i("RMBTService", "stopped!");
+    	if (running.get()) {
+	        running.set(false);
+	        unlock();
+	        removeNotification();
+	        handler.removeCallbacks(deadman);
+	        completed = true;
+	        if (!contains(flag, FLAG_ABORTED)) {
+	        	System.out.println("TASK ENDED flags: " + Arrays.toString(flag));
+	        	sendBroadcast(new Intent(BROADCAST_TEST_FINISHED));            	
+	        }
+	        stopSelf();
+	        if (testTask != null) {
+	        	ConfigHelper.setLastTestUuid(getApplicationContext(), testTask.getTestUuid());
+	        }
+	        Log.i("RMBTService", "stopped!");
+    	}
     }
     
     public boolean isCompleted()
@@ -515,5 +547,48 @@ public class RMBTService extends Service implements EndTaskListener
     public static boolean isRunning()
     {
         return running.get();
+    }
+    
+    public RMBTClient getRMBTClient() {
+    	if (testTask != null) return testTask.getRmbtClient();
+    	return null;
+    }
+    
+    public TrafficService getSpeedTestTrafficService() {
+    	if (testTask != null) return testTask.getSpeedTestTrafficService();
+    	return null;
+    }
+
+    public TrafficService getQoSTrafficService() {
+    	if (testTask != null) return testTask.getQoSTrafficService();
+    	return null;
+    }
+    
+    public Map<TestStatus, TestMeasurement> getTrafficMeasurementMap() {
+    	if (testTask != null) return testTask.getTrafficMeasurementMap();
+    	return new HashMap<TestStatus, TestMeasurement>();
+    }
+    
+	public Set<ErrorStatus> getErrorStatusList() {
+		if (testTask != null) {
+			return testTask.getErrorStatusList();
+		}
+		return null;
+	}
+	
+    public InformationCollector getInformationCollector() {
+    	if (testTask != null) {
+    		return testTask.getInformationCollector();
+    	}
+    	return null;
+    }
+
+    public static boolean contains(int[] list, int i) {
+    	if (list == null) return false;
+    	for (final int li : list) {
+    		if (li == i) return true;
+    	}
+    	
+    	return false;
     }
 }

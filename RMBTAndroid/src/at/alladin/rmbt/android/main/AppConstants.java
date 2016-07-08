@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2015 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,18 +19,71 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import at.alladin.openrmbt.android.R;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Build;
+import at.alladin.openrmbt.android.R;
+import at.alladin.rmbt.util.capability.Capabilities;
 
 public class AppConstants {
+	
+	//////////////////////////////////////////////////
+	// user loop mode default values 
+	////////////////////////////////////////////////
+	
+	/**
+	 * multiplies the delay with this value. 
+	 * could be helpful when debugging, set to 1 and the loop mode will wait for seconds not for minutes
+	 */
+	public final static float LOOP_MODE_TIME_MOD = 60.0f;
+	
+	public final static int LOOP_MODE_MAX_DELAY = 24*60;
+	public final static int LOOP_MODE_MIN_DELAY = 15;
+	public final static int LOOP_MODE_DEFAULT_DELAY = 30;
+
+	public final static int LOOP_MODE_MIN_MOVEMENT = 50;
+	public final static int LOOP_MODE_MAX_MOVEMENT = 10000;
+	public final static int LOOP_MODE_DEFAULT_MOVEMENT = 250;
+	public final static int LOOP_MODE_GPS_ACCURACY_CRITERIA = 30;
+	
+	public final static int LOOP_MODE_MIN_TESTS = 1;
+	public final static int LOOP_MODE_MAX_TESTS = 100;
+	public final static int LOOP_MODE_DEFAULT_TESTS = 10;
+	
+	public final static boolean LOOP_MODE_DEFAULT_USES_GPS = true;
+	public final static boolean LOOP_MODE_DEFAULT_USES_WAKELOCK = false;
+	
+
+	public final static int LOOP_MODE_UNLOCK_CODE = 1234;
+	public final static int LOOP_MODE_LOCK_CODE = 1234;
+	
+	
+	//////////////////////////////////////////////////
+	// server selection values 
+	////////////////////////////////////////////////
+
+	public final static int SERVER_SELECTION_UNLOCK_CODE = 1234;
+	public final static int SERVER_SELECTION_LOCK_CODE = 1234;
+	//////////////////////////////////////////////////
+	// server selection values 
+	////////////////////////////////////////////////
+
+	public final static int DEVELOPER_UNLOCK_CODE = 1234;
+	public final static int DEVELOPER_LOCK_CODE = 1234;
+	
+	
+	//////////////////////////////////////////////////
+	// fragment ids and titles 
+	////////////////////////////////////////////////	
+	
 	public final static String PAGE_TITLE_MAIN = "main";
 	public final static String PAGE_TITLE_TEST = "test";
+	public final static String PAGE_TITLE_LOOP_TEST = "loop_test";
 	public final static String PAGE_TITLE_MAP = "map";
 	public final static String PAGE_TITLE_MINI_MAP = "mini_map";
 	public final static String PAGE_TITLE_NDT_CHECK = "ndt_check";
+	public final static String PAGE_TITLE_LOOP_MODE_CHECK = "loop_mode_check";
 	public final static String PAGE_TITLE_HISTORY = "history";
 	public final static String PAGE_TITLE_HISTORY_FILTER = "history_filter";
 	public final static String PAGE_TITLE_HISTORY_PAGER = "history_pager";
@@ -63,6 +116,7 @@ public class AppConstants {
 		TITLE_MAP.put(PAGE_TITLE_TEST_DETAIL_QOS, R.string.page_title_qos_result);
 		TITLE_MAP.put(PAGE_TITLE_STATISTICS, R.string.page_title_statistics);
 		TITLE_MAP.put(PAGE_TITLE_NDT_CHECK, R.string.terms);
+		TITLE_MAP.put(PAGE_TITLE_LOOP_MODE_CHECK, R.string.terms_loop_mode);
 	}
 	
 	/**
@@ -80,5 +134,15 @@ public class AppConstants {
 		}
 		
 		return null;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public static Capabilities getCapabilities() {
+    	final Capabilities capabilities = new Capabilities();
+    	capabilities.getClassificationCapability().setCount(4);
+    	return capabilities; 
 	}
 }

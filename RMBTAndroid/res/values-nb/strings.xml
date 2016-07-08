@@ -139,7 +139,7 @@
 	<string name="history_filter_networks">TILGANG</string>
 	<string name="history_filter_devices">ENHET</string>
 	<string name="history_filter_result_number">ANTALL RESULTATER</string>
-	<string name="history_filter_result_number_25">Vis bare de siste 25 resultatene</string>
+	<string name="history_filter_result_number_25">Vis bare de siste 250 resultatene</string>
 	
 	<string name="result_measurement">MÅLING</string>
 	<string name="result_net">NETT</string>

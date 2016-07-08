@@ -62,7 +62,9 @@ public class TestResultResource extends ServerResource
             // try parse the string to a JSON object
             try
             {
+            	System.out.println(entity);
                 request = new JSONObject(entity);
+                readCapabilities(request);
                 
                 String lang = request.optString("language");
                 
@@ -84,8 +86,6 @@ public class TestResultResource extends ServerResource
                 {
                     final Client client = new Client(conn);
                     final Test test = new Test(conn);
-                    
-                    final boolean fourColorClassifiation = false;
                     
                     final String testUuid = request.optString("test_uuid");
                     if (testUuid != null && test.getTestByUuid(UUID.fromString(testUuid)) > 0
@@ -131,7 +131,7 @@ public class TestResultResource extends ServerResource
                                 labels.getString("RESULT_DOWNLOAD_UNIT"));
                         singleItem.put("value", downloadString);
                         singleItem.put("classification",
-                                Classification.classify(Classification.THRESHOLD_DOWNLOAD, fieldDown.intValue(),fourColorClassifiation));
+                                Classification.classify(Classification.THRESHOLD_DOWNLOAD, fieldDown.intValue(), capabilities.getClassificationCapability().getCount()));
                         
                         jsonItemList.put(singleItem);
                         
@@ -142,7 +142,7 @@ public class TestResultResource extends ServerResource
                                 format.format(fieldUp.doubleValue() / 1000d), labels.getString("RESULT_UPLOAD_UNIT"));
                         singleItem.put("value", uploadString);
                         singleItem.put("classification",
-                                Classification.classify(Classification.THRESHOLD_UPLOAD, fieldUp.intValue(),fourColorClassifiation));
+                                Classification.classify(Classification.THRESHOLD_UPLOAD, fieldUp.intValue(), capabilities.getClassificationCapability().getCount()));
                         
                         jsonItemList.put(singleItem);
                         
@@ -156,7 +156,7 @@ public class TestResultResource extends ServerResource
                         			labels.getString("RESULT_PING_UNIT"));
                         	singleItem.put("value", pingString);
                         	singleItem.put("classification",
-                        			Classification.classify(Classification.THRESHOLD_PING, fieldPing.longValue(),fourColorClassifiation));
+                        			Classification.classify(Classification.THRESHOLD_PING, fieldPing.longValue(), capabilities.getClassificationCapability().getCount()));
 
                         	jsonItemList.put(singleItem);
                         }
@@ -186,7 +186,7 @@ public class TestResultResource extends ServerResource
                         			singleItem.put("title", labels.getString("RESULT_SIGNAL"));
                         			signalString = signalValue + " " + labels.getString("RESULT_SIGNAL_UNIT");
                         			singleItem.put("value", signalString);
-                        			singleItem.put("classification", Classification.classify(threshold, signalValue,fourColorClassifiation));
+                        			singleItem.put("classification", Classification.classify(threshold, signalValue, capabilities.getClassificationCapability().getCount()));
                         		}
                         		else  { // use RSRP value else (RSRP value has priority if both are available (e.g. 3G/4G-test))
                         			final int signalValue = lteRsrpField.intValue();
@@ -195,7 +195,7 @@ public class TestResultResource extends ServerResource
                         			singleItem.put("title", labels.getString("RESULT_SIGNAL_RSRP"));
                         			signalString = signalValue + " " + labels.getString("RESULT_SIGNAL_UNIT");
                         			singleItem.put("value", signalString);
-                        			singleItem.put("classification", Classification.classify(threshold, signalValue,fourColorClassifiation));
+                        			singleItem.put("classification", Classification.classify(threshold, signalValue, capabilities.getClassificationCapability().getCount()));
 
                         		}	
                         		jsonItemList.put(singleItem);

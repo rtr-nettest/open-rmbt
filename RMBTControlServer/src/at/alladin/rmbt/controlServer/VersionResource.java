@@ -19,6 +19,7 @@ package at.alladin.rmbt.controlServer;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.restlet.resource.Get;
+
 import at.alladin.rmbt.shared.RevisionHelper;
 
 public class VersionResource extends ServerResource

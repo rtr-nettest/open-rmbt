@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2015 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutionException;
@@ -54,6 +55,7 @@ import at.alladin.rmbt.client.v2.task.TaskDesc;
 import at.alladin.rmbt.client.v2.task.result.QoSResultCollector;
 import at.alladin.rmbt.client.v2.task.service.TestMeasurement;
 import at.alladin.rmbt.client.v2.task.service.TrafficService;
+import at.alladin.rmbt.util.model.shared.exception.ErrorStatus;
 
 public class RMBTClient
 {
@@ -106,9 +108,11 @@ public class RMBTClient
     public final static String TASK_UDP = "udp";
     public final static String TASK_TCP = "tcp";
     public final static String TASK_DNS = "dns";
+    public final static String TASK_VOIP = "voip";
     public final static String TASK_NON_TRANSPARENT_PROXY = "non_transparent_proxy";
     public final static String TASK_HTTP = "http_proxy";
     public final static String TASK_WEBSITE = "website";
+    public final static String TASK_TRACEROUTE = "traceroute";
     
     private List<TaskDesc> taskDescList;
 
@@ -126,16 +130,28 @@ public class RMBTClient
     }
     
     private ConcurrentHashMap<TestStatus, TestMeasurement> measurementMap = new ConcurrentHashMap<TestStatus, TestMeasurement>();
+
+    public static RMBTClient getInstance(final String host, final String pathPrefix, final int port,
+            final boolean encryption, final ArrayList<String> geoInfo, final String uuid, final String clientType,
+            final String clientName, final String clientVersion, final RMBTTestParameter overrideParams,
+            final JSONObject additionalValues) {
+    	return getInstance(host, pathPrefix, port, encryption, geoInfo, uuid, clientType, 
+    			clientName, clientVersion, overrideParams, additionalValues, null);
+    }
     
     public static RMBTClient getInstance(final String host, final String pathPrefix, final int port,
             final boolean encryption, final ArrayList<String> geoInfo, final String uuid, final String clientType,
             final String clientName, final String clientVersion, final RMBTTestParameter overrideParams,
-            final JSONObject additionalValues)
+            final JSONObject additionalValues, final Set<ErrorStatus> errorSet)
     {
         final ControlServerConnection controlConnection = new ControlServerConnection();
         
         final String error = controlConnection.requestNewTestConnection(host, pathPrefix, port, encryption, geoInfo,
                 uuid, clientType, clientName, clientVersion, additionalValues);
+        
+        if (controlConnection.getLastErrorList() != null && errorSet != null) {
+        	errorSet.addAll(controlConnection.getLastErrorList());
+        }
         
         if (error != null)
         {
@@ -759,6 +775,10 @@ public class RMBTClient
     	    testMeasurement.stop(threadId);
     }
     
+    public Map<TestStatus, TestMeasurement> getTrafficMeasurementMap() {
+    	return measurementMap;
+    }
+    
     public String getErrorMsg()
     {
         return errorMsg;
@@ -891,6 +911,10 @@ public class RMBTClient
         if (controlConnection == null)
             return null;
         return controlConnection.getTestUuid();
+    }
+    
+    public long getStartTimeMillis() {
+    	return controlConnection != null ? controlConnection.getStartTimeMillis() : 0;
     }
     
     public ControlServerConnection getControlConnection()

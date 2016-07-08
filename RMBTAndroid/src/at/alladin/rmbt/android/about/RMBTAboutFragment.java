@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2015 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,12 +21,10 @@ import java.util.HashMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import android.app.Activity;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -37,6 +35,10 @@ import android.content.pm.PackageInfo;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -50,12 +52,11 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 import at.alladin.openrmbt.android.R;
+import at.alladin.rmbt.android.main.AppConstants;
 import at.alladin.rmbt.android.main.RMBTMainActivity;
 import at.alladin.rmbt.android.util.ConfigHelper;
 import at.alladin.rmbt.android.util.RMBTTermsFragment;
 import at.alladin.rmbt.client.helper.RevisionHelper;
-
-import com.google.android.gms.common.GooglePlayServicesUtil;
 
 /**
  * 
@@ -98,7 +99,7 @@ public class RMBTAboutFragment extends Fragment
     /**
 	 * 
 	 */
-    private Activity activity;
+    private FragmentActivity activity;
     
     private int developerFeatureCounter = 0;
     
@@ -241,7 +242,7 @@ public class RMBTAboutFragment extends Fragment
                     break;
                 
                 case 5:
-                    final FragmentManager fm = activity.getFragmentManager();
+                    final FragmentManager fm = activity.getSupportFragmentManager();
                     FragmentTransaction ft;
                     ft = fm.beginTransaction();
                     ft.replace(R.id.fragment_content, new RMBTTermsFragment(), "terms");
@@ -283,8 +284,8 @@ public class RMBTAboutFragment extends Fragment
             input.setInputType(InputType.TYPE_CLASS_NUMBER);
             final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setView(input);
-            builder.setTitle(R.string.about_developer_feature_dialog_title);
-            builder.setMessage(R.string.about_developer_feature_dialog_enter_code);
+            builder.setTitle(R.string.about_hidden_feature_dialog_title);
+            builder.setMessage(R.string.about_hidden_feature_dialog_enter_code);
             builder.setPositiveButton(android.R.string.ok, new OnClickListener()
             {
                 @Override
@@ -296,28 +297,58 @@ public class RMBTAboutFragment extends Fragment
                         final String data = input.getText().toString();
                         if (! data.matches("\\d{8}"))
                         {
-                        	Toast.makeText(getActivity(), R.string.about_developer_feature_dialog_msg_try_again, Toast.LENGTH_LONG).show();
+                        	Toast.makeText(getActivity(), R.string.about_hidden_feature_dialog_msg_try_again, Toast.LENGTH_LONG).show();
                             return;
                         }
                         
                         final int dataInt = Integer.parseInt(data);
-                        if (dataInt == 0)
+                        if (dataInt == 0) // deactivate all features
                         {
-                            ConfigHelper.setDeveloperCode(getActivity(), null);
-                            Toast.makeText(getActivity(), R.string.about_developer_feature_dialog_msg_deactivated, Toast.LENGTH_LONG).show();
+                            ConfigHelper.setUserLoopModeState(getActivity(), false);
+                            ConfigHelper.setDevModeState(getActivity(), false);
+                            ConfigHelper.setServerSelectionState(getActivity(), false);
+                            ((RMBTMainActivity) getActivity()).checkSettings(true, null); // refresh server list
+                            Toast.makeText(getActivity(), R.string.about_hidden_feature_dialog_msg_deactivated, Toast.LENGTH_LONG).show();
                             return;
                         }
                         
-                        final int testInput = dataInt % 100;
-                        final int testResult = 98 - (dataInt - testInput) % 97;
-                        if (testResult == testInput)
-                        {
-                            ConfigHelper.setDeveloperCode(getActivity(), data);
-                            Toast.makeText(getActivity(), R.string.about_developer_feature_dialog_msg_activated, Toast.LENGTH_LONG).show();
-                            ((RMBTMainActivity) getActivity()).checkSettings(true, null); // load server list
+                        if (ConfigHelper.isValidCheckSum(dataInt))
+                        {   // developer mode
+                        	if (dataInt == AppConstants.DEVELOPER_UNLOCK_CODE) {
+                        		ConfigHelper.setDevModeState(getActivity(), true);
+                        		Toast.makeText(getActivity(), R.string.about_dev_mode_activated, Toast.LENGTH_LONG).show();
+                        	}
+                        	else if (dataInt == AppConstants.DEVELOPER_LOCK_CODE) {
+                        		ConfigHelper.setDevModeState(getActivity(), false);
+                        		Toast.makeText(getActivity(), R.string.about_dev_mode_deactivated, Toast.LENGTH_LONG).show();
+                        	}
+                        	// loop mode
+                        	else if (dataInt == AppConstants.LOOP_MODE_UNLOCK_CODE) {
+                        		ConfigHelper.setUserLoopModeState(getActivity(), true);
+                        		Toast.makeText(getActivity(), R.string.about_loop_mode_activated, Toast.LENGTH_LONG).show();
+                        	}
+                        	else if (dataInt == AppConstants.LOOP_MODE_LOCK_CODE) {
+                        		ConfigHelper.setUserLoopModeState(getActivity(), false);
+                        		Toast.makeText(getActivity(), R.string.about_loop_mode_deactivated, Toast.LENGTH_LONG).show();
+                        	}
+                        	// server selection
+                        	else if (dataInt == AppConstants.SERVER_SELECTION_UNLOCK_CODE) {
+                        		ConfigHelper.setServerSelectionState(getActivity(), true);
+                        		((RMBTMainActivity) getActivity()).checkSettings(true, null); // refresh server list
+                        		Toast.makeText(getActivity(), R.string.about_server_selection_activated, Toast.LENGTH_LONG).show();
+                        	}
+                        	else if (dataInt == AppConstants.SERVER_SELECTION_LOCK_CODE) {
+                        		ConfigHelper.setServerSelectionState(getActivity(), false);
+                        		((RMBTMainActivity) getActivity()).checkSettings(true, null); // refresh server list
+                        		Toast.makeText(getActivity(), R.string.about_server_selection_deactivated, Toast.LENGTH_LONG).show();
+                        	}
+                        	// code not used
+                        	else {
+                        		Toast.makeText(getActivity(), R.string.about_hidden_feature_dialog_msg_try_again, Toast.LENGTH_LONG).show();
+                        	}
                         }
                         else
-                        	Toast.makeText(getActivity(), R.string.about_developer_feature_dialog_msg_try_again, Toast.LENGTH_LONG).show();
+                        	Toast.makeText(getActivity(), R.string.about_hidden_feature_dialog_msg_try_again, Toast.LENGTH_LONG).show();
                     }
                     catch (Exception e) // ignore errors
                     {

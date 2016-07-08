@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  ******************************************************************************/
 package at.alladin.rmbt.db.dao;
 
-import java.sql.Array;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -58,7 +57,7 @@ public class QoSTestObjectiveDao implements PrimaryKeyDao<QoSTestObjective, Inte
 		List<QoSTestObjective> resultList = new ArrayList<>(); 
 
 		String whereClause = "WHERE test_class = " + Helperfunctions.join(" OR test_class = ", testClass);
-		String sql = "SELECT nnto.uid, test_class, test, hstore2json(param) AS param, results::text[] as results, concurrency_group, test_desc, "
+		String sql = "SELECT nnto.uid, test_class, test, param AS param, results as results, concurrency_group, test_desc, "
 				+ " test_summary, ts.web_address_ipv4 as ipv4, ts.web_address_ipv6 as ipv6, ts.port_ssl as port "
 				+ " FROM qos_test_objective nnto LEFT JOIN test_server ts ON ts.uid = nnto.test_server " + whereClause;
 		
@@ -88,7 +87,7 @@ public class QoSTestObjectiveDao implements PrimaryKeyDao<QoSTestObjective, Inte
 	 */
 	@Override
 	public QoSTestObjective getById(Integer id) throws SQLException {	
-		try (PreparedStatement psGetById = conn.prepareStatement("SELECT nnto.uid, test_class, test, hstore2json(param) AS param, "
+		try (PreparedStatement psGetById = conn.prepareStatement("SELECT nnto.uid, test_class, test, param AS param, "
 				+ " hstore2json(results) as results, concurrency_group, test_desc, test_summary,"
 				+ " ts.web_address_ipv4 as ipv4, ts.web_address_ipv6 as ipv6, ts.port_ssl as port "
 				+ " FROM qos_test_objective nnto LEFT JOIN test_server ts ON ts.uid = nnto.test_server WHERE uid = " + id))
@@ -123,7 +122,7 @@ public class QoSTestObjectiveDao implements PrimaryKeyDao<QoSTestObjective, Inte
 //				+ " hstore2json(results) as results, concurrency_group, test_desc, ts.web_address_ipv4 as ipv4, ts.web_address_ipv6 as ipv6, ts.port_ssl as port "
 //				+ " FROM qos_test_objective nnto LEFT JOIN test_server ts ON ts.uid = nnto.test_server");
 		
-		String sql = "SELECT nnto.uid, test_class, test, hstore2json(param) AS param, results::text[] as results, concurrency_group, test_desc, "
+		String sql = "SELECT nnto.uid, test_class, test, param AS param, results as results, concurrency_group, test_desc, "
 				+ " test_summary, ts.web_address_ipv4 as ipv4, ts.web_address_ipv6 as ipv6, ts.port_ssl as port "
 				+ " FROM qos_test_objective nnto LEFT JOIN test_server ts ON ts.uid = nnto.test_server";
 
@@ -187,12 +186,7 @@ public class QoSTestObjectiveDao implements PrimaryKeyDao<QoSTestObjective, Inte
 		result.setConcurrencyGroup(rs.getInt("concurrency_group"));
 		result.setTestDescription(rs.getString("test_desc"));
 		result.setTestSummary(rs.getString("test_summary"));
-		Array results = rs.getArray("results");
-		
-		if (results != null) {
-			result.setResults((String[]) results.getArray());
-		}
-
+		result.setResults(rs.getString("results"));
 
 		return result;
 	}

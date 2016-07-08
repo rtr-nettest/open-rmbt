@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2015 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@ public class StatisticsResource extends ServerResource
 {
     private static final int CACHE_STALE = 3600;
     private static final int CACHE_EXPIRE = 7200;
+    private static final boolean ONLY_PINNED = true;
     
     private final CacheHelper cache = CacheHelper.getInstance();
 
@@ -98,7 +99,7 @@ public class StatisticsResource extends ServerResource
         final java.sql.Timestamp endDate = params.getEndDate();
         final int province = params.getProvince();
         
-        final String developerCode = params.getDeveloperCode();
+        final boolean userServerSelection = params.getUserServerSelection();
         
         boolean useMobileProvider = false;
         
@@ -165,14 +166,14 @@ public class StatisticsResource extends ServerResource
             answer.put("type", type);
             
             try (PreparedStatement ps = selectProviders(conn, true, quantile, durationDays, accuracy, country,
-            		useMobileProvider, where, signalMobile, developerCode,endDate,province,signalColumn);
+            		useMobileProvider, where, signalMobile, userServerSelection,endDate,province,signalColumn);
                 ResultSet rs = ps.executeQuery())
             {
                 fillJSON(lang, rs, providers);
             }
             
             try (PreparedStatement ps = selectProviders(conn, false, quantile, durationDays, accuracy, country,
-            		useMobileProvider, where, signalMobile, developerCode,endDate,province,signalColumn);
+            		useMobileProvider, where, signalMobile, userServerSelection,endDate,province,signalColumn);
                 ResultSet rs = ps.executeQuery())
             {
                 final JSONArray providersSumsArray = new JSONArray();
@@ -182,14 +183,14 @@ public class StatisticsResource extends ServerResource
             }
             
             try (PreparedStatement ps = selectDevices(conn, true, quantile, durationDays, accuracy, country,
-            		useMobileProvider, where, maxDevices, developerCode,endDate,province);
+            		useMobileProvider, where, maxDevices, userServerSelection,endDate,province);
                 ResultSet rs = ps.executeQuery())
             {
                 fillJSON(lang, rs, devices);
             }
             
             try (PreparedStatement ps = selectDevices(conn, false, quantile, durationDays, accuracy, country,
-            		useMobileProvider, where, maxDevices, developerCode,endDate,province);
+            		useMobileProvider, where, maxDevices, userServerSelection,endDate,province);
                 ResultSet rs = ps.executeQuery())
             {
                 final JSONArray devicesSumsArray = new JSONArray();
@@ -240,7 +241,7 @@ public class StatisticsResource extends ServerResource
     }
     
     private static PreparedStatement selectProviders(final Connection conn, final boolean group, final float quantile, final int durationDays, final double accuracy,
-            final String country, final boolean useMobileProvider, final String where, final boolean signalMobile, final String developerCode,
+            final String country, final boolean useMobileProvider, final String where, final boolean signalMobile, final boolean userServerSelection,
             final java.sql.Timestamp endDate, final int province, final String signalColumn) throws SQLException
     {
         PreparedStatement ps;
@@ -280,9 +281,10 @@ public class StatisticsResource extends ServerResource
                         ((endDate != null) ? (" ?::TIMESTAMP WITH TIME ZONE  ") : "NOW()") +
                         " - ?::INTERVAL " +
                         ((endDate != null) ? (" AND \"time\" <=  ?::TIMESTAMP WITH TIME ZONE ") : "") +
-                        ((developerCode != null) ? (" AND developer_code = ? ") : "") +
+                        //" AND user_server_selection = ? " +
                         ((province != -1) ? (" AND gkz/10000 = ? ") : "") +
                         ((accuracy > 0) ? " AND t.geo_accuracy < ?" : "") + 
+                        ((ONLY_PINNED)?" AND t.pinned = true":"") +
                         (group? " GROUP BY p.uid" : "") +
                         " ORDER BY count DESC",
                         signalColumn,
@@ -325,9 +327,10 @@ public class StatisticsResource extends ServerResource
                             ((endDate != null) ? (" ?::TIMESTAMP WITH TIME ZONE  ") : "NOW()") +
                             " - ?::INTERVAL " +
                             ((endDate != null) ? (" AND \"time\" <=  ?::TIMESTAMP WITH TIME ZONE ") : "") +
-                            ((developerCode != null) ? (" AND developer_code = ? ") : "") +
+                            //" AND user_server_selection = ? " +
                             ((province != -1) ? (" AND gkz/10000 = ? ") : "") +
                             ((accuracy > 0) ? " AND t.geo_accuracy < ?" : "") + 
+                            ((ONLY_PINNED)?" AND t.pinned = true":"") +
                             ((group && (useMobileProvider))? " GROUP BY p.uid, p.mccmnc" : "") +
                             ((group && (!useMobileProvider))? " GROUP BY t.public_ip_as_name, t.public_ip_asn" : "") +
                             " ORDER BY count DESC",
@@ -390,9 +393,8 @@ public class StatisticsResource extends ServerResource
             ps.setTimestamp(i++, endDate, cal);
         }
         
-        if (developerCode != null) {
-        	ps.setString(i++, developerCode);
-        }
+
+        //ps.setBoolean(i++, userServerSelection);
         
         if (province != -1) {
         	ps.setInt(i++, province);
@@ -408,7 +410,7 @@ public class StatisticsResource extends ServerResource
     }
     
     private static PreparedStatement selectDevices(final Connection conn, final boolean group, final float quantile, final int durationDays, final double accuracy,
-            final String country, final boolean useMobileProvider, final String where, final int maxDevices, final String developerCode,
+            final String country, final boolean useMobileProvider, final String where, final int maxDevices, final boolean userServerSelection,
             final java.sql.Timestamp endDate, final int province) throws SQLException
     {
         PreparedStatement ps;
@@ -426,10 +428,11 @@ public class StatisticsResource extends ServerResource
                 ((endDate != null) ? (" ?::TIMESTAMP WITH TIME ZONE ") : "NOW()") +
                 " - ?::INTERVAL " +
                 ((endDate != null) ? (" AND \"time\" <=  ?::TIMESTAMP WITH TIME ZONE ") : "") +
-                ((developerCode != null) ? (" AND developer_code = ? ") : "") +
+                //" AND user_server_selection = ? " +
                 ((province != -1) ? (" AND gkz/10000 = ? ") : "") +
                 (useMobileProvider ? " AND t.mobile_provider_id IS NOT NULL" : "") +
                 ((accuracy > 0) ? " AND t.geo_accuracy < ?" : "") + 
+                ((ONLY_PINNED)?" AND t.pinned = true":"") +
                 (group ? " GROUP BY COALESCE(adm.fullname, t.model) HAVING count(t.uid) > 10" : "") +
                 " ORDER BY count DESC" +
                 " LIMIT %d", where, maxDevices);
@@ -449,10 +452,11 @@ public class StatisticsResource extends ServerResource
                     ((endDate != null) ? (" ?::TIMESTAMP WITH TIME ZONE ") : "NOW()") +
                     " - ?::INTERVAL" +
                     ((endDate != null) ? (" AND \"time\" <=  ?::TIMESTAMP WITH TIME ZONE ") : "") +
-                    ((developerCode != null) ? (" AND developer_code = ? ") : "") +
+                    //" AND user_server_selection = ? " +
                     ((province != -1) ? (" AND gkz/10000 = ? ") : "") +
                     " AND " + (useMobileProvider?"p.country = ? AND ((t.country_location IS NULL OR t.country_location = ?)  AND (NOT t.roaming_type = 2))":"t.country_geoip = ? ") +
                     ((accuracy > 0) ? " AND t.geo_accuracy < ?" : "") + 
+                    ((ONLY_PINNED)?" AND t.pinned = true":"") +
                     (group ? " GROUP BY COALESCE(adm.fullname, t.model) HAVING count(t.uid) > 10" : "") +
                     " ORDER BY count DESC" +
                     " LIMIT %d", where, maxDevices);
@@ -480,10 +484,8 @@ public class StatisticsResource extends ServerResource
             ps.setTimestamp(i++, endDate, cal);
         }
        
-        if (developerCode != null) {
-        	ps.setString(i++, developerCode);
+        //ps.setBoolean(i++, userServerSelection);
         	
-        }
         if (province != -1) {
         	ps.setInt(i++, province);
         }

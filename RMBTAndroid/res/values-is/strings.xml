@@ -139,7 +139,7 @@
 	<string name="history_filter_networks">AÐGANGUR</string>
 	<string name="history_filter_devices">TÆKI</string>
 	<string name="history_filter_result_number">FJÖLDI NIÐURSTAÐNA</string>
-	<string name="history_filter_result_number_25">Sýna einungis 25 nýjustu niðurstöður</string>
+	<string name="history_filter_result_number_25">Sýna einungis 250 nýjustu niðurstöður</string>
 	
 	<string name="result_measurement">MÆLING</string>
 	<string name="result_net">NET</string>

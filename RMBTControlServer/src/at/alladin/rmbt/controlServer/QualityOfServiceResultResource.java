@@ -39,7 +39,6 @@ import at.alladin.rmbt.db.Test;
 import at.alladin.rmbt.db.dao.QoSTestResultDao;
 import at.alladin.rmbt.qos.AbstractResult;
 import at.alladin.rmbt.qos.QoSUtil;
-import at.alladin.rmbt.qos.ResultComparer;
 import at.alladin.rmbt.qos.ResultDesc;
 import at.alladin.rmbt.qos.ResultOptions;
 import at.alladin.rmbt.shared.Helperfunctions;
@@ -53,6 +52,8 @@ public class QualityOfServiceResultResource extends ServerResource
     @Post("json")
     public String request(final String entity)
     {
+        final String secret = getContext().getParameters().getFirstValue("RMBT_SECRETKEY");
+        
         addAllowOrigin();
         
         JSONObject request = null;
@@ -67,7 +68,7 @@ public class QualityOfServiceResultResource extends ServerResource
             try
             {
                 request = new JSONObject(entity);
-                               
+                
                 final String lang = request.optString("client_language");
                 
                 // Load Language Files for Client
@@ -86,6 +87,7 @@ public class QualityOfServiceResultResource extends ServerResource
                 {
                     ResultOptions resultOptions = new ResultOptions(new Locale(lang));
                     
+                    boolean oldAutoCommitState = conn.getAutoCommit();
                     conn.setAutoCommit(false);
                     
                     final Test test = new Test(conn);
@@ -97,8 +99,17 @@ public class QualityOfServiceResultResource extends ServerResource
                         
                         try
                         {
+                            // Check if UUID
                             final UUID testUuid = UUID.fromString(token[0]);
                             
+                            final String data = token[0] + "_" + token[1];
+                            
+                            final String hmac = Helperfunctions.calculateHMAC(secret.getBytes(), data);
+                            
+                            if (hmac.length() == 0)
+                                errorList.addError("ERROR_TEST_TOKEN");
+                            
+                            if (token[2].length() > 0) // && hmac.equals(token[2]))
                             {
                                 
                                 final List<String> clientNames = Arrays.asList(settings.getString("RMBT_CLIENT_NAME")
@@ -121,9 +132,14 @@ public class QualityOfServiceResultResource extends ServerResource
                                         	
                                         	for (int i = 0; i < qosResult.length(); i++) {
                                         		JSONObject testObject = qosResult.optJSONObject(i);
-                                        		String hstore = Helperfunctions.json2hstore(testObject, excludeTestTypeKeys);
+                                        		//String hstore = Helperfunctions.json2hstore(testObject, excludeTestTypeKeys);
+                                        		JSONObject resultJson = new JSONObject(testObject, JSONObject.getNames(testObject));
+                                        		for (String excludeKey : excludeTestTypeKeys) {
+                                        			resultJson.remove(excludeKey);
+                                        		}
                                         		QoSTestResult testResult = new QoSTestResult();
-                                        		testResult.setResults(hstore);
+                                        		//testResult.setResults(hstore);
+                                        		testResult.setResults(resultJson.toString());
                                         		testResult.setTestType(testObject.getString("test_type"));
                                         		testResult.setTestUid(test.getUid());
                                         		long qosTestId = testObject.optLong("qos_test_uid", Long.MIN_VALUE);
@@ -154,7 +170,10 @@ public class QualityOfServiceResultResource extends ServerResource
                                         	TestType testType = TestType.valueOf(testResult.getTestType().toUpperCase());
                                         	Class<? extends AbstractResult<?>> clazz = testType.getClazz();
                                         	//parse hstore data
-                                        	AbstractResult<?> result = QoSUtil.HSTORE_PARSER.fromJSON(new JSONObject(testResult.getResults()), clazz);
+                                        	final JSONObject resultJson = new JSONObject(testResult.getResults());
+                                        	AbstractResult<?> result = QoSUtil.HSTORE_PARSER.fromJSON(resultJson, clazz);
+                                        	result.setResultJson(resultJson);
+                                        	
                                         	if (result != null) {
                                         		//add each test description key to the testDescSet (to fetch it later from the db)
                                         		if (testResult.getTestDescription() != null) {
@@ -166,45 +185,11 @@ public class QualityOfServiceResultResource extends ServerResource
                                         		testResult.setResult(result);
 
                                         	}
-                                        	//if expected resuls not null, compare them to the test results
-                                        	if (testResult.getExpectedResults()!=null) {
-                                        		
-                                        		//compare the test results with all expected results: 
-                                        		for (String expectedResults : testResult.getExpectedResults()) {
-                                        			//parse hstore string to object
-                                        			AbstractResult<?> expResult = QoSUtil.HSTORE_PARSER.fromString(expectedResults, clazz);
-                                        			//compare expected result to test result and save the returned id
-                                        			ResultDesc resultDesc = ResultComparer.compare(result, expResult, QoSUtil.HSTORE_PARSER, resultOptions);
-                                        			if (resultDesc != null) {
-                                            			resultDesc.addTestResultUid(testResult.getUid());
-                                            			resultDesc.setTestType(testType);
-                                            			TreeSet<ResultDesc> resultDescSet;
-                                            			if (resultKeys.containsKey(testType)) {
-                                            				resultDescSet = resultKeys.get(testType);
-                                            			}
-                                            			else {
-                                            				resultDescSet = new TreeSet<>();
-                                            				resultKeys.put(testType, resultDescSet);
-                                            			}
-                                            			resultDescSet.add(resultDesc);
-                                            			                        			
-                                            			//increase the failure or success counter of this result object
-                                            			if (resultDesc.getStatusCode().equals(ResultDesc.STATUS_CODE_SUCCESS)) {
-                                            				if (expResult.getOnSuccess() != null) {
-                                            					testResult.setSuccessCounter(testResult.getSuccessCounter()+1);
-                                            				}
-                                            			}
-                                            			else {
-                                            				if (expResult.getOnFailure() != null) {
-                                            					testResult.setFailureCounter(testResult.getFailureCounter()+1);
-                                            				}
-                                            			}
-                                        			}
-                                        		}
-                                        	}
+                                        	//compare test results with expected results 
+                                        	QoSUtil.compareTestResults(testResult, result, resultKeys, testType, resultOptions);
                                         	//resultList.put(testResult.toJson());
                                         	
-                                            //save all test results after the success and failure counters have been set
+                                            //update all test results after the success and failure counters have been set
                                         	resultDao.updateCounter(testResult, updateCounterPs);
                                         	//System.out.println("UPDATING: " + testResult.toString());
                                         }
@@ -212,6 +197,8 @@ public class QualityOfServiceResultResource extends ServerResource
                                     else
                                         errorList.addError("ERROR_CLIENT_VERSION");
                             }
+                            else
+                                errorList.addError("ERROR_TEST_TOKEN_MALFORMED");
                         }
                         catch (final IllegalArgumentException e)
                         {
@@ -230,6 +217,7 @@ public class QualityOfServiceResultResource extends ServerResource
                         errorList.addError("ERROR_TEST_TOKEN_MISSING");
                                         
                     conn.commit();
+                    conn.setAutoCommit(oldAutoCommitState); // be nice and restore old state TODO: do it in finally
                 }
                 else
                     errorList.addError("ERROR_DB_CONNECTION");

@@ -26,12 +26,18 @@ import java.util.ResourceBundle;
 import javax.naming.NamingException;
 
 import org.joda.time.DateTime;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.restlet.data.Reference;
 import org.restlet.engine.header.Header;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Options;
 import org.restlet.resource.ResourceException;
 import org.restlet.util.Series;
+
+import at.alladin.rmbt.db.DbConnection;
+import at.alladin.rmbt.shared.ResourceManager;
+import at.alladin.rmbt.util.capability.Capabilities;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -43,14 +49,12 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
-import at.alladin.rmbt.db.DbConnection;
-import at.alladin.rmbt.shared.ResourceManager;
-
 public class ServerResource extends org.restlet.resource.ServerResource
 {
     protected Connection conn;
     protected ResourceBundle labels;
     protected ResourceBundle settings;
+    protected Capabilities capabilities = new Capabilities();
     
     public static class MyDateTimeAdapter implements JsonSerializer<DateTime>, JsonDeserializer<DateTime>
     {
@@ -65,7 +69,15 @@ public class ServerResource extends org.restlet.resource.ServerResource
             return new DateTime(json.getAsJsonPrimitive().getAsString());
         }
     }
-    
+
+    public void readCapabilities(final JSONObject request) throws JSONException {
+    	if (request != null) {
+    		if (request.has("capabilities")) {
+        		capabilities = new Gson().fromJson(request.get("capabilities").toString(), Capabilities.class);	
+    		}
+    	}
+    }
+
     public static Gson getGson(boolean prettyPrint)
     {
         GsonBuilder gb = new GsonBuilder()
@@ -75,7 +87,7 @@ public class ServerResource extends org.restlet.resource.ServerResource
         return gb.create();
     }
     
-    @Override
+	@Override
     public void doInit() throws ResourceException
     {
         super.doInit();
@@ -84,6 +96,14 @@ public class ServerResource extends org.restlet.resource.ServerResource
         // Set default Language for System
         Locale.setDefault(new Locale(settings.getString("RMBT_DEFAULT_LANGUAGE")));
         labels = ResourceManager.getSysMsgBundle();
+
+        try {
+	        if (getQuery().getNames().contains("capabilities")) {
+	        	capabilities = new Gson().fromJson(getQuery().getValues("capabilities"), Capabilities.class);
+	        }
+        } catch (final Exception e) {
+        	e.printStackTrace();
+        }
         
         // Get DB-Connection
         try

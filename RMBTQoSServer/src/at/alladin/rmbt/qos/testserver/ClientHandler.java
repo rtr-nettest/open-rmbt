@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2015 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,11 +46,17 @@ import org.postgresql.util.Base64;
 
 import at.alladin.rmbt.qos.testserver.ServerPreferences.TestServerServiceEnum;
 import at.alladin.rmbt.qos.testserver.entity.ClientToken;
-import at.alladin.rmbt.qos.testserver.udp.AbstractUdpServer;
+import at.alladin.rmbt.qos.testserver.servers.AbstractUdpServer;
 import at.alladin.rmbt.qos.testserver.udp.UdpPacketReceivedCallback;
 import at.alladin.rmbt.qos.testserver.udp.UdpTestCandidate;
 import at.alladin.rmbt.qos.testserver.udp.UdpTestCompleteCallback;
+import at.alladin.rmbt.qos.testserver.udp.VoipTestCandidate;
 import at.alladin.rmbt.qos.testserver.util.TestServerConsole;
+import at.alladin.rmbt.util.net.rtp.RealtimeTransportProtocol.PayloadType;
+import at.alladin.rmbt.util.net.rtp.RealtimeTransportProtocol.RtpException;
+import at.alladin.rmbt.util.net.rtp.RtpPacket;
+import at.alladin.rmbt.util.net.rtp.RtpUtil;
+import at.alladin.rmbt.util.net.rtp.RtpUtil.RtpQoSResult;
 
 /**
  * handles all client requests
@@ -86,6 +92,8 @@ public class ClientHandler implements Runnable {
 	
 	protected ConcurrentHashMap<Integer, UdpTestCandidate> clientUdpInDataMap = new ConcurrentHashMap<>();
 	
+	protected ConcurrentHashMap<Integer, VoipTestCandidate> clientVoipDataMap = new ConcurrentHashMap<>();
+
 	/**
 	 * protocol version used by the client 
 	 */
@@ -156,6 +164,9 @@ public class ClientHandler implements Runnable {
 						else if (command.startsWith(QoSServiceProtocol.CMD_UDP_TEST_IN)) {
 							runIncomingUdpTest(command, token);
 						}
+						else if (command.startsWith(QoSServiceProtocol.CMD_VOIP_TEST)) {
+							runVoipTest(command, token);
+						}
 						else if (command.startsWith(QoSServiceProtocol.REQUEST_UDP_PORT_RANGE)) {
 							sendCommand(TestServer.serverPreferences.getUdpPortMin() +  " " + TestServer.serverPreferences.getUdpPortMax(), command);
 						}
@@ -167,6 +178,9 @@ public class ClientHandler implements Runnable {
 						}
 						else if (command.startsWith(QoSServiceProtocol.REQUEST_UDP_RESULT_IN)) {
 							runRcvCommand(command, token, true);
+						}
+						else if (command.startsWith(QoSServiceProtocol.REQUEST_VOIP_RESULT)) {
+							runVoipResultCommand(command, token);
 						}
 						else if (command.startsWith(QoSServiceProtocol.REQUEST_QUIT)) {
 							quit = true;
@@ -712,6 +726,117 @@ public class ClientHandler implements Runnable {
      * @param command
      * @param token
      * @throws IOException
+     * @throws InterruptedException
+     */
+    private void runVoipTest(final String command, final ClientToken token) throws IOException, InterruptedException { 
+    	/*
+    	 * syntax: VOIPTEST 0 1 2 3 4 5 6 7 
+    	 * 	0 = outgoing port (server port)
+    	 * 	1 = incoming port (client port) 
+    	 *  2 = sample rate (in Hz)
+    	 * 	3 = bits per sample
+    	 * 	4 = packet delay in ms 
+    	 * 	5 = call duration (test duration) in ms 
+    	 * 	6 = starting sequence number (see rfc3550, rtp header: sequence number)
+    	 *  7 = payload type
+    	 */
+		final Pattern p = Pattern.compile(QoSServiceProtocol.CMD_VOIP_TEST + " ([\\d]*) ([\\w]*) ([\\d]*) ([\\d]*) ([\\d]*) ([\\d]*) ([\\d]*) ([\\d]*)");
+		final Matcher m = p.matcher(command);
+		m.find();
+
+		if (m.groupCount()!=8) {
+			throw new IOException("voip test command syntax error: " + command);
+		}
+
+    	final int portOut = Integer.parseInt(m.group(1));
+    	int portIn;
+    	try {
+    		portIn = Integer.parseInt(m.group(2));
+    	}
+    	catch (final Exception e) {
+    		portIn = 0;
+    	}
+    	final int sampleRate = Integer.parseInt(m.group(3));
+    	final int bps = Integer.parseInt(m.group(4));
+    	final int delay = Integer.parseInt(m.group(5));
+    	final int callDuration = Integer.parseInt(m.group(6));
+    	final long sequenceNumber = Integer.parseInt(m.group(7));
+    	final int payloadTypeValue = Integer.parseInt(m.group(8));
+    	final int ssrc = TestServer.randomizer.next();
+
+		TestServerConsole.log("Starting VOIP TEST (sample rate: " + sampleRate + ", bps: " + bps + ", delay: " + delay 
+				+ ", call duration: " + callDuration + ", ssrc: " + ssrc + ", seq number: " + sequenceNumber 
+				+ ") on outgoing port :" + portOut + "/incoming port: " + portIn + " for " + socket.getInetAddress().toString(), 1, TestServerServiceEnum.UDP_SERVICE);
+		
+		final VoipTestCandidate voipData = new VoipTestCandidate(sequenceNumber, sampleRate);
+		
+		clientVoipDataMap.put(ssrc, voipData);
+				
+		final UdpPacketReceivedCallback receiveCallback = new UdpPacketReceivedCallback() {
+			
+			@Override
+			public boolean onReceive(final DatagramPacket dp, final String uuid, final AbstractUdpServer<?> udpServer) {
+				final long timestampNs = System.nanoTime();
+				final byte[] data = dp.getData();
+				final VoipTestCandidate clientVoipData = (VoipTestCandidate) udpServer.getClientData(uuid);
+
+				try {
+					if (clientVoipData.getRtpControlDataList().size() == 0) {
+						final InetAddress targetAddr = dp.getAddress();
+						final int targetPort = dp.getPort();
+						
+						TestServerConsole.log(getName() + " Voip: Received first packet! Starting response stream for: " + targetAddr.toString() + ":" + targetPort, 1, TestServerServiceEnum.UDP_SERVICE);
+						final Runnable rtpStreamSendRunnable = new Runnable() {
+							
+							@Override
+							public void run() {
+								PayloadType payloadType = PayloadType.getByCodecValue(payloadTypeValue);
+								payloadType = PayloadType.UNKNOWN.equals(payloadType) ? PayloadType.PCMA : payloadType;
+								try {
+									RtpUtil.runVoipStream(udpServer.getSocket(), false, targetAddr, targetPort, sampleRate, bps, 
+												payloadType, sequenceNumber, ssrc, callDuration, delay, 10000, true, null);
+								} catch (Exception e) {
+									TestServerConsole.error(getName(), e, 0, TestServerServiceEnum.UDP_SERVICE);
+								}
+							}
+						};
+
+						TestServer.getCommonThreadPool().execute(rtpStreamSendRunnable);
+					}
+					
+					RtpPacket rtpPacket = new RtpPacket(data);
+					TestServerConsole.log(getName() + " RTP Packet received. Sequence Number: " 
+							+ rtpPacket.getSequnceNumber() + ", TS: " + timestampNs + ", SSRC: " + rtpPacket.getSsrc(), 1, TestServerServiceEnum.UDP_SERVICE);
+					clientVoipData.resetTtl(3000);
+					clientVoipData.addRtpControlData(rtpPacket, timestampNs);
+				} catch (RtpException e) {
+					TestServerConsole.error(getName(), e, 1, TestServerServiceEnum.UDP_SERVICE);
+					return true;
+				}
+				//check udp packet:
+				return true;
+			}
+		};
+		
+		//packet receive callback
+		voipData.setOnUdpPacketReceivedCallback(receiveCallback);
+		
+		//register udp client data
+		TestServer.registerUdpCandidate(socket.getLocalAddress(), portOut, "VOIP_" + String.valueOf(ssrc), voipData);
+
+		//tell the client that we are ready
+		try {
+			sendCommand(QoSServiceProtocol.RESPONSE_OK + " " + String.valueOf(ssrc), command);
+		} catch (IOException e) {
+			TestServerConsole.error(getName(), e, 0, TestServerServiceEnum.UDP_SERVICE);
+		}	
+    }
+    
+    /**
+     * 
+     * @param command
+     * @param token
+     * @throws IOException
      */
     private void runRcvCommand(String command, ClientToken token, boolean isIncoming) throws IOException {
 		Pattern p = Pattern.compile((isIncoming ? QoSServiceProtocol.REQUEST_UDP_RESULT_IN : QoSServiceProtocol.REQUEST_UDP_RESULT_OUT) + " ([\\d]*)");
@@ -739,6 +864,51 @@ public class ClientHandler implements Runnable {
 			sendCommand(QoSServiceProtocol.RESPONSE_UDP_NUM_PACKETS_RECEIVED + " 0 0", command);
 		}
     }
+    
+    /**
+     * 
+     * @param command
+     * @param token
+     * @throws IOException
+     */
+    private void runVoipResultCommand(String command, ClientToken token) throws IOException {
+		Pattern p = Pattern.compile(QoSServiceProtocol.REQUEST_VOIP_RESULT + " ([\\d]*)");
+		Matcher m = p.matcher(command);
+		m.find();
+
+		if (m.groupCount()!=1) {
+			throw new IOException("GET VOIPRESULT command syntax error: " + command);
+		}
+		else {
+			final int ssrc = Integer.parseInt(m.group(1));
+			sendVoipResult(command, token, ssrc);
+		}
+    }
+    
+    private void sendVoipResult(String command, ClientToken token, int ssrc) throws IOException {
+		final VoipTestCandidate voipTc = clientVoipDataMap.get(ssrc);
+		if (voipTc != null) {
+			try {
+				RtpQoSResult result = RtpUtil.calculateQoS(voipTc.getRtpControlDataList(), 
+						voipTc.getInitialSequenceNumber(), voipTc.getSampleRate());
+
+				final String voipResult = QoSServiceProtocol.RESPONSE_VOIP_RESULT + " " + result.getMaxJitter() + " " 
+						+ result.getMeanJitter() + " " + result.getMaxDelta() + " " + result.getSkew() + " "
+						+ result.getReceivedPackets() + " " + result.getOutOfOrder() + " " 
+						+ result.getMinSequential() + " " + result.getMaxSequencial();
+
+				TestServerConsole.log("Sending VOIP results for SSRC " + ssrc + ": " + voipResult, 2, TestServerServiceEnum.UDP_SERVICE);
+				sendCommand(voipResult, command);				
+			}
+			catch (Exception e) {
+				TestServerConsole.error(getName(), e, 1, TestServerServiceEnum.UDP_SERVICE);
+			}
+		}
+		else {
+			sendCommand(QoSServiceProtocol.RESPONSE_ERROR_ILLEGAL_ARGUMENT + " " + ssrc, command);
+		}
+    }
+
     
     /**
 	 * runs the non transparent proxy test:

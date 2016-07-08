@@ -17,8 +17,12 @@ package at.alladin.rmbt.android.fragments.result;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -38,6 +42,71 @@ import at.alladin.rmbt.client.v2.task.result.QoSServerResultDesc;
 import at.alladin.rmbt.client.v2.task.result.QoSTestResultEnum;
 
 public class QoSTestDetailView extends ScrollView {
+	public enum QoSResultListType {
+		FAIL (R.string.result_details_qos_failure, R.color.result_red, DetailType.FAIL),
+		SUCCESS (R.string.result_details_qos_success, R.color.result_green, DetailType.OK),
+		INFO (R.string.result_details_qos_info, R.color.result_info, DetailType.INFO);
+		
+		final int titleResourceId;
+		final int colorResourceId;
+		final DetailType detailType;
+		
+		private QoSResultListType(final int titleResourceId, final int colorResourceId, final DetailType detailType) {
+			this.titleResourceId = titleResourceId;
+			this.colorResourceId = colorResourceId;
+			this.detailType = detailType;
+		}
+
+		public int getTitleResourceId() {
+			return titleResourceId;
+		}
+
+		public int getColorResourceId() {
+			return colorResourceId;
+		}
+
+		public DetailType getDetailType() {
+			return detailType;
+		}
+	}
+	
+	public class QoSResultListAdapter {
+		private SimpleAdapter listAdapter;
+		private final ViewGroup viewGroup;
+		private final LinearLayout listView;
+		private final List<HashMap<String, String>> descMap = new ArrayList<HashMap<String, String>>();
+
+		public QoSResultListAdapter(final ViewGroup container) {
+			this.viewGroup = container;
+			listView = (LinearLayout) viewGroup.findViewById(R.id.value_list);
+		}
+		
+		public void build() {
+			if (this.listAdapter == null) {
+				this.listAdapter =  new SimpleAdapter(activity, descMap, R.layout.qos_category_test_desc_item, new String[] {
+						"name"}, new int[] { R.id.name });
+			}
+
+        	for (int i = 0; i < descMap.size(); i++) {
+        		View v = listAdapter.getView(i, null, null);
+        		listView.addView(v);
+        	}
+        	
+        	listView.invalidate();
+		}
+
+		public ViewGroup getViewGroup() {
+			return viewGroup;
+		}
+
+		public LinearLayout getListView() {
+			return listView;
+		}
+
+		public List<HashMap<String, String>> getDescMap() {
+			return descMap;
+		}
+	}
 	
 	public static final String OPTION_TEST_CATEGORY = "test_category";
 	
@@ -51,9 +120,8 @@ public class QoSTestDetailView extends ScrollView {
 	
     private List<QoSServerResultDesc> descList;
 
-	private SimpleAdapter successListAdapter;
-	private SimpleAdapter failureListAdapter;
-	
+    private Map<DetailType, QoSResultListAdapter> resultViewList;
+    
 	private RMBTMainActivity activity;
 	
 	public QoSTestDetailView(Context context, RMBTMainActivity activity, QoSServerResult result, List<QoSServerResultDesc> descList) {
@@ -72,11 +140,31 @@ public class QoSTestDetailView extends ScrollView {
                
         view = inflater.inflate(R.layout.qos_test_view, this);
 
-        List<HashMap<String, String>> successList = new ArrayList<HashMap<String, String>>();
-        List<HashMap<String, String>> failureList = new ArrayList<HashMap<String, String>>();
-        HashMap<String, String> viewItem;
-
         System.out.println(result);
+        
+        resultViewList = new TreeMap<QoSServerResult.DetailType, QoSTestDetailView.QoSResultListAdapter>(new Comparator<QoSServerResult.DetailType>() {
+
+			@Override
+			public int compare(DetailType lhs, DetailType rhs) {
+				// TODO Auto-generated method stub
+				if (lhs.ordinal()>rhs.ordinal()) return 1;
+				else if (lhs.ordinal()<rhs.ordinal()) return -1;
+				return 0;
+			}
+		});
+        
+        for (QoSResultListType type : QoSResultListType.values()) {
+        	final View v = inflater.inflate(R.layout.qos_test_view_result_list, null);
+        	
+        	final TextView titleTest = (TextView) v.findViewById(R.id.subheader_text);
+        	titleTest.setText(type.getTitleResourceId());
+        	
+        	v.setBackgroundResource(type.getColorResourceId());
+        	
+        	resultViewList.put(type.getDetailType(), new QoSResultListAdapter((ViewGroup) v));
+        }
+
+        HashMap<String, String> viewItem;
         
         if (descList != null) {
             for (int i = 0; i < descList.size(); i++) {
@@ -85,74 +173,32 @@ public class QoSTestDetailView extends ScrollView {
                 	viewItem = new HashMap<String, String>();
                 	viewItem.put("name", desc.getDesc());
                 	
-            		if (DetailType.OK.equals(desc.getStatus())) {
-                    	successList.add(viewItem);	
-            		}
-            		else {
-                    	failureList.add(viewItem);
-            		}        		
+                	resultViewList.get(desc.getStatus()).getDescMap().add(viewItem);
             	}
             }
         }
         
-    	LinearLayout successListView = (LinearLayout) view.findViewById(R.id.value_list_success);
-    	
-        if (successList.size() > 0) {            
-        	successListAdapter = new SimpleAdapter(activity, successList, R.layout.qos_category_test_desc_item, new String[] {
-            "name"}, new int[] { R.id.name });
-        	
-        	for (int i = 0; i < successList.size(); i++) {
-        		View v = successListAdapter.getView(i, null, null);
-        		successListView.addView(v);
-        	}
-        	
-        	successListView.invalidate();
-        }
+        final LinearLayout descContainerView = (LinearLayout) view.findViewById(R.id.result_desc_container);
         
-        //hide success results if success list is empty or failure list is not empty and "on_failure_behaviour" is set to "hide_success"
-        if (successList.size() == 0 || 
-        		(failureList.size() > 0 && QoSServerResult.ON_FAILURE_BEHAVIOUR_HIDE_SUCCESS.equals(result.getOnFailureBehaviour()))) {
-        	View group = view.findViewById(R.id.result_text_layout_success);
-        	if (group != null) {
-        		group.setVisibility(View.GONE);
-        	}
-        	else {
-            	successListView.setVisibility(View.GONE);
-        	}
-        }
-
-    	LinearLayout failureListView = (LinearLayout) view.findViewById(R.id.value_list_fail);
-    	
-        if (failureList.size() > 0) {
-        	if (QoSServerResult.ON_FAILURE_BEHAVIOUR_INFO_SUCCESS.equals(result.getOnFailureBehaviour())) {
-        		View group = view.findViewById(R.id.result_text_layout_success);
-            	if (group != null) {
-            		group.setBackgroundResource(R.color.result_info);
-            	}
-            	
-            	TextView textSuccess = (TextView) view.findViewById(R.id.subheader_text_success);
-            	if (textSuccess != null) {
-            		textSuccess.setText(R.string.result_details_qos_info);
-            	}
-        	}
-        	
-        	failureListAdapter = new SimpleAdapter(activity, failureList, R.layout.qos_category_test_desc_item, new String[] {
-            "name"}, new int[] { R.id.name });
-        	
-        	for (int i = 0; i < failureList.size(); i++) {
-        		View v = failureListAdapter.getView(i, null, null);
-        		failureListView.addView(v);
-        	}
-        	
-        	failureListView.invalidate();
-        }
-        else {
-        	View group = view.findViewById(R.id.result_text_layout_fail);
-        	if (group != null) {
-        		group.setVisibility(View.GONE);
-        	}
-        	else {
-            	failureListView.setVisibility(View.GONE);
+        int posIndex = 1;
+        for (Entry<DetailType, QoSResultListAdapter> e : resultViewList.entrySet()) {
+        	if (e.getValue().getDescMap().size() > 0) {
+        		e.getValue().build();
+        		
+        		descContainerView.addView(e.getValue().getViewGroup(), posIndex++);
+        		
+        		switch(e.getKey()) {
+        		case OK:
+        			if (resultViewList.get(DetailType.FAIL) != null && resultViewList.get(DetailType.FAIL).getDescMap().size() > 0) {
+	                	if (QoSServerResult.ON_FAILURE_BEHAVIOUR_INFO_SUCCESS.equals(result.getOnFailureBehaviour())) {
+                    		e.getValue().getViewGroup().setBackgroundResource(R.color.result_info);	                    	
+	                	}
+	                	else if(QoSServerResult.ON_FAILURE_BEHAVIOUR_HIDE_SUCCESS.equals(result.getOnFailureBehaviour())) {
+	                		e.getValue().getViewGroup().setVisibility(View.GONE);
+	                	}
+        			}
+        		default:
+        		}
         	}
         }
         

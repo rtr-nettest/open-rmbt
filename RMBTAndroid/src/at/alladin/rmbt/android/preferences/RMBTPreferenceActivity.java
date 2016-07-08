@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2015 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,20 +17,28 @@ package at.alladin.rmbt.android.preferences;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import android.app.ActionBar;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
+import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceActivity;
 import android.view.MenuItem;
 import android.widget.ListView;
 import at.alladin.openrmbt.android.R;
+import at.alladin.rmbt.android.main.AppConstants;
+import at.alladin.rmbt.android.terms.RMBTCheckFragment.CheckType;
 import at.alladin.rmbt.android.terms.RMBTTermsActivity;
 import at.alladin.rmbt.android.util.ConfigHelper;
 import at.alladin.rmbt.android.util.Server;
@@ -38,6 +46,7 @@ import at.alladin.rmbt.android.util.Server;
 public class RMBTPreferenceActivity extends PreferenceActivity
 {
     protected static final int REQUEST_NDT_CHECK = 1;
+    protected static final int REQUEST_LOOP_MODE_CHECK = 2;
     protected Method mLoadHeaders = null;
     protected Method mHasHeaders = null;
     
@@ -92,9 +101,18 @@ public class RMBTPreferenceActivity extends PreferenceActivity
         super.onCreate(savedInstanceState);
         if (!isNewV11Prefs())
         {
+
+ 
+            if (ConfigHelper.isUserLoopModeActivated(this) && !ConfigHelper.isDevEnabled(this)) {
+            	addPreferencesFromResource(R.xml.preferences_loop);
+            }
+ 
             addPreferencesFromResource(R.xml.preferences);
-            if (ConfigHelper.isDevEnabled(this))
+            
+            if (ConfigHelper.isDevEnabled(this)) {
                 addPreferencesFromResource(R.xml.preferences_dev);
+            }
+
         }
         
         
@@ -117,6 +135,55 @@ public class RMBTPreferenceActivity extends PreferenceActivity
         v.setBackgroundResource(R.drawable.app_bgdn_radiant);
         //v.setPadding(paddingLeftRight, paddingTopBottom, paddingLeftRight, paddingTopBottom);
         
+        final Preference loopModeMaxDelayPreference = findPreference("loop_mode_max_delay");
+        if (loopModeMaxDelayPreference != null && !ConfigHelper.isDevEnabled(this)) {
+        	loopModeMaxDelayPreference.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+				
+				@Override
+				public boolean onPreferenceChange(Preference preference, Object newValue) {
+					return checkInputValidity(RMBTPreferenceActivity.this, newValue,
+							AppConstants.LOOP_MODE_MIN_DELAY, AppConstants.LOOP_MODE_MAX_DELAY, R.string.loop_mode_max_delay_invalid);
+				}
+			});
+        }
+        
+        final Preference loopModeMaxMovementPreference = findPreference("loop_mode_max_movement");
+        if (loopModeMaxMovementPreference != null && !ConfigHelper.isDevEnabled(this)) {
+        	loopModeMaxMovementPreference.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+				
+				@Override
+				public boolean onPreferenceChange(Preference preference, Object newValue) {
+					return checkInputValidity(RMBTPreferenceActivity.this, newValue, 
+							AppConstants.LOOP_MODE_MIN_MOVEMENT, AppConstants.LOOP_MODE_MAX_MOVEMENT, R.string.loop_mode_max_movement_invalid);
+				}
+			});
+        }
+        
+        final Preference loopModePref = (Preference) findPreference("loop_mode");
+        if (loopModePref != null)
+        {
+        	loopModePref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference)
+                {
+                    if (preference instanceof CheckBoxPreference)
+                    {
+                        final CheckBoxPreference cbp = (CheckBoxPreference) preference;
+                        
+                        if (cbp.isChecked())
+                        {
+                            cbp.setChecked(false);
+                            final Intent intent = new Intent(getBaseContext(), RMBTTermsActivity.class);
+                            intent.putExtra(RMBTTermsActivity.EXTRA_KEY_CHECK_TYPE, CheckType.LOOP_MODE.name());
+                            intent.putExtra(RMBTTermsActivity.EXTRA_KEY_CHECK_TERMS_AND_COND, false);
+                            startActivityForResult(intent, REQUEST_LOOP_MODE_CHECK);
+                        }
+                    }
+                    return true;
+                }
+            });
+        }
+        
         final Preference ndtPref = (Preference) findPreference("ndt");
         if (ndtPref != null)
         {
@@ -132,6 +199,7 @@ public class RMBTPreferenceActivity extends PreferenceActivity
                         {
                             cbp.setChecked(false);
                             final Intent intent = new Intent(getBaseContext(), RMBTTermsActivity.class);
+                            intent.putExtra(RMBTTermsActivity.EXTRA_KEY_CHECK_TYPE, CheckType.NDT.name());
                             startActivityForResult(intent, REQUEST_NDT_CHECK);
                         }
                     }
@@ -152,7 +220,7 @@ public class RMBTPreferenceActivity extends PreferenceActivity
                 }
             });
         }
-        
+                
         // v.setScrollBarStyle(View.SCROLLBARS_OUTSIDE_INSET);
         
         // addPreferencesFromResource(R.xml.preferences);
@@ -160,7 +228,7 @@ public class RMBTPreferenceActivity extends PreferenceActivity
         final Preference serverSelectionPrefCat = findPreference("server_selection_preferences");
         if (serverSelectionPrefCat != null)
         {
-            if (! ConfigHelper.isServerSelectionEnabled(this) || ConfigHelper.getServers(this) == null)
+            if (! ConfigHelper.isUserServerSelectionActivated(this) || ConfigHelper.getServers(this) == null)
                 getPreferenceScreen().removePreference(serverSelectionPrefCat);
             else
             {
@@ -214,12 +282,46 @@ public class RMBTPreferenceActivity extends PreferenceActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_NDT_CHECK)
-        {
+        if (requestCode == REQUEST_NDT_CHECK) {
             ((CheckBoxPreference) findPreference("ndt")).setChecked(ConfigHelper.isNDT(this));
+        }
+        else if (requestCode == REQUEST_LOOP_MODE_CHECK) {
+        	((CheckBoxPreference) findPreference("loop_mode")).setChecked(ConfigHelper.isLoopMode(this));
         }
     }
     
+    
+    public static boolean checkInputValidity(final Context context, final Object v, final long minValue, final long maxValue, final int errorMsgId) {
+    	boolean showErrorDialog = false;
+    	try {
+    		final long value = Long.valueOf(String.valueOf(v));
+    		if (value > maxValue || value < minValue) {
+    			showErrorDialog = true;
+    		}
+    	}
+    	catch (Exception e) {
+    		showErrorDialog = true;
+    	}
+		
+    	if (showErrorDialog) {
+			final String msg = context.getString(errorMsgId);
+			final AlertDialog dialog = new AlertDialog.Builder(context)
+					.setTitle(R.string.value_invalid)
+					.setMessage(MessageFormat.format(msg, minValue, maxValue))
+					.setPositiveButton(android.R.string.ok, new OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+								dialog.dismiss();
+						}
+					})
+					.create();
+			
+			dialog.show();
+    	}
+		
+		return !showErrorDialog;	
+    }
     
     /*
      * @Override public void onBuildHeaders(List<Header> aTarget) { try {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ public class NonTransparentProxyResult extends AbstractResult<NonTransparentProx
 	private String request;
 
 	@HstoreKey("nontransproxy_objective_timeout")
-	private String timeout;
+	private Long timeout;
 
 	@HstoreKey("nontransproxy_result")
 	private String result;
@@ -37,7 +37,7 @@ public class NonTransparentProxyResult extends AbstractResult<NonTransparentProx
 	private String response;
 
 	@HstoreKey("nontransproxy_objective_port")
-	private String port;
+	private Integer port;
 
 	public NonTransparentProxyResult() {
 		
@@ -51,11 +51,11 @@ public class NonTransparentProxyResult extends AbstractResult<NonTransparentProx
 		this.response = response;
 	}
 
-	public String getPort() {
+	public Integer getPort() {
 		return this.port;
 	}
 
-	public void setPort(String port) {
+	public void setPort(Integer port) {
 		this.port = port;
 	}
 
@@ -74,11 +74,11 @@ public class NonTransparentProxyResult extends AbstractResult<NonTransparentProx
 				+ ", port=" + port + "]";
 	}
 
-	public String getTimeout() {
+	public Long getTimeout() {
 		return timeout;
 	}
 
-	public void setTimeout(String timeout) {
+	public void setTimeout(Long timeout) {
 		this.timeout = timeout;
 	}
 

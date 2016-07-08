@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2015 alladin-IT GmbH
+ * Copyright 2016 Specure GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ public class StatusResource extends ServerResource {
 		JSONObject json = new JSONObject();
 		
 		json.put("starttime", TestServer.serverPreferences.getStartTimestamp());
-		json.put("version", TestServer.TEST_SERVER_VERSION_MAJOR + "." + TestServer.TEST_SERVER_VERSION_MINOR);
+		json.put("version", TestServer.TEST_SERVER_VERSION_MAJOR + "." + TestServer.TEST_SERVER_VERSION_MINOR + "." + TestServer.TEST_SERVER_VERSION_PATCH);
 		
 		if (TestServerConsole.errorReportMap.size() > 0) {
 			setStatus(Status.SERVER_ERROR_INTERNAL);

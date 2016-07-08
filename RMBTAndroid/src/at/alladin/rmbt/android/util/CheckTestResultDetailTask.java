@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,15 +18,15 @@ package at.alladin.rmbt.android.util;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import android.content.Context;
 import android.os.AsyncTask;
-import at.alladin.rmbt.android.main.RMBTMainActivity;
 import at.alladin.rmbt.android.views.ResultDetailsView.ResultDetailType;
 
 public class CheckTestResultDetailTask extends AsyncTask<String, Void, JSONArray>
 {
 	private final ResultDetailType resultType;
     
-    private final RMBTMainActivity activity;
+    private final Context context;
     
     private JSONArray resultList;
     
@@ -36,16 +36,16 @@ public class CheckTestResultDetailTask extends AsyncTask<String, Void, JSONArray
     
     private boolean hasError = false;
     
-    public CheckTestResultDetailTask(final RMBTMainActivity activity2, final ResultDetailType resultType)
+    public CheckTestResultDetailTask(final Context context, final ResultDetailType resultType)
     {
-        this.activity = activity2;
+        this.context = context;
         this.resultType = resultType;
     }
     
     @Override
     protected JSONArray doInBackground(final String... uid)
     {
-        serverConn = new ControlServerConnection(activity.getApplicationContext());
+        serverConn = new ControlServerConnection(context);
 
         try {
             if (uid != null && uid[0] != null)
@@ -59,7 +59,7 @@ public class CheckTestResultDetailTask extends AsyncTask<String, Void, JSONArray
             		break;
             	case OPENDATA:
             		resultList = new JSONArray();
-    				resultList.put(0, serverConn.requestOpenDataTestResult(uid[0], uid[1]));
+    				resultList.put(0, serverConn.requestOpenDataTestResult(uid[0]));
             		break;
             	}
             }	
@@ -69,16 +69,6 @@ public class CheckTestResultDetailTask extends AsyncTask<String, Void, JSONArray
         }
         
         return resultList;
-    }
-    
-    @Override
-    protected void onCancelled()
-    {
-        if (serverConn != null)
-        {
-            serverConn.unload();
-            serverConn = null;
-        }
     }
     
     @Override

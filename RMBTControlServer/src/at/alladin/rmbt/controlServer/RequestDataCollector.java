@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,9 +32,9 @@ import org.restlet.engine.header.Header;
 import org.restlet.resource.Get;
 import org.restlet.util.Series;
 
-import com.google.common.net.InetAddresses;
-
 import at.alladin.rmbt.shared.GeoIPHelper;
+
+import com.google.common.net.InetAddresses;
 
 public class RequestDataCollector extends ServerResource
 {

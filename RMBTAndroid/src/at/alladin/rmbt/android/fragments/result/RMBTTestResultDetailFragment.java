@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -52,8 +52,6 @@ public class RMBTTestResultDetailFragment extends Fragment implements EndTaskLis
     private static final String DEBUG_TAG = "RMBTTestResultDetailFragment";
     
     public static final String ARG_UID = "uid";
-    
-    private RMBTMainActivity activity;
     
     private CheckTestResultDetailTask testResultDetailTask;
     
@@ -93,9 +91,7 @@ public class RMBTTestResultDetailFragment extends Fragment implements EndTaskLis
     public void onCreate(final Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        
-        activity = (RMBTMainActivity) getActivity();
-        
+        setRetainInstance(true);        
     }
     
     @Override
@@ -103,7 +99,6 @@ public class RMBTTestResultDetailFragment extends Fragment implements EndTaskLis
     {
         // The last two arguments ensure LayoutParams are inflated
         // properly.
-        
         super.onCreateView(inflater, container, savedInstanceState);
         
         final View view = inflater.inflate(R.layout.test_result_detail, container, false);
@@ -125,7 +120,7 @@ public class RMBTTestResultDetailFragment extends Fragment implements EndTaskLis
         if ((testResultDetailTask == null || testResultDetailTask != null || testResultDetailTask.isCancelled())
                 && args.getString(ARG_UID) != null)
         {
-            testResultDetailTask = new CheckTestResultDetailTask(activity, at.alladin.rmbt.android.views.ResultDetailsView.ResultDetailType.SPEEDTEST);
+            testResultDetailTask = new CheckTestResultDetailTask((RMBTMainActivity) getActivity(), at.alladin.rmbt.android.views.ResultDetailsView.ResultDetailType.SPEEDTEST);
             
             testResultDetailTask.setEndTaskListener(this);
             testResultDetailTask.execute(args.getString(ARG_UID));

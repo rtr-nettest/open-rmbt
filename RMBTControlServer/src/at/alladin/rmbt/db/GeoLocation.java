@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.Calendar;
+import java.util.UUID;
 
 import at.alladin.rmbt.shared.Helperfunctions;
 
@@ -29,6 +30,7 @@ public class GeoLocation
 {
     
     private long uid;
+    private UUID open_test_uuid;
     private long test_id;
     private Timestamp time;
     private float accuracy;
@@ -51,8 +53,9 @@ public class GeoLocation
         reset();
         this.conn = conn;
     }
+ 
     
-    public GeoLocation(final Connection conn, final long uid, final long test_id, final Timestamp time,
+    public GeoLocation(final Connection conn,  final long uid, final UUID open_test_uuid, final long test_id, final Timestamp time,
             final long accuracy, final double altitude, final float bearing, final float speed, final String provider,
             final double geo_lat, final double geo_long, final String timeZoneId, final long time_ns)
     {
@@ -60,6 +63,7 @@ public class GeoLocation
         this.conn = conn;
         
         this.uid = uid;
+        this.open_test_uuid = open_test_uuid;
         this.test_id = test_id;
         this.time = time;
         this.accuracy = accuracy;
@@ -74,10 +78,12 @@ public class GeoLocation
         timeZone = Helperfunctions.getTimeWithTimeZone(timeZoneId);
     }
     
+    
     public void reset()
     {
         
         uid = 0;
+        open_test_uuid = null;
         test_id = 0;
         time = null;
         accuracy = 0;
@@ -112,8 +118,8 @@ public class GeoLocation
         try
         {
             st = conn.prepareStatement(
-                    "INSERT INTO geo_location(test_id, time, accuracy, altitude, bearing, speed, provider, geo_lat, geo_long, location, time_ns) "
-                            + "VALUES(?,?,?,?,?,?,?,?,?, ST_TRANSFORM(ST_SetSRID(ST_Point(?, ?), 4326), 900913), ?)",
+                    "INSERT INTO geo_location(open_test_uuid, test_id, time, accuracy, altitude, bearing, speed, provider, geo_lat, geo_long, location, time_ns) "
+                            + "VALUES(?,?,?,?,?,?,?,?,?,?, ST_TRANSFORM(ST_SetSRID(ST_Point(?, ?), 4326), 900913), ?)",
                     Statement.RETURN_GENERATED_KEYS);
             
             /*
@@ -121,18 +127,21 @@ public class GeoLocation
              * this.time).toString());
              */
             
-            st.setLong(1, test_id);
-            st.setTimestamp(2, time, timeZone);
-            st.setFloat(3, accuracy);
-            st.setDouble(4, altitude);
-            st.setFloat(5, bearing);
-            st.setFloat(6, speed);
-            st.setString(7, provider);
-            st.setDouble(8, geo_lat);
-            st.setDouble(9, geo_long);
-            st.setDouble(10, geo_long);
-            st.setDouble(11, geo_lat);
-            st.setLong(12, time_ns);
+            int i=1;
+            
+            st.setObject(i++, open_test_uuid);
+            st.setLong(i++, test_id);
+            st.setTimestamp(i++, time, timeZone);
+            st.setFloat(i++, accuracy);
+            st.setDouble(i++, altitude);
+            st.setFloat(i++, bearing);
+            st.setFloat(i++, speed);
+            st.setString(i++, provider);
+            st.setDouble(i++, geo_lat);
+            st.setDouble(i++, geo_long);
+            st.setDouble(i++, geo_long);
+            st.setDouble(i++, geo_lat);
+            st.setLong(i++, time_ns);
             
             // System.out.println(st2.toString());
             
@@ -168,6 +177,11 @@ public class GeoLocation
     public long getUid()
     {
         return uid;
+    }
+    
+    public UUID getOpenTestUuid()
+    {
+        return open_test_uuid;
     }
     
     public long getTest_id()
@@ -219,6 +233,12 @@ public class GeoLocation
     {
         this.uid = uid;
     }
+    
+    public void setOpenTestUuid(final UUID open_test_uuid)
+    {
+    	
+        this.open_test_uuid = open_test_uuid;
+    }  
     
     public void setTest_id(final long test_id)
     {

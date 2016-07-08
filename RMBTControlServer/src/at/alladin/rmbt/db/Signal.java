@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Calendar;
+import java.util.UUID;
 
 import at.alladin.rmbt.shared.Helperfunctions;
 
@@ -30,6 +31,7 @@ public class Signal
 {
     final static int UNKNOWN = Integer.MIN_VALUE; 
     
+    private UUID open_test_uuid;
     private long uid;
     private long test_id;
     private Timestamp time;
@@ -56,7 +58,7 @@ public class Signal
         this.conn = conn;
     }
     
-    public Signal(final Connection conn, final long uid, final long test_id, final Timestamp time,
+    public Signal(final Connection conn, final UUID open_test_uuid, final long uid, final long test_id, final Timestamp time,
             final int network_type_id, final int signal_strength, final int gsm_bit_error_rate,
             final int wifi_link_speed, final int wifi_rssi,
             final int lte_rsrp, final int lte_rsrq, final int lte_rssnr, final int lte_cqi,
@@ -67,6 +69,7 @@ public class Signal
         
         this.conn = conn;
         
+        this.open_test_uuid = open_test_uuid;
         this.uid = uid;
         this.test_id = test_id;
         this.time = time;
@@ -86,7 +89,7 @@ public class Signal
     
     public void reset()
     {
-        
+        open_test_uuid = null;
         uid = 0;
         test_id = UNKNOWN;
         time = null;
@@ -125,69 +128,74 @@ public class Signal
         {
             st = conn.prepareStatement(
                     "INSERT INTO signal(" +
-                    "test_id, time, network_type_id, signal_strength, gsm_bit_error_rate, wifi_link_speed, wifi_rssi, " +
+                    "open_test_uuid, test_id, time, network_type_id, signal_strength, gsm_bit_error_rate, wifi_link_speed, wifi_rssi, " +
                     "lte_rsrp, lte_rsrq, lte_rssnr, lte_cqi, time_ns) " +
-                    "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+                    "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+          
+            int i = 1;
+            
+            // System.out.println(st2.toString());
+            st.setObject(i++,open_test_uuid);
             
             if (test_id == UNKNOWN)
-                st.setNull(1, Types.BIGINT);
+                st.setNull(i++, Types.BIGINT);
             else
-                st.setLong(1, test_id);
+                st.setLong(i++, test_id);
             
             if (time == null)
-                st.setNull(2, Types.TIMESTAMP);
+                st.setNull(i++, Types.TIMESTAMP);
             else
-                st.setTimestamp(2, time, timeZone);
+                st.setTimestamp(i++, time, timeZone);
             
             if (network_type_id == UNKNOWN)
-                st.setNull(3, Types.INTEGER);
+                st.setNull(i++, Types.INTEGER);
             else
-                st.setInt(3, network_type_id);
+                st.setInt(i++, network_type_id);
             
             if (signal_strength == UNKNOWN)
-                st.setNull(4, Types.INTEGER);
+                st.setNull(i++, Types.INTEGER);
             else
-                st.setInt(4, signal_strength);
+                st.setInt(i++, signal_strength);
             
             if (gsm_bit_error_rate == UNKNOWN)
-                st.setNull(5, Types.INTEGER);
+                st.setNull(i++, Types.INTEGER);
             else
-                st.setInt(5, gsm_bit_error_rate);
+                st.setInt(i++, gsm_bit_error_rate);
             
             if (wifi_link_speed == UNKNOWN)
-                st.setNull(6, Types.INTEGER);
+                st.setNull(i++, Types.INTEGER);
             else
-                st.setInt(6, wifi_link_speed);
+                st.setInt(i++, wifi_link_speed);
             
             if (wifi_rssi == UNKNOWN)
-                st.setNull(7, Types.INTEGER);
+                st.setNull(i++, Types.INTEGER);
             else
-                st.setInt(7, wifi_rssi);
+                st.setInt(i++, wifi_rssi);
             
             if (lte_rsrp == UNKNOWN)
-                st.setNull(8, Types.INTEGER);
+                st.setNull(i++, Types.INTEGER);
             else
-                st.setInt(8, lte_rsrp);
+                st.setInt(i++, lte_rsrp);
             
             if (lte_rsrq == UNKNOWN)
-                st.setNull(9, Types.INTEGER);
+                st.setNull(i++, Types.INTEGER);
             else
-                st.setInt(9, lte_rsrq);
+                st.setInt(i++, lte_rsrq);
             
             if (lte_rssnr == UNKNOWN)
-                st.setNull(10, Types.INTEGER);
+                st.setNull(i++, Types.INTEGER);
             else
-                st.setInt(10, lte_rssnr);
+                st.setInt(i++, lte_rssnr);
             
             if (lte_cqi == UNKNOWN)
-                st.setNull(11, Types.INTEGER);
+                st.setNull(i++, Types.INTEGER);
             else
-                st.setInt(11, lte_cqi);
+                st.setInt(i++, lte_cqi);
             
             if (time_ns == UNKNOWN)
-                st.setNull(12, Types.BIGINT);
+                st.setNull(i++, Types.BIGINT);
             else
-                st.setLong(12, time_ns);            
+                st.setLong(i++, time_ns);            
             
             // System.out.println(st2.toString());
             
@@ -219,6 +227,11 @@ public class Signal
     {
         return errorLabel;
     }
+    
+    public UUID getOpenTestUuid()
+    {
+        return open_test_uuid;
+    }   
     
     public long getUid()
     {
@@ -264,6 +277,11 @@ public class Signal
     {
         this.uid = uid;
     }
+    
+    public void setOpenTestUuid(final UUID open_test_uuid)
+    {
+        this.open_test_uuid = open_test_uuid; 
+    }    
     
     public void setTest_id(final long test_id)
     {

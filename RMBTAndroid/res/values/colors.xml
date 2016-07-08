@@ -16,6 +16,8 @@
  -->
 
 <resources >
+    <color name="divider_white">#ffffffff</color>
+    <color name="progress_blue">#ff134b99</color>
     <color name="bgblue">#ff134b69</color>
 	<color name="black">#ff000000</color>
 	<color name="result_green">#ff116e30</color>

@@ -77,6 +77,11 @@ public class QoSServiceProtocol {
 	/**
 	 * 
 	 */
+	public final static String CMD_VOIP_TEST = "VOIPTEST";
+	
+	/**
+	 * 
+	 */
 	public final static String REQUEST_UDP_PORT_RANGE = "GET UDPPORTS";
 	
 	/**
@@ -94,6 +99,11 @@ public class QoSServiceProtocol {
 	 */
 	public final static String REQUEST_UDP_RESULT_IN = "GET UDPRESULT IN";
 	
+	/**
+	 * 
+	 */
+	public final static String REQUEST_VOIP_RESULT = "GET VOIPRESULT"; 
+
 	/**
 	 * 
 	 */

@@ -19,9 +19,6 @@ import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
-import java.util.PropertyResourceBundle;
-import java.util.ResourceBundle;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,7 +28,6 @@ import org.restlet.resource.Post;
 import at.alladin.rmbt.qos.QoSUtil;
 import at.alladin.rmbt.qos.QoSUtil.TestUuid;
 import at.alladin.rmbt.qos.QoSUtil.TestUuid.UuidType;
-import at.alladin.rmbt.shared.ResourceManager;
 import at.alladin.rmbt.shared.hstoreparser.HstoreParseException;
 
 public class QoSResultResource extends ServerResource
@@ -71,7 +67,7 @@ public class QoSResultResource extends ServerResource
                 
                 if (conn != null) {
                     final String testUuid = request.optString("test_uuid");
-                    QoSUtil.evaluate(settings, conn, new TestUuid(testUuid, UuidType.TEST_UUID), answer, lang, errorList);
+                    QoSUtil.evaluate(settings, conn, new TestUuid(testUuid, UuidType.TEST_UUID), answer, lang, errorList, capabilities.getQosCapability());
                 }
                 else {
                     errorList.addError("ERROR_DB_CONNECTION");

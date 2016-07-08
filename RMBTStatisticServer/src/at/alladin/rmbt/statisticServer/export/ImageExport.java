@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2015 RTR-GmbH
+ * Copyright 2013-2016 RTR-GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -290,7 +290,7 @@ public class ImageExport extends ServerResource {
                 
                 //hide signal caption if signal is null
                 if (signal==null) {
-                	g.setColor(new Color(0,99,148));
+                	g.setColor(new Color(89,178,0));
                 	g.fillRect(195, 98, 71, 13);
                 	
                 }
@@ -307,7 +307,7 @@ public class ImageExport extends ServerResource {
                 
                 //hide signal caption if signal is null
                 if (signal==null) {
-                	g.setColor(new Color(0,99,148));
+                	g.setColor(new Color(89,178,0));
                 	g.fillRect(195, 98, 90, 13);
                 	
                 }

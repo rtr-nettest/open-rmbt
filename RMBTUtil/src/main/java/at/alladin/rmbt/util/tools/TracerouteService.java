@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2015 alladin-IT GmbH
+ * Copyright 2016 Specure GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,6 +44,8 @@ public interface TracerouteService extends Callable<List<HopDetail>> {
 	public String getHost();
 
 	public void setHost(String host);
+	
+	public void setResultListObject(List<HopDetail> resultList);
 
 	public int getMaxHops();
 

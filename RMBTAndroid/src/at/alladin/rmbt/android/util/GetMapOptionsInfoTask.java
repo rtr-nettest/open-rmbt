@@ -74,19 +74,6 @@ public class GetMapOptionsInfoTask extends AsyncTask<Void, Void, MapOptions>
      * 
      */
     @Override
-    protected void onCancelled()
-    {
-        if (serverConn != null)
-        {
-            serverConn.unload();
-            serverConn = null;
-        }
-    }
-    
-    /**
-     * 
-     */
-    @Override
     protected void onPostExecute(final MapOptions result)
     {
         if (serverConn.hasError()) {

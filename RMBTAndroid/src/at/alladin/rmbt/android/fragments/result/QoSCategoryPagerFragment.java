@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2015 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.json.JSONArray;
 import org.json.JSONException;
 
-import android.app.Fragment;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -68,6 +68,12 @@ public class QoSCategoryPagerFragment extends Fragment implements OnPageChangeLi
         super.onCreate(savedInstanceState);
         
         //final Bundle args = getArguments();
+
+    }
+    
+    @Override
+    public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState)
+    {
         if (savedInstanceState != null && savedInstanceState.containsKey(BUNDLE_QOS_RESULTS)) {
         	try {
 				setQoSResult(new QoSServerResultCollection(new JSONArray(savedInstanceState.getString(BUNDLE_QOS_RESULTS))));
@@ -78,12 +84,6 @@ public class QoSCategoryPagerFragment extends Fragment implements OnPageChangeLi
         }
         //DetailType detailType = DetailType.valueOf(args.getString(ARG_DETAIL_TYPE));
         pagerAdapter = new QoSCategoryPagerAdapter((RMBTMainActivity) getActivity(), handler, results);
-    }
-    
-    @Override
-    public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState)
-    {
-        super.onCreateView(inflater, container, savedInstanceState);
         
         View v = inflater.inflate(R.layout.result_tabhost_pager, container, false);
     	tabHost = (TabHost) v.findViewById(android.R.id.tabhost);
@@ -151,7 +151,7 @@ public class QoSCategoryPagerFragment extends Fragment implements OnPageChangeLi
 	
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
+		//super.onSaveInstanceState(outState);
 		outState.putString(BUNDLE_QOS_RESULTS, results.getTestResultArray().toString());
 		outState.putString(BUNDLE_DETAIL_TYPE, detailType.toString());
 	}

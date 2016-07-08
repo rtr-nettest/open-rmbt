@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,16 @@ import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.UiSettings;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import android.content.Context;
 import android.content.Intent;
@@ -53,16 +63,6 @@ import at.alladin.rmbt.android.views.ResultGraphView;
 import at.alladin.rmbt.android.views.ResultQoSDetailView;
 import at.alladin.rmbt.client.v2.task.result.QoSServerResultCollection;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
-import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.MapsInitializer;
-import com.google.android.gms.maps.UiSettings;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
-
 /**
  * 
  * @author lb
@@ -88,7 +88,7 @@ public class RMBTResultPagerAdapter extends PagerAdapter {
 		
     private static final String DEBUG_TAG = "RMBTResultPagerAdapter";
     
-    private final RMBTMainActivity activity;
+    private RMBTMainActivity activity;
     
     private final String testUuid;
     private String openTestUuid = null;
@@ -117,7 +117,15 @@ public class RMBTResultPagerAdapter extends PagerAdapter {
         this.testUuid = testUuid;        
     }
     
-    /**
+    public RMBTMainActivity getActivity() {
+		return activity;
+	}
+
+	public void setActivity(RMBTMainActivity activity) {
+		this.activity = activity;
+	}
+
+	/**
      * 
      * @param listener
      */

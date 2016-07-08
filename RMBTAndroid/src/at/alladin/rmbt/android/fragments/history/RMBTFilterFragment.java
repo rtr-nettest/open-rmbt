@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@ package at.alladin.rmbt.android.fragments.history;
 
 import java.util.ArrayList;
 
-import android.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -74,7 +74,7 @@ public class RMBTFilterFragment extends Fragment
         final RelativeLayout resultLimitView = (RelativeLayout) view.findViewById(R.id.Limit25Wrapper);
         limit25CheckBox = (CheckBox) view.findViewById(R.id.Limit25CheckBox);
         
-        if (activity.getHistoryResultLimit() == 25)
+        if (activity.getHistoryResultLimit() == 250)
             limit25CheckBox.setChecked(true);
         else
             limit25CheckBox.setChecked(false);
@@ -93,7 +93,7 @@ public class RMBTFilterFragment extends Fragment
                 else
                 {
                     limit25CheckBox.setChecked(true);
-                    activity.setHistoryResultLimit(25);
+                    activity.setHistoryResultLimit(250);
                 }
                 
             }

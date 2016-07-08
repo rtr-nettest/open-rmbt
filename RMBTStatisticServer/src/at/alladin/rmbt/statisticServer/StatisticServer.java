@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2015 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import at.alladin.rmbt.statisticServer.export.ExportResource;
 import at.alladin.rmbt.statisticServer.export.ImageExport;
 import at.alladin.rmbt.statisticServer.opendata.ChoicesResource;
 import at.alladin.rmbt.statisticServer.opendata.HistogramResource;
+import at.alladin.rmbt.statisticServer.opendata.OpenTestStatisticsResource;
 
 public class StatisticServer extends Application
 {
@@ -57,6 +58,7 @@ public class StatisticServer extends Application
         router.attach("/statistics", StatisticsResource.class);
 
         router.attach("/export/netztest-opendata-{year}-{month}.", ExportResource.class, Template.MODE_STARTS_WITH);
+        router.attach("/export/netztest-opendata_hours-{hours}.", ExportResource.class, Template.MODE_STARTS_WITH);
         router.attach("/export", ExportResource.class, Template.MODE_STARTS_WITH);
         
         router.attach("/{lang}/{open_test_uuid}/{size}.png", ImageExport.class);
@@ -64,6 +66,7 @@ public class StatisticServer extends Application
         // administrative resources (access restrictions might be applied to /admin/ 
 
         router.attach("/opentests/histogram", HistogramResource.class);
+        router.attach("/opentests/statistics", OpenTestStatisticsResource.class);
         //router.attach("/opentests/histogra{histogram}", OpenTestSearchResource.class);
         
         router.attach("/opentests/search", at.alladin.rmbt.statisticServer.opendata.OpenTestSearchResource.class, Template.MODE_STARTS_WITH);

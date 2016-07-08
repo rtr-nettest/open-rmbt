@@ -28,7 +28,7 @@
     
     <string name="preferences">Einstellungen</string>
     
-    <string name="preferences_category_test">Einstellungen</string>
+    <string name="preferences_category_test">Test-Einstellungen</string>
     
     <string name="preferences_location_settings">Standort</string>
     <string name="preferences_location_settings_sum">Standort-Einstellungen des Systems bearbeiten</string>
@@ -42,23 +42,23 @@
     <string name="preferences_skip_qos">QoS-Tests überspringen</string>
     <string name="preferences_skip_qos_sum">QoS-Tests werden nicht durchgeführt</string>
     
-    <string name="preferences_loop_mode">Wiederholung</string>
-    <string name="preferences_loop_mode_sum">Test läuft in einer Endlosschleife</string>
+    <string name="preferences_loop_mode">Wiederholungsmodus</string>
+    <string name="preferences_loop_mode_sum">Neue Tests werden gestartet, sobald die Wartezeit abgelaufen oder die Distanz zurückgelegt wird</string>
     
-    <string name="preferences_loop_mode_max_tests">Wiederholung maximale Testanzahl</string>
-    <string name="preferences_loop_mode_max_tests_sum">Maximale Anzahl von Tests im Wiederholungs-Modus (0 = unendlich)</string>
+    <string name="preferences_loop_mode_max_tests">Anzahl der Tests</string>
+    <string name="preferences_loop_mode_max_tests_sum">Anzahl von Tests im Wiederholungsmodus</string>
     
-    <string name="preferences_loop_mode_min_delay">Wiederholung Mindestpause</string>
-    <string name="preferences_loop_mode_min_delay_sum">Mindestpause (in Sekunden) im Wiederholungs-Modus zwischen zwei Tests</string>
+    <string name="preferences_loop_mode_min_delay">Mindestwartezeit</string>
+    <string name="preferences_loop_mode_min_delay_sum">Mindestwartezeit (in Sekunden) zwischen zwei Tests im Wiederholungsmodus</string>
     
-    <string name="preferences_loop_mode_max_delay">Wiederholung Maximalpause</string>
-    <string name="preferences_loop_mode_max_delay_sum">Maximalpause (in Sekunden) im Wiederholungs-Modus zwischen zwei Tests</string>
+    <string name="preferences_loop_mode_max_delay">Wartezeit</string>
+    <string name="preferences_loop_mode_max_delay_sum">Wartezeit (in Minuten) zwischen zwei Tests im Wiederholungsmodus</string>
     
-    <string name="preferences_loop_mode_movement">Wiederholung Bewegung</string>
-    <string name="preferences_loop_mode_movement_sum">Bewegung (in Meter), die einen Test im Wiederholungs-Modus auslöst</string>
+    <string name="preferences_loop_mode_movement">Distanz</string>
+    <string name="preferences_loop_mode_movement_sum">Distanz (in Metern) zwischen zwei Tests im Wiederholungsmods</string>
     
-    <string name="preferences_loop_mode_gps">Wiederholung GPS</string>
-    <string name="preferences_loop_mode_gps_sum">Verwendet GPS zwischen zwei Tests im Wiederholungs-Modus</string>
+    <string name="preferences_loop_mode_gps">Verwende GPS im Loop-Modus</string>
+    <string name="preferences_loop_mode_gps_sum">Verwende GPS zwischen zwei Tests im Wiederholungsmodus</string>
     
     <string name="preferences_loop_mode_wake_lock">Wiederholung WakeLock</string>
     <string name="preferences_loop_mode_wake_lock_sum">Workaround für manche Geräte: Lässt das Display aktiv um GPS aktiv zu halten.</string>
@@ -69,8 +69,9 @@
     <string name="preferences_ipv4_only">Nur IPv4</string>
     <string name="preferences_ipv4_only_sum">Keine Verwendung von IPv6</string>
     
-    <string name="preferences_category_developer">ENTWICKLUNG</string>
-    <string name="preferences_category_loop_mode">Wiederholungs-Modus</string>
+    <string name="preferences_category_developer">Entwicklung</string>
+    <string name="preferences_category_loop_mode">Einstellungen für den Wiederholungsmodus</string>
+    <string name="preferences_category_loop_mode_heading">Wiederholungsmodus</string>
     <string name="preferences_category_developer_control_server">Control-Server</string>
     <string name="preferences_category_developer_map_server">Map-Server</string>
     <string name="preferences_category_developer_qos_server">QoS-Server</string>
@@ -106,6 +107,7 @@
     <string name="preferences_category_developer_debug">Debugging</string>
     
     <string name="menu_button_start">START</string>
+	<string name="menu_button_loop">LOOP</string>
     <string name="menu_button_title_page">Startseite</string>
     <string name="menu_button_map">Karte</string>
     <string name="menu_button_history">Verlauf</string>
@@ -131,6 +133,20 @@
     <string name="about_gms_legal_line1">Google Play Services Impressum</string>
     <string name="about_test_counter_title">Testzähler</string>
     
+   	<string name="about_hidden_feature_dialog_title">Code</string>	
+    <string name="about_hidden_feature_dialog_enter_code">Bitte geben Sie den Code ein:</string>
+    <string name="about_hidden_feature_dialog_msg_deactivated">Deaktiviert.</string>
+    <string name="about_hidden_feature_dialog_msg_activated">Aktiviert.</string>
+    <string name="about_loop_mode_activated">Wiederholungsmodus verfügbar.</string>
+    <string name="about_loop_mode_deactivated">Wiederholungsmodus entfernt.</string>
+    <string name="about_server_selection_activated">Serverauswahl verfügbar.</string>
+    <string name="about_server_selection_deactivated">Serverauswahl entfernt.</string>
+    <string name="about_dev_mode_activated">Entwicklerloptionen verfügbar.</string>
+    <string name="about_dev_mode_deactivated">Entwickleroptionen entfernt.</string>
+    
+    
+    <string name="about_hidden_feature_dialog_msg_try_again">Versuchen Sie es nochmals!</string>
+    
     <string name="terms">Datenschutzerklärung und Nutzungsbedingungen</string>
     <string name="terms_accept_button">Zustimmung</string>
     <string name="terms_accept_button_continue">Weiter</string>
@@ -141,12 +157,16 @@
     <string name="terms_ndt_back_button">Zurück</string>
     <string name="terms_ndt_accept_button">Weiter</string>
     
-    <string name="loop_notification_ticker">Wiederholungs-Modus is aktiv…</string>
-    <string name="loop_notification_title">Wiederholungs-Modus is aktiv</string>
-    <string name="loop_notification_text">{0}x; {1}s; {2}m; Berühren um Wiederholungs-Modus zu stoppen.</string>
+    <string name="terms_loop_mode">Wiederholungmodus</string>
+    <string name="terms_loop_mode_header">Wiederholungmodus: Aktivierung</string>
+    <string name="terms_loop_mode_accept_text"><b>Ich möchte den Wiederholungsmodus aktivieren.</b></string>
     
-    <string name="loop_started">Wiederholungs-Modus wurde gestartet.</string>
-    <string name="loop_already_active">Wiederholungs-Modus ist bereits aktiv.</string>
+    <string name="loop_notification_ticker">Der Wiederholungsmodus ist aktiv…</string>
+    <string name="loop_notification_title">Der Wiederholungsmodus ist aktiv</string>
+    <string name="loop_notification_text">{0}x; {1}s; {2}m; Berühren um Wiederholungsmodus zu stoppen.</string>
+    
+    <string name="loop_started">Der Wiederholungsmodus wurde gestartet.</string>
+    <string name="loop_already_active">Der Wiederholungsmodus ist bereits aktiv.</string>
 
     <string name="test_mbps">Mbit/s</string>
     <string name="test_dbm">dBm</string>
@@ -184,7 +204,7 @@
 	<string name="history_filter_networks">ZUGANG</string>
 	<string name="history_filter_devices">GERÄT</string>
 	<string name="history_filter_result_number">ERGEBNISANZAHL</string>
-	<string name="history_filter_result_number_25">Nur die 25 neuesten Ergebnisse anzeigen</string>
+	<string name="history_filter_result_number_25">Nur die 250 neuesten Ergebnisse anzeigen</string>
 	
 	<string name="result_measurement">MESSUNG</string>
 	<string name="result_net">NETZ</string>
@@ -210,23 +230,6 @@
 
 	<!-- Map -->
 	<string name="map_filter_header">KARTENFILTER</string>
-	<string name="map_choose_header">KARTENAUSWAHL</string>
-	
-	<string name="map_appearance_header">KARTENANSICHT</string>
-	<string name="map_appearance_nosat_title">Normale Ansicht</string>
-	<string name="map_appearance_nosat_summary">Karte zeigt die normale Ansicht</string>
-	<string name="map_appearance_sat_title">Satellitenansicht</string>
-	<string name="map_appearance_sat_summary">Karte zeigt die Satellitenansicht</string>
-	
-	<string name="map_overlay_header">KARTENOVERLAY</string>
-	<string name="map_overlay_auto_title">Automatisch</string>
-	<string name="map_overlay_auto_summary">Karte wechselt automatisch zwischen Heatmap und Punkten</string>
-	<string name="map_overlay_heatmap_title">Heatmap</string>
-	<string name="map_overlay_heatmap_summary">Karte zeigt die Tests als Heatmap an</string>
-	<string name="map_overlay_points_title">Punkte</string>
-	<string name="map_overlay_points_summary">Karte zeigt die Tests als Punkte an</string>
-	<string name="map_overlay_shapes_title">PLZ</string>
-	<string name="map_overlay_shapes_summary">Karte zeigt Tests nach Postleitzahl-Gebieten an</string>
 	
 	<string name="map_balloon_overlay_header">MESSUNGEN</string>
 	
@@ -261,25 +264,17 @@
     <string name="preferences_dont_show_menu_on_exit_sum">Menü wird vor dem Schließen der App nicht angezeigt.</string>
 	
 	<string name="term_signal">Signal</string>
-	
-	<string name="result_page_title_qos">QoS</string>
-	<string name="result_page_title_test">Details</string>
-	<string name="result_page_title_menu">Ergebnisse</string>
-	<string name="result_page_title_graph">Graph</string>
-	<string name="result_page_title_map">Standort</string>
-		
-	<string name="qos_test_name_website">Referenz-Website</string>
-	<string name="qos_test_name_http_proxy">Unveränderter Inhalt</string>
-	<string name="qos_test_name_non_transparent_proxy">Transparente Verbindung</string>
-	<string name="qos_test_name_dns">DNS</string>
-	<string name="qos_test_name_tcp">TCP-Ports</string>	
-	<string name="qos_test_name_udp">UDP-Ports</string>
-	
-	<string name="qos_test_result_error">Error</string>
-	<string name="qos_test_result_all">Results</string>
-	
+    <string name="term_signal_quality">Qualität</string>
+    
+    <string name="result_page_title_qos">QoS</string>
+    <string name="result_page_title_test">Details</string>
+    <string name="result_page_title_menu">Ergebnisse</string>
+    <string name="result_page_title_graph">Graph</string>
+    <string name="result_page_title_map">Standort</string>
+    	
 	<string name="result_details_qos_failure">FEHLGESCHLAGEN</string>
 	<string name="result_details_qos_success">ERFOLGREICH</string>
+    <string name="result_details_qos_info">WEITERE ERGEBNISSE</string>
 	
 	<string name="page_title_title_page">Menü</string>
 	<string name="page_title_history">Verlauf</string>
@@ -295,16 +290,18 @@
 	
 	<string name="title_screen_ipv4">IPv4</string>
 	<string name="title_screen_ipv6">IPv6</string>
-	<string name="title_screen_traffic">Hintergrund Traffic</string>
+	<string name="title_screen_ipv4_overlay">Internet Adresse (v4)</string>
+	<string name="title_screen_ipv6_overlay">Internet Adresse (v6)</string>
+	<string name="title_screen_traffic">Aktueller Datenverkehr</string>
 	<string name="title_screen_network_id">Netzkennung:</string>
 	
 	<string name="title_screen_info_overlay_location">Standort</string>
-	<string name="title_screen_info_overlay_ipv4_public">Öffentliche IPv4</string>
-	<string name="title_screen_info_overlay_ipv4_private">Private IPv4</string>
-	<string name="title_screen_info_overlay_ipv6_public">Öffentliche IPv6</string>
-	<string name="title_screen_info_overlay_ipv6_private">Private IPv6</string>
-	<string name="title_screen_info_overlay_ul_traffic">Upload Traffic</string>
-	<string name="title_screen_info_overlay_dl_traffic">Download Traffic</string>
+	<string name="title_screen_info_overlay_ipv4_public">Öffentliche Adresse</string>
+	<string name="title_screen_info_overlay_ipv4_private">Lokale Adresse</string>
+	<string name="title_screen_info_overlay_ipv6_public">Öffentliche Adresse</string>
+	<string name="title_screen_info_overlay_ipv6_private">Lokale Adresse</string>
+	<string name="title_screen_info_overlay_ul_traffic">Uploadrate</string>
+	<string name="title_screen_info_overlay_dl_traffic">Downloadrate</string>
 	<string name="title_screen_info_overlay_control_server_conn">ControlServer Verbindung</string>
 	<string name="title_screen_info_overlay_captive_portal_status">Captive Portal</string>
 	<string name="title_screen_info_overlay_is_loopback">Loopback</string>
@@ -326,6 +323,61 @@
 	<string name="test_label_quality_test">Qualitätstest</string>
 	
 	<string name="server_selection">Serverauswahl</string>
+	
+	<string name="permission_telephony_dialog_title">Berechtigung benötigt</string>
+	<string name="permission_telephony_dialog_text">Die Berechtigung READ_PHONE_STATE wird für die korrekte Erkennung der Netzwerkeinstellungen bei Dual-SIM-Geräten benötigt.</string>
+
+	<string name="value_invalid">Ungültiger Wert</string>
+	
+	<!-- new LOOP MODE -->
+		
+	<string name="loop_mode_max_delay_invalid">Ungülige maximale Wartezeit. Bitte wählen Sie einen Wert zwischen {0,number,#} und {1,number,#}.</string>
+	<string name="loop_mode_max_movement_invalid">Ungültige maximale Distanz. Bitte wählen Sie einen Wert zwischen {0,number,#} und {1,number,#}.</string>
+	<string name="loop_mode_max_tests_invalid">Ungültige Testanzahl. Bitte wählen Sie einen Wert zwischen {0,number,#} und {1,number,#}.</string>	
+	<string name="loop_mode_max_test">Anzahl der Tests</string>
+		<string name="loop_mode_info">Sie sind dabei Tests im Wiederholungsmodus zu starten. Die Distanz beträgt {0,number,#} Meter. Die Wartezeit ist {1,number,#} Minuten.</string>	
+	
+	<string name="loop_mode_test_dialog_abort">Wollen Sie den Wiederholungsmodus wirklich beenden?</string>
+	
+	<string name="loop_notification_finished_ticker">Der Wiederholungsmodus wurde beendet. Es werden keine weiteren Tests ausgeführt.</string>
+    <string name="loop_notification_finished_title">Wiederholungsmodus beendet</string>
+
+    <string name="loop_test_last_status_ok">Letzter Test: erfolgreich</string>
+    <string name="loop_test_last_status_error">Letzter Test: nicht erfolgreich</string>
+	<string name="loop_test_last_status_rejected">Letzter Test: abgelehnt</string>
+    
+    <string name="loop_test_measurement">Messung</string>
+    <string name="loop_test_current">Aktuell</string>
+    <string name="loop_test_last">Letzter Test</string>
+    <string name="loop_test_median">Median</string>
+
+    <string name="loop_test_progress_test_running">Test läuft</string>
+    <string name="loop_test_progress_test_waiting">wartend</string>
+    <string name="loop_test_progress_test_finished">beendet</string>
+    <string name="loop_test_progress_test_not_running">Wiederholungsmodus Test</string>
+    
+    <string name="loop_test_quit">Beenden</string>
+    
+    <string name="lm_measurement_ping">Ping (ms)</string>
+    <string name="lm_measurement_down">Down (Mbit/s)</string>
+    <string name="lm_measurement_up">Up (Mbit/s)</string>
+    <string name="lm_measurement_qos">QoS</string>
+
+    <string name="lm_measurement_server">Server</string>
+    <string name="lm_measurement_ip">IP des Geräts</string>
+	<string name="lm_measurement_data_usage">Datenverbrauch</string>    
+    <string name="lm_measurement_movement">Distanz</string>
+    <string name="lm_measurement_delay">Wartezeit</string>
+    
+    
+    <string name="lm_details_access">Zugang</string>
+    <string name="lm_details_network_id">Kennung</string>
+	<string name="lm_details_signal">Signal</string>    
+    <string name="lm_details_gps">Standort</string>
+    <string name="lm_details_gps_accuracy">Genaugkeit</string>
+    	
+	<string name="go">Tests starten</string>
+	<string name="go_to_settings">Einstellungen ändern</string>
 </resources>
 
 

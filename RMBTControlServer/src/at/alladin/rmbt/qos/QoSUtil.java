@@ -18,6 +18,7 @@ package at.alladin.rmbt.qos;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -43,6 +44,7 @@ import at.alladin.rmbt.db.dao.QoSTestTypeDescDao;
 import at.alladin.rmbt.qos.testscript.TestScriptInterpreter;
 import at.alladin.rmbt.shared.hstoreparser.Hstore;
 import at.alladin.rmbt.shared.hstoreparser.HstoreParseException;
+import at.alladin.rmbt.util.capability.QualityOfServiceCapability;
 
 /**
  * 
@@ -51,7 +53,7 @@ import at.alladin.rmbt.shared.hstoreparser.HstoreParseException;
  */
 public class QoSUtil {
     public static final Hstore HSTORE_PARSER = new Hstore(HttpProxyResult.class, NonTransparentProxyResult.class, 
-    		DnsResult.class, TcpResult.class, UdpResult.class, WebsiteResult.class);
+    		DnsResult.class, TcpResult.class, UdpResult.class, WebsiteResult.class, VoipResult.class, TracerouteResult.class);
 
 
 	/**
@@ -103,7 +105,7 @@ public class QoSUtil {
 	 * @throws IllegalArgumentException 
 	 */
 	public static void evaluate(final ResourceBundle settings, final Connection conn, final TestUuid uuid,
-			final JSONObject answer, String lang, final ErrorList errorList) throws SQLException, HstoreParseException, JSONException, IllegalArgumentException, IllegalAccessException {
+			final JSONObject answer, String lang, final ErrorList errorList, final QualityOfServiceCapability qosCapability) throws SQLException, HstoreParseException, JSONException, IllegalArgumentException, IllegalAccessException {
         // Load Language Files for Client
         
         final List<String> langs = Arrays.asList(settings.getString("RMBT_SUPPORTED_LANGUAGES").split(",\\s*"));
@@ -141,6 +143,8 @@ public class QoSUtil {
             	}
             }
             
+            final long timeStampFullEval = System.currentTimeMillis();
+            
             if (necessaryDataAvailable)
             {
                                       
@@ -151,7 +155,7 @@ public class QoSUtil {
                 QoSTestResultDao resultDao = new QoSTestResultDao(conn);
                 List<QoSTestResult> testResultList = resultDao.getByTestUid(test.getUid());
                 if (testResultList == null || testResultList.isEmpty()) {
-                	throw new UnsupportedOperationException();
+                	throw new UnsupportedOperationException("test " + test + " has no result list");
                 }
                 //map that contains all test types and their result descriptions determined by the test result <-> test objectives comparison
             	Map<TestType,TreeSet<ResultDesc>> resultKeys = new HashMap<>();
@@ -160,6 +164,10 @@ public class QoSUtil {
             	Set<String> testDescSet = new TreeSet<>();
             	//test summary set:
             	Set<String> testSummarySet = new TreeSet<>();
+
+            	
+            	//Staring timestamp for evaluation time measurement
+            	final long timeStampEval = System.currentTimeMillis();
             	
                 //iterate through all result entries
                 for (final QoSTestResult testResult : testResultList) {
@@ -186,59 +194,35 @@ public class QoSUtil {
                 	
                 	Class<? extends AbstractResult<?>> clazz = testType.getClazz();
                 	//parse hstore data
-                	AbstractResult<?> result = QoSUtil.HSTORE_PARSER.fromJSON(new JSONObject(testResult.getResults()), clazz);
-                	if (result != null) {
-                		//add each test description key to the testDescSet (to fetch it later from the db)
-                		if (testResult.getTestDescription() != null) {
-                    		testDescSet.add(testResult.getTestDescription());	
-                		}
-                		if (testResult.getTestSummary() != null) {
-                			testSummarySet.add(testResult.getTestSummary());
-                		}
-                		testResult.setResult(result);
+                	if (testResult.getResults() != null) {
+	                	final JSONObject resultJson = new JSONObject(testResult.getResults());
+	                	AbstractResult<?> result = QoSUtil.HSTORE_PARSER.fromJSON(resultJson, clazz);
+	                	result.setResultJson(resultJson);
+	                	
+	                	if (result != null) {
+	                		//add each test description key to the testDescSet (to fetch it later from the db)
+	                		if (testResult.getTestDescription() != null) {
+	                    		testDescSet.add(testResult.getTestDescription());	
+	                		}
+	                		if (testResult.getTestSummary() != null) {
+	                			testSummarySet.add(testResult.getTestSummary());
+	                		}
+	                		testResult.setResult(result);
+	
+	                	}
+	
+	                	//compare test results
+	                	compareTestResults(testResult, result, resultKeys, testType, resultOptions);
+                	}
 
-                	}
-                	//if expected resuls not null, compare them to the test results
-                	if (testResult.getExpectedResults()!=null) {
-                		
-                		//compare the test results with all expected results: 
-                		for (String expectedResults : testResult.getExpectedResults()) {
-                			//parse hstore string to object
-                			AbstractResult<?> expResult = QoSUtil.HSTORE_PARSER.fromString(expectedResults, clazz);
-                			//compare expected result to test result and save the returned id
-                			ResultDesc resultDesc = ResultComparer.compare(result, expResult, QoSUtil.HSTORE_PARSER, resultOptions);
-                			if (resultDesc != null) {
-                    			resultDesc.addTestResultUid(testResult.getUid());
-                    			resultDesc.setTestType(testType);
-                    			TreeSet<ResultDesc> resultDescSet;
-                    			if (resultKeys.containsKey(testType)) {
-                    				resultDescSet = resultKeys.get(testType);
-                    			}
-                    			else {
-                    				resultDescSet = new TreeSet<>();
-                    				resultKeys.put(testType, resultDescSet);
-                    			}
-                    			resultDescSet.add(resultDesc);
-                    			                        			
-                    			//increase the failure or success counter of this result object
-                    			if (resultDesc.getStatusCode().equals(ResultDesc.STATUS_CODE_SUCCESS)) {
-                    				if (expResult.getOnSuccess() != null) {
-                    					testResult.setSuccessCounter(testResult.getSuccessCounter()+1);
-                    				}
-                    			}
-                    			else {
-                    				if (expResult.getOnFailure() != null) {
-                    					testResult.setFailureCounter(testResult.getFailureCounter()+1);
-                    				}
-                    			}
-                			}
-                		}
-                	}
                 	//resultList.put(testResult.toJson());
                 	
                     //save all test results after the success and failure counters have been set
                 	//resultDao.updateCounter(testResult);
                 }
+                
+            	//ending timestamp for evaluation time measurement
+            	final long timeStampEvalEnd = System.currentTimeMillis();
                                        
                 //-------------------------------------------------------------
                 //fetch all result strings from the db
@@ -247,7 +231,7 @@ public class QoSUtil {
                 //FIRST: get all test descriptions
                 Set<String> testDescToFetchSet = testDescSet;
                 testDescToFetchSet.addAll(testSummarySet);
-                
+
                 Map<String, String> testDescMap = descDao.getAllByKeyToMap(testDescToFetchSet);
                 
                 for (QoSTestResult testResult : testResultList) {
@@ -268,11 +252,16 @@ public class QoSUtil {
                     	testResult.setTestSummary(description);
                 	}
 
-                	resultList.put(testResult.toJson(uuid.getType()));
+               		final JSONObject resultJsonObject = testResult.toJson(uuid.getType());
+               		if (resultJsonObject != null) {
+               			resultList.put(resultJsonObject);
+               		}
                 }
                 
                 //finally put results to json
-                answer.put("testresultdetail", resultList);
+                if (resultList != null && resultList.length() > 0) {
+                	answer.put("testresultdetail", resultList);
+                }
                 
                 JSONArray resultDescArray = new JSONArray();
                 
@@ -289,6 +278,12 @@ public class QoSUtil {
                     //add fetched results to json
                                         
                     for (ResultDesc desc : descSet) {
+                    	if (!qosCapability.isSupportsInfo()) {
+                    		if (ResultDesc.STATUS_CODE_INFO.equals(desc.getStatusCode())) {
+                    			continue;
+                    		}
+                    	}
+                    	
                     	if (!descSetNew.contains(desc)) {
                         	descSetNew.add(desc);
                     	}
@@ -323,6 +318,10 @@ public class QoSUtil {
 
                 //put result descriptions to json
                 answer.put("testresultdetail_testdesc", testTypeDescArray);
+                JSONObject evalTimes = new JSONObject();
+                evalTimes.put("eval", (timeStampEvalEnd - timeStampEval));
+                evalTimes.put("full", (System.currentTimeMillis() - timeStampFullEval));
+                answer.put("eval_times", evalTimes);
 
                 //System.out.println(answer);
             }
@@ -332,5 +331,154 @@ public class QoSUtil {
         }
         else
             errorList.addError("ERROR_DB_CONNECTION");
+	}
+	
+	/**
+	 * compares test results with expected results and increases success/failure counter 
+	 * @param testResult the test result
+	 * @param result the parsed test result
+	 * @param resultKeys result key map
+	 * @param testType test type
+	 * @param resultOptions result options
+	 * @throws HstoreParseException
+	 * @throws IllegalArgumentException
+	 * @throws IllegalAccessException
+	 */
+	public static void compareTestResults(final QoSTestResult testResult, final AbstractResult<?> result, 
+			final Map<TestType,TreeSet<ResultDesc>> resultKeys, final TestType testType, final ResultOptions resultOptions) throws HstoreParseException, IllegalArgumentException, IllegalAccessException {
+
+    	//if expected resuls not null, compare them to the test results
+    	if (testResult.getExpectedResults()!=null) {    		
+    		final Class<? extends AbstractResult<?>> clazz = testType.getClazz();
+    		
+    		//create a parsed abstract result set sorted by priority
+    		final Set<AbstractResult<?>> expResultSet = new TreeSet<AbstractResult<?>>(new Comparator<AbstractResult<?>>() {
+				@Override
+				public int compare(final AbstractResult<?> o1, final AbstractResult<?> o2) {
+					return o1.priority.compareTo(o2.priority);
+				}
+			});
+
+    		int priority = Integer.MAX_VALUE;
+    		
+    		if (testResult.getExpectedResults() != null) {
+	    		for (int i = 0; i < testResult.getExpectedResults().length(); i++) {
+	    			final JSONObject expectedResults = testResult.getExpectedResults().optJSONObject(i);
+	    			if (expectedResults != null) {
+	        			//parse hstore string to object
+		    			final AbstractResult<?> expResult = QoSUtil.HSTORE_PARSER.fromJSON(expectedResults, clazz);
+		    			if (expResult.getPriority() == Integer.MAX_VALUE) {
+		    				expResult.setPriority(priority--);
+		    			}
+		    			expResultSet.add(expResult);  
+	    			}
+	    		}
+    		}
+    		
+    		for (final AbstractResult<?> expResult : expResultSet) {
+    			//compare expected result to test result and save the returned id
+    			ResultDesc resultDesc = ResultComparer.compare(result, expResult, QoSUtil.HSTORE_PARSER, resultOptions);
+    			if (resultDesc != null) {
+        			resultDesc.addTestResultUid(testResult.getUid());
+        			resultDesc.setTestType(testType);
+        			        			
+        			final ResultHolder resultHolder = calculateResultCounter(testResult, expResult, resultDesc);
+
+        			//check if there is a result message
+        			if (resultHolder != null) {
+            			TreeSet<ResultDesc> resultDescSet;
+            			if (resultKeys.containsKey(testType)) {
+            				resultDescSet = resultKeys.get(testType);
+            			}
+            			else {
+            				resultDescSet = new TreeSet<>();
+            				resultKeys.put(testType, resultDescSet);
+            			}
+
+        				resultDescSet.add(resultDesc);
+        				
+        				testResult.getResultKeyMap().put(resultDesc.getKey(), resultHolder.resultKeyType);
+        				
+            			if (AbstractResult.BEHAVIOUR_ABORT.equals(resultHolder.event)) {
+            				break;
+            			}
+        			}        			
+    			}
+    		}
+    	}
+	}
+	
+	/**
+	 * calculates and set the specific result counter
+	 * @param testResult test result
+	 * @param expResult expected test result
+	 * @param resultDesc result description
+	 * @return result type string, can be: 
+	 * 		<ul>
+	 * 			<li>{@link ResultDesc#STATUS_CODE_SUCCESS}</li>
+	 * 			<li>{@link ResultDesc#STATUS_CODE_FAILURE}</li>
+	 * 			<li>{@link ResultDesc#STATUS_CODE_INFO}</li>
+	 * 		</ul>
+	 */
+	public static ResultHolder calculateResultCounter(final QoSTestResult testResult, final AbstractResult<?> expResult, final ResultDesc resultDesc) {
+		String resultKeyType = null;
+		String event = AbstractResult.BEHAVIOUR_NOTHING;
+		
+		//increase the failure or success counter of this result object
+		if (resultDesc.getStatusCode().equals(ResultDesc.STATUS_CODE_SUCCESS)) {
+			if (expResult.getOnSuccess() != null) {
+				testResult.setSuccessCounter(testResult.getSuccessCounter()+1);
+				if (AbstractResult.RESULT_TYPE_DEFAULT.equals(expResult.getSuccessType())) {
+					resultKeyType = ResultDesc.STATUS_CODE_SUCCESS;
+				}
+				else {
+					resultKeyType = ResultDesc.STATUS_CODE_INFO;
+				}
+				
+				event = expResult.getOnSuccessBehaivour();
+			}
+		}
+		else if (resultDesc.getStatusCode().equals(ResultDesc.STATUS_CODE_FAILURE)) {
+			if (expResult.getOnFailure() != null) {
+				testResult.setFailureCounter(testResult.getFailureCounter()+1);
+				if (AbstractResult.RESULT_TYPE_DEFAULT.equals(expResult.getFailureType())) {
+					resultKeyType = ResultDesc.STATUS_CODE_FAILURE;
+				}
+				else {
+					resultKeyType = ResultDesc.STATUS_CODE_INFO;
+				}
+				
+				event = expResult.getOnFailureBehaivour();
+			}
+		}
+		else {
+			resultKeyType = ResultDesc.STATUS_CODE_INFO;
+			event = AbstractResult.BEHAVIOUR_NOTHING;
+		}
+		
+		return resultKeyType != null ? new ResultHolder(resultKeyType, event) : null;
+	}
+	
+	/**
+	 * 
+	 * @author lb
+	 *
+	 */
+	public static class ResultHolder {
+		final String resultKeyType;
+		final String event;
+		
+		public ResultHolder(final String resultKeyType, final String event) {
+			this.resultKeyType = resultKeyType;
+			this.event = event;
+		}
+
+		public String getResultKeyType() {
+			return resultKeyType;
+		}
+
+		public String getEvent() {
+			return event;
+		}
 	}
 }

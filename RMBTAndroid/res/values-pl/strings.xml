@@ -185,7 +185,7 @@
 	<string name="history_filter_networks">DOJŚCIE</string>
 	<string name="history_filter_devices">APARAT</string>
 	<string name="history_filter_result_number">LICZBA WYNIKÓW</string>
-	<string name="history_filter_result_number_25">Pokaż tylko najnowsze 25 wyników.</string>
+	<string name="history_filter_result_number_25">Pokaż tylko najnowsze 250 wyników.</string>
 	
 	<string name="result_measurement">MIERZENIE</string>
 	<string name="result_net">SIEĆ</string>

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2015 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -169,9 +169,11 @@ public class Test extends Table
             new IntField("num_threads_ul", "num_threads_ul"),
             new StringField("tag", "tag"),
             new StringField("hidden_code", "hidden_code"),
-            new StringField("developer_code", "developer_code"),
+            new BooleanField("user_server_selection", "user_server_selection"),
             new JsonField("speed_items", null),
             new BooleanField("dual_sim", "dual_sim"),
+            new JsonField("android_permissions", null),
+            new StringField("dual_sim_detection_method", "dual_sim_detection_method"),
             };
         };
     };

@@ -178,7 +178,7 @@
 	<string name="history_filter_networks">TYP SÍTĚ</string>
 	<string name="history_filter_devices">ZAŘÍZENÍ</string>
 	<string name="history_filter_result_number">POČET VÝSLEDKŮ</string>
-	<string name="history_filter_result_number_25">Zobrazit pouze 25 nejnovějších výsledků</string>
+	<string name="history_filter_result_number_25">Zobrazit pouze 250 nejnovějších výsledků</string>
 	
 	<string name="result_measurement">MĚŘENÍ</string>
 	<string name="result_net">SÍŤ</string>

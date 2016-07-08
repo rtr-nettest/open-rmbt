@@ -140,7 +140,7 @@
 	<string name="history_filter_networks">ACCESO</string>
 	<string name="history_filter_devices">DISPOSITIVO</string>
 	<string name="history_filter_result_number">NÚMERO DE RESULTADOS</string>
-	<string name="history_filter_result_number_25">Mostrar los 25 resultados más recientes</string>
+	<string name="history_filter_result_number_25">Mostrar los 250 resultados más recientes</string>
 	
 	<string name="result_measurement">MEDICIÓN</string>
 	<string name="result_net">RED</string>

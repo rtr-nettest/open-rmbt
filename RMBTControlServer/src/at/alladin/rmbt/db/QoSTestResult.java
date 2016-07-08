@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,10 @@
 package at.alladin.rmbt.db;
 
 import java.io.Serializable;
-import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -25,10 +27,12 @@ import at.alladin.rmbt.qos.AbstractResult;
 import at.alladin.rmbt.qos.DnsResult;
 import at.alladin.rmbt.qos.HttpProxyResult;
 import at.alladin.rmbt.qos.NonTransparentProxyResult;
-import at.alladin.rmbt.qos.TcpResult;
-import at.alladin.rmbt.qos.UdpResult;
-import at.alladin.rmbt.qos.WebsiteResult;
 import at.alladin.rmbt.qos.QoSUtil.TestUuid.UuidType;
+import at.alladin.rmbt.qos.TcpResult;
+import at.alladin.rmbt.qos.TracerouteResult;
+import at.alladin.rmbt.qos.UdpResult;
+import at.alladin.rmbt.qos.VoipResult;
+import at.alladin.rmbt.qos.WebsiteResult;
 
 /**
  * 
@@ -48,7 +52,9 @@ public class QoSTestResult implements Serializable {
 		TCP(TcpResult.class), 
 		UDP(UdpResult.class), 
 		WEBSITE(WebsiteResult.class), 
-		NON_TRANSPARENT_PROXY(NonTransparentProxyResult.class);
+		NON_TRANSPARENT_PROXY(NonTransparentProxyResult.class),
+		TRACEROUTE(TracerouteResult.class),
+		VOIP(VoipResult.class);
 		
 		protected Class<? extends AbstractResult<?>> clazz; 
 		
@@ -68,10 +74,11 @@ public class QoSTestResult implements Serializable {
     private String results;
     private String testDescription;
     private String testSummary;
-    private String[] expectedResults;
+    private JSONArray expectedResults;
     private AbstractResult<?> result;
+    private Map<String, String> resultKeyMap = new HashMap<>();
     
-    private int successCounter = 0;
+	private int successCounter = 0;
     private int failureCounter = 0;
 
 	/**
@@ -121,11 +128,11 @@ public class QoSTestResult implements Serializable {
 		this.qosTestObjectiveId = qosTestObjectiveId;
 	}
 
-	public String[] getExpectedResults() {
+	public JSONArray getExpectedResults() {
 		return expectedResults;
 	}
 
-	public void setExpectedResults(String[] expectedResults) {
+	public void setExpectedResults(JSONArray expectedResults) {
 		this.expectedResults = expectedResults;
 	}
 	
@@ -169,27 +176,45 @@ public class QoSTestResult implements Serializable {
 		this.testSummary = testSummary;
 	}
 	
+    public Map<String, String> getResultKeyMap() {
+		return resultKeyMap;
+	}
+
+	public void setResultKeyMap(Map<String, String> resultKeyMap) {
+		this.resultKeyMap = resultKeyMap;
+	}
+	
 	/**
 	 * 
 	 * @return
 	 * @throws JSONException 
 	 */
 	public JSONObject toJson(UuidType exportType) throws JSONException {
-		JSONObject json = new JSONObject();
-		json.put("uid", getUid());
-		json.put("test_type", getTestType());
-		json.put("result", new JSONObject(getResults()));
-		json.put("test_desc", getTestDescription());
-		json.put("success_count", getSuccessCounter());
-		json.put("failure_count", getFailureCounter());
-		json.put("test_summary", String.valueOf(getTestSummary()));
-
-		if (exportType.equals(UuidType.TEST_UUID)) {
-			json.put("nn_test_uid", getQoSTestObjectiveId());  // TODO: remove backwards compatibility (<= 2.0.28/20028)
-			json.put("qos_test_uid", getQoSTestObjectiveId());
-			json.put("test_uid", getTestUid());
+		try {
+			JSONObject json = new JSONObject();
+			json.put("uid", getUid());
+			json.put("test_type", getTestType());
+			json.put("result", new JSONObject(getResults()));
+			json.put("test_desc", getTestDescription());
+			json.put("success_count", getSuccessCounter());
+			json.put("failure_count", getFailureCounter());
+			json.put("test_summary", String.valueOf(getTestSummary()));
+			
+			if (resultKeyMap != null && resultKeyMap.size() > 0) {
+				json.put("test_result_keys", new JSONArray(resultKeyMap.keySet()));
+				json.put("test_result_key_map", new JSONObject(resultKeyMap));
+			}
+	
+			if (exportType.equals(UuidType.TEST_UUID)) {
+				json.put("nn_test_uid", getQoSTestObjectiveId());  // TODO: remove backwards compatibility (<= 2.0.28/20028)
+				json.put("qos_test_uid", getQoSTestObjectiveId());
+				json.put("test_uid", getTestUid());
+			}
+			return json;
 		}
-		return json;
+		catch (final Exception e) {
+			return null;
+		}
 	}
 	
 	@Override
@@ -199,7 +224,7 @@ public class QoSTestResult implements Serializable {
 				+ qosTestObjectiveId + ", testType=" + testType
 				+ ", results=" + results + ", testDescription="
 				+ testDescription + ", testSummary=" + testSummary
-				+ ", expectedResults=" + Arrays.toString(expectedResults)
+				+ ", expectedResults=" + expectedResults.toString()
 				+ ", result=" + result + ", successCounter=" + successCounter
 				+ ", failureCounter=" + failureCounter + "]";
 	}

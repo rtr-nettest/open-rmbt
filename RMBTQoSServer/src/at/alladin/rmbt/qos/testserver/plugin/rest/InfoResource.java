@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2015 alladin-IT GmbH
+ * Copyright 2016 Specure GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +26,8 @@ import org.restlet.resource.Get;
 import org.restlet.resource.ServerResource;
 
 import at.alladin.rmbt.qos.testserver.TestServer;
+import at.alladin.rmbt.qos.testserver.servers.AbstractUdpServer;
 import at.alladin.rmbt.qos.testserver.tcp.TcpMultiClientServer;
-import at.alladin.rmbt.qos.testserver.udp.AbstractUdpServer;
 import at.alladin.rmbt.qos.testserver.udp.UdpTestCandidate;
 
 /**

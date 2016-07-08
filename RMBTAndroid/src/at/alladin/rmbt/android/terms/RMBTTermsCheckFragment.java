@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 package at.alladin.rmbt.android.terms;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -27,6 +27,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import at.alladin.openrmbt.android.R;
 import at.alladin.rmbt.android.main.RMBTMainActivity;
+import at.alladin.rmbt.android.terms.RMBTCheckFragment.CheckType;
 import at.alladin.rmbt.android.util.ConfigHelper;
 
 public class RMBTTermsCheckFragment extends Fragment
@@ -36,6 +37,22 @@ public class RMBTTermsCheckFragment extends Fragment
     private boolean firstTime = true;
     
     private View view;
+    
+    private CheckType followedByType;
+    
+    public static RMBTTermsCheckFragment newInstance(final CheckType followedBy) {
+    	final RMBTTermsCheckFragment f = new RMBTTermsCheckFragment();
+    	final Bundle bdl = new Bundle(1);
+    	bdl.putSerializable("followedByType", followedBy);
+        f.setArguments(bdl);
+        return f;
+    }
+    
+    @Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		followedByType = (CheckType) getArguments().get("followedByType");
+	}
     
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState)
@@ -69,8 +86,9 @@ public class RMBTTermsCheckFragment extends Fragment
                     if (! wasNDTTermsNecessary)
                         ((RMBTMainActivity) activity).initApp(false);
                 }
-                else
-                    ((RMBTTermsActivity)getActivity()).showNdtCheck();
+                else if (followedByType != null) {
+                	((RMBTTermsActivity)getActivity()).continueWorkflow();
+                }
             }
         });
         

@@ -73,7 +73,7 @@ public class ServerOptionTest extends TestCase{
 		URL url = Thread.currentThread().getContextClassLoader().getResource("at/alladin/rmbt/util/model/option/test2.json");
 		File file = new File(url.getPath());
 		ServerOptionContainer options = new ServerOptionContainer(
-				new ArrayList<ServerOption>(Arrays.asList(ServerOption.getGson().fromJson(new FileReader(file), ServerOption.class))));
+				new ArrayList<>(Arrays.asList(ServerOption.getGson().fromJson(new FileReader(file), ServerOption.class))));
 		
 		List<ServerOption> list = options.select(options.getRootOptions().get(0));
 		assertNotNull("selected option sublist not null", list);
@@ -114,7 +114,7 @@ public class ServerOptionTest extends TestCase{
 		URL url = Thread.currentThread().getContextClassLoader().getResource("at/alladin/rmbt/util/model/option/test3.json");
 		File file = new File(url.getPath());
 		ServerOptionContainer options = new ServerOptionContainer(
-				new ArrayList<ServerOption>(Arrays.asList(ServerOption.getGson().fromJson(new FileReader(file), ServerOption.class))));
+				new ArrayList<>(Arrays.asList(ServerOption.getGson().fromJson(new FileReader(file), ServerOption.class))));
 
 		final List<ServerOption> list = options.getRootOptions();
 		List<ServerOption> sublist = options.select(list.get(0));

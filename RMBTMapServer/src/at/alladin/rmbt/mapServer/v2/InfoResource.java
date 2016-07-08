@@ -229,19 +229,16 @@ public class InfoResource extends ServerResource
     // TIME FILTER
     ///////////////////////////////////////
     
-    private final static String[] OPTION_TIMES_TITLE = new String[] {
-    	"MAP_FILTER_PERIOD_7_DAYS", "MAP_FILTER_PERIOD_30_DAYS", "MAP_FILTER_PERIOD_90_DAYS", "MAP_FILTER_PERIOD_180_DAYS",
-    	"MAP_FILTER_PERIOD_365_DAYS", "MAP_FILTER_PERIOD_730_DAYS", "MAP_FILTER_PERIOD_1460_DAYS"
-    };
-
     private final static int[] OPTION_TIMES_VALUE = new int[] { 7, 30, 90, 180, 365, 730, 1460 };
     
     private ServerOption getTimes() throws JSONException
     {
     	final List<ServerOption> optionList = new ArrayList<ServerOption>();
-
-    	for (int i = 0; i < OPTION_TIMES_TITLE.length; i++) {
-        	final ServerOption o = new ServerOption(labels.getString(OPTION_TIMES_TITLE[i]), labels.getString(OPTION_TIMES_TITLE[i]));
+    	// expects resources in the format MAP_FILTER_PERIOD_<n>_DAYS and MAP_FILTER_PERIOD_<n>_DAYS_SUMMARY
+    	for (int i = 0; i < OPTION_TIMES_VALUE.length; i++) {
+    		String title ="MAP_FILTER_PERIOD_"+Integer.toString(OPTION_TIMES_VALUE[i])+"_DAYS";
+        	final ServerOption o = new ServerOption(labels.getString(title), 
+        			labels.getString(title+"_SUMMARY"));
         	o.addParameter("period", OPTION_TIMES_VALUE[i]);
         	if (OPTION_TIMES_VALUE[i] == 180) {
         		o.setDefault(true);
@@ -262,18 +259,19 @@ public class InfoResource extends ServerResource
     ///////////////////////////////////////
     
     private final static String[] OPTION_TECHNOLOGY_TITLE = new String[] {
-    	"MAP_FILTER_TECHNOLOGY_ANY", "MAP_FILTER_TECHNOLOGY_3G_4G", "MAP_FILTER_TECHNOLOGY_2G", 
-    	"MAP_FILTER_TECHNOLOGY_3G", "MAP_FILTER_TECHNOLOGY_4G"
-    };
+    	"ANY", "3G_4G", "2G", "3G", "4G"};
 
-    private final static String[] OPTION_TECHNOLOGY_VALUE = new String[] { "", "34", "2", "3", "4"};
+    private final static String[] OPTION_TECHNOLOGY_VALUE = new String[] {
+    	 "", "34", "2", "3", "4"};
     
     private ServerOption getTechnology() throws JSONException
     {
     	final List<ServerOption> optionList = new ArrayList<ServerOption>();
 
     	for (int i = 0; i < OPTION_TECHNOLOGY_TITLE.length; i++) {
-        	final ServerOption o = new ServerOption(labels.getString(OPTION_TECHNOLOGY_TITLE[i]), labels.getString(OPTION_TECHNOLOGY_TITLE[i]));
+    		// expects resources in the format MAP_FILTER_TECHNOLOGY_<title> and MAP_FILTER_TECHNOLOGY_<title>_SUMMARY
+    		String title ="MAP_FILTER_TECHNOLOGY_"+OPTION_TECHNOLOGY_TITLE[i];
+        	final ServerOption o = new ServerOption(labels.getString(title), labels.getString(title+"_SUMMARY"));
         	o.addParameter("technology", OPTION_TECHNOLOGY_VALUE[i]);
         	if ("".equals(OPTION_TECHNOLOGY_VALUE[i])) {
         		o.setDefault(true);

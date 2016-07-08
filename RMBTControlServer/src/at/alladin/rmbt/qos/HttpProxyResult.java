@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ public class HttpProxyResult extends AbstractResult<HttpProxyResult> {
 	private String range;
 
 	@HstoreKey("http_result_length")
-	private String length;
+	private Long length;
 	
 	@HstoreKey("http_result_header")
 	private String header;
@@ -43,17 +43,17 @@ public class HttpProxyResult extends AbstractResult<HttpProxyResult> {
 	private String hash;
 	
 	@HstoreKey("http_result_duration")
-	private String duration;
+	private Long duration;
 
 	public HttpProxyResult() {
 		
 	}
 	
-	public String getLength() {
+	public Long getLength() {
 		return length;
 	}
 
-	public void setLength(String length) {
+	public void setLength(Long length) {
 		this.length = length;
 	}
 
@@ -97,11 +97,11 @@ public class HttpProxyResult extends AbstractResult<HttpProxyResult> {
 		this.range = range;
 	}
 
-	public String getDuration() {
+	public Long getDuration() {
 		return duration;
 	}
 
-	public void setDuration(String duration) {
+	public void setDuration(Long duration) {
 		this.duration = duration;
 	}
 

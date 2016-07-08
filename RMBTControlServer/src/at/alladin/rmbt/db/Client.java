@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,6 +44,7 @@ public class Client
     
     private boolean error = false;
     private boolean tcAccepted;
+    private int tcAcceptedVersion;
     
     public Client(final Connection conn)
     {
@@ -53,7 +54,7 @@ public class Client
     
     public Client(final Connection conn, final long uid, final UUID uuid, final int client_type_id,
             final Timestamp time, final Calendar time_zone, final int sync_group_id, final String sync_code,
-            final boolean tcAccepted)
+            final boolean tcAccepted, final int tcAcceptedVersion)
     {
         reset();
         this.conn = conn;
@@ -66,6 +67,7 @@ public class Client
         this.sync_group_id = sync_group_id;
         this.sync_code = sync_code;
         this.tcAccepted = tcAccepted;
+        this.tcAcceptedVersion = tcAcceptedVersion;
     }
     
     public void reset()
@@ -118,6 +120,7 @@ public class Client
                 sync_group_id = rs.getInt("sync_group_id");
                 sync_code = rs.getString("sync_code");
                 tcAccepted = rs.getBoolean("terms_and_conditions_accepted");
+                tcAcceptedVersion = rs.getInt("terms_and_conditions_accepted_version");
             }
             else
             {
@@ -162,6 +165,7 @@ public class Client
                 sync_group_id = rs.getInt("sync_group_id");
                 sync_code = rs.getString("sync_code");
                 tcAccepted = rs.getBoolean("terms_and_conditions_accepted");
+                tcAcceptedVersion = rs.getInt("terms_and_conditions_accepted_version");
             }
             else
                 setError("ERROR_DB_GET_CLIENT");
@@ -181,7 +185,7 @@ public class Client
         return !error;
     }
     
-    public UUID storeClient()
+    public UUID storeClient(UUID uuid)
     {
         
         resetError();
@@ -189,11 +193,12 @@ public class Client
         try
         {
             PreparedStatement st;
-            uuid = UUID.randomUUID();
+            if (uuid == null) 
+              uuid = UUID.randomUUID();
             
             st = conn.prepareStatement(
-                    "INSERT INTO client(uuid, client_type_id, time, sync_group_id, sync_code, terms_and_conditions_accepted)"
-                            + "VALUES( CAST( ? AS UUID), ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+                    "INSERT INTO client(uuid, client_type_id, time, sync_group_id, sync_code, terms_and_conditions_accepted, terms_and_conditions_accepted_version)"
+                            + "VALUES( CAST( ? AS UUID), ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
             
             st.setString(1, uuid.toString());
             st.setInt(2, client_type_id);
@@ -208,6 +213,8 @@ public class Client
                 st.setObject(5, null);
             
             st.setBoolean(6, tcAccepted);
+            
+            st.setInt(7, tcAcceptedVersion);
             
 //            System.out.println(st.toString());
             
@@ -271,6 +278,54 @@ public class Client
         
         return id;
     }
+    
+    public int updateTcAcceptedVersion(final UUID uuid, final int tcAcceptedVersion)
+    {
+        resetError();
+        int id = 0;
+        
+        try
+        {
+            
+            final PreparedStatement st = conn.prepareStatement("UPDATE client SET terms_and_conditions_accepted_version = ? WHERE uuid = ? ::UUID");
+            st.setInt(1, tcAcceptedVersion);
+            st.setString(2, uuid.toString());
+            st.executeUpdate();
+
+            st.close();
+        }
+        catch (final SQLException e)
+        {
+            setError("ERROR_DB_STORE_CLIENT_SQL");
+            e.printStackTrace();
+        }
+        
+        return id;
+    }
+    
+    public int updateLastSeen(final UUID uuid)
+    {
+        resetError();
+        int id = 0;
+        
+        try
+        {
+            
+            final PreparedStatement st = conn.prepareStatement("UPDATE client SET last_seen = NOW() WHERE uuid = ? ::UUID");
+            st.setString(1, uuid.toString());
+            st.executeUpdate();
+
+            st.close();
+        }
+        catch (final SQLException e)
+        {
+            setError("ERROR_DB_STORE_CLIENT_SQL");
+            e.printStackTrace();
+        }
+        
+        return id;
+    }
+    
     
     public boolean hasError()
     {
@@ -337,9 +392,19 @@ public class Client
         this.tcAccepted = tcAccepted;
     }
     
+    public void setTcAcceptedVersion(final int tcAcceptedVersion)
+    {
+        this.tcAcceptedVersion = tcAcceptedVersion;
+    }
+    
     public boolean isTcAccepted()
     {
         return tcAccepted;
+    }
+    
+    public int getTcAcceptedVersion()
+    {
+        return tcAcceptedVersion;
     }
     
     public void setClient_type_id(final int client_type_id)

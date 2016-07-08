@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,37 +37,37 @@ import at.alladin.rmbt.shared.hstoreparser.annotation.HstoreKey;
 public class UdpResult extends AbstractResult<UdpResult> {
 	
 	@HstoreKey("udp_objective_delay")
-	private String delay;
+	private Object delay;
 
 	@HstoreKey("udp_objective_out_port")
-	private String outPort;
+	private Object outPort;
 	
 	@HstoreKey("udp_result_out_num_packets")
-	private String resultOutNumPackets;
+	private Object resultOutNumPackets;
 	
 	@HstoreKey("udp_result_out_response_num_packets")
-	private String resultOutNumPacketsResponse;
+	private Object resultOutNumPacketsResponse;
 	
 	@HstoreKey("udp_objective_out_num_packets")
-	private String outNumPackets;
+	private Object outNumPackets;
 	
 	@HstoreKey("udp_objective_in_port")
-	private String inPort;
+	private Object inPort;
 	
 	@HstoreKey("udp_result_in_num_packets")
-	private String resultInNumPackets;
+	private Object resultInNumPackets;
 	
 	@HstoreKey("udp_objective_in_num_packets")
-	private String inNumPackets;
+	private Object inNumPackets;
 	
 	@HstoreKey("udp_result_in_response_num_packets")
-	private String resultInNumPacketsResponse;
+	private Object resultInNumPacketsResponse;
 	
 	@HstoreKey("udp_result_in_packet_loss_rate")
-	private String incomingPlr;
+	private Object incomingPlr;
 
 	@HstoreKey("udp_result_out_packet_loss_rate")
-	private String outgoingPlr;
+	private Object outgoingPlr;
 
 	/**
 	 * 
@@ -76,92 +76,92 @@ public class UdpResult extends AbstractResult<UdpResult> {
 		
 	}
 
-	public String getOutPort() {
-		return outPort;
-	}
-
-	public void setOutPort(String outPort) {
-		this.outPort = outPort;
-	}
-
-	public String getResultOutNumPackets() {
-		return resultOutNumPackets;
-	}
-
-	public void setResultOutNumPackets(String resultOutNumPackets) {
-		this.resultOutNumPackets = resultOutNumPackets;
-	}
-
-	public String getOutNumPackets() {
-		return outNumPackets;
-	}
-
-	public void setOutNumPackets(String outNumPackets) {
-		this.outNumPackets = outNumPackets;
-	}
-
-	public String getInPort() {
-		return inPort;
-	}
-
-	public void setInPort(String inPort) {
-		this.inPort = inPort;
-	}
-
-	public String getResultInNumPackets() {
-		return resultInNumPackets;
-	}
-
-	public void setResultInNumPackets(String resultInNumPackets) {
-		this.resultInNumPackets = resultInNumPackets;
-	}
-
-	public String getInNumPackets() {
-		return inNumPackets;
-	}
-
-	public void setInNumPackets(String inNumPackets) {
-		this.inNumPackets = inNumPackets;
-	}
-
-	public String getIncomingPlr() {
-		return incomingPlr;
-	}
-
-	public void setIncomingPlr(String incomingPlr) {
-		this.incomingPlr = incomingPlr;
-	}
-
-	public String getOutgoingPlr() {
-		return outgoingPlr;
-	}
-
-	public void setOutgoingPlr(String outgoingPlr) {
-		this.outgoingPlr = outgoingPlr;
-	}
-
-	public String getDelay() {
+	public Object getDelay() {
 		return delay;
 	}
 
-	public void setDelay(String delay) {
+	public void setDelay(Object delay) {
 		this.delay = delay;
 	}
 
-	public String getResultOutNumPacketsResponse() {
+	public Object getOutPort() {
+		return outPort;
+	}
+
+	public void setOutPort(Object outPort) {
+		this.outPort = outPort;
+	}
+
+	public Object getResultOutNumPackets() {
+		return resultOutNumPackets;
+	}
+
+	public void setResultOutNumPackets(Object resultOutNumPackets) {
+		this.resultOutNumPackets = resultOutNumPackets;
+	}
+
+	public Object getResultOutNumPacketsResponse() {
 		return resultOutNumPacketsResponse;
 	}
 
-	public void setResultOutNumPacketsResponse(String resultOutNumPacketsResponse) {
+	public void setResultOutNumPacketsResponse(Object resultOutNumPacketsResponse) {
 		this.resultOutNumPacketsResponse = resultOutNumPacketsResponse;
 	}
 
-	public String getResultInNumPacketsResponse() {
+	public Object getOutNumPackets() {
+		return outNumPackets;
+	}
+
+	public void setOutNumPackets(Object outNumPackets) {
+		this.outNumPackets = outNumPackets;
+	}
+
+	public Object getInPort() {
+		return inPort;
+	}
+
+	public void setInPort(Object inPort) {
+		this.inPort = inPort;
+	}
+
+	public Object getResultInNumPackets() {
+		return resultInNumPackets;
+	}
+
+	public void setResultInNumPackets(Object resultInNumPackets) {
+		this.resultInNumPackets = resultInNumPackets;
+	}
+
+	public Object getInNumPackets() {
+		return inNumPackets;
+	}
+
+	public void setInNumPackets(Object inNumPackets) {
+		this.inNumPackets = inNumPackets;
+	}
+
+	public Object getResultInNumPacketsResponse() {
 		return resultInNumPacketsResponse;
 	}
 
-	public void setResultInNumPacketsResponse(String resultInNumPacketsResponse) {
+	public void setResultInNumPacketsResponse(Object resultInNumPacketsResponse) {
 		this.resultInNumPacketsResponse = resultInNumPacketsResponse;
+	}
+
+	public Object getIncomingPlr() {
+		return incomingPlr;
+	}
+
+	public void setIncomingPlr(Object incomingPlr) {
+		this.incomingPlr = incomingPlr;
+	}
+
+	public Object getOutgoingPlr() {
+		return outgoingPlr;
+	}
+
+	public void setOutgoingPlr(Object outgoingPlr) {
+		this.outgoingPlr = outgoingPlr;
 	}
 
 	@Override

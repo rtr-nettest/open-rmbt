@@ -146,7 +146,7 @@ public class ServerOption implements Serializable {
 
 	public List<ServerOption> getEnabledOptionList() {
 		if (optionList != null) {
-			final List<ServerOption> availableOptionList = new ArrayList<ServerOption>();
+			final List<ServerOption> availableOptionList = new ArrayList<>();
 			for (final ServerOption o : optionList) {
 				if (o.isEnabled()) {
 					availableOptionList.add(o);
@@ -169,7 +169,7 @@ public class ServerOption implements Serializable {
 	
 	public void addOption(final ServerOption option) {
 		if (this.optionList == null) {
-			this.optionList = new ArrayList<ServerOption>();
+			this.optionList = new ArrayList<>();
 		}
 		
 		this.optionList.add(option);
@@ -185,7 +185,7 @@ public class ServerOption implements Serializable {
 	
 	public void addParameter(final String key, final Object value) {
 		if (this.parameterMap == null) {
-			this.parameterMap = new HashMap<String, Object>();
+			this.parameterMap = new HashMap<>();
 		}
 		
 		this.parameterMap.put(key, value);
@@ -201,7 +201,7 @@ public class ServerOption implements Serializable {
 
 	public void addFunction(final OptionFunction value) {
 		if (this.functionList == null) {
-			this.functionList = new ArrayList<OptionFunction>();
+			this.functionList = new ArrayList<>();
 		}
 		
 		this.functionList.add(value);
@@ -217,7 +217,7 @@ public class ServerOption implements Serializable {
 	
 	public void addDependsOn(final String key, final Object value) {
 		if (this.dependsOnMap == null) {
-			this.dependsOnMap = new HashMap<String, Object>();
+			this.dependsOnMap = new HashMap<>();
 		}
 		
 		this.dependsOnMap.put(key, value);

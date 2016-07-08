@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2015 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,6 @@
  ******************************************************************************/
 package at.alladin.rmbt.qos.testserver.util;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -34,10 +32,10 @@ import org.json.JSONObject;
 
 import at.alladin.rmbt.qos.testserver.ClientHandler;
 import at.alladin.rmbt.qos.testserver.ServerPreferences.TestServerServiceEnum;
+import at.alladin.rmbt.qos.testserver.servers.AbstractUdpServer;
 import at.alladin.rmbt.qos.testserver.TestServer;
 import at.alladin.rmbt.qos.testserver.service.ServiceManager.FutureService;
 import at.alladin.rmbt.qos.testserver.tcp.TcpMultiClientServer;
-import at.alladin.rmbt.qos.testserver.udp.AbstractUdpServer;
 import at.alladin.rmbt.qos.testserver.udp.UdpTestCandidate;
 
 
@@ -378,24 +376,12 @@ public class TestServerConsole extends PrintStream {
 	
 	/**
 	 * 
-	 * @param msg
-	 * @param verboseLevelNeeded
-	 */
-	public static void log(String msg, int verboseLevelNeeded) {
-		if (TestServer.serverPreferences != null && TestServer.serverPreferences.getVerboseLevel() >= verboseLevelNeeded
-				&& (TestServer.serverPreferences.isConsoleLog() || verboseLevelNeeded < 0)) {
-			System.out.println(msg);
-		}
-	}
-	
-	/**
-	 * 
 	 * @param t
 	 * @param verboseLevelNeeded
 	 * @param service
 	 */
 	public static void error(String info, Throwable t, int verboseLevelNeeded, TestServerServiceEnum service) {
-		log(info + " [" + t.getClass().getCanonicalName() + "]: " + t.getMessage(), verboseLevelNeeded, service);
+		LoggingService.error(t, info, service);
 	}
 	
 	/**
@@ -415,8 +401,7 @@ public class TestServerConsole extends PrintStream {
 		ErrorReport er = errorReportMap.get(errorReportKey);
 		er.increaseCounter();
 		
-		
-		error(info, t, verboseLevelNeeded, service);
+		LoggingService.fatal(t, info, service);
 	}
 	
 	/**
@@ -426,28 +411,9 @@ public class TestServerConsole extends PrintStream {
 	 * @param service
 	 */
 	public static void log(String msg, int verboseLevelNeeded, TestServerServiceEnum service) {
-		String logFileName = TestServer.serverPreferences.getLogFileMap().get(service);
-		if (logFileName == null) {
-			logFileName = TestServer.serverPreferences.getLogFileMap().get(TestServerServiceEnum.TEST_SERVER);
-		}
-		
-		log(msg, verboseLevelNeeded, logFileName);
+		LoggingService.info(msg, service);
 	}
 		
-	/**
-	 * 
-	 * @param msg
-	 * @param verboseLvelNeeded
-	 * @param logFileName
-	 */
-	public static void log(String msg, int verboseLevelNeeded, String logFileName) {
-		log(msg, verboseLevelNeeded);
-		if (logFileName != null && (verboseLevelNeeded <= 0 
-				|| (TestServer.serverPreferences != null && TestServer.serverPreferences.getVerboseLevel() >= verboseLevelNeeded && TestServer.serverPreferences.isLoggingEnabled()))) {
-			appendToLogFile(msg, logFileName + getLogFileSuffix());
-		}
-	}
-
 	/**
 	 * 
 	 * @param date
@@ -459,31 +425,9 @@ public class TestServerConsole extends PrintStream {
 	
 	/**
 	 * 
-	 * @param msg
-	 * @param fileName
-	 */
-	public static void appendToLogFile(String msg, String fileName) {
-		try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(fileName, true)))) {
-		    out.println(TestServerConsole.getFormattedDate(new Date()) + " [" + String.format("%5d", Thread.currentThread().getId()) + "]: " + msg);
-		}catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
-	/**
-	 * 
-	 * @return
-	 */
-	private static String getLogFileSuffix() {
-		SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd");
-		return "_" + df.format(new Date()) + ".log"; 
-	}
-	
-	/**
-	 * 
 	 * @return
 	 */
 	public static String getPrefix() {
 		return TestServerConsole.getFormattedDate(new Date()) + " [T-" + Thread.currentThread().getId() +"]: ";
-	}
+	}	
 }

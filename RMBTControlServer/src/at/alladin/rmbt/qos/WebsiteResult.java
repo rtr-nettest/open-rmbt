@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,16 +45,16 @@ public class WebsiteResult extends AbstractResult<WebsiteResult> {
 	private String status;
 	
 	@HstoreKey("website_result_duration")
-	private String duration;
+	private Long duration;
 	
 	@HstoreKey("website_result_rx_bytes")
-	private String rxBytes;
+	private Long rxBytes;
 	
 	@HstoreKey("website_result_tx_bytes")
-	private String txBytes;
+	private Long txBytes;
 	
 	@HstoreKey("website_objective_timeout")
-	private String timeout;
+	private Long timeout;
 	
 	/**
 	 * 
@@ -87,38 +87,38 @@ public class WebsiteResult extends AbstractResult<WebsiteResult> {
 		this.status = status;
 	}
 
-	public String getDuration() {
+	public Long getDuration() {
 		return duration;
 	}
 
-	public void setDuration(String duration) {
+	public void setDuration(Long duration) {
 		this.duration = duration;
 	}
 
-	public String getRxBytes() {
+	public Long getRxBytes() {
 		return rxBytes;
 	}
 
-	public void setRxBytes(String rxBytes) {
+	public void setRxBytes(Long rxBytes) {
 		this.rxBytes = rxBytes;
 	}
 
-	public String getTxBytes() {
+	public Long getTxBytes() {
 		return txBytes;
 	}
 
-	public void setTxBytes(String txBytes) {
+	public void setTxBytes(Long txBytes) {
 		this.txBytes = txBytes;
 	}
 
-	public String getTimeout() {
+	public Long getTimeout() {
 		return timeout;
 	}
 
-	public void setTimeout(String timeout) {
+	public void setTimeout(Long timeout) {
 		this.timeout = timeout;
 	}
-	
+
 	/*
 	 * (non-Javadoc)
 	 * @see java.lang.Object#toString()

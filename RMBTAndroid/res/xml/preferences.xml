@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright 2013-2015 alladin-IT GmbH
+  Copyright 2013-2016 alladin-IT GmbH
   
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -32,20 +32,20 @@
                 android:defaultValue="false"
                 android:layout="@layout/preferences_item"/>
             
-            <Preference
+            <CheckBoxPreference
+                android:key="skip_qos"
+                android:title="@string/preferences_skip_qos" 
+                android:summary="@string/preferences_skip_qos_sum" 
+                android:layout="@layout/preferences_item"/>
+            
+            
+             <Preference
                 android:key="location_settings"
                 android:title="@string/preferences_location_settings"
                 android:summary="@string/preferences_location_settings_sum"
                 android:layout="@layout/preferences_item"
                  />
-            
-            <CheckBoxPreference
-                android:key="dont_show_menu_before_exit"
-                android:title="@string/preferences_dont_show_menu_on_exit" 
-                android:summary="@string/preferences_dont_show_menu_on_exit_sum"
-                android:defaultValue="false"
-                android:layout="@layout/preferences_item"/>
-                        
+                                    
         </PreferenceCategory>
         <PreferenceCategory android:title="@string/preferences_category_test" android:layout="@layout/preferences_category" android:key="server_selection_preferences">
             

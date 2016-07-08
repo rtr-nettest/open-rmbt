@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,8 @@ public class TrafficServiceImpl implements TrafficService {
 	
 	private long trafficTxEnd = -1;
 
+	boolean running = false;
+	
 	/*
 	 * (non-Javadoc)
 	 * @see at.alladin.rmbt.client.v2.task.service.TrafficService#start()
@@ -42,6 +44,7 @@ public class TrafficServiceImpl implements TrafficService {
 		if ((trafficRxStart = TrafficStats.getTotalRxBytes()) == TrafficStats.UNSUPPORTED) {
 			return SERVICE_NOT_SUPPORTED;
 		}		
+		running = true;
 		trafficTxStart = TrafficStats.getTotalTxBytes();
 		return SERVICE_START_OK;
 	}
@@ -70,8 +73,11 @@ public class TrafficServiceImpl implements TrafficService {
 	 */
 	@Override
 	public void stop() {
-		trafficTxEnd = TrafficStats.getTotalTxBytes();
-		trafficRxEnd = TrafficStats.getTotalRxBytes();
+		if (running) {
+			running = false;
+			trafficTxEnd = TrafficStats.getTotalTxBytes();
+			trafficRxEnd = TrafficStats.getTotalRxBytes();
+		}
 	}
 
 	/*
@@ -92,4 +98,21 @@ public class TrafficServiceImpl implements TrafficService {
 		return TrafficStats.getTotalRxBytes();
 	}
 
+	@Override
+	public long getCurrentTxBytes() {
+		return (trafficTxStart != -1 ? getTotalTxBytes() - trafficTxStart : -1);
+	}
+
+	@Override
+	public long getCurrentRxBytes() {
+		return (trafficRxStart != -1 ? getTotalRxBytes() - trafficRxStart : -1);
+	}
+
+	@Override
+	public void update() {
+		if (running) {
+			stop();
+			running = true;
+		}
+	}
 }

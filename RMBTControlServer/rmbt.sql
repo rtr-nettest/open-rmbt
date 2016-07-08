@@ -118,7 +118,9 @@ CREATE TYPE qostest AS ENUM (
     'non_transparent_proxy',
     'dns',
     'tcp',
-    'udp'
+    'udp',
+    'traceroute',
+    'voip'
 );
 
 
@@ -717,6 +719,24 @@ $$;
 
 
 ALTER FUNCTION public.cov_get_signal_strength_items(test_uid bigint) OWNER TO rmbt;
+
+--
+-- Name: cov_signal_json_to_csv(jsonb); Type: FUNCTION; Schema: public; Owner: rmbt
+--
+
+CREATE FUNCTION cov_signal_json_to_csv(signals jsonb) RETURNS character varying
+    LANGUAGE sql IMMUTABLE STRICT
+    AS $$
+
+SELECT string_agg(
+round(((s->>'time_ns')::double precision / 1000000000)::numeric, 3)
+|| ';' || (s->'lte_rsrp')
+, ';')
+ FROM jsonb_array_elements(signals) s;
+$$;
+
+
+ALTER FUNCTION public.cov_signal_json_to_csv(signals jsonb) OWNER TO rmbt;
 
 --
 -- Name: crosses(geometry, geometry); Type: FUNCTION; Schema: public; Owner: postgres
@@ -1409,6 +1429,38 @@ CREATE FUNCTION isvalid(geometry) RETURNS boolean
 
 
 ALTER FUNCTION public.isvalid(geometry) OWNER TO postgres;
+
+--
+-- Name: jsonb_array_map(jsonb, text[]); Type: FUNCTION; Schema: public; Owner: rmbt
+--
+
+CREATE FUNCTION jsonb_array_map(json_arr jsonb, path text[]) RETURNS jsonb[]
+    LANGUAGE plpgsql IMMUTABLE
+    AS $$
+DECLARE
+    rec jsonb;
+    len int;
+    ret jsonb[];
+BEGIN
+    -- If json_arr is not an array, return an empty array as the result
+    BEGIN
+        len := jsonb_array_length(json_arr);
+    EXCEPTION
+        WHEN OTHERS THEN
+            RETURN ret;
+    END;
+
+    -- Apply mapping in a loop
+    FOR rec IN SELECT jsonb_array_elements#>path FROM jsonb_array_elements(json_arr)  
+    LOOP
+	--RAISE NOTICE 'get for %', path;
+        ret := array_append(ret,rec);
+    END LOOP;
+    RETURN ret;
+END $$;
+
+
+ALTER FUNCTION public.jsonb_array_map(json_arr jsonb, path text[]) OWNER TO rmbt;
 
 --
 -- Name: length(geometry); Type: FUNCTION; Schema: public; Owner: postgres
@@ -3483,12 +3535,13 @@ BEGIN
         NEW.zip_code = NEW.zip_code_geo;
             END IF;
 
-            IF (NEW.zip_code_geo IS NOT NULL) THEN
-                NEW.country_location = 'AT'; -- plz2001 is more accurate for AT than ne_50m_admin_0_countries
+            IF (NEW.gkz IS NOT NULL) THEN -- #659: kategorisierte_gemeinden is more accurate/up-to-date for AT than ne_50_admin_0_countries or plz2001
+                NEW.country_location = 'AT';
             ELSE
                 SELECT INTO NEW.country_location iso_a2
                 FROM ne_50m_admin_0_countries
                 WHERE NEW.location && the_geom AND Within(NEW.location, the_geom) AND char_length(iso_a2)=2
+                AND iso_a2 IS DISTINCT FROM 'AT' -- #659: because ne_50_admin_0_countries is inaccurate, do not allow to return 'AT'
                 LIMIT 1;
             END IF;
         END IF;
@@ -3503,20 +3556,20 @@ BEGIN
             IF (NEW.network_sim_operator IS NULL OR NEW.network_operator IS NULL) THEN
                 NEW.roaming_type = NULL;
             ELSE
-		IF (NEW.network_sim_operator = NEW.network_operator) THEN
-			NEW.roaming_type = 0; -- no roaming
-		ELSE
+                IF (NEW.network_sim_operator = NEW.network_operator) THEN
+                    NEW.roaming_type = 0; -- no roaming
+                ELSE
                     _mcc_sim := split_part(NEW.network_sim_operator, '-', 1);
                     _mcc_net := split_part(NEW.network_operator, '-', 1);
                     IF (_mcc_sim = _mcc_net) THEN
                         NEW.roaming_type = 1;  -- national roaming
                     ELSE
-			NEW.roaming_type = 2;  -- international roaming
-		    END IF;
+                        NEW.roaming_type = 2;  -- international roaming
+                    END IF;
                 END IF;
             END IF;
 
-            IF ((NEW.roaming_type IS NULL AND NEW.country_location != 'AT') OR NEW.roaming_type = 2) THEN -- not for foreign networks
+            IF ((NEW.roaming_type IS NULL AND NEW.country_location IS DISTINCT FROM 'AT') OR NEW.roaming_type IS NOT DISTINCT FROM 2) THEN -- not for foreign networks #659 bug correction
                 NEW.mobile_provider_id = NULL;
             ELSE
                 SELECT INTO NEW.mobile_provider_id provider_id FROM mccmnc2provider
@@ -3985,11 +4038,19 @@ CREATE TABLE cell_location (
     area_code integer,
     "time" timestamp with time zone,
     primary_scrambling_code integer,
-    time_ns bigint
+    time_ns bigint,
+    open_test_uuid uuid
 );
 
 
 ALTER TABLE cell_location OWNER TO rmbt;
+
+--
+-- Name: COLUMN cell_location.open_test_uuid; Type: COMMENT; Schema: public; Owner: rmbt
+--
+
+COMMENT ON COLUMN cell_location.open_test_uuid IS 'open uuid of the test';
+
 
 --
 -- Name: cell_location_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
@@ -4025,7 +4086,9 @@ CREATE TABLE client (
     sync_code character varying(12),
     terms_and_conditions_accepted boolean DEFAULT false NOT NULL,
     sync_code_timestamp timestamp with time zone,
-    blacklisted boolean DEFAULT false NOT NULL
+    blacklisted boolean DEFAULT false NOT NULL,
+    terms_and_conditions_accepted_version integer,
+    last_seen timestamp with time zone
 );
 
 
@@ -4362,6 +4425,7 @@ CREATE TABLE geo_location (
     geo_long double precision,
     location geometry,
     time_ns bigint,
+    open_test_uuid uuid,
     CONSTRAINT enforce_dims_location CHECK ((st_ndims(location) = 2)),
     CONSTRAINT enforce_geotype_location CHECK (((geometrytype(location) = 'POINT'::text) OR (location IS NULL))),
     CONSTRAINT enforce_srid_location CHECK ((st_srid(location) = 900913))
@@ -4369,6 +4433,13 @@ CREATE TABLE geo_location (
 
 
 ALTER TABLE geo_location OWNER TO rmbt;
+
+--
+-- Name: COLUMN geo_location.open_test_uuid; Type: COMMENT; Schema: public; Owner: rmbt
+--
+
+COMMENT ON COLUMN geo_location.open_test_uuid IS 'open uuid of the test';
+
 
 --
 -- Name: json_sender_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
@@ -4514,7 +4585,7 @@ CREATE TABLE logged_actions (
     query text,
     CONSTRAINT logged_actions_action_check CHECK ((action = ANY (ARRAY['I'::text, 'D'::text, 'U'::text])))
 )
-WITH (fillfactor=100);
+WITH (fillfactor='100');
 
 
 ALTER TABLE logged_actions OWNER TO rmbt;
@@ -4819,11 +4890,19 @@ CREATE TABLE ping (
     test_id bigint,
     value bigint,
     value_server bigint,
-    time_ns bigint
+    time_ns bigint,
+    open_test_uuid uuid
 );
 
 
 ALTER TABLE ping OWNER TO rmbt;
+
+--
+-- Name: COLUMN ping.open_test_uuid; Type: COMMENT; Schema: public; Owner: rmbt
+--
+
+COMMENT ON COLUMN ping.open_test_uuid IS 'open uuid of the test';
+
 
 --
 -- Name: ping_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
@@ -4974,13 +5053,13 @@ ALTER SEQUENCE qos_test_desc_uid_seq OWNED BY qos_test_desc.uid;
 CREATE TABLE qos_test_objective (
     uid integer NOT NULL,
     test qostest NOT NULL,
-    param hstore NOT NULL,
     test_class integer,
-    results hstore[],
     test_server integer,
     concurrency_group integer DEFAULT 0 NOT NULL,
     test_desc text,
-    test_summary text
+    test_summary text,
+    param json DEFAULT '{}'::json NOT NULL,
+    results json
 );
 
 
@@ -5013,13 +5092,13 @@ ALTER SEQUENCE qos_test_objective_uid_seq OWNED BY qos_test_objective.uid;
 
 CREATE TABLE qos_test_result (
     uid integer NOT NULL,
-    result hstore,
     test_uid bigint,
     qos_test_uid bigint,
     success_count integer DEFAULT 0 NOT NULL,
     failure_count integer DEFAULT 0 NOT NULL,
     implausible boolean DEFAULT false,
-    deleted boolean DEFAULT false
+    deleted boolean DEFAULT false,
+    result json
 );
 
 
@@ -5133,11 +5212,19 @@ CREATE TABLE signal (
     lte_rsrp integer,
     lte_rsrq integer,
     lte_rssnr integer,
-    lte_cqi integer
+    lte_cqi integer,
+    open_test_uuid uuid
 );
 
 
 ALTER TABLE signal OWNER TO rmbt;
+
+--
+-- Name: COLUMN signal.open_test_uuid; Type: COMMENT; Schema: public; Owner: rmbt
+--
+
+COMMENT ON COLUMN signal.open_test_uuid IS 'open uuid of the test';
+
 
 --
 -- Name: signal_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
@@ -5158,6 +5245,39 @@ ALTER TABLE signal_uid_seq OWNER TO rmbt;
 --
 
 ALTER SEQUENCE signal_uid_seq OWNED BY signal.uid;
+
+
+--
+-- Name: speed; Type: TABLE; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+CREATE TABLE speed (
+    open_test_uuid uuid NOT NULL,
+    items jsonb
+);
+
+
+ALTER TABLE speed OWNER TO rmbt;
+
+--
+-- Name: TABLE speed; Type: COMMENT; Schema: public; Owner: rmbt
+--
+
+COMMENT ON TABLE speed IS 'speed items of all tests';
+
+
+--
+-- Name: COLUMN speed.open_test_uuid; Type: COMMENT; Schema: public; Owner: rmbt
+--
+
+COMMENT ON COLUMN speed.open_test_uuid IS 'uuid of the test';
+
+
+--
+-- Name: COLUMN speed.items; Type: COMMENT; Schema: public; Owner: rmbt
+--
+
+COMMENT ON COLUMN speed.items IS 'speed items of the test';
 
 
 --
@@ -5362,6 +5482,11 @@ CREATE TABLE test (
     developer_code character varying(8),
     dual_sim boolean,
     gkz integer,
+    android_permissions json,
+    dual_sim_detection_method character varying(50),
+    pinned boolean DEFAULT true NOT NULL,
+    similar_test_uid bigint,
+    user_server_selection boolean,
     CONSTRAINT enforce_dims_location CHECK ((st_ndims(location) = 2)),
     CONSTRAINT enforce_geotype_location CHECK (((geometrytype(location) = 'POINT'::text) OR (location IS NULL))),
     CONSTRAINT enforce_srid_location CHECK ((st_srid(location) = 900913)),
@@ -5377,6 +5502,44 @@ ALTER TABLE test OWNER TO rmbt;
 --
 
 COMMENT ON COLUMN test.server_id IS 'id of test server used';
+
+
+--
+-- Name: test_loopmode; Type: TABLE; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+CREATE TABLE test_loopmode (
+    uid integer NOT NULL,
+    test_uuid uuid,
+    client_uuid uuid,
+    max_movement integer,
+    max_delay integer,
+    max_tests integer,
+    test_counter integer
+);
+
+
+ALTER TABLE test_loopmode OWNER TO rmbt;
+
+--
+-- Name: test_loopmode_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
+--
+
+CREATE SEQUENCE test_loopmode_uid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE test_loopmode_uid_seq OWNER TO rmbt;
+
+--
+-- Name: test_loopmode_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
+--
+
+ALTER SEQUENCE test_loopmode_uid_seq OWNED BY test_loopmode.uid;
 
 
 --
@@ -5496,30 +5659,6 @@ ALTER SEQUENCE test_uid_seq OWNED BY test.uid;
 
 
 --
--- Name: top_ip; Type: VIEW; Schema: public; Owner: dj
---
-
-CREATE VIEW top_ip AS
- SELECT test.client_public_ip,
-    test.public_ip_as_name,
-    count(*) AS count
-   FROM test
-  WHERE ((test.client_public_ip)::text <> '81.16.157.1'::text)
-  GROUP BY test.client_public_ip, test.public_ip_as_name
-  ORDER BY count(*) DESC, test.client_public_ip, test.public_ip_as_name
- LIMIT 10000;
-
-
-ALTER TABLE top_ip OWNER TO dj;
-
---
--- Name: VIEW top_ip; Type: COMMENT; Schema: public; Owner: dj
---
-
-COMMENT ON VIEW top_ip IS 'Top 10.000 IP-Adresses ordered by number of tests (also errorneous ones).';
-
-
---
 -- Name: v_coverage_failed_tests; Type: VIEW; Schema: public; Owner: rmbt
 --
 
@@ -5561,7 +5700,8 @@ CREATE VIEW v_coverage_failed_tests AS
     ct.orig_geo_lat AS measurement_orig_geo_lat,
     ct.orig_geo_long AS measurement_orig_geo_long,
     ct.orig_geo_accuracy AS measurement_orig_geo_accuracy,
-    ct.location_from_donor AS measurement_location_from_donor
+    ct.location_from_donor AS measurement_location_from_donor,
+    cov_signal_json_to_csv(ct.signal_items) AS measurement_signal_items
    FROM (coverage_test ct
      LEFT JOIN coverage_test_sample cts ON ((cts.coverage_test_uid = ct.uid)))
   WHERE (cts.uid IS NULL)
@@ -5622,12 +5762,29 @@ CREATE VIEW v_coverage_test_export AS
     ct.orig_geo_lat AS measurement_orig_geo_lat,
     ct.orig_geo_long AS measurement_orig_geo_long,
     ct.orig_geo_accuracy AS measurement_orig_geo_accuracy,
-    ct.location_from_donor AS measurement_location_from_donor
+    ct.location_from_donor AS measurement_location_from_donor,
+    cov_signal_json_to_csv(ct.signal_items) AS measurement_signal_items
    FROM (coverage_test_sample cts
      LEFT JOIN coverage_test ct ON ((cts.coverage_test_uid = ct.uid)));
 
 
 ALTER TABLE v_coverage_test_export OWNER TO rmbt;
+
+--
+-- Name: v_dl_bandwidth_per_minute; Type: VIEW; Schema: public; Owner: rmbt
+--
+
+CREATE VIEW v_dl_bandwidth_per_minute AS
+ SELECT date_trunc('minute'::text, test."time") AS time_minute,
+    count(*) AS test_count,
+    (sum(test.speed_download) / 1000) AS bandwidth_dl_mbps
+   FROM test
+  WHERE ((test.status)::text = 'FINISHED'::text)
+  GROUP BY date_trunc('minute'::text, test."time")
+  ORDER BY date_trunc('minute'::text, test."time") DESC;
+
+
+ALTER TABLE v_dl_bandwidth_per_minute OWNER TO rmbt;
 
 --
 -- Name: v_municipality_status; Type: VIEW; Schema: public; Owner: rmbt
@@ -5789,6 +5946,261 @@ CREATE VIEW v_test AS
 
 
 ALTER TABLE v_test OWNER TO postgres;
+
+--
+-- Name: v_test2; Type: VIEW; Schema: public; Owner: postgres
+--
+
+CREATE VIEW v_test2 AS
+ SELECT test.uid,
+    test.uuid,
+    test.client_id,
+    test.client_version,
+    test.client_name,
+    test.client_language,
+    test.token,
+    test.server_id,
+    test.port,
+    test.use_ssl,
+    test."time",
+    test.speed_upload,
+    test.speed_download,
+    test.ping_shortest,
+    test.encryption,
+    test.client_public_ip,
+    test.plattform,
+    test.os_version,
+    test.api_level,
+    test.device,
+    test.model,
+    test.product,
+    test.phone_type,
+    test.data_state,
+    test.network_country,
+    test.network_operator,
+    test.network_operator_name,
+    test.network_sim_country,
+    test.network_sim_operator,
+    test.network_sim_operator_name,
+    test.wifi_ssid,
+    test.wifi_bssid,
+    test.wifi_network_id,
+    test.duration,
+    test.num_threads,
+    test.status,
+    test.timezone,
+    test.bytes_download,
+    test.bytes_upload,
+    test.nsec_download,
+    test.nsec_upload,
+    test.server_ip,
+    test.client_software_version,
+    test.geo_lat,
+    test.geo_long,
+    test.network_type,
+    test.location,
+    test.signal_strength,
+    test.software_revision,
+    test.client_test_counter,
+    test.nat_type,
+    test.client_previous_test_status,
+    test.public_ip_asn,
+    test.speed_upload_log,
+    test.speed_download_log,
+    test.total_bytes_download,
+    test.total_bytes_upload,
+    test.wifi_link_speed,
+    test.public_ip_rdns,
+    test.public_ip_as_name,
+    test.test_slot,
+    test.provider_id,
+    test.network_is_roaming,
+    test.ping_shortest_log,
+    test.run_ndt,
+    test.num_threads_requested,
+    test.client_public_ip_anonymized,
+    test.zip_code,
+    test.geo_provider,
+    test.geo_accuracy,
+    test.deleted,
+    test.comment,
+    test.open_uuid,
+    test.client_time,
+    test.zip_code_geo,
+    test.mobile_provider_id,
+    test.roaming_type,
+    test.open_test_uuid,
+    test.country_asn,
+    test.country_location,
+    test.test_if_bytes_download,
+    test.test_if_bytes_upload,
+    test.implausible,
+    test.testdl_if_bytes_download,
+    test.testdl_if_bytes_upload,
+    test.testul_if_bytes_download,
+    test.testul_if_bytes_upload,
+    test.country_geoip,
+    test.location_max_distance,
+    test.location_max_distance_gps,
+    test.network_group_name,
+    test.network_group_type,
+    test.time_dl_ns,
+    test.time_ul_ns,
+    test.num_threads_ul,
+    test."timestamp",
+    test.source_ip,
+    test.lte_rsrp,
+    test.lte_rsrq,
+    test.mobile_network_id,
+    test.mobile_sim_id,
+    test.dist_prev,
+    test.speed_prev,
+    test.tag,
+    test.ping_median,
+    test.ping_median_log,
+    test.source_ip_anonymized,
+    test.client_ip_local,
+    test.client_ip_local_anonymized,
+    test.client_ip_local_type,
+    COALESCE((test.lte_rsrp + 10), test.signal_strength) AS merged_signal,
+    test.gkz,
+    test.user_server_selection
+   FROM test;
+
+
+ALTER TABLE v_test2 OWNER TO postgres;
+
+--
+-- Name: vt; Type: VIEW; Schema: public; Owner: dj
+--
+
+CREATE VIEW vt AS
+ SELECT test.uid,
+    test.uuid,
+    test.client_id,
+    test.client_version,
+    test.client_name,
+    test.client_language,
+    test.server_id,
+    test.port,
+    test.use_ssl,
+    test."time",
+    test.speed_upload,
+    test.speed_download,
+    test.ping_shortest,
+    test.encryption,
+    test.client_public_ip,
+    test.plattform,
+    test.os_version,
+    test.api_level,
+    test.device,
+    test.model,
+    test.product,
+    test.phone_type,
+    test.data_state,
+    test.network_country,
+    test.network_operator,
+    test.network_operator_name,
+    test.network_sim_country,
+    test.network_sim_operator,
+    test.network_sim_operator_name,
+    test.wifi_ssid,
+    test.wifi_bssid,
+    test.wifi_network_id,
+    test.duration,
+    test.num_threads,
+    test.status,
+    test.timezone,
+    test.bytes_download,
+    test.bytes_upload,
+    test.nsec_download,
+    test.nsec_upload,
+    test.server_ip,
+    test.client_software_version,
+    test.geo_lat,
+    test.geo_long,
+    test.network_type,
+    test.location,
+    test.signal_strength,
+    test.software_revision,
+    test.client_test_counter,
+    test.nat_type,
+    test.client_previous_test_status,
+    test.public_ip_asn,
+    test.total_bytes_download,
+    test.total_bytes_upload,
+    test.wifi_link_speed,
+    test.public_ip_rdns,
+    test.public_ip_as_name,
+    test.test_slot,
+    test.provider_id,
+    test.network_is_roaming,
+    test.ping_shortest_log,
+    test.run_ndt,
+    test.num_threads_requested,
+    test.client_public_ip_anonymized,
+    test.zip_code,
+    test.geo_provider,
+    test.geo_accuracy,
+    test.deleted,
+    test.comment,
+    test.open_uuid,
+    test.client_time,
+    test.zip_code_geo,
+    test.mobile_provider_id,
+    test.roaming_type,
+    test.open_test_uuid,
+    test.country_asn,
+    test.country_location,
+    test.test_if_bytes_download,
+    test.test_if_bytes_upload,
+    test.implausible,
+    test.testdl_if_bytes_download,
+    test.testdl_if_bytes_upload,
+    test.testul_if_bytes_download,
+    test.testul_if_bytes_upload,
+    test.country_geoip,
+    test.location_max_distance,
+    test.location_max_distance_gps,
+    test.network_group_name,
+    test.network_group_type,
+    test.time_dl_ns,
+    test.time_ul_ns,
+    test.num_threads_ul,
+    test."timestamp",
+    test.source_ip,
+    test.lte_rsrp,
+    test.lte_rsrq,
+    test.mobile_network_id,
+    test.mobile_sim_id,
+    test.dist_prev,
+    test.speed_prev,
+    test.tag,
+    test.ping_median,
+    test.source_ip_anonymized,
+    test.client_ip_local,
+    test.client_ip_local_anonymized,
+    test.client_ip_local_type,
+    test.hidden_code,
+    test.origin,
+    test.developer_code,
+    test.dual_sim,
+    test.gkz,
+    test.android_permissions,
+    test.dual_sim_detection_method,
+    test.pinned,
+    test.similar_test_uid
+   FROM test;
+
+
+ALTER TABLE vt OWNER TO dj;
+
+--
+-- Name: VIEW vt; Type: COMMENT; Schema: public; Owner: dj
+--
+
+COMMENT ON VIEW vt IS 'light weight columns from test (dj)';
+
 
 --
 -- Name: uid; Type: DEFAULT; Schema: public; Owner: rmbt
@@ -5998,6 +6410,13 @@ ALTER TABLE ONLY sync_group ALTER COLUMN uid SET DEFAULT nextval('sync_group_uid
 --
 
 ALTER TABLE ONLY test ALTER COLUMN uid SET DEFAULT nextval('test_uid_seq'::regclass);
+
+
+--
+-- Name: uid; Type: DEFAULT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY test_loopmode ALTER COLUMN uid SET DEFAULT nextval('test_loopmode_uid_seq'::regclass);
 
 
 --
@@ -6311,6 +6730,14 @@ ALTER TABLE ONLY signal
 
 
 --
+-- Name: speed_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+ALTER TABLE ONLY speed
+    ADD CONSTRAINT speed_pkey PRIMARY KEY (open_test_uuid);
+
+
+--
 -- Name: status_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt; Tablespace: 
 --
 
@@ -6324,6 +6751,14 @@ ALTER TABLE ONLY status
 
 ALTER TABLE ONLY sync_group
     ADD CONSTRAINT sync_group_pkey PRIMARY KEY (uid);
+
+
+--
+-- Name: test_loopmode_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+ALTER TABLE ONLY test_loopmode
+    ADD CONSTRAINT test_loopmode_pkey PRIMARY KEY (uid);
 
 
 --
@@ -6600,6 +7035,34 @@ CREATE INDEX news_time_idx ON news USING btree ("time");
 
 
 --
+-- Name: open_test_uuid_cell_location_idx; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+CREATE INDEX open_test_uuid_cell_location_idx ON cell_location USING btree (open_test_uuid);
+
+
+--
+-- Name: open_test_uuid_geo_location_idx; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+CREATE INDEX open_test_uuid_geo_location_idx ON geo_location USING btree (open_test_uuid);
+
+
+--
+-- Name: open_test_uuid_ping_idx; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+CREATE INDEX open_test_uuid_ping_idx ON ping USING btree (open_test_uuid);
+
+
+--
+-- Name: open_test_uuid_signal_idx; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+CREATE INDEX open_test_uuid_signal_idx ON signal USING btree (open_test_uuid);
+
+
+--
 -- Name: ping_test_id_key; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
 --
 
@@ -6754,10 +7217,31 @@ CREATE INDEX test_ping_shortest_log_idx ON test USING btree (ping_shortest_log);
 
 
 --
+-- Name: test_pinned_idx; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+CREATE INDEX test_pinned_idx ON test USING btree (pinned);
+
+
+--
+-- Name: test_pinned_implausible_deleted_idx; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+CREATE INDEX test_pinned_implausible_deleted_idx ON test USING btree (pinned, implausible, deleted);
+
+
+--
 -- Name: test_provider_id_idx; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
 --
 
 CREATE INDEX test_provider_id_idx ON test USING btree (provider_id);
+
+
+--
+-- Name: test_similar_test_uid_idx; Type: INDEX; Schema: public; Owner: rmbt; Tablespace: 
+--
+
+CREATE INDEX test_similar_test_uid_idx ON test USING btree (similar_test_uid);
 
 
 --
@@ -6924,6 +7408,22 @@ ALTER TABLE ONLY signal
 
 ALTER TABLE ONLY test
     ADD CONSTRAINT test_client_id_fkey FOREIGN KEY (client_id) REFERENCES client(uid) ON DELETE CASCADE;
+
+
+--
+-- Name: test_loopmode_test_client_uuid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY test_loopmode
+    ADD CONSTRAINT test_loopmode_test_client_uuid_fkey FOREIGN KEY (client_uuid) REFERENCES client(uuid);
+
+
+--
+-- Name: test_loopmode_test_uuid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY test_loopmode
+    ADD CONSTRAINT test_loopmode_test_uuid_fkey FOREIGN KEY (test_uuid) REFERENCES test(uuid);
 
 
 --
@@ -7396,6 +7896,17 @@ GRANT USAGE ON SEQUENCE signal_uid_seq TO rmbt_group_control;
 
 
 --
+-- Name: speed; Type: ACL; Schema: public; Owner: rmbt
+--
+
+REVOKE ALL ON TABLE speed FROM PUBLIC;
+REVOKE ALL ON TABLE speed FROM rmbt;
+GRANT ALL ON TABLE speed TO rmbt;
+GRANT SELECT ON TABLE speed TO rmbt_group_read_only;
+GRANT INSERT,UPDATE ON TABLE speed TO rmbt_group_control;
+
+
+--
 -- Name: status; Type: ACL; Schema: public; Owner: rmbt
 --
 
@@ -7449,6 +7960,27 @@ GRANT INSERT,UPDATE ON TABLE test TO rmbt_group_control;
 
 
 --
+-- Name: test_loopmode; Type: ACL; Schema: public; Owner: rmbt
+--
+
+REVOKE ALL ON TABLE test_loopmode FROM PUBLIC;
+REVOKE ALL ON TABLE test_loopmode FROM rmbt;
+GRANT ALL ON TABLE test_loopmode TO rmbt;
+GRANT SELECT ON TABLE test_loopmode TO rmbt_group_read_only;
+GRANT INSERT,UPDATE ON TABLE test_loopmode TO rmbt_group_control;
+
+
+--
+-- Name: test_loopmode_uid_seq; Type: ACL; Schema: public; Owner: rmbt
+--
+
+REVOKE ALL ON SEQUENCE test_loopmode_uid_seq FROM PUBLIC;
+REVOKE ALL ON SEQUENCE test_loopmode_uid_seq FROM rmbt;
+GRANT ALL ON SEQUENCE test_loopmode_uid_seq TO rmbt;
+GRANT USAGE ON SEQUENCE test_loopmode_uid_seq TO rmbt_group_control;
+
+
+--
 -- Name: test_ndt; Type: ACL; Schema: public; Owner: rmbt
 --
 
@@ -7490,13 +8022,13 @@ GRANT USAGE ON SEQUENCE test_uid_seq TO rmbt_group_control;
 
 
 --
--- Name: top_ip; Type: ACL; Schema: public; Owner: dj
+-- Name: v_dl_bandwidth_per_minute; Type: ACL; Schema: public; Owner: rmbt
 --
 
-REVOKE ALL ON TABLE top_ip FROM PUBLIC;
-REVOKE ALL ON TABLE top_ip FROM dj;
-GRANT ALL ON TABLE top_ip TO dj;
-GRANT SELECT ON TABLE top_ip TO PUBLIC;
+REVOKE ALL ON TABLE v_dl_bandwidth_per_minute FROM PUBLIC;
+REVOKE ALL ON TABLE v_dl_bandwidth_per_minute FROM rmbt;
+GRANT ALL ON TABLE v_dl_bandwidth_per_minute TO rmbt;
+GRANT SELECT ON TABLE v_dl_bandwidth_per_minute TO rmbt_group_read_only;
 
 
 --
@@ -7517,6 +8049,16 @@ REVOKE ALL ON TABLE v_test FROM PUBLIC;
 REVOKE ALL ON TABLE v_test FROM postgres;
 GRANT ALL ON TABLE v_test TO postgres;
 GRANT SELECT ON TABLE v_test TO rmbt_group_read_only;
+
+
+--
+-- Name: v_test2; Type: ACL; Schema: public; Owner: postgres
+--
+
+REVOKE ALL ON TABLE v_test2 FROM PUBLIC;
+REVOKE ALL ON TABLE v_test2 FROM postgres;
+GRANT ALL ON TABLE v_test2 TO postgres;
+GRANT SELECT ON TABLE v_test2 TO rmbt_group_read_only;
 
 
 --

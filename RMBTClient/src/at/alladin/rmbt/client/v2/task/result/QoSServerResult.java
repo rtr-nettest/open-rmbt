@@ -35,8 +35,9 @@ public class QoSServerResult implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	public static enum DetailType {
+		FAIL,
 		OK,
-		FAIL
+		INFO
 	}
 
 	//////////////////////

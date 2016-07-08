@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2015 alladin-IT GmbH
+ * Copyright 2016 Specure GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,10 @@ import java.net.ServerSocket;
 import java.util.concurrent.atomic.AtomicLong;
 
 import at.alladin.rmbt.qos.testserver.ServerPreferences.TestServerServiceEnum;
+import at.alladin.rmbt.qos.testserver.entity.Observable;
 import at.alladin.rmbt.qos.testserver.entity.TestCandidate;
 
-public abstract class AbstractTcpServer extends AbstractServer<ServerSocket, TestCandidate> {
+public abstract class AbstractTcpServer extends AbstractServer<ServerSocket, TestCandidate> implements Observable {
 
 	
 	/**

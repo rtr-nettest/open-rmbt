@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,12 @@ public interface TrafficService {
 	public long getTotalTxBytes();
 	
 	public long getTotalRxBytes();
+	
+	public long getCurrentTxBytes();
+	
+	public long getCurrentRxBytes();
+	
+	public void update();
 	
 	public void stop();
 }

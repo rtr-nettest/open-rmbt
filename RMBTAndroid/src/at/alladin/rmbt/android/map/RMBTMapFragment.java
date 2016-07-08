@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2015 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,13 +25,37 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
+import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
+import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
+import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
+import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
+import com.google.android.gms.maps.GoogleMap.OnMyLocationChangeListener;
+import com.google.android.gms.maps.LocationSource;
+import com.google.android.gms.maps.LocationSource.OnLocationChangedListener;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.UiSettings;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.TileOverlay;
+import com.google.android.gms.maps.model.TileOverlayOptions;
+
 import android.app.Dialog;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.Context;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -51,34 +75,12 @@ import at.alladin.rmbt.android.util.CheckMarker;
 import at.alladin.rmbt.android.util.ConfigHelper;
 import at.alladin.rmbt.android.util.EndTaskListener;
 import at.alladin.rmbt.android.util.GeoLocation;
+import at.alladin.rmbt.android.util.PermissionHelper;
 import at.alladin.rmbt.util.model.option.OptionFunction;
 import at.alladin.rmbt.util.model.option.OptionFunctionCallback;
 import at.alladin.rmbt.util.model.option.ServerOption;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
-import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
-import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
-import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
-import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
-import com.google.android.gms.maps.GoogleMap.OnMyLocationChangeListener;
-import com.google.android.gms.maps.LocationSource;
-import com.google.android.gms.maps.LocationSource.OnLocationChangedListener;
-import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.UiSettings;
-import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.TileOverlay;
-import com.google.android.gms.maps.model.TileOverlayOptions;
-
-public class RMBTMapFragment extends MapFragment implements OnClickListener, OnCameraChangeListener, OnMapClickListener, InfoWindowAdapter, OnInfoWindowClickListener, OnMyLocationChangeListener, OnMarkerClickListener
+public class RMBTMapFragment extends SupportMapFragment implements OnClickListener, OnCameraChangeListener, OnMapClickListener, InfoWindowAdapter, OnInfoWindowClickListener, OnMyLocationChangeListener, OnMarkerClickListener
 {
 //    private static final String DEBUG_TAG = "RMBTMapFragment";
 	
@@ -172,6 +174,8 @@ public class RMBTMapFragment extends MapFragment implements OnClickListener, OnC
     
     private OnClickListener additionalMapClickListener;
     
+    private boolean myLocationEnabled;
+    
     public class RMBTMapFragmentOptions {
     	private boolean showInfoToast = true;
     	private boolean enableAllGestures = true;
@@ -225,7 +229,9 @@ public class RMBTMapFragment extends MapFragment implements OnClickListener, OnC
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        geoLocation = new MyGeoLocation(getActivity());
+        myLocationEnabled = PermissionHelper.checkAnyLocationPermission(getActivity());
+        if (myLocationEnabled)
+            geoLocation = new MyGeoLocation(getActivity());
         
         final Bundle bundle = getArguments();
         
@@ -249,7 +255,8 @@ public class RMBTMapFragment extends MapFragment implements OnClickListener, OnC
     public void onStart()
     {
         super.onStart();
-        geoLocation.start();
+        if (geoLocation != null)
+            geoLocation.start();
         
         gMap = getMap();
         if (gMap != null)
@@ -292,11 +299,15 @@ public class RMBTMapFragment extends MapFragment implements OnClickListener, OnC
                 LatLng latLng = MapProperties.DEFAULT_MAP_CENTER;
                 float zoom = MapProperties.DEFAULT_MAP_ZOOM;
                 
-                final Location lastKnownLocation = geoLocation.getLastKnownLocation();
-                if (lastKnownLocation != null)
+                
+                if (geoLocation != null)
                 {
-                    latLng = new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
-                    zoom = MapProperties.DEFAULT_MAP_ZOOM_LOCATION;
+                    final Location lastKnownLocation = geoLocation.getLastKnownLocation();
+                    if (lastKnownLocation != null)
+                    {
+                        latLng = new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
+                        zoom = MapProperties.DEFAULT_MAP_ZOOM_LOCATION;
+                    }
                 }
 
                 if (bundle != null)
@@ -335,7 +346,8 @@ public class RMBTMapFragment extends MapFragment implements OnClickListener, OnC
                     }
                 });
                 
-                gMap.setMyLocationEnabled(true);
+                if (myLocationEnabled)
+                    gMap.setMyLocationEnabled(true);
                 gMap.setOnMyLocationChangeListener(this);
                 gMap.setOnMarkerClickListener(this);
                 gMap.setOnMapClickListener(this);
@@ -343,9 +355,12 @@ public class RMBTMapFragment extends MapFragment implements OnClickListener, OnC
                 gMap.setOnInfoWindowClickListener(this);
                 
                 
-                final Location myLocation = gMap.getMyLocation();
-                if (myLocation != null)
-                    onMyLocationChange(myLocation);
+                if (myLocationEnabled)
+                {
+                    final Location myLocation = gMap.getMyLocation();
+                    if (myLocation != null)
+                        onMyLocationChange(myLocation);
+                }
             }
         }
     }
@@ -472,7 +487,8 @@ public class RMBTMapFragment extends MapFragment implements OnClickListener, OnC
     {
         super.onStop();
         cancelCheckMarker();
-        geoLocation.stop();
+        if (geoLocation != null)
+            geoLocation.stop();
         Iterator<TileOverlayHolder> it = tileOverlayList.iterator();
         
         if (checkSettingsRunnable != null)
@@ -507,6 +523,8 @@ public class RMBTMapFragment extends MapFragment implements OnClickListener, OnC
     {
         final RelativeLayout view = (RelativeLayout) inflater.inflate(R.layout.map_google, container, false);
         registerListeners(view);
+        if (! myLocationEnabled)
+            view.findViewById(R.id.mapLocateButton).setVisibility(View.INVISIBLE);
         
         final int errorCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getActivity());
         if (errorCode != ConnectionResult.SUCCESS)
@@ -582,7 +600,7 @@ public class RMBTMapFragment extends MapFragment implements OnClickListener, OnC
     @Override
     public void onClick(View v)
     {
-        final FragmentManager fm = getActivity().getFragmentManager();
+        final FragmentManager fm = ((FragmentActivity) getActivity()).getSupportFragmentManager();
         final FragmentTransaction ft;
         
         final GoogleMap map = getMap();
@@ -603,7 +621,7 @@ public class RMBTMapFragment extends MapFragment implements OnClickListener, OnC
 
         case R.id.mapLocateButton:
 
-            if (map != null)
+            if (map != null && geoLocation != null)
             {
                 final Location location = geoLocation.getLastKnownLocation();
                 if (location != null)

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,6 +56,7 @@ public class ContextListener implements ServletContextListener
                     System.out.println("getting geoips");
                     final Connection conn = DbConnection.getConnection();
                     
+                    final boolean oldAutoCommitState = conn.getAutoCommit();
                     conn.setAutoCommit(false);
                     // allow update only 2min after test was started
                     final PreparedStatement psUpd = conn.prepareStatement("UPDATE test SET country_geoip=? WHERE uid=? and (now() - time  < interval '2' minute)");
@@ -83,7 +84,7 @@ public class ContextListener implements ServletContextListener
                     psUpd.close();
                     ps.close();
                     conn.commit();
-                    
+                    conn.setAutoCommit(oldAutoCommitState);
                 }
                 catch (Exception e)
                 {

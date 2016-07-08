@@ -92,19 +92,6 @@ public class CheckSettingsTask extends AsyncTask<Void, Void, JSONArray>
 	 * 
 	 */
     @Override
-    protected void onCancelled()
-    {
-        if (serverConn != null)
-        {
-            serverConn.unload();
-            serverConn = null;
-        }
-    }
-    
-    /**
-	 * 
-	 */
-    @Override
     protected void onPostExecute(final JSONArray resultList)
     {
         System.err.println("\n\n\n" + resultList + "\n\n\n");
@@ -221,6 +208,9 @@ public class CheckSettingsTask extends AsyncTask<Void, Void, JSONArray>
                     
                     // /////
                     
+                    
+                    ///////// servers
+                    
                     final Set<String> serverSet;
                     final JSONArray servers = resultListItem.optJSONArray("servers");
                     if (servers == null)
@@ -242,6 +232,15 @@ public class CheckSettingsTask extends AsyncTask<Void, Void, JSONArray>
                         }
                     }
                     ConfigHelper.setServers(activity, serverSet);
+                    
+                    
+                    
+                    ///////// permissions
+                    
+                    final JSONArray permissions = resultListItem.optJSONArray("request_android_permissions");
+                    if (permissions != null)
+                        PermissionHelper.setRequestPermissions(permissions);
+                    
                 }
                 catch (final JSONException e)
                 {

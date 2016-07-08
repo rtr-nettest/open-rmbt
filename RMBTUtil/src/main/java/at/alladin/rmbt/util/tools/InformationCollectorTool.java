@@ -53,7 +53,7 @@ public class InformationCollectorTool {
 	/**
 	 * 
 	 */
-	final List<CollectorHolder> collectorList = new ArrayList<CollectorHolder>();
+	final List<CollectorHolder> collectorList = new ArrayList<>();
 	
 	final TimeUnit deltaTimeUnit;
 	

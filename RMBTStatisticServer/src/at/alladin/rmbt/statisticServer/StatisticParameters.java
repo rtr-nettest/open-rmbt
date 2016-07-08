@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2015 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ public class StatisticParameters implements Serializable, Funnel<StatisticParame
     private final String networkTypeGroup;
     private final double accuracy;
     private final String country;
-    private final String developerCode;
+    private final boolean userServerSelection;
     private final java.sql.Timestamp endDate;
     private final int province;
     
@@ -54,7 +54,7 @@ public class StatisticParameters implements Serializable, Funnel<StatisticParame
         String _networkTypeGroup = null;
         double _accuracy = -1;
         String _country = null;
-        String _developerCode = null;
+        boolean _userServerSelection = false;
         java.sql.Timestamp _endDate = null; 
         int _province = -1;
         
@@ -97,10 +97,9 @@ public class StatisticParameters implements Serializable, Funnel<StatisticParame
                 if (__country != null && __country.length() == 2)
                 	_country = __country;
 
-                final String __developerCode = request.optString("developer_code", null);
-                if (__developerCode != null) {
-                    _developerCode = __developerCode;
-                }
+                _userServerSelection = request.optBoolean("user_server_selection");
+                // It returns false if there is no such key, or if the value is not Boolean.TRUE or the String "true". 
+
                 
                 final String __endDateString = request.optString("end_date", null);
                 if (__endDateString != null) {
@@ -125,7 +124,7 @@ public class StatisticParameters implements Serializable, Funnel<StatisticParame
         networkTypeGroup = _networkTypeGroup;
         accuracy = _accuracy;
         country = _country;
-        developerCode = _developerCode;
+        userServerSelection = _userServerSelection;
         endDate = _endDate;
         province = _province;
     }
@@ -173,8 +172,8 @@ public class StatisticParameters implements Serializable, Funnel<StatisticParame
     	return country;
     }
     
-    public String getDeveloperCode() {
-        return developerCode;
+    public boolean getUserServerSelection() {
+        return userServerSelection;
     }
     
     public java.sql.Timestamp getEndDate() {
@@ -199,7 +198,7 @@ public class StatisticParameters implements Serializable, Funnel<StatisticParame
             .putUnencodedChars(Strings.nullToEmpty(o.networkTypeGroup))
             .putDouble(o.accuracy)
             .putUnencodedChars(Strings.nullToEmpty(o.country))
-            .putUnencodedChars(Strings.nullToEmpty(o.developerCode))
+            .putBoolean(o.userServerSelection)
             .putInt((endDate == null) ? 0 : (int) endDate.getTime())
             .putInt(o.province);
     }
@@ -217,7 +216,7 @@ public class StatisticParameters implements Serializable, Funnel<StatisticParame
         result = prime * result + ((type == null) ? 0 : type.hashCode());
         result = prime * result + ((accuracy == -1) ? 0 : (int) accuracy);
         result = prime * result + ((country == null) ? 0 : country.hashCode());
-        result = prime * result + ((developerCode == null) ? 0 : developerCode.hashCode());
+        result = prime * result + ((userServerSelection) ? 0 : 1);
         result = prime * result + ((endDate == null) ? 0 : endDate.hashCode());
         result = prime * result + ((province == -1) ? 0 : (int) province);
         return result;
@@ -259,9 +258,8 @@ public class StatisticParameters implements Serializable, Funnel<StatisticParame
         if (country != null && other.country != null && !country.equals(other.country)) {
         	return false;
         }
-        if (developerCode == null || (developerCode == null) != (other.developerCode == null) ||
-                developerCode.equals(other.developerCode)) {
-            return false;
+        if (userServerSelection != other.userServerSelection) {
+    		return false;
         }
         if (type == null)
         {

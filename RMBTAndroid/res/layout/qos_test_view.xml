@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright 2013, 2014 alladin-IT GmbH
+  Copyright 2013, 2015 alladin-IT GmbH
   
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -18,7 +18,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <RelativeLayout
+    <LinearLayout
+        android:id="@+id/result_desc_container"
+        android:orientation="vertical"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="top"
@@ -65,93 +67,8 @@
         </RelativeLayout>
 
         <RelativeLayout
-            android:id="@+id/result_text_layout_fail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/result_text_layout"
-            android:layout_marginTop="5dp"
-            android:background="@color/result_red" >
-
-            <!-- android:background="@drawable/result_box_small_red" -->
-
-            <LinearLayout
-                android:id="@+id/subheader_text_layout_fail"
-                style="@style/listViewHistoryLabelRow"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_trans_light_20"
-                android:gravity="center" >
-
-                <TextView
-                    android:id="@+id/subheader_text_fail"
-                    style="@style/listViewHistoryLabelRowItemLarge"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="3dp"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginRight="5dp"
-                    android:layout_weight=".15"
-                    android:text="@string/result_details_qos_failure" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/value_list_fail"
-                style="@style/listViewDefault"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/subheader_text_layout_fail"
-                android:orientation="vertical"
-                android:paddingBottom="3dp"
-                android:paddingTop="3dp"
-                android:showDividers="middle" />
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:id="@+id/result_text_layout_success"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/result_text_layout_fail"
-            android:layout_marginTop="5dp"
-            android:background="@color/result_green" >
-
-            <!-- android:background="@drawable/result_box_small_green" -->
-
-            <LinearLayout
-                android:id="@+id/subheader_text_layout_success"
-                style="@style/listViewHistoryLabelRow"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_trans_light_20"
-                android:gravity="center" >
-
-                <TextView
-                    android:id="@+id/subheader_text_success"
-                    style="@style/listViewHistoryLabelRowItemLarge"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="3dp"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginRight="5dp"
-                    android:layout_weight=".15"
-                    android:text="@string/result_details_qos_success" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/value_list_success"
-                style="@style/listViewDefault"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/subheader_text_layout_success"
-                android:orientation="vertical"
-                android:paddingBottom="3dp"
-                android:paddingTop="3dp"
-                android:showDividers="middle" />
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/result_text_layout_success"
             android:layout_marginTop="5dp"
             android:background="@color/transparent" >
 
@@ -188,6 +105,6 @@
                 android:paddingTop="3dp"
                 android:showDividers="middle" />
         </RelativeLayout>
-    </RelativeLayout>
+    </LinearLayout>
 
 </ScrollView>

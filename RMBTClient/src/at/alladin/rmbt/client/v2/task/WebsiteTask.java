@@ -72,7 +72,7 @@ public class WebsiteTask extends AbstractQoSTask {
 		this.url = value != null ? value : null;
 
 		value = (String) taskDesc.getParams().get(PARAM_TIMEOUT);
-		this.timeout = value != null ? new Long(value) : DEFAULT_TIMEOUT;
+		this.timeout = value != null ? Long.valueOf(value) : DEFAULT_TIMEOUT;
 	}
 
 	/*

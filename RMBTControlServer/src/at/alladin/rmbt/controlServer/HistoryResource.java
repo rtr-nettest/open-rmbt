@@ -58,13 +58,12 @@ public class HistoryResource extends ServerResource
         final String clientIpRaw = getIP();
         System.out.println(MessageFormat.format(labels.getString("NEW_HISTORY"), clientIpRaw));
         
-        final boolean fourColorClassifcation = false; //possible future extension when supported by clients
-        
         if (entity != null && !entity.isEmpty())
             // try parse the string to a JSON object
             try
             {
                 request = new JSONObject(entity);
+                readCapabilities(request);
                 
                 String lang = request.optString("language");
                 
@@ -248,11 +247,11 @@ public class HistoryResource extends ServerResource
                                 
                                 
                                 //for appscape-iPhone-Version: also add classification to the response
-                                jsonItem.put("speed_upload_classification", Classification.classify(Classification.THRESHOLD_UPLOAD, rs.getInt("speed_upload"), fourColorClassifcation ));
-                                jsonItem.put("speed_download_classification", Classification.classify(Classification.THRESHOLD_DOWNLOAD, rs.getInt("speed_download"), fourColorClassifcation));
-                                jsonItem.put("ping_classification", Classification.classify(Classification.THRESHOLD_PING, rs.getLong("ping_median"), fourColorClassifcation));
+                                jsonItem.put("speed_upload_classification", Classification.classify(Classification.THRESHOLD_UPLOAD, rs.getInt("speed_upload"), capabilities.getClassificationCapability().getCount()));
+                                jsonItem.put("speed_download_classification", Classification.classify(Classification.THRESHOLD_DOWNLOAD, rs.getInt("speed_download"), capabilities.getClassificationCapability().getCount()));
+                                jsonItem.put("ping_classification", Classification.classify(Classification.THRESHOLD_PING, rs.getLong("ping_median"), capabilities.getClassificationCapability().getCount()));
                                 // backwards compatibility for old clients
-                                jsonItem.put("ping_shortest_classification", Classification.classify(Classification.THRESHOLD_PING, rs.getLong("ping_median"), fourColorClassifcation));
+                                jsonItem.put("ping_shortest_classification", Classification.classify(Classification.THRESHOLD_PING, rs.getLong("ping_median"), capabilities.getClassificationCapability().getCount()));
                                 
                                 historyList.put(jsonItem);
                             }

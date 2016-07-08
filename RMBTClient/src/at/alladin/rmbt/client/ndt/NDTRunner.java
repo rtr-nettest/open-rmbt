@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,8 @@
  ******************************************************************************/
 package at.alladin.rmbt.client.ndt;
 
-import java.net.URI;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -51,10 +52,9 @@ public class NDTRunner
     
     public static String getNdtHost()
     {
-        final JSONParser jParser = new JSONParser();
-        final JSONObject obj = jParser.getURL(URI.create(at.alladin.rmbt.client.helper.Config.MLAB_NS));
         try
         {
+            final JSONObject obj = JSONParser.getURL(new URL(at.alladin.rmbt.client.helper.Config.MLAB_NS));
             if (obj != null)
             {
 //                System.out.println(obj.toString(4));
@@ -62,6 +62,10 @@ public class NDTRunner
             }
         }
         catch (JSONException e)
+        {
+            e.printStackTrace();
+        }
+        catch (MalformedURLException e)
         {
             e.printStackTrace();
         }

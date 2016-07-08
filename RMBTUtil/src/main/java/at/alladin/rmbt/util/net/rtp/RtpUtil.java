@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2015 alladin-IT GmbH
+ * Copyright 2015, 2016 alladin-IT GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -81,7 +81,7 @@ public class RtpUtil {
 		final int payloadTimestamp = (int) (sampleRate / (1000 / delay));
 		final RtpPacket initialRtpPacket = new RtpPacket(payloadType, 0, new long[] {}, (int) sequenceNumber, 0, ssrc);
 		final int numPackets = (int) (callDuration / delay);
-		final UdpStreamSenderSettings<T> settings = new UdpStreamSenderSettings<T>(socket, closeOnFinish, targetHost, targetPort, numPackets, delay, timeout, TimeUnit.MILLISECONDS, false, 0);
+		final UdpStreamSenderSettings<T> settings = new UdpStreamSenderSettings<>(socket, closeOnFinish, targetHost, targetPort, numPackets, delay, timeout, TimeUnit.MILLISECONDS, false, 0);
 		settings.setIncomingPort(incomingPort);
 		
 		if (receiveCallback == null) {
@@ -162,10 +162,10 @@ public class RtpUtil {
 	 * @param rtpControlDataMap
 	 */
 	public static RtpQoSResult calculateQoS(Map<Integer, RtpControlData> rtpControlDataMap, long initialSequenceNumber, int sampleRate) {
-		TreeSet<Integer> sequenceNumberSet = new TreeSet<Integer>(rtpControlDataMap.keySet());
+		TreeSet<Integer> sequenceNumberSet = new TreeSet<>(rtpControlDataMap.keySet());
 		
-		Map<Integer, Float> jitterMap = new HashMap<Integer, Float>();
-		TreeSet<RtpSequence> sequenceSet = new TreeSet<RtpUtil.RtpSequence>();
+		Map<Integer, Float> jitterMap = new HashMap<>();
+		TreeSet<RtpSequence> sequenceSet = new TreeSet<>();
 		
 		long maxJitter = 0;
 		long meanJitter = 0;
@@ -225,7 +225,7 @@ public class RtpUtil {
 			minSequential = maxSequential;
 		}
 		
-		return new RtpQoSResult(maxJitter, meanJitter / jitterMap.size(), skew, maxDelta, packetsOutOfOrder, minSequential, maxSequential, jitterMap);
+		return new RtpQoSResult(maxJitter, jitterMap.size() > 0 ? meanJitter / jitterMap.size() : 0, skew, maxDelta, packetsOutOfOrder, minSequential, maxSequential, jitterMap);
 	}
 	
 	private static long calculateDelta(RtpControlData i, RtpControlData j, int sampleRate) {

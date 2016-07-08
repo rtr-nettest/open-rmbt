@@ -127,16 +127,6 @@ public class CheckIpTask extends AsyncTask<Void, Void, JSONArray>
     }
     
     @Override
-    protected void onCancelled()
-    {
-        if (serverConn != null)
-        {
-            serverConn.unload();
-            serverConn = null;
-        }
-    }
-    
-    @Override
     protected void onPostExecute(final JSONArray newsList)
     {
     	try {

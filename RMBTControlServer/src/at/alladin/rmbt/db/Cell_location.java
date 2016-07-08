@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,13 +22,15 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.Calendar;
+import java.util.UUID;
 
 import at.alladin.rmbt.shared.Helperfunctions;
 
 public class Cell_location
 {
     
-    private long uid;
+    private UUID open_test_uuid;
+	private long uid;
     private long test_id;
     private Timestamp time;
     private int location_id;
@@ -48,7 +50,7 @@ public class Cell_location
         this.conn = conn;
     }
     
-    public Cell_location(final Connection conn, final long uid, final long test_id, final Timestamp time,
+    public Cell_location(final Connection conn, final UUID open_test_uuid, final long uid, final long test_id, final Timestamp time,
             final int location_id, final int area_code, final int primary_scrambling_code, final String timeZoneId, final long time_ns)
     {
         
@@ -56,6 +58,7 @@ public class Cell_location
         
         this.conn = conn;
         
+        this.open_test_uuid = open_test_uuid;
         this.uid = uid;
         this.test_id = test_id;
         this.time = time;
@@ -70,7 +73,8 @@ public class Cell_location
     public void reset()
     {
         
-        uid = 0;
+        open_test_uuid = null;
+    	uid = 0;
         test_id = 0;
         time = null;
         location_id = 0;
@@ -100,22 +104,25 @@ public class Cell_location
         try
         {
             st = conn.prepareStatement(
-                    "INSERT INTO cell_location(test_id, time, location_id, area_code, primary_scrambling_code, time_ns) "
-                            + "VALUES( ?, ?, ?, ?, ?,?)", Statement.RETURN_GENERATED_KEYS);
+                    "INSERT INTO cell_location(open_test_uuid, test_id, time, location_id, area_code, primary_scrambling_code, time_ns) "
+                            + "VALUES(?, ?, ?, ?, ?, ?,?)", Statement.RETURN_GENERATED_KEYS);
             
             /*
              * Timestamp geotstamp = java.sql.Timestamp.valueOf(new Timestamp(
              * this.time).toString());
              */
             
-            st.setLong(1, test_id);
-            st.setTimestamp(2, time, timeZone);
-            st.setInt(3, location_id);
-            st.setInt(4, area_code);
-            st.setInt(5, primary_scrambling_code);
-            st.setLong(6, time_ns);
+            int i=1;
             
-            // System.out.println(st2.toString());
+            st.setObject(i++,open_test_uuid);
+            st.setLong(i++, test_id);
+            st.setTimestamp(i++, time, timeZone);
+            st.setInt(i++, location_id);
+            st.setInt(i++, area_code);
+            st.setInt(i++, primary_scrambling_code);
+            st.setLong(i++, time_ns);
+            
+            //System.out.println(st.toString());
             
             final int affectedRows2 = st.executeUpdate();
             if (affectedRows2 == 0)
@@ -144,6 +151,11 @@ public class Cell_location
     public String getError()
     {
         return errorLabel;
+    }
+    
+    public UUID getOpenTestUuid()
+    {
+        return open_test_uuid;
     }
     
     public long getUid()
@@ -187,6 +199,11 @@ public class Cell_location
     public void setUid(final long uid)
     {
         this.uid = uid;
+    }
+    
+    public void setOpenTestUuid(final UUID open_test_uuid)
+    {
+        this.open_test_uuid = open_test_uuid;
     }
     
     public void setTest_id(final long test_id)

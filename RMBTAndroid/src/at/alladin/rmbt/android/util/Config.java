@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ public interface Config
     
     public final static int DISPLAY_UPDATE = 500;
     
-    public final static int HISTORY_RESULTLIMIT_DEFAULT = 25;
+    public final static int HISTORY_RESULTLIMIT_DEFAULT = 250;
     
     /*********************
      * 

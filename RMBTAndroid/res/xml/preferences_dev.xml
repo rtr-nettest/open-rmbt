@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright 2013-2015 alladin-IT GmbH
+  Copyright 2013-2016 alladin-IT GmbH
   
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -30,16 +30,10 @@
                 android:summary="@string/preferences_tag_sum"
                 android:layout="@layout/preferences_item"
                 />
-            
-            <CheckBoxPreference
-                android:key="skip_qos"
-                android:title="@string/preferences_skip_qos" 
-                android:summary="@string/preferences_skip_qos_sum" 
-                android:layout="@layout/preferences_item"/>
-            
+                        
         </PreferenceCategory>
             
-        <PreferenceCategory android:title="@string/preferences_category_loop_mode" android:layout="@layout/preferences_category">
+        <PreferenceCategory android:title="@string/preferences_category_dev_loop_mode" android:layout="@layout/preferences_category">
             
             <CheckBoxPreference
                 android:key="loop_mode"
@@ -235,7 +229,15 @@
                 android:defaultValue="false"
                 android:layout="@layout/preferences_item"
                 />
-		    
+
+			<CheckBoxPreference
+                android:key="dont_show_menu_before_exit"
+                android:title="@string/preferences_dont_show_menu_on_exit" 
+                android:summary="@string/preferences_dont_show_menu_on_exit_sum"
+                android:defaultValue="false"
+                android:layout="@layout/preferences_item"
+                />
+			
             <!--  
             <CheckBoxPreference 
                 android:key="dev_debug_ip_method"
@@ -260,6 +262,7 @@
                 android:defaultValue="true"
                 android:layout="@layout/preferences_item"
                 />
+                 
             -->
         </PreferenceCategory>
     </PreferenceScreen>

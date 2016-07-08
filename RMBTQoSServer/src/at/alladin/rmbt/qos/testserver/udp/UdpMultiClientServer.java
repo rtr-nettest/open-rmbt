@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2015 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,12 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.text.DateFormat;
+import java.util.Date;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import at.alladin.rmbt.qos.testserver.ServerPreferences.TestServerServiceEnum;
+import at.alladin.rmbt.qos.testserver.servers.AbstractUdpServer;
 import at.alladin.rmbt.qos.testserver.TestServer;
 import at.alladin.rmbt.qos.testserver.util.TestServerConsole;
 import at.alladin.rmbt.util.net.rtp.RealtimeTransportProtocol.RtpVersion;
@@ -45,6 +48,8 @@ public class UdpMultiClientServer extends AbstractUdpServer<DatagramSocket> impl
 	final int port;
 	
 	private final String name;
+	
+	private long lastClientTime = 0;
 	
 	protected final DatagramSocket socket;
 	
@@ -94,6 +99,9 @@ public class UdpMultiClientServer extends AbstractUdpServer<DatagramSocket> impl
 				final DatagramPacket dp = new DatagramPacket(buffer, BUFFER_LENGTH);				
 				socket.receive(dp);
 				
+				//set last client timestamp
+				lastClientTime = System.currentTimeMillis();
+			
 				final byte[] data = dp.getData();
 				
 				final RtpVersion rtpVersion = RtpUtil.getVersion(data[0]);
@@ -255,5 +263,23 @@ public class UdpMultiClientServer extends AbstractUdpServer<DatagramSocket> impl
 	@Override
 	public void send(DatagramPacket dp) throws IOException {
 		socket.send(dp);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see at.alladin.rmbt.qos.testserver.udp.AbstractUdpServer#isHealthy()
+	 */
+	@Override
+	public boolean isHealthy() {
+		return socket != null && !socket.isClosed();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see at.alladin.rmbt.qos.testserver.entity.Observable#getStatusMessage()
+	 */
+	@Override
+	public String getStatusMessage() {
+		return "Last client timestamp: " + DateFormat.getDateTimeInstance().format(new Date(lastClientTime));
 	}
 }

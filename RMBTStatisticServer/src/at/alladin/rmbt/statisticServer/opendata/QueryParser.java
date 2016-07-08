@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2015 Thomas Schreiber
+ * Copyright 2013-2016 Thomas Schreiber
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,8 +42,6 @@ import org.restlet.data.Form;
  * @author Thomas
  */
 public class QueryParser {
-    private boolean excludeImplausible;
-
     /**
      * @return the whereParams
      */
@@ -144,17 +142,21 @@ public class QueryParser {
         allowedFields.put("network_country[]",FieldType.STRING);
         allowedFields.put("country_geoip",FieldType.STRING);
         allowedFields.put("country_geoip[]",FieldType.STRING);
-        allowedFields.put("developer_code",FieldType.STRING);
+        allowedFields.put("user_server_selection",FieldType.BOOLEAN);
+        allowedFields.put("developer_code",FieldType.STRING); //for backwards compatiblity with old web page
         allowedFields.put("loc_accuracy",FieldType.LONG);
         allowedFields.put("loc_accuracy[]",FieldType.LONG);
         allowedFields.put("public_ip_as_name",FieldType.STRING);
         allowedFields.put("timestamp", FieldType.IGNORE); //for forcing no-cache
         allowedFields.put("_", FieldType.IGNORE); //jQuery no-cache standard
         allowedFields.put("sender", FieldType.IGNORE);
+        allowedFields.put("additional_info", FieldType.IGNORE);
+        allowedFields.put("additional_info[]", FieldType.IGNORE);
         
         //allowedFields.put("ip_anonym", FieldType.STRING);
         //allowedFields.put("ip_anonym[]", FieldType.STRING);
         allowedFields.put("implausible", FieldType.BOOLEAN);
+        allowedFields.put("pinned", FieldType.BOOLEAN);
         
         allowedFields.put("sort_by",FieldType.SORTBY);
         allowedFields.put("sort_order",FieldType.SORTORDER);
@@ -260,7 +262,7 @@ public class QueryParser {
                             comperator += "=";
                             value = value.substring(1);
                         }
-                        if (value.isEmpty() || !isDouble(value)) {
+                        if (value.isEmpty() || (type == FieldType.DOUBLE && !isDouble(value)) || (type == FieldType.LONG && !isLong(value))) {
                             invalidElements.put(attr);
                             continue;
                         }
@@ -290,6 +292,9 @@ public class QueryParser {
             }
             
         }
+        
+        //add defaults
+        whereClause += formatWhereClauseDefaults();
         
         orderClause = formatOrderClause(sortBy, sortOrder);
         return invalidElements;
@@ -333,6 +338,15 @@ public class QueryParser {
         
         String ret = " ORDER BY " + sortBy + " " + sortOrder;
         return ret;
+    }
+    
+    private String formatWhereClauseDefaults() {
+    	String ret = "";
+    	if (!this.whereParams.containsKey("implausible")) {
+    		ret += formatWhereClause("implausible", "false", "=", false, FieldType.BOOLEAN, this.searchValues);
+    	}
+    	
+    	return ret;
     }
     
     private String formatWhereClause(String attr, String value, boolean negate, FieldType type, Queue<Map.Entry<String, FieldType>> queue) {
@@ -413,13 +427,6 @@ public class QueryParser {
             else {
                 return " AND NOT " + attr;
             }
-        }
-        else if (attr.equals("implausible")) {
-        	//if false -> also allow null
-        	if (value.toLowerCase().equals("true")) {
-        		this.excludeImplausible = false;
-        		//return " AND (t.implausible = FALSE or t.implausible IS NULL)";
-        	}
         }
         else if (attr.equals("loc_accuracy")) {
         	attr = "t.geo_accuracy"; 
@@ -535,6 +542,12 @@ public class QueryParser {
         else if (opendataField.equals("ip_anonym")) {
         	ret.add("client_public_ip_anonymized");
         }
+        else if (opendataField.equals("implausible")) {
+        	ret.add("t.implausible");
+        }
+        else if (opendataField.equals("pinned")) {
+        	ret.add("t.pinned");
+        }
          return ret;
     }
     
@@ -582,6 +595,19 @@ public class QueryParser {
           if (v.isNaN() || v.isInfinite()){
               return false;
           }
+          return true;  
+       }  
+       catch(Exception e)  
+       {  
+          return false;  
+       }  
+    }  
+    
+    public boolean isLong( String input )  
+    {  
+       try  
+       {  
+          Long v = Long.parseLong(input);  
           return true;  
        }  
        catch(Exception e)  

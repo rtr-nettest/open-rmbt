@@ -32,7 +32,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import at.alladin.rmbt.qos.testserver.plugin.rest.RestService;
-import at.alladin.rmbt.qos.testserver.util.TestServerConsole;
 
 /**
  * 
@@ -98,6 +97,10 @@ public class ServerPreferences {
 	public static final String PARAM_SERVER_UDP_PORT_LIST = "server.udp.ports";
 	public static final String PARAM_SERVER_UDP_NIO_PORT_LIST = "server.udp.nio.ports";
 	public static final String PARAM_SERVER_LOGGING = "server.logging";
+	public static final String PARAM_SERVER_LOGGING_PATTERN = "server.log.pattern";
+	public static final String PARAM_SERVER_SYSLOG = "server.syslog";
+	public static final String PARAM_SERVER_SYSLOG_HOST = "server.syslog.host";
+	public static final String PARAM_SERVER_SYSLOG_PATTERN = "server.syslog.pattern";
 	public static final String PARAM_SERVER_LOG_CONSOLE = "server.log.console";
 	public static final String PARAM_SERVER_COMMAND_CONSOLE = "server.console";
 	public static final String PARAM_SERVER_LOG_FILE = "server.log";
@@ -126,6 +129,10 @@ public class ServerPreferences {
 	private String secretKey = null;
 	private boolean isIpCheck = false;
 	private boolean isLoggingEnabled = true;
+	private String loggingPattern = "%p %d{ISO8601} - %m%n";
+	private boolean isSyslogEnabled = true;
+	private String syslogHost = "localhost";
+	private String syslogPattern = "%p %d{ISO8601} %c - %m%n";
 	private boolean isConsoleLog = false;
 	private boolean isCommandConsoleEnabled = false;
 	private final TreeMap<TestServerServiceEnum, String> logFileMap = new TreeMap<>();
@@ -290,9 +297,29 @@ public class ServerPreferences {
 	   			isCommandConsoleEnabled = Boolean.parseBoolean(param.trim());
 	   		}
 
+	   		param = prop.getProperty(PARAM_SERVER_SYSLOG);
+	   		if (param!=null) {
+	   			isSyslogEnabled = Boolean.parseBoolean(param.trim());
+	   		}
+
+	   		param = prop.getProperty(PARAM_SERVER_SYSLOG_HOST);
+	   		if (param!=null) {
+	   			syslogHost = param.trim();
+	   		}
+
+	   		param = prop.getProperty(PARAM_SERVER_SYSLOG_PATTERN);
+	   		if (param!=null) {
+	   			syslogPattern = param.trim();
+	   		}
+
 	   		param = prop.getProperty(PARAM_SERVER_LOGGING);
 	   		if (param!=null) {
 	   			isLoggingEnabled = Boolean.parseBoolean(param.trim());
+	   		}
+
+	   		param = prop.getProperty(PARAM_SERVER_LOGGING_PATTERN);
+	   		if (param!=null) {
+	   			loggingPattern = param.trim();
 	   		}
 
 	   		param = prop.getProperty(PARAM_SERVER_LOG_CONSOLE);
@@ -381,8 +408,6 @@ public class ServerPreferences {
 				throw new TestServerException(e.getLocalizedMessage(), e);
 			}
 		}
-		
-		TestServerConsole.log("Server preferences: " + toString(), -1, logFileMap.get(TestServerServiceEnum.TEST_SERVER));
 	}
 	
 	/**
@@ -613,6 +638,38 @@ public class ServerPreferences {
 	public long getStartTimestamp() {
 		return startTimestamp;
 	}
+	
+	public boolean isSyslogEnabled() {
+		return isSyslogEnabled;
+	}
+
+	public void setSyslogEnabled(boolean isSyslogEnabled) {
+		this.isSyslogEnabled = isSyslogEnabled;
+	}
+
+	public String getSyslogHost() {
+		return syslogHost;
+	}
+
+	public void setSyslogHost(String syslogHost) {
+		this.syslogHost = syslogHost;
+	}
+	
+	public String getSyslogPattern() {
+		return syslogPattern;
+	}
+
+	public void setSyslogPattern(String syslogPattern) {
+		this.syslogPattern = syslogPattern;
+	}
+	
+	public String getLoggingPattern() {
+		return loggingPattern;
+	}
+
+	public void setLoggingPattern(String loggingPattern) {
+		this.loggingPattern = loggingPattern;
+	}
 
 	@Override
 	public String toString() {
@@ -621,11 +678,15 @@ public class ServerPreferences {
 				+ udpPortSet + ", maxThreads=" + maxThreads + ", useSsl="
 				+ useSsl + ", verboseLevel=" + verboseLevel + ", secretKey="
 				+ secretKey + ", isIpCheck=" + isIpCheck
-				+ ", isLoggingEnabled=" + isLoggingEnabled + ", isConsoleLog="
+				+ ", isLoggingEnabled=" + isLoggingEnabled
+				+ ", loggingPattern=" + loggingPattern + ", isSyslogEnabled="
+				+ isSyslogEnabled + ", syslogHost=" + syslogHost
+				+ ", syslogPattern=" + syslogPattern + ", isConsoleLog="
 				+ isConsoleLog + ", isCommandConsoleEnabled="
 				+ isCommandConsoleEnabled + ", logFileMap=" + logFileMap
 				+ ", inetAddrBindToSet=" + inetAddrBindToSet
-				+ ", startTimestamp=" + startTimestamp + "]"
+				+ ", startTimestamp=" + startTimestamp + ", pluginMap="
+				+ pluginMap + "]"
 				+ "\n\tOnline since: " + (new java.util.Date(startTimestamp)).toString();
 	}
 	

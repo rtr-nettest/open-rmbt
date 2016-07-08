@@ -15,14 +15,18 @@
  ******************************************************************************/
 package at.alladin.rmbt.qos.testscript;
 
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -33,8 +37,11 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.SimpleBindings;
 
+import org.json.JSONObject;
+
 import at.alladin.rmbt.qos.AbstractResult;
 import at.alladin.rmbt.qos.ResultOptions;
+import at.alladin.rmbt.qos.testscript.TestScriptInterpreter.EvalResult.EvalResultType;
 import at.alladin.rmbt.shared.Helperfunctions;
 import at.alladin.rmbt.shared.hstoreparser.Hstore;
 import at.alladin.rmbt.shared.hstoreparser.HstoreParseException;
@@ -61,13 +68,55 @@ public class TestScriptInterpreter {
 	 */
 	public final static String COMMAND_EVAL = "EVAL";
 	
+	public final static class EvalResult {
+		public static enum EvalResultType {
+			FAILURE,
+			SUCCESS,
+			OTHER
+		}
+		
+		private final EvalResultType type;
+		private final String resultKey;
+		
+		public EvalResult(EvalResultType type) {
+			this(type, null);
+		}
+		
+		public EvalResult(EvalResultType type, String resultKey) {
+			this.type = type;
+			this.resultKey = resultKey;
+		}
+
+		public EvalResultType getType() {
+			return type;
+		}
+
+		public String getResultKey() {
+			return resultKey;
+		}
+
+		@Override
+		public String toString() {
+			return "EvalResult [type=" + type + ", resultKey=" + resultKey
+					+ "]";
+		}
+	}
+	
 	public final static Pattern PATTERN_ARRAY = Pattern.compile("([^\\[]*)\\[([0-9]*)\\]");
+	
+	public final static Pattern PATTERN_CONTROL = Pattern.compile("%\\$([A-Z]*) (.*)%([\\s\\S.]*)%\\$(END\\1) \\2%");	
+
+	public final static Pattern PATTERN_CONTROL_SWITCH = Pattern.compile("%\\$(CASE|DEFAULT)(.*)%([\\s\\S.]*)%\\$END\\1\\2%");
 	
 	public final static Pattern PATTERN_COMMAND = Pattern.compile("%([A-Z]*)(.*)%");
 	
 	public final static Pattern PATTERN_RECURSIVE_COMMAND = Pattern.compile("([%%])(?:(?=(\\\\?))\\2.)*?\\1");
 	
 	private static ScriptEngine jsEngine;
+	
+	private static Method jsEngineNativeObjectGetter;
+	
+	private static boolean alredayLookedForGetter = false;
 	
 	/**
 	 * 
@@ -88,13 +137,37 @@ public class TestScriptInterpreter {
 		if (jsEngine == null) {
 			ScriptEngineManager sem = new ScriptEngineManager();
 			jsEngine = sem.getEngineByName("JavaScript");
-			
+			System.out.println("JS Engine: " + jsEngine.getClass().getCanonicalName());
 			Bindings b = jsEngine.createBindings();
 			b.put("nn", new SystemApi());
 			jsEngine.setBindings(b, ScriptContext.GLOBAL_SCOPE);
 		}
 		
 		command = command.replace("\\%", "{PERCENT}");
+
+		try {			
+			final Matcher mc = PATTERN_CONTROL.matcher(command);
+			while (mc.find()) {
+				String toReplace = "";
+
+				final String controlCommand = mc.group(1);
+				//System.out.println("found control command: " + controlCommand + ", clause: " + mc.group(2));
+				if ("IF".equals(controlCommand)) {
+					if (controlIf(mc.group(2), object)) {
+						toReplace = String.valueOf(interprete(mc.group(3), hstore, object, true, resultOptions));
+					}
+				}
+				else if ("SWITCH".equals(controlCommand)) {
+					toReplace = String.valueOf(interprete(controlSwitch(mc.group(2), object, mc.group(3)), hstore, object, true, resultOptions));
+				}
+				
+				command = command.replace(mc.group(0), (toReplace != null ? toReplace.trim() : ""));
+			}
+		}
+		catch (final ScriptException e) {
+			e.printStackTrace();
+			return null;
+		}
 		
 		Pattern p;
 		if (!useRecursion) {
@@ -221,16 +294,63 @@ public class TestScriptInterpreter {
 	 * @return
 	 * @throws ScriptException
 	 */
-	private static Object eval(String[] args, Hstore hstore, Object object) throws ScriptException {
+	private static Object eval(String[] args, Hstore hstore, AbstractResult<?> object) throws ScriptException {
 		try {
-			HstoreParser<?> parser = hstore.getParser(object.getClass());
-			Bindings bindings = new SimpleBindings(parser.getValueMap(object));
-			jsEngine.eval(args[0], bindings);
-			Object result = bindings.get("result");
-			return result == null ? "" : result;
+			boolean isJsObject = false;
+			
+			final Bindings bindings = jsEngine.createBindings();
+			bindings.putAll(object.getResultMap());
+			//final Bindings bindings = new SimpleBindings(object.getResultMap());
+			
+			//System.out.println(object.getResultMap().toString());
+			jsEngine.eval("var result=null; " + args[0], bindings);
+			
+			EvalResult evalResult = null;
+			final Object result = bindings.get("result");
+			
+			if (result != null) {
+				if (jsEngine.getClass().getCanonicalName().equals("jdk.nashorn.api.scripting.NashornScriptEngine")) {
+					if (result.getClass().getCanonicalName().equals("jdk.nashorn.api.scripting.ScriptObjectMirror")) {
+						isJsObject = true;
+					}
+				}
+				else {
+					if (result.getClass().getCanonicalName().equals("sun.org.mozilla.javascript.NativeObject") 
+							|| result.getClass().getCanonicalName().equals("sun.org.mozilla.javascript.internal.NativeObject")) {
+						isJsObject = true;
+					}
+				}
+			}
+			
+			if (isJsObject) {
+				if (!alredayLookedForGetter && jsEngineNativeObjectGetter == null) {
+					alredayLookedForGetter = true;
+					System.out.println("js getter is null, trying to get methody with reflections...");
+					try {
+						jsEngineNativeObjectGetter = result.getClass().getMethod("get", Object.class);
+						System.out.println("method found: " + jsEngineNativeObjectGetter.getName());						
+					}
+					catch (Exception e) {
+						System.out.println("method not found: " + e.getMessage());
+					}
+				}
+				
+				if (jsEngineNativeObjectGetter != null) {
+					final String type = (String) jsEngineNativeObjectGetter.invoke(result, "type");
+					final String key = (String) jsEngineNativeObjectGetter.invoke(result, "key");
+					
+					System.out.println(type + " " + key);
+					
+					evalResult = new EvalResult(EvalResultType.valueOf(type.toUpperCase(Locale.US)), key);
+					
+					//System.out.println("Result: " + evalResult);
+				}
+			}
+			
+			return evalResult == null ? (result == null ? "" : result) : evalResult;
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ScriptException(e.getMessage());
+			throw new ScriptException(e.getMessage() + " " + args[0]);
 		}
 	}
 	
@@ -308,6 +428,7 @@ public class TestScriptInterpreter {
 						format.setMaximumFractionDigits(precision);
 						format.setGroupingUsed(groupingUsed);
 						format.setRoundingMode(RoundingMode.HALF_UP);
+						//System.out.println("Converting number: " + args[0] + "=" + String.valueOf(value));
 						BigDecimal number = new BigDecimal(String.valueOf(value));
 						return format.format(number.divide(new BigDecimal(divisor)));
 					}
@@ -325,5 +446,56 @@ public class TestScriptInterpreter {
 		}
 		
 		return null;
+	}
+	
+	public static boolean controlIf(String clause, AbstractResult<?> object) throws ScriptException {
+		final Bindings bindings = new SimpleBindings(object.getResultMap());
+		try {
+			final Object result = jsEngine.eval(clause, bindings);
+			return Boolean.parseBoolean(result.toString());
+			
+		} catch (javax.script.ScriptException e) {
+			throw new ScriptException(ScriptException.ERROR_UNKNOWN + " IF: " + e.getMessage());
+		}
+	}
+	
+	public static String controlSwitch(String clause, AbstractResult<?> object, String switchBody) throws ScriptException {		
+		final Bindings bindings = new SimpleBindings(object.getResultMap());
+		Object result = null;
+		try {
+			result = jsEngine.eval(clause, bindings);
+		} catch (javax.script.ScriptException e) {
+			throw new ScriptException(ScriptException.ERROR_UNKNOWN + " SWITCH: " + e.getMessage());
+		}
+		
+		try {
+			if (result != null) {
+				final String switchCase = result.toString();
+				final Matcher m = PATTERN_CONTROL_SWITCH.matcher(switchBody);
+				while (m.find()) {
+					final String caseOption = jsEngine.eval(m.group(2), bindings).toString(); 
+					if ((m.group(1).equals("CASE") && switchCase.equals(caseOption)) || m.group(1).equals("DEFAULT")) {
+						return m.group(3);
+					}
+				}
+			}
+		} catch (javax.script.ScriptException e) {
+			throw new ScriptException(ScriptException.ERROR_UNKNOWN + " CASE: " + e.getMessage());
+		}
+		
+		return "";
+	}
+	
+	public static Map<String, Object> jsonToMap(final JSONObject json) {
+		@SuppressWarnings("unchecked")
+		final Iterator<String> jsonKeys = json.keys();
+		final Map<String, Object> map = new HashMap<>();
+		
+		while (jsonKeys.hasNext()) {
+			final String jsonKey = jsonKeys.next();
+			map.put(jsonKey, json.opt(jsonKey));
+		}
+		
+		return map;
 	}
 }

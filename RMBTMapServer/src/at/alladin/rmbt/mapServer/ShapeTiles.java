@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2015 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -94,7 +94,7 @@ public class ShapeTiles extends TileRestlet<ShapeTileParameters>
                     + " count(\"%1$s\") count,"
                     + " quantile(\"%1$s\",?) val" 
                     + " FROM box, plz2001 p" 
-                    + " JOIN v_test t ON t.zip_code=p.plz_4"
+                    + " JOIN v_test2 t ON t.zip_code=p.plz_4"
                     + " WHERE" + " %2$s" 
                     + " AND p.the_geom && box.box" 
                     + " AND ST_intersects(p.the_geom, box.box)"
@@ -110,7 +110,7 @@ public class ShapeTiles extends TileRestlet<ShapeTileParameters>
                     + " count(\"%1$s\") count,"
                     + " quantile(\"%1$s\",?) val" 
                     + " FROM box, kategorisierte_gemeinden p" 
-                    + " JOIN v_test t ON t.gkz=p.gemeinde_i"
+                    + " JOIN v_test2 t ON t.gkz=p.gemeinde_i"
                     + " WHERE" + " %2$s" 
                     + " AND p.the_geom && box.box" 
                     + " AND ST_intersects(p.the_geom, box.box)"

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright 2013, 2014 alladin-IT GmbH
+  Copyright 2013, 2015 alladin-IT GmbH
   
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -102,9 +102,12 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="5"
-            android:gravity="right"
+            android:gravity="end"
             android:orientation="vertical"
-            android:paddingRight="10dp" >
+            android:paddingRight="0dp"
+            android:paddingLeft="0dp"
+            android:paddingStart="0dp"
+            android:paddingEnd="0dp" >
 
             <TextView
                 android:id="@+id/info_signal_strength_extra"

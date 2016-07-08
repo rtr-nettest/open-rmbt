@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2015 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,21 @@
 package at.alladin.rmbt.android.test;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-import net.measurementlab.ndt.NdtTests;
 import android.content.Context;
+import android.content.Intent;
 import android.location.Location;
 import android.os.Handler;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import at.alladin.rmbt.android.impl.TracerouteAndroidImpl;
 import at.alladin.rmbt.android.util.Config;
 import at.alladin.rmbt.android.util.ConfigHelper;
 import at.alladin.rmbt.android.util.InformationCollector;
@@ -43,16 +46,32 @@ import at.alladin.rmbt.client.ndt.NDTRunner;
 import at.alladin.rmbt.client.v2.task.QoSTestEnum;
 import at.alladin.rmbt.client.v2.task.result.QoSResultCollector;
 import at.alladin.rmbt.client.v2.task.result.QoSTestResultEnum;
+import at.alladin.rmbt.client.v2.task.service.TestMeasurement;
 import at.alladin.rmbt.client.v2.task.service.TestSettings;
+import at.alladin.rmbt.client.v2.task.service.TrafficService;
+import at.alladin.rmbt.util.model.shared.exception.ErrorStatus;
+import net.measurementlab.ndt.NdtTests;
 
 public class RMBTTask
 {
     private static final String LOG_TAG = "RMBTTask";
+
+    public static enum RMBTTaskError {
+    	NONE,
+    	CONNECTION_ERROR,
+    	SPEEDTEST_ERROR,
+    	QOS_ERROR,
+    	OTHER
+    }
+    
+    public static final String BROADCAST_TEST_REQUEST = "at.alladin.rmbt.android.test.RMBTTask.testRequest";
+    public static final String BROADCAST_TEST_START = "at.alladin.rmbt.android.test.RMBTTask.testStart";
     
     private final AtomicBoolean started = new AtomicBoolean();
     private final AtomicBoolean running = new AtomicBoolean();
     private final AtomicBoolean finished = new AtomicBoolean();
     private final AtomicBoolean cancelled = new AtomicBoolean();
+    private final AtomicReference<RMBTTaskError> error = new AtomicReference<RMBTTask.RMBTTaskError>(RMBTTaskError.NONE);
     
     private final AtomicReference<QualityOfServiceTest> qosReference = new AtomicReference<QualityOfServiceTest>();
     
@@ -77,6 +96,9 @@ public class RMBTTask
     private final ExecutorService executor = Executors.newCachedThreadPool();
     
     private final AtomicBoolean connectionError = new AtomicBoolean();
+    
+    private final AtomicReference<Set<ErrorStatus>> errorStatusList = new AtomicReference<Set<ErrorStatus>>();
+    
     private RMBTClient client;
     
     private InformationCollector fullInfo;
@@ -85,7 +107,7 @@ public class RMBTTask
     
     interface EndTaskListener
     {
-        public void taskEnded();
+        public void taskEnded(final int...flag);
     }
     
     public RMBTTask(final Context ctx)
@@ -175,7 +197,9 @@ public class RMBTTask
     {
         try
         {
-            boolean error = false;
+        	context.sendBroadcast(new Intent(BROADCAST_TEST_REQUEST));
+            boolean hasError = false;
+
             connectionError.set(false);
         	TestResult result = null;
         	QoSResultCollector qosResult = null;
@@ -190,9 +214,15 @@ public class RMBTTask
                 
                 final ArrayList<String> geoInfo = fullInfo.getCurLocation();
                 
+                final Set<ErrorStatus> errorSet = new HashSet<ErrorStatus>();
                 client = RMBTClient.getInstance(controlServer, null, controlPort, controlSSL, geoInfo, uuid,
                         Config.RMBT_CLIENT_TYPE, Config.RMBT_CLIENT_NAME,
-                        fullInfo.getInfo("CLIENT_SOFTWARE_VERSION"), null, fullInfo.getInitialInfo());
+                        fullInfo.getInfo("CLIENT_SOFTWARE_VERSION"), null, fullInfo.getInitialInfo(), errorSet);
+                
+                if (errorSet.size() > 0) { 
+                	System.out.println(errorSet);
+                	errorStatusList.set(errorSet);
+                }
                 
                 if (client != null)
                 {
@@ -200,18 +230,19 @@ public class RMBTTask
                     final ControlServerConnection controlConnection = client.getControlConnection();
                     if (controlConnection != null)
                     {
-                        fullInfo.setUUID(controlConnection.getClientUUID());
-                        fullInfo.setTestServerName(controlConnection.getServerName());
+                   		fullInfo.setUUID(controlConnection.getClientUUID());
+                   		fullInfo.setTestServerName(controlConnection.getServerName());
                     }
                 }
             }
             catch (final Exception e)
             {
                 e.printStackTrace();
-                error = true;
+                hasError = true;
             }
             
-            if (error || client == null) {
+            if (hasError || client == null) {
+            	error.set(RMBTTaskError.CONNECTION_ERROR);
                 connectionError.set(true);
             }
             else
@@ -224,14 +255,16 @@ public class RMBTTask
                     	if (Thread.interrupted() || cancelled.get())
                     	    throw new InterruptedException();
                     	Log.d(LOG_TAG, "runTest RMBTTask="+this);
+                    	context.sendBroadcast(new Intent(BROADCAST_TEST_START));
                         result = client.runTest();
                     	final ControlServerConnection controlConnection = client.getControlConnection();
                     	
                         if (result != null && ! fullInfo.getIllegalNetworkTypeChangeDetcted()) {
                             client.sendResult(fullInfo.getResultValues(controlConnection.getStartTimeNs()));
+                            
                         }
                         else {
-                            error = true;
+                            hasError = true;
                         }
                     }
                     catch (final Exception e)
@@ -246,7 +279,11 @@ public class RMBTTask
                 else
                 {
                     System.err.println(client.getErrorMsg());
-                    error = true;
+                    hasError = true;
+                }
+                
+                if (hasError) {
+                	error.set(RMBTTaskError.SPEEDTEST_ERROR);
                 }
                 
                 //client.shutdown();
@@ -257,12 +294,13 @@ public class RMBTTask
                 boolean runQoS = (! ConfigHelper.isSkipQoS(context) && client.getTaskDescList() != null && client.getTaskDescList().size() >= 1);
                     
                 //run qos test:
-                if (runQoS && !error && !cancelled.get()) {
+                if (runQoS && !hasError && !cancelled.get()) {
 					try {
 						
 					    TestSettings qosTestSettings = new TestSettings();
 			            qosTestSettings.setCacheFolder(context.getCacheDir());
 					    qosTestSettings.setWebsiteTestService(new WebsiteTestServiceImpl(context));
+					    qosTestSettings.setTracerouteServiceClazz(TracerouteAndroidImpl.class);
 					    qosTestSettings.setTrafficService(new TrafficServiceImpl());
 						qosTestSettings.setStartTimeNs(getRmbtClient().getControlConnection().getStartTimeNs());
 						qosTestSettings.setUseSsl(ConfigHelper.isQoSSeverSSL(context));
@@ -281,7 +319,8 @@ public class RMBTTask
                     	
 					} catch (Exception e) {
 						e.printStackTrace();
-						error = true;
+						hasError = true;
+						error.set(RMBTTaskError.QOS_ERROR);
 					}                            	                    	
                 }
                 
@@ -308,7 +347,12 @@ public class RMBTTask
                 {
                     final TestStatus status = client.getStatus();
                     if (! (status == TestStatus.ABORTED || status == TestStatus.ERROR))
+                    {
                         client.setStatus(TestStatus.END);
+                    }
+                    else {
+                    	error.set(RMBTTaskError.OTHER);
+                    }
                 }
             }
             catch (Exception e)
@@ -476,6 +520,14 @@ public class RMBTTask
         return connectionError.get();
     }
     
+    public boolean isCancelled() {
+    	return cancelled.get();
+    }
+    
+    public RMBTTaskError getError() {
+    	return error.get();
+    }
+    
     public String getOperatorName()
     {
         if (fullInfo != null)
@@ -534,7 +586,38 @@ public class RMBTTask
             return 0;
     }
     
+    public long getStartTimeMillis() {
+    	return client != null ? client.getStartTimeMillis() : 0;
+    }
+    
     public RMBTClient getRmbtClient() {
     	return client;
     }
+    
+    public TrafficService getSpeedTestTrafficService() {
+    	if (client != null) {
+    		return client.getTrafficService();
+    	}
+    	return null;
+    }
+
+    public TrafficService getQoSTrafficService() {
+    	if (qosReference.get() != null) {
+    		return qosReference.get().getTestSettings().getTrafficService();
+    	}
+    	return null;
+    }
+    
+    public Map<TestStatus, TestMeasurement> getTrafficMeasurementMap() {
+    	if (client != null) return client.getTrafficMeasurementMap();
+    	return null;
+    }
+    
+    public InformationCollector getInformationCollector() {
+    	return fullInfo;
+    }
+
+	public Set<ErrorStatus> getErrorStatusList() {
+		return errorStatusList.get();
+	}
 }

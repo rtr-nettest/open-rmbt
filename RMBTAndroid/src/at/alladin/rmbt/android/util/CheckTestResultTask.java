@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,13 @@ package at.alladin.rmbt.android.util;
 
 import org.json.JSONArray;
 
+import android.content.Context;
 import android.os.AsyncTask;
-import at.alladin.rmbt.android.main.RMBTMainActivity;
 
 public class CheckTestResultTask extends AsyncTask<String, Void, JSONArray>
 {
     
-    private final RMBTMainActivity activity;
+    private final Context context;
     
     private JSONArray resultList;
     
@@ -33,16 +33,16 @@ public class CheckTestResultTask extends AsyncTask<String, Void, JSONArray>
     
     private boolean hasError = false;
     
-    public CheckTestResultTask(final RMBTMainActivity activity2)
+    public CheckTestResultTask(final Context context)
     {
-        this.activity = activity2;
+        this.context = context;
         
     }
     
     @Override
     protected JSONArray doInBackground(final String... uid)
     {
-        serverConn = new ControlServerConnection(activity.getApplicationContext());
+        serverConn = new ControlServerConnection(context);
         
         if (uid != null && uid[0] != null)
         {
@@ -54,16 +54,6 @@ public class CheckTestResultTask extends AsyncTask<String, Void, JSONArray>
         }
         
         return resultList;
-    }
-    
-    @Override
-    protected void onCancelled()
-    {
-        if (serverConn != null)
-        {
-            serverConn.unload();
-            serverConn = null;
-        }
     }
     
     @Override

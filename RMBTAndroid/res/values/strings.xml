@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright 2013-2015 alladin-IT GmbH
+  Copyright 2013-2016 alladin-IT GmbH
   
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@
     
     <string name="preferences">Settings</string>
     
-    <string name="preferences_category_test">Preferences</string>
+    <string name="preferences_category_test">Test settings</string>
     
     <string name="preferences_location_settings">Location</string>
     <string name="preferences_location_settings_sum">Change location settings</string>
@@ -42,22 +42,22 @@
     <string name="preferences_skip_qos">Skip QoS</string>
     <string name="preferences_skip_qos_sum">Skip QoS tests</string>
     
-    <string name="preferences_loop_mode">Loop</string>
-    <string name="preferences_loop_mode_sum">Test will run in a loop mode</string>
+    <string name="preferences_loop_mode">Loop mode</string>
+    <string name="preferences_loop_mode_sum">New tests are started when waiting time has elapsed or distance is covered.</string>
     
-    <string name="preferences_loop_mode_max_tests">Loop max tests</string>
-    <string name="preferences_loop_mode_max_tests_sum">Maximum number of tests to run if loop mode is active (0 = run forever)</string>
+    <string name="preferences_loop_mode_max_tests">Number of tests</string>
+    <string name="preferences_loop_mode_max_tests_sum">Number of tests in loop mode</string>
     
-    <string name="preferences_loop_mode_min_delay">Loop min delay</string>
-    <string name="preferences_loop_mode_min_delay_sum">Minimum time in seconds between two tests if loop mode is active</string>
+    <string name="preferences_loop_mode_min_delay">Minimum waiting time</string>
+    <string name="preferences_loop_mode_min_delay_sum">Minimum waiting time (in seconds) between two tests in loop mode</string>
     
-    <string name="preferences_loop_mode_max_delay">Loop max delay</string>
-    <string name="preferences_loop_mode_max_delay_sum">Maximum time in seconds between two tests if loop mode is active</string>
+    <string name="preferences_loop_mode_max_delay">Waiting time</string>
+    <string name="preferences_loop_mode_max_delay_sum">Waiting time (in minutes) between two tests in loop mode</string>
     
-    <string name="preferences_loop_mode_movement">Loop movement</string>
-    <string name="preferences_loop_mode_movement_sum">Movement in meters after which a test in loop mode is triggered</string>
+    <string name="preferences_loop_mode_movement">Distance</string>
+    <string name="preferences_loop_mode_movement_sum">Distance (in meters) between two tests in loop mode</string>
     
-    <string name="preferences_loop_mode_gps">Use GPS when loop mode is active</string>
+    <string name="preferences_loop_mode_gps">Use GPS in loop mode</string>
     <string name="preferences_loop_mode_gps_sum">Use GPS between two tests in loop mode</string>
     
     <string name="preferences_loop_mode_wake_lock">Loop WakeLock</string>
@@ -69,8 +69,10 @@
     <string name="preferences_ipv4_only">IPv4 only</string>
     <string name="preferences_ipv4_only_sum">Never use IPv6</string>
     
-    <string name="preferences_category_developer">DEVELOPMENT</string>
-    <string name="preferences_category_loop_mode">Loop mode</string>
+    <string name="preferences_category_developer">Development</string>
+    <string name="preferences_category_loop_mode">Loop mode settings</string>
+    <string name="preferences_category_dev_loop_mode" translatable="false" >Developer loop mode settings</string>
+    <string name="preferences_category_loop_mode_heading">Loop mode</string>
     <string name="preferences_category_developer_control_server">Control server</string>
     <string name="preferences_category_developer_map_server">Map server</string>
     <string name="preferences_category_developer_qos_server">QoS server</string>
@@ -107,6 +109,7 @@
     <string name="preferences_dev_debug_sysout_sum" >Stores error output in a text file located in the "qosdebug" folder</string>
 
     <string name="menu_button_start">START</string>
+    <string name="menu_button_loop">LOOP</string>
     <string name="menu_button_title_page">Home</string>
     <string name="menu_button_map">Map</string>
     <string name="menu_button_history">History</string>
@@ -138,11 +141,18 @@
     <string name="about_gms_legal_line1">Google Play Services Legal Notice</string>
     <string name="about_test_counter_title">Test Counter</string>
     
-   	<string name="about_developer_feature_dialog_title" translatable="false">Code</string>	
-    <string name="about_developer_feature_dialog_enter_code" translatable="false">Please enter the code:</string>
-    <string name="about_developer_feature_dialog_msg_deactivated" translatable="false">Deactivated.</string>
-    <string name="about_developer_feature_dialog_msg_activated" translatable="false">Activated.</string>
-    <string name="about_developer_feature_dialog_msg_try_again" translatable="false">Try again!</string>
+   	<string name="about_hidden_feature_dialog_title">Code</string>	
+    <string name="about_hidden_feature_dialog_enter_code">Please enter the code:</string>
+    <string name="about_hidden_feature_dialog_msg_deactivated">Deactivated.</string>
+    <string name="about_hidden_feature_dialog_msg_activated">Activated.</string>
+    <string name="about_loop_mode_activated">Loop mode available.</string>
+    <string name="about_loop_mode_deactivated">Loop mode removed.</string>
+    <string name="about_server_selection_activated">Server selection available.</string>
+    <string name="about_server_selection_deactivated">Server selection removed.</string>
+    <string name="about_hidden_feature_dialog_msg_try_again">Try again!</string>
+    <string name="about_dev_mode_activated">Developer options available.</string>
+    <string name="about_dev_mode_deactivated">Developer options removed.</string>
+    
     
     <string name="terms">Privacy Policy and Terms of Use</string>
     
@@ -154,10 +164,14 @@
     <string name="terms_ndt_accept_text"><b>I wish to run the optional NDT-Test.</b></string>
     <string name="terms_ndt_back_button">Back</string>
     <string name="terms_ndt_accept_button">Continue</string>
+    <string name="terms_loop_mode">Loop mode</string>
+    <string name="terms_loop_mode_header">Loop mode activation</string>
+    <string name="terms_loop_mode_accept_text"><b>I wish to enable the loop mode.</b></string>
     
     <string name="loop_notification_ticker">Loop mode is active…</string>
     <string name="loop_notification_title">Loop mode is active</string>
     <string name="loop_notification_text">{0}x; {1}s; {2}m; Touch to stop Loop mode.</string>
+    <string name="loop_notification_text_without_stop">{0}x; {1}; {2}m;</string>
     
     <string name="loop_started">Loop mode started.</string>
     <string name="loop_already_active">Loop mode is already active.</string>
@@ -198,7 +212,7 @@
 	<string name="history_filter_networks">NETWORK TYPE</string>
 	<string name="history_filter_devices">DEVICE</string>
 	<string name="history_filter_result_number">NUMBER OF RESULTS</string>
-	<string name="history_filter_result_number_25">Show only the 25 newest results</string>
+	<string name="history_filter_result_number_25">Show only the 250 newest results</string>
 	
 	<string name="result_measurement">MEASUREMENT</string>
 	<string name="result_net">NETWORK</string>
@@ -224,23 +238,6 @@
 	
 	<!-- Map -->
 	<string name="map_filter_header">MAP FILTER</string>
-	<string name="map_choose_header">CHOOSE MAP</string>
-	
-	<string name="map_appearance_header">MAP APPEARANCE</string>
-	<string name="map_appearance_nosat_title">Normal View</string>
-	<string name="map_appearance_nosat_summary">Map shows normal view</string>
-	<string name="map_appearance_sat_title">Satellite View</string>
-	<string name="map_appearance_sat_summary">Map shows satellite view</string>
-	
-	<string name="map_overlay_header">MAP OVERLAY</string>
-	<string name="map_overlay_auto_title">Automatic</string>
-	<string name="map_overlay_auto_summary">Map switches automatically between heatmap and points</string>
-	<string name="map_overlay_heatmap_title">Heatmap</string>
-	<string name="map_overlay_heatmap_summary">Map shows tests as heatmap</string>
-	<string name="map_overlay_points_title">Points</string>
-	<string name="map_overlay_points_summary">Map shows tests as points</string>
-	<string name="map_overlay_shapes_title">Shapes</string>
-	<string name="map_overlay_shapes_summary">Map shows tests as postal code shapes</string>
 	
 	<string name="map_balloon_overlay_header">MEASUREMENTS</string>
 	
@@ -276,12 +273,7 @@
     <string name="preferences_dont_show_menu_on_exit_sum">Don\'t show application menu before closing it.</string>
 	
 	<string name="term_signal">Signal</string>
-	
-	<string name="result_page_title_qos">QoS</string>
-	<string name="result_page_title_test">Details</string>
-	<string name="result_page_title_menu">Result</string>
-	<string name="result_page_title_graph">Graph</string>
-	<string name="result_page_title_map">Location</string>
+    <string name="term_signal_quality">Quality</string>	
 		
 	<string-array name="result_page_title">
 	  	<item>@string/result_page_title_menu</item>
@@ -291,16 +283,19 @@
 	    <item>@string/result_page_title_map</item>
 	</string-array>
 	
-	<string name="qos_test_name_website">Reference web page</string>
+	<string name="result_page_title_qos">QoS</string>
+    <string name="result_page_title_test">Details</string>
+    <string name="result_page_title_menu">Result</string>
+    <string name="result_page_title_graph">Graph</string>
+    <string name="result_page_title_map">Location</string>
+	
+    <string name="qos_test_name_website">Web page</string>
 	<string name="qos_test_name_http_proxy">Unmodified content</string>
 	<string name="qos_test_name_non_transparent_proxy">Transparent connection</string>
 	<string name="qos_test_name_dns">DNS</string>
 	<string name="qos_test_name_tcp">TCP ports</string>	
 	<string name="qos_test_name_udp">UDP ports</string>
-	
-	<string name="qos_test_result_error">Error</string>
-	<string name="qos_test_result_all">Results</string>
-	
+    
 	<string name="result_details_qos_failure">FAILED</string>
 	<string name="result_details_qos_success">SUCCEEDED</string>
 	<string name="result_details_qos_info">ADDITIONAL RESULTS</string>
@@ -332,16 +327,18 @@
 	
 	<string name="title_screen_ipv4">IPv4</string>
 	<string name="title_screen_ipv6">IPv6</string>
-	<string name="title_screen_traffic">Background traffic</string>
+	<string name="title_screen_ipv4_overlay">Internet address (v4)</string>
+	<string name="title_screen_ipv6_overlay">Internet address (v6)</string>
+	<string name="title_screen_traffic">Current data traffic</string>
 	<string name="title_screen_network_id">Network ID:</string>
 	
 	<string name="title_screen_info_overlay_location">Location</string>
-	<string name="title_screen_info_overlay_ipv4_public">Public IPv4</string>
-	<string name="title_screen_info_overlay_ipv4_private">Private IPv4</string>
-	<string name="title_screen_info_overlay_ipv6_public">Public IPv6</string>
-	<string name="title_screen_info_overlay_ipv6_private">Private IPv6</string>
-	<string name="title_screen_info_overlay_ul_traffic">Upload traffic</string>
-	<string name="title_screen_info_overlay_dl_traffic">Download traffic</string>
+	<string name="title_screen_info_overlay_ipv4_public">Pubilc address</string>
+	<string name="title_screen_info_overlay_ipv4_private">Local address</string>
+	<string name="title_screen_info_overlay_ipv6_public">Public address</string>
+	<string name="title_screen_info_overlay_ipv6_private">Local address</string>
+	<string name="title_screen_info_overlay_ul_traffic">Upload rate</string>
+	<string name="title_screen_info_overlay_dl_traffic">Download rate</string>
 	<string name="title_screen_info_overlay_control_server_conn">ControlServer connection</string>
 	<string name="title_screen_info_overlay_captive_portal_status">Captive portal</string>
 	<string name="title_screen_info_overlay_is_loopback">Is loopback</string>
@@ -352,6 +349,7 @@
 	<string name="title_screen_info_overlay_location_altitude">Altitude</string>
 	<string name="title_screen_info_overlay_location_age">Age</string>
 	<string name="title_screen_empty" translatable="false"></string>
+	<string name="title_screen_developer" translatable="false">dev"</string>
 	
 		
 	<string name="captive_portal_found">found</string>
@@ -365,4 +363,59 @@
 	<string name="test_label_quality_test">Quality test</string>
 	
 	<string name="server_selection">Server selection</string>
+	
+	<string name="permission_telephony_dialog_title">Permission required</string>
+	<string name="permission_telephony_dialog_text">The permission READ_PHONE_STATE is required for the correct identification of network settings of dual-SIM devices.</string>
+	
+	<string name="value_invalid">Invalid value</string>
+	
+	<!-- new LOOP MODE -->
+		
+	<string name="loop_mode_max_delay_invalid">Invalid maximum delay. Please choose a number between {0,number,#} and {1,number,#}.</string>
+	<string name="loop_mode_max_movement_invalid">Invalid maximum distance. Please choose a number between {0,number,#} and {1,number,#}.</string>
+	<string name="loop_mode_max_tests_invalid">Invalid number of tests. Please choose a number between {0,number,#} and {1,number,#}.</string>
+	<string name="loop_mode_max_test">Number of tests</string>
+	<string name="loop_mode_info">You are about to start tests in loop mode. The distance is set to {0,number,#} meters. The waiting time is {1,number,#} minutes.</string>
+	
+    <string name="loop_mode_test_dialog_abort">Do you really want to stop the loop mode?</string>
+
+    <string name="loop_notification_finished_ticker">Loop mode is finished. No more tests will be run.</string>
+    <string name="loop_notification_finished_title">Loop mode is finished</string>
+    
+    <string name="loop_test_last_status_ok">Last test: successful</string>
+    <string name="loop_test_last_status_error">Last test: error</string>
+	<string name="loop_test_last_status_rejected">Last test: rejected</string>
+    
+    <string name="loop_test_measurement">Measurement</string>
+    <string name="loop_test_current">Current</string>
+    <string name="loop_test_last">Last test</string>
+    <string name="loop_test_median">Median</string>
+    
+    <string name="loop_test_progress_test_running">Test running</string>
+    <string name="loop_test_progress_test_waiting">Waiting</string>
+    <string name="loop_test_progress_test_finished">Finished</string>
+    <string name="loop_test_progress_test_not_running">Loop mode test</string>
+
+    <string name="loop_test_quit">Quit</string>
+    
+    <string name="lm_measurement_ping">Ping (ms)</string>
+    <string name="lm_measurement_down">Down (Mbps)</string>
+    <string name="lm_measurement_up">Up (Mbps)</string>
+    <string name="lm_measurement_qos">QoS</string>
+    
+    <string name="lm_measurement_server">Server</string>
+    <string name="lm_measurement_ip">Client IP</string>
+    <string name="lm_measurement_data_usage">Data usage</string>
+    <string name="lm_measurement_movement">Movement</string>
+    <string name="lm_measurement_delay">Waiting time</string>
+    
+    <string name="lm_details_access">Access</string>
+    <string name="lm_details_network_id">Network</string>
+	<string name="lm_details_signal">Signal</string>
+    <string name="lm_details_gps">Location</string>
+    <string name="lm_details_gps_accuracy">Accuracy</string>
+        	
+	<string name="go">Start tests</string>
+	<string name="go_to_settings">Change settings</string>	
 </resources>
+

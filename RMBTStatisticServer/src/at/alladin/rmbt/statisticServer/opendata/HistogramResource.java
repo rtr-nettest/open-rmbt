@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2015 alladin-IT GmbH
+ * Copyright 2015, 2016 Thomas Schreiber
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,8 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-/*
- */
 package at.alladin.rmbt.statisticServer.opendata;
 
 import at.alladin.rmbt.shared.cache.CacheHelper;
@@ -284,9 +282,6 @@ public class HistogramResource extends ServerResource{
     	long upperBound = new BigDecimal(max).setScale(-digits, BigDecimal.ROUND_CEILING).longValue();
     	long lowerBound = new BigDecimal(min).setScale(-digits, BigDecimal.ROUND_FLOOR).longValue();
     	double step = ((double) (upperBound-lowerBound))/((double)HISTOGRAMCLASSES);
-    	
-        //@TODO: allow otherwise
-        boolean excludeImplausible = true;
         
         
     	System.out.println("lower: " + lowerBound + ", upper: " + upperBound + ", digits: " + digits + ", diff: " + difference + ", step: " + step);
@@ -304,7 +299,6 @@ public class HistogramResource extends ServerResource{
 				+ " LEFT JOIN provider mprov ON mobile_provider_id = mprov.uid"
 				+ " where " + field + " > 0 " 
 				+ " AND t.deleted = false"
-				+ ((excludeImplausible) ? " AND implausible = false" : "")
 				+ " AND status = 'FINISHED' " + qp.getWhereClause("AND") 
 				+ " group by bucket " + "order by bucket asc;";
     	

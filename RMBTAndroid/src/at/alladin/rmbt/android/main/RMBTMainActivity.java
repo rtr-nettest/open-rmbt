@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2015 alladin-IT GmbH
+ * Copyright 2015, 2016 alladin-IT GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,12 +48,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import android.app.ActionBar;
-import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentManager.BackStackEntry;
-import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -74,6 +71,12 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentManager.BackStackEntry;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -98,13 +101,16 @@ import at.alladin.rmbt.android.fragments.result.QoSTestDetailPagerFragment;
 import at.alladin.rmbt.android.fragments.result.RMBTResultPagerFragment;
 import at.alladin.rmbt.android.fragments.result.RMBTTestResultDetailFragment;
 import at.alladin.rmbt.android.help.RMBTHelpFragment;
+import at.alladin.rmbt.android.loopmode.LoopModeStartFragment;
+import at.alladin.rmbt.android.loopmode.LoopModeTestFragment;
 import at.alladin.rmbt.android.map.MapListEntry;
 import at.alladin.rmbt.android.map.MapListSection;
 import at.alladin.rmbt.android.map.MapProperties;
 import at.alladin.rmbt.android.map.RMBTMapFragment;
 import at.alladin.rmbt.android.preferences.RMBTPreferenceActivity;
 import at.alladin.rmbt.android.sync.RMBTSyncFragment;
-import at.alladin.rmbt.android.terms.RMBTNDTCheckFragment;
+import at.alladin.rmbt.android.terms.RMBTCheckFragment;
+import at.alladin.rmbt.android.terms.RMBTCheckFragment.CheckType;
 import at.alladin.rmbt.android.terms.RMBTTermsCheckFragment;
 import at.alladin.rmbt.android.test.RMBTLoopService;
 import at.alladin.rmbt.android.test.RMBTService;
@@ -119,6 +125,7 @@ import at.alladin.rmbt.android.util.EndTaskListener;
 import at.alladin.rmbt.android.util.GeoLocation;
 import at.alladin.rmbt.android.util.GetMapOptionsInfoTask;
 import at.alladin.rmbt.android.util.Helperfunctions;
+import at.alladin.rmbt.android.util.PermissionHelper;
 import at.alladin.rmbt.android.util.net.NetworkInfoCollector;
 import at.alladin.rmbt.client.v2.task.result.QoSServerResult;
 import at.alladin.rmbt.client.v2.task.result.QoSServerResult.DetailType;
@@ -127,14 +134,12 @@ import at.alladin.rmbt.client.v2.task.result.QoSServerResultDesc;
 import at.alladin.rmbt.util.model.option.OptionFunctionCallback;
 import at.alladin.rmbt.util.model.option.ServerOptionContainer;
 
-import com.google.android.gms.maps.model.LatLng;
-
 /**
  * 
  * @author
  * 
  */
-public class RMBTMainActivity extends Activity implements MapProperties
+public class RMBTMainActivity extends FragmentActivity implements MapProperties, ActivityCompat.OnRequestPermissionsResultCallback
 {
 	/**
 	 * 
@@ -145,11 +150,11 @@ public class RMBTMainActivity extends Activity implements MapProperties
 	 * 
 	 */
     private static final String DEBUG_TAG = "RMBTMainActivity";
-    
+
     /**
 	 * 
 	 */
-    private FragmentManager fm;
+    private android.support.v4.app.FragmentManager fm;
     
     /**
 	 * 
@@ -397,7 +402,7 @@ public class RMBTMainActivity extends Activity implements MapProperties
         
         final String uuid = ConfigHelper.getUUID(getApplicationContext());
         
-        fm = getFragmentManager();
+        fm = getSupportFragmentManager();
         final Fragment fragment = fm.findFragmentById(R.id.fragment_content);
         if (! ConfigHelper.isTCAccepted(this))
         {
@@ -425,7 +430,8 @@ public class RMBTMainActivity extends Activity implements MapProperties
             }
         }
         
-        geoLocation = new MainGeoLocation(getApplicationContext());
+        if (PermissionHelper.checkAnyLocationPermission(this))
+            geoLocation = new MainGeoLocation(getApplicationContext());
         
         mNetworkStateChangedFilter = new IntentFilter();
         mNetworkStateChangedFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
@@ -457,8 +463,36 @@ public class RMBTMainActivity extends Activity implements MapProperties
     }
     
     @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
+    {
+        switch (requestCode)
+        {
+        case PermissionHelper.REQUEST_AT_INIT:
+            if (geoLocation == null)
+                geoLocation = new MainGeoLocation(getApplicationContext());
+            geoLocation.start();
+            checkSettings(true, null);
+            
+            
+            // reinit main menu fragment mainly to update location info
+            final FragmentTransaction ft;
+            ft = fm.beginTransaction();
+            ft.replace(R.id.fragment_content, new RMBTMainMenuFragment(), AppConstants.PAGE_TITLE_MAIN);
+            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+            //hack for v4 support library bug:
+            ft.commitAllowingStateLoss();
+            //ft.commit();
+            
+            return;
+        
+        case PermissionHelper.REQUEST_AT_TEST_START:
+            startTest();
+            return;
+        }
+    }
+    
+    @Override
     protected void onDestroy() {
-    	// TODO Auto-generated method stub
     	super.onDestroy();
     	ViewServer.get(this).removeWindow(this);
     }
@@ -581,7 +615,6 @@ public class RMBTMainActivity extends Activity implements MapProperties
     @Override
     protected void onSaveInstanceState(Bundle b)
     {
-        super.onSaveInstanceState(b);
         b.putSerializable("historyFilterDevices", historyFilterDevices);
         b.putSerializable("historyFilterNetworks", historyFilterNetworks);
         b.putSerializable("historyFilterDevicesFilter", historyFilterDevicesFilter);
@@ -595,7 +628,7 @@ public class RMBTMainActivity extends Activity implements MapProperties
         b.putSerializable("mapFilterListSectionListMap", mapFilterListSectionListMap);
         b.putSerializable("mapOptions", mapOptions);
         b.putSerializable("currentMapType", currentMapType);
-
+        super.onSaveInstanceState(b);
     }
     
     @Override
@@ -617,9 +650,8 @@ public class RMBTMainActivity extends Activity implements MapProperties
         registerReceiver(mNetworkStateIntentReceiver, mNetworkStateChangedFilter);
         // init location Manager
         
-        if (ConfigHelper.isTCAccepted(this) && ConfigHelper.isNDTDecisionMade(this)) {
+        if (ConfigHelper.isTCAccepted(this) && ConfigHelper.isNDTDecisionMade(this) && geoLocation != null)
             geoLocation.start();
-        }
         
         title = getTitle(getCurrentFragmentName());
         refreshActionBar(getCurrentFragmentName());
@@ -676,7 +708,8 @@ public class RMBTMainActivity extends Activity implements MapProperties
      * 
      */
     public void checkSettings(boolean force, final EndTaskListener endTaskListener)
-    {
+    {   
+    	Log.i(DEBUG_TAG,"checkSettings force="+force);
         if (settingsTask != null && settingsTask.getStatus() == AsyncTask.Status.RUNNING)
             return;
         
@@ -736,24 +769,58 @@ public class RMBTMainActivity extends Activity implements MapProperties
     }
     
    
-    /**
-     * 
-     * @param popStack
-     */
-    public void startTest(final boolean popStack)
+    public void checkPermissionsAndStartTest()
     {
-		if (networkInfoCollector != null) {
-			if (!networkInfoCollector.hasConnectionFromAndroidApi()) {
-				showNoNetworkConnectionToast();
-				return;
-			}
-		}
-
+        PermissionHelper.checkPermissionAtTestStartAndStartTest(this);
+    }
+    
+    public void startLoopTest() {
+    	startLoopService();
     	
-        final boolean loopMode = ConfigHelper.isLoopMode(this);
+        FragmentTransaction ft;
+        ft = fm.beginTransaction();
+        final LoopModeTestFragment rmbtTestFragment = new LoopModeTestFragment();
+        ft.replace(R.id.fragment_content, rmbtTestFragment, AppConstants.PAGE_TITLE_LOOP_TEST);
+        ft.addToBackStack(AppConstants.PAGE_TITLE_LOOP_TEST);
+        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        fm.popBackStack();
+        ft.commit();
+    }
+    
+    public void startLoopService() {
+    	ConfigHelper.setLoopModeTestCounter(this, 0);
+    	startService(new Intent(RMBTLoopService.ACTION_START, null, getApplicationContext(), RMBTLoopService.class));
+    }
+    
+    public void stopLoopService() {
+    	//stop loop service
+    	final Intent stopIntent = new Intent(getApplicationContext(), RMBTLoopService.class);
+    	stopIntent.setAction(RMBTLoopService.ACTION_STOP);
+    	startService(stopIntent);
+    	setHistoryDirty(true);
+    }
+    
+    public void startTest()
+    {
+        if (networkInfoCollector != null) {
+            if (!networkInfoCollector.hasConnectionFromAndroidApi()) {
+                showNoNetworkConnectionToast();
+                return;
+            }
+        }
+        
+        final boolean loopMode = ConfigHelper.isLoopMode(RMBTMainActivity.this);
         if (loopMode)
         {
-            startService(new Intent(this, RMBTLoopService.class));
+        	final LoopModeStartFragment f = LoopModeStartFragment.newInstance();
+        	final FragmentTransaction ft = fm.beginTransaction();
+        	ft.add(f, "loop_mode_start_dialog");
+        	ft.commitAllowingStateLoss();
+        	
+        	//doesn't work with v4 support lib:
+//        	f.setShowsDialog(true);
+//        	f.setCancelable(true);
+//        	f.show(getSupportFragmentManager(), "loop_mode_start_dialog");
         }
         else
         {
@@ -763,19 +830,24 @@ public class RMBTMainActivity extends Activity implements MapProperties
             ft.replace(R.id.fragment_content, rmbtTestFragment, AppConstants.PAGE_TITLE_TEST);
             ft.addToBackStack(AppConstants.PAGE_TITLE_TEST);
             ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-            if (popStack)
-                fm.popBackStack();
-            ft.commit();
+            //fix for v4 support lib:
+            ft.commitAllowingStateLoss();
+            //ft.commit();
             
-            final Intent service = new Intent(RMBTService.ACTION_START_TEST, null, this, RMBTService.class);
+            final Intent service = new Intent(RMBTService.ACTION_START_TEST, null, RMBTMainActivity.this, RMBTService.class);
             startService(service);
         }
     }
     
     private void showShareResultsIntent() {
     	Fragment f = getCurrentFragment();
-    	if (f != null && f instanceof RMBTResultPagerFragment) {
-    		((RMBTResultPagerFragment) f).getPagerAdapter().startShareResultsIntent();
+    	try {
+	    	if (f != null && f instanceof RMBTResultPagerFragment) {
+	    		((RMBTResultPagerFragment) f).getPagerAdapter().startShareResultsIntent();
+	    	}
+    	}
+    	catch (Exception e) {
+    		e.printStackTrace();
     	}
 	}
     
@@ -784,7 +856,7 @@ public class RMBTMainActivity extends Activity implements MapProperties
     	popBackStackFull();
     	
         final FragmentTransaction ft = fm.beginTransaction();
-        ft.replace(R.id.fragment_content, new RMBTTermsCheckFragment(), AppConstants.PAGE_TITLE_TERMS_CHECK);
+        ft.replace(R.id.fragment_content, RMBTTermsCheckFragment.newInstance(null), AppConstants.PAGE_TITLE_TERMS_CHECK);
         ft.commit();
     }
     
@@ -803,9 +875,16 @@ public class RMBTMainActivity extends Activity implements MapProperties
     public void showNdtCheck()
     {
         final FragmentTransaction ft = fm.beginTransaction();
+        
+        ft.replace(R.id.fragment_content, RMBTCheckFragment.newInstance(CheckType.NDT), AppConstants.PAGE_TITLE_NDT_CHECK);
+        ft.addToBackStack(AppConstants.PAGE_TITLE_NDT_CHECK);
+        ft.commit();
+        
+        /*
         ft.replace(R.id.fragment_content, new RMBTNDTCheckFragment(), "ndt_check");
         ft.addToBackStack("ndt_check");
         ft.commit();
+        */
     }
     
     public void showResultsAfterTest(String testUuid) {
@@ -817,7 +896,7 @@ public class RMBTMainActivity extends Activity implements MapProperties
         fragment.setArguments(args);
         
         
-        final FragmentManager fm = getFragmentManager();
+        final FragmentManager fm = getSupportFragmentManager();
         final FragmentTransaction ft;
         ft = fm.beginTransaction();
         ft.replace(R.id.fragment_content, fragment, AppConstants.PAGE_TITLE_HISTORY_PAGER);
@@ -844,6 +923,9 @@ public class RMBTMainActivity extends Activity implements MapProperties
         waitForSettings(true, false, false);
         //fetchMapOptions();
         historyResultLimit = Config.HISTORY_RESULTLIMIT_DEFAULT;
+        
+        if (! duringCreate) // only the very first time after t+c
+            PermissionHelper.checkPermissionAtInit(this);
         
         if (! duringCreate && geoLocation != null)
             geoLocation.start();
@@ -963,7 +1045,7 @@ public class RMBTMainActivity extends Activity implements MapProperties
         fragment.setQoSResult(testResultArray);
         fragment.setDetailType(detailType);
         
-        ft = fm.beginTransaction();
+        ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.fragment_content, fragment, AppConstants.PAGE_TITLE_RESULT_QOS);
         ft.addToBackStack("result_detail_expanded");
         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
@@ -1151,7 +1233,7 @@ public class RMBTMainActivity extends Activity implements MapProperties
     }
     
     public void showFilter() {
-        final FragmentManager fm = getFragmentManager();
+        final FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction ft;
         
         final Fragment fragment = new RMBTFilterFragment();
@@ -1190,7 +1272,8 @@ public class RMBTMainActivity extends Activity implements MapProperties
      */
     private void stopBackgroundProcesses()
     {
-        geoLocation.stop();
+        if (geoLocation != null)
+            geoLocation.stop();
         if (newsTask != null)
         {
             newsTask.cancel(true);
@@ -1525,27 +1608,33 @@ public class RMBTMainActivity extends Activity implements MapProperties
 //                return;
         
 
-        final RMBTTermsCheckFragment tcFragment = (RMBTTermsCheckFragment) getFragmentManager().findFragmentByTag(AppConstants.PAGE_TITLE_TERMS_CHECK);
+        final RMBTTermsCheckFragment tcFragment = (RMBTTermsCheckFragment) getSupportFragmentManager().findFragmentByTag(AppConstants.PAGE_TITLE_TERMS_CHECK);
         if (tcFragment != null && tcFragment.isResumed()) {
             if (tcFragment.onBackPressed())
                 return;
         }
         
-        final RMBTTestFragment testFragment = (RMBTTestFragment) getFragmentManager().findFragmentByTag("test");
+        final RMBTTestFragment testFragment = (RMBTTestFragment) getSupportFragmentManager().findFragmentByTag("test");
         if (testFragment != null && testFragment.isResumed()) {
             if (testFragment.onBackPressed())
                 return;
         }
 
+        final LoopModeTestFragment loopTestFragment = (LoopModeTestFragment) getSupportFragmentManager().findFragmentByTag(AppConstants.PAGE_TITLE_LOOP_TEST);
+        if (loopTestFragment != null && loopTestFragment.isResumed()) {
+            if (loopTestFragment.onBackPressed())
+                return;
+        }
 
-        final RMBTSyncFragment syncCodeFragment = (RMBTSyncFragment) getFragmentManager()
+
+        final RMBTSyncFragment syncCodeFragment = (RMBTSyncFragment) getSupportFragmentManager()
                 .findFragmentByTag("sync");
         if (syncCodeFragment != null && syncCodeFragment.isResumed()) {
             if (syncCodeFragment.onBackPressed())
                 return;
         } 
 
-        final RMBTMainMenuFragment mainMenuCodeFragment = (RMBTMainMenuFragment) getFragmentManager()
+        final RMBTMainMenuFragment mainMenuCodeFragment = (RMBTMainMenuFragment) getSupportFragmentManager()
                 .findFragmentByTag(AppConstants.PAGE_TITLE_MAIN);
         if (mainMenuCodeFragment != null && mainMenuCodeFragment.isResumed()) {
             if (mainMenuCodeFragment.onBackPressed())
@@ -1554,7 +1643,7 @@ public class RMBTMainActivity extends Activity implements MapProperties
         
         refreshActionBarAndTitle();
         
-        if (getFragmentManager().getBackStackEntryCount() > 0 || exitAfterDrawerClose) {
+        if (getSupportFragmentManager().getBackStackEntryCount() > 0 || exitAfterDrawerClose) {
             super.onBackPressed();            
         }
         else {
@@ -1752,7 +1841,7 @@ public class RMBTMainActivity extends Activity implements MapProperties
         		//Redirecting console output and runtime exceptions to default output stream
                 //System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out)));
                 //System.setErr(new PrintStream(new FileOutputStream(FileDescriptor.err)));
-                Log.i(DEBUG_TAG,"redirecting sysout to default");
+                //Log.i(DEBUG_TAG,"redirecting sysout to default");
         	}
         }
         catch (Exception e) {
@@ -1762,14 +1851,14 @@ public class RMBTMainActivity extends Activity implements MapProperties
     
     public Fragment getCurrentFragment()
     {
-    	final int backStackEntryCount = getFragmentManager().getBackStackEntryCount();
+    	final int backStackEntryCount = getSupportFragmentManager().getBackStackEntryCount();
         if (backStackEntryCount > 0)
         {
     		try
             {
-                final BackStackEntry backStackEntryAt = getFragmentManager().getBackStackEntryAt(backStackEntryCount - 1);
+                final BackStackEntry backStackEntryAt = getSupportFragmentManager().getBackStackEntryAt(backStackEntryCount - 1);
                 String fragmentTag = backStackEntryAt.getName();
-                Fragment currentFragment = getFragmentManager().findFragmentByTag(fragmentTag);
+                Fragment currentFragment = getSupportFragmentManager().findFragmentByTag(fragmentTag);
                 return currentFragment;
             }
             catch (Exception e)
@@ -1781,7 +1870,7 @@ public class RMBTMainActivity extends Activity implements MapProperties
             }
     	}
     	
-    	return getFragmentManager().findFragmentByTag(AppConstants.PAGE_TITLE_MAIN);
+    	return getSupportFragmentManager().findFragmentByTag(AppConstants.PAGE_TITLE_MAIN);
     }
 
     /**
@@ -1789,12 +1878,12 @@ public class RMBTMainActivity extends Activity implements MapProperties
      * @return
      */
     public String getCurrentFragmentName(){
-    	if (getFragmentManager().getBackStackEntryCount() > 0) {
-    		String fragmentTag = getFragmentManager().getBackStackEntryAt(getFragmentManager().getBackStackEntryCount() - 1).getName();
+    	if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+    		String fragmentTag = getSupportFragmentManager().getBackStackEntryAt(getSupportFragmentManager().getBackStackEntryCount() - 1).getName();
             return fragmentTag;
     	}
 
-    	Fragment f = getFragmentManager().findFragmentByTag(AppConstants.PAGE_TITLE_MAIN);
+    	Fragment f = getSupportFragmentManager().findFragmentByTag(AppConstants.PAGE_TITLE_MAIN);
     	return f != null ? AppConstants.PAGE_TITLE_MAIN : null;
     }
 
@@ -1803,8 +1892,8 @@ public class RMBTMainActivity extends Activity implements MapProperties
      * @return
      */
     protected String getPreviousFragmentName(){
-    	if (getFragmentManager().getBackStackEntryCount() > 1) {
-    		String fragmentTag = getFragmentManager().getBackStackEntryAt(getFragmentManager().getBackStackEntryCount() - 2).getName();
+    	if (getSupportFragmentManager().getBackStackEntryCount() > 1) {
+    		String fragmentTag = getSupportFragmentManager().getBackStackEntryAt(getSupportFragmentManager().getBackStackEntryCount() - 2).getName();
             return fragmentTag;
     	}
 

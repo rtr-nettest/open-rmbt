@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,13 @@
 package at.alladin.rmbt.db;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Iterator;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import at.alladin.rmbt.shared.Helperfunctions;
-import at.alladin.rmbt.shared.hstoreparser.HstoreParser;
 
 
 /**
@@ -44,7 +43,7 @@ public class QoSTestObjective implements Serializable {
     private String testType;
     private int testClass;
     private String objective;
-    private String[] results;
+    private String results;
     private String testDescription;
     private String testSummary;
     private String testServerIpv4;
@@ -89,11 +88,11 @@ public class QoSTestObjective implements Serializable {
 		this.objective = objective;
 	}
 
-	public String[] getResults() {
+	public String getResults() {
 		return results;
 	}
 
-	public void setResults(String[] results) {
+	public void setResults(String results) {
 		this.results = results;
 	}
 
@@ -150,7 +149,7 @@ public class QoSTestObjective implements Serializable {
 	public String toString() {
 		return "QoSTestObjective [uid=" + uid + ", testType="
 				+ testType + ", testClass=" + testClass + ", objective="
-				+ objective + ", results=" + Arrays.toString(results)
+				+ objective + ", results=" + results
 				+ ", testDescription=" + testDescription + ", testServerIpv4="
 				+ testServerIpv4 + ", testServerIpv6=" + testServerIpv6
 				+ ", port=" + port + ", concurrencyGroup=" + concurrencyGroup
@@ -195,15 +194,22 @@ public class QoSTestObjective implements Serializable {
 		
 		sb.append("<b>Expected test results (as hstore representation):</b><ul>");
 		if (getResults() != null) {
-			for (String result : getResults()) {
-				try {
-					JSONObject expected = HstoreParser.parseToJson(result);
-					sb.append("<li>" + Helperfunctions.json2htmlWithLinks(expected) + "</li>");
-				} catch (Exception e) {
-					e.printStackTrace();
-					sb.append("<li>incorrect expected test result format: " + result + "</li>");
-				}
-			}		
+			JSONArray resultsJson;
+			try {
+				resultsJson = new JSONArray(getResults());
+				for (int i = 0; i < resultsJson.length(); i++) {
+					try {
+						final 
+						JSONObject expected = resultsJson.getJSONObject(i);
+						sb.append("<li>" + Helperfunctions.json2htmlWithLinks(expected) + "</li>");
+					} catch (Exception e) {
+						e.printStackTrace();
+						sb.append("<li>incorrect expected test result format</li>");
+					}
+				}		
+			} catch (JSONException e1) {
+				sb.append("<li>incorrect expected test result format</li>");
+			}
 		}
 		else {
 			sb.append("<li><i>No expected results set for this test</i></li>");

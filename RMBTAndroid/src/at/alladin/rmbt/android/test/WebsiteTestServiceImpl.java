@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,8 @@ import android.os.Handler;
 import android.os.Process;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import at.alladin.rmbt.android.util.AsyncHtmlContentRetriever;
-import at.alladin.rmbt.android.util.AsyncHtmlContentRetriever.ContentRetrieverListener;
+import at.alladin.rmbt.android.util.AsyncHtmlStatusCodeRetriever;
+import at.alladin.rmbt.android.util.AsyncHtmlStatusCodeRetriever.ContentRetrieverListener;
 import at.alladin.rmbt.client.v2.task.service.WebsiteTestService;
 
 /**
@@ -258,11 +258,13 @@ public class WebsiteTestServiceImpl implements WebsiteTestService {
 					}
 				});
 				
-				AsyncHtmlContentRetriever task = new AsyncHtmlContentRetriever();
+				AsyncHtmlStatusCodeRetriever task = new AsyncHtmlStatusCodeRetriever();
 				task.setContentRetrieverListener(new ContentRetrieverListener() {
 					
 					@Override
-					public void onContentFinished(String htmlContent, int statusCode) {
+					public void onContentFinished(Integer statusCode) {
+					    if (statusCode == null)
+					        statusCode = -1;
 						WebsiteTestServiceImpl.this.statusCode = statusCode;
 						if (statusCode >= 0) {
 							//webView.loadDataWithBaseURL(targetUrl, htmlContent, "text/html", "utf-8", null);

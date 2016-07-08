@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2015 alladin-IT GmbH
+ * Copyright 2015, 2016 alladin-IT GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
+
+ /* 
+  * 
+  * 
+  * dead code - was used for migration of speed_items to JSON (within test table)
+  * 
+  * 
+  * 
 package at.alladin.rmbt.db.migrate;
 
 import java.sql.PreparedStatement;
@@ -21,11 +29,11 @@ import java.sql.SQLException;
 
 import org.restlet.resource.Get;
 
-import com.google.gson.Gson;
-
 import at.alladin.rmbt.controlServer.ServerResource;
 import at.alladin.rmbt.shared.model.SpeedItems;
 import at.alladin.rmbt.shared.model.SpeedItems.SpeedItem;
+
+import com.google.gson.Gson;
 
 public class MigrateTestSpeed extends ServerResource
 {
@@ -93,3 +101,4 @@ public class MigrateTestSpeed extends ServerResource
         }
     }
 }
+*/

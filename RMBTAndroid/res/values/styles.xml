@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright 2013-2015 alladin-IT GmbH
+  Copyright 2013-2016 alladin-IT GmbH
   
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -289,6 +289,10 @@
     <style name="QoSTheme.EditText.Light" parent="@android:style/Widget.Holo.EditText">
         <item name="android:textCursorDrawable">@null</item>
 		<item name="android:textColor">#ffffff</item>
+	</style>
+
+	<style name="QoSTheme.EditText.Light.Large" parent="@style/QoSTheme.EditText.Light">
+	    <item name="android:textSize">30sp</item>
 	</style>
     	
 	<style name="QoSTheme.TextView.ListItemTitle" parent="@android:style/TextAppearance.Medium">

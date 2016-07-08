@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,8 @@ public class TrafficServiceByUidImpl implements TrafficService {
 
 	private int uid;
 	
+	private boolean running = false;
+	
 	/*
 	 * (non-Javadoc)
 	 * @see at.alladin.rmbt.client.v2.task.service.TrafficService#start()
@@ -46,6 +48,8 @@ public class TrafficServiceByUidImpl implements TrafficService {
 		if ((trafficRxStart = TrafficStats.getUidRxBytes(uid)) == TrafficStats.UNSUPPORTED) {
 			return SERVICE_NOT_SUPPORTED;
 		}		
+		
+		running = true;
 		trafficTxStart = TrafficStats.getUidTxBytes(uid);
 		return SERVICE_START_OK;
 	}
@@ -74,18 +78,37 @@ public class TrafficServiceByUidImpl implements TrafficService {
 	 */
 	@Override
 	public void stop() {
-		trafficTxEnd = TrafficStats.getUidTxBytes(uid);
-		trafficRxEnd = TrafficStats.getUidRxBytes(uid);
+		if (running) {
+			trafficTxEnd = TrafficStats.getUidTxBytes(uid);
+			trafficRxEnd = TrafficStats.getUidRxBytes(uid);
+		}
 	}
 
 	@Override
 	public long getTotalTxBytes() {
-		return TrafficStats.getTotalTxBytes();
+		return TrafficStats.getUidTxBytes(uid);
 	}
 
 	@Override
 	public long getTotalRxBytes() {
-		return TrafficStats.getTotalRxBytes();
+		return TrafficStats.getUidRxBytes(uid);
 	}
 
+	@Override
+	public long getCurrentTxBytes() {
+		return (trafficTxStart != -1 ? getTotalTxBytes() - trafficTxStart : -1);
+	}
+
+	@Override
+	public long getCurrentRxBytes() {
+		return (trafficRxStart != -1 ? getTotalRxBytes() - trafficRxStart : -1);
+	}
+
+	@Override
+	public void update() {
+		if (running) {
+			stop();
+			running = true;
+		}
+	}
 }

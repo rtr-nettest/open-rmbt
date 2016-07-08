@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -139,7 +139,7 @@ public class HeatmapTiles extends TileRestlet<HeatmapTileParameters>
                 + " quantile(\"%1$s\",?) val,"
                 + " ST_X(ST_SnapToGrid(location, ?,?,?,?)) gx," 
                 + " ST_Y(ST_SnapToGrid(location, ?,?,?,?)) gy"
-                + " FROM v_test t" 
+                + " FROM v_test2 t" 
                 + " WHERE " 
                 + " %2$s"
                 + " AND location && ST_SetSRID(ST_MakeBox2D(ST_Point(?,?), ST_Point(?,?)), 900913)"

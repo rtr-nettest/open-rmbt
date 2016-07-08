@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Copyright 2013-2015 alladin-IT GmbH
+  Copyright 2013-2016 alladin-IT GmbH
   
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -16,40 +16,50 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="at.alladin.openrmbt.android"
-    android:versionCode="20083"
-    android:versionName="2.0.83"
+    android:versionCode="20209"
+    android:versionName="2.2.9"
     android:installLocation="auto" >
 
-    <uses-sdk android:minSdkVersion="15" android:targetSdkVersion="22"/>
+    <uses-sdk android:minSdkVersion="15" android:targetSdkVersion="23"/>
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/> 
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES"/>
     
+    <!-- "dangerous" -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/> 
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
     
     <uses-feature android:glEsVersion="0x00020000" android:required="true"/>
     <uses-feature android:name="android.hardware.location" android:required="false"/>
     <uses-feature android:name="android.hardware.location.network" android:required="false"/>
     <uses-feature android:name="android.hardware.location.gps" android:required="false"/>
     <uses-feature android:name="android.hardware.wifi" android:required="false"/>
-        
+
+    <instrumentation android:name="android.test.InstrumentationTestRunner"
+		android:targetPackage="at.alladin.rmbt.android.test" />
+    
     <application android:icon="@drawable/app_icon" android:label="@string/app_name" android:allowBackup="true"
         android:supportsRtl="false">
+        <uses-library android:name="android.test.runner" />
+        
+        
         <activity android:name="at.alladin.rmbt.android.main.RMBTMainActivity" 
             android:label="@string/app_name" 
             android:theme="@android:style/Theme.Holo"
             android:launchMode="singleTask"
-            android:windowSoftInputMode="adjustPan"
-            android:configChanges="orientation|screenSize|keyboardHidden">
+            android:windowSoftInputMode="adjustPan">
+            
         <!--
         	in most cases 
          		android:configChanges="orientation|screenSize|keyboardHidden"
-         	is a bad choice. don't use it! -->
+         	is a bad choice. don't use it!
+         	
+         	this configuration has been chosen for a faster (and simpler) rotation (landscape/portrait) during the test
+         	UPDATE 2016.02.18: removed configChanges -->
          	
 		<!-- android:screenOrientation="portrait" -->
             <intent-filter>

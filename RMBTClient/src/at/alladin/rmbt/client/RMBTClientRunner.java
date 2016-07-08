@@ -56,7 +56,10 @@ public class RMBTClientRunner
             {
                 acceptsAll(Arrays.asList("?", "help"), "show help");
                 
-                acceptsAll(Arrays.asList("token"), "token to access rmbt server directly; in this case the controlserver is not contacted").withRequiredArg()
+                acceptsAll(Arrays.asList("u", "uuid"), "client-uuid; if this uuid is specified the controlserver is contacted for the token; either uuid or token is needed").withRequiredArg()
+                        .ofType(String.class);
+                
+                acceptsAll(Arrays.asList("token"), "token to access rmbt server directly; in this case the controlserver is not contacted and uuid is not needed").withRequiredArg()
                         .ofType(String.class);
                 
                 acceptsAll(Arrays.asList("h", "host"), "RMBT server IP or hostname (required)").withRequiredArg()
@@ -116,6 +119,13 @@ public class RMBTClientRunner
                     reqArgMissing = true;
                     System.out.println(String.format("ERROR: required argument '%s' is missing", arg));
                 }
+        
+        if (! options.has("u") && ! options.has("token"))
+        {
+            reqArgMissing = true;
+            System.out.println(String.format("ERROR: either uuid or token is needed"));
+        }
+        
         if (options.has("?") || reqArgMissing)
         {
             System.out.println();
@@ -131,8 +141,6 @@ public class RMBTClientRunner
         final boolean encryption = options.has("s") ? true : false;
         
         final ArrayList<String> geoInfo = null;
-        
-        final String uuid = "246c1ad3-35bc-43d4-a299-f89b2f7dda41";
         
         final JSONObject additionalValues = new JSONObject();
         try
@@ -178,6 +186,8 @@ public class RMBTClientRunner
         }
         else
         {
+            final String uuid = (String) options.valueOf("u");
+            
             // standard mode with contact to control server
             client = RMBTClient.getInstance(host, null, port, encryption, geoInfo, uuid,
                     "DESKTOP", Config.RMBT_CLIENT_NAME, Config.RMBT_VERSION_NUMBER, overrideParams, null);

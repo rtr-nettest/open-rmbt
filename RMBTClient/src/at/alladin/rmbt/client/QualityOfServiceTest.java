@@ -37,7 +37,9 @@ import at.alladin.rmbt.client.v2.task.QoSTestEnum;
 import at.alladin.rmbt.client.v2.task.QoSTestErrorEnum;
 import at.alladin.rmbt.client.v2.task.TaskDesc;
 import at.alladin.rmbt.client.v2.task.TcpTask;
+import at.alladin.rmbt.client.v2.task.TracerouteTask;
 import at.alladin.rmbt.client.v2.task.UdpTask;
+import at.alladin.rmbt.client.v2.task.VoipTask;
 import at.alladin.rmbt.client.v2.task.WebsiteTask;
 import at.alladin.rmbt.client.v2.task.result.QoSResultCollector;
 import at.alladin.rmbt.client.v2.task.result.QoSTestResult;
@@ -109,12 +111,23 @@ public class QualityOfServiceTest implements Callable<QoSResultCollector> {
 			else if (RMBTClient.TASK_UDP.equals(taskId)) {
 	        	test = new UdpTask(this, taskDesc, threadCounter++);
 			}
+			else if (RMBTClient.TASK_VOIP.equals(taskId)) {
+				test = new VoipTask(this, taskDesc, threadCounter++);
+			}
+			else if (RMBTClient.TASK_TRACEROUTE.equals(taskId)) {
+				if (nnTestSettings != null && nnTestSettings.getTracerouteServiceClazz() != null) {
+					test = new TracerouteTask(this, taskDesc, threadCounter++);	
+				}
+				else {
+					System.out.println("No TracerouteService implementation: Skipping TracerouteTask: " + taskDesc);
+				}
+			}
 			else if (RMBTClient.TASK_WEBSITE.equals(taskId)) {
 				if (nnTestSettings != null && nnTestSettings.getWebsiteTestService() != null) {
 					test = new WebsiteTask(this, taskDesc, threadCounter++);	
 				}
 				else {
-					System.out.println("No WebsiteTestService implementation: Skipping WebsiteTest: " + taskDesc);
+					System.out.println("No WebsiteTestService implementation: Skipping WebsiteTask: " + taskDesc);
 				}
 			}
 			
@@ -132,10 +145,10 @@ public class QualityOfServiceTest implements Callable<QoSResultCollector> {
 				
 				if (testGroupCounterMap.containsKey(test.getTestType())) {
 					testTypeCounter = testGroupCounterMap.get(test.getTestType());
-					testTypeCounter.target++;
+					testTypeCounter.increaseCounter(test.getConcurrencyGroup());
 				}
 				else {
-					testTypeCounter = new Counter(1);
+					testTypeCounter = new Counter(test.getTestType(), 1, test.getConcurrencyGroup());
 					testGroupCounterMap.put(test.getTestType(), testTypeCounter);
 				}
 				
@@ -380,14 +393,38 @@ public class QualityOfServiceTest implements Callable<QoSResultCollector> {
             executor.shutdownNow();
     }
     
+    /**
+     * 
+     * @author lb
+     *
+     */
     public final class Counter {
+    	public QoSTestResultEnum testType;
     	public int value;
     	public int target;
-    	
-    	public Counter(int target) {
+    	public int firstTest;
+    	public int lastTest;
+
+		public Counter(QoSTestResultEnum testType, int target, int concurrencyGroup) {
+    		this.testType = testType;
     		this.value = 0;
     		this.target = target;
+    		this.firstTest = concurrencyGroup;
+    		this.lastTest = concurrencyGroup;
     	}
+    	
+    	public void increaseCounter(int concurrencyGroup) {
+    		this.target++;
+    		lastTest = concurrencyGroup > lastTest ? concurrencyGroup : lastTest;
+    		firstTest = concurrencyGroup < firstTest ? concurrencyGroup : firstTest;
+    	}
+
+		@Override
+		public String toString() {
+			return "Counter [testType=" + testType + ", value=" + value
+					+ ", target=" + target + ", firstTest=" + firstTest
+					+ ", lastTest=" + lastTest + "]";
+		}
     }
 
     private void openControlConnections(int concurrencyGroup) {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2015 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 package at.alladin.rmbt.qos.testserver;
 
 import java.io.Closeable;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.DatagramSocket;
@@ -41,7 +40,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -58,15 +56,16 @@ import at.alladin.rmbt.qos.testserver.ServerPreferences.ServiceSetting;
 import at.alladin.rmbt.qos.testserver.ServerPreferences.TestServerServiceEnum;
 import at.alladin.rmbt.qos.testserver.ServerPreferences.UdpPort;
 import at.alladin.rmbt.qos.testserver.entity.TestCandidate;
+import at.alladin.rmbt.qos.testserver.servers.AbstractUdpServer;
 import at.alladin.rmbt.qos.testserver.service.EventJob.EventType;
 import at.alladin.rmbt.qos.testserver.service.ServiceManager;
 import at.alladin.rmbt.qos.testserver.tcp.TcpMultiClientServer;
 import at.alladin.rmbt.qos.testserver.tcp.TcpWatcherRunnable;
-import at.alladin.rmbt.qos.testserver.udp.AbstractUdpServer;
 import at.alladin.rmbt.qos.testserver.udp.NioUdpMultiClientServer;
 import at.alladin.rmbt.qos.testserver.udp.UdpMultiClientServer;
 import at.alladin.rmbt.qos.testserver.udp.UdpTestCandidate;
 import at.alladin.rmbt.qos.testserver.udp.UdpWatcherRunnable;
+import at.alladin.rmbt.qos.testserver.util.LoggingService;
 import at.alladin.rmbt.qos.testserver.util.RuntimeGuardService;
 import at.alladin.rmbt.qos.testserver.util.TestServerConsole;
 import at.alladin.rmbt.util.Randomizer;
@@ -80,12 +79,17 @@ public class TestServer {
 	/**
 	 * major version number
 	 */
-	public final static String TEST_SERVER_VERSION_MAJOR = "2";
+	public final static String TEST_SERVER_VERSION_MAJOR = "3";
 	
 	/**
 	 * minor version number
 	 */
-	public final static String TEST_SERVER_VERSION_MINOR = "30";
+	public final static String TEST_SERVER_VERSION_MINOR = "1";
+	
+	/**
+	 * patch version number
+	 */
+	public final static String TEST_SERVER_VERSION_PATCH = "1";
 	
 	/**
 	 * server code name
@@ -99,8 +103,12 @@ public class TestServer {
 	 * 	</li>
 	 * 	<li><b>2.00 - 2.19</b> - DROPPED PACKET
 	 * 		<p>major changes: voip test, rmbtutil</p></li>
-	 * 	<li><b>2.20 - x.xx</b> - ???
+	 * 	<li><b>2.20 - 2.30</b> - DROPPED PACKET
 	 * 		<p>major changes: non blocking udp server for udp and voip tests</p>
+	 * 	</li>
+	 * 	<li><b>3.0.0 - x.x.x</b> - ???
+	 * 		<p>major changes: syslog support, logging framework: log4j</p>
+	 * 		<p>major fixes: udp nio empty array fix</p>
 	 * 	</li>
 	 * </ul>
 	 */
@@ -131,7 +139,7 @@ public class TestServer {
 	public final static boolean USE_FIXED_THREAD_POOL = true;
 	public final static int MAX_THREADS = 200;
 	
-	public final static TreeMap<Integer, List<AbstractUdpServer<?>>> udpServerMap = new TreeMap<Integer, List<AbstractUdpServer<?>>>();
+	public final static ConcurrentHashMap<Integer, List<AbstractUdpServer<?>>> udpServerMap = new ConcurrentHashMap<Integer, List<AbstractUdpServer<?>>>();
 	public final static ConcurrentHashMap<Integer, List<TcpMultiClientServer>> tcpServerMap = new ConcurrentHashMap<Integer, List<TcpMultiClientServer>>();
 	
 	/**
@@ -163,9 +171,9 @@ public class TestServer {
 	/**
 	 * 
 	 * @param args
-	 * @throws FileNotFoundException 
+	 * @throws Exception 
 	 */
-	public static void main(String[] args) throws FileNotFoundException {
+	public static void main(String[] args) throws Exception {
 		
 		TestServerConsole console = new TestServerConsole();
 		System.setErr(console);
@@ -184,6 +192,10 @@ public class TestServer {
 			System.exit(0);
 		}
 	
+		if (!LoggingService.IS_LOGGING_AVAILABLE) {
+			throw new TestServerException("ERROR: All logging disabled! Cannot start server. Please enable at least one logging target [syslog, console, file]", null);
+		}
+		
 	    TestServerConsole.log("\nStarting QoSTestServer (" + TEST_SERVER_VERSION_NAME + ") with settings: \n" + serverPreferences.toString() + "\n\n", 
 	    		-1, TestServerServiceEnum.TEST_SERVER);
 	    

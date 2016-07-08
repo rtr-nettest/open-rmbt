@@ -63,7 +63,7 @@ public class OptionFunction implements Serializable {
 	
 	public void addParameter(final String name, final Object value) {
 		if (this.parameterMap == null) {
-			this.parameterMap = new HashMap<String, Object>();
+			this.parameterMap = new HashMap<>();
 		}
 		
 		this.parameterMap.put(name, value);

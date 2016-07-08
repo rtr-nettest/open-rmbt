@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2015 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,11 +24,14 @@ import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
+import java.text.DateFormat;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import at.alladin.rmbt.qos.testserver.ServerPreferences.TestServerServiceEnum;
+import at.alladin.rmbt.qos.testserver.servers.AbstractUdpServer;
 import at.alladin.rmbt.qos.testserver.TestServer;
 import at.alladin.rmbt.qos.testserver.util.TestServerConsole;
 import at.alladin.rmbt.util.net.rtp.RealtimeTransportProtocol.RtpVersion;
@@ -54,6 +57,8 @@ public class NioUdpMultiClientServer extends AbstractUdpServer<DatagramChannel> 
 	final int port;
 	
 	private final String name;
+	
+	private long lastClientTime = 0;
 	
 	/**
 	 * 
@@ -91,99 +96,110 @@ public class NioUdpMultiClientServer extends AbstractUdpServer<DatagramChannel> 
 			ByteBuffer buffer = ByteBuffer.allocate(BUFFER_LENGTH);
 
 			while (isRunning.get()) {				
-
+				
 		    	selector.select(5000);
 		    	Set<SelectionKey> readyKeys = selector.selectedKeys();
 		    	
 		    	if (!readyKeys.isEmpty()) {
 			    	Iterator<SelectionKey> iterator = readyKeys.iterator();
 			    	while (iterator.hasNext()) {
-			    		SelectionKey key = (SelectionKey) iterator.next();
-						iterator.remove();
-						if (key.isReadable() && key.isValid()) {
-							buffer.clear();
-							SocketAddress senderAddr = channel.receive(buffer);
-							buffer.flip();
-							final byte[] data = new byte[buffer.remaining()];
-							buffer.get(data);
-							final DatagramPacket dp = new DatagramPacket(data, data.length, senderAddr);
-							final RtpVersion rtpVersion = RtpUtil.getVersion(data[0]);
-							String clientUuid = null;
-							
-							if (!RtpVersion.VER2.equals(rtpVersion)) {
-								//Non RTP packet:
-								final int packetNumber = data[1];
-								
-								String timeStamp = null;
-								
-								try {
-									char[] uuid = new char[36];
-									
-									for (int i = 2; i < 38; i++) {
-										uuid[i - 2] = (char) data[i];
-									}
-									clientUuid = String.valueOf(uuid);
-									
-									char[] ts = new char[dp.getLength() - 38];
-									for (int i = 38; i < dp.getLength(); i++) {
-										ts[i - 38] = (char) data[i];
-									}
-									
-									timeStamp = String.valueOf(ts);
-				
+//						not sure if try does make sense: 			    		
+//			    		try {			    		
+				    		SelectionKey key = (SelectionKey) iterator.next();
+							iterator.remove();
+							if (key.isReadable() && key.isValid()) {
+								buffer.clear();
+								SocketAddress senderAddr = channel.receive(buffer);
+								buffer.flip();
+								final byte[] data = new byte[buffer.remaining()];
+								buffer.get(data);
+								if (data == null || data.length == 0) {
+									continue;
 								}
-								catch (Exception e) {
-									TestServerConsole.error(getName(), e, 1, TestServerServiceEnum.UDP_SERVICE);
-								}
+								final DatagramPacket dp = new DatagramPacket(data, data.length, senderAddr);
+								final RtpVersion rtpVersion = RtpUtil.getVersion(data[0]);
+								String clientUuid = null;
 								
-								TestServerConsole.log("received UDP from: " + dp.getAddress().toString() + ":" + dp.getPort() 
-										+ " (on local port :" + ((InetSocketAddress) channel.getLocalAddress()).getPort() + ") , #" + packetNumber + " TimeStamp: " + timeStamp + ", containing: " + clientUuid, 1, TestServerServiceEnum.UDP_SERVICE);
+								//set last client timestamp
+								lastClientTime = System.currentTimeMillis();
 								
-							}
-							else {
-								//RtpPacket received:
-								clientUuid = "VOIP_" + RtpUtil.getSsrc(data);
-							}
-							
-							if (clientUuid != null) {
-								synchronized (incomingMap) {
-									final UdpTestCandidate clientData;
-									final String uuid = clientUuid;
-									if (!incomingMap.containsKey(clientUuid)) {
-										clientData = new UdpTestCandidate();
-										clientData.setNumPackets(Integer.MAX_VALUE);
-										clientData.setRemotePort(dp.getPort());
-										incomingMap.put(clientUuid, clientData);
-									}
-									else {
-										clientData = (UdpTestCandidate) incomingMap.get(clientUuid);
-										if (clientData.isError()) {
-											continue;
-										}
-									}
+								if (!RtpVersion.VER2.equals(rtpVersion)) {
+									//Non RTP packet:
+									final int packetNumber = data[1];
 									
-									//if a callback has been provided by the clienthandler run it in the background:
-									if (clientData.getOnUdpPacketReceivedCallback() != null) {
-										Runnable onReceiveRunnable = new Runnable() {
-											
-											@Override
-											public void run() {
-												clientData.getOnUdpPacketReceivedCallback().onReceive(dp, uuid, NioUdpMultiClientServer.this);									
-											}
-										};
+									String timeStamp = null;
+									
+									try {
+										char[] uuid = new char[36];
 										
-										TestServer.getCommonThreadPool().submit(onReceiveRunnable);
-									}						
+										for (int i = 2; i < 38; i++) {
+											uuid[i - 2] = (char) data[i];
+										}
+										clientUuid = String.valueOf(uuid);
+										
+										char[] ts = new char[dp.getLength() - 38];
+										for (int i = 38; i < dp.getLength(); i++) {
+											ts[i - 38] = (char) data[i];
+										}
+										
+										timeStamp = String.valueOf(ts);
+					
+									}
+									catch (Exception e) {
+										TestServerConsole.error(getName(), e, 1, TestServerServiceEnum.UDP_SERVICE);
+									}
+									
+									TestServerConsole.log("received UDP from: " + dp.getAddress().toString() + ":" + dp.getPort() 
+											+ " (on local port :" + ((InetSocketAddress) channel.getLocalAddress()).getPort() + ") , #" + packetNumber + " TimeStamp: " + timeStamp + ", containing: " + clientUuid, 1, TestServerServiceEnum.UDP_SERVICE);
+									
+								}
+								else {
+									//RtpPacket received:
+									clientUuid = "VOIP_" + RtpUtil.getSsrc(data);
+								}
+								
+								if (clientUuid != null) {
+									synchronized (incomingMap) {
+										final UdpTestCandidate clientData;
+										final String uuid = clientUuid;
+										if (!incomingMap.containsKey(clientUuid)) {
+											clientData = new UdpTestCandidate();
+											clientData.setNumPackets(Integer.MAX_VALUE);
+											clientData.setRemotePort(dp.getPort());
+											incomingMap.put(clientUuid, clientData);
+										}
+										else {
+											clientData = (UdpTestCandidate) incomingMap.get(clientUuid);
+											if (clientData.isError()) {
+												continue;
+											}
+										}
+										
+										//if a callback has been provided by the clienthandler run it in the background:
+										if (clientData.getOnUdpPacketReceivedCallback() != null) {
+											Runnable onReceiveRunnable = new Runnable() {
+												
+												@Override
+												public void run() {
+													clientData.getOnUdpPacketReceivedCallback().onReceive(dp, uuid, NioUdpMultiClientServer.this);									
+												}
+											};
+											
+											TestServer.getCommonThreadPool().submit(onReceiveRunnable);
+										}						
+									}
 								}
 							}
-						}
+//				    	} catch (final Exception e) {
+//				    		TestServerConsole.error(getName(), e, 2, TestServerServiceEnum.UDP_SERVICE);
+//				    	}
 			    	}
 		    	}
 				
 
 			}		
 		} 
-		catch (IOException e) {
+		catch (Exception e) {
 			TestServerConsole.error(getName(), e, 0, TestServerServiceEnum.UDP_SERVICE);
 		}
 		finally {
@@ -283,6 +299,24 @@ public class NioUdpMultiClientServer extends AbstractUdpServer<DatagramChannel> 
 		TestServerConsole.log(getName() + " sending datagram: length = " 
 					+ writeBuffer.array().length + ", to: " + dp.getSocketAddress(), 2, TestServerServiceEnum.UDP_SERVICE);
 		channel.send(writeBuffer, dp.getSocketAddress());
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see at.alladin.rmbt.qos.testserver.udp.AbstractUdpServer#isHealthy()
+	 */
+	@Override
+	public boolean isHealthy() {
+		return channel != null && channel.isOpen();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see at.alladin.rmbt.qos.testserver.entity.Observable#getStatusMessage()
+	 */
+	@Override
+	public String getStatusMessage() {
+		return "Last client timestamp: " + DateFormat.getDateTimeInstance().format(new Date(lastClientTime));
 	}
 }
 

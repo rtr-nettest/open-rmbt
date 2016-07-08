@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!--
   Copyright 2013-2014 alladin-IT GmbH
   
@@ -143,7 +142,7 @@
 	<string name="history_filter_networks">ACCÈS</string>
 	<string name="history_filter_devices">MATÉRIEL</string>
 	<string name="history_filter_result_number">NUMÉRO DE RÉSULTAT</string>
-	<string name="history_filter_result_number_25">Afficher uniquement les dernières 25 résultats</string>
+	<string name="history_filter_result_number_25">Afficher uniquement les dernières 250 résultats</string>
 	
 	<string name="result_measurement">MESURE</string>
 	<string name="result_net">RÉSEAU</string>
@@ -229,56 +228,52 @@
     <string name="map_overlay_shapes_summary">Map shows tests as postal code shapes</string>
 
     <!-- QoS values: -->
-    <string name="about_control_server_version">Control server version</string>
-    <string name="preferences_dont_show_menu_on_exit">No menu on close</string>
-    <string name="preferences_dont_show_menu_on_exit_sum">Don\'t show application menu before closing it.</string>
-    <string name="qos_test_name_website">Reference web page</string>
-    <string name="qos_test_name_http_proxy">Unmodified content</string>
-    <string name="qos_test_name_non_transparent_proxy">Transparent connection</string>
-    <string name="qos_test_name_dns">DNS</string>
-    <string name="qos_test_name_tcp">TCP ports</string> 
-    <string name="qos_test_name_udp">UDP ports</string>
+    <string name="about_control_server_version">Version du serveur de contrôle</string>
+    <string name="preferences_dont_show_menu_on_exit">Pas de menu à la fermeture</string>
+    <string name="preferences_dont_show_menu_on_exit_sum">Ne pas afficher le menu de l\'application avant de le fermer.</string>
     
-    <string name="qos_test_result_error">Error</string>
-    <string name="qos_test_result_all">Results</string>
+    <string name="qos_test_result_error">Erreur</string>
+    <string name="qos_test_result_all">Résultats</string>
     
-    <string name="result_details_qos_failure">FAILED</string>
-    <string name="result_details_qos_success">SUCCEEDED</string>
-    <string name="result_qos_stats">Quality tests</string>
-    <string name="result_qos_error_no_data_available">The QoS test was not executed.</string>
+    <string name="result_details_qos_failure">ÉCHOUÉ</string>
+    <string name="result_details_qos_success">RÉUSSI</string>
+    <string name="result_qos_stats">Diagnostic réseau</string>
+    <string name="result_qos_error_no_data_available">Le test QoS n\'a pas été exécuté.</string>
     
     <string name="title_screen_ipv4">IPv4</string>
     <string name="title_screen_ipv6">IPv6</string>
-    <string name="title_screen_traffic">Background traffic</string>
-    <string name="title_screen_network_id">Network ID:</string>
+    <string name="title_screen_ipv4_overlay">Adresse Internet (v4)</string>
+	<string name="title_screen_ipv6_overlay">Addrese Internet (v6)</string>
+    <string name="title_screen_traffic">Trafic d\'arrière-plan.</string>
+    <string name="title_screen_network_id">ID réseau:</string>
     
-    <string name="title_screen_info_overlay_location">Location</string>
-    <string name="title_screen_info_overlay_ipv4_public">Public IPv4</string>
-    <string name="title_screen_info_overlay_ipv4_private">Private IPv4</string>
-    <string name="title_screen_info_overlay_ipv6_public">Public IPv6</string>
-    <string name="title_screen_info_overlay_ipv6_private">Private IPv6</string>
-    <string name="title_screen_info_overlay_ul_traffic">Upload traffic</string>
-    <string name="title_screen_info_overlay_dl_traffic">Download traffic</string>
-    <string name="title_screen_info_overlay_control_server_conn">ControlServer connection</string>
-    <string name="title_screen_info_overlay_captive_portal_status">Captive portal</string>
-    <string name="title_screen_info_overlay_is_loopback">Is loopback</string>
-    <string name="title_screen_info_overlay_is_link_local">Is link local</string>
+    <string name="title_screen_info_overlay_location">Localisation</string>
+    <string name="title_screen_info_overlay_ipv4_public">IPv4 publique</string>
+    <string name="title_screen_info_overlay_ipv4_private">IPv4 privée</string>
+    <string name="title_screen_info_overlay_ipv6_public">IPv6 publique</string>
+    <string name="title_screen_info_overlay_ipv6_private">IPv6 privée</string>
+    <string name="title_screen_info_overlay_ul_traffic">Trafic upload</string>
+    <string name="title_screen_info_overlay_dl_traffic">Trafic download</string>
+    <string name="title_screen_info_overlay_control_server_conn">Connexion au serveur de contrôle</string>
+    <string name="title_screen_info_overlay_captive_portal_status">Portail captif</string>
+    <string name="title_screen_info_overlay_is_loopback">Est rebouclage</string>
+    <string name="title_screen_info_overlay_is_link_local">Est-lien local</string>
     <string name="title_screen_info_overlay_location_position">Position</string>
-    <string name="title_screen_info_overlay_location_source">Source</string>
-    <string name="title_screen_info_overlay_location_accuracy">Accuracy</string>
+    <string name="title_screen_info_overlay_location_source">Origine</string>
+    <string name="title_screen_info_overlay_location_accuracy">Precision</string>
     <string name="title_screen_info_overlay_location_altitude">Altitude</string>
-    <string name="title_screen_info_overlay_location_age">Age</string>
+    <string name="title_screen_info_overlay_location_age">Âge</string>
     
-    <string name="captive_portal_found">found</string>
-    <string name="captive_portal_not_found">not found</string>
-    <string name="captive_portal_testing">test running…</string>
+    <string name="captive_portal_found">trouvé</string>
+    <string name="captive_portal_not_found">pas trouvé</string>
+    <string name="captive_portal_testing">test de en cours d\'exécution…</string>
     
-    <string name="not_available">not available</string>
+    <string name="not_available">indisponible</string>
     
-    <string name="test_label_test_info">Test information</string>
-    <string name="test_label_progress">Progress</string>
-    <string name="test_label_quality_test">Quality test</string>
-    <string name="test_toast_error_text_qos">There has been an error during the QoS test.</string>
+    <string name="test_label_test_info">Informations du test</string>
+    <string name="test_label_progress">Barre de progression</string>
+    <string name="test_label_quality_test">Diagnostic réseau</string>
+    <string name="test_toast_error_text_qos">Il y a eu une erreur pendant le test de qualité de service.</string>
 
 <!-- Translated, with examples in English and German at the end of the line-->
     <string name="menu_button_title_page">Accueil</string> <!--Home,Startseite--> 
@@ -293,7 +288,7 @@
     <string name="result_page_title_graph">Illustration</string> <!--Graph,Graph--> 
     <string name="result_page_title_map">Endroit</string> <!--Location,Standort--> 
     <string name="page_title_title_page">Menu</string> <!--Menu,Menü--> 
-    <string name="page_title_history">Histoire</string> <!--History,Verlauf--> 
+    <string name="page_title_history">Historique</string> <!--History,Verlauf--> 
     <string name="page_title_help">Aide</string> <!--Help,Hilfe--> 
     <string name="page_title_statistics">Statistiques</string> <!--Statistics,Statistik--> 
     <string name="page_title_information">Information</string> <!--Information,Information--> 

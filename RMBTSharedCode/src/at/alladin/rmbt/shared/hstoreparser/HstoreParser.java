@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -147,9 +147,9 @@ public class HstoreParser<T> {
 
 			//if fieldsWithKeys contain a key (=it was annotated with @HstoreKey) then try to set the value of the field in T object
 			if (fieldsWithKeys.containsKey(key)) {
+				final Field field = fieldsWithKeys.get(key);
 				try {
-					Object value = json.get(key);
-					Field field = fieldsWithKeys.get(key);
+					Object value = getFromJsonByField(json, key, field);
 					field.setAccessible(true);
 					//cast / new instance needed?
 					if (field.isAnnotationPresent(HstoreCollection.class)) {
@@ -170,7 +170,12 @@ public class HstoreParser<T> {
 						    Object jsonObject = null;
 						    //System.out.println(value);
 						    if (!value.equals(JSONObject.NULL)) {
-						    	jsonObject = hstore.toJson((String) value, genericClazz);
+						    	if (value instanceof JSONArray || value instanceof JSONObject) {
+						    		jsonObject = hstore.toJson(value.toString(), genericClazz);
+						    	}
+						    	else {
+							    	jsonObject = hstore.toJson((String) value, genericClazz);	
+						    	}
 						    }
 						    else {
 						    	jsonObject = hstore.toJson(null, genericClazz);
@@ -215,7 +220,7 @@ public class HstoreParser<T> {
 							field.set(object, null);
 						}
 						else {
-							field.set(object, value);
+							field.set(object, parseFieldValue(field, value));
 						}
 					}
 
@@ -231,6 +236,9 @@ public class HstoreParser<T> {
 					e.printStackTrace();
 				} catch (SecurityException e) {
 					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (ClassCastException e) {
+					System.out.println("field: " + field.toString() + ", key: " + key);
 					e.printStackTrace();
 				}
 			}
@@ -299,5 +307,117 @@ public class HstoreParser<T> {
 		} catch (JSONException e) {
 			return null;
 		}
+	}
+	
+	/**
+	 * 
+	 * @param f
+	 * @param o
+	 * @return
+	 */
+	public static Object parseFieldValue(Field f, Object o) {
+		if (o != JSONObject.NULL) {
+			if (f.getType().equals(Integer.class) || f.getType().equals(Integer.TYPE)) {
+				return Integer.parseInt(String.valueOf(o));
+			}
+			else if (f.getType().equals(String.class)) {
+				return String.valueOf(o);
+			}
+			else if (f.getType().equals(Long.class) || f.getType().equals(Long.TYPE)) {
+				return Long.parseLong(String.valueOf(o));
+			}
+			else if (f.getType().equals(Boolean.class) || f.getType().equals(Boolean.TYPE)) {
+				return Boolean.parseBoolean(String.valueOf(o));
+			}
+			else if (f.getType().equals(Float.class) || f.getType().equals(Float.TYPE)) {
+				return Float.parseFloat(String.valueOf(o));
+			}
+			else if (f.getType().equals(Double.class) || f.getType().equals(Double.TYPE)) {
+				return Double.parseDouble(String.valueOf(o));
+			}
+			else if (f.getType().equals(Short.class) || f.getType().equals(Short.TYPE)) {
+				return Short.parseShort(String.valueOf(o));
+			}
+			else {
+				return o;
+			}			
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * get a specific key from json by preserving the fields type
+	 * @param json
+	 * @param key
+	 * @param toField
+	 * @return
+	 * @throws JSONException 
+	 */
+	public static Object getFromJsonByField(JSONObject json, String key, Field toField) throws JSONException {
+		final Object o = json.get(key);
+		if (o != JSONObject.NULL) {
+			if (toField.getType().equals(Integer.class) || toField.getType().equals(Integer.TYPE)) {
+				return Integer.parseInt(String.valueOf(o));
+			}
+			else if (toField.getType().equals(String.class)) {
+				return o;
+			}
+			else if (toField.getType().equals(Long.class) || toField.getType().equals(Long.TYPE)) {
+				return Long.parseLong(String.valueOf(o));
+			}
+			else if (toField.getType().equals(Boolean.class) || toField.getType().equals(Boolean.TYPE)) {
+				return Boolean.parseBoolean(String.valueOf(o));
+			}
+			else if (toField.getType().equals(Float.class) || toField.getType().equals(Float.TYPE)) {
+				return Float.parseFloat(String.valueOf(o));
+			}
+			else if (toField.getType().equals(Double.class) || toField.getType().equals(Double.TYPE)) {
+				return Double.parseDouble(String.valueOf(o));
+			}
+			else {
+				return o;
+			}			
+		}
+
+		return JSONObject.NULL;
+	}
+	
+	/**
+	 * 
+	 * @param json
+	 * @param key
+	 * @param toField
+	 * @return
+	 * @throws JSONException
+	 */
+	public static Object getFromJsonByField2(JSONObject json, String key, Field toField) throws JSONException {
+		final Object o = json.get(key);
+		final Class<?> fieldType = toField.getType();
+		if (o != JSONObject.NULL) {
+			if (fieldType.equals(Integer.class) || fieldType.equals(Integer.TYPE)) {
+				return json.getInt(key);
+			}
+			else if (fieldType.equals(String.class)) {
+				return o;
+			}
+			else if (fieldType.equals(Long.class) || fieldType.equals(Long.TYPE)) {
+				return json.getLong(key);
+			}
+			else if (fieldType.equals(Boolean.class) || fieldType.equals(Boolean.TYPE)) {
+				return json.getBoolean(key);
+			}
+			else if (fieldType.equals(Float.class) || fieldType.equals(Float.TYPE)) {
+				return (float) json.getDouble(key);
+			}
+			else if (fieldType.equals(Double.class) || fieldType.equals(Double.TYPE)) {
+				return json.getDouble(key);
+			}
+			else {
+				return o;
+			}			
+		}
+
+		return JSONObject.NULL;
 	}
 }

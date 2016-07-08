@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2013-2016 alladin-IT GmbH
+  
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+    http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minWidth="1000dp"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/loop_mode_info_max_tests"
+        android:layout_marginTop="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/loop_mode_max_test"
+        android:gravity="center"
+        android:padding="10dp"
+        style="@style/textMediumLight" />
+
+    <EditText
+        android:id="@+id/loop_mode_max_tests"
+        style="@style/QoSTheme.EditText.Light.Large"
+        android:layout_marginTop="10dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="numberDecimal"
+        android:imeOptions="actionGo"
+        android:gravity="center"
+        android:ems="5"
+        android:padding="10dp">
+    </EditText>       
+    
+    
+    <TextView
+        android:id="@+id/loop_mode_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/loop_mode_info"
+        android:gravity="center_horizontal"
+        android:padding="10dp"
+        style="@style/textMediumLight" />
+        
+    <LinearLayout 
+		style="?android:attr/buttonBarStyle"
+		android:layout_marginTop="25dp"
+		android:layout_marginBottom="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            style="?android:attr/buttonBarButtonStyle"
+            android:id="@+id/loop_mode_go_to_settings_button"
+            android:text="@string/go_to_settings" 
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
+        <Button
+			style="?android:attr/buttonBarButtonStyle"
+            android:id="@+id/loop_mode_start_button"
+            android:text="@string/go" 
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+        
+        </LinearLayout>
+</LinearLayout>

@@ -141,7 +141,7 @@
     <string name="history_filter_networks">TIP MREŽE</string>
     <string name="history_filter_devices">UREĐAJ</string>
     <string name="history_filter_result_number">BROJ REZULTATA</string>
-    <string name="history_filter_result_number_25">Pokaži samo najnovijih 25 rezultata</string>
+    <string name="history_filter_result_number_25">Pokaži samo najnovijih 250 rezultata</string>
     
     <string name="result_measurement">MJERENJE</string>
     <string name="result_net">MREŽA</string>

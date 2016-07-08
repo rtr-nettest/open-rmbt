@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2015 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,12 +24,12 @@ import java.util.Map;
 import java.util.Set;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.Fragment;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -74,8 +74,8 @@ import at.alladin.rmbt.android.util.net.NetworkUtil.MinMax;
 public class RMBTMainMenuFragment extends Fragment
 {
 	public static enum OverlayType {
-		IPV4(R.string.title_screen_ipv4, R.id.title_page_ipv4_button), 
-		IPV6(R.string.title_screen_ipv6, R.id.title_page_ipv6_button), 
+		IPV4(R.string.title_screen_ipv4_overlay, R.id.title_page_ipv4_button), 
+		IPV6(R.string.title_screen_ipv6_overlay, R.id.title_page_ipv6_button), 
 		TRAFFIC(R.string.title_screen_traffic, R.id.title_page_traffic_button), 
 		LOCATION(R.string.result_page_title_map, R.id.title_page_location_button);
 		
@@ -162,6 +162,7 @@ public class RMBTMainMenuFragment extends Fragment
     public void onCreate(final Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        setRetainInstance(true);
     	Log.i(DEBUG_TAG, "onCreate");
         pulseAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.pulse);
         interfaceTrafficGatherer = new InterfaceTrafficGatherer();
@@ -248,9 +249,9 @@ public class RMBTMainMenuFragment extends Fragment
         if (startButton != null)
         {
            startButton.setOnClickListener(new OnClickListener()
-               { public void onClick(View v) { ((RMBTMainActivity) getActivity()).startTest(true);} });
+               { public void onClick(View v) { ((RMBTMainActivity) getActivity()).checkPermissionsAndStartTest();} });
         }
-        
+                
         final View startButtonLayout = view.findViewById(R.id.title_page_start_button_layout);
         if (startButtonLayout != null)
         {
@@ -315,7 +316,7 @@ public class RMBTMainMenuFragment extends Fragment
         infoOverlayList = (ListView) view.findViewById(R.id.info_overlay_list);
         if (infoOverlayList != null) {
         	infoValueListAdapterMap.put(OverlayType.TRAFFIC, new InfoArrayAdapter(getActivity(), OverlayType.TRAFFIC,
-        			InfoOverlayEnum.UL_TRAFFIC, InfoOverlayEnum.DL_TRAFFIC));
+        			InfoOverlayEnum.DL_TRAFFIC,InfoOverlayEnum.UL_TRAFFIC));
         	
         	infoValueListAdapterMap.put(OverlayType.IPV4, new InfoArrayAdapter(getActivity(), OverlayType.IPV4,
         			InfoOverlayEnum.IPV4, InfoOverlayEnum.IPV4_PUB));
@@ -384,6 +385,11 @@ public class RMBTMainMenuFragment extends Fragment
     public void onResume() {
     	Log.i(DEBUG_TAG, "onResume");
     	super.onResume();
+
+    	if (startButtonText != null) {
+        	startButtonText.setText(ConfigHelper.isLoopMode(getActivity()) ? R.string.menu_button_loop : R.string.menu_button_start);
+        }
+    	
         infoCollector.addListener(onInfoChangedListener);
         NetworkInfoCollector.getInstance().addOnNetworkChangedListener(onNetworkChangedListener);
         if (informationCollector != null) {
@@ -443,12 +449,12 @@ public class RMBTMainMenuFragment extends Fragment
 					
 	                Integer signal = informationCollector.getSignal();
 	                if (!"BLUETOOTH".equals(lastNetworkTypeString) && !"ETHERNET".equals(lastNetworkTypeString)) {
-	                	if (signal != null && signal > Integer.MIN_VALUE) {
+	                	if (signal != null && signal > Integer.MIN_VALUE && signal < 0) {
 		                	int signalType = informationCollector.getSignalType();
 		                	curSignal = signal;
 
 		                	if (signalType == InformationCollector.SINGAL_TYPE_RSRP) {
-			                	infoSignalStrength.setText("RSRP: " + signal + " dBm");
+			                	infoSignalStrength.setText(getString(R.string.term_signal) + ": " + signal + " dBm");
 			                	infoCollector.setSignal(signal);
 			                	Integer signalRsrq = informationCollector.getSignalRsrq();
 			                	if (signalRsrq != null) {
@@ -457,7 +463,7 @@ public class RMBTMainMenuFragment extends Fragment
 			    					}
 			    					
 			    					infoCollector.setSignalRsrq(signalRsrq);
-			    					infoSignalStrengthExtra.setText("RSRQ: " + signalRsrq + " dB");
+			    					infoSignalStrengthExtra.setText(getString(R.string.term_signal_quality) + ": " + signalRsrq + " dB");
 			                	}
 			                	else {
 			                		infoSignalStrengthExtra.setVisibility(View.INVISIBLE);
@@ -607,8 +613,8 @@ public class RMBTMainMenuFragment extends Fragment
 				infoHandler.postDelayed(infoRunnable, INFORMATION_COLLECTOR_TIME);	
 			}
 			
-			if (developerCodeInfoView != null && ConfigHelper.getDeveloperCode(getActivity()) != null) {
-				setViewText(developerCodeInfoView, ConfigHelper.getDeveloperCode(getActivity()));
+			if (developerCodeInfoView != null && ConfigHelper.isDevEnabled(getActivity())) {
+				setViewText(developerCodeInfoView, getActivity().getString(R.string.title_screen_developer));
 				setViewVisibility(developerCodeInfoView, View.VISIBLE);
 			}
 		}		
@@ -1080,7 +1086,7 @@ public class RMBTMainMenuFragment extends Fragment
 			    	holder.value.setText(ipv4CheckRunnable.getPrivAddress().getHostAddress());
 		    	}
 		    	else {
-		    		holder.name.setText(getResources().getString(R.string.title_screen_ipv4));
+		    		holder.name.setText("");
 		    		holder.value.setText(getResources().getString(R.string.not_available));
 		    	}
 		    	break;
@@ -1089,7 +1095,7 @@ public class RMBTMainMenuFragment extends Fragment
 			    	holder.value.setText(ipv6CheckRunnable.getPrivAddress().getHostAddress());
 		    	}
 		    	else {
-		    		holder.name.setText(getResources().getString(R.string.title_screen_ipv6));
+		    		holder.name.setText("");
 		    		holder.value.setText(getResources().getString(R.string.not_available));
 		    	}
 		    	break;
@@ -1235,6 +1241,10 @@ public class RMBTMainMenuFragment extends Fragment
         infoCollector.refresh();
         infoCollector.dispatchInfoChangedEvent(InfoCollectorType.DL_TRAFFIC, null, TrafficClassificationEnum.classify(interfaceTrafficGatherer.getRxRate()));
         infoCollector.dispatchInfoChangedEvent(InfoCollectorType.UL_TRAFFIC, null, TrafficClassificationEnum.classify(interfaceTrafficGatherer.getTxRate()));
+        
+    	if (startButtonText != null) {
+        	startButtonText.setText(ConfigHelper.isLoopMode(getActivity()) ? R.string.menu_button_loop : R.string.menu_button_start);
+        }
 	}
 	
 	/**

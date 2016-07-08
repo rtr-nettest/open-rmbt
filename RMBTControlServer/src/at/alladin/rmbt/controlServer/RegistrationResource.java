@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2015 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,14 +37,18 @@ import org.restlet.data.Reference;
 import org.restlet.resource.Get;
 import org.restlet.resource.Post;
 
+import com.google.common.base.Strings;
+import com.google.common.net.InetAddresses;
+import com.google.gson.Gson;
+
 import at.alladin.rmbt.db.Client;
 import at.alladin.rmbt.db.GeoLocation;
+import at.alladin.rmbt.db.dao.TestLoopModeDao;
 import at.alladin.rmbt.shared.GeoIPHelper;
 import at.alladin.rmbt.shared.Helperfunctions;
 import at.alladin.rmbt.shared.ResourceManager;
-
-import com.google.common.base.Strings;
-import com.google.common.net.InetAddresses;
+import at.alladin.rmbt.util.model.shared.LoopModeSettings;
+import at.alladin.rmbt.util.model.shared.exception.LoopModeRejectedException;
 
 public class RegistrationResource extends ServerResource
 {
@@ -96,10 +100,26 @@ public class RegistrationResource extends ServerResource
         }
         
         if (entity != null && !entity.isEmpty())
-            // try parse the string to a JSON object
+            // try parse the string to a JSON object       	
             try
             {
                 request = new JSONObject(entity);
+                
+                UUID uuid = null;
+                final String uuidString = request.optString("uuid", "");
+                if (uuidString.length() != 0)
+                    uuid = UUID.fromString(uuidString);
+                
+                final String loopModeData = request.optString("loopmode_info", null);
+                LoopModeSettings loopModeSettings = null;
+           		final TestLoopModeDao loopModeTestDao = new TestLoopModeDao(conn);
+                if (loopModeData != null) {
+                	loopModeSettings = new Gson().fromJson(loopModeData, LoopModeSettings.class);
+                	loopModeSettings.setClientUuid(uuidString);
+               		loopModeTestDao.save(loopModeSettings);
+               		if (1 == 2)
+               			throw new LoopModeRejectedException();
+                }
                 
                 int typeId = 0;
                 
@@ -137,12 +157,6 @@ public class RegistrationResource extends ServerResource
                     if (clientNames.contains(request.optString("client"))
                             && clientVersions.contains(request.optString("version")) && typeId > 0)
                     {
-                        
-                        UUID uuid = null;
-                        final String uuidString = request.optString("uuid", "");
-                        if (uuidString.length() != 0)
-                            uuid = UUID.fromString(uuidString);
-                        
                         final String clientName = request.getString("client");
                         final String clientVersion = request.getString("version");
                         
@@ -209,26 +223,7 @@ public class RegistrationResource extends ServerResource
                             final String testUuid = UUID.randomUUID().toString();
                             final String testOpenUuid = UUID.randomUUID().toString();
                             
-                            boolean testServerEncryption = true; // default is
-                                                                 // true
-                            
-                            // hack for android api <= 10 (2.3.x)
-                            // using encryption with test doesn't work
-                            if (request.has("plattform") && request.optString("plattform").equals("Android"))
-                                if (request.has("api_level"))
-                                {
-                                    final String apiLevelString = request.optString("api_level");
-                                    try
-                                    {
-                                        final int apiLevel = Integer.parseInt(apiLevelString);
-                                        if (apiLevel <= 10)
-                                            testServerEncryption = false;
-                                    }
-                                    catch (final NumberFormatException e)
-                                    {
-                                    }
-                                }
-                            
+                            boolean testServerEncryption = true; // encryption is mandatory
                             
                             final String serverType;
                             if (request.optString("client").equals("RMBTws"))
@@ -246,8 +241,9 @@ public class RegistrationResource extends ServerResource
                             
                             TestServer server = null;
                             
-                            final String developerCode = request.optString("developer_code", null);
-                            if (! Strings.isNullOrEmpty(developerCode))
+                            final Boolean userServerSelection = request.optBoolean("user_server_selection"); 
+                                  // It returns false if there is no such key, or if the value is not Boolean.TRUE or the String "true". 
+                            if (userServerSelection)
                             {
                                 final String preferServer = request.optString("prefer_server", null);
                                 if (! Strings.isNullOrEmpty(preferServer))
@@ -483,6 +479,11 @@ public class RegistrationResource extends ServerResource
                                     }
                                     
                                     st.close();
+                                    
+                                    if (loopModeSettings != null) {
+                                    	loopModeSettings.setTestUuid(testUuid);
+                                    	loopModeTestDao.save(loopModeSettings);
+                                    }
                                 }
                                 catch (final SQLException e)
                                 {
@@ -508,13 +509,19 @@ public class RegistrationResource extends ServerResource
             {
                 errorList.addError("ERROR_REQUEST_JSON");
                 System.out.println("Error parsing JSDON Data " + e.toString());
-            }
+            } catch (SQLException e) {
+            	errorList.addError("ERROR_DB_CONNECTION");
+				e.printStackTrace();
+			} catch (LoopModeRejectedException e) {
+            	errorList.addError("ERROR_REQUEST_REJECTED");
+			}
         else
             errorList.addErrorString("Expected request is missing.");
         
         try
         {
             answer.putOpt("error", errorList.getList());
+            answer.putOpt("error_flags", errorList.getErrorFlags());
         }
         catch (final JSONException e)
         {
@@ -525,6 +532,7 @@ public class RegistrationResource extends ServerResource
         long elapsedTime = System.currentTimeMillis() - startTime;
         System.out.println(MessageFormat.format(labels.getString("NEW_REQUEST_SUCCESS"), clientIpRaw, Long.toString(elapsedTime)));
         
+        System.out.println(answerString);
         return answerString;
     }
     

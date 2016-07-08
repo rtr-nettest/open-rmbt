@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2015 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -88,7 +88,7 @@ public class ResultResource extends ServerResource
                 
                 if (conn != null)
                 {
-                    
+                    boolean oldAutoCommitState = conn.getAutoCommit();
                     conn.setAutoCommit(false);
                     
                     final Test test = new Test(conn);
@@ -102,8 +102,16 @@ public class ResultResource extends ServerResource
                         {
                             
                             final UUID testUuid = UUID.fromString(token[0]);
+                            UUID openTestUuid=new java.util.UUID( 0L, 0L ); 
                             
-//                                errorList.addError("ERROR_TEST_TOKEN");
+                            // get open_test_uuid from test table
+                            
+                            final PreparedStatement psOpenUuid = conn.prepareStatement("SELECT open_test_uuid FROM test WHERE uuid = ?");
+                            psOpenUuid.setObject(1, testUuid);
+                            ResultSet rsOpenUuid = psOpenUuid.executeQuery();
+                            if (rsOpenUuid.next())
+                            	openTestUuid = (java.util.UUID) rsOpenUuid.getObject("open_test_uuid");
+                            System.out.println("open_test_uuid: " + openTestUuid.toString());
                             
                             {
                                 
@@ -175,7 +183,9 @@ public class ResultResource extends ServerResource
                                         }
                                         
 
-                                        
+                                        //avoid null value on user_server_selection
+                                        if (test.getField("user_server_selection").toString()!="true") 
+                                           test.getField("user_server_selection").setString("false");
                                         
                                         
                                         // Additional Info
@@ -185,7 +195,7 @@ public class ResultResource extends ServerResource
                                         if (speedData != null && !test.hasError())
                                         {
                                             
-                                            // old version
+                                            // old implementation - extra table, JSON converted into SQL columns
                                             
                                             /*
                                                 final PreparedStatement psSpeed = conn.prepareStatement("INSERT INTO test_speed (test_id, upload, thread, time, bytes) VALUES (?,?,?,?,?)");
@@ -208,7 +218,7 @@ public class ResultResource extends ServerResource
                                             */
                                             
                                             
-                                            // new version
+                                            // next implementation - JSON result as JSON string within the test table
                                             
                                             final SpeedItems speedItems = new SpeedItems();
                                             for (int i = 0; i < speedData.length(); i++)
@@ -228,15 +238,28 @@ public class ResultResource extends ServerResource
                                                 }
                                             }
                                             final String speedItemsJson = getGson(false).toJson(speedItems);
+                                            
+                                            //to be deleted when migration is finished (no speed items in test table any more)
                                             test.getField("speed_items").setString(speedItemsJson);
+                                            
+                                            // current implementation - JSON result as binary JSONB in extra table 
+                                            
+                                            // reuses speedItemsJson prepared above
+
+                                            final PreparedStatement psSpeed = conn.prepareStatement("INSERT INTO speed (open_test_uuid,items) VALUES (?,?::JSONB)");
+                                            psSpeed.setObject(1,openTestUuid);
+                                            psSpeed.setString(2,speedItemsJson);
+                                            psSpeed.executeUpdate();
+  
                                         }
                                         
                                         final JSONArray pingData = request.optJSONArray("pings");
                                         
                                         if (pingData != null && !test.hasError())
                                         {
-                                            final PreparedStatement psPing = conn.prepareStatement("INSERT INTO ping (test_id, value, value_server, time_ns) " + "VALUES(?,?,?,?)");
-                                            psPing.setLong(1, test.getUid());
+                                            final PreparedStatement psPing = conn.prepareStatement("INSERT INTO ping (open_test_uuid,test_id, value, value_server, time_ns) " + "VALUES(?,?,?,?,?)");
+                                            psPing.setObject(1,openTestUuid);
+                                            psPing.setLong(2, test.getUid());
                                             
                                             for (int i = 0; i < pingData.length(); i++)
                                             {
@@ -245,21 +268,21 @@ public class ResultResource extends ServerResource
                                                 
                                                 long valueClient = pingDataItem.optLong("value", -1);
                                                 if (valueClient >= 0)
-                                                    psPing.setLong(2, valueClient);
-                                                else
-                                                    psPing.setNull(2, Types.BIGINT);
-                                                
-                                                long valueServer = pingDataItem.optLong("value_server", -1);
-                                                if (valueServer >= 0)
-                                                    psPing.setLong(3, valueServer);
+                                                    psPing.setLong(3, valueClient);
                                                 else
                                                     psPing.setNull(3, Types.BIGINT);
                                                 
-                                                long timeNs = pingDataItem.optLong("time_ns", -1);
-                                                if (timeNs >= 0)
-                                                    psPing.setLong(4, timeNs);
+                                                long valueServer = pingDataItem.optLong("value_server", -1);
+                                                if (valueServer >= 0)
+                                                    psPing.setLong(4, valueServer);
                                                 else
                                                     psPing.setNull(4, Types.BIGINT);
+                                                
+                                                long timeNs = pingDataItem.optLong("time_ns", -1);
+                                                if (timeNs >= 0)
+                                                    psPing.setLong(5, timeNs);
+                                                else
+                                                    psPing.setNull(5, Types.BIGINT);
 
                                                 
                                                 psPing.executeUpdate();
@@ -278,6 +301,7 @@ public class ResultResource extends ServerResource
                                                 
                                                 final GeoLocation geoloc = new GeoLocation(conn);
                                                 
+                                                geoloc.setOpenTestUuid(openTestUuid);
                                                 geoloc.setTest_id(test.getUid());
                                                 
                                                 final long clientTime = geoDataItem.optLong("tstamp");
@@ -333,6 +357,7 @@ public class ResultResource extends ServerResource
                                                 
                                                 final Cell_location cellloc = new Cell_location(conn);
                                                 
+                                                cellloc.setOpenTestUuid(openTestUuid);
                                                 cellloc.setTest_id(test.getUid());
                                                 
                                                 final long clientTime = cellDataItem.optLong("time");
@@ -377,6 +402,7 @@ public class ResultResource extends ServerResource
                                                 
                                                 final Signal signal = new Signal(conn);
                                                 
+                                                signal.setOpenTestUuid(openTestUuid);
                                                 signal.setTest_id(test.getUid());
                                                 
                                                 final long clientTime = signalDataItem.optLong("time");
@@ -496,6 +522,20 @@ public class ResultResource extends ServerResource
                                             }
                                         }
                                         
+                                        ///////// android_permissions
+                                        final JSONArray androidPermissionStatus = request.optJSONArray("android_permission_status");
+                                        String androidPermissionStatusString = null;
+                                        if (androidPermissionStatus != null)
+                                        {
+                                            androidPermissionStatusString = androidPermissionStatus.toString();
+                                            if (androidPermissionStatusString.length() > 1000) // sanity check
+                                                androidPermissionStatusString = null;
+                                        }
+                                        
+                                        test.getField("android_permissions").setString(androidPermissionStatusString);
+                                        ///////////
+                                        
+                                        
                                         if (test.getField("network_type").intValue() <= 0)
                                             errorList.addError("ERROR_NETWORK_TYPE");
                                         
@@ -539,6 +579,7 @@ public class ResultResource extends ServerResource
                         errorList.addError("ERROR_TEST_TOKEN_MISSING");
                                         
                     conn.commit();
+                    conn.setAutoCommit(oldAutoCommitState); // be nice and restore old state TODO: do it in finally
                 }
                 else
                     errorList.addError("ERROR_DB_CONNECTION");

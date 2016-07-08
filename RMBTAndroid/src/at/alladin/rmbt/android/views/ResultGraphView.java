@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2015 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -151,7 +151,7 @@ public class ResultGraphView extends ScrollView implements EndTaskListener {
                 testResultOpenDataTask = new CheckTestResultDetailTask(activity, ResultDetailType.OPENDATA);
                 
                 testResultOpenDataTask.setEndTaskListener(this);
-                testResultOpenDataTask.execute(uid, openTestUid);        		
+                testResultOpenDataTask.execute(openTestUid);        		
         	}
         }
     }

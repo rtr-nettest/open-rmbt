@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2015 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package at.alladin.rmbt.mapServer;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -26,6 +27,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import at.alladin.rmbt.shared.Classification;
+import at.alladin.rmbt.util.capability.Capabilities;
 
 import com.google.common.base.Strings;
 
@@ -38,6 +40,8 @@ final public class MapServerOptions
     // 10^(a×3)×1000000
     // log(a÷1000000)÷3
     
+	public final static int SUPPORTED_CLASSIFICATION_ITEMS = 4;
+	
     protected static final int[] colors_ryg = new int[] { 0x600000, 0xff0000, 0xffff00, 0x00ff00, 0x00cb00, 0x009600, 0x006100 };
     protected static final int[] colors_ryg_short = new int[] { 0x600000, 0xff0000, 0xffff00, 0x00ff00, 0x00b000 };    
     
@@ -387,17 +391,48 @@ final public class MapServerOptions
                 }
             });
             
-            put("developer_code", new MapFilter()
+            put("age", new MapFilter()
+            {
+                @Override
+                SQLFilter getFilter(final String input)
+                {
+                    if (Strings.isNullOrEmpty(input))
+                        return null;
+                    try
+                    {
+                        int _age = Integer.parseInt(input);
+                        if (_age <= 0 || _age > 1460)
+                            _age = 0;
+                        final int age = _age;
+                        
+                        return new SQLFilter("t.time < NOW() - CAST(? AS INTERVAL)")
+                        {
+                            @Override
+                            int fillParams(int i, final PreparedStatement ps) throws SQLException
+                            {
+                                ps.setString(i++, String.format("%d days", age));
+                                return i;
+                            }
+                        };
+                    }
+                    catch (NumberFormatException e)
+                    {
+                        return null;
+                    }
+                }
+            });
+            
+            put("user_server_selection", new MapFilter()
             {
             	@Override
                 SQLFilter getFilter(final String input)
                 {            	
-        			return new SQLFilter("t.developer_code = ?") {
+        			return new SQLFilter("t.user_server_selection = ?") {
 
         				@Override
         				int fillParams(int i, final PreparedStatement ps) throws SQLException
         				{
-        					ps.setString(i++, input);
+        					ps.setBoolean(i++, Boolean.valueOf(input));
         					return i;
         				}
         			};
@@ -502,7 +537,7 @@ final public class MapServerOptions
         
         public int getClassification(final long value)
         {
-            return Classification.classify(classification, value, true);
+            return Classification.classify(classification, value, 4);
         }
     }
     

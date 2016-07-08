@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,16 +63,6 @@ public class CheckHistoryTask extends AsyncTask<Void, Void, JSONArray>
                     ((RMBTMainActivity) activity).getHistoryResultLimit());
         
         return historyList;
-    }
-    
-    @Override
-    protected void onCancelled()
-    {
-        if (serverConn != null)
-        {
-            serverConn.unload();
-            serverConn = null;
-        }
     }
     
     @Override

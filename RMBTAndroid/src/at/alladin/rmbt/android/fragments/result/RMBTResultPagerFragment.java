@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,11 @@ package at.alladin.rmbt.android.fragments.result;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import android.app.Fragment;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.view.LayoutInflater;
@@ -62,12 +62,13 @@ public class RMBTResultPagerFragment extends Fragment implements OnTabChangeList
     public void onCreate(final Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        setRetainInstance(true);
         
         final Bundle args = getArguments();
         
         final String uuid = args.getString(ARG_TEST_UUID);
         System.out.println("ResultPagerFragment: test uuid: " + uuid);
-        
+
         pagerAdapter = new RMBTResultPagerAdapter((RMBTMainActivity) getActivity(), handler, uuid);
         pagerAdapter.setOnCompleteListener(new OnCompleteListener() {
 			
@@ -119,8 +120,7 @@ public class RMBTResultPagerFragment extends Fragment implements OnTabChangeList
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState)
     {
-        super.onCreateView(inflater, container, savedInstanceState);
-
+    	pagerAdapter.setActivity((RMBTMainActivity) getActivity());
         View v = inflater.inflate(R.layout.result_tabhost_pager, container, false);
         return createView(v, inflater, RMBTResultPagerAdapter.RESULT_PAGE_MAIN_MENU);
     }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ public class TcpResult extends AbstractResult<TcpResult> {
 	private String inResult;
 	
 	@HstoreKey("tcp_objective_in_port")
-	private String inPort;
+	private Integer inPort;
 
 	@HstoreKey("tcp_result_in_response")
 	private String inResponse;
@@ -53,13 +53,13 @@ public class TcpResult extends AbstractResult<TcpResult> {
 	private String outResult;
 	
 	@HstoreKey("tcp_objective_out_port")
-	private String outPort;
+	private Integer outPort;
 
 	@HstoreKey("tcp_result_out_response")
 	private String outResponse;
 
 	@HstoreKey("tcp_objective_timeout")
-	private String timeout;
+	private Long timeout;
 
 	/**
 	 * 
@@ -76,11 +76,11 @@ public class TcpResult extends AbstractResult<TcpResult> {
 		this.inResult = inResult;
 	}
 
-	public String getInPort() {
+	public Integer getInPort() {
 		return inPort;
 	}
 
-	public void setInPort(String inPort) {
+	public void setInPort(Integer inPort) {
 		this.inPort = inPort;
 	}
 
@@ -100,11 +100,11 @@ public class TcpResult extends AbstractResult<TcpResult> {
 		this.outResult = outResult;
 	}
 
-	public String getOutPort() {
+	public Integer getOutPort() {
 		return outPort;
 	}
 
-	public void setOutPort(String outPort) {
+	public void setOutPort(Integer outPort) {
 		this.outPort = outPort;
 	}
 
@@ -116,23 +116,20 @@ public class TcpResult extends AbstractResult<TcpResult> {
 		this.outResponse = outResponse;
 	}
 
-	public String getTimeout() {
+	public Long getTimeout() {
 		return timeout;
 	}
 
-	public void setTimeout(String timeout) {
+	public void setTimeout(Long timeout) {
 		this.timeout = timeout;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
 	@Override
 	public String toString() {
 		return "TcpResult [inResult=" + inResult + ", inPort=" + inPort
 				+ ", inResponse=" + inResponse + ", outResult=" + outResult
 				+ ", outPort=" + outPort + ", outResponse=" + outResponse
-				+ ", timeout=" + timeout + "]";
+				+ ", timeout=" + timeout + ", toString()=" + super.toString()
+				+ "]";
 	}	
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2015 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -539,11 +539,9 @@ public class TestResultDetailResource extends ServerResource
                         final Field openUUIDField = test.getField("open_uuid");
                         if (! openUUIDField.isNull())
                             addString(resultList, "open_uuid", String.format("P%s", openUUIDField));
-
-                        final Field developerCodeDField = test.getField("developer_code");
-                        if (! developerCodeDField.isNull() && !developerCodeDField.toString().isEmpty() && !developerCodeDField.toString().equals("0"))
-                            addString(resultList, "developer_code", test.getField("developer_code"));
-
+          
+                        //todo: Add "user_server_selection" Flag
+                        
                         //number of threads for upload-test
                         final Field tag = test.getField("tag");
                         if (!tag.isNull()) {                   

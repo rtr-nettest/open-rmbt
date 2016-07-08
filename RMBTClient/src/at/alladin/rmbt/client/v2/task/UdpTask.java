@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2015 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -385,7 +385,7 @@ public class UdpTask extends AbstractQoSTask {
 			final TreeSet<Integer> duplicatePackets = new TreeSet<Integer>();
 	    	
 			public boolean onSend(DataOutputStream dataOut, int packetNumber) throws IOException {
-				System.out.println("UDP OUT Test: seinding packet #" + packetNumber);
+				System.out.println("UDP OUT Test: sending packet #" + packetNumber);
 	    		dataOut.writeByte(UDP_TEST_AWAIT_RESPONSE_IDENTIFIER);
 	    		dataOut.writeByte(packetNumber);
     			dataOut.write(params.getUUID().getBytes());
@@ -424,8 +424,7 @@ public class UdpTask extends AbstractQoSTask {
 			}
 
 			public void onBind(Integer port) throws IOException {
-				// TODO Auto-generated method stub
-				
+				System.out.println("UDP; Binding on port " + port);
 			}
 		});
 	    

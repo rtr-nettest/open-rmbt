@@ -48,6 +48,8 @@ import java.nio.file.StandardCopyOption;
 
 public class ExportResource extends ServerResource
 {
+    private static final String FILENAME_CSV_HOURS = "netztest-opendata_hours-%HOURS%.csv";
+    private static final String FILENAME_ZIP_HOURS = "netztest-opendata_hours-%HOURS%.zip";
     private static final String FILENAME_CSV = "netztest-opendata-%YEAR%-%MONTH%.csv";
     private static final String FILENAME_ZIP = "netztest-opendata-%YEAR%-%MONTH%.zip";
     private static final String FILENAME_CSV_CURRENT = "opendata.csv";
@@ -56,7 +58,7 @@ public class ExportResource extends ServerResource
     private static final CSVFormat csvFormat = CSVFormat.RFC4180;
     private static final boolean zip = true;
     
-    private static final long cacheThresholdMs = 60*60*1000; //1 hour
+    private static long cacheThresholdMs;
 
     @Get
     public Representation request(final String entity)
@@ -64,33 +66,53 @@ public class ExportResource extends ServerResource
         //Before doing anything => check if a cached file already exists and is new enough
         String property = System.getProperty("java.io.tmpdir");
         
-        final String filename_zip;
-        final String filename_csv;
-        
+    	final String filename_zip;
+    	final String filename_csv;
+    	
         //allow filtering by month/year
         int year = -1;
         int month = -1;
-        if (getRequest().getAttributes().containsKey("year")) {       
-	        try {
-		        year= Integer.parseInt(getRequest().getAttributes().get("year").toString());
-		        month = Integer.parseInt(getRequest().getAttributes().get("month").toString());
-	        } catch (NumberFormatException ex) {
-	        	//Nothing -> fallback to normal request at this point
-	        }
-	        if (year < 2099 && month > 0 && month <= 12 && year > 2000) {
-	        	 filename_zip = FILENAME_ZIP.replace("%YEAR%", Integer.toString(year)).replace("%MONTH%",String.format("%02d",month));
-			     filename_csv = FILENAME_CSV.replace("%YEAR%", Integer.toString(year)).replace("%MONTH%",String.format("%02d",month));
-
-	        } else {
-	        	filename_zip = FILENAME_ZIP_CURRENT;
-	        	filename_csv = FILENAME_CSV_CURRENT;
-	        }
-        } else {
+        int hours = -1;
+        boolean hoursExport = false;
+        boolean dateExport = false;
+        
+        if (getRequest().getAttributes().containsKey("hours")) { // export by hours
+        	try {
+        		hours= Integer.parseInt(getRequest().getAttributes().get("hours").toString());
+        	} catch (NumberFormatException ex) {
+        		//Nothing -> just fall back
+        	}
+        	if (hours <= 7*24 && hours >= 1) {  //limit to 1 week (avoid DoS)
+        		hoursExport = true;
+        	}
+        } 
+        else if (!hoursExport && getRequest().getAttributes().containsKey("year")) {  // export by month/year 
+        	try {
+        		year= Integer.parseInt(getRequest().getAttributes().get("year").toString());
+        		month = Integer.parseInt(getRequest().getAttributes().get("month").toString());
+        	} catch (NumberFormatException ex) {
+        		//Nothing -> just fall back
+        	}
+        	if (year < 2099 && month > 0 && month <= 12 && year > 2000) {
+        		dateExport = true;
+        	} 
+        } 
+        
+        if (hoursExport) {
+        	filename_zip = FILENAME_ZIP_HOURS.replace("%HOURS%", String.format("%03d",hours));
+        	filename_csv = FILENAME_CSV_HOURS.replace("%HOURS%", String.format("%03d",hours));
+        	cacheThresholdMs = 5*60*1000; //5 minutes
+        } else if (dateExport) {
+        	filename_zip = FILENAME_ZIP.replace("%YEAR%", Integer.toString(year)).replace("%MONTH%",String.format("%02d",month));
+        	filename_csv = FILENAME_CSV.replace("%YEAR%", Integer.toString(year)).replace("%MONTH%",String.format("%02d",month));
+        	cacheThresholdMs  = 23*60*60*1000; //23 hours
+        } else {	
         	filename_zip = FILENAME_ZIP_CURRENT;
         	filename_csv = FILENAME_CSV_CURRENT;
+        	cacheThresholdMs = 3*60*60*1000; //3 hours
         }
-        
-        
+
+
         final File cachedFile = new File(property + File.separator + ((zip)?filename_zip:filename_csv));
         final File generatingFile = new File(property + File.separator + ((zip)?filename_zip:filename_csv) + "_tmp");
         if (cachedFile.exists()) {
@@ -122,11 +144,16 @@ public class ExportResource extends ServerResource
             }
         }
         
-        final String timeClause = (year > 0 && month > 0 && month <= 12 && year > 2000) ?
-        		" AND (EXTRACT (month FROM t.time AT TIME ZONE 'UTC') = " + month + ") AND (EXTRACT (year FROM t.time AT TIME ZONE 'UTC') = " + year + ") " 
-        		:" AND time > current_date - interval '31 days' "; 
-        	
+        final String timeClause;
         
+        if (dateExport)
+        	timeClause = " AND (EXTRACT (month FROM t.time AT TIME ZONE 'UTC') = " + month + 
+        	") AND (EXTRACT (year FROM t.time AT TIME ZONE 'UTC') = " + year + ") ";
+        else if (hoursExport)
+        	timeClause = " AND time > now() - interval '" + hours + " hours' ";
+        else 
+        	timeClause = " AND time > current_date - interval '31 days' ";
+         
         
         final String sql = "SELECT" +
                 " ('P' || t.open_uuid) open_uuid," +

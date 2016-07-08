@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2015 alladin-IT GmbH
+ * Copyright 2016 Specure GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,20 +15,83 @@
  *******************************************************************************/
 package at.alladin.rmbt.qos.testserver.servers;
 
-import java.net.DatagramSocket;
+import java.io.Closeable;
+import java.io.IOException;
+import java.net.DatagramPacket;
 import java.net.InetAddress;
+import java.util.concurrent.ConcurrentHashMap;
 
-import at.alladin.rmbt.qos.testserver.ServerPreferences.TestServerServiceEnum;
-import at.alladin.rmbt.qos.testserver.udp.ClientUdpData;
+import at.alladin.rmbt.qos.testserver.entity.Observable;
+import at.alladin.rmbt.qos.testserver.entity.TestCandidate;
+import at.alladin.rmbt.qos.testserver.udp.UdpTestCandidate;
 
-/**
- * 
- * @author lb
- *
- */
-public abstract class AbstractUdpServer extends AbstractServer<DatagramSocket, ClientUdpData> {
-
-	public AbstractUdpServer(InetAddress inetAddr, int port) {
-		super(DatagramSocket.class, ClientUdpData.class, inetAddr, port, "UdpServer", TestServerServiceEnum.UDP_SERVICE);
+public abstract class AbstractUdpServer<T extends Closeable> implements Runnable, Observable {
+	
+	protected final ConcurrentHashMap<String, UdpTestCandidate> incomingMap = new ConcurrentHashMap<>();
+	
+	protected final Class<?> clazz;
+	
+	public AbstractUdpServer(Class<?> clazz) {
+		this.clazz = clazz;
 	}
+	
+	public Class<?> getClazz() {
+		return clazz;
+	}
+
+	/**
+	 * 
+	 * @param uuid
+	 */
+	public synchronized UdpTestCandidate getClientData(String uuid) {
+		return incomingMap.get(uuid);
+	}
+	
+	/**
+	 * 
+	 * @param uuid
+	 * @return
+	 */
+	public synchronized TestCandidate pollClientData(String uuid) {
+		return incomingMap.remove(uuid);
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public synchronized ConcurrentHashMap<String, UdpTestCandidate> getIncomingMap() {
+		return incomingMap;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public abstract T getSocket();
+	
+	/**
+	 * 
+	 * @param dp
+	 * @throws IOException 
+	 */
+	public abstract void send(DatagramPacket dp) throws IOException;
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public abstract boolean getIsRunning();
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public abstract InetAddress getAddress();
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public abstract int getLocalPort();	
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,19 +22,25 @@ import java.util.ResourceBundle;
 
 import javax.naming.NamingException;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.restlet.engine.header.Header;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Options;
 import org.restlet.resource.ResourceException;
 import org.restlet.util.Series;
 
+import com.google.gson.Gson;
+
 import at.alladin.rmbt.shared.ResourceManager;
+import at.alladin.rmbt.util.capability.Capabilities;
 
 public class ServerResource extends org.restlet.resource.ServerResource
 {
     protected Connection conn;
     protected ResourceBundle labels;
     protected ResourceBundle settings;
+    protected Capabilities capabilities = new Capabilities();
     
     @Override
     public void doInit() throws ResourceException
@@ -45,6 +51,14 @@ public class ServerResource extends org.restlet.resource.ServerResource
         // Set default Language for System
         Locale.setDefault(new Locale(settings.getString("RMBT_DEFAULT_LANGUAGE")));
         labels = ResourceManager.getSysMsgBundle();
+        
+        try {
+	        if (getQuery().getNames().contains("capabilities")) {
+	        	capabilities = new Gson().fromJson(getQuery().getValues("capabilities"), Capabilities.class);
+	        }
+        } catch (final Exception e) {
+        	e.printStackTrace();
+        }
         
         // Get DB-Connection
         try
@@ -74,6 +88,14 @@ public class ServerResource extends org.restlet.resource.ServerResource
         {
             e.printStackTrace();
         }
+    }
+    
+    public void readCapabilities(final JSONObject request) throws JSONException {
+    	if (request != null) {
+    		if (request.has("capabilities")) {
+        		capabilities = new Gson().fromJson(request.get("capabilities").toString(), Capabilities.class);	
+    		}
+    	}
     }
     
     @SuppressWarnings("unchecked")

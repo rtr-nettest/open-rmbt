@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2015 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import at.alladin.rmbt.qos.testserver.ServerPreferences.TestServerServiceEnum;
+import at.alladin.rmbt.qos.testserver.servers.AbstractUdpServer;
 import at.alladin.rmbt.qos.testserver.TestServer;
 import at.alladin.rmbt.qos.testserver.service.IntervalJob;
 
@@ -58,6 +59,8 @@ public class UdpWatcherRunnable extends IntervalJob<String> {
 	 */
 	@Override
 	public String execute() {
+		int healthy = 0;
+		int unhealthy = 0;
 		if (TestServer.udpServerMap != null) {
 			synchronized (TestServer.udpServerMap) {
 				Iterator<List<AbstractUdpServer<?>>> listIterator = TestServer.udpServerMap.values().iterator();
@@ -66,6 +69,15 @@ public class UdpWatcherRunnable extends IntervalJob<String> {
 					while (iterator.hasNext()) {
 						AbstractUdpServer<?> udpServer = iterator.next();
 						Iterator<?> incomingMapIterator = udpServer.getIncomingMap().entrySet().iterator();
+						if (!udpServer.isHealthy()) {
+							log("UDP Server " +  udpServer.getAddress() + ":" + udpServer.getLocalPort() + " found HEALTH-ERROR", 0);
+							log("UDP Server " +  udpServer.getAddress() + ":" + udpServer.getLocalPort() + " status: " + udpServer.getStatusMessage(), 0);
+							unhealthy++;
+						}
+						else {
+							healthy++;
+						}
+						
 						while (incomingMapIterator.hasNext()) {
 							@SuppressWarnings("unchecked")
 							Entry<String, UdpTestCandidate> entry = (Entry<String, UdpTestCandidate>) incomingMapIterator.next();
@@ -79,7 +91,7 @@ public class UdpWatcherRunnable extends IntervalJob<String> {
 				}
 			}
 		}
-		return "removed dead candidates: " + removeCounter;
+		return "healthy servers: " + healthy + ", unhealthy servers: " + unhealthy + "; removed dead candidates: " + removeCounter;
 	}
 
 	/*

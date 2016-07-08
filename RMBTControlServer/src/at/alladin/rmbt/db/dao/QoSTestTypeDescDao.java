@@ -84,6 +84,7 @@ public class QoSTestTypeDescDao implements PrimaryKeyDao<QoSTestTypeDesc, Long> 
 	@Override
 	public List<QoSTestTypeDesc> getAll() throws SQLException {
 		List<QoSTestTypeDesc> resultList = new ArrayList<>();
+		
 		try (PreparedStatement psGetAll = conn.prepareStatement("SELECT nnttd.uid AS uid, test, nntd.\"value\", nntd.lang, nntd2.\"value\" AS value_name, nntd2.lang AS name_lang "
 				+ " FROM qos_test_type_desc AS nnttd "
 				+ " JOIN qos_test_desc nntd ON nnttd.test_desc = nntd.desc_key "
@@ -100,7 +101,7 @@ public class QoSTestTypeDescDao implements PrimaryKeyDao<QoSTestTypeDesc, Long> 
     		psGetAll.setString(2, locale.getLanguage());
     		psGetAll.setString(3, locale.getLanguage());
     		psGetAll.setString(4, locale.getLanguage());
-    		
+    	   		
     		if (psGetAll.execute()) {
     			try (ResultSet rs = psGetAll.getResultSet())
     			{
@@ -169,7 +170,7 @@ public class QoSTestTypeDescDao implements PrimaryKeyDao<QoSTestTypeDesc, Long> 
 		result.setDescription(rs.getString("value"));
 		result.setName(rs.getString("value_name"));
 		try {
-			result.setTestType(TestType.valueOf(rs.getString("test").toUpperCase()));
+			result.setTestType(TestType.valueOf(rs.getString("test").toUpperCase(Locale.US)));
 		}
 		catch (Exception e) {
 			result.setTestType(null);

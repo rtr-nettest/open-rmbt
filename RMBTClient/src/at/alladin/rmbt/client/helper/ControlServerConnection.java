@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2015 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,16 @@
 package at.alladin.rmbt.client.helper;
 
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TimeZone;
 
 import org.json.JSONArray;
@@ -39,16 +40,15 @@ import at.alladin.rmbt.client.ndt.UiServicesAdapter;
 import at.alladin.rmbt.client.v2.task.TaskDesc;
 import at.alladin.rmbt.client.v2.task.service.TestMeasurement;
 import at.alladin.rmbt.client.v2.task.service.TestMeasurement.TrafficDirection;
+import at.alladin.rmbt.util.model.shared.exception.ErrorStatus;
 
 public class ControlServerConnection
 {
     
     // url to make request
-    private URI hostUri;
+    private URL hostUrl;
     
     private boolean testEncryption;
-    
-    private final JSONParser jParser;
     
     private String testToken = "";
     private String testId = "";
@@ -68,12 +68,14 @@ public class ControlServerConnection
     
     private String clientUUID = "";
     
-    private URI resultURI;
-	private URI resultQoSURI;
+    private URL resultURL;
+	private URL resultQoSURI;
     
     private String errorMsg = null;
     
     private boolean hasError = false;
+    
+    private Set<ErrorStatus> lastErrorList;
     
     public TaskDesc udpTaskDesc;
     public TaskDesc dnsTaskDesc;
@@ -81,21 +83,14 @@ public class ControlServerConnection
     public TaskDesc httpTaskDesc;
     public TaskDesc tcpTaskDesc;
     
+    private JSONObject lastTestResult;
+    
     public List<TaskDesc> v2TaskDesc;
+    
+    private long startTimeMillis = 0;
     private long startTimeNs = 0;
     
-    /**
-     * @param args
-     */
-    public ControlServerConnection()
-    {
-        
-        // Creating JSON Parser instance
-        jParser = new JSONParser();
-        
-    }
-    
-    private static URI getUri(final boolean encryption, final String host, final String pathPrefix, final int port,
+    private static URL getUrl(final boolean encryption, final String host, final String pathPrefix, final int port,
             final String path)
     {
         try
@@ -105,15 +100,11 @@ public class ControlServerConnection
             final String totalPath = (pathPrefix != null ? pathPrefix : "") + Config.RMBT_CONTROL_PATH + path;
             
             if (defaultPort == port)
-                return new URL(protocol, host, totalPath).toURI();
+                return new URL(protocol, host, totalPath);
             else
-                return new URL(protocol, host, port, totalPath).toURI();
+                return new URL(protocol, host, port, totalPath);
         }
         catch (final MalformedURLException e)
-        {
-            return null;
-        }
-        catch (final URISyntaxException e)
         {
             return null;
         }
@@ -137,11 +128,12 @@ public class ControlServerConnection
             final boolean encryption, final ArrayList<String> geoInfo, final String uuid, final String clientType,
             final String clientName, final String clientVersion, final JSONObject additionalValues)
     {
+    	resetErrors();
         clientUUID = uuid;
         
-        hostUri = getUri(encryption, host, pathPrefix, port, Config.RMBT_CONTROL_V2_TESTS);
+        hostUrl = getUrl(encryption, host, pathPrefix, port, Config.RMBT_CONTROL_V2_TESTS);
         
-        System.out.println("Connection to " + hostUri);
+        System.out.println("Connection to " + hostUrl);
         
         final JSONObject regData = new JSONObject();
         
@@ -183,12 +175,14 @@ public class ControlServerConnection
         }
         
         // getting JSON string from URL
-        final JSONObject response = jParser.sendJSONToUrl(hostUri, regData);
+        final JSONObject response = JSONParser.sendJSONToUrl(hostUrl, regData);
         
         if (response != null)
             try
             {
                 final JSONArray errorList = response.getJSONArray("error");
+                
+                checkHasErrors(response);
                 
                 // System.out.println(response.toString(4));
                 
@@ -238,19 +232,35 @@ public class ControlServerConnection
         return errorMsg;
     }
     
+    private void resetErrors() {
+    	lastErrorList = null;
+    }
+    
+    private boolean checkHasErrors(JSONObject response) throws JSONException {
+    	final JSONArray errorList = response.getJSONArray("error");
+    	final JSONArray errorFlags = response.optJSONArray("error_flags");
+    	if (errorFlags != null && errorFlags.length() > 0) {
+    		lastErrorList = new HashSet<ErrorStatus>();
+    		for (int i = 0; i < errorFlags.length(); i++) {
+    			lastErrorList.add(ErrorStatus.valueOf(errorFlags.getString(i)));
+    		}
+    	}
+    	return errorList.length() > 0;
+    }
+    
     public String requestNewTestConnection(final String host, final String pathPrefix, final int port,
             final boolean encryption, final ArrayList<String> geoInfo, final String uuid, final String clientType,
             final String clientName, final String clientVersion, final JSONObject additionalValues)
     {
-     
+    	resetErrors();
         String errorMsg = null;
         // url to make request to
         
         clientUUID = uuid;
         
-        hostUri = getUri(encryption, host, pathPrefix, port, Config.RMBT_CONTROL_MAIN_URL);
+        hostUrl = getUrl(encryption, host, pathPrefix, port, Config.RMBT_CONTROL_MAIN_URL);
         
-        System.out.println("Connection to " + hostUri);
+        System.out.println("Connection to " + hostUrl);
         
         final JSONObject regData = new JSONObject();
         
@@ -264,7 +274,8 @@ public class ControlServerConnection
             regData.put("softwareRevision", RevisionHelper.getVerboseRevision());
             regData.put("language", Locale.getDefault().getLanguage());
             regData.put("timezone", TimeZone.getDefault().getID());
-            regData.put("time", System.currentTimeMillis());
+            startTimeMillis = System.currentTimeMillis();
+            regData.put("time", startTimeMillis);
             startTimeNs = System.nanoTime();
             
             if (geoInfo != null)
@@ -292,7 +303,7 @@ public class ControlServerConnection
         }
         
         // getting JSON string from URL
-        final JSONObject response = jParser.sendJSONToUrl(hostUri, regData);
+        final JSONObject response = JSONParser.sendJSONToUrl(hostUrl, regData);
         
         if (response != null)
             try
@@ -300,6 +311,7 @@ public class ControlServerConnection
                 final JSONArray errorList = response.getJSONArray("error");
                 
                 // System.out.println(response.toString(4));
+                checkHasErrors(response);
                 
                 if (errorList.length() == 0)
                 {
@@ -325,8 +337,8 @@ public class ControlServerConnection
                     
                     remoteIp = response.getString("client_remote_ip");
                                         
-                    resultURI = new URI(response.getString("result_url"));
-                    resultQoSURI = new URI(response.getString("result_qos_url"));
+                    resultURL = new URL(response.getString("result_url"));
+                    resultQoSURI = new URL(response.getString("result_qos_url"));
                 }
                 else
                 {
@@ -346,7 +358,7 @@ public class ControlServerConnection
                 errorMsg = "Error parsing server response";
                 e.printStackTrace();
             }
-            catch (final URISyntaxException e)
+            catch (final MalformedURLException e)
             {
                 errorMsg = "Error parsing server response";
                 e.printStackTrace();
@@ -359,7 +371,9 @@ public class ControlServerConnection
     public String sendTestResult(TotalTestResult result, JSONObject additionalValues)
     {
         String errorMsg = null;
-        if (resultURI != null)
+        lastTestResult = null;
+        
+        if (resultURL != null)
         {
             
             final JSONObject testData = new JSONObject();
@@ -451,7 +465,7 @@ public class ControlServerConnection
             }
             
             // getting JSON string from URL
-            final JSONObject response = jParser.sendJSONToUrl(resultURI, testData);
+            final JSONObject response = JSONParser.sendJSONToUrl(resultURL, testData);
             
             if (response != null)
                 try
@@ -462,7 +476,7 @@ public class ControlServerConnection
                     
                     if (errorList.length() == 0)
                     {
-                        
+                        lastTestResult = testData;
                         // System.out.println("All is fine");
                         
                     }
@@ -525,7 +539,7 @@ public class ControlServerConnection
             }
             
             // getting JSON string from URL
-            final JSONObject response = jParser.sendJSONToUrl(resultQoSURI, testData);
+            final JSONObject response = JSONParser.sendJSONToUrl(resultQoSURI, testData);
             
             if (response != null)
                 try
@@ -567,7 +581,7 @@ public class ControlServerConnection
     public void sendNDTResult(final String host, final String pathPrefix, final int port, final boolean encryption,
             final String clientUUID, final UiServicesAdapter data, final String testUuid)
     {
-        hostUri = getUri(encryption, host, pathPrefix, port, Config.RMBT_CONTROL_MAIN_URL);
+        hostUrl = getUrl(encryption, host, pathPrefix, port, Config.RMBT_CONTROL_MAIN_URL);
         this.clientUUID = clientUUID;
         sendNDTResult(data, testUuid);
     }
@@ -593,12 +607,21 @@ public class ControlServerConnection
             testData.put("time_ns", data.getStartTimeNs() - startTimeNs);
             testData.put("time_end_ns", data.getStopTimeNs() - startTimeNs);
             
-            jParser.sendJSONToUrl(hostUri.resolve(Config.RMBT_CONTROL_NDT_RESULT_URL), testData);
+            JSONParser.sendJSONToUrl(hostUrl.toURI().resolve(Config.RMBT_CONTROL_NDT_RESULT_URL).toURL(), testData);
             
             System.out.println(testData);
         }
         catch (final JSONException e)
         {
+            e.printStackTrace();
+        }
+        catch (MalformedURLException e)
+        {
+            e.printStackTrace();
+        }
+        catch (URISyntaxException e)
+        {
+            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
@@ -638,8 +661,20 @@ public class ControlServerConnection
         return testTime;
     }
     
+    /**
+     * this time stamp is only a relative timestamp (see: {@link System#nanoTime()})
+     * @return
+     */
     public long getStartTimeNs() {
     	return startTimeNs;
+    }
+    
+    /**
+     * this is the starting (= timestamp of the test request) UNIX timestamp (see: {@link System#currentTimeMillis()})
+     * @return
+     */
+    public long getStartTimeMillis() {
+    	return startTimeMillis;
     }
     
     public String getTestId()
@@ -650,6 +685,10 @@ public class ControlServerConnection
     public String getTestUuid()
     {
         return testUuid;
+    }
+    
+    public JSONObject getLastTestResult() {
+    	return lastTestResult;
     }
     
     public RMBTTestParameter getTestParameter(RMBTTestParameter overrideParams)
@@ -676,5 +715,8 @@ public class ControlServerConnection
         }
         return new RMBTTestParameter(host, port, encryption, testToken, duration, numThreads, numPings, testTime);
     }
-    
+
+	public Set<ErrorStatus> getLastErrorList() {
+		return lastErrorList;
+	}
 }

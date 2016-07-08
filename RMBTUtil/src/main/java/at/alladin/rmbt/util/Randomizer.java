@@ -34,7 +34,7 @@ public class Randomizer {
 	}
 	
 	public Randomizer(int minValue, int maxValue, int step) {
-		numberList = new ArrayList<Integer>(maxValue - minValue);
+		numberList = new ArrayList<>(maxValue - minValue);
 		for (int i = minValue; i <= maxValue; i += step) {
 			numberList.add(i);
 		}

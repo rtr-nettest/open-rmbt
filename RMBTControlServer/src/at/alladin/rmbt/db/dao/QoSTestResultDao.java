@@ -15,14 +15,17 @@
  ******************************************************************************/
 package at.alladin.rmbt.db.dao;
 
-import java.sql.Array;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import at.alladin.rmbt.db.QoSTestResult;
 
@@ -31,7 +34,7 @@ import at.alladin.rmbt.db.QoSTestResult;
  * @author lb
  *
  */
-public class QoSTestResultDao implements PrimaryKeyDao<QoSTestResult, Long> {
+public class QoSTestResultDao implements CrudPrimaryKeyDao<QoSTestResult, Long> {
 
 	private final Connection conn;
 	
@@ -52,8 +55,8 @@ public class QoSTestResultDao implements PrimaryKeyDao<QoSTestResult, Long> {
 	public List<QoSTestResult> getByTestUid(Long testUid) throws SQLException {
 		List<QoSTestResult> resultList = new ArrayList<>();
 		
-		try (PreparedStatement psGetAll = conn.prepareStatement("SELECT nntr.uid, test_uid, success_count, failure_count, nnto.test, hstore2json(result) AS result, "
-				+ " nnto.results::text[] as results, qos_test_uid, nnto.test_desc, nnto.test_summary FROM qos_test_result nntr "
+		try (PreparedStatement psGetAll = conn.prepareStatement("SELECT nntr.uid, test_uid, success_count, failure_count, nnto.test, result AS result, "
+				+ " nnto.results as results, qos_test_uid, nnto.test_desc, nnto.test_summary FROM qos_test_result nntr "
 				+ " JOIN qos_test_objective nnto ON nntr.qos_test_uid = nnto.uid WHERE test_uid = ? AND nntr.deleted = 'FALSE' and nntr.implausible = 'FALSE'"))
 		{
     		psGetAll.setLong(1, testUid);
@@ -80,8 +83,8 @@ public class QoSTestResultDao implements PrimaryKeyDao<QoSTestResult, Long> {
 	 */
 	@Override
 	public QoSTestResult getById(Long id) throws SQLException {
-		try (PreparedStatement psGetById = conn.prepareStatement("SELECT nntr.uid, test_uid, nnto.test, success_count, failure_count, hstore2json(result) AS result, "
-				+ " nnto.results::text[] as results, qos_test_uid, nnto.test_desc, nnto.test_summary FROM qos_test_result nntr "
+		try (PreparedStatement psGetById = conn.prepareStatement("SELECT nntr.uid, test_uid, nnto.test, success_count, failure_count, result AS result, "
+				+ " nnto.results as results, qos_test_uid, nnto.test_desc, nnto.test_summary FROM qos_test_result nntr "
 				+ " JOIN qos_test_objective nnto ON nntr.qos_test_uid = nnto.uid WHERE nntr.uid = ? AND nntr.deleted = 'FALSE' and nntr.implausible = 'FALSE'"))
 		{
     		psGetById.setLong(1, id);
@@ -112,8 +115,8 @@ public class QoSTestResultDao implements PrimaryKeyDao<QoSTestResult, Long> {
 	public List<QoSTestResult> getAll() throws SQLException {
 		List<QoSTestResult> resultList = new ArrayList<>();
 		
-		try (PreparedStatement psGetAll = conn.prepareStatement("SELECT nntr.uid, test_uid, nnto.test, success_count, failure_count, hstore2json(result) AS result, "
-				+ " nnto.results::text[] as results, qos_test_uid, nnto.test_desc, nnto.test_summary FROM qos_test_result nntr "
+		try (PreparedStatement psGetAll = conn.prepareStatement("SELECT nntr.uid, test_uid, nnto.test, success_count, failure_count, result AS result, "
+				+ " nnto.results as results, qos_test_uid, nnto.test_desc, nnto.test_summary FROM qos_test_result nntr "
 				+ " JOIN qos_test_objective nnto ON nntr.qos_test_uid = nnto.uid"))
 		{
     		if (psGetAll.execute()) {
@@ -132,6 +135,12 @@ public class QoSTestResultDao implements PrimaryKeyDao<QoSTestResult, Long> {
 		}
 	}
 	
+
+	@Override
+	public int update(QoSTestResult entity) throws SQLException {
+		return save(entity);
+	}
+	
 	/**
 	 * 
 	 * @param result
@@ -143,19 +152,19 @@ public class QoSTestResultDao implements PrimaryKeyDao<QoSTestResult, Long> {
 		PreparedStatement ps = null;
 		
 		if (result.getUid() == null) {
-			sql = "INSERT INTO qos_test_result (test_uid, result, qos_test_uid, success_count, failure_count) VALUES (?,?::hstore,?,?,?)";
+			sql = "INSERT INTO qos_test_result (test_uid, result, qos_test_uid, success_count, failure_count) VALUES (?,?::json,?,?,?)";
 			ps = conn.prepareStatement(sql);
 			ps.setLong(1, result.getTestUid());
-			ps.setString(2, result.getResults());
+			ps.setObject(2, result.getResults());
 			ps.setLong(3, result.getQoSTestObjectiveId());
 			ps.setInt(4, result.getSuccessCounter());
 			ps.setInt(5, result.getFailureCounter());
 		}
 		else {
-			sql = "UPDATE qos_test_result SET test_uid = ?, result = ?::hstore, qos_test_uid = ?, success_count = ?, failure_count = ? WHERE uid = ?";
+			sql = "UPDATE qos_test_result SET test_uid = ?, result = ?::json, qos_test_uid = ?, success_count = ?, failure_count = ? WHERE uid = ?";
 			ps = conn.prepareStatement(sql);
 			ps.setLong(1, result.getTestUid());
-			ps.setString(2, result.getResults());
+			ps.setObject(2, result.getResults());
 			ps.setLong(3, result.getQoSTestObjectiveId());
 			ps.setInt(4, result.getSuccessCounter());
 			ps.setInt(5, result.getFailureCounter());
@@ -246,15 +255,19 @@ public class QoSTestResultDao implements PrimaryKeyDao<QoSTestResult, Long> {
 		result.setSuccessCounter(rs.getInt("success_count"));
 		result.setFailureCounter(rs.getInt("failure_count"));
 		
-		Array results = rs.getArray("results");
-		if (results != null) {
-			result.setExpectedResults((String[]) results.getArray());
-			
-//			for (int i = 0; i < result.getExpectedResults().length; i++) {
-//				System.out.println("RESULT " + i + ": " + result.getExpectedResults()[i]);
-//			}
+		final String results = rs.getString("results");
+		try {
+			result.setExpectedResults(results != null ? new JSONArray(results) : null);
+		} catch (JSONException e) {
+			result.setExpectedResults(null);
+			e.printStackTrace();
 		}
 		
 		return result;
+	}
+
+	@Override
+	public int delete(QoSTestResult entity) throws SQLException {
+		throw new SQLFeatureNotSupportedException();
 	}
 }

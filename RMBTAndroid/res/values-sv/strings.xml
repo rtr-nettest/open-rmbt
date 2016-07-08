@@ -141,7 +141,7 @@
 	<string name="history_filter_networks">TILLGÅNG</string>
 	<string name="history_filter_devices">APPARAT</string>
 	<string name="history_filter_result_number">RESULTATSANTAL</string>
-	<string name="history_filter_result_number_25">Ange bara 25 nyaste resultater</string>
+	<string name="history_filter_result_number_25">Ange bara 250 nyaste resultater</string>
 	
 	<string name="result_measurement">MÄTNING</string>
 	<string name="result_net">NÄT</string>

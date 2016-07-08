@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2015 alladin-IT GmbH
+ * Copyright 2013-2016 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.Fragment;
+import com.google.gson.Gson;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -46,6 +47,8 @@ import android.net.NetworkInfo.DetailedState;
 import android.net.wifi.SupplicantState;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.Build;
+import android.support.v4.app.Fragment;
 import android.telephony.CellLocation;
 import android.telephony.PhoneStateListener;
 import android.telephony.SignalStrength;
@@ -56,6 +59,7 @@ import at.alladin.rmbt.android.main.RMBTMainActivity;
 import at.alladin.rmbt.android.main.RMBTMainMenuFragment;
 import at.alladin.rmbt.client.helper.RevisionHelper;
 import at.alladin.rmbt.client.v2.task.result.QoSResultCollector;
+import at.alladin.rmbt.util.model.shared.LoopModeSettings;
 
 public class InformationCollector
 {
@@ -115,8 +119,6 @@ public class InformationCollector
     private boolean registerNetworkReiceiver;
     private boolean enableGeoLocation;
     
-    private DualSimDetector dualSimDetector;
-    
     private final List<GeoLocationItem> geoLocations = new ArrayList<GeoLocationItem>();
     private final List<CellLocationItem> cellLocations = new ArrayList<CellLocationItem>();
     private final List<SignalItem> signals = new ArrayList<SignalItem>();
@@ -135,14 +137,20 @@ public class InformationCollector
     	this(context, collectInformation, registerNetworkReceiver, true);
     }
     
+    private static boolean haveCourseLocationPerm;
+    private static boolean haveAnyLocationPerm;
+    
     public InformationCollector(final Context context, final boolean collectInformation, final boolean registerNetworkReceiver, final boolean enableGeoLocation)
     {
         // create and load default properties
         
+        haveCourseLocationPerm = PermissionHelper.checkCoarseLocationPermission(context);
+        haveAnyLocationPerm = PermissionHelper.checkAnyLocationPermission(context);
+        
         this.context = context;
         this.collectInformation = collectInformation;
         this.registerNetworkReiceiver = registerNetworkReceiver;
-        this.enableGeoLocation = enableGeoLocation;
+        this.enableGeoLocation = haveAnyLocationPerm ? enableGeoLocation : false;
         
         init();
         
@@ -226,7 +234,6 @@ public class InformationCollector
     {
         testServerName = "";
        	lastLocation = null;
-       	dualSimDetector = null;
         
         lastNetworkType.set(TelephonyManager.NETWORK_TYPE_UNKNOWN);
         illegalNetworkTypeChangeDetcted.set(false);
@@ -391,7 +398,7 @@ public class InformationCollector
         }
         object.put("type", at.alladin.rmbt.android.util.Config.RMBT_CLIENT_TYPE);
         
-        addDeveloperCode(object, ctx);
+        addClientFeatures(object, ctx);
         
         if (BASIC_INFORMATION_INCLUDE_LOCATION) {
 	        Location loc = GeoLocation.getLastKnownLocation(ctx);
@@ -442,11 +449,19 @@ public class InformationCollector
         return object;
     }
 
-    private static void addDeveloperCode(JSONObject object, Context ctx) throws JSONException
+    private static void addClientFeatures(JSONObject object, Context ctx) throws JSONException
     {
-        final String code = ConfigHelper.getDeveloperCode(ctx);
-        if (code != null && ! code.isEmpty())
-            object.put("developer_code", code);
+        if (ConfigHelper.isUserServerSelectionActivated(ctx)) {
+        	object.put("user_server_selection", true);
+        }
+        if (ConfigHelper.isDevEnabled(ctx)) {
+        	object.put("developer_mode", true);
+        }
+        if (ConfigHelper.isUserLoopModeActivated(ctx)) {
+        	object.put("user_loop_mode", true);
+
+        }
+        
     }
 
 
@@ -463,11 +478,23 @@ public class InformationCollector
             result.put("previousTestStatus", ConfigHelper.getPreviousTestStatus(context));
             ConfigHelper.setPreviousTestStatus(context, null);
             
-            if (ConfigHelper.isServerSelectionEnabled(context))
-            {
+            result.put("android_permission_status", PermissionHelper.getPermissionStatusAsJSONArray(context));
+            
+            if (ConfigHelper.isLoopMode(context)) {
+            	result.put("loopmode_info", new Gson().toJson(new LoopModeSettings(
+            			ConfigHelper.getLoopModeMaxDelay(context),
+            			ConfigHelper.getLoopModeMaxMovement(context),
+            			ConfigHelper.getLoopModeMaxTests(context), 
+            			ConfigHelper.getLoopModeTestCounter(context))));
+            }
+
+            if (ConfigHelper.isUserServerSelectionActivated(context))
+            { 
                 final String serverSelection = ConfigHelper.getServerSelection(context);
-                if (serverSelection != null && ! serverSelection.equals(ConfigHelper.DEFAULT_SERVER))
+                if (serverSelection != null && ! serverSelection.equals(ConfigHelper.DEFAULT_SERVER)) {
+                	Log.i(DEBUG_TAG, "prefer_server " + serverSelection);
                     result.put("prefer_server", serverSelection);
+                }
             }
             
             return result;
@@ -486,7 +513,8 @@ public class InformationCollector
         {
             final WifiInfo wifiInfo = wifiManager.getConnectionInfo();
             fullInfo.setProperty("WIFI_SSID",
-                    String.valueOf(Helperfunctions.removeQuotationsInCurrentSSIDForJellyBean(wifiInfo.getSSID())));
+            String.valueOf(Helperfunctions.removeQuotationsInCurrentSSIDForJellyBean(wifiInfo.getSSID())));
+            		
             /*
              * fullInfo.setProperty("WIFI_LINKSPEED",
              * String.valueOf(wifiInfo.getLinkSpeed()));
@@ -542,7 +570,11 @@ public class InformationCollector
                 e.printStackTrace();
             }
             
-            final CellLocation cellLocation = telManager.getCellLocation();
+            final CellLocation cellLocation;
+            if (haveCourseLocationPerm)
+                cellLocation = telManager.getCellLocation();
+            else
+                cellLocation = null;
             if (cellLocation != null && (cellLocation instanceof GsmCellLocation))
             {
                 final GsmCellLocation gcl = (GsmCellLocation) cellLocation;
@@ -587,10 +619,12 @@ public class InformationCollector
             
             try
             {
-                if (dualSimDetector == null)
-                    dualSimDetector = new DualSimDetector(context);
-                boolean isDualSIM = dualSimDetector.isDualSIM();
-                fullInfo.setProperty("DUAL_SIM", String.valueOf(isDualSIM));
+                final String dualSimDetectionMethod = DualSimDetector.getDualSIM(context);
+                fullInfo.setProperty("DUAL_SIM", String.valueOf(dualSimDetectionMethod != null));
+                if (dualSimDetectionMethod != null)
+                    fullInfo.setProperty("DUAL_SIM_DETECTION_METHOD", dualSimDetectionMethod);
+                else
+                    fullInfo.remove("DUAL_SIM_DETECTION_METHOD");
             }
             catch (Exception e) // never fail b/c of dual sim detection
             {
@@ -663,25 +697,28 @@ public class InformationCollector
     {
     	int network = getNetwork();
     	
-        if (network == NETWORK_WIFI)
-            return fullInfo.getProperty("WIFI_SSID");
-        else if (network == NETWORK_ETHERNET)
-        	return "Ethernet";
-        else if (network == NETWORK_BLUETOOTH)
-        	return "Bluetooth";
-        else {
-        	String TelephonyNetworkOperator = fullInfo.getProperty("TELEPHONY_NETWORK_OPERATOR");
-        	String TelephonyNetworkOperatorName = fullInfo.getProperty("TELEPHONY_NETWORK_OPERATOR_NAME");
-        	if (TelephonyNetworkOperator.length() == 0 && TelephonyNetworkOperatorName.length() == 0)
-        		return "-";
-        	else if (TelephonyNetworkOperator.length() == 0)
-        		return TelephonyNetworkOperatorName;
-        	else if (TelephonyNetworkOperatorName.length() == 0)
-        		return TelephonyNetworkOperator;
-        	else 
-        		return String.format("%s (%s)", TelephonyNetworkOperatorName, TelephonyNetworkOperator);
-        }
-                    
+    	if (fullInfo != null) {
+	        if (network == NETWORK_WIFI)
+	            return fullInfo.getProperty("WIFI_SSID");
+	        else if (network == NETWORK_ETHERNET)
+	        	return "Ethernet";
+	        else if (network == NETWORK_BLUETOOTH)
+	        	return "Bluetooth";
+	        else {
+	        	String TelephonyNetworkOperator = fullInfo.getProperty("TELEPHONY_NETWORK_OPERATOR");
+	        	String TelephonyNetworkOperatorName = fullInfo.getProperty("TELEPHONY_NETWORK_OPERATOR_NAME");
+	        	if (TelephonyNetworkOperator.length() == 0 && TelephonyNetworkOperatorName.length() == 0)
+	        		return "-";
+	        	else if (TelephonyNetworkOperator.length() == 0)
+	        		return TelephonyNetworkOperatorName;
+	        	else if (TelephonyNetworkOperatorName.length() == 0)
+	        		return TelephonyNetworkOperator;
+	        	else 
+	        		return String.format("%s (%s)", TelephonyNetworkOperatorName, TelephonyNetworkOperator);
+	        }
+    	}
+
+    	return "-";
     }
     
     public ArrayList<String> getCurLocation()
@@ -807,7 +844,9 @@ public class InformationCollector
         if (tag != null && ! tag.isEmpty())
             result.put("tag", tag);
         
-        addDeveloperCode(result, context);
+        addClientFeatures(result, context);
+        
+        result.put("android_permission_status", PermissionHelper.getPermissionStatusAsJSONArray(context));
         
         return result;
     }
@@ -941,8 +980,12 @@ public class InformationCollector
         {
             telListener = new TelephonyStateListener();
             
-            telManager.listen(telListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS
-                    | PhoneStateListener.LISTEN_CELL_LOCATION);
+            int events = PhoneStateListener.LISTEN_SIGNAL_STRENGTHS;
+            
+            if (haveCourseLocationPerm)
+                events |= PhoneStateListener.LISTEN_CELL_LOCATION;
+                
+            telManager.listen(telListener, events);
         }
     }
     

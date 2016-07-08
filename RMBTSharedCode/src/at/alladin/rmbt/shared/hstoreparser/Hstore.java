@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2014 alladin-IT GmbH
+ * Copyright 2013-2015 alladin-IT GmbH
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -158,13 +158,13 @@ public class Hstore {
 				return null;
 			}
 			
-			if (!object.startsWith("{") && !object.startsWith("[{")) {
+			if (!object.startsWith("{") && !object.startsWith("[")) {
 				return new JSONObject("{" + object.replace("=>", ":") + "}");	
 			}
 			else if (object.startsWith("{")) {
 				return new JSONObject(object.replace("=>", ":"));
 			}
-			else if (object.startsWith("[{")) {
+			else if (object.startsWith("[")) {
 				return new JSONArray(object.replace("=>", ":"));
 			}
 			else {
