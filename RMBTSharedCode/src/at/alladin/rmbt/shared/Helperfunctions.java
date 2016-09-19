@@ -435,7 +435,7 @@ public abstract class Helperfunctions
                             final String result = strings.get(0);
                             final String[] parts = result.split(" ?\\| ?");
                             if (parts != null && parts.length >= 1)
-                                return new Long(parts[0]);
+                                return new Long(parts[0].split(" ")[0]);
                         }
                     }
         }
