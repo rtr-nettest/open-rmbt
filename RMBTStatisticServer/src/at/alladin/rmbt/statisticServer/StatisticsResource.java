@@ -250,29 +250,29 @@ public class StatisticsResource extends ServerResource
                 .format("SELECT" +
                         (group ? " p.name, p.shortname, " : "") +
                         " count(t.uid) count," +
-                        " quantile(speed_download::bigint, ?::double precision) quantile_down," +
-                        " quantile(speed_upload::bigint, ?::double precision) quantile_up," +
-                        " quantile(%1$s::bigint, ?::double precision) quantile_signal," +
-                        " quantile(ping_shortest::bigint, ?::double precision) quantile_ping," +
+                        " percentile_disc(?) WITHIN GROUP (ORDER BY speed_download) quantile_down," +
+                        " percentile_disc(?) WITHIN GROUP (ORDER BY speed_upload) quantile_up," +
+                        " percentile_disc(?) WITHIN GROUP (ORDER BY ping_median) quantile_ping," +
+                        " percentile_disc(?) WITHIN GROUP (ORDER BY COALESCE(%1$s)) quantile_signal," +
                         
-                        " sum((speed_download >= ?)::int)::double precision / count(speed_download) down_green," +
-                        " sum((speed_download < ? and speed_download >= ?)::int)::double precision / count(speed_download) down_yellow," +
-                        " sum((speed_download < ?)::int)::double precision / count(speed_download) down_red," +
-                                                
-                        " sum((speed_upload >= ?)::int)::double precision / count(speed_upload) up_green," +
-                        " sum((speed_upload < ? and speed_upload >= ?)::int)::double precision / count(speed_upload) up_yellow," +
-                        " sum((speed_upload < ?)::int)::double precision / count(speed_upload) up_red," +
+                        " ((COUNT(speed_download) FILTER (WHERE speed_download >= ?))::NUMERIC / NULLIF(COUNT(speed_download),0)) down_green," +
+                        " ((COUNT(speed_download) FILTER (WHERE (speed_download < ? and speed_download >= ?)))::NUMERIC / NULLIF(COUNT(speed_download),0)) down_yellow," +
+                        " ((COUNT(speed_download) FILTER (WHERE speed_download < ?))::NUMERIC / NULLIF(COUNT(speed_download),0)) down_red," +
                         
+						" ((COUNT(speed_upload) FILTER (WHERE speed_upload >= ?))::NUMERIC / NULLIF(COUNT(speed_upload),0)) up_green," +
+						" ((COUNT(speed_upload) FILTER (WHERE (speed_upload < ? and speed_upload >= ?)))::NUMERIC / NULLIF(COUNT(speed_upload),0)) up_yellow," +
+						" ((COUNT(speed_upload) FILTER (WHERE speed_upload < ?))::NUMERIC / NULLIF(COUNT(speed_upload),0)) up_red," +
+
                         " sum((%1$s >= ?)::int)::double precision / count(%1$s) signal_green," +
                         " sum((%1$s < ? and %1$s >= ?)::int)::double precision / count(%1$s) signal_yellow," +
                         " sum((%1$s < ?)::int)::double precision / count(%1$s) signal_red," + 
                         
-                        " sum((ping_shortest <= ?)::int)::double precision / count(ping_shortest) ping_green," +
-                        " sum((ping_shortest > ? and ping_shortest <= ?)::int)::double precision / count(ping_shortest) ping_yellow," +
-                        " sum((ping_shortest > ?)::int)::double precision / count(ping_shortest) ping_red" +
+						" ((COUNT(ping_shortest) FILTER (WHERE ping_shortest >= ?))::NUMERIC / NULLIF(COUNT(ping_shortest),0)) ping_green," +
+						" ((COUNT(ping_shortest) FILTER (WHERE (ping_shortest < ? and ping_shortest >= ?)))::NUMERIC / NULLIF(COUNT(ping_shortest),0)) ping_yellow," +
+						" ((COUNT(ping_shortest) FILTER (WHERE ping_shortest < ?))::NUMERIC / NULLIF(COUNT(ping_shortest),0)) ping_red" +
                         
                         " FROM test t" +
-                        " LEFT JOIN network_type nt ON nt.uid=t.network_type" +
+                        " JOIN network_type nt ON nt.uid=t.network_type" +
                         " JOIN provider p ON" + 
                         (useMobileProvider ? " t.mobile_provider_id = p.uid" : " t.provider_id = p.uid") +
                         " WHERE %2$s" +
