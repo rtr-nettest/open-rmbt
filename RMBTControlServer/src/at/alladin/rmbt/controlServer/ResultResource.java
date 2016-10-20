@@ -239,13 +239,6 @@ public class ResultResource extends ServerResource
                                                 }
                                             }
                                             final String speedItemsJson = getGson(false).toJson(speedItems);
-                                            
-                                            //to be deleted when migration is finished (no speed items in test table any more)
-                                            test.getField("speed_items").setString(speedItemsJson);
-                                            
-                                            // current implementation - JSON result as binary JSONB in extra table 
-                                            
-                                            // reuses speedItemsJson prepared above
 
                                             final PreparedStatement psSpeed = conn.prepareStatement("INSERT INTO speed (open_test_uuid,items) VALUES (?,?::JSONB)");
                                             psSpeed.setObject(1,openTestUuid);
