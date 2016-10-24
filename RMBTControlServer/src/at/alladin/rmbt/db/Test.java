@@ -171,7 +171,6 @@ public class Test extends Table
             new StringField("tag", "tag"),
             new StringField("hidden_code", "hidden_code"),
             new BooleanField("user_server_selection", "user_server_selection"),
-            new JsonField("speed_items", null),
             new BooleanField("dual_sim", "dual_sim"),
             new JsonField("android_permissions", null),
             new StringField("dual_sim_detection_method", "dual_sim_detection_method"),
