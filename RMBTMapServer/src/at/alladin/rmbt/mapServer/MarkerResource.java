@@ -222,18 +222,18 @@ public class MarkerResource extends ServerResource
 												+ ", t.time, t.timezone, t.speed_download, t.speed_upload, t.ping_median, t.network_type,"
 												+ " t.signal_strength, t.lte_rsrp, t.wifi_ssid, t.network_operator_name, t.network_operator,"
 												+ " t.network_sim_operator, t.roaming_type, t.public_ip_as_name, " //TODO: sim_operator obsoleted by sim_name
-												+ " pMob.shortname mobile_provider_name," // TODO: obsoleted by mobile_network_name
+												+ " mprov.shortname mobile_provider_name," // TODO: obsoleted by mobile_network_name
 												+ " prov.shortname provider_text, t.open_test_uuid,"
+												+ " COALESCE(mprov.shortname, t.network_operator_name, prov.shortname, msim.shortname,msim.name,"
+                                                + "    prov.name, mprov.name, t.public_ip_as_name, network_sim_operator) provider_name, "
 												+ " COALESCE(mnwk.shortname,mnwk.name) mobile_network_name,"
 												+ " COALESCE(msim.shortname,msim.name) mobile_sim_name"
 												+ (highlightUUID == null ? "" : " , c.uid, c.uuid")
 												+ " FROM v_test2 t"
 												+ " LEFT JOIN mccmnc2name mnwk ON t.mobile_network_id=mnwk.uid"
 												+ " LEFT JOIN mccmnc2name msim ON t.mobile_sim_id=msim.uid"
-												+ " LEFT JOIN provider prov"
-												+ " ON t.provider_id=prov.uid"
-												+ " LEFT JOIN provider pMob"
-												+ " ON t.mobile_provider_id=pMob.uid"
+												+ " LEFT JOIN provider prov    ON t.provider_id=prov.uid"
+												+ " LEFT JOIN provider mprov   ON t.mobile_provider_id=mprov.uid"
 												+ (highlightUUID == null ? ""
 														: " LEFT JOIN client c ON (t.client_id=c.uid AND t.uuid=?)")
 														+ " WHERE"
@@ -386,7 +386,10 @@ public class MarkerResource extends ServerResource
 
 								if (networkType == 98 || networkType == 99) // mobile wifi or browser
 								{
-									String providerText = Objects.firstNonNull(rs.getString("provider_text"),rs.getString("public_ip_as_name"));
+									String providerText = "Unknown";
+									if (rs.getString("provider_name") != null)
+								        providerText = rs.getString("provider_name");
+
 									if (! Strings.isNullOrEmpty(providerText))
 									{
 										if (providerText.length() > (MAX_PROVIDER_LENGTH +3)) {
