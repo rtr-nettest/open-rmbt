@@ -162,13 +162,13 @@ public class ExportResource extends ServerResource
                 " to_char(t.time AT TIME ZONE 'UTC', 'YYYY-MM-DD HH24:MI:SS') time_utc," +
                 " nt.group_name cat_technology," +
                 " nt.name network_type," +
-                " (CASE WHEN (t.geo_accuracy < ?) AND (t.geo_provider != 'manual') AND (t.geo_provider != 'geocoder') THEN" +
+                " (CASE WHEN (t.geo_accuracy < ?) AND (t.geo_provider IS DISTINCT FROM 'manual') AND (t.geo_provider IS DISTINCT FROM 'geocoder') THEN" +
                 " t.geo_lat" +
                 " WHEN (t.geo_accuracy < ?) THEN" +
                 " ROUND(t.geo_lat*1111)/1111" +
                 " ELSE null" +
                 " END) lat," + 
-                " (CASE WHEN (t.geo_accuracy < ?) AND (t.geo_provider != 'manual') AND (t.geo_provider != 'geocoder') THEN" +
+                " (CASE WHEN (t.geo_accuracy < ?) AND (t.geo_provider IS DISTINCT FROM 'manual') AND (t.geo_provider IS DISTINCT FROM 'geocoder') THEN" +
                 " t.geo_long" +
                 " WHEN (t.geo_accuracy < ?) THEN" +
                 " ROUND(t.geo_long*741)/741 " +
@@ -178,7 +178,7 @@ public class ExportResource extends ServerResource
                 " 'rastered'" + //make raster transparent
                 " ELSE t.geo_provider" +
                 " END) loc_src," + 
-                " (CASE WHEN (t.geo_accuracy < ?) AND (t.geo_provider != 'manual') AND (t.geo_provider != 'geocoder') " +
+                " (CASE WHEN (t.geo_accuracy < ?) AND (t.geo_provider IS DISTINCT FROM 'manual') AND (t.geo_provider IS DISTINCT FROM 'geocoder') " +
                 " THEN round(t.geo_accuracy::float * 10)/10 " +
                 " WHEN (t.geo_accuracy < 100) AND ((t.geo_provider = 'manual') OR (t.geo_provider = 'geocoder')) THEN 100" + // limit accuracy to 100m
                 " WHEN (t.geo_accuracy < ?) THEN round(t.geo_accuracy::float * 10)/10" +
