@@ -37,10 +37,10 @@
     <string name="preferences_no_gps_sum">GPS inactivado durante medición</string>
     
     <string name="preferences_loop_mode">Repetición</string>
-    <string name="preferences_loop_mode_sum">Test colgado en un bucle indefinito</string>
+    <string name="preferences_loop_mode_sum">Prueba colgado en un bucle indefinito</string>
     
     <string name="preferences_ndt">NDT</string>
-    <string name="preferences_ndt_sum">Activar test ampliado</string>
+    <string name="preferences_ndt_sum">Activar la prueba ampliada</string>
     
     <string name="preferences_ipv4_only">Sólo IPv4</string>
     <string name="preferences_ipv4_only_sum">No se usa IPv6</string>
@@ -75,7 +75,7 @@
     
     <string name="menu_button_start">START</string>
     <string name="menu_button_map">Mapa</string>
-    <string name="menu_button_history">Historial</string>
+    <string name="menu_button_history">Historia</string>
     <string name="menu_button_help">Ayuda</string>
     <string name="menu_button_statistics">Estatística</string>
     <string name="menu_button_settings">Ajustes</string>
@@ -88,14 +88,14 @@
     <string name="about_clientid_title">Cliente UUID</string>
     <string name="about_clientid_toast">Se copió el cliente UUID a la memoria tempora.</string>
     <string name="about_web_title">Web</string>
-    <string name="about_email_title">E-Mail</string>
+    <string name="about_email_title">Correo electrónico</string>
     <string name="about_email_sending">Mandar correo electrónico…</string>
     <string name="about_terms_title">Declaración de protección de datos y términos de uso</string>
     <string name="about_terms_line1">Declaración de protección de datos y términos de uso</string>
     <string name="about_dev_title">Desarrollo</string>
     <string name="about_gms_legal_title">Google Play</string>
     <string name="about_gms_legal_line1">Aviso legal de Google Play Services</string>
-    <string name="about_test_counter_title">Contador de tests</string>
+    <string name="about_test_counter_title">Contador de pruebas</string>
     
     <string name="terms">Declaración de protección de datos y términos de uso(sólo en inglés)</string>
 
@@ -103,8 +103,8 @@
     <string name="terms_accept_button_continue">Continúe</string>
     <string name="terms_decline_button">Cancelar</string>
     
-    <string name="terms_ndt_header"> Test NDT ampliado opcional</string>
-    <string name="terms_ndt_accept_text"><b>Quiero realizar adicionalmente el test NDT ampliado opcional.</b></string>
+    <string name="terms_ndt_header"> Prueba NDT ampliada opcional</string>
+    <string name="terms_ndt_accept_text"><b>Quiero realizar adicionalmente la prueba NDT ampliada opcional.</b></string>
     <string name="terms_ndt_back_button">Atrás</string>
     <string name="terms_ndt_accept_button">Adelante</string>
 
@@ -113,20 +113,20 @@
     <string name="test_location_km_h">km/h</string>
     <string name="test_location_m">m</string>
     <string name="test_location_gps">GPS</string>
-    <string name="test_location_network">Netzwerk</string>
+    <string name="test_location_network">Red</string>
     <string name="test_location_dir_n">N</string>
-    <string name="test_location_dir_e">O</string>
+    <string name="test_location_dir_e">E</string>
     <string name="test_location_dir_s">S</string>
-    <string name="test_location_dir_w">W</string>
+    <string name="test_location_dir_w">O</string>
     
-    <string name="test_notification_text">The test is still running in the background.</string>
+    <string name="test_notification_text">La prueba todavía se está ejecutando.</string>
     <string name="test_dialog_error_title">Error…</string>
-    <string name="test_dialog_error_text">Se producjo un error durante el test.</string>
+    <string name="test_dialog_error_text">Se produjo un error durante la prueba.</string>
     
     <string name="test_dialog_abort_title">Cancelar…</string>
-    <string name="test_dialog_abort_text">Está seguro que quiere cancelar el test en marcha?</string>
-    <string name="test_dialog_abort_yes">Cancelar test</string>
-    <string name="test_dialog_abort_no">Continuar test</string>
+    <string name="test_dialog_abort_text">Está seguro que quiere cancelar la prueba en marcha?</string>
+    <string name="test_dialog_abort_yes">Cancelar prueba</string>
+    <string name="test_dialog_abort_no">Continuar prueba</string>
     
     <string name="history_button_sync">Sync</string>
     <string name="history_button_filter">Filtro</string>
@@ -176,16 +176,16 @@
 	<string name="map_overlay_auto_title">Automático</string>
 	<string name="map_overlay_auto_summary">Mapa cambia automáticamente entre heatmap y puntos</string>
 	<string name="map_overlay_heatmap_title">Heatmap</string>
-	<string name="map_overlay_heatmap_summary">Mapa muestra el test en forma de heatmap</string>
+	<string name="map_overlay_heatmap_summary">Mapa muestra la prueba en forma de heatmap</string>
 	<string name="map_overlay_points_title">Puntos</string>
-	<string name="map_overlay_points_summary">Mapa muestra el test en forma de puntos</string>
+	<string name="map_overlay_points_summary">Mapa muestra la prueba en forma de puntos</string>
 	
 	<string name="map_balloon_overlay_header">MEDICIONES</string>
 	
 	<!-- Test -->
 	<string name="test_progress_title">Conectando…</string>
-	<string name="test_progress_text">Estableciendo conexión con el servidor de test. Espere por favor…</string>
-	<string name="test_progress_text_wait">El servidor de test está ocupado de momento. El test empieza en {0,choice,0#enseguida|1#en 1 segundo|1&lt;en {0} segundos}. Espere por favor…</string>
+	<string name="test_progress_text">Estableciendo conexión con el servidor de prueba. Espere por favor…</string>
+	<string name="test_progress_text_wait">El servidor de prueba está ocupado de momento. La prueba empieza en {0,choice,0#enseguida|1#en 1 segundo|1&lt;en {0} segundos}. Espere por favor…</string>
 	<string name="test_bottom_test">Estado: {0}\nServidor: {1}\nIP: {2}\n{3}\n{4}</string>
 	<string name="test_bottom_test_status_init">Inicializando</string>
 	<string name="test_bottom_test_status_ping">Ping</string>
@@ -239,51 +239,53 @@
     <string name="qos_test_name_udp">UDP ports</string>
     
     <string name="qos_test_result_error">Error</string>
-    <string name="qos_test_result_all">Results</string>
+    <string name="qos_test_result_all">Resultados</string>
     
-    <string name="result_details_qos_failure">FAILED</string>
-    <string name="result_details_qos_success">SUCCEEDED</string>
-    <string name="result_qos_stats">Quality tests</string>
-    <string name="result_qos_error_no_data_available">The QoS test was not executed.</string>
+    <string name="result_details_qos_failure">FALLADO</string>
+    <string name="result_details_qos_success">Éxito</string>
+    <string name="result_qos_stats">Pruebas de calidad.</string>
+    <string name="result_qos_error_no_data_available">No hay datos de QoS.</string>
     
     <string name="title_screen_ipv4">IPv4</string>
-    <string name="title_screen_ipv6">IPv6</string>
-    <string name="title_screen_traffic">Background traffic</string>
-    <string name="title_screen_network_id">Network ID:</string>
+    <string name="title_screen_ipv6">IPv6</string>  
+    <string name="title_screen_ipv4_overlay">Dirección de internet (v4)</string>
+	<string name="title_screen_ipv6_overlay">Dirección de internet (v6)</string>
+    <string name="title_screen_traffic">Tráfico de fondo</string>
+    <string name="title_screen_network_id">ID de red:</string>
     
-    <string name="title_screen_info_overlay_location">Location</string>
-    <string name="title_screen_info_overlay_ipv4_public">Public IPv4</string>
-    <string name="title_screen_info_overlay_ipv4_private">Private IPv4</string>
-    <string name="title_screen_info_overlay_ipv6_public">Public IPv6</string>
-    <string name="title_screen_info_overlay_ipv6_private">Private IPv6</string>
-    <string name="title_screen_info_overlay_ul_traffic">Upload traffic</string>
-    <string name="title_screen_info_overlay_dl_traffic">Download traffic</string>
-    <string name="title_screen_info_overlay_control_server_conn">ControlServer connection</string>
-    <string name="title_screen_info_overlay_captive_portal_status">Captive portal</string>
-    <string name="title_screen_info_overlay_is_loopback">Is loopback</string>
-    <string name="title_screen_info_overlay_is_link_local">Is link local</string>
-    <string name="title_screen_info_overlay_location_position">Position</string>
-    <string name="title_screen_info_overlay_location_source">Source</string>
-    <string name="title_screen_info_overlay_location_accuracy">Accuracy</string>
-    <string name="title_screen_info_overlay_location_altitude">Altitude</string>
-    <string name="title_screen_info_overlay_location_age">Age</string>
+    <string name="title_screen_info_overlay_location">Ubicación</string>
+    <string name="title_screen_info_overlay_ipv4_public">IPv4 público</string>
+    <string name="title_screen_info_overlay_ipv4_private">IPv4 privado</string>
+    <string name="title_screen_info_overlay_ipv6_public">IPv6 público</string>
+    <string name="title_screen_info_overlay_ipv6_private">IPv6 privado</string>
+    <string name="title_screen_info_overlay_ul_traffic">Cargar tráfico</string>
+    <string name="title_screen_info_overlay_dl_traffic">Descargar tráfico</string>
+    <string name="title_screen_info_overlay_control_server_conn">Conexión de ControlServer</string>
+    <string name="title_screen_info_overlay_captive_portal_status">Portal cautivo</string>
+    <string name="title_screen_info_overlay_is_loopback">Hay es loopback</string>
+    <string name="title_screen_info_overlay_is_link_local">Hay es link local</string>
+    <string name="title_screen_info_overlay_location_position">Coordinadas</string>
+    <string name="title_screen_info_overlay_location_source">Fuente</string>
+    <string name="title_screen_info_overlay_location_accuracy">Precisión</string>
+    <string name="title_screen_info_overlay_location_altitude">Altitud</string>
+    <string name="title_screen_info_overlay_location_age">Edad</string>
     
-    <string name="captive_portal_found">found</string>
-    <string name="captive_portal_not_found">not found</string>
+    <string name="captive_portal_found">encontrado</string>
+    <string name="captive_portal_not_found">no encontrado</string>
     <string name="captive_portal_testing">test running…</string>
     
-    <string name="not_available">not available</string>
+    <string name="not_available">no disponible</string>
     
-    <string name="test_label_test_info">Test information</string>
-    <string name="test_label_progress">Progress</string>
-    <string name="test_label_quality_test">Quality test</string>
-    <string name="test_toast_error_text_qos">There has been an error during the QoS test.</string>
+    <string name="test_label_test_info">Información de prueba</string>
+    <string name="test_label_progress">Progreso</string>
+    <string name="test_label_quality_test">Prueba de calidad</string>
+    <string name="test_toast_error_text_qos">Se ha producido un error durante la prueba de QoS.</string>
 
 <!-- Translated, with examples in English and German at the end of the line-->
-    <string name="menu_button_title_page">Home</string> <!--Home,Startseite-->
+    <string name="menu_button_title_page">Inicio</string> <!--Home,Startseite-->
     <string name="menu_button_share">Compartir</string> <!--Share,Teilen-->
     <string name="test_location_sat">satélites</string> <!--satellites,Satelliten-->
-    <string name="result_category_tests">TESTS</string> <!--TESTS,TESTS-->
+    <string name="result_category_tests">PRUEBAS</string> <!--TESTS,TESTS-->
     <string name="result_description">DESCRIPCIÓN</string> <!--DESCRIPTION,BESCHREIBUNG-->
     <string name="term_signal">Señal</string> <!--Signal,Signal-->
     <string name="result_page_title_qos">QoS</string> <!--QoS,QoS-->
@@ -292,14 +294,14 @@
     <string name="result_page_title_graph">Gráfico</string> <!--Graph,Graph-->
     <string name="result_page_title_map">Ubicación</string> <!--Location,Standort-->
     <string name="page_title_title_page">Menú</string> <!--Menu,Menü-->
-    <string name="page_title_history">Historial</string> <!--History,Verlauf-->
+    <string name="page_title_history">Historia</string> <!--History,Verlauf-->
     <string name="page_title_help">Ayuda</string> <!--Help,Hilfe-->
-    <string name="page_title_statistics">Estadística</string> <!--Statistics,Statistik-->
-    <string name="page_title_information">Informaciones</string> <!--Information,Information-->
+    <string name="page_title_statistics">Estadísticas</string> <!--Statistics,Statistik-->
+    <string name="page_title_information">Información</string> <!--Information,Information-->
     <string name="page_title_map">Mapa</string> <!--Map,Karte-->
     <string name="page_title_settings">Ajustes</string> <!--Settings,Einstellungen-->
     <string name="page_title_about">Información</string> <!--About,Info-->
-    <string name="page_title_main_result">Resultado del test</string> <!--Test result,Ergebnisse-->
+    <string name="page_title_main_result">Resultado de la prueba</string> <!--Test result,Ergebnisse-->
     <string name="page_title_sync">Sync</string> <!--Sync,Sync-->
     <string name="page_title_qos_result">QoS</string> <!--QoS results,QoS-->
 	
