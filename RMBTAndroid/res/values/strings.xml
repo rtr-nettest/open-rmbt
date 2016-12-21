@@ -334,7 +334,7 @@
 	<string name="title_screen_network_id">Network ID:</string>
 	
 	<string name="title_screen_info_overlay_location">Location</string>
-	<string name="title_screen_info_overlay_ipv4_public">Pubilc address</string>
+	<string name="title_screen_info_overlay_ipv4_public">Public address</string>
 	<string name="title_screen_info_overlay_ipv4_private">Local address</string>
 	<string name="title_screen_info_overlay_ipv6_public">Public address</string>
 	<string name="title_screen_info_overlay_ipv6_private">Local address</string>
