@@ -269,7 +269,7 @@
     <string name="captive_portal_not_found">pas trouvé</string>
     <string name="captive_portal_testing">test de en cours d\'exécution…</string>
     
-    <string name="not_available">indisponible</string>
+    <string name="not_available">Indisponible</string>
     
     <string name="test_label_test_info">Informations du test</string>
     <string name="test_label_progress">Barre de progression</string>
