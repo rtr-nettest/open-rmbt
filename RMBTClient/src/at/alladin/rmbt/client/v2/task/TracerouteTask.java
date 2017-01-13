@@ -49,6 +49,8 @@ public class TracerouteTask extends AbstractQoSTask {
 	
 	private final int maxHops;
 	
+	private final boolean masked;
+	
 	public final static String PARAM_HOST = "host";
 	
 	public final static String PARAM_TIMEOUT = "timeout";
@@ -71,7 +73,7 @@ public class TracerouteTask extends AbstractQoSTask {
 	 * 
 	 * @param taskDesc
 	 */
-	public TracerouteTask(QualityOfServiceTest nnTest, TaskDesc taskDesc, int threadId) {
+	public TracerouteTask(QualityOfServiceTest nnTest, TaskDesc taskDesc, int threadId, boolean masked) {
 		super(nnTest, taskDesc, threadId, threadId);
 		this.host = (String)taskDesc.getParams().get(PARAM_HOST);
 		
@@ -80,13 +82,22 @@ public class TracerouteTask extends AbstractQoSTask {
 		
 		value = (String) taskDesc.getParams().get(PARAM_MAX_HOPS);
 		this.maxHops = value != null ? Integer.valueOf(value) : DEFAULT_MAX_HOPS;
+		this.masked = masked;
 	}
 
 	/**
 	 * 
 	 */
 	public QoSTestResult call() throws Exception {
-  		final QoSTestResult testResult = initQoSTestResult(QoSTestResultEnum.TRACEROUTE);
+		
+		final QoSTestResultEnum qostestresult;
+		
+		if (masked)
+			qostestresult = QoSTestResultEnum.TRACEROUTE_MASKED;
+		else 
+			qostestresult = QoSTestResultEnum.TRACEROUTE;
+		
+  		final QoSTestResult testResult = initQoSTestResult(qostestresult);
 
   		testResult.getResultMap().put(RESULT_HOST, host);
   		testResult.getResultMap().put(RESULT_TIMEOUT, timeout);
@@ -155,7 +166,10 @@ public class TracerouteTask extends AbstractQoSTask {
 	 * @see at.alladin.rmbt.client.v2.task.QoSTask#getTestType()
 	 */
 	public QoSTestResultEnum getTestType() {
-		return QoSTestResultEnum.TRACEROUTE;
+		if (masked)
+			return QoSTestResultEnum.TRACEROUTE_MASKED;
+		else
+	        return QoSTestResultEnum.TRACEROUTE;
 	}
 
 	/*

@@ -114,6 +114,8 @@ public class RMBTClient
     public final static String TASK_HTTP = "http_proxy";
     public final static String TASK_WEBSITE = "website";
     public final static String TASK_TRACEROUTE = "traceroute";
+    public final static String TASK_TRACEROUTE_MASKED = "traceroute_masked";
+    
     
     private List<TaskDesc> taskDescList;
 

@@ -55,6 +55,7 @@ public class QoSTestResult implements Serializable {
 		WEBSITE(WebsiteResult.class), 
 		NON_TRANSPARENT_PROXY(NonTransparentProxyResult.class),
 		TRACEROUTE(TracerouteResult.class),
+		TRACEROUTE_MASKED(TracerouteResult.class),
 		VOIP(VoipResult.class);
 		
 		protected Class<? extends AbstractResult<?>> clazz; 

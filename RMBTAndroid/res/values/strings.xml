@@ -357,7 +357,7 @@
 	<string name="captive_portal_not_found">not found</string>
 	<string name="captive_portal_testing">test running…</string>
 	
-	<string name="not_available">not available</string>
+	<string name="not_available">Not available</string>
 	
 	<string name="test_label_test_info">Test information</string>
 	<string name="test_label_progress">Progress</string>
