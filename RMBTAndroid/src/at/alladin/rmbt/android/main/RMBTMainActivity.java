@@ -635,6 +635,8 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties,
     @Override
     protected void onResume() {
     	super.onResume();
+        Log.i(DEBUG_TAG, "onResume");
+        waitForSettings(true, false, true);
     	ViewServer.get(this).setFocusedWindow(this);
         redirectSystemOutput(ConfigHelper.isSystemOutputRedirectedToFile(this));
     }
@@ -921,7 +923,7 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties,
         checkNews(getApplicationContext());
         checkSettings(false, null);
         //checkIp();
-        waitForSettings(true, false, false);
+        waitForSettings(true, false, true);
         //fetchMapOptions();
         historyResultLimit = Config.HISTORY_RESULTLIMIT_DEFAULT;
         
