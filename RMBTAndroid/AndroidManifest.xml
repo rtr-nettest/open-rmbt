@@ -17,8 +17,8 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="at.alladin.rmbt.android"
-    android:versionCode="20211"
-    android:versionName="2.2.11"
+    android:versionCode="20212"
+    android:versionName="2.2.12"
     android:installLocation="auto" >
 
     <uses-sdk android:minSdkVersion="15" android:targetSdkVersion="25"/>
