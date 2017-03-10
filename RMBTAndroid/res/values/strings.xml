@@ -24,8 +24,8 @@
     <string name="main_dialog_registration_title">Registration…</string>
     <string name="main_dialog_registration_text">Client is being registered. Please wait…</string>
     
-    <string name="main_dialog_reload_title">Reloading…</string>
-    <string name="main_dialog_reload_text">Reloading data; please wait…</string>
+    <string name="main_dialog_reload_title">Reloading…</string> <!--  obsolete -->
+    <string name="main_dialog_reload_text">Reloading data; please wait…</string> <!--  obsolete -->
     
     <string name="preferences">Settings</string>
     

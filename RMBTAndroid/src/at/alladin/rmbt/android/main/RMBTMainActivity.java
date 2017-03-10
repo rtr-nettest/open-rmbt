@@ -636,7 +636,7 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties,
     protected void onResume() {
     	super.onResume();
         Log.i(DEBUG_TAG, "onResume");
-        waitForSettings(true, false, true);
+        waitForSettings();
     	ViewServer.get(this).setFocusedWindow(this);
         redirectSystemOutput(ConfigHelper.isSystemOutputRedirectedToFile(this));
     }
@@ -735,30 +735,13 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties,
         settingsTask.execute();
     }
     
-    public void waitForSettings(boolean waitForUUID, boolean waitForHistoryFilters, boolean forceWait)
+    public void waitForSettings()
     {
-        final boolean haveUuid = haveUuid();
-        if (forceWait || (waitForUUID && ! haveUuid) || (waitForHistoryFilters && ! haveHistoryFilters()))
-        {
-            if (loadingDialog != null)
-                loadingDialog.dismiss();
-            if (settingsTask != null && settingsTask.getStatus() == AsyncTask.Status.RUNNING)
-            {
-                final CharSequence title = getResources().getText(! haveUuid ? R.string.main_dialog_registration_title : R.string.main_dialog_reload_title);
-                final CharSequence text = getResources().getText(! haveUuid ? R.string.main_dialog_registration_text : R.string.main_dialog_reload_text);
-                loadingDialog = ProgressDialog.show(this, title, text, true, true);
-                loadingDialog.setOnCancelListener(new ProgressDialog.OnCancelListener()
-                {
-                    @Override
-                    public void onCancel(DialogInterface dialog)
-                    {
-                        onBackPressed();
-                    }
-                });
-            }
-        }
+        haveUuid();    
+          if (settingsTask != null)
+            	settingsTask.getStatus();
     }
-    
+
     /**
      * 
      */
@@ -923,7 +906,7 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties,
         checkNews(getApplicationContext());
         checkSettings(false, null);
         //checkIp();
-        waitForSettings(true, false, true);
+        waitForSettings();
         //fetchMapOptions();
         historyResultLimit = Config.HISTORY_RESULTLIMIT_DEFAULT;
         
