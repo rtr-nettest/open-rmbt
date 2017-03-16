@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2017 RTR-GmbH
+  
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+    http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<resources>
+    
+    <string name="error_no_internet">Нет подключения к Интернету</string>   
+    <string name="error_no_data">данные недоступны</string>
+    <string name="error_history_no_data_no_connection">Нет соединения с интернетом. Не удалось загрузить данные.</string>
+    
+    <string name="main_dialog_registration_title">Постановка на учет…</string>
+    <string name="main_dialog_registration_text">Клиент регистрируется. Пожалуйста, подождите…</string>
+        
+    <string name="preferences">Настройки</string>
+    
+    <string name="preferences_category_test">Test Настройки</string>
+    
+    <string name="preferences_location_settings">Местоположение</string>
+    <string name="preferences_location_settings_sum">Изменение настроек местоположения</string>
+    
+    <string name="preferences_no_gps">Нет GPS</string>
+    <string name="preferences_no_gps_sum">Не используйте GPS во время теста</string>
+    
+    <string name="preferences_tag">Тег</string>
+    <string name="preferences_tag_sum">Добавление тестового тега для каждого теста</string>
+    
+    <string name="preferences_skip_qos">Пропускать Качество соединения</string>
+    <string name="preferences_skip_qos_sum">Пропускать Качество соединения tests</string>
+    
+    <string name="preferences_loop_mode">Режим петли</string>
+    <string name="preferences_loop_mode_sum">Новые тесты запускаются по истечении времени ожидания или покрытия.</string>
+    
+    <string name="preferences_loop_mode_max_tests">Количество тестов</string>
+    <string name="preferences_loop_mode_max_tests_sum">Количество тестов в режиме цикла</string>
+    
+    <string name="preferences_loop_mode_min_delay">Минимальное время ожидания</string>
+    <string name="preferences_loop_mode_min_delay_sum">Минимальное время ожидания (в секундах) между двумя тестами в режиме цикла</string>
+    
+    <string name="preferences_loop_mode_max_delay">Время ожидания</string>
+    <string name="preferences_loop_mode_max_delay_sum">Время ожидания (в минутах) между двумя тестами в режиме цикла</string>
+    
+    <string name="preferences_loop_mode_movement">Расстояние</string>
+    <string name="preferences_loop_mode_movement_sum">Расстояние (в метрах) между двумя тестами в режиме цикла</string>
+    
+    <string name="preferences_loop_mode_gps">Использовать GPS в режиме петли</string>
+    <string name="preferences_loop_mode_gps_sum">Использовать GPS между двумя тестами в режиме петли</string>
+    
+    <string name="preferences_loop_mode_wake_lock">Loop WakeLock</string>
+    <string name="preferences_loop_mode_wake_lock_sum">Обходной путь для некоторых устройств: отображает экран, чтобы сохранить работу GPS.</string>
+    
+    <string name="preferences_ndt">NDT</string>
+    <string name="preferences_ndt_sum">Активировать расширенный тест</string>
+    
+    <string name="preferences_ipv4_only">Только IPv4</string>
+    <string name="preferences_ipv4_only_sum">Никогда не используйте IPv6</string>
+    
+ 
+    <string name="menu_button_start">Старт</string>
+    <string name="menu_button_loop">Петля</string>
+    <string name="menu_button_title_page">Главная страница</string>
+    <string name="menu_button_map">Карта</string>
+    <string name="menu_button_history">История</string>
+    <string name="menu_button_help">Помощь</string>
+    <string name="menu_button_statistics">Статистика</string>
+    <string name="menu_button_settings">Настройки</string>
+    <string name="menu_button_about">Информация</string>
+    <string name="menu_button_share">Share</string>
+    
+    <string name="news_title">Новости</string>
+    <string name="news_no_message">Нет текста сообщения.</string>
+    
+    <string name="about_version_title">Версия</string>
+    <string name="about_clientid_title">Клиентский UUID</string>
+    <string name="about_clientid_toast">Клиентский UUID скопирован в буфер обмена.</string>
+    <string name="about_web_title">Веб-сайт</string>
+    <string name="about_email_title">адрес электронной почты</string>
+    <string name="about_terms_title">политика конфиденциальности</string>
+    <string name="about_terms_line1">Политика конфиденциальности и условия использования</string>
+    <string name="about_dev_title">Разработка</string>
+
+    <string name="about_test_counter_title">Счетчик тестов</string>
+       
+    <string name="terms">Политика конфиденциальности и условия использования</string>
+    
+    <string name="terms_accept_button">Согласен (-сна)</string>
+    <string name="terms_accept_button_continue">Продолжать</string>
+    <string name="terms_decline_button">Отклонить</string>
+
+    <string name="terms_ndt_header">Дополнительный, более полный тест NDT</string>
+    <string name="terms_ndt_accept_text"><b>Я хочу запустить опциональный NDT-тест.</b></string>
+    <string name="terms_ndt_back_button">Вернуться назад</string>
+    <string name="terms_ndt_accept_button">Продолжать</string>
+    
+    <string name="test_mbps">Mbps</string>
+    <string name="test_dbm">dBm</string>
+    <string name="test_location_km_h">km/h</string>
+    <string name="test_location_m">m</string>
+    <string name="test_location_sat">спутникs</string>
+    <string name="test_location_gps">GPS</string>
+    <string name="test_location_network">Network</string>
+    <string name="test_location_dir_n">N</string>
+    <string name="test_location_dir_e">E</string>
+    <string name="test_location_dir_s">S</string>
+    <string name="test_location_dir_w">W</string>
+    
+	<string name="result_details">Подробности</string>
+	
+	<!-- Test -->
+	<string name="test_progress_title">Подключение ...</string>
+	<string name="test_progress_text">Соединение с тестовым сервером устанавливается. Пожалуйста, подождите…</string>
+	<string name="test_progress_text_wait">The test server is currently busy. The test will start {0,choice,0#shortly|1#in 1 second|1&lt;in {0} seconds}. Please wait…</string>
+	<string name="test_bottom_test">Status: {0}\nServer: {1}\nIP: {2}\n{3}\n{4}</string>
+	<string name="test_bottom_test_status_init">Инициализация</string>
+	<string name="test_bottom_test_status_ping">Пинтинг</string>
+	<string name="test_bottom_test_status_down">Загрузка</string>
+	<string name="test_bottom_test_status_init_up">Пинтинг Выгрузка</string>
+	<string name="test_bottom_test_status_up">Выгрузка</string>
+	<string name="test_bottom_test_status_end">Завершение</string>
+	<string name="test_bottom_test_status_error">ошибка</string>
+	<string name="test_bottom_test_status_aborted">Прервано</string>	
+	
+	<!-- QoS values: -->
+	
+	<string name="about_control_server_version">Версия сервера управления</string>
+		
+	<string name="term_signal">Пинг</string>
+    <string name="term_signal_quality">Quality</string>	
+		
+	<string name="result_page_title_qos">Качество соединения</string>
+    <string name="result_page_title_test">Подробности</string>
+    <string name="result_page_title_menu">Результат</string>
+    <string name="result_page_title_graph">График</string>
+    <string name="result_page_title_map">Местоположение</string>
+	    	
+	<string name="page_title_title_page">Меню</string>
+	<string name="page_title_history">История компании</string>
+	<string name="page_title_help">Помощь</string>
+	<string name="page_title_statistics">Статистика</string>
+	<string name="page_title_information">Информация</string>
+	<string name="page_title_map">Карта</string>
+	<string name="page_title_settings">Настройки</string>
+	<string name="page_title_about">Около</string>
+	<string name="page_title_main_result">Оценка качества</string>
+	<string name="page_title_sync">Синхронизация</string>
+	<string name="page_title_qos_result">Качество соединения Результат</string>
+		
+	<string name="result_qos_stats">Оценка качества</string>
+	<string name="result_qos_error_no_data_available">The Оценка качества was not executed.</string>
+	
+	<string name="title_screen_ipv4">IPv4</string>
+	<string name="title_screen_ipv6">IPv6</string>
+	<string name="title_screen_ipv4_overlay">Адрес в Интернете (v4)</string>
+	<string name="title_screen_ipv6_overlay">Адрес в Интернете (v6)</string>
+	<string name="title_screen_traffic">Текущий трафик данных</string>
+	<string name="title_screen_network_id">Идентификатор сети:</string>
+	
+	<string name="title_screen_info_overlay_location">Местоположение</string>
+	<string name="title_screen_info_overlay_ipv4_public">Публичный адресс</string>
+	<string name="title_screen_info_overlay_ipv4_private">Локальный адрес</string>
+	<string name="title_screen_info_overlay_ipv6_public">Публичный адресс</string>
+	<string name="title_screen_info_overlay_ipv6_private">Локальный адрес</string>
+	<string name="title_screen_info_overlay_ul_traffic">Скорость загрузки</string>
+	<string name="title_screen_info_overlay_dl_traffic">Скорость загрузки</string>
+	<string name="title_screen_info_overlay_control_server_conn">Соединение ControlServer</string>
+	<string name="title_screen_info_overlay_location_position">Должность</string>
+	<string name="title_screen_info_overlay_location_source">Источник</string>
+	<string name="title_screen_info_overlay_location_accuracy">Точность</string>
+	<string name="title_screen_info_overlay_location_altitude">Высота</string>
+	<string name="title_screen_info_overlay_location_age">Возраст</string>
+	
+    <string name="lm_measurement_ping">Пинг (ms)</string>
+    <string name="lm_measurement_down">Загрузка (Mbps)</string>
+    <string name="lm_measurement_up">Выгрузка (Mbps)</string>
+    <string name="lm_measurement_qos">Качество соединения</string>
+    
+    <string name="lm_measurement_server">Сервер</string>
+    <string name="lm_measurement_ip">IP-адрес клиента</string>
+    <string name="lm_measurement_data_usage">Использование данных</string>
+    <string name="lm_measurement_movement">Движение</string>
+    <string name="lm_measurement_delay">Время ожидания</string>
+    
+    <string name="lm_details_access">Доступ</string>
+    <string name="lm_details_network_id">Сеть</string>
+	<string name="lm_details_signal">Пинг</string>
+    <string name="lm_details_gps">Местоположение</string>
+    <string name="lm_details_gps_accuracy">Accuracy</string>
+        	
+	<string name="go">Старт tests</string>
+	<string name="go_to_settings">Change Настройки</string>	
+</resources>
+
