@@ -171,6 +171,11 @@ public class TestResultResource extends ServerResource
                         
                         
                     	final int networkType = test.getField("network_type").intValue();
+                    	
+                    	//workaround for clients reporting "dual sim" on Wifi
+                    	if (networkType > 90)
+                    	  dualSim = false;
+                    	
                     	String signalString = null;
                     	final Field signalField = test.getField("signal_strength"); // signal strength as RSSI (GSM, UMTS, Wifi, sometimes LTE)
                     	final Field lteRsrpField = test.getField("lte_rsrp");            // signal strength as RSRP, used in LTE
