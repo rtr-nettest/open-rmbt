@@ -359,9 +359,9 @@ RESULT_SHARE_TEXT_PROVIDER_ADD = Operator: {0}\n
                         			uploadString,                 //field 2
                         			pingString,                   //field 3
                         			shareTextField4,              //contains field 4
-                        			"",                           //field 5
+                        			labels.getString("RESULT_DUAL_SIM"), //field 5
                         			"",                           //field 6
-                        			labels.getString("RESULT_DUAL_SIM"), //field 7
+                        			"",                           //field 7
                         			platformString,               //field 8
                         			modelString,                  //field 9
                         			//dz add location
