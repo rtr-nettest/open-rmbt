@@ -82,7 +82,7 @@ public class QueryParser {
     }
     
     
-    public enum FieldType {STRING, DATE, LONG, DOUBLE, BOOLEAN, UUID, SORTBY, SORTORDER, IGNORE};
+    public enum FieldType {STRING, DATE, LONG, DOUBLE, BOOLEAN, UUID, SORTBY, SORTORDER, OUTPUT_FORMAT, IGNORE};
     private final ResourceBundle settings = ResourceManager.getCfgBundle();
 
     //all fields for which the user can sort the result
@@ -125,6 +125,7 @@ public class QueryParser {
         allowedFields.put("signal_strength", FieldType.LONG);
         allowedFields.put("signal_strength[]", FieldType.LONG);
         allowedFields.put("open_uuid",FieldType.UUID);
+        allowedFields.put("client_uuid",FieldType.UUID);
         allowedFields.put("long",FieldType.DOUBLE);
         allowedFields.put("long[]",FieldType.DOUBLE);
         allowedFields.put("lat",FieldType.DOUBLE);
@@ -163,6 +164,8 @@ public class QueryParser {
         allowedFields.put("sort_order",FieldType.SORTORDER);
         allowedFields.put("cursor", FieldType.LONG);
         allowedFields.put("max_results", FieldType.LONG);
+
+        allowedFields.put("format", FieldType.OUTPUT_FORMAT);
     }
     
     public JSONArray parseQuery(Form getParameters) {
@@ -288,6 +291,12 @@ public class QueryParser {
                             continue;
                         }
                         sortOrder = value;
+                        break;
+                    case OUTPUT_FORMAT:
+                        if (value.isEmpty() || !(value.toLowerCase().equals("json") || (value.toLowerCase().equals("csv")))) {
+                            invalidElements.put(attr);
+                            continue;
+                        }
                         break;
                 }
             }
@@ -522,6 +531,9 @@ public class QueryParser {
         else if (opendataField.equals("open_uuid")) {
             ret.add("t.open_uuid");
         }
+        else if (opendataField.equals("client_uuid")) {
+            ret.add("c.uuid");
+        }
         else if (opendataField.equals("lat")) {
             ret.add("t.geo_lat");
         }
@@ -642,7 +654,8 @@ public class QueryParser {
                 " LEFT JOIN test_server ts ON ts.uid=t.server_id" +
                 " LEFT JOIN provider prov ON provider_id = prov.uid " +
                 " LEFT JOIN provider mprov ON mobile_provider_id = mprov.uid" +
-                " LEFT JOIN mccmnc2name msim ON mobile_sim_id = msim.uid ";
+                " LEFT JOIN mccmnc2name msim ON mobile_sim_id = msim.uid " + //TODO: finalize migration to msim/mnwk
+                " LEFT JOIN client c ON client_id = c.uid ";
     }
     
     public static class SingleParameter {
