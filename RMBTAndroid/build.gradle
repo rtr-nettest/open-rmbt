@@ -1,0 +1,77 @@
+apply plugin: 'com.android.application'
+
+repositories {
+	mavenCentral()
+}
+
+
+subprojects{
+    evaluationDependsOn(':RMBTClient')
+}
+
+dependencies {
+	compile project(':RMBTUtil')
+	compile group: 'junit', name: 'junit', version: '4.12'
+	compile 'com.google.android.gms:play-services-maps:9.0.2'
+	compile 'dnsjava:dnsjava:2.1.6'
+	compile 'net.sf.jopt-simple:jopt-simple:3.2'
+	compile 'org.json:json:5.0.5'
+}
+
+def signDebugApp = false
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion '25.0.1'
+
+	sourceSets {
+	    main {
+            java {
+                srcDirs = ['src', '../RMBTClient/src']
+                exclude 'at/alladin/rmbt/client/applet/RMBTApplet.java'
+            }
+	        manifest {
+	            srcFile 'AndroidManifest.xml'
+	        }
+	        res {
+	            srcDir 'res'
+	        }
+	        assets {
+	            srcDir 'assets'
+	        }
+	    }
+	}
+
+    defaultConfig {
+        applicationId "at.alladin.rmbt.android"
+        minSdkVersion 15
+        targetSdkVersion 22
+        versionCode 20215
+        versionName "2.2.15"
+    }
+
+	lintOptions {
+           abortOnError false
+    }
+
+
+
+    buildTypes {
+        debug {
+        	debuggable true
+            minifyEnabled false
+
+        }
+		release {
+			debuggable false
+			minifyEnabled false
+
+			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+		}
+	}
+	compileOptions {
+		sourceCompatibility JavaVersion.VERSION_1_7
+		targetCompatibility JavaVersion.VERSION_1_7
+	}
+}
+
