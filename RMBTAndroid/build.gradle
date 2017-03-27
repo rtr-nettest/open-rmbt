@@ -45,9 +45,9 @@ android {
     defaultConfig {
         applicationId "at.alladin.rmbt.android"
         minSdkVersion 15
-        targetSdkVersion 22
-        versionCode 20215
-        versionName "2.2.15"
+        targetSdkVersion 25
+        versionCode 20216
+        versionName "2.2.16"
     }
 
 	lintOptions {
