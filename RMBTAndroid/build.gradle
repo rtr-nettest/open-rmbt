@@ -67,6 +67,11 @@ android {
 			minifyEnabled false
 
 			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+
+			lintOptions {
+				disable 'MissingTranslation'
+				disable 'ExtraTranslation'
+			}
 		}
 	}
 	compileOptions {
