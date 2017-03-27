@@ -78,7 +78,7 @@ public class NetworkWatcherRunnable implements Runnable {
 				currentSsid = telManager.getNetworkOperatorName();
 			}
 			else {
-				WifiManager wifiManager = (WifiManager) activity.getSystemService(Context.WIFI_SERVICE);
+				WifiManager wifiManager = (WifiManager) activity.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 				WifiInfo wifiInfo = wifiManager.getConnectionInfo();
 				currentSsid = String.valueOf(Helperfunctions.removeQuotationsInCurrentSSIDForJellyBean(wifiInfo.getSSID()));
 			}
