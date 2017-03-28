@@ -18,11 +18,11 @@ dependencies {
 	compile 'org.json:json:5.0.5'
 }
 
-def signDebugApp = false
+def signDebugApp = true
 
 android {
     compileSdkVersion 25
-    buildToolsVersion '25.0.1'
+    buildToolsVersion '25.0.2'
 
 	sourceSets {
 	    main {
