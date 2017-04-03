@@ -277,8 +277,12 @@ public class RMBTLoopService extends Service implements ServiceConnection
     
     private void stopAlarm() {
         if (alarmManager != null) {
-            alarmManager.cancel(alarm);
-            alarmManager.cancel(wakeupAlarm);
+            if (alarm != null) {
+                alarmManager.cancel(alarm);
+            }
+            if (wakeupAlarm != null) {
+                alarmManager.cancel(wakeupAlarm);
+            }
         }
     }
     
