@@ -10,11 +10,12 @@ subprojects{
 }
 
 dependencies {
+	compile project(':RMBTClient')
 	compile project(':RMBTUtil')
 	compile group: 'junit', name: 'junit', version: '4.12'
 	compile 'com.google.android.gms:play-services-maps:9.0.2'
-	compile 'dnsjava:dnsjava:2.1.6'
-	compile 'net.sf.jopt-simple:jopt-simple:3.2'
+	compile 'dnsjava:dnsjava:2.1.7'
+	compile 'net.sf.jopt-simple:jopt-simple:5.0.3'
 	compile 'org.json:json:5.0.5'
 }
 
@@ -27,7 +28,7 @@ android {
 	sourceSets {
 	    main {
             java {
-                srcDirs = ['src', '../RMBTClient/src']
+                srcDirs = ['src']
                 exclude 'at/alladin/rmbt/client/applet/RMBTApplet.java'
             }
 	        manifest {
