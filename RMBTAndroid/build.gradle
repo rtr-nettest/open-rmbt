@@ -49,6 +49,7 @@ android {
         targetSdkVersion 25
         versionCode 20216
         versionName "2.2.16"
+        buildConfigField "long", "BUILD_TIMESTAMP", System.currentTimeMillis() + "L"
     }
 
 	lintOptions {
