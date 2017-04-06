@@ -1,1 +1,14 @@
 tmp/
+/.nb-gradle/
+/RMBTSharedCode/build/
+/RMBTUtil/build/
+/RMBTAndroid/build/
+/RMBTClient/build/
+/RMBTQoSServer/build/
+.gradle
+.idea
+*.iml
+gradle.properties
+local.properties
+.DS_Store
+build

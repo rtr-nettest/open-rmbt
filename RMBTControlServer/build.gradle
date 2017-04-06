@@ -1,0 +1,56 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+}
+
+apply plugin: 'war'
+
+project.webAppDirName = 'WebContent'
+
+repositories {
+    mavenCentral()
+    maven{url 'http://maven.restlet.com'}
+    maven{url 'https://oss.sonatype.org/content/repositories/snapshots/'}
+}
+
+sourceSets {
+    main {
+        java { srcDir 'src' }
+        resources { srcDir 'src' }
+    }
+}
+
+subprojects{
+    evaluationDependsOn(':RMBTSharedCode')
+    evaluationDependsOn(':RMBTUtil')
+}
+
+def webXmlFile = file(project.webAppDirName + "/WEB-INF/web.xml")
+def generatedContextXmlFile = file("${buildDir}/context.xml")
+def revisionPropertiesFile = file("${buildDir}/resources/main/revision.properties")
+
+dependencies {
+    providedCompile 'org.apache.tomcat:tomcat-catalina:7.0.56'
+    providedCompile group: 'javax.servlet', name: 'servlet-api', version: '2.3'
+    compile ('commons-io:commons-io:2.4',
+        'org.json:json:20140107',
+        'org.restlet.jse:org.restlet.ext.json:2.1.7',
+        'org.restlet.jee:org.restlet.ext.servlet:2.1.7',
+        'net.sf.uadetector:uadetector-resources:2014.09')
+    compile project(':RMBTSharedCode')
+    compile project(':RMBTUtil')
+}
+
+
+war {
+    webXml = webXmlFile
+    exclude 'WEB-INF/web.xml'
+    exclude 'WEB-INF/lib/**'
+    exclude 'WEB-INF/classes/**'
+    exclude 'META-INF/context.xml'
+    from(buildDir){ 
+            into('META-INF') 
+            include 'context.xml' 
+    }
+}

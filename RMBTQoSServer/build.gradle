@@ -1,0 +1,38 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+}
+
+apply plugin: 'java'
+
+repositories {
+    mavenCentral()
+    maven{url 'http://maven.restlet.com'}
+}
+
+sourceSets {
+    main {
+        java { srcDir 'src' }
+    }
+}
+
+dependencies {
+    compile project(':RMBTUtil')
+    compile 'org.jumpmind.symmetric.jdbc:postgresql:9.2-1002-jdbc4'
+    compile 'log4j:log4j:1.2.17'
+    compile 'org.json:json:5.0.5'
+    compile 'org.restlet.jse:org.restlet:2.3-M4'
+}
+
+jar {
+   from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+   from('src/') {
+      include 'at/alladin/rmbt/qos/testserver/crt/qosserver.jks'
+   }
+   manifest { attributes 'Main-Class': 'at.alladin.rmbt.qos.testserver.TestServer' }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.2.1'
+}

@@ -1,0 +1,84 @@
+apply plugin: 'com.android.application'
+
+repositories {
+	mavenCentral()
+}
+
+
+subprojects{
+    evaluationDependsOn(':RMBTClient')
+}
+
+dependencies {
+	compile project(':RMBTClient')
+	compile project(':RMBTUtil')
+	compile group: 'junit', name: 'junit', version: '4.12'
+	compile 'com.google.android.gms:play-services-maps:9.0.2'
+	compile 'dnsjava:dnsjava:2.1.7'
+	compile 'net.sf.jopt-simple:jopt-simple:5.0.3'
+	compile 'org.json:json:5.0.5'
+}
+
+def signDebugApp = true
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion '25.0.2'
+
+	sourceSets {
+	    main {
+            java {
+                srcDirs = ['src']
+                exclude 'at/alladin/rmbt/client/applet/RMBTApplet.java'
+            }
+	        manifest {
+	            srcFile 'AndroidManifest.xml'
+	        }
+	        res {
+	            srcDir 'res'
+	        }
+	        assets {
+	            srcDir 'assets'
+	        }
+	    }
+	}
+
+    defaultConfig {
+        applicationId "at.alladin.rmbt.android"
+        minSdkVersion 15
+        targetSdkVersion 25
+        versionCode 20216
+        versionName "2.2.16"
+        buildConfigField "long", "BUILD_TIMESTAMP", System.currentTimeMillis() + "L"
+    }
+
+	lintOptions {
+           abortOnError false
+    }
+
+
+
+    buildTypes {
+        debug {
+        	debuggable true
+            minifyEnabled false
+
+        }
+		release {
+			debuggable false
+			minifyEnabled false
+
+			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+
+			lintOptions {
+				disable 'MissingTranslation'
+				disable 'ExtraTranslation'
+			}
+		}
+	}
+	compileOptions {
+		sourceCompatibility JavaVersion.VERSION_1_7
+		targetCompatibility JavaVersion.VERSION_1_7
+	}
+}
+
