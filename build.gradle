@@ -52,3 +52,17 @@ def getVersionCodeFromGit() {
     }
     return stdout.toString().trim().toInteger()
 }
+
+def getDirtyFromGit() {
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        // git list all "dirty" (untracked, modified) files
+        commandLine 'git', 'status', '--porcelain'
+        standardOutput = stdout
+    }
+    //if there are any files, git is "dirty"
+    if (stdout.toString().length()>0)
+        return "true";
+    else
+        return "false";
+}
