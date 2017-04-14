@@ -205,23 +205,6 @@
 
 	<!-- Map -->
 	<string name="map_filter_header">FILTR MAPY</string>
-	<string name="map_choose_header">VYBRAT MAPU</string>
-	
-	<string name="map_appearance_header">VZHLED MAPY</string>
-	<string name="map_appearance_nosat_title">Normální pohled</string>
-	<string name="map_appearance_nosat_summary">Mapa zaobrazuje normální pohled</string>
-	<string name="map_appearance_sat_title">Satelitní pohled</string>
-	<string name="map_appearance_sat_summary">Mapa zobrazuje satelitní pohled</string>
-	
-	<string name="map_overlay_header">VRSTVA MAPY</string>
-	<string name="map_overlay_auto_title">Automatická</string>
-	<string name="map_overlay_auto_summary">Mapa se přepíná automaticky mezi heat mapou a body</string>
-	<string name="map_overlay_heatmap_title">Heat mapa</string>
-	<string name="map_overlay_heatmap_summary">Mapa zaobrazuje testy jako heat mapu</string>
-	<string name="map_overlay_points_title">Body</string>
-	<string name="map_overlay_points_summary">Mapa zobrazuje testy jako body</string>
-	<string name="map_overlay_shapes_title">Tvary</string>
-	<string name="map_overlay_shapes_summary">Mapa zobrazuje testy jako tvary podle poštovních směrovacích čísel</string>
 	
 	<string name="map_balloon_overlay_header">MĚŘENÍ</string>
 	
@@ -262,9 +245,6 @@
 	<string name="qos_test_name_dns">DNS</string>
 	<string name="qos_test_name_tcp">TCP porty</string>	
 	<string name="qos_test_name_udp">UDP porty</string>
-	
-	<string name="qos_test_result_error">Chyba</string>
-	<string name="qos_test_result_all">Výsledky</string>
 	
 	<string name="result_details_qos_failure">SELHÁNÍ</string>
 	<string name="result_details_qos_success">ÚSPĚŠNÉ</string>

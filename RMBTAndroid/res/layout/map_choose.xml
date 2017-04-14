@@ -21,12 +21,6 @@
     android:layout_gravity="top"
     android:layout_marginTop="10dp">
 
-    <TextView
-        android:id="@+id/mapChooseHeaderText"
-        style="@style/blockHeader"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/map_choose_header" />
 
     <ListView
         android:id="@+id/valueList"

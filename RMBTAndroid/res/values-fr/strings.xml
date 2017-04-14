@@ -166,22 +166,7 @@
 	
 	<!-- Map -->
 	<string name="map_filter_header">FILTRE DE LA CARTE</string>
-	<string name="map_choose_header">SÉLECTION DE LA CARTE</string>
-	
-	<string name="map_appearance_header">CARTE</string>
-	<string name="map_appearance_nosat_title">Affichage normal</string>
-	<string name="map_appearance_nosat_summary">La carte montre une vue normale</string>
-	<string name="map_appearance_sat_title">Image satellite</string>
-	<string name="map_appearance_sat_summary">La carte montre la vue satellite</string>
-	
-	<string name="map_overlay_header">CARTE DE RECOUVREMENT</string>
-	<string name="map_overlay_auto_title">Automatiquement</string>
-	<string name="map_overlay_auto_summary">Carte commute automatiquement entre la carte chaleur et les points</string>
-	<string name="map_overlay_heatmap_title">La carte chaleur</string>
-	<string name="map_overlay_heatmap_summary">La carte indique les tests réalisés sur la carte chaleur</string>
-	<string name="map_overlay_points_title">Points</string>
-	<string name="map_overlay_points_summary">La carte indiquent les points de test </string>
-	
+
 	<string name="map_balloon_overlay_header">MESURES</string>
 	
 	<!-- Test -->
@@ -225,16 +210,11 @@
     <string name="preferences_dev_debug_sysout">Store error output in file</string>
     <string name="preferences_dev_debug_sysout_sum">Stores error output in a text file located in the "qosdebug" folder</string>
     <string name="test_dialog_error_control_server_conn">Connection to test server cannot be established.</string>
-    <string name="map_overlay_shapes_title">Shapes</string>
-    <string name="map_overlay_shapes_summary">Map shows tests as postal code shapes</string>
 
     <!-- QoS values: -->
     <string name="about_control_server_version">Version du serveur de contrôle</string>
     <string name="preferences_dont_show_menu_on_exit">Pas de menu à la fermeture</string>
     <string name="preferences_dont_show_menu_on_exit_sum">Ne pas afficher le menu de l\'application avant de le fermer.</string>
-    
-    <string name="qos_test_result_error">Erreur</string>
-    <string name="qos_test_result_all">Résultats</string>
     
     <string name="result_details_qos_failure">ÉCHOUÉ</string>
     <string name="result_details_qos_success">RÉUSSI</string>

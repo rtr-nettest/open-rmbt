@@ -42,14 +42,6 @@
                 android:background="@drawable/bg_trans_light_20"
                 android:gravity="center" >
 
-                <TextView
-                    android:id="@+id/col1"
-                    style="@style/listViewHistoryLabelRowItem"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight=".15"
-                    android:gravity="center"
-                    android:text="@string/qos_test_result_error" />
             </LinearLayout>
 
             <LinearLayout
@@ -84,14 +76,6 @@
                 android:gravity="center"
                 android:visibility="gone" >
 
-                <TextView
-                    android:id="@+id/col2"
-                    style="@style/listViewHistoryLabelRowItem"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight=".15"
-                    android:gravity="center"
-                    android:text="@string/qos_test_result_all" />
             </LinearLayout>
 
             <TextView

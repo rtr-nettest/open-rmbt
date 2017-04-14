@@ -212,26 +212,8 @@
 
 	<!-- Map -->
 	<string name="map_filter_header">FILTER MAP</string>
-	<string name="map_choose_header">WYBÓR MAP</string>
-	
-	<string name="map_appearance_header">WIDOK MAPY</string>
-	<string name="map_appearance_nosat_title">Widok normalny</string>
-	<string name="map_appearance_nosat_summary">Mapa pokazuje widok normalny</string>
-	<string name="map_appearance_sat_title">Widok z satelity</string>
-	<string name="map_appearance_sat_summary">Mapa pokazuje widok z satelity </string>
-	
-	<string name="map_overlay_header">OVERLAY MAPY</string>
-	<string name="map_overlay_auto_title">Automatyczny</string>
-	<string name="map_overlay_auto_summary">Mapa automatycznie przełącza pomiędzy Heatmap i punktami</string>
-	<string name="map_overlay_heatmap_title">Heatmap</string>
-	<string name="map_overlay_heatmap_summary">Mapa pokazuje testy jako Heatmap </string>
-	<string name="map_overlay_points_title">Punkty</string>
-	<string name="map_overlay_points_summary"> Mapa pokazuje testy jako punkty</string>
-	
+
 	<string name="map_balloon_overlay_header">MIERZENIA</string>
-	
-	<string name="map_overlay_shapes_title">Shapes</string>
-	<string name="map_overlay_shapes_summary">Map shows tests as postal code shapes</string>
 	
 	<!-- Test -->
 	<string name="test_progress_title">Połączenie …</string>
@@ -266,9 +248,6 @@
 		<item>@string/result_page_title_graph</item>
 	    <item>@string/result_page_title_map</item>
 	</string-array>
-	
-	<string name="qos_test_result_error">Bląd</string>
-	<string name="qos_test_result_all">Wyniki</string>
 	
 	<string name="result_details_qos_failure">NIEPOWODZENIE</string>
 	<string name="result_details_qos_success">POWODZENIE</string>

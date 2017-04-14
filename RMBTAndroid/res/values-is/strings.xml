@@ -163,21 +163,6 @@
 
 	<!-- Map -->
 	<string name="map_filter_header">KORTASÍA</string>
-	<string name="map_choose_header">KORTAVAL</string>
-	
-	<string name="map_appearance_header">KORTASJÁ</string>
-	<string name="map_appearance_nosat_title">Eðlileg sjá</string>
-	<string name="map_appearance_nosat_summary">Kort sýnir eðlilega sjá</string>
-	<string name="map_appearance_sat_title">Gervihnattasjá</string>
-	<string name="map_appearance_sat_summary">Kort sýnir gervihnattasjá</string>
-	
-	<string name="map_overlay_header">KORTAYFIRLÖGN</string>
-	<string name="map_overlay_auto_title">Sjálfvirkt</string>
-	<string name="map_overlay_auto_summary">Kort skiptir sjálfvirkt milli hitakorts og punkta</string>
-	<string name="map_overlay_heatmap_title">Hitakort</string>
-	<string name="map_overlay_heatmap_summary">Kort sýnir prófanar sem hitakort</string>
-	<string name="map_overlay_points_title">Punktar</string>
-	<string name="map_overlay_points_summary">Kort sýnir prófanar sem punkta</string>
 	
 	<string name="map_balloon_overlay_header">MÆLINGAR</string>
 	
@@ -223,8 +208,6 @@
     <string name="preferences_dev_debug_sysout">Store error output in file</string>
     <string name="preferences_dev_debug_sysout_sum">Stores error output in a text file located in the "qosdebug" folder</string>
     <string name="test_dialog_error_control_server_conn">Connection to test server cannot be established.</string>
-    <string name="map_overlay_shapes_title">Shapes</string>
-    <string name="map_overlay_shapes_summary">Map shows tests as postal code shapes</string>
 
     <!-- QoS values: -->
     <string name="about_control_server_version">Control server version</string>
@@ -236,9 +219,6 @@
     <string name="qos_test_name_dns">DNS</string>
     <string name="qos_test_name_tcp">TCP ports</string> 
     <string name="qos_test_name_udp">UDP ports</string>
-    
-    <string name="qos_test_result_error">Error</string>
-    <string name="qos_test_result_all">Results</string>
     
     <string name="result_details_qos_failure">FAILED</string>
     <string name="result_details_qos_success">SUCCEEDED</string>

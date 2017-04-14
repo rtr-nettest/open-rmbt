@@ -71,8 +71,8 @@ android {
 			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
 
 			lintOptions {
-				disable 'MissingTranslation'
-				disable 'ExtraTranslation'
+				//disable 'MissingTranslation'
+				//disable 'ExtraTranslation'
 			}
 		}
 	}
