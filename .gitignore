@@ -11,3 +11,4 @@ tmp/
 local.properties
 .DS_Store
 /build/
+/apk/
