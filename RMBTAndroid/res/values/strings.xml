@@ -138,11 +138,11 @@
     <string name="about_dev_line1" translatable="false">alladin-IT GmbH et al</string>
     <string name="about_dev_line2" translatable="false">https://www.alladin.at/</string>
     <string name="about_dev_link" translatable="false">https://www.alladin.at/</string>
-    <string name="about_gms_legal_title">Google Play</string>
+    <string name="about_gms_legal_title" translatable="false">Google Play</string>
     <string name="about_gms_legal_line1">Google Play Services Legal Notice</string>
     <string name="about_test_counter_title">Test Counter</string>
     
-   	<string name="about_hidden_feature_dialog_title">Code</string>	
+   	<string name="about_hidden_feature_dialog_title">Code</string>
     <string name="about_hidden_feature_dialog_enter_code">Please enter the code:</string>
     <string name="about_hidden_feature_dialog_msg_deactivated">Deactivated.</string>
     <string name="about_hidden_feature_dialog_msg_activated">Activated.</string>
@@ -151,8 +151,8 @@
     <string name="about_server_selection_activated">Server selection available.</string>
     <string name="about_server_selection_deactivated">Server selection removed.</string>
     <string name="about_hidden_feature_dialog_msg_try_again">Try again!</string>
-    <string name="about_dev_mode_activated">Developer options available.</string>
-    <string name="about_dev_mode_deactivated">Developer options removed.</string>
+    <string name="about_dev_mode_activated" translatable="false">Developer options available.</string>
+    <string name="about_dev_mode_deactivated" translatable="false">Developer options removed.</string>
     
     
     <string name="terms">Privacy Policy and Terms of Use</string>

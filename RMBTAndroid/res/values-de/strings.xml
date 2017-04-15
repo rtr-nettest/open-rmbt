@@ -130,7 +130,6 @@
     <string name="about_terms_title">Datenschutzerklärung</string>
     <string name="about_terms_line1">Datenschutzerklärung und Nutzungsbedingungen</string>
     <string name="about_dev_title">Entwicklung</string>
-    <string name="about_gms_legal_title">Google Play</string>
     <string name="about_gms_legal_line1">Google Play Services Impressum</string>
     <string name="about_test_counter_title">Testzähler</string>
     
@@ -142,10 +141,8 @@
     <string name="about_loop_mode_deactivated">Wiederholungsmodus entfernt.</string>
     <string name="about_server_selection_activated">Serverauswahl verfügbar.</string>
     <string name="about_server_selection_deactivated">Serverauswahl entfernt.</string>
-    <string name="about_dev_mode_activated">Entwicklerloptionen verfügbar.</string>
-    <string name="about_dev_mode_deactivated">Entwickleroptionen entfernt.</string>
-    
-    
+
+
     <string name="about_hidden_feature_dialog_msg_try_again">Versuchen Sie es nochmals!</string>
     
     <string name="terms">Datenschutzerklärung und Nutzungsbedingungen</string>
@@ -379,6 +376,13 @@
     	
 	<string name="go">Tests starten</string>
 	<string name="go_to_settings">Einstellungen ändern</string>
+    <string name="qos_test_name_dns">DNS</string>
+    <string name="qos_test_name_http_proxy">Unveränderter Inhalt</string>
+    <string name="qos_test_name_non_transparent_proxy">Transparente Verbindung</string>
+    <string name="qos_test_name_tcp">TCP Ports</string>
+    <string name="qos_test_name_udp">UDP Ports</string>
+    <string name="qos_test_name_website">Webseite</string>
+    <string name="loop_notification_text_without_stop">{0}x; {1}; {2}m;</string>
 </resources>
 
 

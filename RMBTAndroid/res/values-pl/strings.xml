@@ -128,7 +128,6 @@
     <string name="about_terms_title">Oświadczenie o ochronie danych osobowych</string>
     <string name="about_terms_line1"> Oświadczenie o ochronie danych osobowych i warunki korzystania</string>
     <string name="about_dev_title">rozwój</string>
-    <string name="about_gms_legal_title">Google Play</string>
     <string name="about_gms_legal_line1">Google Play Services Impressum</string>
     <string name="about_test_counter_title">Licznik testów</string>
     
@@ -315,7 +314,106 @@
 	<string name="qos_test_name_dns">DNS</string>
 	<string name="qos_test_name_tcp">TCP ports</string>	
 	<string name="qos_test_name_udp">UDP ports</string>
-	
+    <string name="value_invalid">Invalid value</string>
+    <string name="title_screen_ipv4_overlay">Internet address (v4)</string>
+    <string name="title_screen_ipv6_overlay">Internet address (v6)</string>
+
+    <string name="loop_test_measurement">Measurement</string>
+    <string name="loop_test_current">Current</string>
+    <string name="loop_test_last">Last test</string>
+    <string name="loop_test_median">Median</string>
+
+    <string name="loop_test_progress_test_running">Test running</string>
+    <string name="loop_test_progress_test_waiting">Waiting</string>
+    <string name="loop_test_progress_test_finished">Finished</string>
+    <string name="loop_test_progress_test_not_running">Loop mode test</string>
+
+    <string name="loop_test_quit">Quit</string>
+
+    <string name="lm_measurement_ping">Ping (ms)</string>
+    <string name="lm_measurement_down">Down (Mbps)</string>
+    <string name="lm_measurement_up">Up (Mbps)</string>
+    <string name="lm_measurement_qos">QoS</string>
+
+    <string name="lm_measurement_server">Server</string>
+    <string name="lm_measurement_ip">Client IP</string>
+    <string name="lm_measurement_data_usage">Data usage</string>
+    <string name="lm_measurement_movement">Movement</string>
+    <string name="lm_measurement_delay">Waiting time</string>
+
+    <string name="lm_details_access">Access</string>
+    <string name="lm_details_network_id">Network</string>
+    <string name="lm_details_signal">Signal</string>
+    <string name="lm_details_gps">Location</string>
+    <string name="lm_details_gps_accuracy">Accuracy</string>
+
+    <string name="about_hidden_feature_dialog_title">Code</string>
+    <string name="about_hidden_feature_dialog_enter_code">Please enter the code:</string>
+    <string name="about_hidden_feature_dialog_msg_deactivated">Deactivated.</string>
+    <string name="about_hidden_feature_dialog_msg_activated">Activated.</string>
+    <string name="about_loop_mode_activated">Loop mode available.</string>
+    <string name="about_loop_mode_deactivated">Loop mode removed.</string>
+    <string name="about_server_selection_activated">Server selection available.</string>
+    <string name="about_server_selection_deactivated">Server selection removed.</string>
+    <string name="about_hidden_feature_dialog_msg_try_again">Try again!</string>
+
+    <!-- copy  -->
+
+
+    <string name="preferences_skip_qos">Skip QoS</string>
+    <string name="preferences_skip_qos_sum">Skip QoS tests</string>
+
+
+    <string name="preferences_loop_mode_wake_lock">Loop WakeLock</string>
+    <string name="preferences_loop_mode_wake_lock_sum">Workaround for some devices: Leaves the display on to keep GPS working</string>
+
+    <string name="preferences_category_loop_mode_heading">Loop mode</string>
+
+    <string name="menu_button_loop">LOOP</string>
+
+    <string name="terms_loop_mode">Loop mode</string>
+    <string name="terms_loop_mode_header">Loop mode activation</string>
+    <string name="terms_loop_mode_accept_text"><b>I wish to enable the loop mode.</b></string>
+
+
+    <string name="map_search_location_dialog_title">Search</string>
+    <string name="map_search_location_progress_title">Searching</string>
+    <string name="map_search_location_progress_message">Looking for your location. Please wait…</string>
+    <string name="map_search_location_dialog_info">Search for an address or city:</string>
+    <string name="map_search_location_dialog_not_found">Address not found.</string>
+    <string name="map_search_location_not_supported">Sorry, this function is not supported by your device.</string>
+
+
+    <!-- QoS values: -->
+
+    <string name="term_signal_quality">Quality</string>
+
+    <string name="result_details_qos_info">ADDITIONAL RESULTS</string>
+
+    <string name="server_selection">Server selection</string>
+
+    <string name="permission_telephony_dialog_title">Permission required</string>
+    <string name="permission_telephony_dialog_text">The permission READ_PHONE_STATE is required for the correct identification of network settings of dual-SIM devices.</string>
+    <string name="loop_notification_text_without_stop">{0}x; {1}; {2}m;</string>
+
+    <string name="go">Start tests</string>
+    <string name="go_to_settings">Change settings</string>
+
+    <string name="loop_mode_max_delay_invalid">Invalid maximum delay. Please choose a number between {0,number,#} and {1,number,#}.</string>
+    <string name="loop_mode_max_movement_invalid">Invalid maximum distance. Please choose a number between {0,number,#} and {1,number,#}.</string>
+    <string name="loop_mode_max_tests_invalid">Invalid number of tests. Please choose a number between {0,number,#} and {1,number,#}.</string>
+    <string name="loop_mode_max_test">Number of tests</string>
+    <string name="loop_mode_info">You are about to start tests in loop mode. The distance is set to {0,number,#} meters. The waiting time is {1,number,#} minutes.</string>
+
+    <string name="loop_mode_test_dialog_abort">Do you really want to stop the loop mode?</string>
+
+    <string name="loop_notification_finished_ticker">Loop mode is finished. No more tests will be run.</string>
+    <string name="loop_notification_finished_title">Loop mode is finished</string>
+
+    <string name="loop_test_last_status_ok">Last test: successful</string>
+    <string name="loop_test_last_status_error">Last test: error</string>
+    <string name="loop_test_last_status_rejected">Last test: rejected</string>
+
 </resources>
 
 

@@ -28,12 +28,12 @@
     <string name="test_notification_title">OpenRMBT</string>
     
     <string name="menu_rtr_web_link">https://www.rtr.at</string>
-    <string name="about_rtr_line1"></string>
+    <string name="about_rtr_line1">Austrian Regulatory Authority for Broadcasting and Telecommunications (RTR)</string>
     
     <string name="about_email_email"><![CDATA[RTR-Netztest Support <netztest@rtr.at>]]></string>
     <string name="about_email_subject">Požadavek na podporu NetTestu</string>
     
-    <string name="terms_accept_text"></string>
+    <string name="terms_accept_text">Invalid value</string>
     
     <string name="url_help">https://www.netztest.at/redirect/en/help</string>
     <string name="url_help_result">https://www.netztest.at/redirect/en/help_result</string>
