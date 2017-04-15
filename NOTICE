@@ -1,9 +1,8 @@
    =========================================================================
    Open-RMBT
    Copyright 2013-2015 alladin-IT GmbH
-   Copyright 2013-2016 RTR-GmbH
-   Copyright 2015-2016 Specure GmbH
-   
+   Copyright 2013-2017 RTR-GmbH
+
    This product includes software developed at
    alladin-IT GmbH (https://alladin.at/).
    
@@ -11,9 +10,6 @@
    Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
    (https://www.rtr.at/).
 
-   This product includes software developed at
-   Specure GmbH (https://www.specure.com/).
-   
    This software contains code derived from the
    Web100 Network Diagnostic Tool (NDT), which is open source software,
    available under the "new BSD license". The original software is available
