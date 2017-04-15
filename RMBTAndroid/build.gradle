@@ -74,6 +74,14 @@ android {
 				//disable 'MissingTranslation'
 				//disable 'ExtraTranslation'
 			}
+            applicationVariants.all { variant ->
+                variant.outputs.each { output ->
+                    def finalName = versionCode + "-" + System.currentTimeMillis().toString() + "-" + getVersionNameFromGit() + ".apk"
+                    if (getDirtyFromGit() == "true")
+                        finalName = "dirty-" + finalName
+                    output.outputFile = new File(output.outputFile.parent, finalName)
+                }
+            }
 		}
 	}
 	compileOptions {
