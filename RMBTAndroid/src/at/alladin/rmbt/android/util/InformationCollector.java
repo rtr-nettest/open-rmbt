@@ -617,7 +617,10 @@ public class InformationCollector
                 e.printStackTrace();
                 fullInfo.setProperty("TELEPHONY_DATA_STATE", "s.exception");
             }
-            
+
+            final int network = getNetwork();
+            //only check for dual-sim if connected via mobile network - not on wifi etc.
+            if (network != NETWORK_WIFI && network != NETWORK_ETHERNET && network != NETWORK_BLUETOOTH)
             try
             {
                 final String dualSimDetectionMethod = DualSimDetector.getDualSIM(context);
