@@ -39,24 +39,44 @@ import at.alladin.rmbt.android.util.ConfigHelper;
 
 public class RMBTCheckFragment extends Fragment
 {
+    public enum CheckLayoutType {
+        ACCEPT_BUTTON,
+        ACCEPT_AND_CANCEL_BUTTON
+    }
+
 	public enum CheckType {
 		NDT("file:///android_res/raw/ndt_info.html", AppConstants.PAGE_TITLE_NDT_CHECK, 
-				R.string.terms_ndt_header, R.string.terms_ndt_accept_text, false),
+				R.string.terms_ndt_header, R.string.terms_ndt_accept_text, false,
+                CheckLayoutType.ACCEPT_BUTTON, true, new int[] {R.string.terms_ndt_accept_button}),
 		LOOP_MODE("file:///android_res/raw/loop_mode_info.html", AppConstants.PAGE_TITLE_LOOP_MODE_CHECK, 
-				R.string.terms_loop_mode_header, R.string.terms_loop_mode_accept_text, true);
-		
-		private final String templateFile;
+				R.string.terms_loop_mode_header, R.string.terms_loop_mode_accept_text, true,
+                CheckLayoutType.ACCEPT_AND_CANCEL_BUTTON, false,
+                new int[] {R.string.terms_check_accept_button, R.string.terms_check_decline_button}),
+        LOOP_MODE2("file:///android_res/raw/loop_mode_info2.html", AppConstants.PAGE_TITLE_LOOP_MODE_CHECK2,
+                R.string.terms_loop_mode_header, R.string.terms_loop_mode_accept_text, true,
+                CheckLayoutType.ACCEPT_AND_CANCEL_BUTTON, false,
+                new int[] {R.string.terms_check_accept_button, R.string.terms_check_decline_button});
+
+        private final String templateFile;
 		private final String fragmentTag;
 		private final boolean defaultIsChecked;
 		private final int titleId;
 		private final int textId;
+        private final CheckLayoutType layoutType;
+        private final boolean hasCheckbox;
+        private final int[] buttonStringIds;
 		
-		CheckType(final String templateFile, final String fragmentTag, final int titleId, final int textId, final boolean defaultIsChecked) {
+		CheckType(final String templateFile, final String fragmentTag, final int titleId,
+                  final int textId, final boolean defaultIsChecked, final CheckLayoutType layoutType,
+                  final boolean hasCheckbox, final int[] buttonStringIds) {
 			this.templateFile = templateFile;
 			this.fragmentTag = fragmentTag;
 			this.titleId = titleId;
 			this.textId = textId;
 			this.defaultIsChecked = defaultIsChecked;
+            this.layoutType = layoutType;
+            this.hasCheckbox = hasCheckbox;
+            this.buttonStringIds = buttonStringIds;
 		}
 
 		public String getTemplateFile() {
@@ -78,18 +98,37 @@ public class RMBTCheckFragment extends Fragment
 		public boolean isDefaultIsChecked() {
 			return defaultIsChecked;
 		}
-	}
+
+		public CheckLayoutType getLayoutType() {
+            return layoutType;
+        }
+
+        public boolean hasCheckbox() {
+            return hasCheckbox;
+        }
+
+        public int[] getButtonStringIds() {
+            return buttonStringIds;
+        }
+    }
 	
 	private CheckType checkType;
 	
     private CheckBox checkBox;
     
     boolean firstTime = true;
-    
+
+    private CheckType followedByType;
+
     public static RMBTCheckFragment newInstance(final CheckType checkType) {
+        return RMBTCheckFragment.newInstance(checkType, null);
+    }
+
+    public static RMBTCheckFragment newInstance(final CheckType checkType, final CheckType followedBy) {
     	final RMBTCheckFragment f = new RMBTCheckFragment();
     	final Bundle bdl = new Bundle(1);
     	bdl.putSerializable("checkType", checkType);
+        bdl.putSerializable("followedByType", followedBy);
         f.setArguments(bdl);
         return f;
     }
@@ -98,6 +137,7 @@ public class RMBTCheckFragment extends Fragment
     public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
     	checkType = (CheckType) getArguments().get("checkType");
+        followedByType = (CheckType) getArguments().get("followedByType");
     }
     
     public CheckType getCheckType() {
@@ -115,31 +155,38 @@ public class RMBTCheckFragment extends Fragment
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState)
     {
-        if (! (getActivity() instanceof RMBTMainActivity))
+        if (!(getActivity() instanceof RMBTMainActivity))
             firstTime = false;
         
         final View v = inflater.inflate(R.layout.ndt_check, container, false);
-                
-        if (! firstTime)
+        if (!firstTime) {
             v.findViewById(R.id.termsNdtButtonBack).setVisibility(View.GONE);
-        
+        }
+
         final TextView textTitle = (TextView) v.findViewById(R.id.check_fragment_title);
         textTitle.setText(checkType.getTitleId());
-        
+
         checkBox = (CheckBox) v.findViewById(R.id.ndtCheckBox);
-        checkBox.setText(checkType.getTextId());
-        
-        if (savedInstanceState != null) {
-            checkBox.setChecked(savedInstanceState.getBoolean("isChecked"));
+
+        if (checkType.hasCheckbox()) {
+            checkBox.setVisibility(View.VISIBLE);
+            checkBox.setText(checkType.getTextId());
+
+            if (savedInstanceState != null) {
+                checkBox.setChecked(savedInstanceState.getBoolean("isChecked"));
+            } else {
+                checkBox.setChecked(checkType.isDefaultIsChecked());
+            }
         }
         else {
-        	checkBox.setChecked(checkType.isDefaultIsChecked());
+            checkBox.setVisibility(View.INVISIBLE);
         }
 
         
         final Button buttonAccept = (Button) v.findViewById(R.id.termsNdtAcceptButton);
+        buttonAccept.setText(checkType.getButtonStringIds()[0]);
         
-        if (! firstTime)
+        if (! firstTime && checkType.hasCheckbox())
         {    
             checkBox.setOnCheckedChangeListener(new OnCheckedChangeListener()
             {
@@ -149,6 +196,18 @@ public class RMBTCheckFragment extends Fragment
                     buttonAccept.setEnabled(isChecked);
                 }
             });
+
+            new Handler().postDelayed(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    buttonAccept.setEnabled(firstTime || checkBox.isChecked());
+                }
+            }, 500);
+        }
+        else if (firstTime || !checkType.hasCheckbox()) {
+            buttonAccept.setEnabled(true);
         }
         
         final WebView wv = (WebView) v.findViewById(R.id.ndtInfoWebView);
@@ -166,8 +225,8 @@ public class RMBTCheckFragment extends Fragment
                     ConfigHelper.setNDT(activity, checkBox.isChecked());
                     ConfigHelper.setNDTDecisionMade(activity, true);                	
                 	break;
-                case LOOP_MODE:
-                	ConfigHelper.setLoopMode(activity, checkBox.isChecked());
+                case LOOP_MODE2:
+                	ConfigHelper.setLoopMode(activity, true);
                 	break;
                 }
                 
@@ -178,28 +237,42 @@ public class RMBTCheckFragment extends Fragment
                 }
                 else
                 {
-                    getActivity().setResult(checkBox.isChecked() ? Activity.RESULT_OK : Activity.RESULT_CANCELED);
-                    getActivity().finish();
+                    if (followedByType == null) {
+                        final int result;
+                        if (checkType.hasCheckbox()) {
+                            result = checkBox.isChecked() ? Activity.RESULT_OK : Activity.RESULT_CANCELED;
+                        }
+                        else {
+                            result = Activity.RESULT_OK;
+                        }
+
+                        System.out.println("result = " + result);
+
+                        getActivity().setResult(result);
+                        getActivity().finish();
+                    }
+                    else {
+                        ((RMBTTermsActivity) getActivity()).continueWorkflow(followedByType);
+                    }
                 }                
             }
         });
-        
-        new Handler().postDelayed(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                buttonAccept.setEnabled(firstTime || checkBox.isChecked());
-            }
-        }, 500);
-        
+
         final Button buttonBack = (Button) v.findViewById(R.id.termsNdtBackButton);
+
+        if (checkType.getLayoutType() == CheckLayoutType.ACCEPT_AND_CANCEL_BUTTON) {
+            v.findViewById(R.id.termsNdtButtonBack).setVisibility(View.VISIBLE);
+            buttonBack.setText(checkType.getButtonStringIds()[1]);
+        }
+
         buttonBack.setOnClickListener(new OnClickListener()
         {
             @Override
             public void onClick(final View v)
             {
                 getActivity().getSupportFragmentManager().popBackStack();
+                getActivity().setResult(Activity.RESULT_CANCELED);
+                getActivity().finish();
             }
         });
         

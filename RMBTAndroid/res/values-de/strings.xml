@@ -154,7 +154,9 @@
     <string name="terms_ndt_accept_text"><b>Ich möchte zusätzlich den optionalen, vertiefenden NDT-Test ausführen.</b></string>
     <string name="terms_ndt_back_button">Zurück</string>
     <string name="terms_ndt_accept_button">Weiter</string>
-    
+    <string name="terms_check_accept_button">Akzeptieren</string>
+    <string name="terms_check_decline_button">Ablehnen</string>
+
     <string name="terms_loop_mode">Wiederholungmodus</string>
     <string name="terms_loop_mode_header">Wiederholungmodus: Aktivierung</string>
     <string name="terms_loop_mode_accept_text"><b>Ich möchte den Wiederholungsmodus aktivieren.</b></string>

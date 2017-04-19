@@ -65,16 +65,23 @@ public class RMBTTermsActivity extends FragmentActivity
             }
         }
     }
-    
+
+    public void continueWorkflow(final CheckType nextType) {
+        switch (nextType) {
+            case LOOP_MODE:
+                showLoopModeCheck();
+                break;
+            case LOOP_MODE2:
+                showLoopModeCheck2();
+                break;
+            case NDT:
+                showNdtCheck();
+                break;
+        }
+    }
+
     public void continueWorkflow() {
-    	switch (checkType) {
-    	case LOOP_MODE:
-    		showLoopModeCheck();
-    		break;
-    	case NDT:
-    		showNdtCheck();
-    		break;
-    	}    	
+        continueWorkflow(checkType);
     }
     
     @Override
@@ -99,14 +106,21 @@ public class RMBTTermsActivity extends FragmentActivity
     public void showLoopModeCheck()
     {
         final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.replace(R.id.fragment_content, RMBTCheckFragment.newInstance(CheckType.LOOP_MODE), AppConstants.PAGE_TITLE_LOOP_MODE_CHECK);
+        ft.replace(R.id.fragment_content, RMBTCheckFragment.newInstance(CheckType.LOOP_MODE, CheckType.LOOP_MODE2), AppConstants.PAGE_TITLE_LOOP_MODE_CHECK);
         ft.addToBackStack(AppConstants.PAGE_TITLE_LOOP_MODE_CHECK);
         ft.commit();
         setTitle(AppConstants.PAGE_TITLE_LOOP_MODE_CHECK);
     }
 
-    public void showNdtCheck()
-    {
+    public void showLoopModeCheck2() {
+        final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.replace(R.id.fragment_content, RMBTCheckFragment.newInstance(CheckType.LOOP_MODE2), AppConstants.PAGE_TITLE_LOOP_MODE_CHECK2);
+        ft.addToBackStack(AppConstants.PAGE_TITLE_LOOP_MODE_CHECK2);
+        ft.commit();
+        setTitle(AppConstants.PAGE_TITLE_LOOP_MODE_CHECK2);
+    }
+
+    public void showNdtCheck() {
         final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.fragment_content, RMBTCheckFragment.newInstance(CheckType.NDT), AppConstants.PAGE_TITLE_NDT_CHECK);
         ft.addToBackStack(AppConstants.PAGE_TITLE_NDT_CHECK);

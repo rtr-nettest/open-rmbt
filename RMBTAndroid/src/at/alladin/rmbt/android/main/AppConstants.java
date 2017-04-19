@@ -85,6 +85,7 @@ public class AppConstants {
 	public final static String PAGE_TITLE_MINI_MAP = "mini_map";
 	public final static String PAGE_TITLE_NDT_CHECK = "ndt_check";
 	public final static String PAGE_TITLE_LOOP_MODE_CHECK = "loop_mode_check";
+	public final static String PAGE_TITLE_LOOP_MODE_CHECK2 = "loop_mode_check2";
 	public final static String PAGE_TITLE_HISTORY = "history";
 	public final static String PAGE_TITLE_HISTORY_FILTER = "history_filter";
 	public final static String PAGE_TITLE_HISTORY_PAGER = "history_pager";
