@@ -5,6 +5,7 @@ buildscript {
 }
 
 apply plugin: 'war'
+sourceCompatibility = '1.7'
 
 project.webAppDirName = 'WebContent'
 
