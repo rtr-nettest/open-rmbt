@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright 2013-2015 alladin-IT GmbH
- * Copyright 2013-2015 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
+ * Copyright 2014-2017 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,25 +86,28 @@ public class CheckIpTask extends AsyncTask<Void, Void, JSONArray>
         	case V4:
             	addr = new InetSocketAddress(ConfigHelper.getCachedControlServerNameIpv4(activity.getApplicationContext()), 
             			ConfigHelper.getControlServerPort(activity.getApplicationContext()));
+                Log.d(DEBUG_TAG, "IPv4 lookup using " + addr);
             	break;
         	case V6:
             	addr = new InetSocketAddress(ConfigHelper.getCachedControlServerNameIpv6(activity.getApplicationContext()), 
             			ConfigHelper.getControlServerPort(activity.getApplicationContext()));
+                Log.d(DEBUG_TAG, "IPv6 lookup using " + addr);
             	break;
+
         	}
-        	Log.d(DEBUG_TAG, "Connecting to: " + addr);
+
         	s.connect(addr, 5000);
 
         	privateIp = s.getLocalAddress();
         	s.close();        	
         }
         catch (SocketTimeoutException e) {
-        	e.printStackTrace();
+        	//e.printStackTrace();
         	needsRetry = ConfigHelper.isRetryRequiredOnIpv6SocketTimeout(activity);
         }
         catch (Exception e) {
         	needsRetry = false;
-        	e.printStackTrace();
+        	//e.printStackTrace();
         }
 
         newsList = new JSONArray();
@@ -117,11 +120,18 @@ public class CheckIpTask extends AsyncTask<Void, Void, JSONArray>
 	        	}
 	        }
 	        else {
-	        	Log.d(DEBUG_TAG, "no private ip found");
+                switch(ipVersionType) {
+                    case V4:
+                        Log.d(DEBUG_TAG, "IPv4 lookup failed");
+                        break;
+                    case V6:
+                        Log.d(DEBUG_TAG, "IPv6 lookup failed");
+                        break;
+                }
 	        }
         } 
         catch (Exception e) {
-        	e.printStackTrace();
+            //e.printStackTrace();
         }
         
         return newsList;
@@ -163,7 +173,7 @@ public class CheckIpTask extends AsyncTask<Void, Void, JSONArray>
                         }
                         catch (final JSONException e)
                         {
-                            e.printStackTrace();
+                            //e.printStackTrace();
                         }
                     }
                 }            	
@@ -176,13 +186,7 @@ public class CheckIpTask extends AsyncTask<Void, Void, JSONArray>
             }
     	}
         catch (Exception e) {
-        	e.printStackTrace();
+        	//e.printStackTrace();
         }
-//        finally {
-//        	if (onCompleteListener != null) {
-//        		onCompleteListener.onComplete(NetworkInfoCollector.FLAG_IP_TASK_COMPLETED, null);
-//        	}
-//        }
     }
-    
 }

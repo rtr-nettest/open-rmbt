@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright 2013-2014 alladin-IT GmbH
- * Copyright 2013-2014 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
+ * Copyright 2017 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,10 +34,10 @@ public class InterfaceTrafficGatherer {
 	 */
 	public static enum TrafficClassificationEnum {
 		UNKNOWN(Long.MIN_VALUE, Long.MIN_VALUE, R.drawable.traffic_speed_none),
-		NONE(0,1250, R.drawable.traffic_speed_none),       // 0 < x < 10kBit/s
-		LOW(1250,12499, R.drawable.traffic_speed_low),     // 10k < x < 100 kBit/s
-		MID(12500, 124999, R.drawable.traffic_speed_mid),  // 100k < x  < 1 MBit/s
-		HIGH(125000, Long.MAX_VALUE, R.drawable.traffic_speed_high); 
+		NONE(0,      12499, R.drawable.traffic_speed_none),  //      0  <  x <  100 kBit/s
+		LOW (1250,   124999, R.drawable.traffic_speed_low),  //   100k  <= x <  1 MBit/s
+		MID (125000, 1249999, R.drawable.traffic_speed_mid),  //    1M  <= x <  10 MBit/s
+		HIGH(1250000, Long.MAX_VALUE, R.drawable.traffic_speed_high); //   x >= 10 MBit/s
 
 		protected long minBytes;
 		protected long maxBytes;
@@ -63,7 +63,7 @@ public class InterfaceTrafficGatherer {
 		
 		/**
 		 * 
-		 * @param bitPerSecond
+		 * @param bytesPerSecond
 		 * @return
 		 */
 		public static TrafficClassificationEnum classify(long bytesPerSecond) {
