@@ -37,7 +37,6 @@ subprojects{
 
 def webXmlFile = file(project.webAppDirName + "/WEB-INF/web.xml")
 def generatedContextXmlFile = file("${buildDir}/context.xml")
-def revisionPropertiesFile = file("${buildDir}/resources/main/revision.properties")
 
 dependencies {
     providedCompile 'org.apache.tomcat:tomcat-catalina:7.0.56'
@@ -64,4 +63,14 @@ war {
             into('META-INF') 
             include 'context.xml' 
     }
+}
+
+def revisionPropertiesFile = file("${buildDir}/resources/main/revision.properties")
+processResources << {
+    String revisionProperties = "git.describe=" + getVersionNameFromGit() + "\n"
+    revisionProperties = revisionProperties + "git.branch=" + getBranchFromGit() + "\n"
+    revisionProperties = revisionProperties + "git.dirty=" + getDirtyFromGit() + "\n"
+    revisionProperties = revisionProperties + "git.id=" + getHashFromGit() + "\n"
+    revisionProperties = revisionProperties + "git.revision=" + getVersionCodeFromGit() + "\n"
+    revisionPropertiesFile.write(revisionProperties, 'UTF-8')
 }
