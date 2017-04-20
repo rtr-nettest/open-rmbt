@@ -48,8 +48,9 @@ public final class RevisionHelper
                 _revision = properties.getProperty("git.revision");
                 if (_dirty)
                 {
-                    _revision = _revision + "M";
-                    _gitId = _gitId + "M";
+                    _revision = _revision + "-dirty";
+                    _gitId = _gitId + "-dirty";
+                    _describe = _describe + "-dirty";
                 }
             }
             catch (final Exception e)
@@ -66,7 +67,7 @@ public final class RevisionHelper
     {
         return String.format("%s_%s", branch, describe);
     }
-    
+
     public static String getServerVersion()
     {
         return gitId;
