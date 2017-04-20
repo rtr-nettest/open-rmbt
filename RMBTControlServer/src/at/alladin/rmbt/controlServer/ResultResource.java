@@ -58,7 +58,9 @@ public class ResultResource extends ServerResource
     public String request(final String entity) 
     {
         addAllowOrigin();
-        
+
+        //System.out.println(entity);  //debug: dump request
+
         JSONObject request = null;
         
         final ErrorList errorList = new ErrorList();
@@ -311,6 +313,9 @@ public class ResultResource extends ServerResource
                                                 geoloc.setGeo_lat(geoDataItem.optDouble("geo_lat", 0));
                                                 geoloc.setGeo_long(geoDataItem.optDouble("geo_long", 0));
                                                 geoloc.setTime_ns(geoDataItem.optLong("time_ns", 0));
+                                                if (geoDataItem.has("mock_location")) {
+                                                    geoloc.setMock_location(geoDataItem.getBoolean("mock_location"));
+                                                }
                                                 
                                                 geoloc.storeLocation();
                                                 

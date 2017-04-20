@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright 2013-2016 alladin-IT GmbH
- * Copyright 2013-2016 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
+ * Copyright 2014-2017 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH) 
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -417,12 +417,12 @@ public class InformationCollector
 		        	locationJson.put("accuracy", loc.getAccuracy());
 		        if (loc.hasSpeed())
 		        	locationJson.put("speed", loc.getSpeed());
-		        /*
-		         *  would require API level 18
-		        if (loc.isFromMockProvider())
-		        	locationJson.put("mock",loc.isFromMockProvider());
-		        */
-		        object.put("location", locationJson);
+
+		        //requires API18 Jelly Bean 4.3.x
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                        locationJson.put("mock_location", loc.isFromMockProvider());
+                }
+                    object.put("location", locationJson);
 	        }
         }
         
@@ -651,10 +651,17 @@ public class InformationCollector
 	        final Location curLocation = locationManager.getLastKnownLocation();
 	        
 	        if (curLocation != null && this.collectInformation)
-	        {
-	            geoLocations.add(new GeoLocationItem(curLocation.getTime(), curLocation.getLatitude(), curLocation
-	                    .getLongitude(), curLocation.getAccuracy(), curLocation.getAltitude(), curLocation.getBearing(),
-	                    curLocation.getSpeed(), curLocation.getProvider()));
+	        {   //requires API18 Jelly Bean 4.3.x
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                    geoLocations.add(new GeoLocationItem(curLocation.getTime(), curLocation.getLatitude(), curLocation
+                            .getLongitude(), curLocation.getAccuracy(), curLocation.getAltitude(), curLocation.getBearing(),
+                            curLocation.getSpeed(), curLocation.getProvider(), curLocation.isFromMockProvider()));
+                }
+                else { //older API w/o isFromMockProvider()
+                    geoLocations.add(new GeoLocationItem(curLocation.getTime(), curLocation.getLatitude(), curLocation
+                            .getLongitude(), curLocation.getAccuracy(), curLocation.getAltitude(),
+                            curLocation.getBearing(), curLocation.getSpeed(), curLocation.getProvider(), null));
+                }
 	            Log.i(DEBUG_TAG, "Location: " + curLocation.toString());
 	        }
 	        
@@ -791,6 +798,8 @@ public class InformationCollector
                 jsonItem.put("bearing", tmpItem.bearing);
                 jsonItem.put("speed", tmpItem.speed);
                 jsonItem.put("provider", tmpItem.provider);
+                if (tmpItem.mock_location != null)
+                    jsonItem.put("mock_location", tmpItem.mock_location);
                 
                 itemList.put(jsonItem);
             }
@@ -1244,13 +1253,24 @@ public class InformationCollector
         {
             if (curLocation != null)
             {
-            	//System.out.println("onLocationChanged..");
                 lastLocation = curLocation;
-                
+
                 if (InformationCollector.this.collectInformation) {
-                    geoLocations.add(new GeoLocationItem(curLocation.getTime(), curLocation.getLatitude(), curLocation
-                            .getLongitude(), curLocation.getAccuracy(), curLocation.getAltitude(),
-                            curLocation.getBearing(), curLocation.getSpeed(), curLocation.getProvider()));                	
+                    //http://www.klaasnotfound.com/2016/05/27/location-on-android-stop-mocking-me/
+                    //https://issuetracker.google.com/issues/37126879
+                    //Mock GPS with JoyStick APP
+                    //requires API18 Jelly Bean 4.3.x
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                        geoLocations.add(new GeoLocationItem(curLocation.getTime(), curLocation.getLatitude(), curLocation
+                                .getLongitude(), curLocation.getAccuracy(), curLocation.getAltitude(),
+                                curLocation.getBearing(), curLocation.getSpeed(), curLocation.getProvider(), curLocation.isFromMockProvider()));
+                    }
+                    else {  //older API w/o isFromMockProvider()
+                        geoLocations.add(new GeoLocationItem(curLocation.getTime(), curLocation.getLatitude(), curLocation
+                                .getLongitude(), curLocation.getAccuracy(), curLocation.getAltitude(),
+                                curLocation.getBearing(), curLocation.getSpeed(), curLocation.getProvider(), null));
+                    }
+                    Log.i(DEBUG_TAG, "Location changed: " + curLocation.toString());
                 }
             }
         }
@@ -1268,9 +1288,10 @@ public class InformationCollector
         public final float bearing;
         public final float speed;
         public final String provider;
+        public final Boolean mock_location;
         
         public GeoLocationItem(final long tstamp, final double geo_lat, final double geo_long, final float accuracy,
-                final double altitude, final float bearing, final float speed, final String provider)
+                final double altitude, final float bearing, final float speed, final String provider, final Boolean mock_location)
         {
             this.tstamp = tstamp;
             this.tstampNano = System.nanoTime();
@@ -1281,8 +1302,8 @@ public class InformationCollector
             this.bearing = bearing;
             this.speed = speed;
             this.provider = provider;
+            this.mock_location = mock_location;
         }
-        
     }
     
     private class CellLocationItem

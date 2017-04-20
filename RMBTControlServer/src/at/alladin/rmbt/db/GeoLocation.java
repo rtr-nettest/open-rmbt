@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright 2013-2016 alladin-IT GmbH
- * Copyright 2013-2016 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
+ * Copyright 2017 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.Calendar;
 import java.util.UUID;
 
@@ -42,6 +43,7 @@ public class GeoLocation
     private double geo_lat;
     private double geo_long;
     private long time_ns;
+    private Boolean mock_location = null;
     
     private Calendar timeZone = null;
     
@@ -54,31 +56,7 @@ public class GeoLocation
         reset();
         this.conn = conn;
     }
- 
-    
-    public GeoLocation(final Connection conn,  final long uid, final UUID open_test_uuid, final long test_id, final Timestamp time,
-            final long accuracy, final double altitude, final float bearing, final float speed, final String provider,
-            final double geo_lat, final double geo_long, final String timeZoneId, final long time_ns)
-    {
-        reset();
-        this.conn = conn;
-        
-        this.uid = uid;
-        this.open_test_uuid = open_test_uuid;
-        this.test_id = test_id;
-        this.time = time;
-        this.accuracy = accuracy;
-        this.altitude = altitude;
-        this.bearing = bearing;
-        this.speed = speed;
-        this.provider = provider;
-        this.geo_lat = geo_lat;
-        this.geo_long = geo_long;
-        this.time_ns = time_ns;
-        
-        timeZone = Helperfunctions.getTimeWithTimeZone(timeZoneId);
-    }
-    
+
     
     public void reset()
     {
@@ -119,8 +97,8 @@ public class GeoLocation
         try
         {
             st = conn.prepareStatement(
-                    "INSERT INTO geo_location(open_test_uuid, test_id, time, accuracy, altitude, bearing, speed, provider, geo_lat, geo_long, location, time_ns) "
-                            + "VALUES(?,?,?,?,?,?,?,?,?,?, ST_TRANSFORM(ST_SetSRID(ST_Point(?, ?), 4326), 900913), ?)",
+                    "INSERT INTO geo_location(open_test_uuid, test_id, time, accuracy, altitude, bearing, speed, provider, geo_lat, geo_long, location, time_ns, mock_location) "
+                            + "VALUES(?,?,?,?,?,?,?,?,?,?, ST_TRANSFORM(ST_SetSRID(ST_Point(?, ?), 4326), 900913), ?,?)",
                     Statement.RETURN_GENERATED_KEYS);
             
             /*
@@ -143,6 +121,13 @@ public class GeoLocation
             st.setDouble(i++, geo_long);
             st.setDouble(i++, geo_lat);
             st.setLong(i++, time_ns);
+            if (mock_location != null) {
+                st.setBoolean(i++, mock_location);
+            }
+            else
+            {
+                st.setNull(i++, Types.BOOLEAN);
+            }
             
             // System.out.println(st2.toString());
             
@@ -299,5 +284,12 @@ public class GeoLocation
 	public void setTime_ns(long time_ns) {
 		this.time_ns = time_ns;
 	}
-    
+
+    public Boolean getMock_location() {
+        return mock_location;
+    }
+
+    public void setMock_location(Boolean mock_location) {
+        this.mock_location = mock_location;
+    }
 }
