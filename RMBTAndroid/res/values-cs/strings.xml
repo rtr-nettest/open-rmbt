@@ -416,6 +416,8 @@
         <string name="permission_telephony_dialog_title">Permission required</string>
         <string name="permission_telephony_dialog_text">The permission READ_PHONE_STATE is required for the correct identification of network settings of dual-SIM devices.</string>
     <string name="loop_notification_text_without_stop">{0}x; {1}; {2}m;</string>
+    <string name="terms_check_accept_button">Accept\n</string>
+    <string name="terms_check_decline_button">Decline</string>
 
 </resources>
 

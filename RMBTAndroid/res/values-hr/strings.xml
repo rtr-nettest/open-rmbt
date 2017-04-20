@@ -400,5 +400,7 @@
     <string name="loop_test_last_status_ok">Last test: successful</string>
     <string name="loop_test_last_status_error">Last test: error</string>
     <string name="loop_test_last_status_rejected">Last test: rejected</string>
+    <string name="terms_check_accept_button">Accept</string>
+    <string name="terms_check_decline_button">Decline</string>
 
 </resources>
