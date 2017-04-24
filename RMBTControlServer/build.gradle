@@ -33,11 +33,12 @@ def generatedContextXmlFile = file("${buildDir}/context.xml")
 dependencies {
     providedCompile 'org.apache.tomcat:tomcat-catalina:7.0.56'
     providedCompile group: 'javax.servlet', name: 'servlet-api', version: '2.3'
+    providedCompile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
     compile ('commons-io:commons-io:2.4',
         'org.json:json:20140107',
         'org.restlet.jse:org.restlet.ext.json:2.1.7',
         'org.restlet.jee:org.restlet.ext.servlet:2.1.7',
-        'net.sf.uadetector:uadetector-resources:2014.09')
+        'net.sf.uadetector:uadetector-resources:2014.10')
     compile project(':RMBTSharedCode')
     compile project(':RMBTUtil')
 }
