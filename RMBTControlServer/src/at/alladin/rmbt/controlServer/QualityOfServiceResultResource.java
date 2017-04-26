@@ -16,6 +16,10 @@
  ******************************************************************************/
 package at.alladin.rmbt.controlServer;
 
+import com.vdurmont.semver4j.Requirement;
+import com.vdurmont.semver4j.Semver;
+import com.vdurmont.semver4j.SemverException;
+
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.MessageFormat;
@@ -115,22 +119,27 @@ public class QualityOfServiceResultResource extends ServerResource
                                 
                                 final List<String> clientNames = Arrays.asList(settings.getString("RMBT_CLIENT_NAME")
                                         .split(",\\s*"));
-                                final List<String> clientVersions = Arrays.asList(settings.getString(
-                                        "RMBT_VERSION_NUMBER").split(",\\s*"));
+
+                                String versionString = request.optString("client_version");
+                                versionString = (versionString.length() == 3) ? versionString + ".0" : versionString; //adjust old versions
+                                Semver version = new Semver(versionString,Semver.SemverType.NPM);
+                                Requirement requirement = Requirement.buildNPM(settings.getString("RMBT_VERSION_NUMBER"));
+                                if (!version.satisfies(requirement)) {
+                                    throw new SemverException("requirement not satisfied");
+                                }
                                 
                                 if (test.getTestByUuid(testUuid) > 0)
-                                    if (clientNames.contains(request.optString("client_name"))
-                                            && clientVersions.contains(request.optString("client_version")))
+                                    if (clientNames.contains(request.optString("client_name")))
                                     {
                                         //save qos test results:
                                         JSONArray qosResult = request.optJSONArray("qos_result");
                                         if (qosResult != null) {
                                         	QoSTestResultDao resultDao = new QoSTestResultDao(conn);
-                                        	
+
                                         	Set<String> excludeTestTypeKeys = new TreeSet<>();
                                         	excludeTestTypeKeys.add("test_type");
                                         	excludeTestTypeKeys.add("qos_test_uid");
-                                        	
+
                                         	for (int i = 0; i < qosResult.length(); i++) {
                                         		JSONObject testObject = qosResult.optJSONObject(i);
                                         		//String hstore = Helperfunctions.json2hstore(testObject, excludeTestTypeKeys);
@@ -148,25 +157,25 @@ public class QualityOfServiceResultResource extends ServerResource
                                         		resultDao.save(testResult);
                                         	}
                                         }
-                                        
+
                                         QoSTestResultDao resultDao = new QoSTestResultDao(conn);
                                         PreparedStatement updateCounterPs = resultDao.getUpdateCounterPreparedStatement();
                                         List<QoSTestResult> testResultList = resultDao.getByTestUid(test.getUid());
                                         //map that contains all test types and their result descriptions determined by the test result <-> test objectives comparison
                                     	Map<TestType,TreeSet<ResultDesc>> resultKeys = new HashMap<>();
-                                    	
+
                                     	//test description set:
                                     	Set<String> testDescSet = new TreeSet<>();
                                     	//test summary set:
                                     	Set<String> testSummarySet = new TreeSet<>();
-                                    	
+
                                         //iterate through all result entries
                                         for (QoSTestResult testResult : testResultList) {
-                                        	
+
                                         	//reset test counters
                                         	testResult.setFailureCounter(0);
                                         	testResult.setSuccessCounter(0);
-                                        	
+
                                         	//get the correct class of the result;
                                         	TestType testType = TestType.valueOf(testResult.getTestType().toUpperCase());
                                         	Class<? extends AbstractResult<?>> clazz = testType.getClazz();
@@ -174,11 +183,11 @@ public class QualityOfServiceResultResource extends ServerResource
                                         	final JSONObject resultJson = new JSONObject(testResult.getResults());
                                         	AbstractResult<?> result = QoSUtil.HSTORE_PARSER.fromJSON(resultJson, clazz);
                                         	result.setResultJson(resultJson);
-                                        	
+
                                         	if (result != null) {
                                         		//add each test description key to the testDescSet (to fetch it later from the db)
                                         		if (testResult.getTestDescription() != null) {
-                                            		testDescSet.add(testResult.getTestDescription());	
+                                            		testDescSet.add(testResult.getTestDescription());
                                         		}
                                         		if (testResult.getTestSummary() != null) {
                                         			testSummarySet.add(testResult.getTestSummary());
@@ -186,10 +195,10 @@ public class QualityOfServiceResultResource extends ServerResource
                                         		testResult.setResult(result);
 
                                         	}
-                                        	//compare test results with expected results 
+                                        	//compare test results with expected results
                                         	QoSUtil.compareTestResults(testResult, result, resultKeys, testType, resultOptions);
                                         	//resultList.put(testResult.toJson());
-                                        	
+
                                             //update all test results after the success and failure counters have been set
                                         	resultDao.updateCounter(testResult, updateCounterPs);
                                         	//System.out.println("UPDATING: " + testResult.toString());
@@ -211,7 +220,9 @@ public class QualityOfServiceResultResource extends ServerResource
 						} catch (IllegalAccessException e) {
 							e.printStackTrace();
 							errorList.addError("ERROR_TEST_TOKEN_MALFORMED");
-						}
+						} catch (SemverException e) {
+                            errorList.addError("ERROR_CLIENT_VERSION");
+                        }
                         
                     }
                     else

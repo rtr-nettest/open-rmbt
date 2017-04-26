@@ -48,6 +48,9 @@ import at.alladin.rmbt.shared.model.SpeedItems;
 import at.alladin.rmbt.shared.model.SpeedItems.SpeedItem;
 
 import com.google.common.net.InetAddresses;
+import com.vdurmont.semver4j.Requirement;
+import com.vdurmont.semver4j.Semver;
+import com.vdurmont.semver4j.SemverException;
 
 public class ResultResource extends ServerResource
 {
@@ -120,13 +123,17 @@ public class ResultResource extends ServerResource
                                 
                                 final List<String> clientNames = Arrays.asList(settings.getString("RMBT_CLIENT_NAME")
                                         .split(",\\s*"));
-                                final List<String> clientVersions = Arrays.asList(settings.getString(
-                                        "RMBT_VERSION_NUMBER").split(",\\s*"));
+
+                                String versionString = request.optString("client_version");
+                                versionString = (versionString.length() == 3) ? (versionString + ".0") : versionString; //adjust old versions
+                                Semver version = new Semver(versionString,Semver.SemverType.NPM);
+                                Requirement requirement = Requirement.buildNPM(settings.getString("RMBT_VERSION_NUMBER"));
+                                if (!version.satisfies(requirement)) {
+                                    throw new SemverException("requirement not satisfied");
+                                }
                                 
                                 if (test.getTestByUuid(testUuid) > 0)
-                                    if (clientNames.contains(request.optString("client_name"))
-                                            && clientVersions.contains(request.optString("client_version")))
-                                    {
+                                    if (clientNames.contains(request.optString("client_name"))) {
                                         
                                         test.setFields(request);
                                         
@@ -571,6 +578,9 @@ public class ResultResource extends ServerResource
                         {
                             e.printStackTrace();
                             errorList.addError("ERROR_TEST_TOKEN_MALFORMED");
+                        }
+                        catch (SemverException e) {
+                            errorList.addError("ERROR_CLIENT_VERSION" + e);
                         }
                         
                     }

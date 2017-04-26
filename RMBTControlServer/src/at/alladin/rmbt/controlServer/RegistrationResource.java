@@ -41,6 +41,9 @@ import org.restlet.resource.Post;
 import com.google.common.base.Strings;
 import com.google.common.net.InetAddresses;
 import com.google.gson.Gson;
+import com.vdurmont.semver4j.Requirement;
+import com.vdurmont.semver4j.Semver;
+import com.vdurmont.semver4j.SemverException;
 
 import at.alladin.rmbt.db.Client;
 import at.alladin.rmbt.db.GeoLocation;
@@ -152,11 +155,16 @@ public class RegistrationResource extends ServerResource
                     
                     final List<String> clientNames = Arrays.asList(settings.getString("RMBT_CLIENT_NAME")
                             .split(",\\s*"));
-                    final List<String> clientVersions = Arrays.asList(settings.getString("RMBT_VERSION_NUMBER").split(
-                            ",\\s*"));
-                    
-                    if (clientNames.contains(request.optString("client"))
-                            && clientVersions.contains(request.optString("version")) && typeId > 0)
+
+                    String versionString = request.optString("version");
+                    versionString = (versionString.length() == 3) ? versionString + ".0" : versionString; //adjust old versions
+                    Semver version = new Semver(versionString,Semver.SemverType.NPM);
+                    Requirement requirement = Requirement.buildNPM(settings.getString("RMBT_VERSION_NUMBER"));
+                    if (!version.satisfies(requirement)) {
+                        throw new SemverException("requirement not satisfied");
+                    }
+
+                    if (clientNames.contains(request.optString("client")) && typeId > 0)
                     {
                         final String clientName = request.getString("client");
                         final String clientVersion = request.getString("version");
@@ -515,7 +523,10 @@ public class RegistrationResource extends ServerResource
 				e.printStackTrace();
 			} catch (LoopModeRejectedException e) {
             	errorList.addError("ERROR_REQUEST_REJECTED");
-			}
+			} catch (SemverException e) {
+                errorList.addError("ERROR_CLIENT_VERSION");
+            }
+
         else
             errorList.addErrorString("Expected request is missing.");
         
