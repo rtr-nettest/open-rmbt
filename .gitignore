@@ -12,3 +12,5 @@ local.properties
 .DS_Store
 /build/
 /apk/
+gradlew
+settings.gradle
