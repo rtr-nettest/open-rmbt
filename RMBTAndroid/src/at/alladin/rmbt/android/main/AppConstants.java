@@ -119,6 +119,7 @@ public class AppConstants {
 		TITLE_MAP.put(PAGE_TITLE_STATISTICS, R.string.page_title_statistics);
 		TITLE_MAP.put(PAGE_TITLE_NDT_CHECK, R.string.terms);
 		TITLE_MAP.put(PAGE_TITLE_LOOP_MODE_CHECK, R.string.terms_loop_mode);
+		TITLE_MAP.put(PAGE_TITLE_LOOP_MODE_CHECK2, R.string.terms_loop_mode2);
 	}
 	
 	/**

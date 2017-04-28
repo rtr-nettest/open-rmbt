@@ -159,8 +159,7 @@
 
     <string name="terms_loop_mode">Wiederholungmodus</string>
     <string name="terms_loop_mode_header">Wiederholungmodus: Aktivierung</string>
-    <string name="terms_loop_mode_accept_text"><b>Ich möchte den Wiederholungsmodus aktivieren.</b></string>
-    
+
     <string name="loop_notification_ticker">Der Wiederholungsmodus ist aktiv…</string>
     <string name="loop_notification_title">Der Wiederholungsmodus ist aktiv</string>
     <string name="loop_notification_text">{0}x; {1}s; {2}m; Berühren um Wiederholungsmodus zu stoppen.</string>
@@ -385,6 +384,8 @@
     <string name="qos_test_name_udp">UDP Ports</string>
     <string name="qos_test_name_website">Webseite</string>
     <string name="loop_notification_text_without_stop">{0}x; {1}; {2}m;</string>
+    <string name="terms_loop_mode2">Wiederholungsmodus (2/2)</string>
+    <string name="terms_loop_mode_header2">Nutzung</string>
 </resources>
 
 

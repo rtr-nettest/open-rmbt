@@ -49,11 +49,11 @@ public class RMBTCheckFragment extends Fragment
 				R.string.terms_ndt_header, R.string.terms_ndt_accept_text, false,
                 CheckLayoutType.ACCEPT_BUTTON, true, new int[] {R.string.terms_ndt_accept_button}),
 		LOOP_MODE("file:///android_res/raw/loop_mode_info.html", AppConstants.PAGE_TITLE_LOOP_MODE_CHECK, 
-				R.string.terms_loop_mode_header, R.string.terms_loop_mode_accept_text, true,
+				R.string.terms_loop_mode_header, 0, true,
                 CheckLayoutType.ACCEPT_AND_CANCEL_BUTTON, false,
                 new int[] {R.string.terms_check_accept_button, R.string.terms_check_decline_button}),
         LOOP_MODE2("file:///android_res/raw/loop_mode_info2.html", AppConstants.PAGE_TITLE_LOOP_MODE_CHECK2,
-                R.string.terms_loop_mode_header, R.string.terms_loop_mode_accept_text, true,
+                R.string.terms_loop_mode_header2,0, true,
                 CheckLayoutType.ACCEPT_AND_CANCEL_BUTTON, false,
                 new int[] {R.string.terms_check_accept_button, R.string.terms_check_decline_button});
 

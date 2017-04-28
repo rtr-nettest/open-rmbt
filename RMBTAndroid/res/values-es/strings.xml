@@ -340,7 +340,6 @@
 
     <string name="terms_loop_mode">Loop mode</string>
     <string name="terms_loop_mode_header">Loop mode activation</string>
-    <string name="terms_loop_mode_accept_text"><b>I wish to enable the loop mode.</b></string>
 
 
     <string name="map_search_location_dialog_title">Search</string>
@@ -402,6 +401,8 @@
     <string name="loop_test_last_status_rejected">Last test: rejected</string>
     <string name="terms_check_accept_button">Accept</string>
     <string name="terms_check_decline_button">Decline</string>
+    <string name="terms_loop_mode2">Loop mode (2/2)</string>
+    <string name="terms_loop_mode_header2">Usage</string>
 
 </resources>
 
