@@ -27,6 +27,7 @@ import java.util.Set;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
@@ -116,6 +117,8 @@ public class RMBTMainMenuFragment extends Fragment
     private TextView infoNetworkType;
     private TextView infoSignalStrength;
     private TextView infoSignalStrengthExtra;
+	private TextView ipv4Label;
+	private TextView ipv6Label;
     //private TextView infoIp;
     //private TextView infoTraffic;
     private View ipv4Button;
@@ -298,12 +301,16 @@ public class RMBTMainMenuFragment extends Fragment
         }
         
         ipv4View = (ImageView) view.findViewById(R.id.ipv4_status);
+		ipv4Label = (TextView) view.findViewById(R.id.ipv4_label);
         ipv4Button = view.findViewById(R.id.title_page_ipv4_button);
         if (ipv4Button != null) {
         	ipv4Button.setOnClickListener(detailShowOnClickListener);
         }
-        
+
+
+
         ipv6View = (ImageView) view.findViewById(R.id.ipv6_status);
+		ipv6Label = (TextView) view.findViewById(R.id.ipv6_label);
         ipv6Button = view.findViewById(R.id.title_page_ipv6_button);
         if (ipv6Button != null) {
         	ipv6Button.setOnClickListener(detailShowOnClickListener);
@@ -760,10 +767,25 @@ public class RMBTMainMenuFragment extends Fragment
 						}
 						
 						if (ipv4View != null) {
-							ipv4View.setImageResource(ipv4CheckRunnable.getIpStatus(ipv6CheckRunnable).getResourceId());
+							IpCheckRunnable.IpStatus status = ipv4CheckRunnable.getIpStatus(ipv6CheckRunnable);
+							ipv4View.setImageResource(status.getResourceId());
+							if (status == IpCheckRunnable.IpStatus.STATUS_NOT_AVAILABLE) {
+								ipv4Label.setTextColor(Color.DKGRAY);
+							}
+							else {
+								ipv4Label.setTextColor(Color.WHITE);
+							}
 						}
 						if (ipv6View != null) {
-							ipv6View.setImageResource(ipv6CheckRunnable.getIpStatus(ipv4CheckRunnable).getResourceId());
+							IpCheckRunnable.IpStatus status = ipv6CheckRunnable.getIpStatus(ipv4CheckRunnable);
+							ipv6View.setImageResource(status.getResourceId());
+							if (status == IpCheckRunnable.IpStatus.STATUS_NOT_AVAILABLE) {
+								ipv6Label.setTextColor(Color.DKGRAY);
+							}
+							else {
+								ipv6Label.setTextColor(Color.WHITE);
+							}
+
 						}
 					}
 				}

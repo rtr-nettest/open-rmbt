@@ -76,9 +76,11 @@
 
             <TextView
                 style="@style/QoSTheme.TextView.Medium.White"
+                android:id="@+id/ipv4_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="5dp"
+                android:textColor="#FF888888"
                 android:text="@string/title_screen_ipv4" />
 
             <ImageView
@@ -102,9 +104,11 @@
 
             <TextView
                 style="@style/QoSTheme.TextView.Medium.White"
+                android:id="@+id/ipv6_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="5dp"
+                android:textColor="#FF888888"
                 android:text="@string/title_screen_ipv6" />
 
             <ImageView
