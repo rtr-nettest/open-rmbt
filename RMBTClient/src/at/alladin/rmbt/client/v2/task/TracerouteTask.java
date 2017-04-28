@@ -132,7 +132,7 @@ public class TracerouteTask extends AbstractQoSTask {
 	  			if (pingDetailList != null) {
 		  			JSONArray resultArray = new JSONArray();
 		  			for (final HopDetail p : pingDetailList) {
-		  				JSONObject json = p.toJson();
+		  				JSONObject json = p.toJson(this.masked);
 		  				if (json != null) {
 		  					resultArray.put(json);
 		  				}

@@ -39,7 +39,7 @@ public interface TracerouteService extends Callable<List<HopDetail>> {
 	}
 	
 	public interface HopDetail {
-		public JSONObject toJson();
+		public JSONObject toJson(Boolean masked);
 	}
 	
 	public String getHost();

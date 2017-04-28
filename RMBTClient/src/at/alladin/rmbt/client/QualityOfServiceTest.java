@@ -124,7 +124,7 @@ public class QualityOfServiceTest implements Callable<QoSResultCollector> {
 				}
 			}
 			else if (RMBTClient.TASK_TRACEROUTE_MASKED.equals(taskId)) {
-				final boolean TraceRouteMaskedAvailable = false; // disable service (not fully implemented)
+				final boolean TraceRouteMaskedAvailable = true; // enable service
 				if (TraceRouteMaskedAvailable && nnTestSettings != null && nnTestSettings.getTracerouteServiceClazz() != null) {
 					test = new TracerouteTask(this, taskDesc, threadCounter++,true);	
 				}

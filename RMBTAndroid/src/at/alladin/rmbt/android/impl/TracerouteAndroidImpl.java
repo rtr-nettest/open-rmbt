@@ -19,6 +19,8 @@ package at.alladin.rmbt.android.impl;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -29,6 +31,7 @@ import java.util.regex.Pattern;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import at.alladin.rmbt.shared.Helperfunctions;
 import at.alladin.rmbt.util.tools.TracerouteService;
 
 /**
@@ -56,7 +59,7 @@ public class TracerouteAndroidImpl implements TracerouteService {
 		private final int errors;
 		private final int packetLoss;
 		private long time;
-		private final String fromIp;
+		private String fromIp;
 		
 		public final static Pattern PATTERN_PING_PACKET =  Pattern.compile("([\\d]*) packets transmitted, ([\\d]*) received, ([+-]?([\\d]*) errors, )?([\\d]*)% packet loss, time ([\\d]*)ms");
 		//public final static Pattern PATTERN_FROM_IP =  Pattern.compile("[fF]rom ([\\.:-_\\d\\w\\s\\(\\)]*):(.*time=([\\d\\.]*))?");
@@ -137,9 +140,17 @@ public class TracerouteAndroidImpl implements TracerouteService {
 					+ "]";
 		}
 		
-		public JSONObject toJson() {
+		public JSONObject toJson(Boolean masked) {
 			JSONObject json = new JSONObject();
 			try {
+				if (masked) {
+					try {
+						InetAddress ip = InetAddress.getByName(fromIp);
+						fromIp = Helperfunctions.anonymizeIp(ip,".*");
+					} catch (UnknownHostException e) {
+						fromIp = "*";
+					}
+				}
 				json.put("host", fromIp);
 				json.put("time", time);
 				return json;
@@ -189,7 +200,9 @@ public class TracerouteAndroidImpl implements TracerouteService {
     			throw new InterruptedException();
     		}
         	final long ts = System.nanoTime();
-            final Process mIpAddrProcess = runtime.exec("/system/bin/ping -c 1 -t " + i + " -W2 " + host);
+			// ping  -c <count> -t <ttl>  -W <timeout> <host>
+            final Process mIpAddrProcess = runtime.exec("/system/bin/ping -n -c 1 -t " + i + " -W2 " + host);
+			// result: From 4.5.6.7: icmp_seq=1 Time to live exceeded
             final String proc = readFromProcess(mIpAddrProcess);
             final PingDetailImpl pingDetail = new PingDetailImpl(proc, System.nanoTime() - ts);
             resultList.add(pingDetail);
