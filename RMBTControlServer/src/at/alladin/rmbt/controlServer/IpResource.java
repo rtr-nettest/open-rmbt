@@ -103,7 +103,7 @@ public class IpResource extends ServerResource
                	final String clientModel = request.getString("model");
                	final String clientProduct = request.getString("product");
                	final String clientDevice = request.getString("device");
-               	final String clientSoftwareVersionCode = request.getString("softwareVersionCode");
+               	final int clientSoftwareVersionCode = request.getInt("softwareVersionCode");
                	final String clientApiLevel = request.getString("api_level");
 
             	final JSONObject location = request.optJSONObject("location");
