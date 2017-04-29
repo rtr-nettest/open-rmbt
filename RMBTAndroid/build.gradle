@@ -21,6 +21,25 @@ dependencies {
 
 def signDebugApp = true
 
+// soure: https://developer.android.com/studio/publish/app-signing.html
+// Create a variable called keystorePropertiesFile, and initialize the
+// keystore.properties file in the RMBTAndroid folder.
+// the keystore.properties files is excluded from the git repository
+// for security reasons.
+def keystorePropertiesFile = rootProject.file("private/keystore.properties")
+
+// example keystore.properies file:
+//    storePassword=myStorePassword
+//    keyPassword=mykeyPassword
+//    keyAlias=myKeyAlias
+//    storeFile=myStoreFileLocation/myStore.keystore
+
+// Initialize a new Properties() object called keystoreProperties.
+def keystoreProperties = new Properties()
+
+// Load your keystore.properties file into the keystoreProperties object.
+keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+
 android {
     compileSdkVersion 25
     buildToolsVersion '25.0.2'
@@ -65,6 +84,17 @@ android {
 
         }
 		release {
+
+		    signingConfigs {
+        		config {
+            			keyAlias keystoreProperties['keyAlias']
+            			keyPassword keystoreProperties['keyPassword']
+            			storeFile file(keystoreProperties['storeFile'])
+            			storePassword keystoreProperties['storePassword']
+        			}
+    			}
+
+
 			debuggable false
 			minifyEnabled false
 

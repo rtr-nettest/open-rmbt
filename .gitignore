@@ -14,3 +14,4 @@ local.properties
 /apk/
 gradlew
 settings.gradle
+/private/
