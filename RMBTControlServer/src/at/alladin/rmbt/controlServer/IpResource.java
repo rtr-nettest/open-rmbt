@@ -107,6 +107,7 @@ public class IpResource extends ServerResource
                	final String clientApiLevel = request.getString("api_level");
 
             	final JSONObject location = request.optJSONObject("location");
+				final JSONObject signal = request.optJSONObject("last_signal_item");
 
             	long geoage = 0; // age in ms
             	double geolat = 0;
@@ -125,11 +126,27 @@ public class IpResource extends ServerResource
             		geoaltitude = location.optDouble("altitude", 0);
             		geospeed = (float) location.optDouble("speed", 0);
             		geoprovider = location.optString("provider", "");
-            	}            	
-            	
-            	//final JSONObject lastSignalItem = request.optJSONObject("last_signal_item");
-            	//TODO parse & add to status table
-            	
+            	}
+
+            	double signalnetworktypeid = 0;
+				long signaltime = 0;
+				double signalwifirssi = 0;
+				double signalltersrp = 0;
+				double signalltersrq = 0;
+				double signalrssi = 0;
+				double signalltecqi = 0;
+
+				if (!request.isNull("last_signal_item"))
+				{
+					signalnetworktypeid = signal.optDouble("network_type_id", 0);
+					signaltime = signal.optLong("time", 0);
+					signalwifirssi = signal.optDouble("wifi_rssi", 0);
+					signalltersrp = signal.optDouble("lte_rsrp", 0);
+					signalltersrq = signal.optDouble("lte_rsrq", 0);
+					signalltecqi = signal.optDouble("lte_cqi", 0);
+					signalrssi = signal.optDouble("signal_strength", 0);
+
+				}
 
                	if (errorList.getLength() == 0)
             		try
@@ -138,8 +155,10 @@ public class IpResource extends ServerResource
             			st = conn
             					.prepareStatement(
             							"INSERT INTO status(client_uuid,time,plattform,model,product,device,software_version_code,api_level,ip,"
-            							+ "age,lat,long,accuracy,altitude,speed,provider)"
-            									+ "VALUES(?, NOW(),?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            							+ "age,lat,long,accuracy,altitude,speed,provider, "
+										+ "signalnetworktypeid,signaltime,signalwifirssi,signalltersrp,signalltersrq,signalrssi,signalltecqi"
+												+ " )"
+            									+ "VALUES(?, NOW(),?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
             									Statement.RETURN_GENERATED_KEYS);
             			int i = 1;
             			st.setObject(i++, uuid);
@@ -158,6 +177,14 @@ public class IpResource extends ServerResource
             			st.setObject(i++, geoaltitude);
             			st.setObject(i++, geospeed);
             			st.setObject(i++, geoprovider);
+
+						st.setObject(i++, signalnetworktypeid);
+						st.setObject(i++,signaltime);
+						st.setObject(i++, signalwifirssi);
+						st.setObject(i++, signalltersrp);
+						st.setObject(i++, signalltersrq);
+						st.setObject(i++, signalrssi);
+						st.setObject(i++, signalltecqi);
 
             			final int affectedRows = st.executeUpdate();
             			if (affectedRows == 0)
