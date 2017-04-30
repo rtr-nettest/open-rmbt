@@ -179,7 +179,10 @@ public class RMBTCheckFragment extends Fragment
             }
         }
         else {
-            checkBox.setVisibility(View.INVISIBLE);
+            // View.GONE This view is invisible, and it doesn't take any space for layout purposes.
+            // View.INVISIBLE This view is invisible, but it still takes up space for layout purposes.
+            // Layout shall ignore checkBox, thus GONE
+            checkBox.setVisibility(View.GONE);
         }
 
         
