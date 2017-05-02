@@ -770,7 +770,7 @@ public class RMBTMainMenuFragment extends Fragment
 							IpCheckRunnable.IpStatus status = ipv4CheckRunnable.getIpStatus(ipv6CheckRunnable);
 							ipv4View.setImageResource(status.getResourceId());
 							if (status == IpCheckRunnable.IpStatus.STATUS_NOT_AVAILABLE) {
-								ipv4Label.setTextColor(Color.DKGRAY);
+								ipv4Label.setTextColor(Color.GRAY);
 							}
 							else {
 								ipv4Label.setTextColor(Color.WHITE);
@@ -780,7 +780,7 @@ public class RMBTMainMenuFragment extends Fragment
 							IpCheckRunnable.IpStatus status = ipv6CheckRunnable.getIpStatus(ipv4CheckRunnable);
 							ipv6View.setImageResource(status.getResourceId());
 							if (status == IpCheckRunnable.IpStatus.STATUS_NOT_AVAILABLE) {
-								ipv6Label.setTextColor(Color.DKGRAY);
+								ipv6Label.setTextColor(Color.GRAY);
 							}
 							else {
 								ipv6Label.setTextColor(Color.WHITE);
