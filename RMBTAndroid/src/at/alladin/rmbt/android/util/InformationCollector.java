@@ -49,6 +49,7 @@ import android.net.wifi.SupplicantState;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
+import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.telephony.CellLocation;
 import android.telephony.PhoneStateListener;
@@ -408,21 +409,49 @@ public class InformationCollector
 		        locationJson.put("lat", loc.getLatitude());
 		        locationJson.put("long", loc.getLongitude());
 		        locationJson.put("provider", loc.getProvider());
-		        if (loc.hasSpeed())
-		        	locationJson.put("speed", loc.getSpeed());
-		        if (loc.hasAltitude())
-		        	locationJson.put("altitude", loc.getAltitude());
-		        locationJson.put("age", System.currentTimeMillis() - loc.getTime()); //getElapsedRealtimeNanos() would be better, but require higher API-level
-		        if (loc.hasAccuracy())
-		        	locationJson.put("accuracy", loc.getAccuracy());
-		        if (loc.hasSpeed())
-		        	locationJson.put("speed", loc.getSpeed());
+		        if (loc.hasSpeed()) {
+                    locationJson.put("speed", loc.getSpeed());
+                }
+		        if (loc.hasAltitude()) {
+                    //altitude in m above the WGS 84 reference ellipsoid
+                    locationJson.put("altitude", loc.getAltitude());
+                }
+                if (loc.hasBearing()) {
+                    //bearing, in degrees
+                    locationJson.put("bearing", loc.getBearing());
+                }
+                // time of fix in ms in UTC
+                locationJson.put("time",loc.getTime());
+                //requires API17 Android 4.2 JELLY_BEAN_MR1
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                    // age in ms us ns
+                    locationJson.put("age", (Long)
+                            (SystemClock.elapsedRealtimeNanos() - loc.getElapsedRealtimeNanos())/1000000L);
+                }
+                else {
 
+                    locationJson.put("ageold", System.currentTimeMillis() - loc.getTime());
+                }
+                if (loc.hasAccuracy()) {
+                    // accuracy, radial in m
+                    locationJson.put("accuracy", loc.getAccuracy());
+                }
+		        if (loc.hasSpeed()) {
+                    // speed in m/s
+                    locationJson.put("speed", loc.getSpeed());
+                }
 		        //requires API18 Jelly Bean 4.3.x
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
                         locationJson.put("mock_location", loc.isFromMockProvider());
                 }
-                    object.put("location", locationJson);
+                final int satellites;
+                if (loc.getExtras() != null) {
+                    satellites = loc.getExtras().getInt("satellites");
+                    if (satellites > 0) {
+                        locationJson.put("satellites", satellites);
+                    }
+                }
+                object.put("location", locationJson);
 	        }
         }
         
