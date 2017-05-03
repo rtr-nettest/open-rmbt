@@ -26,6 +26,12 @@ def signDebugApp = true
 // keystore.properties file in the RMBTAndroid folder.
 // the keystore.properties files is excluded from the git repository
 // for security reasons.
+/* Demo file: (Path: [project root]/private/keystore.properties
+storeFile=netztest.keystore
+storePassword=<PASSWORD>
+keyAlias=rtr
+keyPassword=<PASSWORD>
+* */
 def keystorePropertiesFile = rootProject.file("private/keystore.properties")
 
 // example keystore.properies file:
