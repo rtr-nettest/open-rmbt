@@ -64,7 +64,7 @@ public class LoopModeTriggerItem implements DetailsListItem {
 	@Override
 	public String getCurrent() {
 		if (results != null) {
-			if (results.getMaxTests() <= results.getNumberOfTests()) {
+			if (results.isFinished()) {
 				//loop mode finished?
 				return context.getString(R.string.loop_notification_finished_title);
 			}

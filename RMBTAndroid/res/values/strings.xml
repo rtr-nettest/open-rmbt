@@ -384,8 +384,10 @@
     <string name="loop_mode_test_dialog_abort">Do you really want to stop the loop mode?</string>
 
     <string name="loop_notification_finished_ticker">Loop mode is finished. No more tests will be run.</string>
+    <string name="loop_notification_finished_ticker_time">Loop mode is finished. Max time has been reached. No more tests will be run.</string>
     <string name="loop_notification_finished_title">Loop mode is finished</string>
-    
+    <string name="loop_notification_finished_title_time">Loop mode is finished (max time reached)</string>
+
     <string name="loop_test_last_status_ok">Last test: successful</string>
     <string name="loop_test_last_status_error">Last test: error</string>
 	<string name="loop_test_last_status_rejected">Last test: rejected</string>
@@ -398,6 +400,7 @@
     <string name="loop_test_progress_test_running">Test running</string>
     <string name="loop_test_progress_test_waiting">Waiting</string>
     <string name="loop_test_progress_test_finished">Finished</string>
+    <string name="loop_test_progress_test_finished_max_time">Finished/Time</string>
     <string name="loop_test_progress_test_not_running">Loop mode test</string>
 
     <string name="loop_test_quit">Quit</string>

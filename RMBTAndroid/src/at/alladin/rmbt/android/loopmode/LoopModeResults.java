@@ -23,6 +23,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import android.os.SystemClock;
 import android.util.SparseArray;
+
+import at.alladin.rmbt.android.main.AppConstants;
 import at.alladin.rmbt.client.helper.IntermediateResult;
 import at.alladin.rmbt.client.v2.task.service.TrafficService;
 
@@ -136,6 +138,8 @@ public class LoopModeResults {
     private int numberOfTests;
     
     private long lastTestTime; // SystemClock.elapsedRealtime()
+
+	private long startTime; //SystemClock.elapsedRealtime()
 
     private float lastDistance;
     
@@ -290,6 +294,14 @@ public class LoopModeResults {
 		this.lastTestTime = lastTestTime;
 	}
 
+	public long getStartTime() {
+		return startTime;
+	}
+
+	public void setStartTime(long startTime) {
+		this.startTime = startTime;
+	}
+
 	public float getLastDistance() {
 		return lastDistance;
 	}
@@ -305,6 +317,12 @@ public class LoopModeResults {
 	public float getLastAccuracy() {
 		return lastAccuracy;
 	}
+
+	public boolean isFinished() {
+		return getMaxTests() <= getNumberOfTests() ||
+				SystemClock.elapsedRealtime() - getStartTime() >= AppConstants.LOOP_MODE_MAX_RUN_TIME;
+	}
+
 
 	/**
 	 * a list of median pings (1 item per test)

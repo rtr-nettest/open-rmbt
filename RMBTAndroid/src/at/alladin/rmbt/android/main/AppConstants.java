@@ -38,7 +38,12 @@ public class AppConstants {
 	 * could be helpful when debugging, set to 1 and the loop mode will wait for seconds not for minutes
 	 */
 	public final static float LOOP_MODE_TIME_MOD = 60.0f;
-	
+
+	/**
+	 * loop mode will stop automatically after LOOP_MODE_MAX_RUN_TIME has been reached
+	 */
+	public final static long LOOP_MODE_MAX_RUN_TIME = 48 * 60 * 60 * 1000; //48 hours
+
 	public final static int LOOP_MODE_MAX_DELAY = 24*60;
 	public final static int LOOP_MODE_MIN_DELAY = 15;
 	public final static int LOOP_MODE_DEFAULT_DELAY = 30;
