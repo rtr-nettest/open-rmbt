@@ -339,7 +339,9 @@
 	<string name="loop_mode_test_dialog_abort">Wollen Sie den Wiederholungsmodus wirklich beenden?</string>
 	
 	<string name="loop_notification_finished_ticker">Der Wiederholungsmodus wurde beendet. Es werden keine weiteren Tests ausgeführt.</string>
+    <string name="loop_notification_finished_ticker_time">Der Wiederholungsmodus wurde beendet. Die maximale Laufzeit wurde erreicht. Es werden keine weiteren Tests ausgeführt.</string>
     <string name="loop_notification_finished_title">Wiederholungsmodus beendet</string>
+    <string name="loop_notification_finished_title_time">Wiederholungsmodus beendet (maximale Laufzeit überschritten)</string>
 
     <string name="loop_test_last_status_ok">Letzter Test: erfolgreich</string>
     <string name="loop_test_last_status_error">Letzter Test: nicht erfolgreich</string>
@@ -353,6 +355,7 @@
     <string name="loop_test_progress_test_running">Test läuft</string>
     <string name="loop_test_progress_test_waiting">wartend</string>
     <string name="loop_test_progress_test_finished">beendet</string>
+    <string name="loop_test_progress_test_finished_max_time">beendet/Zeit</string>
     <string name="loop_test_progress_test_not_running">Wiederholungsmodus Test</string>
     
     <string name="loop_test_quit">Beenden</string>

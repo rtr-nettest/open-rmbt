@@ -19,6 +19,7 @@ package at.alladin.rmbt.android.test;
 import java.text.MessageFormat;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -81,6 +82,12 @@ public class RMBTLoopService extends Service implements ServiceConnection
     private WakeLock dimWakeLock;
     	
     final LoopModeResults loopModeResults = new LoopModeResults();
+
+    public enum LoopModeFinishedReason {
+        UNKNOWN,
+        MAX_TESTS_REACHED,
+        MAX_TIME_REACHED
+    }
 
     public static interface RMBTLoopServiceConnection {
     	RMBTLoopService getRMBTLoopService();
@@ -145,6 +152,7 @@ public class RMBTLoopService extends Service implements ServiceConnection
     private RMBTService rmbtService;
 
     private AtomicBoolean isActive = new AtomicBoolean(false);
+    private AtomicReference<LoopModeFinishedReason> finishedReason = new AtomicReference<>(LoopModeFinishedReason.UNKNOWN);
     
     private BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -156,10 +164,14 @@ public class RMBTLoopService extends Service implements ServiceConnection
             	System.out.println("BROADCAST TEST FINISHED ERROR: " + rmbtService.getError());
             	updateLoopModeResults(false);
                 if (loopModeResults.getMaxTests() == loopModeResults.getNumberOfTests()) {
-                	setFinishedNotification();
+                	setFinishedNotification(LoopModeFinishedReason.MAX_TESTS_REACHED);
                 	isActive.set(false);
                 }
-                
+                else if (SystemClock.elapsedRealtime() - loopModeResults.getStartTime() >= AppConstants.LOOP_MODE_MAX_RUN_TIME) {
+                    setFinishedNotification(LoopModeFinishedReason.MAX_TIME_REACHED);
+                    isActive.set(false);
+                }
+
             	isRunning.set(false);
                 onAlarmOrLocation(false);
             }
@@ -307,16 +319,19 @@ public class RMBTLoopService extends Service implements ServiceConnection
             }
 
             if (isActive.get()) {
-	            if (action != null && action.equals(ACTION_FORCE))
-	                onAlarmOrLocation(true);
-	            else if (action != null && action.equals(ACTION_ALARM))
-	                onAlarmOrLocation(false);
-	            else if (action != null && action.equals(ACTION_WAKEUP_ALARM))
-	                onWakeup();
-	            else
-	            {
+	            if (action != null && action.equals(ACTION_FORCE)) {
+                    onAlarmOrLocation(true);
+                }
+	            else if (action != null && action.equals(ACTION_ALARM)) {
+                    onAlarmOrLocation(false);
+                }
+	            else if (action != null && action.equals(ACTION_WAKEUP_ALARM)) {
+                    onWakeup();
+                }
+	            else {
 	                if (loopModeResults.getLastTestTime() == 0)
 	                {
+                        loopModeResults.setStartTime(SystemClock.elapsedRealtime());
 	                    Toast.makeText(this, R.string.loop_started, Toast.LENGTH_LONG).show();
 	                    onAlarmOrLocation(true);
 	                }
@@ -397,11 +412,13 @@ public class RMBTLoopService extends Service implements ServiceConnection
         if (run)
             triggerTest();
         
-        if (loopModeResults.getMaxTests() == 0 || loopModeResults.getNumberOfTests() <= loopModeResults.getMaxTests()) {
+        if ((loopModeResults.getMaxTests() == 0 || loopModeResults.getNumberOfTests() <= loopModeResults.getMaxTests()) &&
+                (SystemClock.elapsedRealtime() - loopModeResults.getStartTime() < AppConstants.LOOP_MODE_MAX_RUN_TIME)) {
             setAlarm(10000);
         }
-        else 
+        else {
             stopSelf();
+        }
 
         //setAlarm(delay - lastTestDelta);
     }
@@ -498,26 +515,46 @@ public class RMBTLoopService extends Service implements ServiceConnection
         notificationManager.notify(NotificationIDs.LOOP_ACTIVE, notification);
     }
     
-    private void setFinishedNotification() {
+    private void setFinishedNotification(final LoopModeFinishedReason reason) {
         Intent notificationIntent = new Intent(getApplicationContext(), RMBTMainActivity.class);
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent openAppIntent = PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, 0);
         
     	final Resources res = getResources();
-    	final Notification notification = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.stat_icon_loop)
-                .setContentTitle(res.getText(R.string.loop_notification_finished_title))
-                .setTicker(res.getText(R.string.loop_notification_finished_ticker))
+
+        int smallIconRes = R.drawable.stat_icon_loop;
+        int contentTileRes = R.string.loop_notification_finished_title;
+        int tickerRes = R.string.loop_notification_finished_ticker;
+
+        switch (reason) {
+            case MAX_TESTS_REACHED:
+                break;
+            case MAX_TIME_REACHED:
+                contentTileRes = R.string.loop_notification_finished_title_time;
+                tickerRes = R.string.loop_notification_finished_ticker_time;
+                break;
+            default:
+                break;
+        }
+
+        Notification notification = new NotificationCompat.Builder(this)
+                .setSmallIcon(smallIconRes)
+                .setContentTitle(res.getText(contentTileRes))
+                .setTicker(res.getText(tickerRes))
                 .setContentIntent(openAppIntent)
                 .build();
 
         //notification.flags |= Notification.FLAG_AUTO_CANCEL;
-
+        finishedReason.set(reason);
     	notificationManager.notify(NotificationIDs.LOOP_ACTIVE, notification);
     }
     
     public boolean isRunning() {
     	return isRunning.get();
+    }
+
+    public boolean isFinished() {
+        return loopModeResults.isFinished();
     }
 
 	public Location getLastTestLocation() {
@@ -527,6 +564,10 @@ public class RMBTLoopService extends Service implements ServiceConnection
 	public boolean isActive() {
 		return isActive.get();
 	}
+
+	public LoopModeFinishedReason getInactiveReason() {
+        return finishedReason.get();
+    }
 	
 	public LoopModeResults getLoopModeResults() {
 		return loopModeResults;
