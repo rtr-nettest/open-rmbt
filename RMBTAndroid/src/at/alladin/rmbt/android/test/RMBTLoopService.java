@@ -16,14 +16,6 @@
  ******************************************************************************/
 package at.alladin.rmbt.android.test;
 
-import java.text.MessageFormat;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.AlarmManager;
@@ -48,6 +40,15 @@ import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import java.text.MessageFormat;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+
 import at.alladin.rmbt.android.R;
 import at.alladin.rmbt.android.loopmode.LoopModeCurrentTest;
 import at.alladin.rmbt.android.loopmode.LoopModeLastTestResults;
@@ -564,6 +565,19 @@ public class RMBTLoopService extends Service implements ServiceConnection
 	public boolean isActive() {
 		return isActive.get();
 	}
+
+	public void updateLoopModeActiveStatus() {
+        if (isActive() && !isRunning() && loopModeResults.isFinished()) {
+            if (loopModeResults.getMaxTests() == loopModeResults.getNumberOfTests()) {
+                setFinishedNotification(LoopModeFinishedReason.MAX_TESTS_REACHED);
+            }
+            else if (SystemClock.elapsedRealtime() - loopModeResults.getStartTime() >= AppConstants.LOOP_MODE_MAX_RUN_TIME) {
+                setFinishedNotification(LoopModeFinishedReason.MAX_TIME_REACHED);
+            }
+
+            isActive.set(false);
+        }
+    }
 
 	public LoopModeFinishedReason getInactiveReason() {
         return finishedReason.get();

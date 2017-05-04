@@ -257,6 +257,7 @@ public class LoopModeTestFragment extends Fragment implements ServiceConnection,
 	
 	public void updateUi() {
 		if (holder != null && loopService != null) {
+			loopService.updateLoopModeActiveStatus();
 			LoopModeResults loopModeResults = loopService.getLoopModeResults();
 
 			String statusString;
