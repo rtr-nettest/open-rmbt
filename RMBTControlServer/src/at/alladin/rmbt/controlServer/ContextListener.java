@@ -59,8 +59,8 @@ public class ContextListener implements ServletContextListener
                     
                     final boolean oldAutoCommitState = conn.getAutoCommit();
                     conn.setAutoCommit(false);
-                    // allow update only 2min after test was started
-                    final PreparedStatement psUpd = conn.prepareStatement("UPDATE test SET country_geoip=? WHERE uid=? and (now() - time  < interval '2' minute)");
+                    // allow update only 5min after test was started
+                    final PreparedStatement psUpd = conn.prepareStatement("UPDATE test SET country_geoip=? WHERE uid=? and (now() - time  < interval '5' minute)");
                     final PreparedStatement ps = conn.prepareStatement("SELECT uid,client_public_ip FROM test WHERE client_public_ip IS NOT NULL AND country_geoip IS NULL");
                     ps.execute();
                     final ResultSet rs = ps.getResultSet();
