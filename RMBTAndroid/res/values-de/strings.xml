@@ -389,6 +389,7 @@
     <string name="loop_notification_text_without_stop">{0}x; {1}; {2}m;</string>
     <string name="terms_loop_mode2">Wiederholungsmodus (2/2)</string>
     <string name="terms_loop_mode_header2">Nutzung</string>
+    <string name="title_screen_info_overlay_location_speed">Geschwindigkeit</string>
 </resources>
 
 

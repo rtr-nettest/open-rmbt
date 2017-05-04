@@ -351,6 +351,7 @@
 	<string name="title_screen_info_overlay_location_source">Source</string>
 	<string name="title_screen_info_overlay_location_accuracy">Accuracy</string>
 	<string name="title_screen_info_overlay_location_altitude">Altitude</string>
+    <string name="title_screen_info_overlay_location_speed">Speed</string>
 	<string name="title_screen_info_overlay_location_age">Age</string>
 	<string name="title_screen_empty" translatable="false"></string>
 	<string name="title_screen_developer" translatable="false">dev"</string>
