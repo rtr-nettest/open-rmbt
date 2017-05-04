@@ -414,5 +414,9 @@
     <string name="terms_check_decline_button">Decline</string>
     <string name="terms_loop_mode2">Loop mode (2/2)</string>
     <string name="terms_loop_mode_header2">Usage</string>
+    <string name="title_screen_info_overlay_location_speed">Скорость</string>
+    <string name="loop_test_progress_test_finished_max_time">Finished/Time</string>
+    <string name="loop_notification_finished_ticker_time">Loop mode is finished. Max time has been reached. No more tests will be run.</string>
+    <string name="loop_notification_finished_title_time">Loop mode is finished (max time reached)</string>
 </resources>
 
