@@ -285,7 +285,7 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
         out = new OutputStreamCounter(s.getOutputStream());
         
         String line = reader.readLine();
-        if (!line.equals(EXPECT_GREETING))
+        if (!line.contains(EXPECT_GREETING))
         {
             log(String.format(Locale.US, "thread %d: got '%s' expected '%s'", threadId, line, EXPECT_GREETING));
             return null;
