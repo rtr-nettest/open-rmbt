@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright 2013-2016 alladin-IT GmbH
- * Copyright 2013-2016 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
+ * Copyright 2016-2017 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
@@ -42,6 +43,7 @@ import at.alladin.rmbt.android.main.AppConstants;
 import at.alladin.rmbt.android.terms.RMBTCheckFragment.CheckType;
 import at.alladin.rmbt.android.terms.RMBTTermsActivity;
 import at.alladin.rmbt.android.util.ConfigHelper;
+import at.alladin.rmbt.android.util.InformationCollector;
 import at.alladin.rmbt.android.util.Server;
 
 public class RMBTPreferenceActivity extends PreferenceActivity
@@ -208,10 +210,19 @@ public class RMBTPreferenceActivity extends PreferenceActivity
                 }
             });
         }
-        
+
         final Preference gpsPref = (Preference) findPreference("location_settings");
-        if (gpsPref != null)
-        {
+        if (gpsPref != null) {
+            // Brute force reset of location data
+            // Needs permission ACCESS_LOCATION_EXTRA_COMMANDS
+            // Source: http://stackoverflow.com/questions/14548707/android-how-to-reset-and-download-a-gps-data
+            LocationManager locationManager;
+            locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+            locationManager.sendExtraCommand(LocationManager.GPS_PROVIDER, "delete_aiding_data", null);
+            Bundle bundle = new Bundle();
+            locationManager.sendExtraCommand("gps", "force_xtra_injection", bundle);
+            locationManager.sendExtraCommand("gps", "force_time_injection", bundle);
+
             gpsPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference)
