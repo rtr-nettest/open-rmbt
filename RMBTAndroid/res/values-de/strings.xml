@@ -44,7 +44,7 @@
     <string name="preferences_skip_qos_sum">QoS-Tests werden nicht durchgeführt</string>
     
     <string name="preferences_loop_mode">Wiederholungsmodus</string>
-    <string name="preferences_loop_mode_sum">Neue Tests werden gestartet, sobald die Wartezeit abgelaufen oder die Distanz zurückgelegt wird</string>
+    <string name="preferences_loop_mode_sum">Neuer Test nach Wartezeit oder Zurücklegung der Distanz. Max 2 Tage.</string>
     
     <string name="preferences_loop_mode_max_tests">Anzahl der Tests</string>
     <string name="preferences_loop_mode_max_tests_sum">Anzahl von Tests im Wiederholungsmodus</string>
@@ -390,6 +390,8 @@
     <string name="terms_loop_mode2">Wiederholungsmodus (2/2)</string>
     <string name="terms_loop_mode_header2">Nutzung</string>
     <string name="title_screen_info_overlay_location_speed">Geschwindigkeit</string>
+    <string name="lm_details_location_provider">Location provider</string>
+    <string name="title_screen_info_overlay_location_bearing">Richtung</string>
 </resources>
 
 

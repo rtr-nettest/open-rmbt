@@ -1,13 +1,13 @@
 /*******************************************************************************
  * Copyright 2013-2015 alladin-IT GmbH
- * Copyright 2013-2015 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
- * 
+ * Copyright 2017 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,86 +16,88 @@
  ******************************************************************************/
 package at.alladin.rmbt.android.util;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
-public abstract class GeoLocation
-{
-    
+public abstract class GeoLocation {
+
     private static final String DEBUG_TAG = "Geolocation";
-    
+
     private final LocationManager locationManager;
-    
+
     /** Allows to obtain the phone's location, to determine the country. */
     /** The location Listener */
     private LocListener coarseLocationListener;
-    
+
     /** Allows to obtain the phone's location, to determine the country. */
     /** The location Listener */
     private LocListener fineLocationListener;
-    
+
     private Location curLocation = null;
-    
+
     private boolean started = false;
-    
+
     private final boolean gpsEnabled;
     private final long minTime;      // minimum time interval between location updates, in milliseconds
     private final float minDistance; // minimum distance between location updates, in meters
-    
-    public GeoLocation(final Context context, final boolean gpsEnabled)
-    {
+
+    public GeoLocation(final Context context, final boolean gpsEnabled) {
         this(context, gpsEnabled, 1000, 5);
     }
-    
-    public GeoLocation(final Context context, final boolean gpsEnabled, final long minTime, final float minDistance)
-    {
+
+    public GeoLocation(final Context context, final boolean gpsEnabled, final long minTime, final float minDistance) {
         locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         this.gpsEnabled = gpsEnabled;
         this.minTime = minTime;
         this.minDistance = minDistance;
     }
-    
+
     public static Location getLastKnownLocation(Context context) {
         LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        
+
         final Criteria criteria = new Criteria();
         criteria.setAccuracy(Criteria.ACCURACY_FINE);
         criteria.setPowerRequirement(Criteria.POWER_HIGH);
         final String providerName = locationManager.getBestProvider(criteria, true);
         if (providerName == null)
             return null;
-        return locationManager.getLastKnownLocation(providerName);
+        if (PermissionHelper.checkCoarseLocationPermission(context)) {
+            return locationManager.getLastKnownLocation(providerName);
+        } else {
+            return null;
+        }
     }
-    
+
     /** Load Listeners */
-    public void start()
-    {
-        if (!started)
-        {
+    public void start(Context context) {
+        if (!started) {
             started = true;
-            
+
             final Criteria criteriaCoarse = new Criteria();
             /* "Coarse" accuracy means "no need to use GPS". */
             criteriaCoarse.setAccuracy(Criteria.ACCURACY_COARSE);
             criteriaCoarse.setPowerRequirement(Criteria.POWER_LOW);
             final String coarseProviderName = locationManager.getBestProvider(criteriaCoarse, true);
             
-            if (coarseProviderName != null)
+            if (coarseProviderName != null && PermissionHelper.checkCoarseLocationPermission(context))
             {
                 isBetterLocation(locationManager.getLastKnownLocation(coarseProviderName));
-                
+
                 coarseLocationListener = new LocListener();
                 locationManager.requestLocationUpdates(coarseProviderName,
-                minTime,
-                minDistance, coarseLocationListener);
+                        minTime,
+                        minDistance, coarseLocationListener);
             }
             
-            if (gpsEnabled)
+            if (gpsEnabled && PermissionHelper.checkFineLocationPermission(context))
             {
                 final Criteria criteriaFine = new Criteria();
                 /* "Fine" accuracy means "use GPS". */
@@ -183,7 +185,7 @@ public abstract class GeoLocation
      * 
      * @param newLocation
      *            The new Location that you want to evaluate
-     * @param curLocation
+     * curLocation
      *            The current Location fix, to which you want to compare the new
      *            one
      */

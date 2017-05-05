@@ -44,7 +44,7 @@
     <string name="preferences_skip_qos_sum">Skip QoS tests</string>
     
     <string name="preferences_loop_mode">Loop mode</string>
-    <string name="preferences_loop_mode_sum">New tests are started when waiting time has elapsed or distance is covered.</string>
+    <string name="preferences_loop_mode_sum">New test when waiting time has elapsed or distance is covered. Max 2 days.</string>
     
     <string name="preferences_loop_mode_max_tests">Number of tests</string>
     <string name="preferences_loop_mode_max_tests_sum">Number of tests in loop mode</string>
@@ -352,6 +352,7 @@
 	<string name="title_screen_info_overlay_location_accuracy">Accuracy</string>
 	<string name="title_screen_info_overlay_location_altitude">Altitude</string>
     <string name="title_screen_info_overlay_location_speed">Speed</string>
+    <string name="title_screen_info_overlay_location_bearing">Bearing</string>
 	<string name="title_screen_info_overlay_location_age">Age</string>
 	<string name="title_screen_empty" translatable="false"></string>
 	<string name="title_screen_developer" translatable="false">dev"</string>
@@ -422,6 +423,7 @@
 	<string name="lm_details_signal">Signal</string>
     <string name="lm_details_gps">Location</string>
     <string name="lm_details_gps_accuracy">Accuracy</string>
+    <string name="lm_details_location_provider">Location provider</string>
         	
 	<string name="go">Start tests</string>
 	<string name="go_to_settings">Change settings</string>	

@@ -429,8 +429,6 @@ public class InformationCollector
                             (SystemClock.elapsedRealtimeNanos() - loc.getElapsedRealtimeNanos())/1000000L);
                 }
                 else {
-
-                    locationJson.put("ageold", System.currentTimeMillis() - loc.getTime());
                 }
                 if (loc.hasAccuracy()) {
                     // accuracy, radial in m
@@ -675,7 +673,7 @@ public class InformationCollector
 	        {
 	            // init location Manager
 	            locationManager = new InfoGeoLocation(context);
-	            locationManager.start();
+	            locationManager.start(context);
 	        }
 	        final Location curLocation = locationManager.getLastKnownLocation();
 	        

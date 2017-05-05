@@ -106,7 +106,7 @@ public class RMBTLoopService extends Service implements ServiceConnection
     {
         public LocalGeoLocation(Context ctx)
         {
-            super(ctx, ConfigHelper.isLoopModeGPS(ctx), 1000, 5);
+            super(ctx, ConfigHelper.isLoopModeGPS(ctx), 1000, 2);
         }
 
         @Override
@@ -248,7 +248,7 @@ public class RMBTLoopService extends Service implements ServiceConnection
         readConfig();
         
         geoLocation = new LocalGeoLocation(this);
-        geoLocation.start();
+        geoLocation.start(this);
         
         notificationBuilder = createNotificationBuilder();
         

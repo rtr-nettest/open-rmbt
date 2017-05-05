@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright 2016 Specure GmbH
- * Copyright 2016 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
+ * Copyright 2017 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import android.content.Context;
 import android.location.Location;
 import at.alladin.rmbt.android.R;
 import at.alladin.rmbt.android.loopmode.DetailsListItem;
-import at.alladin.rmbt.android.main.AppConstants;
 import at.alladin.rmbt.android.util.Helperfunctions;
 import at.alladin.rmbt.android.util.InformationCollector;
 
@@ -29,32 +28,43 @@ import at.alladin.rmbt.android.util.InformationCollector;
  * @author lb
  *
  */
-public class GpsDetailsItem implements DetailsListItem {
+public class LocationAccuracyDetailsItem implements DetailsListItem {
 
 	private InformationCollector infoCollector;
 	private Context context;
 	
-	public GpsDetailsItem(final Context context, final InformationCollector infoCollector) {
+	public LocationAccuracyDetailsItem(final Context context, final InformationCollector infoCollector) {
 		this.infoCollector = infoCollector;
 		this.context = context;
 	}
 	
 	@Override
 	public String getTitle() {
-		return context.getResources().getString(R.string.lm_details_gps);
+		return context.getResources().getString(R.string.lm_details_gps_accuracy);
 	}
 
 	@Override
 	public String getCurrent() {
 		if (infoCollector != null) {
-	    	String locationString = "";
+	    	String locationString = null;
 	    	final Location loc = infoCollector.getLocationInfo();
-	    	if (loc != null) {
-	    		locationString = Helperfunctions.getLocationString(context, context.getResources(), loc,0);
+	    	if (loc != null) { 
+	    		final int satellites;
+	    		if (loc.getExtras() != null) {
+	    		    satellites = loc.getExtras().getInt("satellites");
+	    		}
+	    		else {
+	    		    satellites = 0;
+	    		}
+	    		
+                locationString = Helperfunctions.convertLocationAccuracy(context.getResources(), 
+	    				loc.hasAccuracy(), loc.getAccuracy(), satellites);
+                
+    	    	locationString += " (" + Helperfunctions.convertLocationTime(loc.getTime()) + ")";
 	    	}
 	    	else {
 	    		locationString = context.getString(R.string.not_available);
-	    	}
+	    	}	    	
     		
 	    	return locationString;
 		}
@@ -64,18 +74,7 @@ public class GpsDetailsItem implements DetailsListItem {
 
 	@Override
 	public int getStatusResource() {
-		if (infoCollector != null) {
-	    	final Location loc = infoCollector.getLocationInfo();
-	    	if (loc != null) {
-	    		if (loc.getAccuracy() <= AppConstants.LOOP_MODE_GPS_ACCURACY_CRITERIA) {
-	    			return R.drawable.ic_action_location_found;	
-	    		}
-	    		
-	    		return R.drawable.ic_action_location_found_network;
-	    	}    		
-		}
-		
-		return R.drawable.ic_action_location_no_permission;
+		return DetailsListItem.STATUS_RESOURCE_NOT_AVAILABLE;
 	}
 
 }

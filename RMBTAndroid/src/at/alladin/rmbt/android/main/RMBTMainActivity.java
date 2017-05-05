@@ -471,7 +471,7 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties,
         case PermissionHelper.REQUEST_AT_INIT:
             if (geoLocation == null)
                 geoLocation = new MainGeoLocation(getApplicationContext());
-            geoLocation.start();
+            geoLocation.start(this);
             checkSettings(true, null);
             
             
@@ -654,7 +654,7 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties,
         // init location Manager
         
         if (ConfigHelper.isTCAccepted(this) && ConfigHelper.isNDTDecisionMade(this) && geoLocation != null)
-            geoLocation.start();
+            geoLocation.start(this);
         
         title = getTitle(getCurrentFragmentName());
         refreshActionBar(getCurrentFragmentName());
@@ -914,7 +914,7 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties,
             PermissionHelper.checkPermissionAtInit(this);
         
         if (! duringCreate && geoLocation != null)
-            geoLocation.start();
+            geoLocation.start(this);
     }
     
     /**

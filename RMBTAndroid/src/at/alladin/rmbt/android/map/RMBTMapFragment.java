@@ -257,7 +257,7 @@ public class RMBTMapFragment extends SupportMapFragment implements OnClickListen
     {
         super.onStart();
         if (geoLocation != null)
-            geoLocation.start();
+            geoLocation.start(getContext());
         
         gMap = getMap();
         if (gMap != null)
