@@ -35,17 +35,17 @@ public class GeoLocation
     private UUID open_test_uuid;
     private long test_id;
     private Timestamp time;
-    private Double accuracy;
-    private Double altitude;
-    private Double bearing;
-    private Double speed;
+    private float accuracy;
+    private double altitude;
+    private float bearing;
+    private float speed;
     private String provider;
-    private Double geo_lat;
-    private Double geo_long;
-    private Long time_ns;
+    private double geo_lat;
+    private double geo_long;
+    private long time_ns;
     private Boolean mock_location = null;
     
-    //private Calendar timeZone = null;
+    private Calendar timeZone = null;
     
     private Connection conn = null;
     private String errorLabel = "";
@@ -65,16 +65,16 @@ public class GeoLocation
         open_test_uuid = null;
         test_id = 0;
         time = null;
-        accuracy = null;
-        altitude = null;
-        bearing = null;
-        speed = null;
-        provider = null;
-        geo_lat = null;
-        geo_long = null;
-        time_ns = null;
+        accuracy = 0;
+        altitude = 0;
+        bearing = 0;
+        speed = 0;
+        provider = "";
+        geo_lat = 0;
+        geo_long = 0;
+        time_ns = 0;
         
-        //timeZone = null;
+        timeZone = null;
         
         resetError();
     }
@@ -93,44 +93,6 @@ public class GeoLocation
     
     public void storeLocation()
     {
-
-/*
-
-        Table "public.geo_location"
-        Column     |           Type           |                       Modifiers
-        ----------------+--------------------------+--------------------------------------------------------
-        uid            | bigint                   | not null default nextval('location_uid_seq'::regclass)
-        test_id        | bigint                   | not null
-        time           | timestamp with time zone |
-        accuracy       | double precision         |
-        altitude       | double precision         |
-        bearing        | double precision         |
-        speed          | double precision         |
-        provider       | character varying(200)   |
-        geo_lat        | double precision         |
-        geo_long       | double precision         |
-        location       | geometry                 |
-        time_ns        | bigint                   | not null default 0
-        open_test_uuid | uuid                     |
-        mock_location  | boolean                  |
-        Indexes:
-        "location_pkey" PRIMARY KEY, btree (uid)
-        "geo_location_location_idx" gist (location)
-        "geo_location_test_id_key" btree (test_id)
-        "geo_location_test_id_provider" btree (test_id, provider)
-        "geo_location_test_id_provider_time_idx" btree (test_id, provider, "time")
-        "geo_location_test_id_time_idx" btree (test_id, "time")
-        "open_test_uuid_geo_location_idx" btree (open_test_uuid)
-        Check constraints:
-        "enforce_dims_location" CHECK (st_ndims(location) = 2)
-        "enforce_geotype_location" CHECK (geometrytype(location) = 'POINT'::text OR location IS NULL)
-        "enforce_srid_location" CHECK (st_srid(location) = 900913)
-        Foreign-key constraints:
-        "location_test_id_fkey" FOREIGN KEY (test_id) REFERENCES test(uid) ON DELETE CASCADE
-*/
-
-
-
         PreparedStatement st;
         try
         {
