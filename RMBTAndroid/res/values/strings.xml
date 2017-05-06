@@ -390,13 +390,13 @@
     <string name="loop_notification_finished_title">Loop mode is finished</string>
     <string name="loop_notification_finished_title_time">Loop mode is finished (max time reached)</string>
 
-    <string name="loop_test_last_status_ok">Last test: successful</string>
-    <string name="loop_test_last_status_error">Last test: error</string>
-	<string name="loop_test_last_status_rejected">Last test: rejected</string>
+    <string name="loop_test_last_status_ok" translatable="false">Previous test: successful</string>
+    <string name="loop_test_last_status_error">Previous test: error</string>
+	<string name="loop_test_last_status_rejected">Previous test: rejected</string>
     
     <string name="loop_test_measurement">Measurement</string>
     <string name="loop_test_current">Current</string>
-    <string name="loop_test_last">Last test</string>
+    <string name="loop_test_last">Previous test</string>
     <string name="loop_test_median">Median</string>
     
     <string name="loop_test_progress_test_running">Test running</string>

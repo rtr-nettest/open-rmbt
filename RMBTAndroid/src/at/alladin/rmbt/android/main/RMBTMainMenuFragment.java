@@ -29,8 +29,10 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -1060,7 +1062,7 @@ public class RMBTMainMenuFragment extends Fragment
 		    case LOCATION_AGE:
 		    	locationString = "";
 		    	if (infoCollector.getLocation() != null) {
-		    		locationString = Helperfunctions.convertLocationTime(infoCollector.getLocation().getTime());
+                    locationString = Helperfunctions.getAgeString(infoCollector.getLocation());
 		    	}
 	    		holder.value.setText(locationString);		    	
 		    	break;
@@ -1084,17 +1086,17 @@ public class RMBTMainMenuFragment extends Fragment
                 }
                 holder.value.setText(locationString);
                 break;
-                case LOCATION_SPEED:
-                    locationString = "";
-                    if (infoCollector.getLocation() != null) {
-                        locationString = Helperfunctions.convertLocationSpeed(getResources(),
-                                infoCollector.getLocation().hasSpeed(), infoCollector.getLocation().getSpeed());
-                        if (locationString.equals("")) {
-                            locationString = getActivity().getString(R.string.not_available);
-                        }
-                    }
-                    holder.value.setText(locationString);
-                    break;
+				case LOCATION_SPEED:
+					locationString = "";
+
+					if (infoCollector.getLocation() != null && infoCollector.getLocation().hasSpeed() && Helperfunctions.getAge(infoCollector.getLocation()) < 3000000000L) {
+						locationString = String.format("%.1f %s", infoCollector.getLocation().getSpeed() * 3.6d, context.getResources().getString(R.string.test_location_km_h));
+					} else {
+						locationString = context.getString(R.string.not_available);
+					}
+
+			    holder.value.setText(locationString);
+				break;
 
                 case IPV4:
                     if (ipv4CheckRunnable.getPrivAddress() != null) {

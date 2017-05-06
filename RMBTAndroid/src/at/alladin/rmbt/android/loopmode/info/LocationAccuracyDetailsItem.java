@@ -18,63 +18,60 @@ package at.alladin.rmbt.android.loopmode.info;
 
 import android.content.Context;
 import android.location.Location;
+
 import at.alladin.rmbt.android.R;
 import at.alladin.rmbt.android.loopmode.DetailsListItem;
 import at.alladin.rmbt.android.util.Helperfunctions;
 import at.alladin.rmbt.android.util.InformationCollector;
 
 /**
- * 
  * @author lb
- *
  */
 public class LocationAccuracyDetailsItem implements DetailsListItem {
 
-	private InformationCollector infoCollector;
-	private Context context;
-	
-	public LocationAccuracyDetailsItem(final Context context, final InformationCollector infoCollector) {
-		this.infoCollector = infoCollector;
-		this.context = context;
-	}
-	
-	@Override
-	public String getTitle() {
-		return context.getResources().getString(R.string.lm_details_gps_accuracy);
-	}
+    private InformationCollector infoCollector;
+    private Context context;
 
-	@Override
-	public String getCurrent() {
-		if (infoCollector != null) {
-	    	String locationString = null;
-	    	final Location loc = infoCollector.getLocationInfo();
-	    	if (loc != null) { 
-	    		final int satellites;
-	    		if (loc.getExtras() != null) {
-	    		    satellites = loc.getExtras().getInt("satellites");
-	    		}
-	    		else {
-	    		    satellites = 0;
-	    		}
-	    		
-                locationString = Helperfunctions.convertLocationAccuracy(context.getResources(), 
-	    				loc.hasAccuracy(), loc.getAccuracy(), satellites);
-                
-    	    	locationString += " (" + Helperfunctions.convertLocationTime(loc.getTime()) + ")";
-	    	}
-	    	else {
-	    		locationString = context.getString(R.string.not_available);
-	    	}	    	
-    		
-	    	return locationString;
-		}
-		
-		return null;
-	}
+    public LocationAccuracyDetailsItem(final Context context, final InformationCollector infoCollector) {
+        this.infoCollector = infoCollector;
+        this.context = context;
+    }
 
-	@Override
-	public int getStatusResource() {
-		return DetailsListItem.STATUS_RESOURCE_NOT_AVAILABLE;
-	}
+    @Override
+    public String getTitle() {
+        return context.getResources().getString(R.string.lm_details_gps_accuracy);
+    }
+
+    @Override
+    public String getCurrent() {
+        if (infoCollector != null) {
+            String locationString = null;
+            final Location loc = infoCollector.getLocationInfo();
+            if (loc != null) {
+                final int satellites;
+                if (loc.getExtras() != null) {
+                    satellites = loc.getExtras().getInt("satellites");
+                } else {
+                    satellites = 0;
+                }
+
+                locationString = Helperfunctions.convertLocationAccuracy(context.getResources(),
+                        loc.hasAccuracy(), loc.getAccuracy(), satellites);
+
+                locationString += " (" + Helperfunctions.getAgeString(loc) + ")";
+            } else {
+                locationString = context.getString(R.string.not_available);
+            }
+
+            return locationString;
+        }
+
+        return null;
+    }
+
+    @Override
+    public int getStatusResource() {
+        return DetailsListItem.STATUS_RESOURCE_NOT_AVAILABLE;
+    }
 
 }

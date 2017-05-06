@@ -420,16 +420,19 @@ public class InformationCollector
                     //bearing, in degrees
                     locationJson.put("bearing", loc.getBearing());
                 }
+
                 // time of fix in ms in UTC
                 locationJson.put("time",loc.getTime());
                 //requires API17 Android 4.2 JELLY_BEAN_MR1
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-                    // age in ms us ns
+                    // age in ms
                     locationJson.put("age", (Long)
                             (SystemClock.elapsedRealtimeNanos() - loc.getElapsedRealtimeNanos())/1000000L);
                 }
                 else {
+                    locationJson.put("age", System.currentTimeMillis() - loc.getTime());
                 }
+
                 if (loc.hasAccuracy()) {
                     // accuracy, radial in m
                     locationJson.put("accuracy", loc.getAccuracy());

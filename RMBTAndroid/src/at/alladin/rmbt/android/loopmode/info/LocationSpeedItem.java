@@ -23,6 +23,7 @@ import java.text.DecimalFormat;
 import at.alladin.rmbt.android.R;
 import at.alladin.rmbt.android.loopmode.DetailsListItem;
 import at.alladin.rmbt.android.main.AppConstants;
+import at.alladin.rmbt.android.util.Helperfunctions;
 import at.alladin.rmbt.android.util.InformationCollector;
 
 /**
@@ -49,7 +50,7 @@ public class LocationSpeedItem implements DetailsListItem {
         if (infoCollector != null) {
             String locationSpeedString = "";
             final Location loc = infoCollector.getLocationInfo();
-            if (loc != null && loc.hasSpeed()) {
+            if (loc != null && loc.hasSpeed() && Helperfunctions.getAge(loc) < 3000000000L) {
                 locationSpeedString = String.format("%.1f %s", loc.getSpeed() * 3.6d, context.getResources().getString(R.string.test_location_km_h));
             } else {
                 locationSpeedString = context.getString(R.string.not_available);

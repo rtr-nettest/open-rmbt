@@ -20,6 +20,7 @@ import android.location.Location;
 
 import at.alladin.rmbt.android.R;
 import at.alladin.rmbt.android.loopmode.DetailsListItem;
+import at.alladin.rmbt.android.util.Helperfunctions;
 import at.alladin.rmbt.android.util.InformationCollector;
 
 /**
@@ -46,7 +47,7 @@ public class LocationBearingItem implements DetailsListItem {
         if (infoCollector != null) {
             String locationBearingString = "";
             final Location loc = infoCollector.getLocationInfo();
-            if (loc != null && loc.hasBearing()) {
+            if (loc != null && loc.hasBearing() && Helperfunctions.getAge(loc) < 3000000000L) {
                 locationBearingString = String.format("%.0f %s", loc.getBearing(), "°");
             } else {
                 locationBearingString = context.getString(R.string.not_available);

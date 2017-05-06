@@ -24,6 +24,8 @@ import at.alladin.rmbt.android.main.AppConstants;
 import at.alladin.rmbt.android.util.Helperfunctions;
 import at.alladin.rmbt.android.util.InformationCollector;
 
+import static at.alladin.rmbt.android.util.Helperfunctions.convertLocationProvider;
+
 /**
  * @author dz
  */
@@ -48,12 +50,7 @@ public class LocationProviderItem implements DetailsListItem {
             String locationProviderString = "";
             final Location loc = infoCollector.getLocationInfo();
             if (loc != null) {
-                locationProviderString = loc.getProvider();
-                if (locationProviderString.equals("gps")) {
-                    locationProviderString = context.getResources().getString(R.string.test_location_gps);
-                } else if (locationProviderString.equals("network")) {
-                    locationProviderString = context.getResources().getString(R.string.test_location_network);
-                }
+                locationProviderString = convertLocationProvider(context.getResources(), loc.getProvider());
             } else {
                 locationProviderString = context.getString(R.string.not_available);
             }

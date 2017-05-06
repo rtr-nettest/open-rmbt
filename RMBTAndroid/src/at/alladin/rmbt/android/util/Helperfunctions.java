@@ -28,6 +28,8 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.location.Location;
 import android.os.Build;
+import android.os.SystemClock;
+
 import at.alladin.rmbt.android.R;
 import at.alladin.rmbt.client.helper.TestStatus;
 
@@ -113,7 +115,7 @@ public final class Helperfunctions
     					convertLocationProvider(res, location.getProvider()),
     					convertLocationAccuracy(res, location.hasAccuracy(), location.getAccuracy(),0),
     					convertLocationSpeed(res, location.hasSpeed(), location.getSpeed()),
-    					convertLocationTime(location.getTime()));
+    					getAgeString(location));
     	}
 
     }
@@ -125,8 +127,9 @@ public final class Helperfunctions
         final String[] split = rawStr.split(":");
         final String direction;
         float min = 0f;
-       
-        
+
+
+        //noinspection EmptyCatchBlock
         try
         {
             split[1] = split[1].replace(",",".");
@@ -176,7 +179,13 @@ public final class Helperfunctions
         else
             return String.format ("%.0f %s", altitude,res.getString(R.string.test_location_m));
     }
-    
+
+    /**
+     *
+     * @param res Resources instance for the application's package
+     * @param provider location provider string
+     * @return formated location provider string
+     */
     public static String convertLocationProvider(final Resources res, final String provider)
     {   
         final String localized_provider;
@@ -193,18 +202,41 @@ public final class Helperfunctions
             return String.format ("%s", localized_provider);
         }
     }
-    
-    public static String convertLocationTime(final long time)
-    {   
-        final long age;
-        
-        age = System.currentTimeMillis()-time; // in ms
-        if (age < 1000) // < 1s
+
+    /**
+     * @param loc location object
+     * @return string containing age of event in s
+     */
+    public static String getAgeString(Location loc) {
+        if (loc == null) {
+            return "";
+        }
+        Long age = getAge(loc);
+        if (age == null) {
+            return "";
+        }
+        if (age < 1000000000L) // < 1s
             return "< 1s";
         else
-            return String.format ("%d s", age/1000);
+            return String.format("%d s", age / 1000000000L);
+
     }
-    
+
+    /**
+     * @param loc location object
+     * @return age of event in ns
+     */
+    public static Long getAge(Location loc) {
+        if (loc == null) {
+            return null;
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            return SystemClock.elapsedRealtimeNanos() - loc.getElapsedRealtimeNanos();
+        } else {
+            return (System.currentTimeMillis() - loc.getTime()) * 1000000L;
+        }
+    }
+
     public static String getNetworkTypeName(final int type)
     {
         switch (type)
