@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright 2013-2016 alladin-IT GmbH
- * Copyright 2013-2016 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
+ * Copyright 2014-2017 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -588,28 +588,6 @@ public class RMBTMainMenuFragment extends Fragment
 					infoCollector.setCaptivePortalFound(netInfo.getCaptivePortalStatus().equals(CaptivePortalStatusEnum.FOUND));
 				}
 				
-//				if (netInfo != null) {
-//					if (ConfigHelper.isIpPolling(getActivity())) {
-//						netInfo.gatherIpInformation(true);
-//					}
-//					else {
-//						if (NetworkInfoCollector.IP_METHOD == NetworkInfoCollector.IP_METHOD_NETWORKINTERFACE) {
-//							netInfo.gatherInterfaceInformation(true);
-//						}
-//						else {
-//							netInfo.gatherIpInformation(false);
-//						}
-//					}
-//					
-//					infoCollector.setHasControlServerConnection(netInfo.hasIpFromControlServer());
-//					infoCollector.setCaptivePortalFound(netInfo.getCaptivePortalStatus().equals(CaptivePortalStatusEnum.FOUND));
-//					infoCollector.refreshIpAndAntenna();
-//					infoCollector.dispatchInfoChangedEvent(InfoCollectorType.IPV4, null, infoCollector.getIpv4());
-//					infoCollector.dispatchInfoChangedEvent(InfoCollectorType.IPV6, null, infoCollector.getIpv6());
-//					
-//					netInfo.onNetworkChange(getActivity(), null);
-//				}
-				
 				if (netInfo.getCaptivePortalStatus() == CaptivePortalStatusEnum.FOUND 
 						|| netInfo.getCaptivePortalStatus() == CaptivePortalStatusEnum.NOT_FOUND) {
 					setCaptivePortalStatus(netInfo.getCaptivePortalStatus() == CaptivePortalStatusEnum.FOUND);
@@ -694,12 +672,14 @@ public class RMBTMainMenuFragment extends Fragment
 					infoValueListAdapterMap.get(OverlayType.LOCATION).removeElement(InfoOverlayEnum.LOCATION_AGE);
 					infoValueListAdapterMap.get(OverlayType.LOCATION).removeElement(InfoOverlayEnum.LOCATION_SOURCE);
 					infoValueListAdapterMap.get(OverlayType.LOCATION).removeElement(InfoOverlayEnum.LOCATION_ALTITUDE);
+					infoValueListAdapterMap.get(OverlayType.LOCATION).removeElement(InfoOverlayEnum.LOCATION_SPEED);
 				}
 				else {
 					infoValueListAdapterMap.get(OverlayType.LOCATION).addElement(InfoOverlayEnum.LOCATION_ACCURACY);
 					infoValueListAdapterMap.get(OverlayType.LOCATION).addElement(InfoOverlayEnum.LOCATION_AGE);
 					infoValueListAdapterMap.get(OverlayType.LOCATION).addElement(InfoOverlayEnum.LOCATION_SOURCE);
 					infoValueListAdapterMap.get(OverlayType.LOCATION).addElement(InfoOverlayEnum.LOCATION_ALTITUDE);
+					infoValueListAdapterMap.get(OverlayType.LOCATION).addElement(InfoOverlayEnum.LOCATION_SPEED);
 				}
 				break;
 			case NETWORK_TYPE:
@@ -1100,12 +1080,24 @@ public class RMBTMainMenuFragment extends Fragment
 		    		}
 		    		else {
 		    			locationString = getActivity().getString(R.string.not_available);
-		    		}
-		    	}
-	    		holder.value.setText(locationString);
-		    	break;		    	
-		    case IPV4:
-		    	if (ipv4CheckRunnable.getPrivAddress() != null) {
+                    }
+                }
+                holder.value.setText(locationString);
+                break;
+                case LOCATION_SPEED:
+                    locationString = "";
+                    if (infoCollector.getLocation() != null) {
+                        locationString = Helperfunctions.convertLocationSpeed(getResources(),
+                                infoCollector.getLocation().hasSpeed(), infoCollector.getLocation().getSpeed());
+                        if (locationString.equals("")) {
+                            locationString = getActivity().getString(R.string.not_available);
+                        }
+                    }
+                    holder.value.setText(locationString);
+                    break;
+
+                case IPV4:
+                    if (ipv4CheckRunnable.getPrivAddress() != null) {
 			    	holder.value.setText(ipv4CheckRunnable.getPrivAddress().getHostAddress());
 		    	}
 		    	else {
@@ -1180,6 +1172,7 @@ public class RMBTMainMenuFragment extends Fragment
 		LOCATION_AGE(R.string.title_screen_info_overlay_location_age),
 		LOCATION_SOURCE(R.string.title_screen_info_overlay_location_source),
 		LOCATION_ALTITUDE(R.string.title_screen_info_overlay_location_altitude),
+		LOCATION_SPEED(R.string.title_screen_info_overlay_location_speed),
 		LOCATION(R.string.title_screen_info_overlay_location_position);
 		
 		protected final int resourceId;

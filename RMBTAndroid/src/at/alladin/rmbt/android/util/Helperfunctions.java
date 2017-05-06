@@ -152,7 +152,7 @@ public final class Helperfunctions
     
     public static String convertLocationSpeed(final Resources res, final boolean hasspeed, final float speed)
     {   
-        if ((!hasspeed) || (speed <= 1.0)) // ignore speed < 3.6km
+        if (!hasspeed)
             return "";
         else 
             return String.format ("%.0f %s", speed*3.6,res.getString(R.string.test_location_km_h));
