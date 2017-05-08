@@ -287,7 +287,7 @@
 
     <string name="loop_test_measurement">Measurement</string>
     <string name="loop_test_current">Current</string>
-    <string name="loop_test_last">Last test</string>
+    <string name="loop_test_last">Previous test</string>
     <string name="loop_test_median">Median</string>
 
     <string name="loop_test_progress_test_running">Test running</string>
@@ -396,9 +396,9 @@
     <string name="loop_notification_finished_ticker">Loop mode is finished. No more tests will be run.</string>
     <string name="loop_notification_finished_title">Loop mode is finished</string>
 
-    <string name="loop_test_last_status_ok">Last test: successful</string>
-    <string name="loop_test_last_status_error">Last test: error</string>
-    <string name="loop_test_last_status_rejected">Last test: rejected</string>
+    <string name="loop_test_last_status_ok">Previous test: successful</string>
+    <string name="loop_test_last_status_error">Previous test: error</string>
+    <string name="loop_test_last_status_rejected">Previous test: rejected</string>
     <string name="terms_check_accept_button">Accept</string>
     <string name="terms_check_decline_button">Decline</string>
     <string name="terms_loop_mode2">Loop mode (2/2)</string>
