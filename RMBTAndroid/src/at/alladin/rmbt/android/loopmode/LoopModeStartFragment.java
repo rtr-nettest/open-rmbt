@@ -42,7 +42,7 @@ public class LoopModeStartFragment extends DialogFragment {
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		getDialog().setTitle(R.string.preferences_category_loop_mode);
+		getDialog().setTitle(R.string.preferences_category_loop_mode_heading);
 		
 		final View v = inflater.inflate(R.layout.loop_mode_start_dialog, container, false);
 		
