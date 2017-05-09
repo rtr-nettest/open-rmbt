@@ -416,6 +416,7 @@
     <string name="lm_measurement_ip">Client IP</string>
     <string name="lm_measurement_data_usage">Data usage</string>
     <string name="lm_measurement_movement">Movement</string>
+    <string name="lm_measurement_movement_no_gps">Waiting for GPS</string>
     <string name="lm_measurement_delay">Waiting time</string>
     
     <string name="lm_details_access">Access</string>

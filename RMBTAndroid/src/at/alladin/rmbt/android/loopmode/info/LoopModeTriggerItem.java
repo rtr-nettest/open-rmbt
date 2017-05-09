@@ -71,7 +71,12 @@ public class LoopModeTriggerItem implements DetailsListItem {
 
 			switch (triggerType) {
 			case MOVEMENT:
-				return ((int)results.getLastDistance()) + "/" + ((int)results.getMaxMovement()) + " m";
+				if (results.getLocationProvider() != null && results.getLocationProvider().equals("gps")) {
+					return ((int) results.getLastDistance()) + "/" + ((int) results.getMaxMovement()) + " m";
+				}
+				else {
+					return context.getResources().getString(R.string.lm_measurement_movement_no_gps);
+				}
 			case TIME:
 		        final String elapsedTimeString = formatSeconds((long) ((SystemClock.elapsedRealtime() - results.getLastTestTime()) / 1e3), 1);
 		        final String maxTimeString = formatSeconds((long) (results.getMaxDelay() / 1e3), 1);

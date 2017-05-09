@@ -116,6 +116,7 @@ public class RMBTLoopService extends Service implements ServiceConnection
             {
                 final float distance = curLocation.distanceTo(lastTestLocation);
                 loopModeResults.setLastDistance(distance);
+                loopModeResults.setLocationProvider(curLocation.getProvider());
                 loopModeResults.setLastAccuracy(curLocation.getAccuracy());
                 Log.d(TAG, "location distance: " + distance + "; maxMovement: " + loopModeResults.getMaxMovement());
                 onAlarmOrLocation(false);    

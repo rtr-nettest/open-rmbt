@@ -392,6 +392,7 @@
     <string name="title_screen_info_overlay_location_speed">Geschwindigkeit</string>
     <string name="lm_details_location_provider">Standortquelle</string>
     <string name="title_screen_info_overlay_location_bearing">Richtung</string>
+    <string name="lm_measurement_movement_no_gps">Warte auf GPS</string>
 </resources>
 
 

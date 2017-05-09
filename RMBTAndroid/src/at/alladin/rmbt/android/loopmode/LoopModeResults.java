@@ -145,6 +145,8 @@ public class LoopModeResults {
     
     private float lastAccuracy;
 
+	private String locationProvider;
+
 	
 	/**
 	 * current traffic stats (= current test)
@@ -264,6 +266,14 @@ public class LoopModeResults {
 
 	public void setMaxMovement(float maxMovement) {
 		this.maxMovement = maxMovement;
+	}
+
+	public String getLocationProvider() {
+		return locationProvider;
+	}
+
+	public void setLocationProvider(String locationProvider) {
+		this.locationProvider = locationProvider;
 	}
 
 	public int getMaxTests() {

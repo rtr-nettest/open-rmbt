@@ -406,6 +406,7 @@
     <string name="loop_notification_finished_title_time">Loop mode is finished (max time reached)</string>
     <string name="lm_details_location_provider">Location provider</string>
     <string name="title_screen_info_overlay_location_bearing">Bearing</string>
+    <string name="lm_measurement_movement_no_gps">Waiting for GPS</string>
 
 
 </resources>
