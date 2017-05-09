@@ -644,16 +644,18 @@ public class RMBTResultPagerAdapter extends PagerAdapter {
                		}
                	}
 
-                	            
+
                 testPoint = new LatLng(geoLat, geoLong);
 
                 if (miniMapView != null) {
-                	
+
                     try {
                         MapsInitializer.initialize(activity);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
+
+                    miniMapView.onCreate(null);
 
                     miniMapView.getMapAsync(new OnMapReadyCallback() {
                         @Override
@@ -683,11 +685,9 @@ public class RMBTResultPagerAdapter extends PagerAdapter {
                             gMap.setOnMapClickListener(new OnMapClickListener() {
                                 @Override
                                 public void onMapClick(LatLng arg0) {
-                                    final Runnable runnable = new Runnable()
-                                    {
+                                    final Runnable runnable = new Runnable() {
                                         @Override
-                                        public void run()
-                                        {
+                                        public void run() {
                                             activity.showMap(mapType, testPoint, true, false);
                                         }
                                     };

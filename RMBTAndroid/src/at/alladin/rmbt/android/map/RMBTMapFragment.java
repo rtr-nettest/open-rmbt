@@ -260,7 +260,7 @@ public class RMBTMapFragment extends SupportMapFragment implements OnClickListen
         if (geoLocation != null)
             geoLocation.start(getContext());
 
-        getMapAsync(new OnMapReadyCallback() {
+        this.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap googleMap) {
                 gMap = googleMap;

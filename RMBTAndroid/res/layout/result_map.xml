@@ -40,13 +40,13 @@
             android:paddingTop="3dp" >
 
             <RelativeLayout
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_marginBottom="15dp"
-                android:layout_marginLeft="50dp"
-                android:layout_marginRight="50dp"
-                android:layout_marginTop="15dp"
-                android:layout_weight="1.5" >
+                android:layout_marginBottom="0dp"
+                android:layout_marginLeft="0dp"
+                android:layout_marginRight="0dp"
+                android:layout_marginTop="0dp"
+                android:layout_weight="2.5" >
 
                 <TextView
                     android:id="@+id/result_mini_map_not_available"
