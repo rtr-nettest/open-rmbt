@@ -660,7 +660,6 @@ public class RMBTResultPagerAdapter extends PagerAdapter {
                     miniMapView.getMapAsync(new OnMapReadyCallback() {
                         @Override
                         public void onMapReady(GoogleMap gMap) {
-                            miniMapView.onCreate(null);
                             miniMapView.onResume();
                             gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(testPoint, 16));
                             gMap.addMarker(new MarkerOptions().position(testPoint));
