@@ -1,5 +1,9 @@
 apply plugin: 'java'
 
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
+
 //http://stackoverflow.com/questions/13925724/providedcompile-without-war-plugin
 configurations { providedCompile }
 sourceSets.main.compileClasspath += configurations.providedCompile

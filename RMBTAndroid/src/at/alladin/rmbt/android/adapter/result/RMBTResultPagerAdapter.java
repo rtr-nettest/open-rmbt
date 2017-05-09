@@ -28,6 +28,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -601,8 +602,8 @@ public class RMBTResultPagerAdapter extends PagerAdapter {
     	TextView motionView = (TextView) view.findViewById(R.id.result_map_motion);
 
     	TextView notAvailableView = (TextView) view.findViewById(R.id.result_mini_map_not_available);
-    	MapView miniMapView = (MapView) view.findViewById(R.id.result_mini_map_view);
-    	Button overlayButton = (Button) view.findViewById(R.id.result_mini_map_view_button);
+    	final MapView miniMapView = (MapView) view.findViewById(R.id.result_mini_map_view);
+    	final Button overlayButton = (Button) view.findViewById(R.id.result_mini_map_view_button);
     	
         try{
         	System.out.println(testResult.toString());
@@ -643,67 +644,73 @@ public class RMBTResultPagerAdapter extends PagerAdapter {
                		}
                	}
 
-                	            
+
                 testPoint = new LatLng(geoLat, geoLong);
-                                        
+
                 if (miniMapView != null) {
-                	
+
                     try {
                         MapsInitializer.initialize(activity);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    
+
                     miniMapView.onCreate(null);
-                    miniMapView.onResume();
-                	miniMapView.getMap().moveCamera(CameraUpdateFactory.newLatLngZoom(testPoint, 16));
-                	miniMapView.getMap().addMarker(new MarkerOptions().position(testPoint));
-                	
-                    final UiSettings uiSettings = miniMapView.getMap().getUiSettings();
-                    uiSettings.setZoomControlsEnabled(false); // options.isEnableAllGestures());
-                    uiSettings.setMyLocationButtonEnabled(false);
-                    uiSettings.setCompassEnabled(false);
-                    uiSettings.setRotateGesturesEnabled(false);
-                    uiSettings.setScrollGesturesEnabled(false);
-                    uiSettings.setZoomGesturesEnabled(false);
-                    uiSettings.setAllGesturesEnabled(false);
-                    
-                    miniMapView.getMap().setTrafficEnabled(false);
-                    miniMapView.getMap().setIndoorEnabled(false);
-                    
-                    miniMapView.getMap().addMarker(new MarkerOptions().position(testPoint).draggable(false).
-                            	icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
-                    
-                    miniMapView.getMap().setMapType(activity.getMapTypeSatellite() ? GoogleMap.MAP_TYPE_SATELLITE : GoogleMap.MAP_TYPE_NORMAL);
 
-                    miniMapView.getMap().setOnMapClickListener(new OnMapClickListener() {
-    					@Override
-    					public void onMapClick(LatLng arg0) {
-    	                    final Runnable runnable = new Runnable()
-    	                    {
-    	                        @Override
-    	                        public void run()
-    	                        {
-    	                            activity.showMap(mapType, testPoint, true, false);
-    	                        }
-    	                    };
-    	                    
-    	                    runnable.run();												
-    					}
-    				});
+                    miniMapView.getMapAsync(new OnMapReadyCallback() {
+                        @Override
+                        public void onMapReady(GoogleMap gMap) {
+                            miniMapView.onResume();
+                            gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(testPoint, 16));
+                            gMap.addMarker(new MarkerOptions().position(testPoint));
+
+                            final UiSettings uiSettings = gMap.getUiSettings();
+                            uiSettings.setZoomControlsEnabled(false); // options.isEnableAllGestures());
+                            uiSettings.setMyLocationButtonEnabled(false);
+                            uiSettings.setCompassEnabled(false);
+                            uiSettings.setRotateGesturesEnabled(false);
+                            uiSettings.setScrollGesturesEnabled(false);
+                            uiSettings.setZoomGesturesEnabled(false);
+                            uiSettings.setAllGesturesEnabled(false);
+
+                            gMap.setTrafficEnabled(false);
+                            gMap.setIndoorEnabled(false);
+
+                            gMap.addMarker(new MarkerOptions().position(testPoint).draggable(false).
+                                    icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+
+                            gMap.setMapType(activity.getMapTypeSatellite() ? GoogleMap.MAP_TYPE_SATELLITE : GoogleMap.MAP_TYPE_NORMAL);
+
+                            gMap.setOnMapClickListener(new OnMapClickListener() {
+                                @Override
+                                public void onMapClick(LatLng arg0) {
+                                    final Runnable runnable = new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            activity.showMap(mapType, testPoint, true, false);
+                                        }
+                                    };
+
+                                    runnable.run();
+                                }
+                            });
+
+                            if (overlayButton != null) {
+                                overlayButton.setOnClickListener(new OnClickListener() {
+
+                                    @Override
+                                    public void onClick(View v) {
+                                        activity.showMap(mapType, testPoint, true, false);
+                                    }
+                                });
+
+                                overlayButton.bringToFront();
+                            }
+                        }
+                    });
                 }
 
-                if (overlayButton != null) {
-                    overlayButton.setOnClickListener(new OnClickListener() {
-        				
-        				@Override
-        				public void onClick(View v) {
-        					activity.showMap(mapType, testPoint, true, false);
-        				}
-        			});
-                 
-                    overlayButton.bringToFront();
-                }
+
                 
             Log.d("ResultMapView", "TESTRESULT OK. Drawing MapView");
         	}

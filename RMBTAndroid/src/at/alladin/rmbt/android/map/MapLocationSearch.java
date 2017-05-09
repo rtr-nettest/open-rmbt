@@ -19,6 +19,8 @@ package at.alladin.rmbt.android.map;
 import java.util.concurrent.TimeUnit;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 
 import android.app.AlertDialog;
@@ -64,10 +66,15 @@ public class MapLocationSearch {
 						public void run() {
 		                	final MapLocationRequestTask task = new MapLocationRequestTask(mapFragment.getActivity(), new OnRequestFinished() {
 								@Override
-								public void finished(Address address) {
+								public void finished(final Address address) {
 									if (address != null) {
-					           			mapFragment.getMap().moveCamera(CameraUpdateFactory.newLatLngZoom(
-					           					new LatLng(address.getLatitude(), address.getLongitude()), mapFragment.getMap().getCameraPosition().zoom));
+										mapFragment.getMapAsync(new OnMapReadyCallback() {
+											@Override
+											public void onMapReady(GoogleMap gMap) {
+												gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+														new LatLng(address.getLatitude(), address.getLongitude()), gMap.getCameraPosition().zoom));
+											}
+										});
 									}
 									else {
 					                	Toast.makeText(mapFragment.getActivity(), R.string.map_search_location_dialog_not_found, Toast.LENGTH_SHORT).show();
