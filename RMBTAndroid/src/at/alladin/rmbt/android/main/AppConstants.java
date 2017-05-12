@@ -56,7 +56,7 @@ public class AppConstants {
 	public final static int LOOP_MODE_MAX_TESTS = 100;
 	public final static int LOOP_MODE_DEFAULT_TESTS = 10;
 
-	public final static int LOOP_MODE_UNLOCK_CODE = 123456789; // to be modified before release
+	public final static int LOOP_MODE_UNLOCK_CODE = 123456789;
 	public final static int LOOP_MODE_LOCK_CODE = 123456789;
 	
 	
