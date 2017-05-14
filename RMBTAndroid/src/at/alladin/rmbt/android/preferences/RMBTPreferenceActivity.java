@@ -29,7 +29,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
@@ -43,7 +42,6 @@ import at.alladin.rmbt.android.main.AppConstants;
 import at.alladin.rmbt.android.terms.RMBTCheckFragment.CheckType;
 import at.alladin.rmbt.android.terms.RMBTTermsActivity;
 import at.alladin.rmbt.android.util.ConfigHelper;
-import at.alladin.rmbt.android.util.InformationCollector;
 import at.alladin.rmbt.android.util.Server;
 
 public class RMBTPreferenceActivity extends PreferenceActivity
@@ -92,7 +90,6 @@ public class RMBTPreferenceActivity extends PreferenceActivity
     @Override
     public void onCreate(final Bundle savedInstanceState)
     {
-        // onBuildHeaders() will be called during super.onCreate()
         try
         {
             mLoadHeaders = getClass().getMethod("loadHeadersFromResource", int.class, List.class);
@@ -125,18 +122,8 @@ public class RMBTPreferenceActivity extends PreferenceActivity
        
         final ListView v = getListView();
         v.setCacheColorHint(0);
-        
-        //final float scale = getResources().getDisplayMetrics().density;
-        //final int padding = Helperfunctions.dpToPx(10, scale);
-        
-        //final ViewGroup vg = (ViewGroup) v.getRootView();
-        //vg.setPadding(padding, padding, padding, padding);
-        
-        //final int paddingTopBottom = Helperfunctions.dpToPx(3, scale);
-        //final int paddingLeftRight = Helperfunctions.dpToPx(10, scale);
-        //v.setBackgroundResource(R.drawable.box_large);
+
         v.setBackgroundResource(R.drawable.app_bgdn_radiant);
-        //v.setPadding(paddingLeftRight, paddingTopBottom, paddingLeftRight, paddingTopBottom);
         
         final Preference loopModeMaxDelayPreference = findPreference("loop_mode_max_delay");
         if (loopModeMaxDelayPreference != null && !ConfigHelper.isDevEnabled(this)) {
@@ -213,16 +200,6 @@ public class RMBTPreferenceActivity extends PreferenceActivity
 
         final Preference gpsPref = (Preference) findPreference("location_settings");
         if (gpsPref != null) {
-            // Brute force reset of location data
-            // Needs permission ACCESS_LOCATION_EXTRA_COMMANDS
-            // Source: http://stackoverflow.com/questions/14548707/android-how-to-reset-and-download-a-gps-data
-            LocationManager locationManager;
-            locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-            locationManager.sendExtraCommand(LocationManager.GPS_PROVIDER, "delete_aiding_data", null);
-            Bundle bundle = new Bundle();
-            locationManager.sendExtraCommand("gps", "force_xtra_injection", bundle);
-            locationManager.sendExtraCommand("gps", "force_time_injection", bundle);
-
             gpsPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference)
@@ -232,10 +209,6 @@ public class RMBTPreferenceActivity extends PreferenceActivity
                 }
             });
         }
-                
-        // v.setScrollBarStyle(View.SCROLLBARS_OUTSIDE_INSET);
-        
-        // addPreferencesFromResource(R.xml.preferences);
         
         final Preference serverSelectionPrefCat = findPreference("server_selection_preferences");
         if (serverSelectionPrefCat != null)
@@ -282,8 +255,6 @@ public class RMBTPreferenceActivity extends PreferenceActivity
                             ConfigHelper.setServerSelection(this, ConfigHelper.DEFAULT_SERVER);
                             recreate();
                         }
-        //                    final String serverSelection = ConfigHelper.getServerSelection(this);
-        //                    serverSelectionPref.setSummary(serverSelection != null ? serverSelection : "");
                     }
                 }
             }
@@ -331,26 +302,6 @@ public class RMBTPreferenceActivity extends PreferenceActivity
 			
 			dialog.show();
     	}
-		
 		return !showErrorDialog;	
     }
-    
-    /*
-     * @Override public void onBuildHeaders(List<Header> aTarget) { try {
-     * mLoadHeaders.invoke(this,new Object[]{R.xml.pref_headers,aTarget}); }
-     * catch (IllegalArgumentException e) { } catch (IllegalAccessException e) {
-     * } catch (InvocationTargetException e) { } }
-     * 
-     * @TargetApi(11) static public class PrefsFragment extends
-     * PreferenceFragment {
-     * 
-     * @Override public void onCreate(Bundle aSavedState) {
-     * super.onCreate(aSavedState); Context anAct =
-     * getActivity().getApplicationContext(); int thePrefRes =
-     * anAct.getResources
-     * ().getIdentifier(getArguments().getString("pref-resource"),
-     * "xml",anAct.getPackageName()); addPreferencesFromResource(thePrefRes);
-     * //addPreferencesFromResource(R.xml.preferences);
-     * Log.i("test","Preferences Loaded"); } }
-     */
 }
