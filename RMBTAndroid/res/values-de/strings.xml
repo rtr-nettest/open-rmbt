@@ -52,8 +52,8 @@
     <string name="preferences_loop_mode_min_delay">Mindestwartezeit</string>
     <string name="preferences_loop_mode_min_delay_sum">Mindestwartezeit (in Sekunden) zwischen zwei Tests im Wiederholungsmodus</string>
     
-    <string name="preferences_loop_mode_max_delay">Wartezeit</string>
-    <string name="preferences_loop_mode_max_delay_sum">Wartezeit (in Minuten) zwischen zwei Tests im Wiederholungsmodus</string>
+    <string name="preferences_loop_mode_waiting_time">Wartezeit</string>
+    <string name="preferences_loop_mode_waiting_time_sum">Wartezeit (in Minuten) zwischen zwei Tests im Wiederholungsmodus</string>
     
     <string name="preferences_loop_mode_movement">Distanz</string>
     <string name="preferences_loop_mode_movement_sum">Distanz (in Metern) zwischen zwei Tests im Wiederholungsmods</string>
@@ -393,6 +393,8 @@
     <string name="lm_details_location_provider">Standortquelle</string>
     <string name="title_screen_info_overlay_location_bearing">Richtung</string>
     <string name="lm_measurement_movement_no_gps">Warte auf GPS</string>
+    <string name="preferences_loop_mode_waiting_time_title">Wartezeit (min)</string>
+    <string name="preferences_loop_mode_movement_title">Distanz (m)</string>
 </resources>
 
 

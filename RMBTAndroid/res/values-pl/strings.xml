@@ -48,8 +48,8 @@
     <string name="preferences_loop_mode_min_delay">Przerwa minimalna</string>
     <string name="preferences_loop_mode_min_delay_sum">Przerwa minimalna w sekundach między testami pętli nieskończonej</string>
     
-    <string name="preferences_loop_mode_max_delay">Przerwa maksymalna</string>
-    <string name="preferences_loop_mode_max_delay_sum">Przerwa maksymalna w sekundach między testami pętli nieskończonej</string>
+    <string name="preferences_loop_mode_waiting_time">Przerwa maksymalna</string>
+    <string name="preferences_loop_mode_waiting_time_sum">Przerwa maksymalna w sekundach między testami pętli nieskończonej</string>
     
     <string name="preferences_loop_mode_movement">Poruszenie</string>
     <string name="preferences_loop_mode_movement_sum">Oddalenie w metrach od miejsca pobytu po którym zostanie wykonany kolejny test pętli nieskończonej</string>
@@ -422,6 +422,8 @@
     <string name="lm_details_location_provider">Location provider</string>
     <string name="title_screen_info_overlay_location_bearing">Bearing</string>
     <string name="lm_measurement_movement_no_gps">Waiting for GPS</string>
+    <string name="preferences_loop_mode_waiting_time_title">Waiting time (min)</string>
+    <string name="preferences_loop_mode_movement_title">Poruszenie (m)</string>
 
 </resources>
 

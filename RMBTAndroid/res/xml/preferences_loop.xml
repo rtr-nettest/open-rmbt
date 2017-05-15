@@ -27,11 +27,12 @@
             
             <EditTextPreference
                 android:key="loop_mode_max_delay"
-                android:title="@string/preferences_loop_mode_max_delay"
-                android:summary="@string/preferences_loop_mode_max_delay_sum"
+                android:title="@string/preferences_loop_mode_waiting_time"
+                android:summary="@string/preferences_loop_mode_waiting_time_sum"
                 android:layout="@layout/preferences_item"
                 android:inputType="number"
                 android:defaultValue="@integer/default_loop_max_delay"
+                android:dialogTitle="@string/preferences_loop_mode_waiting_time_title"
                 />
             
             <EditTextPreference
@@ -41,6 +42,7 @@
                 android:layout="@layout/preferences_item"
                 android:inputType="number"
                 android:defaultValue="@integer/default_loop_max_movement"
+                android:dialogTitle="@string/preferences_loop_mode_movement_title"
                 />            
         </PreferenceCategory>
 
