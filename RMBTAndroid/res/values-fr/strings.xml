@@ -282,7 +282,7 @@
 
     <string name="loop_test_measurement">Measurement</string>
     <string name="loop_test_current">Current</string>
-    <string name="loop_test_last">Last test</string>
+    <string name="loop_test_last">Previous test</string>
     <string name="loop_test_median">Median</string>
 
     <string name="loop_test_progress_test_running">Test running</string>
@@ -396,12 +396,19 @@
     <string name="loop_notification_finished_ticker">Loop mode is finished. No more tests will be run.</string>
     <string name="loop_notification_finished_title">Loop mode is finished</string>
 
-    <string name="loop_test_last_status_ok">Last test: successful</string>
-    <string name="loop_test_last_status_error">Last test: error</string>
-    <string name="loop_test_last_status_rejected">Last test: rejected</string>
+    <string name="loop_test_last_status_ok">Previous test: successful</string>
+    <string name="loop_test_last_status_error">Previous test: error</string>
+    <string name="loop_test_last_status_rejected">Previous test: rejected</string>
     <string name="terms_check_accept_button">Accept</string>
     <string name="terms_check_decline_button">Decline</string>
     <string name="terms_loop_mode2">Loop mode (2/2)</string>
     <string name="terms_loop_mode_header2">Usage</string>
+    <string name="title_screen_info_overlay_location_speed">Vitesse</string>
+    <string name="loop_test_progress_test_finished_max_time">Finished/Time</string>
+    <string name="loop_notification_finished_ticker_time">Loop mode is finished. Max time has been reached. No more tests will be run.</string>
+    <string name="loop_notification_finished_title_time">Loop mode is finished (max time reached)</string>
+    <string name="lm_details_location_provider">Location provider</string>
+    <string name="title_screen_info_overlay_location_bearing">Bearing</string>
+    <string name="lm_measurement_movement_no_gps">Waiting for GPS</string>
 
 </resources>

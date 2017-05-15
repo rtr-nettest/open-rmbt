@@ -13,7 +13,7 @@ dependencies {
 	compile project(':RMBTClient')
 	compile project(':RMBTUtil')
 	compile group: 'junit', name: 'junit', version: '4.12'
-	compile 'com.google.android.gms:play-services-maps:9.0.2'
+	compile 'com.google.android.gms:play-services-maps:10.2.4'
 	compile 'dnsjava:dnsjava:2.1.7'
 	compile 'net.sf.jopt-simple:jopt-simple:5.0.3'
 	compile 'org.json:json:5.0.5'
@@ -26,6 +26,12 @@ def signDebugApp = true
 // keystore.properties file in the RMBTAndroid folder.
 // the keystore.properties files is excluded from the git repository
 // for security reasons.
+/* Demo file: (Path: [project root]/private/keystore.properties
+storeFile=netztest.keystore
+storePassword=<PASSWORD>
+keyAlias=rtr
+keyPassword=<PASSWORD>
+* */
 def keystorePropertiesFile = rootProject.file("private/keystore.properties")
 
 // example keystore.properies file:
@@ -42,7 +48,7 @@ keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
 android {
     compileSdkVersion 25
-    buildToolsVersion '25.0.2'
+    buildToolsVersion '25.0.3'
 
 	sourceSets {
 	    main {
@@ -66,8 +72,8 @@ android {
         applicationId "at.alladin.rmbt.android"
         minSdkVersion 15
         targetSdkVersion 25
-        versionCode 20223
-        versionName "2.2.23"
+        versionCode 30002
+        versionName "3.0.2"
         buildConfigField "long", "BUILD_TIMESTAMP", System.currentTimeMillis() + "L"
     }
 

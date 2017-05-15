@@ -146,7 +146,7 @@ public class TracerouteAndroidImpl implements TracerouteService {
 				if (masked) {
 					try {
 						InetAddress ip = InetAddress.getByName(fromIp);
-						fromIp = Helperfunctions.anonymizeIp(ip,".*");
+						fromIp = Helperfunctions.anonymizeIp(ip,".x");
 					} catch (UnknownHostException e) {
 						fromIp = "*";
 					}

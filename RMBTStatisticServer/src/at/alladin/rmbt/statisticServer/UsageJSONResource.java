@@ -198,19 +198,24 @@ public class UsageJSONResource extends ServerResource
     	PreparedStatement ps;
         ResultSet rs;
         
-        final String sql = "SELECT date_trunc('day', time) _day, COALESCE(plattform,'null') platform, count(plattform) count_platform" +
-        		" FROM test" +
-        		" WHERE status='FINISHED' AND deleted=false AND time >= ? AND time < ? " +
-        		" GROUP BY _day, plattform" + 
-        		" HAVING count(plattform) > 0" + 
-        		"ORDER BY _day ASC";
+        final String sql = "SELECT date_trunc('day', time) _day, platform, count(platform) count_platform" +
+        		" FROM (" +
+					"SELECT time, COALESCE(plattform, client_name, 'null') AS platform " +
+					"FROM test " +
+        			" WHERE status='FINISHED' AND deleted=false AND time >= ? AND time < ? " +
+				") t" +
+        		" GROUP BY _day, platform" +
+        		" HAVING count(platform) > 0" +
+        		" ORDER BY _day ASC";
         
     	ps = conn.prepareStatement(sql);
         ps.setTimestamp(1, begin);
         ps.setTimestamp(2, end);
     	rs = ps.executeQuery();
-    	
-    	//one array-item for each day
+		System.out.println(sql);
+		System.out.println(ps);
+
+		//one array-item for each day
     	long currentTime = -1;
     	JSONObject currentEntry = null;
     	JSONArray currentEntryValues = null;

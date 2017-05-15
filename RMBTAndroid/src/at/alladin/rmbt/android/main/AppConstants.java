@@ -1,6 +1,7 @@
 /*******************************************************************************
  * Copyright 2013-2016 alladin-IT GmbH
- * Copyright 2013-2016 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
+ * Copyright 2017 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
+ *
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,23 +39,22 @@ public class AppConstants {
 	 * could be helpful when debugging, set to 1 and the loop mode will wait for seconds not for minutes
 	 */
 	public final static float LOOP_MODE_TIME_MOD = 60.0f;
-	
+
+	/**
+	 * loop mode will stop automatically after LOOP_MODE_MAX_RUN_TIME (in ms) has been reached
+	 */
+	public final static long LOOP_MODE_MAX_RUN_TIME = 48 * 60 * 60 * 1000; //48 hours
+
 	public final static int LOOP_MODE_MAX_DELAY = 24*60;
 	public final static int LOOP_MODE_MIN_DELAY = 15;
-	public final static int LOOP_MODE_DEFAULT_DELAY = 30;
 
 	public final static int LOOP_MODE_MIN_MOVEMENT = 50;
 	public final static int LOOP_MODE_MAX_MOVEMENT = 10000;
-	public final static int LOOP_MODE_DEFAULT_MOVEMENT = 250;
 	public final static int LOOP_MODE_GPS_ACCURACY_CRITERIA = 30;
 	
 	public final static int LOOP_MODE_MIN_TESTS = 1;
 	public final static int LOOP_MODE_MAX_TESTS = 100;
 	public final static int LOOP_MODE_DEFAULT_TESTS = 10;
-	
-	public final static boolean LOOP_MODE_DEFAULT_USES_GPS = true;
-	public final static boolean LOOP_MODE_DEFAULT_USES_WAKELOCK = false;
-	
 
 	public final static int LOOP_MODE_UNLOCK_CODE = 123456789;
 	public final static int LOOP_MODE_LOCK_CODE = 123456789;
@@ -97,7 +97,6 @@ public class AppConstants {
 	public final static String PAGE_TITLE_TERMS_CHECK = "terms_check";
 	public final static String PAGE_TITLE_HELP = "help";
 	public final static String PAGE_TITLE_STATISTICS = "statistics";
-	public final static String BACK_PRESSED = "back_pressed";
 	
 	public final static Map<String, Integer> TITLE_MAP;
 	

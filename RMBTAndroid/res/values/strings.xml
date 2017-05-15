@@ -44,7 +44,7 @@
     <string name="preferences_skip_qos_sum">Skip QoS tests</string>
     
     <string name="preferences_loop_mode">Loop mode</string>
-    <string name="preferences_loop_mode_sum">New tests are started when waiting time has elapsed or distance is covered.</string>
+    <string name="preferences_loop_mode_sum">New test when waiting time has elapsed or distance is covered. Max 2 days.</string>
     
     <string name="preferences_loop_mode_max_tests">Number of tests</string>
     <string name="preferences_loop_mode_max_tests_sum">Number of tests in loop mode</string>
@@ -351,6 +351,8 @@
 	<string name="title_screen_info_overlay_location_source">Source</string>
 	<string name="title_screen_info_overlay_location_accuracy">Accuracy</string>
 	<string name="title_screen_info_overlay_location_altitude">Altitude</string>
+    <string name="title_screen_info_overlay_location_speed">Speed</string>
+    <string name="title_screen_info_overlay_location_bearing">Bearing</string>
 	<string name="title_screen_info_overlay_location_age">Age</string>
 	<string name="title_screen_empty" translatable="false"></string>
 	<string name="title_screen_developer" translatable="false">dev"</string>
@@ -384,20 +386,23 @@
     <string name="loop_mode_test_dialog_abort">Do you really want to stop the loop mode?</string>
 
     <string name="loop_notification_finished_ticker">Loop mode is finished. No more tests will be run.</string>
+    <string name="loop_notification_finished_ticker_time">Loop mode is finished. Max time has been reached. No more tests will be run.</string>
     <string name="loop_notification_finished_title">Loop mode is finished</string>
-    
-    <string name="loop_test_last_status_ok">Last test: successful</string>
-    <string name="loop_test_last_status_error">Last test: error</string>
-	<string name="loop_test_last_status_rejected">Last test: rejected</string>
+    <string name="loop_notification_finished_title_time">Loop mode is finished (max time reached)</string>
+
+    <string name="loop_test_last_status_ok">Previous test: successful</string>
+    <string name="loop_test_last_status_error">Previous test: error</string>
+	<string name="loop_test_last_status_rejected">Previous test: rejected</string>
     
     <string name="loop_test_measurement">Measurement</string>
     <string name="loop_test_current">Current</string>
-    <string name="loop_test_last">Last test</string>
+    <string name="loop_test_last">Previous test</string>
     <string name="loop_test_median">Median</string>
     
     <string name="loop_test_progress_test_running">Test running</string>
     <string name="loop_test_progress_test_waiting">Waiting</string>
     <string name="loop_test_progress_test_finished">Finished</string>
+    <string name="loop_test_progress_test_finished_max_time">Finished/Time</string>
     <string name="loop_test_progress_test_not_running">Loop mode test</string>
 
     <string name="loop_test_quit">Quit</string>
@@ -411,6 +416,7 @@
     <string name="lm_measurement_ip">Client IP</string>
     <string name="lm_measurement_data_usage">Data usage</string>
     <string name="lm_measurement_movement">Movement</string>
+    <string name="lm_measurement_movement_no_gps">Waiting for GPS</string>
     <string name="lm_measurement_delay">Waiting time</string>
     
     <string name="lm_details_access">Access</string>
@@ -418,6 +424,7 @@
 	<string name="lm_details_signal">Signal</string>
     <string name="lm_details_gps">Location</string>
     <string name="lm_details_gps_accuracy">Accuracy</string>
+    <string name="lm_details_location_provider">Location provider</string>
         	
 	<string name="go">Start tests</string>
 	<string name="go_to_settings">Change settings</string>	

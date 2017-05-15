@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright 2013-2016 alladin-IT GmbH
- * Copyright 2013-2016 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
+ * Copyright 2014-2017 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,8 +29,10 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -588,28 +590,6 @@ public class RMBTMainMenuFragment extends Fragment
 					infoCollector.setCaptivePortalFound(netInfo.getCaptivePortalStatus().equals(CaptivePortalStatusEnum.FOUND));
 				}
 				
-//				if (netInfo != null) {
-//					if (ConfigHelper.isIpPolling(getActivity())) {
-//						netInfo.gatherIpInformation(true);
-//					}
-//					else {
-//						if (NetworkInfoCollector.IP_METHOD == NetworkInfoCollector.IP_METHOD_NETWORKINTERFACE) {
-//							netInfo.gatherInterfaceInformation(true);
-//						}
-//						else {
-//							netInfo.gatherIpInformation(false);
-//						}
-//					}
-//					
-//					infoCollector.setHasControlServerConnection(netInfo.hasIpFromControlServer());
-//					infoCollector.setCaptivePortalFound(netInfo.getCaptivePortalStatus().equals(CaptivePortalStatusEnum.FOUND));
-//					infoCollector.refreshIpAndAntenna();
-//					infoCollector.dispatchInfoChangedEvent(InfoCollectorType.IPV4, null, infoCollector.getIpv4());
-//					infoCollector.dispatchInfoChangedEvent(InfoCollectorType.IPV6, null, infoCollector.getIpv6());
-//					
-//					netInfo.onNetworkChange(getActivity(), null);
-//				}
-				
 				if (netInfo.getCaptivePortalStatus() == CaptivePortalStatusEnum.FOUND 
 						|| netInfo.getCaptivePortalStatus() == CaptivePortalStatusEnum.NOT_FOUND) {
 					setCaptivePortalStatus(netInfo.getCaptivePortalStatus() == CaptivePortalStatusEnum.FOUND);
@@ -694,12 +674,14 @@ public class RMBTMainMenuFragment extends Fragment
 					infoValueListAdapterMap.get(OverlayType.LOCATION).removeElement(InfoOverlayEnum.LOCATION_AGE);
 					infoValueListAdapterMap.get(OverlayType.LOCATION).removeElement(InfoOverlayEnum.LOCATION_SOURCE);
 					infoValueListAdapterMap.get(OverlayType.LOCATION).removeElement(InfoOverlayEnum.LOCATION_ALTITUDE);
+					infoValueListAdapterMap.get(OverlayType.LOCATION).removeElement(InfoOverlayEnum.LOCATION_SPEED);
 				}
 				else {
 					infoValueListAdapterMap.get(OverlayType.LOCATION).addElement(InfoOverlayEnum.LOCATION_ACCURACY);
 					infoValueListAdapterMap.get(OverlayType.LOCATION).addElement(InfoOverlayEnum.LOCATION_AGE);
 					infoValueListAdapterMap.get(OverlayType.LOCATION).addElement(InfoOverlayEnum.LOCATION_SOURCE);
 					infoValueListAdapterMap.get(OverlayType.LOCATION).addElement(InfoOverlayEnum.LOCATION_ALTITUDE);
+					infoValueListAdapterMap.get(OverlayType.LOCATION).addElement(InfoOverlayEnum.LOCATION_SPEED);
 				}
 				break;
 			case NETWORK_TYPE:
@@ -770,7 +752,7 @@ public class RMBTMainMenuFragment extends Fragment
 							IpCheckRunnable.IpStatus status = ipv4CheckRunnable.getIpStatus(ipv6CheckRunnable);
 							ipv4View.setImageResource(status.getResourceId());
 							if (status == IpCheckRunnable.IpStatus.STATUS_NOT_AVAILABLE) {
-								ipv4Label.setTextColor(Color.DKGRAY);
+								ipv4Label.setTextColor(Color.GRAY);
 							}
 							else {
 								ipv4Label.setTextColor(Color.WHITE);
@@ -780,7 +762,7 @@ public class RMBTMainMenuFragment extends Fragment
 							IpCheckRunnable.IpStatus status = ipv6CheckRunnable.getIpStatus(ipv4CheckRunnable);
 							ipv6View.setImageResource(status.getResourceId());
 							if (status == IpCheckRunnable.IpStatus.STATUS_NOT_AVAILABLE) {
-								ipv6Label.setTextColor(Color.DKGRAY);
+								ipv6Label.setTextColor(Color.GRAY);
 							}
 							else {
 								ipv6Label.setTextColor(Color.WHITE);
@@ -1080,7 +1062,7 @@ public class RMBTMainMenuFragment extends Fragment
 		    case LOCATION_AGE:
 		    	locationString = "";
 		    	if (infoCollector.getLocation() != null) {
-		    		locationString = Helperfunctions.convertLocationTime(infoCollector.getLocation().getTime());
+                    locationString = Helperfunctions.getAgeString(infoCollector.getLocation());
 		    	}
 	    		holder.value.setText(locationString);		    	
 		    	break;
@@ -1100,12 +1082,24 @@ public class RMBTMainMenuFragment extends Fragment
 		    		}
 		    		else {
 		    			locationString = getActivity().getString(R.string.not_available);
-		    		}
-		    	}
-	    		holder.value.setText(locationString);
-		    	break;		    	
-		    case IPV4:
-		    	if (ipv4CheckRunnable.getPrivAddress() != null) {
+                    }
+                }
+                holder.value.setText(locationString);
+                break;
+				case LOCATION_SPEED:
+					locationString = "";
+
+					if (infoCollector.getLocation() != null && infoCollector.getLocation().hasSpeed() && Helperfunctions.getAge(infoCollector.getLocation()) < 3000000000L) {
+						locationString = String.format("%.1f %s", infoCollector.getLocation().getSpeed() * 3.6d, context.getResources().getString(R.string.test_location_km_h));
+					} else {
+						locationString = context.getString(R.string.not_available);
+					}
+
+			    holder.value.setText(locationString);
+				break;
+
+                case IPV4:
+                    if (ipv4CheckRunnable.getPrivAddress() != null) {
 			    	holder.value.setText(ipv4CheckRunnable.getPrivAddress().getHostAddress());
 		    	}
 		    	else {
@@ -1180,6 +1174,7 @@ public class RMBTMainMenuFragment extends Fragment
 		LOCATION_AGE(R.string.title_screen_info_overlay_location_age),
 		LOCATION_SOURCE(R.string.title_screen_info_overlay_location_source),
 		LOCATION_ALTITUDE(R.string.title_screen_info_overlay_location_altitude),
+		LOCATION_SPEED(R.string.title_screen_info_overlay_location_speed),
 		LOCATION(R.string.title_screen_info_overlay_location_position);
 		
 		protected final int resourceId;

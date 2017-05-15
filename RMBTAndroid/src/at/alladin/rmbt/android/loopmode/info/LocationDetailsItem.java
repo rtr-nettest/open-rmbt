@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright 2016 Specure GmbH
- * Copyright 2016 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
+ * Copyright 2017 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import android.content.Context;
 import android.location.Location;
 import at.alladin.rmbt.android.R;
 import at.alladin.rmbt.android.loopmode.DetailsListItem;
+import at.alladin.rmbt.android.main.AppConstants;
 import at.alladin.rmbt.android.util.Helperfunctions;
 import at.alladin.rmbt.android.util.InformationCollector;
 
@@ -28,43 +29,32 @@ import at.alladin.rmbt.android.util.InformationCollector;
  * @author lb
  *
  */
-public class GpsAccuracyDetailsItem implements DetailsListItem {
+public class LocationDetailsItem implements DetailsListItem {
 
 	private InformationCollector infoCollector;
 	private Context context;
 	
-	public GpsAccuracyDetailsItem(final Context context, final InformationCollector infoCollector) {
+	public LocationDetailsItem(final Context context, final InformationCollector infoCollector) {
 		this.infoCollector = infoCollector;
 		this.context = context;
 	}
 	
 	@Override
 	public String getTitle() {
-		return context.getResources().getString(R.string.lm_details_gps_accuracy);
+		return context.getResources().getString(R.string.lm_details_gps);
 	}
 
 	@Override
 	public String getCurrent() {
 		if (infoCollector != null) {
-	    	String locationString = null;
+	    	String locationString = "";
 	    	final Location loc = infoCollector.getLocationInfo();
-	    	if (loc != null) { 
-	    		final int satellites;
-	    		if (loc.getExtras() != null) {
-	    		    satellites = loc.getExtras().getInt("satellites");
-	    		}
-	    		else {
-	    		    satellites = 0;
-	    		}
-	    		
-                locationString = Helperfunctions.convertLocationAccuracy(context.getResources(), 
-	    				loc.hasAccuracy(), loc.getAccuracy(), satellites);
-                
-    	    	locationString += " (" + Helperfunctions.convertLocationTime(loc.getTime()) + ")";
+	    	if (loc != null) {
+	    		locationString = Helperfunctions.getLocationString(context, context.getResources(), loc,0);
 	    	}
 	    	else {
 	    		locationString = context.getString(R.string.not_available);
-	    	}	    	
+	    	}
     		
 	    	return locationString;
 		}
@@ -76,5 +66,6 @@ public class GpsAccuracyDetailsItem implements DetailsListItem {
 	public int getStatusResource() {
 		return DetailsListItem.STATUS_RESOURCE_NOT_AVAILABLE;
 	}
+
 
 }

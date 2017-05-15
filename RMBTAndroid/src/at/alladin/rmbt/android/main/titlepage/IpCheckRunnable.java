@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright 2015 alladin-IT GmbH
- * Copyright 2015 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
+ * Copyright 2017 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,26 +39,18 @@ public class IpCheckRunnable implements Runnable {
 	public final static int FLAG_IP_PUBLIC = 2;
 	public final static int FLAG_IP_FINISHED = 3;
 	public final static int FLAG_IP_CHECK_ERROR = -1;
+
+	/**
+	 * poll delay in ms
+	 */
+	public final static long IP_FETCH_INITAL_DELAY = 250;
 	
 	/**
-	 * ip fetch series count
+	 * max backoff for IP delay in ms
 	 */
-	public final static int IP_FETCH_RETRIES = 3;
-	
-	/**
-	 * delay between a full ip fetch series
-	 */
-	public final static int IP_FETCH_RETRY_SERIES_DELAY = 10000;
-	
-	/**
-	 * poll delay
-	 */
-	public final static int IP_FETCH_POLL_DELAY = 5000;
-	
-	/**
-	 * 
-	 */
-	public final static int IP_FETCH_POLL_SERIES_DELAY = 30000;
+	public final static long IP_FETCH_BACKOFF_LIMIT = 60000;
+
+
 	
 	public static interface OnIpCheckFinishedListener {
 		void onFinish(final InetAddress privAddress, final InetAddress pubAddress, final InetAddress oldPrivAddress, final InetAddress oldPubAddress);
@@ -69,15 +61,17 @@ public class IpCheckRunnable implements Runnable {
 		public int retryCount = 0;
 		
 		public boolean isCheckAllowed(long currentTimestamp) {
-			if (retryCount < IP_FETCH_RETRIES && ((lastRetryTimestamp + IP_FETCH_POLL_DELAY) <= currentTimestamp)) {
+             // retry with exponential backoff starting with IP_FETCH_INITAL_DELAY ms
+			if ((currentTimestamp - lastRetryTimestamp) > (long) IP_FETCH_INITAL_DELAY*Math.pow(2,retryCount)) {
+                //Log.d(LOG, "IPCheck allowed with retryCount " + retryCount + " at " + (long) (currentTimestamp - lastRetryTimestamp)/1000L + "s");
+				return true;
+			}
+			// limit backoff to IP_FETCH_BACKOFF_LIMIT ms
+			if ((currentTimestamp - lastRetryTimestamp) >  IP_FETCH_BACKOFF_LIMIT) {
+			                //Log.d(LOG, "IPCheck allowed by backoff-limit  " + (long) (currentTimestamp - lastRetryTimestamp)/1000L + "s");
 				return true;
 			}
 
-			
-			if ((lastRetryTimestamp + IP_FETCH_POLL_SERIES_DELAY) <= currentTimestamp) {
-				return true;
-			}
-			
 			return false;
 		}
 		
@@ -85,11 +79,11 @@ public class IpCheckRunnable implements Runnable {
 			this.retryCount++;
 			this.lastRetryTimestamp = timestamp;
 		}
-		
+
 		public int getRetryCount() {
 			return retryCount;
 		}
-		
+
 		public void reset() {
 			this.lastRetryTimestamp = 0;
 			this.retryCount = 0;
@@ -128,7 +122,7 @@ public class IpCheckRunnable implements Runnable {
 	private InetAddress pubAddress;
 
 	private final AtomicInteger ipCheckCounter = new AtomicInteger(0);
-	
+
 	private final IpFetchController ipFetchController = new IpFetchController();
 	
 	private final Activity activity;
@@ -160,12 +154,12 @@ public class IpCheckRunnable implements Runnable {
 	
 	@Override
 	public void run() {
-		if (ipFetchController.isCheckAllowed(System.currentTimeMillis()) && !isIpCheckRunning.get() && needsIpCheck.get()) {
+		if (!isIpCheckRunning.get() && needsIpCheck.get() && ipFetchController.isCheckAllowed(System.currentTimeMillis())) {
 			ipFetchController.storeIpCheck(System.currentTimeMillis());
 			isIpCheckRunning.set(true);
 			needsIpCheck.set(false);
 			ipCheckCounter.addAndGet(1);
-			
+
 			final CheckIpTask ipTask = new CheckIpTask(activity, ipVersionType);
 			ipTask.setOnCompleteListener(new OnCompleteListener() {
 				

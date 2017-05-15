@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright 2016 Specure GmbH
- * Copyright 2016 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
+ * Copyright 2017 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,8 +62,12 @@ public class AdditionalInfoFragment extends Fragment {
 		mdList.add(new NetworkTypeDetailsItem(getActivity(), infoCollector));
 		mdList.add(new NetworkIdDetailsItem(getActivity(), infoCollector));
 		mdList.add(new SignalDetailsItem(getActivity(), infoCollector));
-		mdList.add(new GpsDetailsItem(getActivity(), infoCollector));
-		mdList.add(new GpsAccuracyDetailsItem(getActivity(), infoCollector));
+		mdList.add(new LocationProviderItem(getActivity(), infoCollector));
+		mdList.add(new LocationDetailsItem(getActivity(), infoCollector));
+        mdList.add(new LocationAltitudeItem(getActivity(), infoCollector));
+        mdList.add(new LocationSpeedItem(getActivity(), infoCollector));
+        mdList.add(new LocationBearingItem(getActivity(), infoCollector));
+        mdList.add(new LocationAccuracyDetailsItem(getActivity(), infoCollector));
 		listView.setAdapter(new DetailsInfoListAdapter(getActivity(), mdList));
 	}
 	

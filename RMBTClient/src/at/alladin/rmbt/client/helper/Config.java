@@ -31,6 +31,7 @@ public abstract interface Config
      * 
      *********************/
     
+    public static final String RMBT_SERVER_NAME = "RMBT";
     public static final String RMBT_CLIENT_NAME = "RMBT";
     public static final String RMBT_VERSION_NUMBER = "0.3";
     public static final String RMBT_VERSION_STRING = RMBT_CLIENT_NAME + "v" + RMBT_VERSION_NUMBER;

@@ -44,7 +44,7 @@
     <string name="preferences_skip_qos_sum">QoS-Tests werden nicht durchgeführt</string>
     
     <string name="preferences_loop_mode">Wiederholungsmodus</string>
-    <string name="preferences_loop_mode_sum">Neue Tests werden gestartet, sobald die Wartezeit abgelaufen oder die Distanz zurückgelegt wird</string>
+    <string name="preferences_loop_mode_sum">Neuer Test nach Wartezeit oder Zurücklegung der Distanz. Max 2 Tage.</string>
     
     <string name="preferences_loop_mode_max_tests">Anzahl der Tests</string>
     <string name="preferences_loop_mode_max_tests_sum">Anzahl von Tests im Wiederholungsmodus</string>
@@ -339,7 +339,9 @@
 	<string name="loop_mode_test_dialog_abort">Wollen Sie den Wiederholungsmodus wirklich beenden?</string>
 	
 	<string name="loop_notification_finished_ticker">Der Wiederholungsmodus wurde beendet. Es werden keine weiteren Tests ausgeführt.</string>
+    <string name="loop_notification_finished_ticker_time">Der Wiederholungsmodus wurde beendet. Die maximale Laufzeit wurde erreicht. Es werden keine weiteren Tests ausgeführt.</string>
     <string name="loop_notification_finished_title">Wiederholungsmodus beendet</string>
+    <string name="loop_notification_finished_title_time">Wiederholungsmodus beendet (maximale Laufzeit überschritten)</string>
 
     <string name="loop_test_last_status_ok">Letzter Test: erfolgreich</string>
     <string name="loop_test_last_status_error">Letzter Test: nicht erfolgreich</string>
@@ -353,6 +355,7 @@
     <string name="loop_test_progress_test_running">Test läuft</string>
     <string name="loop_test_progress_test_waiting">wartend</string>
     <string name="loop_test_progress_test_finished">beendet</string>
+    <string name="loop_test_progress_test_finished_max_time">beendet/Zeit</string>
     <string name="loop_test_progress_test_not_running">Wiederholungsmodus Test</string>
     
     <string name="loop_test_quit">Beenden</string>
@@ -386,6 +389,10 @@
     <string name="loop_notification_text_without_stop">{0}x; {1}; {2}m;</string>
     <string name="terms_loop_mode2">Wiederholungsmodus (2/2)</string>
     <string name="terms_loop_mode_header2">Nutzung</string>
+    <string name="title_screen_info_overlay_location_speed">Geschwindigkeit</string>
+    <string name="lm_details_location_provider">Standortquelle</string>
+    <string name="title_screen_info_overlay_location_bearing">Richtung</string>
+    <string name="lm_measurement_movement_no_gps">Warte auf GPS</string>
 </resources>
 
 

@@ -7,6 +7,11 @@ buildscript {
 apply plugin: 'war'
 sourceCompatibility = '1.7'
 
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
+
+
 project.webAppDirName = 'WebContent'
 
 repositories {

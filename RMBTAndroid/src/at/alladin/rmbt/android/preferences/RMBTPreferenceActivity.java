@@ -1,7 +1,7 @@
 /*******************************************************************************
  * Copyright 2013-2016 alladin-IT GmbH
- * Copyright 2013-2016 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
- * 
+ * Copyright 2016-2017 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -90,7 +90,6 @@ public class RMBTPreferenceActivity extends PreferenceActivity
     @Override
     public void onCreate(final Bundle savedInstanceState)
     {
-        // onBuildHeaders() will be called during super.onCreate()
         try
         {
             mLoadHeaders = getClass().getMethod("loadHeadersFromResource", int.class, List.class);
@@ -123,18 +122,8 @@ public class RMBTPreferenceActivity extends PreferenceActivity
        
         final ListView v = getListView();
         v.setCacheColorHint(0);
-        
-        //final float scale = getResources().getDisplayMetrics().density;
-        //final int padding = Helperfunctions.dpToPx(10, scale);
-        
-        //final ViewGroup vg = (ViewGroup) v.getRootView();
-        //vg.setPadding(padding, padding, padding, padding);
-        
-        //final int paddingTopBottom = Helperfunctions.dpToPx(3, scale);
-        //final int paddingLeftRight = Helperfunctions.dpToPx(10, scale);
-        //v.setBackgroundResource(R.drawable.box_large);
+
         v.setBackgroundResource(R.drawable.app_bgdn_radiant);
-        //v.setPadding(paddingLeftRight, paddingTopBottom, paddingLeftRight, paddingTopBottom);
         
         final Preference loopModeMaxDelayPreference = findPreference("loop_mode_max_delay");
         if (loopModeMaxDelayPreference != null && !ConfigHelper.isDevEnabled(this)) {
@@ -208,10 +197,9 @@ public class RMBTPreferenceActivity extends PreferenceActivity
                 }
             });
         }
-        
+
         final Preference gpsPref = (Preference) findPreference("location_settings");
-        if (gpsPref != null)
-        {
+        if (gpsPref != null) {
             gpsPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference)
@@ -221,10 +209,6 @@ public class RMBTPreferenceActivity extends PreferenceActivity
                 }
             });
         }
-                
-        // v.setScrollBarStyle(View.SCROLLBARS_OUTSIDE_INSET);
-        
-        // addPreferencesFromResource(R.xml.preferences);
         
         final Preference serverSelectionPrefCat = findPreference("server_selection_preferences");
         if (serverSelectionPrefCat != null)
@@ -271,8 +255,6 @@ public class RMBTPreferenceActivity extends PreferenceActivity
                             ConfigHelper.setServerSelection(this, ConfigHelper.DEFAULT_SERVER);
                             recreate();
                         }
-        //                    final String serverSelection = ConfigHelper.getServerSelection(this);
-        //                    serverSelectionPref.setSummary(serverSelection != null ? serverSelection : "");
                     }
                 }
             }
@@ -320,26 +302,6 @@ public class RMBTPreferenceActivity extends PreferenceActivity
 			
 			dialog.show();
     	}
-		
 		return !showErrorDialog;	
     }
-    
-    /*
-     * @Override public void onBuildHeaders(List<Header> aTarget) { try {
-     * mLoadHeaders.invoke(this,new Object[]{R.xml.pref_headers,aTarget}); }
-     * catch (IllegalArgumentException e) { } catch (IllegalAccessException e) {
-     * } catch (InvocationTargetException e) { } }
-     * 
-     * @TargetApi(11) static public class PrefsFragment extends
-     * PreferenceFragment {
-     * 
-     * @Override public void onCreate(Bundle aSavedState) {
-     * super.onCreate(aSavedState); Context anAct =
-     * getActivity().getApplicationContext(); int thePrefRes =
-     * anAct.getResources
-     * ().getIdentifier(getArguments().getString("pref-resource"),
-     * "xml",anAct.getPackageName()); addPreferencesFromResource(thePrefRes);
-     * //addPreferencesFromResource(R.xml.preferences);
-     * Log.i("test","Preferences Loaded"); } }
-     */
 }

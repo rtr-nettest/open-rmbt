@@ -38,6 +38,7 @@ import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMyLocationChangeListener;
 import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.LocationSource.OnLocationChangedListener;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptor;
@@ -257,9 +258,19 @@ public class RMBTMapFragment extends SupportMapFragment implements OnClickListen
     {
         super.onStart();
         if (geoLocation != null)
-            geoLocation.start();
-        
-        gMap = getMap();
+            geoLocation.start(getContext());
+
+        this.getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(GoogleMap googleMap) {
+                gMap = googleMap;
+                initializeMap();
+            }
+        });
+
+    }
+
+    private void initializeMap() {
         if (gMap != null)
         {
             checkSettingsRunnable = new Runnable()
@@ -347,8 +358,13 @@ public class RMBTMapFragment extends SupportMapFragment implements OnClickListen
                     }
                 });
                 
-                if (myLocationEnabled)
-                    gMap.setMyLocationEnabled(true);
+                if (myLocationEnabled) {
+                    try {
+                        gMap.setMyLocationEnabled(true);
+                    } catch (SecurityException e) {
+                        //no location permission - ignore
+                    }
+                }
                 gMap.setOnMyLocationChangeListener(this);
                 gMap.setOnMarkerClickListener(this);
                 gMap.setOnMapClickListener(this);
@@ -604,7 +620,7 @@ public class RMBTMapFragment extends SupportMapFragment implements OnClickListen
         final FragmentManager fm = ((FragmentActivity) getActivity()).getSupportFragmentManager();
         final FragmentTransaction ft;
         
-        final GoogleMap map = getMap();
+        final GoogleMap map = gMap;
 
         switch (v.getId())
         {
@@ -697,7 +713,7 @@ public class RMBTMapFragment extends SupportMapFragment implements OnClickListen
         {
             if (! isVisible())
                 return;
-            final GoogleMap gMap = getMap();
+            //final GoogleMap gMap = gMap;
             if (gMap == null || result == null)
                 return;
             

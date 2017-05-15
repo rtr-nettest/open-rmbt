@@ -34,6 +34,7 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -54,6 +55,7 @@ import at.alladin.rmbt.android.loopmode.info.TrafficUsageItem;
 import at.alladin.rmbt.android.loopmode.measurement.IpAddressItem;
 import at.alladin.rmbt.android.loopmode.measurement.MeasurementDetailsFragment;
 import at.alladin.rmbt.android.loopmode.measurement.ServerNameItem;
+import at.alladin.rmbt.android.main.AppConstants;
 import at.alladin.rmbt.android.main.RMBTMainActivity;
 import at.alladin.rmbt.android.test.RMBTLoopService;
 import at.alladin.rmbt.android.test.RMBTLoopService.RMBTLoopBinder;
@@ -74,6 +76,7 @@ public class LoopModeTestFragment extends Fragment implements ServiceConnection,
 			String loopModeString;
 			String waiting;
 			String finished;
+			String finishedTime;
 		}
 		
 		DetailsInfoListAdapter unimportantListAdapter;
@@ -161,6 +164,7 @@ public class LoopModeTestFragment extends Fragment implements ServiceConnection,
     	holder.strings.loopModeString = getResources().getString(R.string.loop_test_progress_test_not_running);
     	holder.strings.waiting = getResources().getString(R.string.loop_test_progress_test_waiting);
     	holder.strings.finished = getResources().getString(R.string.loop_test_progress_test_finished);
+		holder.strings.finishedTime = getResources().getString(R.string.loop_test_progress_test_finished_max_time);
 
     	holder.infoFragment = AdditionalInfoFragment.newInstance();
     	getChildFragmentManager().beginTransaction().add(R.id.loop_test_details_holder, 
@@ -253,11 +257,31 @@ public class LoopModeTestFragment extends Fragment implements ServiceConnection,
 	
 	public void updateUi() {
 		if (holder != null && loopService != null) {
+			loopService.updateLoopModeActiveStatus();
 			LoopModeResults loopModeResults = loopService.getLoopModeResults();
+
+			String statusString;
+			if (loopService.isActive()) {
+				statusString = holder.strings.waiting;
+			}
+			else {
+				switch (loopService.getInactiveReason()) {
+					case MAX_TESTS_REACHED:
+						statusString = holder.strings.finished;
+						break;
+					case MAX_TIME_REACHED:
+						statusString = holder.strings.finishedTime;
+						break;
+					default:
+						statusString = holder.strings.finished;
+						break;
+				}
+			}
+
 			holder.counterText.setText(holder.strings.loopModeString + ": " 
 					+ loopModeResults.getNumberOfTests() + "/" + loopModeResults.getMaxTests()
 					+ (Status.RUNNING.equals(loopModeResults.getStatus()) ? "" : " (" 
-					+ (loopService.isActive() ? holder.strings.waiting : holder.strings.finished) + ")"));
+					+ statusString + ")"));
 			
 			if (Status.RUNNING.equals(loopModeResults.getStatus())) {
 				loopModeResults = loopService.updateLoopModeResults(true);
@@ -404,8 +428,7 @@ public class LoopModeTestFragment extends Fragment implements ServiceConnection,
             return false;
         }
         
-        else if (loopService.isRunning() || (loopService.getLoopModeResults().getMaxTests() > loopService.getLoopModeResults().getNumberOfTests())) {
-
+        else if (loopService.isRunning() || !loopService.isFinished()) {
         	AlertDialog stopDialog = new AlertDialog.Builder(getActivity())
         			.setTitle(R.string.test_dialog_abort_title)
         			.setMessage(R.string.loop_mode_test_dialog_abort)
@@ -429,7 +452,7 @@ public class LoopModeTestFragment extends Fragment implements ServiceConnection,
         	stopDialog.setCancelable(false);
         	stopDialog.show();
         }
-        else if (loopService.getLoopModeResults().getMaxTests() <= loopService.getLoopModeResults().getNumberOfTests()) {
+        else if (loopService.isFinished()) {
         	//if max tests is reached simply remove this fragment without alert dialog
         	stopLoopService();
         	return false;
