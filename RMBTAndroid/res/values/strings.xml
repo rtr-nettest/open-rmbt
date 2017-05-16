@@ -52,12 +52,14 @@
     <string name="preferences_loop_mode_min_delay">Minimum waiting time</string>
     <string name="preferences_loop_mode_min_delay_sum">Minimum waiting time (in seconds) between two tests in loop mode</string>
     
-    <string name="preferences_loop_mode_max_delay">Waiting time</string>
-    <string name="preferences_loop_mode_max_delay_sum">Waiting time (in minutes) between two tests in loop mode</string>
-    
+    <string name="preferences_loop_mode_waiting_time">Waiting time</string>
+    <string name="preferences_loop_mode_waiting_time_sum">Waiting time (in minutes) between two tests in loop mode</string>
+    <string name="preferences_loop_mode_waiting_time_title">Waiting time (min)</string>
+
     <string name="preferences_loop_mode_movement">Distance</string>
     <string name="preferences_loop_mode_movement_sum">Distance (in meters) between two tests in loop mode</string>
-    
+    <string name="preferences_loop_mode_movement_title">Distance (m)</string>
+
     <string name="preferences_loop_mode_gps">Use GPS in loop mode</string>
     <string name="preferences_loop_mode_gps_sum">Use GPS between two tests in loop mode</string>
     

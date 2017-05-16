@@ -55,8 +55,8 @@
     <string name="preferences_loop_mode_min_delay">Minimální trvání smyčky</string>
     <string name="preferences_loop_mode_min_delay_sum">Minimální čas v sekundách mezi dvěma testy, pokud je aktivní Loop mód</string>
     
-    <string name="preferences_loop_mode_max_delay">Maximální trvání smyčky</string>
-    <string name="preferences_loop_mode_max_delay_sum">Maximální čas v sekundách mezi dvěma testy, pokud je aktivní Loop mód</string>
+    <string name="preferences_loop_mode_waiting_time">Maximální trvání smyčky</string>
+    <string name="preferences_loop_mode_waiting_time_sum">Maximální čas v sekundách mezi dvěma testy, pokud je aktivní Loop mód</string>
     
     <string name="preferences_loop_mode_movement">Pohyb v Loop módu</string>
     <string name="preferences_loop_mode_movement_sum">Pohyb v metrech, po kterém se spustí nový test, pokud je aktivní Loop mód</string>
@@ -425,6 +425,8 @@
     <string name="lm_details_location_provider">Location provider</string>
     <string name="title_screen_info_overlay_location_bearing">Bearing</string>
     <string name="lm_measurement_movement_no_gps">Waiting for GPS</string>
+    <string name="preferences_loop_mode_waiting_time_title">Maximální trvání smyčky (min)</string>
+    <string name="preferences_loop_mode_movement_title">Pohyb v Loop módu (m)</string>
 
 </resources>
 

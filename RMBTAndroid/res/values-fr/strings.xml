@@ -190,9 +190,9 @@
     <string name="preferences_loop_mode_max_tests_sum">Maximum number of tests to run if loop mode is active (0 = run forever)</string>
     <string name="preferences_loop_mode_min_delay">Loop min delay</string>
     <string name="preferences_loop_mode_min_delay_sum">Minimum time in seconds between two tests if loop mode is active</string>
-    <string name="preferences_loop_mode_max_delay">Loop max delay</string>
-    <string name="preferences_loop_mode_max_delay_sum">Maximum time in seconds between two tests if loop mode is active</string>
-    <string name="preferences_loop_mode_movement">Loop movement</string>
+    <string name="preferences_loop_mode_waiting_time">Waiting time</string>
+    <string name="preferences_loop_mode_waiting_time_sum">Maximum time in seconds between two tests if loop mode is active</string>
+    <string name="preferences_loop_mode_movement">Distance</string>
     <string name="preferences_loop_mode_movement_sum">Movement in meters after which a test in loop mode is triggered</string>
     <string name="preferences_loop_mode_gps">Use GPS when loop mode is active</string>
     <string name="preferences_loop_mode_gps_sum">Use GPS between two tests in loop mode</string>
@@ -410,5 +410,7 @@
     <string name="lm_details_location_provider">Location provider</string>
     <string name="title_screen_info_overlay_location_bearing">Bearing</string>
     <string name="lm_measurement_movement_no_gps">Waiting for GPS</string>
+    <string name="preferences_loop_mode_waiting_time_title">Waiting time (min)</string>
+    <string name="preferences_loop_mode_movement_title">Distance (m)</string>
 
 </resources>
