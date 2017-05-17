@@ -957,7 +957,12 @@ public class InformationCollector
                 case ConnectivityManager.TYPE_MOBILE_HIPRI:
                 case ConnectivityManager.TYPE_MOBILE_MMS:
                 case ConnectivityManager.TYPE_MOBILE_SUPL:
-                    result = telManager.getNetworkType();
+                    int result1 = activeNetworkInfo.getSubtype();
+                    int result2 = telManager.getNetworkType();
+                    Log.i(DEBUG_TAG, "getSubtype: " + result1);
+                    Log.i(DEBUG_TAG, "getNetwork: " + result2);
+                    result = result1;
+
                     break;
                 }
             }

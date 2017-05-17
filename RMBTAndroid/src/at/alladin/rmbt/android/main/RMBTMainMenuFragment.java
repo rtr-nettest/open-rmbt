@@ -442,7 +442,7 @@ public class RMBTMainMenuFragment extends Fragment
      */
     public Runnable infoRunnable = new Runnable() {
 		@Override
-		public void run() {				
+		public void run() {
 			if (informationCollector != null) {
 				String signalTerm = getActivity().getString(R.string.term_signal);
 				
@@ -451,7 +451,7 @@ public class RMBTMainMenuFragment extends Fragment
 				
 				int lastNetworkType = informationCollector.getNetwork();
                 String lastNetworkTypeString = Helperfunctions.getNetworkTypeName(lastNetworkType);
-				//System.out.println("lastNetworkType: " + lastNetworkType + ", lastNetworkTypeString: " + lastNetworkTypeString);
+				System.out.println("lastNetworkType: " + lastNetworkType + ", lastNetworkTypeString: " + lastNetworkTypeString);
 				
 				Integer curSignal = lastSignal;
 				if (!"UNKNOWN".equals(lastNetworkTypeString)) {
@@ -548,7 +548,7 @@ public class RMBTMainMenuFragment extends Fragment
 	                else {
 		                curSignal = Integer.MIN_VALUE;
 		                lastSignal = curSignal;
-//		                Log.d(DEBUG_TAG,"lastNetworkTypeString: " + lastNetworkTypeString);
+		                Log.d(DEBUG_TAG,"lastNetworkTypeString: " + lastNetworkTypeString);
 		                infoCollector.setSignal(lastSignal);
 		                infoCollector.setNetworkName(null);
 						infoNetworkType.setVisibility(View.GONE);
