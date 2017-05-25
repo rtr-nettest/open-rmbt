@@ -29,10 +29,8 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.location.Location;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -251,11 +249,15 @@ public class RMBTMainMenuFragment extends Fragment
         
         startButton = view.findViewById(R.id.title_page_start_button);
         startButtonText = (TextView) view.findViewById(R.id.title_page_start_button_text);
-        
-        if (startButton != null)
-        {
-           startButton.setOnClickListener(new OnClickListener()
-               { public void onClick(View v) { ((RMBTMainActivity) getActivity()).checkPermissionsAndStartTest();} });
+
+
+
+        if (startButton != null) {
+            startButton.setOnClickListener(new OnClickListener() {
+                public void onClick(View v) {
+                    ((RMBTMainActivity) getActivity()).checkPermissionsAndStartTest();
+                }
+            });
         }
                 
         final View startButtonLayout = view.findViewById(R.id.title_page_start_button_layout);
