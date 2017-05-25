@@ -73,8 +73,9 @@ public class NetworkInfoCollector {
 	private AtomicBoolean isCaptivePortalTestRunning = new AtomicBoolean();
 	
 	private RMBTMainActivity activity;
-	
-	private boolean hasConnectionFromAndroidApi = false;
+
+	// default to connectivty as default (in case there is no information from API)
+	private boolean hasConnectionFromAndroidApi = true;
 	
 	private NetworkInfo activeNetworkInfo;
 	private List<OnNetworkInfoChangedListener> listenerList = new ArrayList<NetworkInfoCollector.OnNetworkInfoChangedListener>();
