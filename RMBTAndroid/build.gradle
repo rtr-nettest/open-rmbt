@@ -72,8 +72,8 @@ android {
         applicationId "at.alladin.rmbt.android"
         minSdkVersion 15
         targetSdkVersion 25
-        versionCode 30003
-        versionName "3.0.3"
+        versionCode 30004
+        versionName "3.0.4"
         buildConfigField "long", "BUILD_TIMESTAMP", System.currentTimeMillis() + "L"
     }
 
