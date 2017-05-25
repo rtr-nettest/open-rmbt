@@ -37,11 +37,14 @@
     <uses-feature android:name="android.hardware.location.network" android:required="false"/>
     <uses-feature android:name="android.hardware.location.gps" android:required="false"/>
     <uses-feature android:name="android.hardware.wifi" android:required="false"/>
-    
+    <uses-feature android:name="android.software.leanback" android:required="false" />
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+
     <application android:icon="@drawable/app_icon" android:label="@string/app_name" android:allowBackup="true"
         android:supportsRtl="false"
         android:resizeableActivity="false"
-        >
+        android:banner="@drawable/app_icon" >
+    >
         <uses-library android:name="android.test.runner" />
 
         <activity android:name="at.alladin.rmbt.android.main.RMBTMainActivity" 
@@ -51,9 +54,13 @@
             android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+
         </activity>
         <activity android:label="@string/preferences" 
             android:name="at.alladin.rmbt.android.preferences.RMBTPreferenceActivity"
