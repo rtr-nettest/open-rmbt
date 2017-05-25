@@ -458,39 +458,36 @@ public class RMBTMainMenuFragment extends Fragment
 					setViewVisibility(infoSignalStrength, View.VISIBLE);
 					
 	                Integer signal = informationCollector.getSignal();
-	                if (!"BLUETOOTH".equals(lastNetworkTypeString) && !"ETHERNET".equals(lastNetworkTypeString)) {
-	                	if (signal != null && signal > Integer.MIN_VALUE && signal < 0) {
-		                	int signalType = informationCollector.getSignalType();
-		                	curSignal = signal;
+					if (!"BLUETOOTH".equals(lastNetworkTypeString) && !"ETHERNET".equals(lastNetworkTypeString) &&
+							signal != null && signal > Integer.MIN_VALUE && signal < 0) {
+						int signalType = informationCollector.getSignalType();
+						curSignal = signal;
 
-		                	if (signalType == InformationCollector.SINGAL_TYPE_RSRP) {
-			                	infoSignalStrength.setText(getString(R.string.term_signal) + ": " + signal + " dBm");
-			                	infoCollector.setSignal(signal);
-			                	Integer signalRsrq = informationCollector.getSignalRsrq();
-			                	if (signalRsrq != null) {
-			    					if (infoSignalStrengthExtra.getVisibility() == View.INVISIBLE) {
-			    						infoSignalStrengthExtra.setVisibility(View.VISIBLE);
-			    					}
-			    					
-			    					infoCollector.setSignalRsrq(signalRsrq);
-			    					infoSignalStrengthExtra.setText(getString(R.string.term_signal_quality) + ": " + signalRsrq + " dB");
-			                	}
-			                	else {
-			                		infoSignalStrengthExtra.setVisibility(View.INVISIBLE);
-			                	}
-		                	}
-		                	else {
-		                		infoCollector.setSignal(curSignal);
-		                		infoSignalStrength.setText(signalTerm + ": " + signal + " dBm");
-		                		infoSignalStrengthExtra.setVisibility(View.INVISIBLE);
-		                	}
-	                	}
-	                	else {
-	                		curSignal = Integer.MIN_VALUE;
-    						infoSignalStrength.setVisibility(View.INVISIBLE);
-    						infoSignalStrengthExtra.setVisibility(View.INVISIBLE);
-	                	}
-	                }
+						if (signalType == InformationCollector.SINGAL_TYPE_RSRP) {
+							infoSignalStrength.setText(getString(R.string.term_signal) + ": " + signal + " dBm");
+							infoCollector.setSignal(signal);
+							Integer signalRsrq = informationCollector.getSignalRsrq();
+							if (signalRsrq != null) {
+								if (infoSignalStrengthExtra.getVisibility() == View.INVISIBLE) {
+									infoSignalStrengthExtra.setVisibility(View.VISIBLE);
+								}
+
+								infoCollector.setSignalRsrq(signalRsrq);
+								infoSignalStrengthExtra.setText(getString(R.string.term_signal_quality) + ": " + signalRsrq + " dB");
+							} else {
+								infoSignalStrengthExtra.setVisibility(View.INVISIBLE);
+							}
+						} else {
+							infoCollector.setSignal(curSignal);
+							infoSignalStrength.setText(signalTerm + ": " + signal + " dBm");
+							infoSignalStrengthExtra.setVisibility(View.INVISIBLE);
+						}
+					} else {
+						curSignal = Integer.MIN_VALUE;
+						infoSignalStrength.setVisibility(View.INVISIBLE);
+						infoSignalStrengthExtra.setVisibility(View.INVISIBLE);
+					}
+
 				}
 				
 				if (infoNetworkType != null) {
@@ -573,6 +570,9 @@ public class RMBTMainMenuFragment extends Fragment
 				if (curSignal != null) {
 					refreshAntennaImage(curSignal);
 				}
+				else {
+					refreshAntennaImage(Integer.MIN_VALUE);
+				}
 				
 				//infoCollector.setIpv4(ConfigHelper.getLastIp(getActivity())); 
 				
@@ -626,12 +626,11 @@ public class RMBTMainMenuFragment extends Fragment
 	private int getAntennaImageResourceId(int signal) {
 		int lastNetworkType = informationCollector.getNetwork();
 		String lastNetworkTypeString = Helperfunctions.getNetworkTypeName(lastNetworkType);
-		
-		if (lastNetworkType == TelephonyManager.NETWORK_TYPE_UNKNOWN) // || signal == Integer.MIN_VALUE)
+		//System.out.println("networkType: " + lastNetworkType + ", lastNetworkTypeString: " + lastNetworkTypeString);
+
+		if (lastNetworkType == TelephonyManager.NETWORK_TYPE_UNKNOWN)
 		    return R.drawable.signal_no_connection;
-		
-		boolean wlan = "WLAN".equals(lastNetworkTypeString);
-		
+
     	int signalType = informationCollector.getSignalType();
     	
     	double relativeSignal = -1d;
@@ -642,17 +641,35 @@ public class RMBTMainMenuFragment extends Fragment
         }
        
 		//System.out.println("relativeSignal: " + relativeSignal + ", networkType: " + networkType + ", lastNetworkTypeString: " + lastNetworkTypeString);
-		if (relativeSignal < 0.25d) {
-			return (wlan ? R.drawable.signal_wlan_25 : R.drawable.signal_mobile_25);
-		}
-		else if (relativeSignal < 0.5d) {
-			return (wlan ? R.drawable.signal_wlan_50 : R.drawable.signal_mobile_50);
-		}
-		else if (relativeSignal < 0.75d) {
-			return (wlan ? R.drawable.signal_wlan_75 : R.drawable.signal_mobile_75);
-		}
-		else {
-			return (wlan ? R.drawable.signal_wlan : R.drawable.signal_mobile);
+		switch (lastNetworkTypeString) {
+
+			case "WLAN": {
+				if (relativeSignal < 0.25d) {
+					return R.drawable.signal_wlan_25;
+				} else if (relativeSignal < 0.5d) {
+					return R.drawable.signal_wlan_50;
+				} else if (relativeSignal < 0.75d) {
+					return R.drawable.signal_wlan_75;
+				} else {
+					return R.drawable.signal_wlan;
+				}
+			}
+			case "ETHERNET": {
+				return R.drawable.signal_ethernet;
+			}
+			case "BLUETOOTH": {
+				return R.drawable.signal_bluetooth;
+			}
+			default: // MOBILE
+				if (relativeSignal < 0.25d) {
+					return R.drawable.signal_mobile_25;
+				} else if (relativeSignal < 0.5d) {
+					return R.drawable.signal_mobile_50;
+				} else if (relativeSignal < 0.75d) {
+					return R.drawable.signal_mobile_75;
+				} else {
+					return R.drawable.signal_mobile;
+				}
 		}
 	}
 	/**
