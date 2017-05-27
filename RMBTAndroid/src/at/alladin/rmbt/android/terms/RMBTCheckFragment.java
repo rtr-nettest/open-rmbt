@@ -191,8 +191,6 @@ public class RMBTCheckFragment extends Fragment
         
         final Button buttonAccept = (Button) v.findViewById(R.id.termsNdtAcceptButton);
         buttonAccept.setText(checkType.getButtonStringIds()[0]);
-        buttonAccept.setFocusable(true); //set focus on button so that checkbox can be selected on Android TV like devices (5-way-navigation)
-        buttonAccept.setFocusableInTouchMode(true);
         
         if (! firstTime && checkType.hasCheckbox())
         {    
