@@ -28,9 +28,13 @@ def getVersionNameFromGit() {
 
 def getBranchFromGit() {
     def stdoutBranch = new ByteArrayOutputStream()
+
     exec {
         commandLine 'git', 'symbolic-ref', '--short', 'HEAD'
         standardOutput = stdoutBranch
+        // git symbolic-ref fails if HEAD is detached
+        ignoreExitValue true
+
     }
     return stdoutBranch.toString().trim()
 }
