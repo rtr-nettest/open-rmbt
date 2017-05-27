@@ -68,6 +68,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
@@ -323,9 +324,17 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties,
     @Override
     public void onCreate(final Bundle savedInstanceState)
     {
-    	//Log.i("MAIN ACTIVITY", "onCreate");
+        Log.d(DEBUG_TAG, "onCreate");
         restoreInstance(savedInstanceState);
         super.onCreate(savedInstanceState);
+
+        // identify Amazon Fire devices
+        final String AMAZON_FEATURE_FIRE_TV = "amazon.hardware.fire_tv";
+
+        if (getPackageManager().hasSystemFeature(AMAZON_FEATURE_FIRE_TV)) {
+            Log.d(DEBUG_TAG, "This is a Fire TV device: " + Build.MODEL);
+        }
+
         NetworkInfoCollector.init(this);
         networkInfoCollector = NetworkInfoCollector.getInstance();
         
