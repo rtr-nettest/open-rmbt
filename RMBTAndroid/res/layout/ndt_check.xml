@@ -139,8 +139,7 @@
                 android:layout_centerHorizontal="true"
                 android:background="@drawable/button_selector"
                 android:enabled="false"
-                android:text="@string/terms_ndt_accept_button"
-                android:textColor="@drawable/button_selector_color" />
+                android:text="@string/terms_ndt_accept_button"/>
         </RelativeLayout>
     </LinearLayout>
 
