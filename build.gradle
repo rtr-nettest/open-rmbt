@@ -11,6 +11,11 @@ subprojects {
 buildscript {
     repositories {
         jcenter()
+        mavenCentral()
+        //https://developer.android.com/studio/preview/features/new-android-plugin-migration.html
+        maven {
+            url 'https://maven.google.com'
+        }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.3.3'
