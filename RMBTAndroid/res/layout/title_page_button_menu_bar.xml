@@ -156,11 +156,11 @@
             android:layout_centerInParent="true"
             android:orientation="horizontal" >
 
-        <ImageView
-            android:layout_marginRight="8dp"
-            android:src="@drawable/ic_action_play" 
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content" />
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginRight="8dp"
+                android:src="@drawable/ic_action_play" />
             
         <Button
             style="@style/StartMenu.TextView.TitleXLarge.White"
