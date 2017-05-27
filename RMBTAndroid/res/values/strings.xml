@@ -436,6 +436,9 @@
     <string name="lm_details_location_provider">Location provider</string>
         	
 	<string name="go">Start tests</string>
-	<string name="go_to_settings">Change settings</string>	
+	<string name="notification_channel_rmbt_name" translatable="false">RTR-NetTest</string>
+    <string name="notification_channel_rmbt_description" translatable="false">Information on test status</string>
+    <string name="notification_channel_loop_name" translatable="false">RTR-NetTest loop mode</string>
+    <string name="notification_channel_loop_description" translatable="false">Information loop mode</string>
 </resources>
 
