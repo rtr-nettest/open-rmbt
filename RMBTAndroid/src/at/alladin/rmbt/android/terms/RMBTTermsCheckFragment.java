@@ -75,7 +75,7 @@ public class RMBTTermsCheckFragment extends Fragment
         
         final Button buttonTermsAccept = (Button) view.findViewById(R.id.termsAcceptButton);
         buttonTermsAccept.setFocusable(true); //set focus on button so that terms can be accepted on Android TV like devices (5-way-navigation)
-        buttonTermsAccept.setFocusableInTouchMode(true);
+        buttonTermsAccept.setFocusableInTouchMode(false);
         buttonTermsAccept.requestFocus();
         buttonTermsAccept.setOnClickListener(new OnClickListener()
         {
@@ -119,7 +119,7 @@ public class RMBTTermsCheckFragment extends Fragment
         {
             final TextView buttonTermsAccept = (TextView) view.findViewById(R.id.termsAcceptButton);
             buttonTermsAccept.setFocusable(true); //set focus on button so that terms can be accepted on Android TV like devices (5-way-navigation)
-            buttonTermsAccept.setFocusableInTouchMode(true);
+            buttonTermsAccept.setFocusableInTouchMode(false);
             buttonTermsAccept.requestFocus();
             buttonTermsAccept.setText(R.string.terms_accept_button_continue);
             view.findViewById(R.id.termsAcceptText).setVisibility(View.GONE);
