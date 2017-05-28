@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   Copyright 2013-2016 alladin-IT GmbH
-  Copyright 2013-2016 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
+  Copyright 2016-2017 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
   
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@
                 android:summary="@string/preferences_tag_sum"
                 android:layout="@layout/preferences_item"
                 />
-                        
+
         </PreferenceCategory>
             
         <PreferenceCategory android:title="@string/preferences_category_dev_loop_mode" android:layout="@layout/preferences_category">
@@ -95,54 +95,7 @@
                 />
             
         </PreferenceCategory>
-        
-            <!-- 
-            <CheckBoxPreference
-                android:key="dev_no_control_server"
-                android:title="@string/preferences_dev_no_control_server"
-                android:summary="@string/preferences_dev_no_control_server_sum"
-                android:layout="@layout/preferences_item"
-                />
-            -->
-            
-            <!--
-            <EditTextPreference
-                android:key="dev_test_hostname"
-                android:title="@string/preferences_dev_test_host"
-                android:summary="@string/preferences_dev_test_host_sum"
-                android:layout="@layout/preferences_item"
-                />
-            
-            <EditTextPreference
-                android:key="dev_test_port"
-                android:title="@string/preferences_dev_test_port"
-                android:summary="@string/preferences_dev_test_port_sum"
-                android:inputType="number"
-                android:layout="@layout/preferences_item"
-                />
-            
-            <CheckBoxPreference
-                android:key="dev_test_ssl"
-                android:title="@string/preferences_dev_test_ssl"
-                android:summary="@string/preferences_dev_test_ssl_sum"
-                android:defaultValue="false"
-                android:layout="@layout/preferences_item"/>
-            
-            <EditTextPreference
-                android:key="dev_num_threads"
-                android:title="@string/preferences_dev_num_threads"
-                android:summary="@string/preferences_dev_num_threads_sum"
-                android:inputType="number"
-                android:layout="@layout/preferences_item"/>
-            
-            <EditTextPreference
-                android:key="dev_test_duration"
-                android:title="@string/preferences_dev_test_duration"
-                android:summary="@string/preferences_dev_test_duration_sum"
-                android:inputType="number"
-                android:layout="@layout/preferences_item"/>
-            -->
-            
+
         <PreferenceCategory android:title="@string/preferences_category_developer_control_server" android:layout="@layout/preferences_category">
             
             <CheckBoxPreference
@@ -155,7 +108,7 @@
                 android:key="dev_control_hostname"
                 android:title="@string/preferences_dev_control_host"
                 android:summary="@string/preferences_dev_control_host_sum"
-                android:defaultValue="develop"
+                android:defaultValue="develop.netztest.at"
                 android:layout="@layout/preferences_item"
                 />
             
@@ -189,7 +142,7 @@
                 android:key="dev_map_hostname"
                 android:title="@string/preferences_dev_map_host"
                 android:summary="@string/preferences_dev_map_host_sum"
-                android:defaultValue="develop"
+                android:defaultValue="develop.netztest.at"
                 android:layout="@layout/preferences_item"
                 />
             
@@ -238,32 +191,6 @@
                 android:defaultValue="false"
                 android:layout="@layout/preferences_item"
                 />
-			
-            <!--  
-            <CheckBoxPreference 
-                android:key="dev_debug_ip_method"
-                android:title="@string/preferences_dev_debug_ip_method"
-                android:summary="@string/preferences_dev_debug_ip_method_sum"
-                android:defaultValue="false"
-                android:layout="@layout/preferences_item"
-                />
-            
-            <CheckBoxPreference
-                android:key="dev_debug_ip_retry_on_socket_timeout"
-                android:title="@string/preferences_dev_debug_ip_retry_on_socket_timeout"
-                android:summary="@string/preferences_dev_debug_ip_retry_on_socket_timeout_sum"
-                android:defaultValue="false"
-                android:layout="@layout/preferences_item"
-                />
 
-            <CheckBoxPreference
-                android:key="dev_debug_ip_poll"
-                android:title="@string/preferences_dev_debug_ip_poll"
-                android:summary="@string/preferences_dev_debug_ip_poll_sum"
-                android:defaultValue="true"
-                android:layout="@layout/preferences_item"
-                />
-                 
-            -->
         </PreferenceCategory>
     </PreferenceScreen>
