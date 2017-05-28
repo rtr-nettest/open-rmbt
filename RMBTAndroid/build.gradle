@@ -13,7 +13,7 @@ dependencies {
 	compile project(':RMBTClient')
 	compile project(':RMBTUtil')
 	compile group: 'junit', name: 'junit', version: '4.12'
-	compile 'com.google.android.gms:play-services-maps:10.2.4'
+	compile 'com.google.android.gms:play-services-maps:10.2.6'
 	compile 'dnsjava:dnsjava:2.1.7'
 	compile 'net.sf.jopt-simple:jopt-simple:5.0.3'
 	compile 'org.json:json:5.0.5'
@@ -72,8 +72,8 @@ android {
         applicationId "at.alladin.rmbt.android"
         minSdkVersion 15
         targetSdkVersion 25
-        versionCode 30004
-        versionName "3.0.4"
+        versionCode 30005
+        versionName "3.0.5"
         buildConfigField "long", "BUILD_TIMESTAMP", System.currentTimeMillis() + "L"
     }
 
