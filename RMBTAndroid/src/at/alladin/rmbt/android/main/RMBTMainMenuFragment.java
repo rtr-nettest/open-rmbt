@@ -251,7 +251,15 @@ public class RMBTMainMenuFragment extends Fragment
         startButtonText = (TextView) view.findViewById(R.id.title_page_start_button_text);
 
 
-
+		// accept clicks on button
+		if (startButtonText != null) {
+			startButtonText.setOnClickListener(new OnClickListener() {
+				public void onClick(View v) {
+					((RMBTMainActivity) getActivity()).checkPermissionsAndStartTest();
+				}
+			});
+		}
+        // also accept clicks on layout (if someone misses the button)
         if (startButton != null) {
             startButton.setOnClickListener(new OnClickListener() {
                 public void onClick(View v) {
@@ -259,6 +267,7 @@ public class RMBTMainMenuFragment extends Fragment
                 }
             });
         }
+
                 
         final View startButtonLayout = view.findViewById(R.id.title_page_start_button_layout);
         if (startButtonLayout != null)
