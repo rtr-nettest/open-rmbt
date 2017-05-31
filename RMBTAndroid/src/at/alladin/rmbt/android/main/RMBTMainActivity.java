@@ -764,9 +764,9 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties,
     }
     
    
-    public void checkPermissionsAndStartTest()
+    public void checkPermissionsAndStartTest(boolean needsTelephonyPermission)
     {
-        PermissionHelper.checkPermissionAtTestStartAndStartTest(this);
+        PermissionHelper.checkPermissionAtTestStartAndStartTest(this, needsTelephonyPermission);
     }
     
     public void startLoopTest() {

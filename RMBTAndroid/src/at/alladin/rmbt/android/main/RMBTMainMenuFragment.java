@@ -255,7 +255,8 @@ public class RMBTMainMenuFragment extends Fragment
 		if (startButtonText != null) {
 			startButtonText.setOnClickListener(new OnClickListener() {
 				public void onClick(View v) {
-					((RMBTMainActivity) getActivity()).checkPermissionsAndStartTest();
+					final boolean isSuspectedDualSim = informationCollector.isSuspectedDualSim();
+					((RMBTMainActivity) getActivity()).checkPermissionsAndStartTest(isSuspectedDualSim);
 				}
 			});
 		}
@@ -263,7 +264,8 @@ public class RMBTMainMenuFragment extends Fragment
         if (startButton != null) {
             startButton.setOnClickListener(new OnClickListener() {
                 public void onClick(View v) {
-                    ((RMBTMainActivity) getActivity()).checkPermissionsAndStartTest();
+					final boolean isSuspectedDualSim = informationCollector.isSuspectedDualSim();
+                    ((RMBTMainActivity) getActivity()).checkPermissionsAndStartTest(isSuspectedDualSim);
                 }
             });
         }

@@ -92,7 +92,7 @@ public abstract class PermissionHelper
     
     protected static final PermissionGroup[] GROUPS = new PermissionGroup[] { LOCATION_GROUP, TELEPHONY_GROUP };
     
-    protected static final String[] PERMISSIONS = mergePermissions(GROUPS);
+    protected static String[] PERMISSIONS = mergePermissions(GROUPS);
     
     protected static String[] mergePermissions(PermissionGroup[] groups)
     {
@@ -189,8 +189,17 @@ public abstract class PermissionHelper
         return false;
     }
     
-    public static void checkPermissionAtTestStartAndStartTest(final RMBTMainActivity act)
+    public static void checkPermissionAtTestStartAndStartTest(final RMBTMainActivity act, boolean needsTelephonyPermission)
     {
+        //if the device is for sure no dual sim device, we do not need the telephony permission
+        if (!needsTelephonyPermission) {
+            List<String> l = new ArrayList<>(Arrays.asList(PERMISSIONS));
+            for (String p : TELEPHONY_GROUP.permissions) {
+                l.remove(p);
+            }
+            PERMISSIONS = l.toArray(new String[0]);
+        }
+
         if (checkAllDynamicPermissions(act, PERMISSIONS)) // everything is fine
         {
             act.startTest();
