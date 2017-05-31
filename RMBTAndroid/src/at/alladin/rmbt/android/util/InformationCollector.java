@@ -139,14 +139,14 @@ public class InformationCollector
     	this(context, collectInformation, registerNetworkReceiver, true);
     }
     
-    private static boolean haveCourseLocationPerm;
+    private static boolean haveCoarseLocationPerm;
     private static boolean haveAnyLocationPerm;
     
     public InformationCollector(final Context context, final boolean collectInformation, final boolean registerNetworkReceiver, final boolean enableGeoLocation)
     {
         // create and load default properties
         
-        haveCourseLocationPerm = PermissionHelper.checkCoarseLocationPermission(context);
+        haveCoarseLocationPerm = PermissionHelper.checkCoarseLocationPermission(context);
         haveAnyLocationPerm = PermissionHelper.checkAnyLocationPermission(context);
         
         this.context = context;
@@ -602,7 +602,7 @@ public class InformationCollector
             }
             
             final CellLocation cellLocation;
-            if (haveCourseLocationPerm)
+            if (haveCoarseLocationPerm)
                 cellLocation = telManager.getCellLocation();
             else
                 cellLocation = null;
@@ -1038,7 +1038,7 @@ public class InformationCollector
             
             int events = PhoneStateListener.LISTEN_SIGNAL_STRENGTHS;
             
-            if (haveCourseLocationPerm)
+            if (haveCoarseLocationPerm)
                 events |= PhoneStateListener.LISTEN_CELL_LOCATION;
                 
             telManager.listen(telListener, events);
