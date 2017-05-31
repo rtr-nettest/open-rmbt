@@ -650,23 +650,36 @@ public class InformationCollector
 
             final int network = getNetwork();
             //only check for dual-sim if connected via mobile network - not on wifi etc.
-            if (network != NETWORK_WIFI && network != NETWORK_ETHERNET && network != NETWORK_BLUETOOTH)
-            try
-            {
-                final String dualSimDetectionMethod = DualSimDetector.getDualSIM(context);
-                fullInfo.setProperty("DUAL_SIM", String.valueOf(dualSimDetectionMethod != null));
-                if (dualSimDetectionMethod != null)
-                    fullInfo.setProperty("DUAL_SIM_DETECTION_METHOD", dualSimDetectionMethod);
-                else
-                    fullInfo.remove("DUAL_SIM_DETECTION_METHOD");
+            if (network != NETWORK_WIFI && network != NETWORK_ETHERNET && network != NETWORK_BLUETOOTH && isSuspectedDualSim()) {
+                try {
+                    final String dualSimDetectionMethod = DualSimDetector.getDualSIM(context);
+                    fullInfo.setProperty("DUAL_SIM", String.valueOf(dualSimDetectionMethod != null));
+                    if (dualSimDetectionMethod != null)
+                        fullInfo.setProperty("DUAL_SIM_DETECTION_METHOD", dualSimDetectionMethod);
+                    else
+                        fullInfo.remove("DUAL_SIM_DETECTION_METHOD");
+                } catch (Exception e) // never fail b/c of dual sim detection
+                {
+                }
+
             }
-            catch (Exception e) // never fail b/c of dual sim detection
-            {
-            }
-            
+
             // telManager.listen(telListener,
             // PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
         }
+    }
+
+    /**
+     * Get, if a device could be a dual sim device
+     * Returns FALSE if the device is no dual sim device
+     * Returns TRUE if the device could be a dual sim device
+     * @return indication of a dualsim device
+     */
+    public boolean isSuspectedDualSim() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return (telManager.getPhoneCount() > 1);
+        }
+        return true;
     }
     
     public Location getLocationInfo()
