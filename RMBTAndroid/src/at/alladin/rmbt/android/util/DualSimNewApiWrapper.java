@@ -41,7 +41,7 @@ public class DualSimNewApiWrapper
         }
     }
     
-    public boolean isDualSim(final Context context)
+    public static boolean isDualSim(final Context context)
     {
         try
         {

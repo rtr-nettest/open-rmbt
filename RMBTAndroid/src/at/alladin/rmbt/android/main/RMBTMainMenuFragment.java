@@ -59,6 +59,7 @@ import at.alladin.rmbt.android.util.CheckIpTask.IpVersionType;
 import at.alladin.rmbt.android.util.ConfigHelper;
 import at.alladin.rmbt.android.util.Helperfunctions;
 import at.alladin.rmbt.android.util.InformationCollector;
+import at.alladin.rmbt.android.util.PermissionHelper;
 import at.alladin.rmbt.android.util.net.InterfaceTrafficGatherer;
 import at.alladin.rmbt.android.util.net.InterfaceTrafficGatherer.TrafficClassificationEnum;
 import at.alladin.rmbt.android.util.net.NetworkFamilyEnum;
@@ -171,6 +172,13 @@ public class RMBTMainMenuFragment extends Fragment
         pulseAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.pulse);
         interfaceTrafficGatherer = new InterfaceTrafficGatherer();
         informationCollector = new InformationCollector(getActivity(), false, false);
+
+		//get dualsim info asap, request permission
+		if (!PermissionHelper.checkReadPhoneStatePermission(getContext()) &&
+				informationCollector.isSuspectedDualSim()) {
+			PermissionHelper.checkTelephonyPermissionAtInit(getActivity());
+		}
+
         speedFormat = new DecimalFormat(String.format("@@ %s", getActivity().getResources().getString(R.string.test_mbps)));
         
         ipv4CheckRunnable = new IpCheckRunnable(getActivity(), IpVersionType.V4, true);

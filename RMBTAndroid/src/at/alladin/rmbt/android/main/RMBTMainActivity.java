@@ -60,6 +60,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.graphics.PixelFormat;
@@ -475,6 +476,7 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties,
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
     {
+        final FragmentTransaction ft;
         switch (requestCode)
         {
         case PermissionHelper.REQUEST_AT_INIT:
@@ -485,7 +487,6 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties,
             
             
             // reinit main menu fragment mainly to update location info
-            final FragmentTransaction ft;
             ft = fm.beginTransaction();
             ft.replace(R.id.fragment_content, new RMBTMainMenuFragment(), AppConstants.PAGE_TITLE_MAIN);
             ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
@@ -494,7 +495,22 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties,
             //ft.commit();
             
             return;
-        
+        case PermissionHelper.REQUEST_TELEPHONY_AT_INIT:
+            checkSettings(true, null);
+            if (grantResults.length == 0 ||
+                    grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_DENIED) {
+                return;
+            }
+
+            // reinit main menu fragment mainly to update location info
+            ft = fm.beginTransaction();
+            ft.replace(R.id.fragment_content, new RMBTMainMenuFragment(), AppConstants.PAGE_TITLE_MAIN);
+            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+            //hack for v4 support library bug:
+            ft.commitAllowingStateLoss();
+            //ft.commit();
+
+            return;
         case PermissionHelper.REQUEST_AT_TEST_START:
             startTest();
             return;
@@ -911,7 +927,7 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties,
         ft.replace(R.id.fragment_content, new RMBTMainMenuFragment(), AppConstants.PAGE_TITLE_MAIN);
         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
         ft.commit();
-        
+
         checkNews(getApplicationContext());
         checkSettings(false, null);
         //checkIp();
@@ -1995,36 +2011,5 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties,
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 	}
-	
-	/**
-	 * 
-	 * @param context
-	 * @return
-	 */
-	public static boolean isNetworkAvailable(Context context) {
-        boolean isMobile = false, isWifi = false;
 
-        try {
-            NetworkInfo[] infoAvailableNetworks = ((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE)).getAllNetworkInfo();
-
-            if (infoAvailableNetworks != null) {
-                for (NetworkInfo network : infoAvailableNetworks) {
-
-                    if (network.getType() == ConnectivityManager.TYPE_WIFI) {
-                        if (network.isConnected() && network.isAvailable())
-                            isWifi = true;
-                    }
-                    if (network.getType() == ConnectivityManager.TYPE_MOBILE) {
-                        if (network.isConnected() && network.isAvailable())
-                            isMobile = true;
-                    }
-                }
-            }
-
-            return isMobile || isWifi;
-        }
-        catch (Exception e) {
-        	return false;
-        }
-    }
 }

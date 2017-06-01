@@ -16,25 +16,6 @@
  ******************************************************************************/
 package at.alladin.rmbt.android.util;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Locale;
-import java.util.Properties;
-import java.util.TimeZone;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.google.gson.Gson;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -51,12 +32,41 @@ import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.SystemClock;
 import android.support.v4.app.Fragment;
+import android.telephony.CellInfo;
 import android.telephony.CellLocation;
 import android.telephony.PhoneStateListener;
 import android.telephony.SignalStrength;
+import android.telephony.SubscriptionInfo;
+import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import android.telephony.gsm.GsmCellLocation;
 import android.util.Log;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+import java.util.TimeZone;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+
 import at.alladin.rmbt.android.main.RMBTMainActivity;
 import at.alladin.rmbt.android.main.RMBTMainMenuFragment;
 import at.alladin.rmbt.client.helper.RevisionHelper;
@@ -104,7 +114,9 @@ public class InformationCollector
     private TelephonyStateListener telListener = null;
     
     private WifiManager wifiManager = null;
-    
+
+    private SubscriptionManager subscriptionManager = null;
+
     // Handlers and Receivers for phone and network state
     private NetworkStateBroadcastReceiver networkReceiver;
     
@@ -115,7 +127,8 @@ public class InformationCollector
     private String testServerName;
     
     private Properties fullInfo = null;
-    
+
+    private ObjectMapper om = new ObjectMapper();
     private Context context = null;
     private boolean collectInformation;
     private boolean registerNetworkReiceiver;
@@ -124,7 +137,12 @@ public class InformationCollector
     private final List<GeoLocationItem> geoLocations = new ArrayList<GeoLocationItem>();
     private final List<CellLocationItem> cellLocations = new ArrayList<CellLocationItem>();
     private final List<SignalItem> signals = new ArrayList<SignalItem>();
-    
+
+    private final List<CellInformationWrapper> cellInfos = new ArrayList<>();
+    private final List<CellInformationWrapper> registeredCells = new CopyOnWriteArrayList<>();
+    private final AtomicReference<CellInformationWrapper> lastActiveCell = new AtomicReference<>();
+    private final List<CellInformationWrapper> lastCellInfos = new CopyOnWriteArrayList<>();
+
     private final AtomicInteger signal = new AtomicInteger(Integer.MIN_VALUE);
     private final AtomicInteger signalType = new AtomicInteger(SINGAL_TYPE_NO_SIGNAL);
     private final AtomicInteger signalRsrq = new AtomicInteger(UNKNOWN);
@@ -141,14 +159,16 @@ public class InformationCollector
     
     private static boolean haveCoarseLocationPerm;
     private static boolean haveAnyLocationPerm;
-    
+    private static boolean haveReadPhoneStatePerm;
+
     public InformationCollector(final Context context, final boolean collectInformation, final boolean registerNetworkReceiver, final boolean enableGeoLocation)
     {
         // create and load default properties
         
         haveCoarseLocationPerm = PermissionHelper.checkCoarseLocationPermission(context);
         haveAnyLocationPerm = PermissionHelper.checkAnyLocationPermission(context);
-        
+        haveReadPhoneStatePerm = PermissionHelper.checkReadPhoneStatePermission(context);
+
         this.context = context;
         this.collectInformation = collectInformation;
         this.registerNetworkReiceiver = registerNetworkReceiver;
@@ -313,7 +333,11 @@ public class InformationCollector
         
         if (wifiManager != null)
             wifiManager = null;
-        
+
+        if (subscriptionManager != null) {
+            subscriptionManager = null;
+        }
+
         fullInfo = null;
     }
     
@@ -579,12 +603,20 @@ public class InformationCollector
                     lastSignalItem.set(signalItem);
                     signal.set(rssi);
                     signalType.set(SINGAL_TYPE_WLAN);
+
+                    if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                        CellInformationWrapper cellInformationWrapper = new CellInformationWrapper(wifiInfo);
+                        this.lastCellInfos.add(cellInformationWrapper);
+                        this.registeredCells.clear();
+                        this.registeredCells.add(cellInformationWrapper);
+                        this.cellInfos.add(cellInformationWrapper);
+                    }
 //                    Log.i(DEBUG_TAG, "Signals1: " + signals.toString());
                 }
             }
         }
     }
-    
+
     private void getTelephonyInfo()
     {
         initNetwork();
@@ -600,7 +632,7 @@ public class InformationCollector
                 // some devices with Android 5.1 seem to throw a NPE is some cases
                 e.printStackTrace();
             }
-            
+
             final CellLocation cellLocation;
             if (haveCoarseLocationPerm)
                 cellLocation = telManager.getCellLocation();
@@ -651,15 +683,44 @@ public class InformationCollector
             final int network = getNetwork();
             //only check for dual-sim if connected via mobile network - not on wifi etc.
             if (network != NETWORK_WIFI && network != NETWORK_ETHERNET && network != NETWORK_BLUETOOTH && isSuspectedDualSim()) {
-                try {
-                    final String dualSimDetectionMethod = DualSimDetector.getDualSIM(context);
-                    fullInfo.setProperty("DUAL_SIM", String.valueOf(dualSimDetectionMethod != null));
-                    if (dualSimDetectionMethod != null)
-                        fullInfo.setProperty("DUAL_SIM_DETECTION_METHOD", dualSimDetectionMethod);
-                    else
-                        fullInfo.remove("DUAL_SIM_DETECTION_METHOD");
-                } catch (Exception e) // never fail b/c of dual sim detection
-                {
+
+                //@TODO 1: New API for Cells and Neighboring cells
+
+
+                //@TODO 2: Dual Sim!
+                if (isSuspectedDualSim() && subscriptionManager != null && haveReadPhoneStatePerm
+                        && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    //check, if two sim cards are inserted
+                    if (subscriptionManager.getActiveSubscriptionInfoCount() > 1) {
+                        int dataSubscriptionId = subscriptionManager.getDefaultDataSubscriptionId();
+                        SubscriptionInfo dataSubscription = subscriptionManager.getActiveSubscriptionInfo(dataSubscriptionId);
+
+                        //fill info from this
+                        /* fullInfo.setProperty("TELEPHONY_NETWORK_OPERATOR_NAME", String.valueOf(dataSubscription.getCarrierName()));
+                        String networkOperator = telManager.getNetworkOperator();
+                        if (networkOperator != null && networkOperator.length() >= 5)
+                            networkOperator = String.format("%s-%s", networkOperator.substring(0, 3), networkOperator.substring(3));
+                        fullInfo.setProperty("TELEPHONY_NETWORK_OPERATOR", String.valueOf(networkOperator));
+                        fullInfo.setProperty("TELEPHONY_NETWORK_COUNTRY", String.valueOf(telManager.getNetworkCountryIso()));*/
+                        fullInfo.setProperty("TELEPHONY_NETWORK_SIM_COUNTRY", String.valueOf(dataSubscription.getCountryIso()));
+                        simOperator = dataSubscription.getMcc() + "-" + String.format("%02d",dataSubscription.getMnc());
+                        fullInfo.setProperty("TELEPHONY_NETWORK_SIM_OPERATOR", String.valueOf(simOperator));
+                        fullInfo.setProperty("TELEPHONY_NETWORK_SIM_OPERATOR_NAME", String.valueOf(dataSubscription.getCarrierName()));
+                        fullInfo.setProperty("TELEPHONY_NETWORK_OPERATOR_NAME", String.valueOf(dataSubscription.getDisplayName()));
+
+                    }
+                }
+                else {
+                    try {
+                        final String dualSimDetectionMethod = DualSimDetector.getDualSIM(context);
+                        fullInfo.setProperty("DUAL_SIM", String.valueOf(dualSimDetectionMethod != null));
+                        if (dualSimDetectionMethod != null)
+                            fullInfo.setProperty("DUAL_SIM_DETECTION_METHOD", dualSimDetectionMethod);
+                        else
+                            fullInfo.remove("DUAL_SIM_DETECTION_METHOD");
+                    } catch (Exception e) // never fail b/c of dual sim detection
+                    {
+                    }
                 }
 
             }
@@ -850,7 +911,49 @@ public class InformationCollector
             result.put("geoLocations", itemList);
             
         }
-        
+
+        //new CellInformationWrapper API
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            if (cellInfos.size() > 0) {
+                //remove invalid entries, set test start time
+                for (Iterator<CellInformationWrapper> iterator = cellInfos.iterator(); iterator.hasNext();) {
+                    CellInformationWrapper ciw = iterator.next();
+                    ciw.setStartTimestampNs(startTimestampNs);
+                    if (ciw.getTechnology() != CellInformationWrapper.Technology.CONNECTION_WLAN &&
+                        ciw.getCi().isEmpty()) {
+                        iterator.remove();
+                    }
+                }
+
+                //Filter out all cells and signal strength entries, map the signal strength to the cells
+                Map<CellInformationWrapper.CellIdentity, CellInformationWrapper.CellIdentity> cellIdentities = new HashMap<>();
+                List<CellInformationWrapper.CellSignalStrength> cellSignalStrengths = new ArrayList<>();
+                for (CellInformationWrapper ciw : cellInfos) {
+                    if (cellIdentities.containsKey(ciw.getCi())) {
+                        ciw.getCs().setCellUuid(cellIdentities.get(ciw.getCi()).getCellUuid());
+                    }
+                    else {
+                        cellIdentities.put(ciw.getCi(), ciw.getCi());
+                    }
+                    cellSignalStrengths.add(ciw.getCs());
+                }
+
+                JSONObject cellSignals = new JSONObject();
+                String json = null;
+                try {
+                    cellSignals.put("cells", new JSONObject(om.writeValueAsString(cellIdentities.keySet())));
+                    cellSignals.put("signals", new JSONObject(om.writeValueAsString(cellSignalStrengths)));
+                    json = om.writeValueAsString(cellIdentities.keySet());
+                    json += om.writeValueAsString(cellSignalStrengths);
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
+                }
+                Log.d("cells", json);
+
+                result.put("cells",cellSignals);
+            }
+        }
+
         if (cellLocations.size() > 0)
         {
             
@@ -923,13 +1026,18 @@ public class InformationCollector
                     .getSystemService(Context.TELEPHONY_SERVICE);
             
             final WifiManager tryWifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-            
+
+            final SubscriptionManager trySubscriptionManager = (SubscriptionManager) context
+                    .getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
+
             // Assign to member vars only after all the get calls succeeded,
             
             connManager = tryConnectivityManager;
             telManager = tryTelephonyManager;
             wifiManager = tryWifiManager;
-            
+            subscriptionManager = trySubscriptionManager;
+
+
             // Some interesting info to look at in the logs
             //final NetworkInfo[] infos = connManager.getAllNetworkInfo();
             //for (final NetworkInfo networkInfo : infos)
@@ -970,12 +1078,12 @@ public class InformationCollector
                 case ConnectivityManager.TYPE_MOBILE_HIPRI:
                 case ConnectivityManager.TYPE_MOBILE_MMS:
                 case ConnectivityManager.TYPE_MOBILE_SUPL:
-                    int result1 = activeNetworkInfo.getSubtype();
-                    int result2 = telManager.getNetworkType();
-                    Log.i(DEBUG_TAG, "getSubtype: " + result1);
-                    Log.i(DEBUG_TAG, "getNetwork: " + result2);
-                    result = result1;
-
+                    //NetworkInfo.getSubtype() will return
+                    //one int representing an TelephonyManager.NETWORK_TYPE_XXX,
+                    //even if this is not documented
+                    //see https://dl.google.com/io/2009/pres/W_0300_CodingforLife-BatteryLifeThatIs.pdf
+                    //    https://stackoverflow.com/questions/25414830/networkinfo-subtype-values
+                    result = activeNetworkInfo.getSubtype();
                     break;
                 }
             }
@@ -1043,9 +1151,11 @@ public class InformationCollector
             
             int events = PhoneStateListener.LISTEN_SIGNAL_STRENGTHS;
             
-            if (haveCoarseLocationPerm)
+            if (haveCoarseLocationPerm) {
                 events |= PhoneStateListener.LISTEN_CELL_LOCATION;
-                
+                events |= PhoneStateListener.LISTEN_CELL_INFO;
+            }
+
             telManager.listen(telListener, events);
         }
     }
@@ -1145,15 +1255,153 @@ public class InformationCollector
                     	lastSignalItem.set(signalItem);
                         signal.set(rssi);
                         signalType.set(SINGAL_TYPE_WLAN);
+
+                        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                            CellInformationWrapper cellInformationWrapper = new CellInformationWrapper(wifiInfo);
+                            lastCellInfos.add(cellInformationWrapper);
+                            registeredCells.clear();
+                            registeredCells.add(cellInformationWrapper);
+
+                            if (collectInformation) {
+                                cellInfos.add(cellInformationWrapper);
+                            }
+                        }
                     }
                 }
                 
             }
         }
     }
-    
+
     public class TelephonyStateListener extends PhoneStateListener
     {
+
+        @Override
+        public synchronized void onCellInfoChanged(List<CellInfo> cells) {
+            Log.d("info", "cell info changed");
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                return;
+            }
+
+            if (cells == null) {
+                return;
+            }
+
+            //we don't care for WiFi, BlueTooth or Ethernet
+            final int network = getNetwork();
+            if (network == NETWORK_WIFI || network == NETWORK_BLUETOOTH || network == NETWORK_ETHERNET) {
+                return;
+            }
+
+            //cell info - this holds more accurate information about the current network
+            registeredCells.clear();
+
+            //wrap this info
+            List<CellInformationWrapper> wCells = new ArrayList<>();
+
+            CellInformationWrapper activeCell = null;
+
+            for (CellInfo cellInfo : cells) {
+                wCells.add(new CellInformationWrapper(cellInfo));
+            }
+
+            for (CellInformationWrapper ciw : wCells) {
+                if (ciw.isRegistered()) {
+                    registeredCells.add(ciw);
+                }
+            }
+
+            //update the set
+            lastCellInfos.clear();
+            lastCellInfos.addAll(wCells);
+
+            //remove diff set from list
+            wCells.removeAll(cellInfos);
+
+            //add the remaining CellInfos to the list
+            if (collectInformation) {
+                cellInfos.addAll(wCells);
+            }
+
+            //if registered cells == 2 --> we have a dual sim device
+            if (registeredCells.size() >= 2) {
+                //try to detect which of the two networks is the active network
+
+                //if one cell has 2G/3G/4G, the other does not match the technology ->
+                //the cell whichs network is identical to the current network is active
+                if (registeredCells.get(0).getTechnology() != registeredCells.get(1).getTechnology()) {
+
+                    if (network == TelephonyManager.NETWORK_TYPE_GSM ||
+                            network == TelephonyManager.NETWORK_TYPE_EDGE) {
+                        if (registeredCells.get(0).getTechnology() == CellInformationWrapper.Technology.CONNECTION_2G) {
+                            activeCell = registeredCells.get(0);
+                        }
+                        else {
+                            activeCell = registeredCells.get(1);
+                        }
+                    }
+                    else if (network == TelephonyManager.NETWORK_TYPE_LTE) {
+                        if (registeredCells.get(0).getTechnology() == CellInformationWrapper.Technology.CONNECTION_4G) {
+                            activeCell = registeredCells.get(0);
+                        }
+                        else {
+                            activeCell = registeredCells.get(1);
+                        }
+                    }
+                }
+                else {
+                    //two cells with the identical network (e.g. 3G+3G, 2G+2G)
+                    //this can be possible (as seen with a Snapdragon 820 CPU on a mi5)
+
+                    //we do not know which cell is acting as the data cell in this case
+                    lastActiveCell.set(null);
+
+                    return;
+                }
+
+            }
+            else if (registeredCells.size() == 1) {
+                activeCell = registeredCells.get(0);
+            }
+            else {
+                //no active cell?
+
+            }
+
+            if (activeCell != null) {
+                if (activeCell.getCs().getSignal() != null) {
+                    signal.set(activeCell.getCs().getSignal());
+                    signalType.set(SINGAL_TYPE_MOBILE);
+                }
+                else {
+                    signal.set(Integer.MIN_VALUE);
+                }
+                if (activeCell.getCs().getRsrq() != null) {
+                    signalRsrq.set(activeCell.getCs().getRsrq());
+                    signalType.set(SINGAL_TYPE_RSRP);
+                }
+                else {
+                    signalRsrq.set(UNKNOWN);
+                }
+
+                Map<CellInformationWrapper.Technology, Integer> conversionTable = new HashMap<>();
+                conversionTable.put(CellInformationWrapper.Technology.CONNECTION_2G, TelephonyManager.NETWORK_TYPE_GSM);
+                conversionTable.put(CellInformationWrapper.Technology.CONNECTION_3G, TelephonyManager.NETWORK_TYPE_UMTS);
+                conversionTable.put(CellInformationWrapper.Technology.CONNECTION_4G, TelephonyManager.NETWORK_TYPE_LTE);
+
+                lastNetworkType.set(conversionTable.get(activeCell.getTechnology()));
+
+                lastActiveCell.set(activeCell);
+
+                if (fullInfo != null) {
+                    fullInfo.setProperty("TELEPHONY_NETWORK_OPERATOR",
+                            String.valueOf(activeCell.getCi().getMcc() + "-" +
+                                    String.format("%02d", activeCell.getCi().getMnc())));
+                }
+                //missing: country
+            }
+        }
+
         @Override
         public void onSignalStrengthsChanged(final SignalStrength signalStrength)
         {
@@ -1167,8 +1415,7 @@ public class InformationCollector
             int lteRsssnr = UNKNOWN;
             int lteCqi = UNKNOWN;
             int errorRate = UNKNOWN;
-            
-            
+
             // discard signal strength from GT-I9100G (Galaxy S II) - passes wrong info
             if (android.os.Build.MODEL != null)
             {
@@ -1177,7 +1424,7 @@ public class InformationCollector
                     android.os.Build.MODEL.equals("HUAWEI P2-6011"))
                 return;
             }
-            
+
             if (network != NETWORK_WIFI && network != NETWORK_BLUETOOTH && network != NETWORK_ETHERNET)
             {
                 if (signalStrength != null)
@@ -1196,7 +1443,7 @@ public class InformationCollector
                             lteRsrq = (Integer) SignalStrength.class.getMethod("getLteRsrq").invoke(signalStrength);
                             lteRsssnr = (Integer) SignalStrength.class.getMethod("getLteRssnr").invoke(signalStrength);
                             lteCqi = (Integer) SignalStrength.class.getMethod("getLteCqi").invoke(signalStrength);
-                            
+
                             if (lteRsrp == Integer.MAX_VALUE)
                                 lteRsrp = UNKNOWN;
                             if (lteRsrq == Integer.MAX_VALUE)
@@ -1264,6 +1511,14 @@ public class InformationCollector
                 }
                                 
                 lastSignalItem.set(signalItem);
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 && telManager != null) {
+                if (!haveAnyLocationPerm || !haveCoarseLocationPerm) {
+                    Log.d("cellInfoChanged","missing permission");
+                    return;
+                }
+                onCellInfoChanged(telManager.getAllCellInfo());
             }
         }
         
