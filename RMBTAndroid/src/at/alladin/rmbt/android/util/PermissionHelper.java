@@ -43,6 +43,7 @@ public abstract class PermissionHelper
     private static final String TAG = "PermissionHelper";
     
     public static final int REQUEST_AT_INIT = 1;
+    public static final int REQUEST_TELEPHONY_AT_INIT = 3;
     public static final int REQUEST_AT_TEST_START = 2;
     protected static final String PREF_LAST_TIME_PERMISSION_SHOWN = "lastTimePermissionShown";
     protected static final long SHOW_PERMISSION_DIALOG_INTERVAL_SEC = 3600; // 1h
@@ -274,7 +275,12 @@ public abstract class PermissionHelper
                 ActivityCompat.requestPermissions(act, neededPermissions.toArray(new String[neededPermissions.size()]), REQUEST_AT_TEST_START);
         }
     }
-    
+
+    /**
+     * Check if the location permissions are available,
+     * request if not
+     * @param act
+     */
     public static void checkPermissionAtInit(final Activity act)
     {
         // request location permissions
@@ -283,7 +289,22 @@ public abstract class PermissionHelper
         updatePermissionDialogTime(act, LOCATION_GROUP.groupName);
         ActivityCompat.requestPermissions(act, LOCATION_GROUP.permissions, REQUEST_AT_INIT);
     }
-    
+
+    /**
+     * Check if the telephony permissions are available,
+     * request if not
+     * @param act
+     */
+    public static void checkTelephonyPermissionAtInit(final Activity act) {
+        // request location permissions
+        if (checkAllPermissions(act, TELEPHONY_GROUP.permissions)) {
+            return;
+        }
+        updatePermissionDialogTime(act, TELEPHONY_GROUP.groupName);
+        ActivityCompat.requestPermissions(act, TELEPHONY_GROUP.permissions, REQUEST_TELEPHONY_AT_INIT);
+
+    }
+
     public static boolean isItTimeToShowPermissionDialogAgain(Context ctx, String groupName)
     {
         final long lastTime = ConfigHelper.getSharedPreferences(ctx).getLong(PREF_LAST_TIME_PERMISSION_SHOWN + "_" + groupName, 0);
