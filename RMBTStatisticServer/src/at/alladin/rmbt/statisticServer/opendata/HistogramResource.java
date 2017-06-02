@@ -42,7 +42,8 @@ public class HistogramResource extends ServerResource{
     
     private final HistogramInfo histogramInfo = new HistogramInfo();
     
-    private final int HISTOGRAMCLASSES = 12;
+    private final int HISTOGRAMCLASSESLOG = 12;
+    private final int HISTOGRAMCLASSES = 10;
     private final int HISTOGRAMDOWNLOADDEFAULTMAX = 100000;
     private final int HISTOGRAMDOWNLOADDEFAULTMIN = 0;
     private final int HISTOGRAMUPLOADDEFAULTMAX = 100000;
@@ -275,14 +276,18 @@ public class HistogramResource extends ServerResource{
      */
     private JSONArray getJSONForHistogram(double min, double max, String field, boolean isLogarithmic, QueryParser qp) throws JSONException {
 
+        final int histogramClasses = (isLogarithmic) ? HISTOGRAMCLASSESLOG : HISTOGRAMCLASSES;
+
     	//Get min and max steps
     	double difference = max - min;
     	int digits = (int) Math.floor(Math.log10(difference));
     	
     	//get histogram classes
+        //round everything to make for nicer bucket-widths with 10 buckets
+        //e.g. 1,2 to 24 --> diff = 22,8 = 2 digits -> 0 to 30; each resulting bucket 3
     	long upperBound = new BigDecimal(max).setScale(-digits, BigDecimal.ROUND_CEILING).longValue();
     	long lowerBound = new BigDecimal(min).setScale(-digits, BigDecimal.ROUND_FLOOR).longValue();
-    	double step = ((double) (upperBound-lowerBound))/((double)HISTOGRAMCLASSES);
+    	double step = ((double) (upperBound-lowerBound))/((double)histogramClasses);
         
         
     	System.out.println("lower: " + lowerBound + ", upper: " + upperBound + ", digits: " + digits + ", diff: " + difference + ", step: " + step);
@@ -290,7 +295,7 @@ public class HistogramResource extends ServerResource{
     	//psql width_bucket: gets the histogram class in which a value belongs
 		final String sql = 
 				"select "
-				+ " width_bucket(" + field + "," + lowerBound + "," + upperBound + "," + HISTOGRAMCLASSES + ") bucket, "
+				+ " width_bucket(" + field + "," + lowerBound + "," + upperBound + "," + histogramClasses + ") bucket, "
 				+ " count(*) cnt " 
 				+ " from test t "
 				+ " LEFT JOIN network_type nt ON nt.uid=t.network_type"
@@ -358,7 +363,7 @@ public class HistogramResource extends ServerResource{
 						jBucket.put("lower_bound", Math.round(current_lower_bound));
 				}
 
-				if (bucket == HISTOGRAMCLASSES + 1) {
+				if (bucket == histogramClasses + 1) {
 					jBucket.put("upper_bound", JSONObject.NULL);
 				} else {
 					if (step < 1 && !isLogarithmic)
@@ -373,8 +378,8 @@ public class HistogramResource extends ServerResource{
 			
 			//problem: not enough buckets
 			//solution: respond with classes with "0" elements
-			if (jArray.length() < HISTOGRAMCLASSES) {
-				int diff = HISTOGRAMCLASSES - jArray.length();
+			if (jArray.length() < histogramClasses) {
+				int diff = histogramClasses - jArray.length();
 				int bucket = jArray.length();
 				for (int i=0;i<diff;i++) {
 					jBucket = new JSONObject();
