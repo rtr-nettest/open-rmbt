@@ -253,7 +253,7 @@ public class StatisticsResource extends ServerResource
                         " quantile(speed_download::bigint, ?::double precision) quantile_down," +
                         " quantile(speed_upload::bigint, ?::double precision) quantile_up," +
                         " quantile(%1$s::bigint, ?::double precision) quantile_signal," +
-                        " quantile(ping_shortest::bigint, ?::double precision) quantile_ping," +
+                        " quantile(ping_median::bigint, ?::double precision) quantile_ping," +
                         
                         " sum((speed_download >= ?)::int)::double precision / count(speed_download) down_green," +
                         " sum((speed_download < ? and speed_download >= ?)::int)::double precision / count(speed_download) down_yellow," +
@@ -267,9 +267,9 @@ public class StatisticsResource extends ServerResource
                         " sum((%1$s < ? and %1$s >= ?)::int)::double precision / count(%1$s) signal_yellow," +
                         " sum((%1$s < ?)::int)::double precision / count(%1$s) signal_red," + 
                         
-                        " sum((ping_shortest <= ?)::int)::double precision / count(ping_shortest) ping_green," +
-                        " sum((ping_shortest > ? and ping_shortest <= ?)::int)::double precision / count(ping_shortest) ping_yellow," +
-                        " sum((ping_shortest > ?)::int)::double precision / count(ping_shortest) ping_red" +
+                        " sum((ping_median <= ?)::int)::double precision / count(ping_median) ping_green," +
+                        " sum((ping_median > ? and ping_median <= ?)::int)::double precision / count(ping_median) ping_yellow," +
+                        " sum((ping_median > ?)::int)::double precision / count(ping_median) ping_red" +
                         
                         " FROM test t" +
                         " LEFT JOIN network_type nt ON nt.uid=t.network_type" +
@@ -300,7 +300,7 @@ public class StatisticsResource extends ServerResource
                             " quantile(speed_download::bigint, ?::double precision) quantile_down," +
                             " quantile(speed_upload::bigint, ?::double precision) quantile_up," +
                             " quantile(%1$s::bigint, ?::double precision) quantile_signal," +
-                            " quantile(ping_shortest::bigint, ?::double precision) quantile_ping," +
+                            " quantile(ping_median::bigint, ?::double precision) quantile_ping," +
                             
                             " sum((speed_download >= ?)::int)::double precision / count(speed_download) down_green," +
                             " sum((speed_download < ? and speed_download >= ?)::int)::double precision / count(speed_download) down_yellow," +
@@ -314,9 +314,9 @@ public class StatisticsResource extends ServerResource
                             " sum((%1$s < ? and %1$s >= ?)::int)::double precision / count(%1$s) signal_yellow," +
                             " sum((%1$s < ?)::int)::double precision / count(%1$s) signal_red," + 
                             
-                            " sum((ping_shortest <= ?)::int)::double precision / count(ping_shortest) ping_green," +
-                            " sum((ping_shortest > ? and ping_shortest <= ?)::int)::double precision / count(ping_shortest) ping_yellow," +
-                            " sum((ping_shortest > ?)::int)::double precision / count(ping_shortest) ping_red" +
+                            " sum((ping_median <= ?)::int)::double precision / count(ping_median) ping_green," +
+                            " sum((ping_median > ? and ping_median <= ?)::int)::double precision / count(ping_median) ping_yellow," +
+                            " sum((ping_median > ?)::int)::double precision / count(ping_median) ping_red" +
                             
                             " FROM test t" +
                             " LEFT JOIN network_type nt ON nt.uid=t.network_type" +
@@ -419,7 +419,7 @@ public class StatisticsResource extends ServerResource
                 (group ? " COALESCE(adm.fullname, t.model) model," : "") +
                 " count(t.uid) count," + " quantile(speed_download::bigint, ?::double precision) quantile_down," +
                 " quantile(speed_upload::bigint, ?::double precision) quantile_up," +
-                " quantile(ping_shortest::bigint, ?::double precision) quantile_ping" +
+                " quantile(ping_median::bigint, ?::double precision) quantile_ping" +
                 " FROM test t" +
                 " LEFT JOIN device_map adm ON adm.codename=t.model" +
                 " LEFT JOIN network_type nt ON nt.uid=t.network_type" +
@@ -442,7 +442,7 @@ public class StatisticsResource extends ServerResource
                     (group ? " COALESCE(adm.fullname, t.model) model," : "") +
                     " count(t.uid) count," + " quantile(speed_download::bigint, ?::double precision) quantile_down," +
                     " quantile(speed_upload::bigint, ?::double precision) quantile_up," +
-                    " quantile(ping_shortest::bigint, ?::double precision) quantile_ping" +
+                    " quantile(ping_median::bigint, ?::double precision) quantile_ping" +
                     " FROM test t" +
                     " LEFT JOIN device_map adm ON adm.codename=t.model" +
                     " LEFT JOIN network_type nt ON nt.uid=t.network_type" +
