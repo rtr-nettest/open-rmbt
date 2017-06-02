@@ -368,8 +368,10 @@ public class InformationCollector
         if (connManager != null)
         {
             final NetworkInfo activeNetworkInfo = connManager.getActiveNetworkInfo();
-            if (activeNetworkInfo != null)
+            if (activeNetworkInfo != null) {
                 fullInfo.setProperty("TELEPHONY_NETWORK_IS_ROAMING", String.valueOf(activeNetworkInfo.isRoaming()));
+                fullInfo.setProperty("TELEPHONY_APN", activeNetworkInfo.getExtraInfo());
+            }
         }
         
         PackageInfo pInfo;
@@ -688,6 +690,8 @@ public class InformationCollector
 
 
                 //@TODO 2: Dual Sim!
+                boolean dualSimHandled = false;
+                //Android 7.0; API 24 (Nougat)
                 if (isSuspectedDualSim() && subscriptionManager != null && haveReadPhoneStatePerm
                         && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     //check, if two sim cards are inserted
@@ -696,12 +700,6 @@ public class InformationCollector
                         SubscriptionInfo dataSubscription = subscriptionManager.getActiveSubscriptionInfo(dataSubscriptionId);
 
                         //fill info from this
-                        /* fullInfo.setProperty("TELEPHONY_NETWORK_OPERATOR_NAME", String.valueOf(dataSubscription.getCarrierName()));
-                        String networkOperator = telManager.getNetworkOperator();
-                        if (networkOperator != null && networkOperator.length() >= 5)
-                            networkOperator = String.format("%s-%s", networkOperator.substring(0, 3), networkOperator.substring(3));
-                        fullInfo.setProperty("TELEPHONY_NETWORK_OPERATOR", String.valueOf(networkOperator));
-                        fullInfo.setProperty("TELEPHONY_NETWORK_COUNTRY", String.valueOf(telManager.getNetworkCountryIso()));*/
                         fullInfo.setProperty("TELEPHONY_NETWORK_SIM_COUNTRY", String.valueOf(dataSubscription.getCountryIso()));
                         simOperator = dataSubscription.getMcc() + "-" + String.format("%02d",dataSubscription.getMnc());
                         fullInfo.setProperty("TELEPHONY_NETWORK_SIM_OPERATOR", String.valueOf(simOperator));
@@ -709,8 +707,41 @@ public class InformationCollector
                         fullInfo.setProperty("TELEPHONY_NETWORK_OPERATOR_NAME", String.valueOf(dataSubscription.getDisplayName()));
 
                     }
+                    dualSimHandled = true;
                 }
-                else {
+                /* //Android 5.1; API 22 (Lollipop MR 1)
+                else if (isSuspectedDualSim() && subscriptionManager != null && haveReadPhoneStatePerm
+                        && lastActiveCell != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                    //maybe, just maybe, exactly one of the operators will
+                    //match with the currently active data connection mcc-mnc
+                    // -> then, this operator is the data operator
+                    SubscriptionInfo dataSubscription = null;
+                    for (SubscriptionInfo sub : subscriptionManager.getActiveSubscriptionInfoList()) {
+                        if (lastActiveCell.get().getCi().getMcc().equals(sub.getMcc()) &&
+                                lastActiveCell.get().getCi().getMnc().equals(sub.getMnc())) {
+                            if (dataSubscription == null) {
+                                dataSubscription = sub;
+                            }
+                            else {
+                                //only one operator should match, otherwise we don't know
+                                //what's going on
+                                dataSubscription = null;
+                            }
+                        }
+                    }
+
+                    if (dataSubscription != null) {
+                        fullInfo.setProperty("TELEPHONY_NETWORK_SIM_COUNTRY", String.valueOf(dataSubscription.getCountryIso()));
+                        simOperator = dataSubscription.getMcc() + "-" + String.format("%02d",dataSubscription.getMnc());
+                        fullInfo.setProperty("TELEPHONY_NETWORK_SIM_OPERATOR", String.valueOf(simOperator));
+                        fullInfo.setProperty("TELEPHONY_NETWORK_SIM_OPERATOR_NAME", String.valueOf(dataSubscription.getCarrierName()));
+                        fullInfo.setProperty("TELEPHONY_NETWORK_OPERATOR_NAME", String.valueOf(dataSubscription.getDisplayName()));
+
+                        dualSimHandled = true;
+                    }
+                } */
+
+                if (!dualSimHandled){
                     try {
                         final String dualSimDetectionMethod = DualSimDetector.getDualSIM(context);
                         fullInfo.setProperty("DUAL_SIM", String.valueOf(dualSimDetectionMethod != null));
@@ -941,16 +972,19 @@ public class InformationCollector
                 JSONObject cellSignals = new JSONObject();
                 String json = null;
                 try {
-                    cellSignals.put("cells", new JSONObject(om.writeValueAsString(cellIdentities.keySet())));
-                    cellSignals.put("signals", new JSONObject(om.writeValueAsString(cellSignalStrengths)));
                     json = om.writeValueAsString(cellIdentities.keySet());
-                    json += om.writeValueAsString(cellSignalStrengths);
+                    cellSignals.put("cells", new JSONArray(json));
+                    json = om.writeValueAsString(cellSignalStrengths);
+                    cellSignals.put("signals", new JSONArray(json));
+
+
                 } catch (JsonProcessingException e) {
                     e.printStackTrace();
                 }
-                Log.d("cells", json);
 
-                result.put("cells",cellSignals);
+
+
+                result.put("radioInfo",cellSignals);
             }
         }
 
