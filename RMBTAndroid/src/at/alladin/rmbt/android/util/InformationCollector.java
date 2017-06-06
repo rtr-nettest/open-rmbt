@@ -969,13 +969,13 @@ public class InformationCollector
                     cellSignalStrengths.add(ciw.getCs());
                 }
 
-                JSONObject cellSignals = new JSONObject();
+                JSONObject radioInfo = new JSONObject();
                 String json = null;
                 try {
                     json = om.writeValueAsString(cellIdentities.keySet());
-                    cellSignals.put("cells", new JSONArray(json));
+                    radioInfo.put("cells", new JSONArray(json));
                     json = om.writeValueAsString(cellSignalStrengths);
-                    cellSignals.put("signals", new JSONArray(json));
+                    radioInfo.put("signals", new JSONArray(json));
 
 
                 } catch (JsonProcessingException e) {
@@ -984,7 +984,7 @@ public class InformationCollector
 
 
 
-                result.put("radioInfo",cellSignals);
+                result.put("radioInfo",radioInfo);
             }
         }
 
@@ -1343,6 +1343,16 @@ public class InformationCollector
                 if (ciw.isRegistered()) {
                     registeredCells.add(ciw);
                 }
+            }
+
+            //get all cells that are not seen anymore
+            List<CellInformationWrapper> oldCells = new ArrayList<>();
+            oldCells.addAll(lastCellInfos);
+            oldCells.removeAll(wCells);
+
+            //set end timestamp on all remaining objects
+            for (CellInformationWrapper cell : oldCells) {
+                cell.setTimeStampLast(System.nanoTime());
             }
 
             //update the set
