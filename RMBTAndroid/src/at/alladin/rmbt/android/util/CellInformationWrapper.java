@@ -61,8 +61,10 @@ public class CellInformationWrapper {
     private CellSignalStrength cs;
     private Boolean registered;
     private long timeStamp;
+    //start timestamp of the test, set in InformationCollector
     private Long startTimestampNs;
     private long time = System.currentTimeMillis();
+    private Long timeLast;
 
 
     public CellInformationWrapper(CellInfo cellInfo) {
@@ -254,6 +256,11 @@ public class CellInformationWrapper {
         @JsonProperty("time_ns")
         public Long getTimeStampNs() {
             return CellInformationWrapper.this.getTimeStampNs();
+        }
+
+        @JsonProperty("time_ns_last")
+        public Long getTimeStampNsLast() {
+            return CellInformationWrapper.this.getTimeStampLast();
         }
 
         @JsonProperty("time")
@@ -588,6 +595,19 @@ public class CellInformationWrapper {
     public void setStartTimestampNs(Long startTimestampNs) {
         this.startTimestampNs = startTimestampNs;
     }
+
+    @JsonProperty("time_ns_long")
+    public Long getTimeStampLast() {
+        if (startTimestampNs != null && this.timeLast != null) {
+            return this.timeLast - startTimestampNs;
+        }
+        return null;
+    }
+
+    public void setTimeStampLast(Long timeLast) {
+        this.timeLast = timeLast;
+    }
+
 
     /**
      * Relative timestamp compared with the beginning of the test
