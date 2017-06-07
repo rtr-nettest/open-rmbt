@@ -378,6 +378,7 @@ public class CellInformationWrapper {
             }
         }
 
+        @JsonProperty("channel_number")
         public Integer getChannelNumber() {
             if (objectsEquals(channelNumber,Integer.MAX_VALUE)) {
                 return null;
@@ -389,7 +390,7 @@ public class CellInformationWrapper {
             this.channelNumber = channelNumber;
         }
 
-        @JsonProperty("cell_mnc")
+        @JsonProperty("mnc")
         public Integer getMnc() {
             if (mnc == null ||
                     objectsEquals(mnc, Integer.MAX_VALUE) ||
@@ -404,7 +405,7 @@ public class CellInformationWrapper {
             this.mnc = mnc;
         }
 
-        @JsonProperty("cell_mcc")
+        @JsonProperty("mcc")
         public Integer getMcc() {
             if (mcc == null ||
                     objectsEquals(mcc, Integer.MAX_VALUE) ||
