@@ -691,23 +691,30 @@ public class InformationCollector
 
                 //@TODO 2: Dual Sim!
                 boolean dualSimHandled = false;
+                fullInfo.setProperty("TELEPHONY_SIM_COUNT", Integer.toString(1));
                 //Android 7.0; API 24 (Nougat)
-                if (isSuspectedDualSim() && subscriptionManager != null && haveReadPhoneStatePerm
-                        && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    //check, if two sim cards are inserted
-                    if (subscriptionManager.getActiveSubscriptionInfoCount() > 1) {
-                        int dataSubscriptionId = subscriptionManager.getDefaultDataSubscriptionId();
-                        SubscriptionInfo dataSubscription = subscriptionManager.getActiveSubscriptionInfo(dataSubscriptionId);
-
-                        //fill info from this
-                        fullInfo.setProperty("TELEPHONY_NETWORK_SIM_COUNTRY", String.valueOf(dataSubscription.getCountryIso()));
-                        simOperator = dataSubscription.getMcc() + "-" + String.format("%02d",dataSubscription.getMnc());
-                        fullInfo.setProperty("TELEPHONY_NETWORK_SIM_OPERATOR", String.valueOf(simOperator));
-                        fullInfo.setProperty("TELEPHONY_NETWORK_SIM_OPERATOR_NAME", String.valueOf(dataSubscription.getCarrierName()));
-                        fullInfo.setProperty("TELEPHONY_NETWORK_OPERATOR_NAME", String.valueOf(dataSubscription.getDisplayName()));
-
+                if (isSuspectedDualSim() && subscriptionManager != null && haveReadPhoneStatePerm) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                        fullInfo.setProperty("TELEPHONY_SIM_COUNT", Integer.toString(subscriptionManager.getActiveSubscriptionInfoCount()));
                     }
-                    dualSimHandled = true;
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        //check, if two sim cards are inserted
+                        if (subscriptionManager.getActiveSubscriptionInfoCount() > 1) {
+                            int dataSubscriptionId = subscriptionManager.getDefaultDataSubscriptionId();
+                            SubscriptionInfo dataSubscription = subscriptionManager.getActiveSubscriptionInfo(dataSubscriptionId);
+
+                            //fill info from this
+                            fullInfo.setProperty("TELEPHONY_NETWORK_SIM_COUNTRY", String.valueOf(dataSubscription.getCountryIso()));
+                            simOperator = dataSubscription.getMcc() + "-" + String.format("%02d", dataSubscription.getMnc());
+                            fullInfo.setProperty("TELEPHONY_NETWORK_SIM_OPERATOR", String.valueOf(simOperator));
+                            fullInfo.setProperty("TELEPHONY_NETWORK_SIM_OPERATOR_NAME", String.valueOf(dataSubscription.getCarrierName()));
+                            fullInfo.setProperty("TELEPHONY_NETWORK_OPERATOR_NAME", String.valueOf(dataSubscription.getDisplayName()));
+                            fullInfo.setProperty("TELEPHONY_SIM_COUNT", Integer.toString(subscriptionManager.getActiveSubscriptionInfoCount()));
+
+                        }
+                        dualSimHandled = true;
+                    }
                 }
                 /* //Android 5.1; API 22 (Lollipop MR 1)
                 else if (isSuspectedDualSim() && subscriptionManager != null && haveReadPhoneStatePerm
@@ -745,8 +752,10 @@ public class InformationCollector
                     try {
                         final String dualSimDetectionMethod = DualSimDetector.getDualSIM(context);
                         fullInfo.setProperty("DUAL_SIM", String.valueOf(dualSimDetectionMethod != null));
-                        if (dualSimDetectionMethod != null)
+                        if (dualSimDetectionMethod != null) {
                             fullInfo.setProperty("DUAL_SIM_DETECTION_METHOD", dualSimDetectionMethod);
+                            fullInfo.setProperty("TELEPHONY_SIM_COUNT", Integer.toString(2));
+                        }
                         else
                             fullInfo.remove("DUAL_SIM_DETECTION_METHOD");
                     } catch (Exception e) // never fail b/c of dual sim detection
