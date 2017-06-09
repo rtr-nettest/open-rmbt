@@ -63,16 +63,12 @@ public class CellInformationWrapper {
     private long timeStamp;
     //start timestamp of the test, set in InformationCollector
     private Long startTimestampNs;
-    private long time = System.currentTimeMillis();
     private Long timeLast;
 
 
     public CellInformationWrapper(CellInfo cellInfo) {
         setRegistered(cellInfo.isRegistered());
         this.setTimeStamp(cellInfo.getTimeStamp());
-
-        //adjust timestamp for the offset
-        time -= cellInfo.getTimeStamp() / 1e6;
 
         if (cellInfo.getClass().equals(CellInfoLte.class)) {
             setTechnology(Technology.CONNECTION_4G);
@@ -232,7 +228,7 @@ public class CellInformationWrapper {
             this.cellUuid = cellUuid;
         }
 
-        @JsonProperty("gsm_bit_error_rate")
+        @JsonProperty("bit_error_rate")
         public Integer getBitErrorRate() {
             if (objectsEquals(bitErrorRate,99)) {
                 return null;
@@ -261,11 +257,6 @@ public class CellInformationWrapper {
         @JsonProperty("time_ns_last")
         public Long getTimeStampNsLast() {
             return CellInformationWrapper.this.getTimeStampLast();
-        }
-
-        @JsonProperty("time")
-        public Long getTime() {
-            return CellInformationWrapper.this.getTime();
         }
 
         //@JsonProperty("wifi_rssi")
@@ -597,7 +588,7 @@ public class CellInformationWrapper {
         this.startTimestampNs = startTimestampNs;
     }
 
-    @JsonProperty("time_ns_long")
+    @JsonProperty("time_ns_last")
     public Long getTimeStampLast() {
         if (startTimestampNs != null && this.timeLast != null) {
             return this.timeLast - startTimestampNs;
@@ -623,10 +614,6 @@ public class CellInformationWrapper {
         return null;
     }
 
-    @JsonProperty("time")
-    public Long getTime() {
-        return this.time;
-    }
 
     @Override
     public String toString() {
