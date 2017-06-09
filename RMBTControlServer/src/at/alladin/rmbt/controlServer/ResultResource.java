@@ -16,8 +16,25 @@
  ******************************************************************************/
 package at.alladin.rmbt.controlServer;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.google.common.net.InetAddresses;
+import com.vdurmont.semver4j.Requirement;
+import com.vdurmont.semver4j.Semver;
+import com.vdurmont.semver4j.SemverException;
+
+import org.apache.commons.dbutils.QueryRunner;
+import org.apache.commons.dbutils.handlers.MapHandler;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.restlet.resource.Get;
+import org.restlet.resource.Post;
+
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -25,32 +42,28 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.text.MessageFormat;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.restlet.resource.Get;
-import org.restlet.resource.Post;
-
 import at.alladin.rmbt.db.Cell_location;
 import at.alladin.rmbt.db.GeoLocation;
+import at.alladin.rmbt.db.RadioCell;
+import at.alladin.rmbt.db.RadioSignal;
 import at.alladin.rmbt.db.Signal;
 import at.alladin.rmbt.db.Test;
+import at.alladin.rmbt.db.fields.Field;
 import at.alladin.rmbt.db.fields.IntField;
 import at.alladin.rmbt.db.fields.LongField;
+import at.alladin.rmbt.db.fields.TimestampField;
 import at.alladin.rmbt.shared.Helperfunctions;
 import at.alladin.rmbt.shared.ResourceManager;
 import at.alladin.rmbt.shared.model.SpeedItems;
 import at.alladin.rmbt.shared.model.SpeedItems.SpeedItem;
-
-import com.google.common.net.InetAddresses;
-import com.vdurmont.semver4j.Requirement;
-import com.vdurmont.semver4j.Semver;
-import com.vdurmont.semver4j.SemverException;
 
 public class ResultResource extends ServerResource
 {
@@ -76,7 +89,7 @@ public class ResultResource extends ServerResource
             try
             {
                 request = new JSONObject(entity);
-                //System.out.println(request);
+                System.out.println(request.toString(2));
                                
                 final String lang = request.optString("client_language");
                 
@@ -294,101 +307,163 @@ public class ResultResource extends ServerResource
                                         
                                         final JSONArray geoData = request.optJSONArray("geoLocations");
                                         
-                                        if (geoData != null && !test.hasError())
-                                            for (int i = 0; i < geoData.length(); i++)
-                                            {
-                                                
+                                        if (geoData != null && !test.hasError()) {
+                                            for (int i = 0; i < geoData.length(); i++) {
+
                                                 final JSONObject geoDataItem = geoData.getJSONObject(i);
-                                                
+
                                                 if (geoDataItem.optLong("tstamp", 0) != 0 && geoDataItem.optDouble("geo_lat", 0) != 0 && geoDataItem.optDouble("geo_long", 0) != 0) {
-                                                
-                                                final GeoLocation geoloc = new GeoLocation(conn);
-                                                
-                                                geoloc.setOpenTestUuid(openTestUuid);
-                                                geoloc.setTest_id(test.getUid());
-                                                
-                                                final long clientTime = geoDataItem.optLong("tstamp");
-                                                final Timestamp tstamp = java.sql.Timestamp.valueOf(new Timestamp(
-                                                        clientTime).toString());
-                                                
-                                                geoloc.setTime(tstamp, test.getField("timezone").toString());
-                                                geoloc.setAccuracy((float) geoDataItem.optDouble("accuracy", 0));
-                                                geoloc.setAltitude(geoDataItem.optDouble("altitude", 0));
-                                                geoloc.setBearing((float) geoDataItem.optDouble("bearing", 0));
-                                                geoloc.setSpeed((float) geoDataItem.optDouble("speed", 0));
-                                                geoloc.setProvider(geoDataItem.optString("provider", ""));
-                                                geoloc.setGeo_lat(geoDataItem.optDouble("geo_lat", 0));
-                                                geoloc.setGeo_long(geoDataItem.optDouble("geo_long", 0));
-                                                geoloc.setTime_ns(geoDataItem.optLong("time_ns", 0));
-                                                if (geoDataItem.has("mock_location")) {
-                                                    geoloc.setMock_location(geoDataItem.getBoolean("mock_location"));
+
+                                                    final GeoLocation geoloc = new GeoLocation(conn);
+
+                                                    geoloc.setOpenTestUuid(openTestUuid);
+                                                    geoloc.setTest_id(test.getUid());
+
+                                                    final long clientTime = geoDataItem.optLong("tstamp");
+                                                    final Timestamp tstamp = java.sql.Timestamp.valueOf(new Timestamp(
+                                                            clientTime).toString());
+
+                                                    geoloc.setTime(tstamp, test.getField("timezone").toString());
+                                                    geoloc.setAccuracy((float) geoDataItem.optDouble("accuracy", 0));
+                                                    geoloc.setAltitude(geoDataItem.optDouble("altitude", 0));
+                                                    geoloc.setBearing((float) geoDataItem.optDouble("bearing", 0));
+                                                    geoloc.setSpeed((float) geoDataItem.optDouble("speed", 0));
+                                                    geoloc.setProvider(geoDataItem.optString("provider", ""));
+                                                    geoloc.setGeo_lat(geoDataItem.optDouble("geo_lat", 0));
+                                                    geoloc.setGeo_long(geoDataItem.optDouble("geo_long", 0));
+                                                    geoloc.setTime_ns(geoDataItem.optLong("time_ns", 0));
+                                                    if (geoDataItem.has("mock_location")) {
+                                                        geoloc.setMock_location(geoDataItem.getBoolean("mock_location"));
+                                                    }
+
+                                                    geoloc.storeLocation();
+
+                                                    // Store Last Geolocation as
+                                                    // Testlocation
+                                                    if (i == geoData.length() - 1) {
+                                                        if (geoDataItem.has("geo_lat"))
+                                                            test.getField("geo_lat").setField(geoDataItem);
+
+                                                        if (geoDataItem.has("geo_long"))
+                                                            test.getField("geo_long").setField(geoDataItem);
+
+                                                        if (geoDataItem.has("accuracy"))
+                                                            test.getField("geo_accuracy").setField(geoDataItem);
+
+                                                        if (geoDataItem.has("provider"))
+                                                            test.getField("geo_provider").setField(geoDataItem);
+                                                    }
+
+                                                    if (geoloc.hasError()) {
+                                                        errorList.addError(geoloc.getError());
+                                                        break;
+                                                    }
+
                                                 }
-                                                
-                                                geoloc.storeLocation();
-                                                
-                                                // Store Last Geolocation as
-                                                // Testlocation
-                                                if (i == geoData.length() - 1)
-                                                {
-                                                    if (geoDataItem.has("geo_lat"))
-                                                        test.getField("geo_lat").setField(geoDataItem);
-                                                    
-                                                    if (geoDataItem.has("geo_long"))
-                                                        test.getField("geo_long").setField(geoDataItem);
-                                                    
-                                                    if (geoDataItem.has("accuracy"))
-                                                        test.getField("geo_accuracy").setField(geoDataItem);
-                                                    
-                                                    if (geoDataItem.has("provider"))
-                                                        test.getField("geo_provider").setField(geoDataItem);
-                                                }
-                                                
-                                                if (geoloc.hasError())
-                                                {
-                                                    errorList.addError(geoloc.getError());
-                                                    break;
-                                                }
-                                                
-                                                }
-                                                
+
                                             }
+                                        }
+
+                                        if (request.has("radioInfo")) {
+                                            //new radio info code
+                                            ObjectMapper om = new ObjectMapper();
+                                            QueryRunner qr = new QueryRunner();
+                                            om.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
+                                            List<RadioCell> radioCells = Arrays.asList(om.readValue(request.getJSONObject("radioInfo").getJSONArray("cells").toString(), RadioCell[].class));
+                                            List<RadioSignal> radioSignals = Arrays.asList(om.readValue(request.getJSONObject("radioInfo").getJSONArray("signals").toString(), RadioSignal[].class));
+
+                                            //System.out.println(request.getJSONObject("radioInfo").toString(4));
+
+                                            //set open test uuid, write to db
+                                            for (RadioCell cell : radioCells) {
+                                                //System.out.println(cell);
+                                                cell.setOpenTestUuid(openTestUuid);
+                                                String sql = "INSERT INTO radio_cell(uuid, open_test_uuid, mnc, mcc, location_id, area_code, primary_scrambling_code, technology, registered)" +
+                                                                     "        VALUES(?,?,?,?,?,?,?,?,?);";
+
+                                                //this will return some id
+                                                MapHandler results = new MapHandler();
+                                                Map<String, Object> insert = qr.insert(conn, sql, results,
+                                                        cell.getUuid(),
+                                                        cell.getOpenTestUuid(),
+                                                        cell.getMnc(),
+                                                        cell.getMcc(),
+                                                        cell.getLocationId(),
+                                                        cell.getAreaCode(),
+                                                        cell.getPrimaryScramblingCode(),
+                                                        cell.getTechnology().toString(),
+                                                        cell.isRegistered());
+
+                                            }
+
+                                            for (RadioSignal signal : radioSignals) {
+                                                signal.setOpenTestUuid(openTestUuid);
+
+                                                //set signal times as seens from server side
+                                                TimestampField time = (TimestampField) test.getField("time");
+                                                GregorianCalendar calendar = new GregorianCalendar();
+                                                calendar.setTime(time.getDate());
+                                                calendar.add(Calendar.MILLISECOND, (int) (signal.getTimeNs() /1e6));
+                                                signal.setTime(calendar.getTime());
+
+                                                String sql = "INSERT INTO radio_signal(cell_uuid, open_test_uuid, bit_error_rate, wifi_link_speed, " +
+                                                        " lte_cqi, lte_rssnr, lte_rsrp, lte_rsrq, signal_strength, timing_advance, time, time_ns, time_ns_last) " +
+                                                        "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);";
+                                                MapHandler results = new MapHandler();
+
+                                                qr.insert(conn, sql,results,
+                                                        signal.getCellUuid(),
+                                                        signal.getOpenTestUuid(),
+                                                        signal.getBitErrorRate(),
+                                                        signal.getWifiLinkSpeed(),
+                                                        signal.getLteCqi(),
+                                                        signal.getLteRssnr(),
+                                                        signal.getLteRsrp(),
+                                                        signal.getLteRsrq(),
+                                                        signal.getSignal(),
+                                                        signal.getTimingAdvance(),
+                                                        new Timestamp(signal.getTime().getTime()),
+                                                        signal.getTimeNs(),
+                                                        signal.getTimeNsLast());
+
+                                            }
+                                        }
                                         
                                         final JSONArray cellData = request.optJSONArray("cellLocations");
                                         
-                                        if (cellData != null && !test.hasError())
-                                            for (int i = 0; i < cellData.length(); i++)
-                                            {
-                                                
+                                        if (cellData != null && !test.hasError()) {
+                                            for (int i = 0; i < cellData.length(); i++) {
+
                                                 final JSONObject cellDataItem = cellData.getJSONObject(i);
-                                                
+
                                                 final Cell_location cellloc = new Cell_location(conn);
-                                                
+
                                                 cellloc.setOpenTestUuid(openTestUuid);
                                                 cellloc.setTest_id(test.getUid());
-                                                
+
                                                 final long clientTime = cellDataItem.optLong("time");
                                                 final Timestamp tstamp = java.sql.Timestamp.valueOf(new Timestamp(
                                                         clientTime).toString());
-                                                
+
                                                 cellloc.setTime(tstamp, test.getField("timezone").toString());
-                                                
+
                                                 cellloc.setTime_ns(cellDataItem.optLong("time_ns", 0));
-                                                
+
                                                 cellloc.setLocation_id(cellDataItem.optInt("location_id", 0));
                                                 cellloc.setArea_code(cellDataItem.optInt("area_code", 0));
-                                                
+
                                                 cellloc.setPrimary_scrambling_code(cellDataItem.optInt(
                                                         "primary_scrambling_code", 0));
-                                                
+
                                                 cellloc.storeLocation();
-                                                
-                                                if (cellloc.hasError())
-                                                {
+
+                                                if (cellloc.hasError()) {
                                                     errorList.addError(cellloc.getError());
                                                     break;
                                                 }
-                                                
+
                                             }
+                                        }
                                         
                                         int minSignalStrength = Integer.MAX_VALUE; //measured as RSSI (GSM,UMTS,Wifi)
                                         int minLteRsrp = Integer.MAX_VALUE; //signal strength measured as RSRP
@@ -590,7 +665,7 @@ public class ResultResource extends ServerResource
                         catch (SemverException e) {
                             errorList.addError("ERROR_CLIENT_VERSION" + e);
                         }
-                        
+
                     }
                     else
                         errorList.addError("ERROR_TEST_TOKEN_MISSING");
@@ -602,7 +677,7 @@ public class ResultResource extends ServerResource
                     errorList.addError("ERROR_DB_CONNECTION");
                 
             }
-            catch (final JSONException e)
+            catch (final JSONException | IOException e)
             {
                 errorList.addError("ERROR_REQUEST_JSON");
                 System.out.println("Error parsing JSDON Data " + e.toString());
