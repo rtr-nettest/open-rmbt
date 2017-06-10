@@ -18,6 +18,10 @@ dependencies {
 	compile 'net.sf.jopt-simple:jopt-simple:5.0.3'
 	compile 'org.json:json:5.0.5'
 	compile 'com.fasterxml.jackson.core:jackson-databind:2.8.8.1'
+	// fix dex overflow
+	// see https://stackoverflow.com/questions/38714651/android-studio-dexindexoverflowexception-method-id-not-in
+	compile 'com.android.support:multidex:1.0.0'
+
 }
 
 def signDebugApp = true
@@ -73,9 +77,11 @@ android {
         applicationId "at.alladin.rmbt.android"
         minSdkVersion 15
         targetSdkVersion 25
-        versionCode 30006
-        versionName "3.0.6"
+        versionCode 30007
+        versionName "3.0.7"
         buildConfigField "long", "BUILD_TIMESTAMP", System.currentTimeMillis() + "L"
+		// Enabling multidex support.
+		multiDexEnabled true
     }
 
 	lintOptions {
