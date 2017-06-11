@@ -184,6 +184,14 @@
                 android:layout="@layout/preferences_item"
                 />
 
+            <CheckBoxPreference
+                android:key="dev_huge_signal"
+                android:title="@string/preferences_dev_huge_signal"
+                android:summary="@string/preferences_dev_huge_signal_sum"
+                android:defaultValue="false"
+                android:layout="@layout/preferences_item"
+                />
+
 			<CheckBoxPreference
                 android:key="dont_show_menu_before_exit"
                 android:title="@string/preferences_dont_show_menu_on_exit" 
