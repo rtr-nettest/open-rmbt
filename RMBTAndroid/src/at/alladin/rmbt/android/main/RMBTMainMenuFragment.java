@@ -26,11 +26,13 @@ import java.util.Set;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -311,6 +313,12 @@ public class RMBTMainMenuFragment extends Fragment
         
         infoSignalStrength = (TextView) view.findViewById(R.id.info_signal_strength);
         setViewVisibility(infoSignalStrength, View.GONE);
+
+		final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+		final boolean devHugeSignal = pref.getBoolean("dev_huge_signal",false);
+		if (devHugeSignal) {
+			infoSignalStrength.setTextSize(50);
+		}
 
         infoSignalStrengthExtra = (TextView) view.findViewById(R.id.info_signal_strength_extra);
         setViewVisibility(infoSignalStrengthExtra, View.INVISIBLE);
