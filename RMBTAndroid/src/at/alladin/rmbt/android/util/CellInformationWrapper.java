@@ -374,6 +374,10 @@ public class CellInformationWrapper {
             if (objectsEquals(channelNumber,Integer.MAX_VALUE)) {
                 return null;
             }
+            //#883: some devices return earfcn 0 for null
+            if (objectsEquals(channelNumber, 0) && technology == Technology.CONNECTION_4G) {
+                return null;
+            }
             return channelNumber;
         }
 
