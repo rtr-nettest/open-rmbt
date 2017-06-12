@@ -1431,9 +1431,13 @@ public class InformationCollector
                 else {
                     signal.set(Integer.MIN_VALUE);
                 }
+                if (activeCell.getCs().getRsrp() != null) {
+                    signalType.set(SINGAL_TYPE_RSRP);
+                    signal.set(activeCell.getCs().getRsrp());
+                }
+
                 if (activeCell.getCs().getRsrq() != null) {
                     signalRsrq.set(activeCell.getCs().getRsrq());
-                    signalType.set(SINGAL_TYPE_RSRP);
                 }
                 else {
                     signalRsrq.set(UNKNOWN);
