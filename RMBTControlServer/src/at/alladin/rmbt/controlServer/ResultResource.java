@@ -465,9 +465,9 @@ public class ResultResource extends ServerResource
                                             }
                                         }
                                         
-                                        int signalStrength = Integer.MAX_VALUE; //measured as RSSI (GSM,UMTS,Wifi)
-                                        int lteRsrp = Integer.MAX_VALUE; // signal strength measured as RSRP
-                                        int lteRsrq = Integer.MAX_VALUE; // signal quality of LTE measured as RSRQ
+                                        int minSignalStrength = Integer.MAX_VALUE; //measured as RSSI (GSM,UMTS,Wifi)
+                                        int minLteRsrp = Integer.MAX_VALUE; //signal strength measured as RSRP
+                                        int minLteRsrq = Integer.MAX_VALUE; //signal quality of LTE measured as RSRQ
                                         int linkSpeed = UNKNOWN;
                                         final int networkType = test.getField("network_type").intValue();
                                         
@@ -495,10 +495,10 @@ public class ResultResource extends ServerResource
                                                 final int thisNetworkType = signalDataItem.optInt("network_type_id", 0);
                                                 signal.setNetwork_type_id(thisNetworkType);
                                                 
-                                                final int thisSignalStrength = signalDataItem.optInt("signal_strength",
+                                                final int signalStrength = signalDataItem.optInt("signal_strength",
                                                         UNKNOWN);
-                                                if (thisSignalStrength != UNKNOWN)
-                                                    signal.setSignal_strength(thisSignalStrength);
+                                                if (signalStrength != UNKNOWN)
+                                                    signal.setSignal_strength(signalStrength);
                                                 signal.setGsm_bit_error_rate(signalDataItem.optInt(
                                                         "gsm_bit_error_rate", 0));
                                                 final int thisLinkSpeed = signalDataItem.optInt("wifi_link_speed", 0);
@@ -506,9 +506,11 @@ public class ResultResource extends ServerResource
                                                 final int rssi = signalDataItem.optInt("wifi_rssi", UNKNOWN);
                                                 if (rssi != UNKNOWN)
                                                     signal.setWifi_rssi(rssi);
-                                                
-                                                lteRsrp = signalDataItem.optInt("lte_rsrp", UNKNOWN);
-                                                lteRsrq = signalDataItem.optInt("lte_rsrq", UNKNOWN);
+
+                                                // signal strength measured as RSRP
+                                                final int lteRsrp = signalDataItem.optInt("lte_rsrp", UNKNOWN);
+                                                // signal quality of LTE measured as RSRQ
+                                                final int lteRsrq = signalDataItem.optInt("lte_rsrq", UNKNOWN);
                                                 final int lteRssnr = signalDataItem.optInt("lte_rssnr", UNKNOWN);
                                                 final int lteCqi = signalDataItem.optInt("lte_cqi", UNKNOWN);
                                                 final long timeNs = signalDataItem.optLong("time_ns", UNKNOWN);
@@ -522,12 +524,18 @@ public class ResultResource extends ServerResource
                                                 
                                                 if (networkType == 99) // wlan
                                                 {
-                                                    if (rssi < signalStrength && rssi != UNKNOWN)
-                                                        signalStrength = rssi;
+                                                    if (rssi < minSignalStrength && rssi != UNKNOWN)
+                                                        minSignalStrength = rssi;
                                                 }
-                                                else if (thisSignalStrength < signalStrength && thisSignalStrength != UNKNOWN)
-                                                    signalStrength = thisSignalStrength;
-                                                
+                                                else if (signalStrength < minSignalStrength && signalStrength != UNKNOWN)
+                                                    minSignalStrength = signalStrength;
+
+                                                if (lteRsrp < minLteRsrp && lteRsrp != UNKNOWN)
+                                                    minLteRsrp = lteRsrp;
+
+                                                if (lteRsrq < minLteRsrq && lteRsrq != UNKNOWN)
+                                                    minLteRsrq = lteRsrq;
+
                                                 if (thisLinkSpeed != 0 && (linkSpeed == UNKNOWN || thisLinkSpeed < linkSpeed))
                                                     linkSpeed = thisLinkSpeed;
                                                 
@@ -539,19 +547,19 @@ public class ResultResource extends ServerResource
                                                 
                                             }
                                             // set rssi value (typically GSM,UMTS, but also old LTE-phones)
-                                            if (signalStrength != Integer.MAX_VALUE
-                                                    && signalStrength != UNKNOWN
-                                                    && signalStrength != 0) // 0 dBm is out of range
-                                                ((IntField) test.getField("signal_strength")).setValue(signalStrength);
+                                            if (minSignalStrength != Integer.MAX_VALUE
+                                                    && minSignalStrength != UNKNOWN
+                                                    && minSignalStrength != 0) // 0 dBm is out of range
+                                                ((IntField) test.getField("signal_strength")).setValue(minSignalStrength);
                                             // set rsrp value (typically LTE)
-                                            if (lteRsrp != Integer.MAX_VALUE
-                                                    && lteRsrp != UNKNOWN
-                                                    && lteRsrp != 0) // 0 dBm is out of range
-                                                ((IntField) test.getField("lte_rsrp")).setValue(lteRsrp);
+                                            if (minLteRsrp != Integer.MAX_VALUE
+                                                    && minLteRsrp != UNKNOWN
+                                                    && minLteRsrp != 0) // 0 dBm is out of range
+                                                ((IntField) test.getField("lte_rsrp")).setValue(minLteRsrp);
                                             // set rsrq value (LTE)
-                                            if (lteRsrq != Integer.MAX_VALUE
-                                                    && lteRsrq != UNKNOWN)
-                                                ((IntField) test.getField("lte_rsrq")).setValue(lteRsrq);
+                                            if (minLteRsrq != Integer.MAX_VALUE
+                                                    && minLteRsrq != UNKNOWN)
+                                                ((IntField) test.getField("lte_rsrq")).setValue(minLteRsrq);
                                             
                                             if (linkSpeed != Integer.MAX_VALUE && linkSpeed != UNKNOWN)
                                                 ((IntField) test.getField("wifi_link_speed")).setValue(linkSpeed);

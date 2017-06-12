@@ -111,6 +111,10 @@
     <string name="preferences_dev_debug_sysout" >Store error output in file</string>
     <string name="preferences_dev_debug_sysout_sum" >Stores error output in a text file located in the "qosdebug" folder</string>
 
+    <string name="preferences_dev_huge_signal" translatable="false" >Show huge signal</string>
+    <string name="preferences_dev_huge_signal_sum" translatable="false" >Shows signal in huge font on start screen</string>
+
+
     <string name="menu_button_start">START</string>
     <string name="menu_button_loop">LOOP</string>
     <string name="menu_button_title_page">Home</string>
