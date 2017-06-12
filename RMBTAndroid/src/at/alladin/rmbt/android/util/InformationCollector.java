@@ -370,7 +370,9 @@ public class InformationCollector
             final NetworkInfo activeNetworkInfo = connManager.getActiveNetworkInfo();
             if (activeNetworkInfo != null) {
                 fullInfo.setProperty("TELEPHONY_NETWORK_IS_ROAMING", String.valueOf(activeNetworkInfo.isRoaming()));
-                fullInfo.setProperty("TELEPHONY_APN", activeNetworkInfo.getExtraInfo());
+                if (activeNetworkInfo.getExtraInfo() != null) {
+                    fullInfo.setProperty("TELEPHONY_APN", activeNetworkInfo.getExtraInfo());
+                }
             }
         }
         
