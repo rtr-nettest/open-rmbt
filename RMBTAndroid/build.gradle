@@ -36,14 +36,8 @@ storeFile=netztest.keystore
 storePassword=<PASSWORD>
 keyAlias=rtr
 keyPassword=<PASSWORD>
-* */
+*/
 def keystorePropertiesFile = rootProject.file("private/keystore.properties")
-
-// example keystore.properies file:
-//    storePassword=myStorePassword
-//    keyPassword=mykeyPassword
-//    keyAlias=myKeyAlias
-//    storeFile=myStoreFileLocation/myStore.keystore
 
 // Initialize a new Properties() object called keystoreProperties.
 def keystoreProperties = new Properties()
@@ -77,8 +71,8 @@ android {
         applicationId "at.alladin.rmbt.android"
         minSdkVersion 15
         targetSdkVersion 25
-        versionCode 30007
-        versionName "3.0.7"
+        versionCode 30008
+        versionName "3.0.8"
         buildConfigField "long", "BUILD_TIMESTAMP", System.currentTimeMillis() + "L"
 		// Enabling multidex support.
 		multiDexEnabled true
