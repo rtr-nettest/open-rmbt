@@ -36,7 +36,6 @@ import android.telephony.CellInfo;
 import android.telephony.CellLocation;
 import android.telephony.PhoneStateListener;
 import android.telephony.SignalStrength;
-import android.telephony.SubscriptionInfo;
 import android.telephony.TelephonyManager;
 import android.telephony.gsm.GsmCellLocation;
 import android.util.Log;
@@ -133,7 +132,7 @@ public class InformationCollector
     private boolean registerNetworkReiceiver;
     private boolean enableGeoLocation;
     private boolean isDualSim = false;
-    
+
     private final List<GeoLocationItem> geoLocations = new ArrayList<GeoLocationItem>();
     private final List<CellLocationItem> cellLocations = new ArrayList<CellLocationItem>();
     private final List<SignalItem> signals = new ArrayList<SignalItem>();

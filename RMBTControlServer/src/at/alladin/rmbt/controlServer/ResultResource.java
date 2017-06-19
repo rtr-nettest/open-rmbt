@@ -460,7 +460,7 @@ public class ResultResource extends ServerResource
 
                                             }
                                         }
-                                        
+
                                         final JSONArray cellData = request.optJSONArray("cellLocations");
                                         
                                         if (cellData != null && !test.hasError()) {
@@ -496,7 +496,7 @@ public class ResultResource extends ServerResource
 
                                             }
                                         }
-                                        
+
 
                                         final int networkType = test.getField("network_type").intValue();
                                         
