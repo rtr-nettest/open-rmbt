@@ -44,9 +44,11 @@ import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -364,6 +366,11 @@ public class ResultResource extends ServerResource
                                             }
                                         }
 
+                                        int minSignalStrength = Integer.MAX_VALUE; //measured as RSSI (GSM,UMTS,Wifi)
+                                        int minLteRsrp = Integer.MAX_VALUE; //signal strength measured as RSRP
+                                        int minLteRsrq = Integer.MAX_VALUE; //signal quality of LTE measured as RSRQ
+                                        int minLinkSpeed = UNKNOWN;
+
                                         if (request.has("radioInfo")) {
                                             //new radio info code
                                             ObjectMapper om = new ObjectMapper();
@@ -371,15 +378,16 @@ public class ResultResource extends ServerResource
                                             om.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
                                             List<RadioCell> radioCells = Arrays.asList(om.readValue(request.getJSONObject("radioInfo").getJSONArray("cells").toString(), RadioCell[].class));
                                             List<RadioSignal> radioSignals = Arrays.asList(om.readValue(request.getJSONObject("radioInfo").getJSONArray("signals").toString(), RadioSignal[].class));
-
+                                            Map<UUID, RadioCell> radioCellsByUuid = new HashMap<>();
                                             //System.out.println(request.getJSONObject("radioInfo").toString(4));
 
                                             //set open test uuid, write to db
                                             for (RadioCell cell : radioCells) {
+                                                radioCellsByUuid.put(cell.getUuid(), cell);
                                                 //System.out.println(cell);
                                                 cell.setOpenTestUuid(openTestUuid);
-                                                String sql = "INSERT INTO radio_cell(uuid, open_test_uuid, mnc, mcc, location_id, area_code, primary_scrambling_code, technology, channel_number, registered)" +
-                                                                     "        VALUES(?,?,?,?,?,?,?,?,?,?);";
+                                                String sql = "INSERT INTO radio_cell(uuid, open_test_uuid, mnc, mcc, location_id, area_code, primary_scrambling_code, technology, channel_number, registered, active)" +
+                                                                     "        VALUES(?,?,?,?,?,?,?,?,?,?,?);";
 
                                                 //this will return some id
                                                 MapHandler results = new MapHandler();
@@ -393,7 +401,8 @@ public class ResultResource extends ServerResource
                                                         cell.getPrimaryScramblingCode(),
                                                         cell.getTechnology().toString(),
                                                         cell.getChannelNumber(),
-                                                        cell.isRegistered());
+                                                        cell.isRegistered(),
+                                                        cell.isActive());
 
                                             }
 
@@ -426,6 +435,28 @@ public class ResultResource extends ServerResource
                                                         new Timestamp(signal.getTime().getTime()),
                                                         signal.getTimeNs(),
                                                         signal.getTimeNsLast());
+
+
+                                                //use signal information, if this was a signal belonging
+                                                //to a cell that was active during this test
+                                                if (Objects.equals(radioCellsByUuid.get(signal.getCellUuid()).isActive(), true)) {
+                                                    System.out.println("active: " + signal);
+                                                    if (signal.getSignal() != null && signal.getSignal() < minSignalStrength) {
+                                                        minSignalStrength = signal.getSignal();
+                                                    }
+                                                    if (signal.getLteRsrp() != null && signal.getLteRsrp() < minLteRsrp) {
+                                                        minLteRsrp = signal.getLteRsrp();
+                                                    }
+                                                    if (signal.getLteRsrp() != null && signal.getLteRsrq() < minLteRsrq) {
+                                                        minLteRsrq = signal.getLteRsrq();
+                                                    }
+                                                    if (signal.getWifiLinkSpeed() != null && signal.getWifiLinkSpeed() < minLinkSpeed) {
+                                                        minLinkSpeed = signal.getWifiLinkSpeed();
+                                                    }
+                                                }
+                                                else {
+                                                    System.out.println("not active: " + signal);
+                                                }
 
                                             }
                                         }
@@ -466,10 +497,7 @@ public class ResultResource extends ServerResource
                                             }
                                         }
                                         
-                                        int minSignalStrength = Integer.MAX_VALUE; //measured as RSSI (GSM,UMTS,Wifi)
-                                        int minLteRsrp = Integer.MAX_VALUE; //signal strength measured as RSRP
-                                        int minLteRsrq = Integer.MAX_VALUE; //signal quality of LTE measured as RSRQ
-                                        int linkSpeed = UNKNOWN;
+
                                         final int networkType = test.getField("network_type").intValue();
                                         
                                         final JSONArray signalData = request.optJSONArray("signals");
@@ -537,8 +565,8 @@ public class ResultResource extends ServerResource
                                                 if (lteRsrq < minLteRsrq && lteRsrq != UNKNOWN)
                                                     minLteRsrq = lteRsrq;
 
-                                                if (thisLinkSpeed != 0 && (linkSpeed == UNKNOWN || thisLinkSpeed < linkSpeed))
-                                                    linkSpeed = thisLinkSpeed;
+                                                if (thisLinkSpeed != 0 && (minLinkSpeed == UNKNOWN || thisLinkSpeed < minLinkSpeed))
+                                                    minLinkSpeed = thisLinkSpeed;
                                                 
                                                 if (signal.hasError())
                                                 {
@@ -547,24 +575,26 @@ public class ResultResource extends ServerResource
                                                 }
                                                 
                                             }
-                                            // set rssi value (typically GSM,UMTS, but also old LTE-phones)
-                                            if (minSignalStrength != Integer.MAX_VALUE
-                                                    && minSignalStrength != UNKNOWN
-                                                    && minSignalStrength != 0) // 0 dBm is out of range
-                                                ((IntField) test.getField("signal_strength")).setValue(minSignalStrength);
-                                            // set rsrp value (typically LTE)
-                                            if (minLteRsrp != Integer.MAX_VALUE
-                                                    && minLteRsrp != UNKNOWN
-                                                    && minLteRsrp != 0) // 0 dBm is out of range
-                                                ((IntField) test.getField("lte_rsrp")).setValue(minLteRsrp);
-                                            // set rsrq value (LTE)
-                                            if (minLteRsrq != Integer.MAX_VALUE
-                                                    && minLteRsrq != UNKNOWN)
-                                                ((IntField) test.getField("lte_rsrq")).setValue(minLteRsrq);
-                                            
-                                            if (linkSpeed != Integer.MAX_VALUE && linkSpeed != UNKNOWN)
-                                                ((IntField) test.getField("wifi_link_speed")).setValue(linkSpeed);
+
                                         }
+
+                                        // set rssi value (typically GSM,UMTS, but also old LTE-phones)
+                                        if (minSignalStrength != Integer.MAX_VALUE
+                                                && minSignalStrength != UNKNOWN
+                                                && minSignalStrength != 0) // 0 dBm is out of range
+                                            ((IntField) test.getField("signal_strength")).setValue(minSignalStrength);
+                                        // set rsrp value (typically LTE)
+                                        if (minLteRsrp != Integer.MAX_VALUE
+                                                && minLteRsrp != UNKNOWN
+                                                && minLteRsrp != 0) // 0 dBm is out of range
+                                            ((IntField) test.getField("lte_rsrp")).setValue(minLteRsrp);
+                                        // set rsrq value (LTE)
+                                        if (minLteRsrq != Integer.MAX_VALUE
+                                                && minLteRsrq != UNKNOWN)
+                                            ((IntField) test.getField("lte_rsrq")).setValue(minLteRsrq);
+
+                                        if (minLinkSpeed != Integer.MAX_VALUE && minLinkSpeed != UNKNOWN)
+                                            ((IntField) test.getField("wifi_link_speed")).setValue(minLinkSpeed);
                                         
                                         // use max network type
                                         

@@ -60,6 +60,7 @@ public class RadioCell {
 
     private Technology technology;
     private Boolean registered;
+    private Boolean active;
 
     private UUID openTestUuid;
 
@@ -125,6 +126,14 @@ public class RadioCell {
 
     public void setRegistered(Boolean registered) {
         this.registered = registered;
+    }
+
+    public Boolean isActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
     }
 
     public UUID getOpenTestUuid() {

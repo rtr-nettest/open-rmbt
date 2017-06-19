@@ -38,6 +38,14 @@ import java.util.UUID;
 
 @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
 public class CellInformationWrapper {
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
+
     public enum Technology {
         CONNECTION_2G("2G"),
         CONNECTION_3G("3G"),
@@ -60,6 +68,7 @@ public class CellInformationWrapper {
     private CellIdentity ci;
     private CellSignalStrength cs;
     private Boolean registered;
+    private Boolean active;
     private long timeStamp;
     //start timestamp of the test, set in InformationCollector
     private Long startTimestampNs;
@@ -472,6 +481,14 @@ public class CellInformationWrapper {
         @JsonProperty("registered")
         public Boolean isRegistered() {
             return CellInformationWrapper.this.isRegistered();
+        }
+
+        @JsonProperty
+        public Boolean isActive() {
+            if (objectsEquals(registered, false)) {
+                return false;
+            }
+            return active;
         }
 
         @JsonIgnore

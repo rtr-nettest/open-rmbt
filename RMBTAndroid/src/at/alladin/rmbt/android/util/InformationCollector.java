@@ -132,6 +132,7 @@ public class InformationCollector
     private boolean collectInformation;
     private boolean registerNetworkReiceiver;
     private boolean enableGeoLocation;
+    private boolean isDualSim = false;
     
     private final List<GeoLocationItem> geoLocations = new ArrayList<GeoLocationItem>();
     private final List<CellLocationItem> cellLocations = new ArrayList<CellLocationItem>();
@@ -609,6 +610,7 @@ public class InformationCollector
 
                     if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
                         CellInformationWrapper cellInformationWrapper = new CellInformationWrapper(wifiInfo);
+                        cellInformationWrapper.setActive(true);
                         this.lastCellInfos.add(cellInformationWrapper);
                         this.registeredCells.clear();
                         this.registeredCells.add(cellInformationWrapper);
@@ -695,7 +697,13 @@ public class InformationCollector
                 fullInfo.setProperty("TELEPHONY_SIM_COUNT", Integer.toString(1));
                 //Android 5.1; API 22 (Lollipop) - implicit - otherwise subscriptionInfoHelper will be null
                 if (isSuspectedDualSim() && subscriptionInfoHelper!= null && haveReadPhoneStatePerm) {
-                    fullInfo.setProperty("TELEPHONY_SIM_COUNT", Integer.toString(subscriptionInfoHelper.getActiveSimCount()));
+                    int simCount = subscriptionInfoHelper.getActiveSimCount();
+                    fullInfo.setProperty("TELEPHONY_SIM_COUNT", Integer.toString(simCount));
+                    if (simCount > 1) {
+                        isDualSim = true;
+                    }
+
+
 
                     SubscriptionInfoHelper.ActiveDataSubscriptionInfo info = subscriptionInfoHelper.getActiveDataSubscriptionInfo();
                     if (info != null) {
@@ -706,6 +714,8 @@ public class InformationCollector
                         fullInfo.setProperty("TELEPHONY_NETWORK_SIM_OPERATOR", info.getOperator());
                         fullInfo.setProperty("TELEPHONY_NETWORK_SIM_OPERATOR_NAME", info.getOperatorName());
                         fullInfo.setProperty("TELEPHONY_NETWORK_OPERATOR_NAME", info.getDisplayName());
+
+
                     }
                 }
                 /* //Android 5.1; API 22 (Lollipop MR 1)
@@ -744,12 +754,16 @@ public class InformationCollector
                     try {
                         final String dualSimDetectionMethod = DualSimDetector.getDualSIM(context);
                         fullInfo.setProperty("DUAL_SIM", String.valueOf(dualSimDetectionMethod != null));
+                        isDualSim = true;
                         if (dualSimDetectionMethod != null) {
                             fullInfo.setProperty("DUAL_SIM_DETECTION_METHOD", dualSimDetectionMethod);
                             fullInfo.setProperty("TELEPHONY_SIM_COUNT", Integer.toString(2));
                         }
-                        else
+                        else {
                             fullInfo.remove("DUAL_SIM_DETECTION_METHOD");
+                            isDualSim = false;
+                        }
+
                     } catch (Exception e) // never fail b/c of dual sim detection
                     {
                     }
@@ -1016,7 +1030,12 @@ public class InformationCollector
         }
         
         //Log.i(DEBUG_TAG, "Signals: " + signals.toString());
-        
+
+        //if this is a dualsim measurement, do not transmit signals
+        if (fullInfo.containsKey("DUAL_SIM")) {
+            signals.clear();
+        }
+
         if (signals.size() > 0)
         {
             
@@ -1030,8 +1049,12 @@ public class InformationCollector
                 jsonItem.put("time_ns", tmpItem.tstampNano - startTimestampNs);                
                 itemList.put(jsonItem);
             }
-            
-            result.put("signals", itemList);
+
+            //don't transmit signals, if it is a dual sim device and it was no wifi measurement
+            if ((network == NETWORK_ETHERNET || network == NETWORK_BLUETOOTH || network == NETWORK_WIFI)
+                    || !isDualSim) {
+                result.put("signals", itemList);
+            }
         }
         
         final String tag = ConfigHelper.getTag(context);
@@ -1297,6 +1320,7 @@ public class InformationCollector
                             lastCellInfos.add(cellInformationWrapper);
                             registeredCells.clear();
                             registeredCells.add(cellInformationWrapper);
+                            cellInformationWrapper.setActive(true);
 
                             if (collectInformation) {
                                 cellInfos.add(cellInformationWrapper);
@@ -1415,6 +1439,16 @@ public class InformationCollector
             }
 
             if (activeCell != null) {
+                //set properties accordingly
+                for (CellInformationWrapper ciw : registeredCells) {
+                    if (ciw != activeCell) {
+                        ciw.setActive(false);
+                    }
+                    else {
+                        ciw.setActive(true);
+                    }
+                }
+
                 if (activeCell.getCs().getSignal() != null) {
                     signal.set(activeCell.getCs().getSignal());
                     signalType.set(SINGAL_TYPE_MOBILE);
