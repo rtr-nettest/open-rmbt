@@ -13,14 +13,6 @@ import java.util.UUID;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RadioCell {
 
-    public Integer getChannelNumber() {
-        return channelNumber;
-    }
-
-    public void setChannelNumber(Integer channelNumber) {
-        this.channelNumber = channelNumber;
-    }
-
     public enum Technology {
         CONNECTION_2G("2G"),
         CONNECTION_3G("3G"),
@@ -143,6 +135,13 @@ public class RadioCell {
         this.openTestUuid = openTestUuid;
     }
 
+    public Integer getChannelNumber() {
+        return channelNumber;
+    }
+
+    public void setChannelNumber(Integer channelNumber) {
+        this.channelNumber = channelNumber;
+    }
 
     @Override
     public String toString() {

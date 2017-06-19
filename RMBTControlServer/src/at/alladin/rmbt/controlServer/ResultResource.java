@@ -378,8 +378,8 @@ public class ResultResource extends ServerResource
                                             for (RadioCell cell : radioCells) {
                                                 //System.out.println(cell);
                                                 cell.setOpenTestUuid(openTestUuid);
-                                                String sql = "INSERT INTO radio_cell(uuid, open_test_uuid, mnc, mcc, location_id, area_code, primary_scrambling_code, technology, registered)" +
-                                                                     "        VALUES(?,?,?,?,?,?,?,?,?);";
+                                                String sql = "INSERT INTO radio_cell(uuid, open_test_uuid, mnc, mcc, location_id, area_code, primary_scrambling_code, technology, channel_number, registered)" +
+                                                                     "        VALUES(?,?,?,?,?,?,?,?,?,?);";
 
                                                 //this will return some id
                                                 MapHandler results = new MapHandler();
@@ -392,6 +392,7 @@ public class ResultResource extends ServerResource
                                                         cell.getAreaCode(),
                                                         cell.getPrimaryScramblingCode(),
                                                         cell.getTechnology().toString(),
+                                                        cell.getChannelNumber(),
                                                         cell.isRegistered());
 
                                             }

@@ -29,6 +29,7 @@ import org.restlet.resource.Post;
 
 import com.google.common.net.InetAddresses;
 
+@Deprecated
 public class StatusResource extends ServerResource
 {
     @Post("json")

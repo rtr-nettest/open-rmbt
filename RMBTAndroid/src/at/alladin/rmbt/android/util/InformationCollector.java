@@ -37,7 +37,6 @@ import android.telephony.CellLocation;
 import android.telephony.PhoneStateListener;
 import android.telephony.SignalStrength;
 import android.telephony.SubscriptionInfo;
-import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import android.telephony.gsm.GsmCellLocation;
 import android.util.Log;
@@ -115,7 +114,7 @@ public class InformationCollector
     
     private WifiManager wifiManager = null;
 
-    private SubscriptionManager subscriptionManager = null;
+    private SubscriptionInfoHelper subscriptionInfoHelper = null;
 
     // Handlers and Receivers for phone and network state
     private NetworkStateBroadcastReceiver networkReceiver;
@@ -334,8 +333,8 @@ public class InformationCollector
         if (wifiManager != null)
             wifiManager = null;
 
-        if (subscriptionManager != null) {
-            subscriptionManager = null;
+        if (subscriptionInfoHelper != null) {
+            subscriptionInfoHelper = null;
         }
 
         fullInfo = null;
@@ -649,27 +648,27 @@ public class InformationCollector
                     cellLocations.add(new CellLocationItem(gcl));	
                 }
             }
-            
-            fullInfo.setProperty("TELEPHONY_NETWORK_OPERATOR_NAME", String.valueOf(telManager.getNetworkOperatorName()));
-            String networkOperator = telManager.getNetworkOperator();
-            if (networkOperator != null && networkOperator.length() >= 5)
-                networkOperator = String.format("%s-%s", networkOperator.substring(0, 3), networkOperator.substring(3));
-            fullInfo.setProperty("TELEPHONY_NETWORK_OPERATOR", String.valueOf(networkOperator));
-            fullInfo.setProperty("TELEPHONY_NETWORK_COUNTRY", String.valueOf(telManager.getNetworkCountryIso()));
-            fullInfo.setProperty("TELEPHONY_NETWORK_SIM_COUNTRY", String.valueOf(telManager.getSimCountryIso()));
-            String simOperator = telManager.getSimOperator();
-            if (simOperator != null && simOperator.length() >= 5)
-                simOperator = String.format("%s-%s", simOperator.substring(0, 3), simOperator.substring(3));
-            fullInfo.setProperty("TELEPHONY_NETWORK_SIM_OPERATOR", String.valueOf(simOperator));
-            
-            try // hack for Motorola Defy (#594)
-            {
-                fullInfo.setProperty("TELEPHONY_NETWORK_SIM_OPERATOR_NAME", String.valueOf(telManager.getSimOperatorName()));
-            }
-            catch (SecurityException e)
-            {
-                e.printStackTrace();
-                fullInfo.setProperty("TELEPHONY_NETWORK_SIM_OPERATOR_NAME", "s.exception");
+
+            if (!isSuspectedDualSim()) {
+                fullInfo.setProperty("TELEPHONY_NETWORK_OPERATOR_NAME", String.valueOf(telManager.getNetworkOperatorName()));
+                String networkOperator = telManager.getNetworkOperator();
+                if (networkOperator != null && networkOperator.length() >= 5)
+                    networkOperator = String.format("%s-%s", networkOperator.substring(0, 3), networkOperator.substring(3));
+                fullInfo.setProperty("TELEPHONY_NETWORK_OPERATOR", String.valueOf(networkOperator));
+                fullInfo.setProperty("TELEPHONY_NETWORK_COUNTRY", String.valueOf(telManager.getNetworkCountryIso()));
+                fullInfo.setProperty("TELEPHONY_NETWORK_SIM_COUNTRY", String.valueOf(telManager.getSimCountryIso()));
+                String simOperator = telManager.getSimOperator();
+                if (simOperator != null && simOperator.length() >= 5)
+                    simOperator = String.format("%s-%s", simOperator.substring(0, 3), simOperator.substring(3));
+                fullInfo.setProperty("TELEPHONY_NETWORK_SIM_OPERATOR", String.valueOf(simOperator));
+
+                try // hack for Motorola Defy (#594)
+                {
+                    fullInfo.setProperty("TELEPHONY_NETWORK_SIM_OPERATOR_NAME", String.valueOf(telManager.getSimOperatorName()));
+                } catch (SecurityException e) {
+                    e.printStackTrace();
+                    fullInfo.setProperty("TELEPHONY_NETWORK_SIM_OPERATOR_NAME", "s.exception");
+                }
             }
             
             fullInfo.setProperty("TELEPHONY_PHONE_TYPE", String.valueOf(telManager.getPhoneType()));
@@ -691,31 +690,22 @@ public class InformationCollector
                 //@TODO 1: New API for Cells and Neighboring cells
 
 
-                //@TODO 2: Dual Sim!
+                //Dual Sim using new API functions
                 boolean dualSimHandled = false;
                 fullInfo.setProperty("TELEPHONY_SIM_COUNT", Integer.toString(1));
-                //Android 7.0; API 24 (Nougat)
-                if (isSuspectedDualSim() && subscriptionManager != null && haveReadPhoneStatePerm) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-                        fullInfo.setProperty("TELEPHONY_SIM_COUNT", Integer.toString(subscriptionManager.getActiveSubscriptionInfoCount()));
-                    }
+                //Android 5.1; API 22 (Lollipop) - implicit - otherwise subscriptionInfoHelper will be null
+                if (isSuspectedDualSim() && subscriptionInfoHelper!= null && haveReadPhoneStatePerm) {
+                    fullInfo.setProperty("TELEPHONY_SIM_COUNT", Integer.toString(subscriptionInfoHelper.getActiveSimCount()));
 
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        //check, if two sim cards are inserted
-                        if (subscriptionManager.getActiveSubscriptionInfoCount() > 1) {
-                            int dataSubscriptionId = subscriptionManager.getDefaultDataSubscriptionId();
-                            SubscriptionInfo dataSubscription = subscriptionManager.getActiveSubscriptionInfo(dataSubscriptionId);
-
-                            //fill info from this
-                            fullInfo.setProperty("TELEPHONY_NETWORK_SIM_COUNTRY", String.valueOf(dataSubscription.getCountryIso()));
-                            simOperator = dataSubscription.getMcc() + "-" + String.format("%02d", dataSubscription.getMnc());
-                            fullInfo.setProperty("TELEPHONY_NETWORK_SIM_OPERATOR", String.valueOf(simOperator));
-                            fullInfo.setProperty("TELEPHONY_NETWORK_SIM_OPERATOR_NAME", String.valueOf(dataSubscription.getCarrierName()));
-                            fullInfo.setProperty("TELEPHONY_NETWORK_OPERATOR_NAME", String.valueOf(dataSubscription.getDisplayName()));
-                            fullInfo.setProperty("TELEPHONY_SIM_COUNT", Integer.toString(subscriptionManager.getActiveSubscriptionInfoCount()));
-
-                        }
+                    SubscriptionInfoHelper.ActiveDataSubscriptionInfo info = subscriptionInfoHelper.getActiveDataSubscriptionInfo();
+                    if (info != null) {
                         dualSimHandled = true;
+
+                        //fill info from this
+                        fullInfo.setProperty("TELEPHONY_NETWORK_SIM_COUNTRY", info.getCountry());
+                        fullInfo.setProperty("TELEPHONY_NETWORK_SIM_OPERATOR", info.getOperator());
+                        fullInfo.setProperty("TELEPHONY_NETWORK_SIM_OPERATOR_NAME", info.getOperatorName());
+                        fullInfo.setProperty("TELEPHONY_NETWORK_OPERATOR_NAME", info.getDisplayName());
                     }
                 }
                 /* //Android 5.1; API 22 (Lollipop MR 1)
@@ -1072,15 +1062,16 @@ public class InformationCollector
             
             final WifiManager tryWifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
 
-            final SubscriptionManager trySubscriptionManager = (SubscriptionManager) context
-                    .getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
 
             // Assign to member vars only after all the get calls succeeded,
             
             connManager = tryConnectivityManager;
             telManager = tryTelephonyManager;
             wifiManager = tryWifiManager;
-            subscriptionManager = trySubscriptionManager;
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                subscriptionInfoHelper = new SubscriptionInfoHelper(context);
+            }
 
 
             // Some interesting info to look at in the logs
