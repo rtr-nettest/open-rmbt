@@ -401,7 +401,7 @@ public class TestResultDetailResource extends ServerResource
                                     "  WHERE open_test_uuid = ? AND active = true AND technology = '4G';";
                             try {
                                 PreparedStatement ps = conn.prepareStatement(query);
-                                System.out.println(ps);
+                                //System.out.println(ps);
                                 ps.setObject(1,openTestUUID);
                                 ResultSet resultSet = ps.executeQuery();
                                 Integer channelNumber = null;

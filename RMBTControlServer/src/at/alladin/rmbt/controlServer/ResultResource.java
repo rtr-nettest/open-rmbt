@@ -459,7 +459,7 @@ public class ResultResource extends ServerResource
                                                 //use signal information, if this was a signal belonging
                                                 //to a cell that was active during this test
                                                 if (Objects.equals(radioCellsByUuid.get(signal.getCellUuid()).isActive(), true)) {
-                                                    System.out.println("active: " + signal);
+                                                    //System.out.println("active: " + signal);
                                                     if (signal.getSignal() != null && signal.getSignal() < minSignalStrength) {
                                                         minSignalStrength = signal.getSignal();
                                                     }
@@ -474,7 +474,7 @@ public class ResultResource extends ServerResource
                                                     }
                                                 }
                                                 else {
-                                                    System.out.println("not active: " + signal);
+                                                    //System.out.println("not active: " + signal);
                                                 }
 
                                             }
