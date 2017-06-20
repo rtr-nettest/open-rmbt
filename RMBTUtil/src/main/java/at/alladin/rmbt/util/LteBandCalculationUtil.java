@@ -58,6 +58,11 @@ public class LteBandCalculationUtil {
         public int getBand() {
             return this.band.getBand();
         }
+
+        @Override
+        public String toString() {
+            return "Earfcn: " + earfcn + ", Band: " + band;
+        }
     }
 
     /**
@@ -178,6 +183,11 @@ public class LteBandCalculationUtil {
 
         public int getBand() {
             return band;
+        }
+
+        @Override
+        public String toString() {
+            return "Band " + band;
         }
     }
 }
