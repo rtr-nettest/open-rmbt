@@ -17,6 +17,8 @@
 package at.alladin.rmbt.controlServer;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -46,6 +48,7 @@ import at.alladin.rmbt.db.fields.TimestampField;
 import at.alladin.rmbt.shared.Helperfunctions;
 import at.alladin.rmbt.shared.ResourceManager;
 import at.alladin.rmbt.shared.SignificantFormat;
+import at.alladin.rmbt.util.LteBandCalculationUtil;
 
 public class TestResultDetailResource extends ServerResource
 {
@@ -149,8 +152,15 @@ public class TestResultDetailResource extends ServerResource
                     	final Field dualSimField = test.getField("dual_sim");
                         if (! dualSimField.isNull() && (dualSimField.toString() == "true"))
                         	  dualSim = true;
-                        
-                        final JSONObject singleItem = addObject(resultList, "time");
+
+                        final Field openTestUUIDField = test.getField("open_test_uuid");
+                        UUID openTestUUID = null;
+                        if (! openTestUUIDField.isNull()) {
+                            openTestUUID = UUID.fromString(openTestUUIDField.toString());
+                        }
+
+
+                            final JSONObject singleItem = addObject(resultList, "time");
                         final Field timeField = test.getField("time");
                         if (!timeField.isNull()) {
                         	final Date date = ((TimestampField) timeField).getDate();
@@ -373,6 +383,50 @@ public class TestResultDetailResource extends ServerResource
                         	if (!roamingTypeField.isNull())
                         		addString(resultList, "roaming", Helperfunctions.getRoamingType(labels, roamingTypeField.intValue()));
                         } //dualSim
+
+                        //band
+                        final Field bandField = test.getField("radio_band");
+                        if (!bandField.isNull()) {
+                            LteBandCalculationUtil.LTEBand band = LteBandCalculationUtil.getBand(bandField.intValue());
+                            if (band != null && band.getInformalName() != null) {
+                                addString(resultList, "radio_band", bandField + " (" + band.getInformalName() + ")");
+                            } else {
+                                addString(resultList, "radio_band", bandField);
+                            }
+
+
+                            //lte frequency
+                            String query = "SELECT DISTINCT channel_number" +
+                                    "  FROM radio_cell" +
+                                    "  WHERE open_test_uuid = ? AND active = true AND technology = '4G';";
+                            try {
+                                PreparedStatement ps = conn.prepareStatement(query);
+                                System.out.println(ps);
+                                ps.setObject(1,openTestUUID);
+                                ResultSet resultSet = ps.executeQuery();
+                                Integer channelNumber = null;
+                                boolean channelNumberChanged = false;
+                                while (resultSet.next()) {
+                                    if (channelNumber == null && !channelNumberChanged) {
+                                        channelNumber = resultSet.getInt(1);
+                                    }
+                                    else {
+                                        channelNumberChanged = true;
+                                        channelNumber = null;
+                                    }
+                                }
+                                if (channelNumber != null) {
+                                    LteBandCalculationUtil.LTEFrequencyInformation fi = LteBandCalculationUtil.getBandFromEarfcn(channelNumber);
+                                    if (fi != null) {
+                                        addString(resultList, "lte_frequency_dl", fi.getFrequencyDL() + " MHz");
+                                    }
+                                }
+                            } catch (SQLException e) {
+                                e.printStackTrace();
+                            }
+
+                        }
+
                         
                         final long totalDownload = test.getField("total_bytes_download").longValue();
                         final long totalUpload = test.getField("total_bytes_upload").longValue();
@@ -532,10 +586,10 @@ public class TestResultDetailResource extends ServerResource
                         //dz 2013-11-09 removed UUID from details as users might get confused by two
                         //              ids;
                         //addString(resultList, "uuid", String.format("T%s", test.getField("uuid")));
-                        
-                        final Field openTestUUIDField = test.getField("open_test_uuid");
-                        if (! openTestUUIDField.isNull())
-                            addString(resultList, "open_test_uuid", String.format("O%s", openTestUUIDField));
+
+                        if (! openTestUUIDField.isNull()) {
+                                    addString(resultList, "open_test_uuid", String.format("O%s", openTestUUIDField));
+                        }
 
                         final Field openUUIDField = test.getField("open_uuid");
                         if (! openUUIDField.isNull())

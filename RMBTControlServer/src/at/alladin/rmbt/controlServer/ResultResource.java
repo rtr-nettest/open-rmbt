@@ -66,6 +66,7 @@ import at.alladin.rmbt.shared.Helperfunctions;
 import at.alladin.rmbt.shared.ResourceManager;
 import at.alladin.rmbt.shared.model.SpeedItems;
 import at.alladin.rmbt.shared.model.SpeedItems.SpeedItem;
+import at.alladin.rmbt.util.LteBandCalculationUtil;
 
 public class ResultResource extends ServerResource
 {
@@ -91,7 +92,7 @@ public class ResultResource extends ServerResource
             try
             {
                 request = new JSONObject(entity);
-                System.out.println(request.toString(2));
+                //System.out.println(request.toString(2));
                                
                 final String lang = request.optString("client_language");
                 
@@ -370,6 +371,8 @@ public class ResultResource extends ServerResource
                                         int minLteRsrp = Integer.MAX_VALUE; //signal strength measured as RSRP
                                         int minLteRsrq = Integer.MAX_VALUE; //signal quality of LTE measured as RSRQ
                                         int minLinkSpeed = UNKNOWN;
+                                        boolean radioBandChanged = false;
+                                        Integer radioBand = null;
 
                                         if (request.has("radioInfo")) {
                                             //new radio info code
@@ -404,6 +407,22 @@ public class ResultResource extends ServerResource
                                                         cell.isRegistered(),
                                                         cell.isActive());
 
+                                                if (Objects.equals(cell.isActive(), true) &&
+                                                        cell.getTechnology() == RadioCell.Technology.CONNECTION_4G &&
+                                                        cell.getChannelNumber() != null &&
+                                                        !radioBandChanged) {
+
+                                                    LteBandCalculationUtil.LTEFrequencyInformation fi = LteBandCalculationUtil.getBandFromEarfcn(cell.getChannelNumber());
+
+                                                    if (fi != null) {
+                                                        if (radioBand == null || radioBand.equals(fi.getBand())) {
+                                                            radioBand = fi.getBand();
+                                                        } else {
+                                                            radioBand = null;
+                                                            radioBandChanged = true;
+                                                        }
+                                                    }
+                                                }
                                             }
 
                                             for (RadioSignal signal : radioSignals) {
@@ -595,6 +614,10 @@ public class ResultResource extends ServerResource
 
                                         if (minLinkSpeed != Integer.MAX_VALUE && minLinkSpeed != UNKNOWN)
                                             ((IntField) test.getField("wifi_link_speed")).setValue(minLinkSpeed);
+
+                                        if (radioBand != null) {
+                                            ((IntField) test.getField("radio_band")).setValue(radioBand);
+                                        }
                                         
                                         // use max network type
                                         
