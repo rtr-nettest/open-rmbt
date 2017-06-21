@@ -166,7 +166,7 @@ public class TestResultResource extends ServerResource
                         
                     	boolean dualSim = false;
                     	final Field dualSimField = test.getField("dual_sim");
-                        if (! dualSimField.isNull() && (dualSimField.toString() == "true"))
+                        if (! dualSimField.isNull() && (dualSimField.toString().toLowerCase().equals("true")))
                         	  dualSim = true;
                         
                         
@@ -179,8 +179,16 @@ public class TestResultResource extends ServerResource
                     	String signalString = null;
                     	final Field signalField = test.getField("signal_strength"); // signal strength as RSSI (GSM, UMTS, Wifi, sometimes LTE)
                     	final Field lteRsrpField = test.getField("lte_rsrp");            // signal strength as RSRP, used in LTE
-                    	
-                        if (!dualSim)
+
+                        //maybe, dualSim was already handled by a new client, in this case, it's ok
+                        boolean useSignal = !dualSim;
+                        if (dualSim) {
+                            if (test.getField("sim_count") != null) {
+                                useSignal = true;
+                            }
+                        }
+
+                        if (useSignal)
                         {
                         	if (!signalField.isNull() || !lteRsrpField.isNull() )
                         	{

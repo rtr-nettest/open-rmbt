@@ -150,7 +150,7 @@ public class TestResultDetailResource extends ServerResource
 
                         boolean dualSim = false;
                     	final Field dualSimField = test.getField("dual_sim");
-                        if (! dualSimField.isNull() && (dualSimField.toString() == "true"))
+                        if (! dualSimField.isNull() && (dualSimField.toString().toLowerCase().equals("true")))
                         	  dualSim = true;
 
                         final Field openTestUUIDField = test.getField("open_test_uuid");

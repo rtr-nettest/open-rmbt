@@ -693,7 +693,6 @@ public class InformationCollector
 
                 //Dual Sim using new API functions
                 boolean dualSimHandled = false;
-                fullInfo.setProperty("TELEPHONY_SIM_COUNT", Integer.toString(1));
                 //Android 5.1; API 22 (Lollipop) - implicit - otherwise subscriptionInfoHelper will be null
                 if (isSuspectedDualSim() && subscriptionInfoHelper!= null && haveReadPhoneStatePerm) {
                     int simCount = subscriptionInfoHelper.getActiveSimCount();
@@ -716,6 +715,9 @@ public class InformationCollector
 
 
                     }
+                }
+                else if (!isSuspectedDualSim()) {
+                    fullInfo.setProperty("TELEPHONY_SIM_COUNT", Integer.toString(1));
                 }
                 /* //Android 5.1; API 22 (Lollipop MR 1)
                 else if (isSuspectedDualSim() && subscriptionManager != null && haveReadPhoneStatePerm
