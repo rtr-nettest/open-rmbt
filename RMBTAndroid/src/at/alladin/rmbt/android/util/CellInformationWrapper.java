@@ -31,6 +31,7 @@ import android.telephony.CellSignalStrengthCdma;
 import android.telephony.CellSignalStrengthGsm;
 import android.telephony.CellSignalStrengthLte;
 import android.telephony.CellSignalStrengthWcdma;
+import android.telephony.TelephonyManager;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -38,6 +39,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import java.util.UUID;
+
+import static at.alladin.rmbt.android.util.InformationCollector.NETWORK_WIFI;
 
 @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
 public class CellInformationWrapper {
@@ -159,6 +162,7 @@ public class CellInformationWrapper {
         public CellSignalStrength(WifiInfo wifiInfo) {
             setSignal(wifiInfo.getRssi());
             setLinkSpeed(wifiInfo.getLinkSpeed());
+            setNetworkTypeId(NETWORK_WIFI);
         }
 
         private Integer getSignalStrengthValueFromDescriptionString(String description, String field) {
