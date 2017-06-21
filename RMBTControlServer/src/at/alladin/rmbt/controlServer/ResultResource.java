@@ -435,14 +435,15 @@ public class ResultResource extends ServerResource
                                                 calendar.add(Calendar.MILLISECOND, (int) (signal.getTimeNs() /1e6));
                                                 signal.setTime(calendar.getTime());
 
-                                                String sql = "INSERT INTO radio_signal(cell_uuid, open_test_uuid, bit_error_rate, wifi_link_speed, " +
+                                                String sql = "INSERT INTO radio_signal(cell_uuid, open_test_uuid, network_type_id, bit_error_rate, wifi_link_speed, " +
                                                         " lte_cqi, lte_rssnr, lte_rsrp, lte_rsrq, signal_strength, timing_advance, time, time_ns, time_ns_last) " +
-                                                        "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);";
+                                                        "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
                                                 MapHandler results = new MapHandler();
 
                                                 qr.insert(conn, sql,results,
                                                         signal.getCellUuid(),
                                                         signal.getOpenTestUuid(),
+                                                        signal.getNetworkTypeId(),
                                                         signal.getBitErrorRate(),
                                                         signal.getWifiLinkSpeed(),
                                                         signal.getLteCqi(),

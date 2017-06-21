@@ -31,6 +31,7 @@ public class RadioSignal {
     private Integer lteCqi;
     private Integer bitErrorRate;
     private Integer wifiLinkSpeed;
+    private Integer networkTypeId;
     private UUID cellUuid;
     private UUID openTestUuid;
 
@@ -134,6 +135,14 @@ public class RadioSignal {
 
     public void setTime(Date time) {
         this.time = time;
+    }
+
+    public Integer getNetworkTypeId() {
+        return networkTypeId;
+    }
+
+    public void setNetworkTypeId(Integer networkTypeId) {
+        this.networkTypeId = networkTypeId;
     }
 
     @Override

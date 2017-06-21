@@ -18,13 +18,16 @@ package at.alladin.rmbt.android.util;
 import android.net.wifi.WifiInfo;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
+import android.telephony.CellIdentityCdma;
 import android.telephony.CellIdentityGsm;
 import android.telephony.CellIdentityLte;
 import android.telephony.CellIdentityWcdma;
 import android.telephony.CellInfo;
+import android.telephony.CellInfoCdma;
 import android.telephony.CellInfoGsm;
 import android.telephony.CellInfoLte;
 import android.telephony.CellInfoWcdma;
+import android.telephony.CellSignalStrengthCdma;
 import android.telephony.CellSignalStrengthGsm;
 import android.telephony.CellSignalStrengthLte;
 import android.telephony.CellSignalStrengthWcdma;
@@ -94,6 +97,11 @@ public class CellInformationWrapper {
             this.ci = new CellIdentity(((CellInfoGsm) cellInfo).getCellIdentity());
             this.cs = new CellSignalStrength(((CellInfoGsm) cellInfo).getCellSignalStrength());
         }
+        else if (cellInfo.getClass().equals(CellInfoCdma.class)) {
+            setTechnology(Technology.CONNECTION_2G);
+            this.ci = new CellIdentity(((CellInfoCdma) cellInfo).getCellIdentity());
+            this.cs = new CellSignalStrength(((CellInfoCdma) cellInfo).getCellSignalStrength());
+        }
     }
 
     public CellInformationWrapper(WifiInfo wifiInfo) {
@@ -115,6 +123,7 @@ public class CellInformationWrapper {
         private Integer cqi;
         private Integer bitErrorRate;
         private Integer linkSpeed;
+        private Integer networkTypeId;
 
         private String cellUuid; //reference to a specific cell
 
@@ -133,6 +142,10 @@ public class CellInformationWrapper {
             String desc = ss.toString();
             setSignal(ss.getDbm());
             setBitErrorRate(getSignalStrengthValueFromDescriptionString(desc, "ber"));
+        }
+
+        public CellSignalStrength(CellSignalStrengthCdma ss) {
+            setSignal(ss.getDbm());
         }
 
         public CellSignalStrength(CellSignalStrengthGsm ss) {
@@ -268,6 +281,15 @@ public class CellInformationWrapper {
             return CellInformationWrapper.this.getTimeStampLast();
         }
 
+        @JsonProperty("network_type_id")
+        public Integer getNetworkTypeId() {
+            return networkTypeId;
+        }
+
+        public void setNetworkTypeId(Integer networkTypeId) {
+            this.networkTypeId = networkTypeId;
+        }
+
         //@JsonProperty("wifi_rssi")
         //@TODO: Wifi_rssi
 
@@ -347,6 +369,10 @@ public class CellInformationWrapper {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 this.setScramblingCode(cellIdentity.getBsic());
             }
+        }
+
+        public CellIdentity(CellIdentityCdma cellIdentity) {
+            this.setLocationId(cellIdentity.getBasestationId());
         }
 
         public CellIdentity(CellIdentityWcdma cellIdentity) {

@@ -1454,6 +1454,9 @@ public class InformationCollector
                     }
                     else {
                         ciw.setActive(true);
+
+                        //set network type of active cell (that we know from the other API)
+                        ciw.getCs().setNetworkTypeId(network);
                     }
                 }
 
