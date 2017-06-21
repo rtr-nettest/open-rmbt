@@ -1417,6 +1417,15 @@ public class InformationCollector
                             activeCell = registeredCells.get(1);
                         }
                     }
+                    else {
+                        //active network is 3G
+                        if (registeredCells.get(0).getTechnology() == CellInformationWrapper.Technology.CONNECTION_3G) {
+                            activeCell = registeredCells.get(0);
+                        }
+                        else {
+                            activeCell = registeredCells.get(1);
+                        }
+                    }
                 }
                 else {
                     //two cells with the identical network (e.g. 3G+3G, 2G+2G)
