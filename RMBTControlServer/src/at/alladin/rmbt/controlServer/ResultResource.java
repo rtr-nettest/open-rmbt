@@ -622,16 +622,24 @@ public class ResultResource extends ServerResource
                                         
                                         // use max network type
                                         
-                                        final String sqlMaxNetworkType = "SELECT nt.uid"
-                                                + " FROM signal s"
-                                                + " JOIN network_type nt"
-                                                + " ON s.network_type_id=nt.uid"
-                                                + " WHERE test_id=?"
-                                                + " ORDER BY nt.technology_order DESC"
-                                                + " LIMIT 1";
+                                        final String sqlMaxNetworkType = "SELECT nt.uid, nt.technology_order" +
+                                                " FROM" +
+                                                " (SELECT s.network_type_id" +
+                                                "  FROM signal s" +
+                                                "  WHERE s.open_test_uuid=?" +
+                                                "  UNION" +
+                                                "  SELECT s1.network_type_id" +
+                                                "  FROM radio_cell c" +
+                                                "   JOIN radio_signal s1 ON c.uuid = s1.cell_uuid" +
+                                                "  WHERE s1.open_test_uuid = ?) s2" +
+                                                " JOIN network_type nt" +
+                                                "  ON nt.uid = s2.network_type_id" +
+                                                " ORDER BY technology_order DESC" +
+                                                " LIMIT 1;";
 
                                         final PreparedStatement psMaxNetworkType = conn.prepareStatement(sqlMaxNetworkType);
-                                        psMaxNetworkType.setLong(1, test.getUid());
+                                        psMaxNetworkType.setObject(1, openTestUuid);
+                                        psMaxNetworkType.setObject(2, openTestUuid);
                                         if (psMaxNetworkType.execute())
                                         {
                                             final ResultSet rs = psMaxNetworkType.getResultSet();
@@ -647,14 +655,28 @@ public class ResultResource extends ServerResource
                                          * check for different types (e.g.
                                          * 2G/3G)
                                          */
-                                        final String sqlAggSignal = "WITH agg AS"
-                                                + " (SELECT array_agg(DISTINCT nt.group_name ORDER BY nt.group_name) agg"
-                                                + " FROM signal s"
-                                                + " JOIN network_type nt ON s.network_type_id=nt.uid WHERE test_id=?)"
-                                                + " SELECT uid FROM agg JOIN network_type nt ON nt.aggregate=agg";
+                                        final String sqlAggSignal = "SELECT uid FROM (" +
+                                                "   SELECT array_agg(DISTINCT group_name" +
+                                                "          ORDER BY group_name) agg" +
+                                                "   FROM (" +
+                                                "         SELECT nt.group_name" +
+                                                "         FROM" +
+                                                "          (SELECT s.network_type_id" +
+                                                "           FROM signal s" +
+                                                "           WHERE s.open_test_uuid = ?" +
+                                                "           UNION" +
+                                                "           SELECT s1.network_type_id" +
+                                                "           FROM radio_cell c" +
+                                                "            JOIN radio_signal s1 ON c.uuid = s1.cell_uuid" +
+                                                "           WHERE s1.open_test_uuid = ?) s2" +
+                                                "          JOIN network_type nt" +
+                                                "           ON nt.uid = s2.network_type_id) s3" +
+                                                "  ) agg" +
+                                                " JOIN network_type nt ON nt.aggregate=agg.agg;";
                                         
                                         final PreparedStatement psAgg = conn.prepareStatement(sqlAggSignal);
-                                        psAgg.setLong(1, test.getUid());
+                                        psAgg.setObject(1, openTestUuid);
+                                        psAgg.setObject(2, openTestUuid);
                                         if (psAgg.execute())
                                         {
                                             final ResultSet rs = psAgg.getResultSet();
