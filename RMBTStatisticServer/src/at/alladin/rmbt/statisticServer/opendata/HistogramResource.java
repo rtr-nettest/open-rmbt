@@ -22,6 +22,7 @@ import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -44,6 +45,7 @@ public class HistogramResource extends ServerResource{
     
     private final int HISTOGRAMCLASSESLOG = 12;
     private final int HISTOGRAMCLASSES = 10;
+    private final int FINEMULTIPLIER = 10;
     private final int HISTOGRAMDOWNLOADDEFAULTMAX = 100000;
     private final int HISTOGRAMDOWNLOADDEFAULTMIN = 0;
     private final int HISTOGRAMUPLOADDEFAULTMAX = 100000;
@@ -161,8 +163,7 @@ public class HistogramResource extends ServerResource{
     
     /**
 	 * Gets the JSON-Response for the histograms
-	 * @param whereClause
-	 * @param searchValues
+	 * @param qp QueryParser for the current query
      * @param measurements The fields for which to get the histogram data
 	 * @return Json as String
 	 */
@@ -201,11 +202,13 @@ public class HistogramResource extends ServerResource{
                 }
                 min = this.histogramInfo.min_download;
                 max = this.histogramInfo.max_download;
-                JSONArray downArray = getJSONForHistogram(min, max,
+                List<Bucket> downArrayfine = getJSONForHistogram(min, max,
                         (logarithmic) ? "speed_download_log" : "speed_download",
                         logarithmic, qp);
+                List<Bucket> downArrayLowRes = getLowResBucketList(downArrayfine);
 
-                ret.put("download_kbit", downArray);
+                ret.put("download_kbit", bucketListToJSONArray(downArrayLowRes));
+                ret.put("download_kbit_fine", bucketListToJSONArray(downArrayfine));
             }
 
 			// Upload
@@ -225,11 +228,14 @@ public class HistogramResource extends ServerResource{
                 }
                 min = this.histogramInfo.min_upload;
                 max = this.histogramInfo.max_upload;
-                JSONArray upArray = getJSONForHistogram(min, max,
+                List<Bucket> uploadBucketsfine = getJSONForHistogram(min, max,
                         (logarithmic) ? "speed_upload_log" : "speed_upload",
                         logarithmic, qp);
 
-                ret.put("upload_kbit", upArray);
+                List<Bucket> uploadBucketsLowRes = getLowResBucketList(uploadBucketsfine);
+
+                ret.put("upload_kbit", bucketListToJSONArray(uploadBucketsLowRes));
+                ret.put("upload_kbit_fine", bucketListToJSONArray(uploadBucketsfine));
             }
 			
 			//Ping
@@ -242,9 +248,11 @@ public class HistogramResource extends ServerResource{
                 }
                 min = this.histogramInfo.min_ping;
                 max = this.histogramInfo.max_ping;
-                JSONArray pingArray = getJSONForHistogram(min, max, "(t.ping_median::float / 1000000)", false, qp);
+                List<Bucket> pingArrayH = getJSONForHistogram(min, max, "(t.ping_median::float / 1000000)", false, qp);
+                List<Bucket> pingArrayL = getLowResBucketList(pingArrayH);
 
-                ret.put("ping_ms", pingArray);
+                ret.put("ping_ms", bucketListToJSONArray(pingArrayL));
+                ret.put("ping_ms_fine", bucketListToJSONArray(pingArrayH));
             }
 		 	
 			//if (searchValues.isEmpty()) {
@@ -259,8 +267,38 @@ public class HistogramResource extends ServerResource{
 		}    	
     	return ret.toString();
     }
-    
 
+    /**
+     * Return a second set of buckets, reduced by FINEMULTIPLIER
+     * @param fineList
+     * @return
+     */
+    private List<Bucket> getLowResBucketList(List<Bucket> fineList) {
+        List<Bucket> ret = new ArrayList<>();
+        Bucket currentBucket = new Bucket();
+        for (int i=0;i<fineList.size();i++) {
+            if (i % FINEMULTIPLIER == 0) {
+                currentBucket = new Bucket();
+                ret.add(currentBucket);
+                currentBucket.lowerBound = fineList.get(i).lowerBound;
+            }
+            currentBucket.results += fineList.get(i).results;
+            if (i % FINEMULTIPLIER == (FINEMULTIPLIER - 1)) {
+                currentBucket.upperBound = fineList.get(i).upperBound;
+                currentBucket = null;
+            }
+        }
+
+        return ret;
+    }
+
+    private JSONArray bucketListToJSONArray(List<Bucket> list) {
+        JSONArray ret = new JSONArray();
+        for (Bucket b : list) {
+            ret.put(b.toJson());
+        }
+        return ret;
+    }
     
     /**
      * Gets the JSON Array for a specific histogram
@@ -268,19 +306,19 @@ public class HistogramResource extends ServerResource{
      * @param max upper bound of last class
      * @param field numeric database-field that the histogram is based on 
      * @param isLogarithmic
-     * @param whereClause
-     * @param searchValues
+     * @param qp QueryParser object for the current selection
      * @return
-     * @throws JSONException 
-     * @throws CacheException 
+     * @throws JSONException
      */
-    private JSONArray getJSONForHistogram(double min, double max, String field, boolean isLogarithmic, QueryParser qp) throws JSONException {
+    private List<Bucket> getJSONForHistogram(double min, double max, String field, boolean isLogarithmic, QueryParser qp) throws JSONException {
 
-        final int histogramClasses = (isLogarithmic) ? HISTOGRAMCLASSESLOG : HISTOGRAMCLASSES;
+        int histogramClasses = (isLogarithmic) ? HISTOGRAMCLASSESLOG : HISTOGRAMCLASSES;
+        histogramClasses *= FINEMULTIPLIER;
 
     	//Get min and max steps
     	double difference = max - min;
     	int digits = (int) Math.floor(Math.log10(difference));
+        int roundTo = Math.max(0,(int) -Math.floor(Math.log10(difference/histogramClasses)));
     	
     	//get histogram classes
         //round everything to make for nicer bucket-widths with 10 buckets
@@ -296,7 +334,7 @@ public class HistogramResource extends ServerResource{
 		final String sql = 
 				"select "
 				+ " width_bucket(" + field + "," + lowerBound + "," + upperBound + "," + histogramClasses + ") bucket, "
-				+ " count(*) cnt " 
+				+ " count(*) cnt "
 				+ " from test t "
 				+ " LEFT JOIN network_type nt ON nt.uid=t.network_type"
 				+ " LEFT JOIN device_map adm ON adm.codename=t.model"
@@ -309,14 +347,14 @@ public class HistogramResource extends ServerResource{
 				+ " group by bucket " + "order by bucket asc;";
     	
     	
-    	
-    	JSONArray jArray = new JSONArray();
+
+        List<Bucket> buckets = new ArrayList<>();
 		try {
 			PreparedStatement stmt = conn.prepareStatement(sql);
 			qp.fillInWhereClause(stmt, 1);
 			ResultSet rs = stmt.executeQuery();
-			
-			JSONObject jBucket = null;
+
+            Bucket bucketObj;
 			long prevCnt = 0;
 			int prevBucket = 0;
 			while(rs.next()) {				
@@ -337,52 +375,52 @@ public class HistogramResource extends ServerResource{
 					int diff = bucket-prevBucket;
 					for (int i=1;i<diff;i++) {
 						prevBucket++;
-						jBucket = new JSONObject();
+						//jBucket = new JSONObject();
+                        bucketObj = new Bucket();
 						double tLowerBound = lowerBound + step * (prevBucket - 1);
 						if (isLogarithmic)
 							tLowerBound = Math.pow(10, tLowerBound*4)*10;
 						double tUpperBound = lowerBound + (step * prevBucket);
 						if (isLogarithmic)
 							tUpperBound = Math.pow(10, tUpperBound*4)*10;
-						jBucket.put("lower_bound", tLowerBound);
-						jBucket.put("upper_bound", tUpperBound);
-						jBucket.put("results", 0);
-						jArray.put(jBucket);
+
+                        bucketObj.lowerBound = BigDecimal.valueOf(tLowerBound).setScale(roundTo, BigDecimal.ROUND_HALF_UP).doubleValue();;;
+                        bucketObj.upperBound = BigDecimal.valueOf(tUpperBound).setScale(roundTo, BigDecimal.ROUND_HALF_UP).doubleValue();;
+                        bucketObj.results = 0;
+                        buckets.add(bucketObj);
 					}
 				}
 				prevBucket = bucket;
 				prevCnt = cnt;
-				jBucket = new JSONObject();
+
+                bucketObj = new Bucket();
 				if (bucket == 0) {
-					jBucket.put("lower_bound", JSONObject.NULL);
+                    bucketObj.lowerBound = null;
 				} else {
 					//2 digits accuracy for small differences
-					if (step < 1 && !isLogarithmic) 
-						jBucket.put("lower_bound", ((double) Math.round(current_lower_bound*100))/(double) 100);
-					else
-						jBucket.put("lower_bound", Math.round(current_lower_bound));
+                    bucketObj.lowerBound = BigDecimal.valueOf(current_lower_bound).setScale(roundTo, BigDecimal.ROUND_HALF_UP).doubleValue();;
 				}
 
 				if (bucket == histogramClasses + 1) {
-					jBucket.put("upper_bound", JSONObject.NULL);
-				} else {
-					if (step < 1 && !isLogarithmic)
-						jBucket.put("upper_bound", ((double) Math.round(current_upper_bound*100))/(double) 100);
-					else
-						jBucket.put("upper_bound", Math.round(current_upper_bound));
+					//jBucket.put("upperBound", JSONObject.NULL);
+                    bucketObj.upperBound = null;
+                } else {
+                    bucketObj.upperBound = BigDecimal.valueOf(current_upper_bound).setScale(roundTo, BigDecimal.ROUND_HALF_UP).doubleValue();
 				}
-				jBucket.put("results", cnt);
+				//jBucket.put("results", cnt);
+                bucketObj.results = cnt;
 				
-				jArray.put(jBucket);
+				//jArray.put(jBucket);
+                buckets.add(bucketObj);
 			}
 			
 			//problem: not enough buckets
 			//solution: respond with classes with "0" elements
-			if (jArray.length() < histogramClasses) {
-				int diff = histogramClasses - jArray.length();
-				int bucket = jArray.length();
+			if (buckets.size() < histogramClasses) {
+				int diff = histogramClasses - buckets.size();
+				int bucket = buckets.size();
 				for (int i=0;i<diff;i++) {
-					jBucket = new JSONObject();
+					bucketObj = new Bucket();
 					bucket++;
 					double tLowerBound = lowerBound + step * (bucket - 1);
 					if (isLogarithmic)
@@ -390,10 +428,11 @@ public class HistogramResource extends ServerResource{
 					double tUpperBound = lowerBound + (step * bucket);
 					if (isLogarithmic)
 						tUpperBound = Math.pow(10, tUpperBound*4)*10;
-					jBucket.put("lower_bound", tLowerBound);
-					jBucket.put("upper_bound", tUpperBound);
-					jBucket.put("results", 0);
-					jArray.put(jBucket);
+                    bucketObj.lowerBound = tLowerBound;
+                    bucketObj.upperBound = tUpperBound;
+                    bucketObj.results = 0;
+
+					buckets.add(bucketObj);
 				}
 			}
 			
@@ -401,14 +440,51 @@ public class HistogramResource extends ServerResource{
 			stmt.close();
 		
 		} catch (SQLException e) {
-			e.printStackTrace();
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+            e.printStackTrace();
+        }
     	
 		
-    	return jArray;
+    	return buckets;
+    }
+
+    public class Bucket {
+        private Double lowerBound;
+        private Double upperBound;
+        private long results = 0;
+
+
+        public Double getLowerBound() {
+            return lowerBound;
+        }
+
+        public Double getUpperBound() {
+            return upperBound;
+        }
+
+        public long getResults() {
+            return results;
+        }
+
+        public JSONObject toJson() {
+            try {
+                JSONObject ret = new JSONObject();
+                if (lowerBound == null) {
+                    ret.put("lower_bound", JSONObject.NULL);
+                } else {
+                    ret.put("lower_bound", lowerBound);
+                }
+                if (upperBound == null) {
+                    ret.put("upper_bound", JSONObject.NULL);
+                } else {
+                    ret.put("upper_bound", upperBound);
+                }
+                ret.put("results", results);
+                return ret;
+            }
+            catch (JSONException ex) {
+                return null;
+            }
+        }
     }
     
     private class HistogramInfo {
