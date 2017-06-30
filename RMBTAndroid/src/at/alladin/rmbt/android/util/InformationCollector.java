@@ -1032,8 +1032,9 @@ public class InformationCollector
         
         //Log.i(DEBUG_TAG, "Signals: " + signals.toString());
 
-        //if this is a dualsim measurement, do not transmit signals
-        if (fullInfo.containsKey("DUAL_SIM")) {
+        //if the phone supports the new Cell Info API (= Android 4.3+, not Huawei),
+        //don't transmit the "old" signal strengths
+        if (cellInfos.size() > 0) {
             signals.clear();
         }
 
@@ -1435,6 +1436,8 @@ public class InformationCollector
 
                     //we do not know which cell is acting as the data cell in this case
                     lastActiveCell.set(null);
+                    signal.set(Integer.MIN_VALUE);
+                    signalRsrq.set(UNKNOWN);
 
                     return;
                 }
