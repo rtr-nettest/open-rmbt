@@ -224,7 +224,7 @@ public class TestResultResource extends ServerResource
                         singleItem.put("title", labels.getString("RESULT_NETWORK_TYPE"));
                         final String networkTypeString = Helperfunctions.getNetworkTypeName(networkType);
                         
-                        if (dualSim)
+                        if (!useSignal)
                            singleItem.put("value", labels.getString("RESULT_DUAL_SIM"));
                         else
                         	singleItem.put("value", networkTypeString);
