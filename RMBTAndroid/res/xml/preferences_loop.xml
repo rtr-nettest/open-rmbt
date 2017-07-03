@@ -17,7 +17,7 @@
 -->
     <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
         
-        <PreferenceCategory android:title="@string/preferences_category_loop_mode" android:layout="@layout/preferences_category">
+        <PreferenceCategory android:title="@string/preferences_category_loop_mode" android:layout="@layout/preferences_category" android:key="loop_mode_group">
             
             <CheckBoxPreference
                 android:key="loop_mode"

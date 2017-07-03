@@ -42,6 +42,9 @@
     
     <string name="preferences_skip_qos">Skip QoS</string>
     <string name="preferences_skip_qos_sum">Skip QoS tests</string>
+
+    <string name="preferences_expert_mode">Expert Mode</string>
+    <string name="preferences_expert_mode_sum">Show advanced settings</string>
     
     <string name="preferences_loop_mode">Loop mode</string>
     <string name="preferences_loop_mode_sum">New test when waiting time has elapsed or distance is covered. Max 2 days.</string>
