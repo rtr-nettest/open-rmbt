@@ -42,7 +42,10 @@
     
     <string name="preferences_skip_qos">QoS-Tests überspringen</string>
     <string name="preferences_skip_qos_sum">QoS-Tests werden nicht durchgeführt</string>
-    
+
+    <string name="preferences_expert_mode">Expertenmodus</string>
+    <string name="preferences_expert_mode_sum">Erweitere Einstellungen einblenden</string>
+
     <string name="preferences_loop_mode">Wiederholungsmodus</string>
     <string name="preferences_loop_mode_sum">Neuer Test nach Wartezeit oder Zurücklegung der Distanz. Max 2 Tage.</string>
     
