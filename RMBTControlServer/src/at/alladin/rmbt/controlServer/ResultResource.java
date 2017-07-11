@@ -373,6 +373,8 @@ public class ResultResource extends ServerResource
                                         int minLinkSpeed = UNKNOWN;
                                         boolean radioBandChanged = false;
                                         Integer radioBand = null;
+                                        boolean channelChanged = false;
+                                        Integer channelNumber = null;
 
                                         if (request.has("radioInfo")) {
                                             //new radio info code
@@ -406,6 +408,13 @@ public class ResultResource extends ServerResource
                                                         cell.getChannelNumber(),
                                                         cell.isRegistered(),
                                                         cell.isActive());
+
+                                                if (channelNumber == null) {
+                                                    channelNumber = cell.getChannelNumber();
+                                                }
+                                                else if (!channelNumber.equals(cell.getChannelNumber())) {
+                                                    channelChanged = true;
+                                                }
 
                                                 if (Objects.equals(cell.isActive(), true) &&
                                                         cell.getTechnology() == RadioCell.Technology.CONNECTION_4G &&
@@ -619,7 +628,10 @@ public class ResultResource extends ServerResource
                                         if (radioBand != null) {
                                             ((IntField) test.getField("radio_band")).setValue(radioBand);
                                         }
-                                        
+                                        if (!channelChanged && channelNumber != null)
+                                        {
+                                            ((IntField) test.getField("channel_number")).setValue(channelNumber);
+                                        }
                                         // use max network type
                                         
                                         final String sqlMaxNetworkType = "SELECT nt.uid, nt.technology_order" +

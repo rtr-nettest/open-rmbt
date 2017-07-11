@@ -173,8 +173,9 @@ public class Test extends Table
             new BooleanField("user_server_selection", "user_server_selection"),
             new BooleanField("dual_sim", "dual_sim"),
             new JsonField("android_permissions", null),
-            new StringField("dual_sim_detection_method", "dual_sim_detection_method"),
+            //new StringField("dual_sim_detection_method", "dual_sim_detection_method"),
             new IntField("radio_band", null),
+            new IntField("channel_number", null),
             new IntField("sim_count","telephony_sim_count")
             };
         };
