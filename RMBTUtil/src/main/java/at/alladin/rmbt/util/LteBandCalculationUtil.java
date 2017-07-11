@@ -85,14 +85,14 @@ public class LteBandCalculationUtil {
      * latest update e30 (2017-03-28)
      */
     private static HashMap<Integer, LTEBand> bands = new HashMap<Integer, LTEBand>() {{
-        put(1, new LTEBand(1, 1920, 1980, 2110, 2170, 18000, 0, "IMT 2.1 GHz"));
+        put(1, new LTEBand(1, 1920, 1980, 2110, 2170, 18000, 0, "2100 MHz"));
         put(2, new LTEBand(2, 1850, 1910, 1930, 1990, 18600, 600, "PCS A-F blocks 1,9 GHz"));
-        put(3, new LTEBand(3, 1710, 1785, 1805, 1880, 19200, 1200, "1800 MHz (was GSM-1800/DCS1800)"));
+        put(3, new LTEBand(3, 1710, 1785, 1805, 1880, 19200, 1200, "1800 MHz"));
         put(4, new LTEBand(4, 1710, 1755, 2110, 2155, 19950, 1950, "AWS-1 1.7+2.1 GHz"));
         put(5, new LTEBand(5, 824, 849, 869, 894, 20400, 2400, "850MHz (was CDMA)"));
         put(6, new LTEBand(6, 830, 840, 875, 885, 20650, 2650, "850MHz subset (was CDMA)"));
-        put(7, new LTEBand(7, 2500, 2570, 2620, 2690, 20750, 2750, "IMT-E 2.6 GHz FDD"));
-        put(8, new LTEBand(8, 880, 915, 925, 960, 21450, 3450, "900 MHz (was GSM900)"));
+        put(7, new LTEBand(7, 2500, 2570, 2620, 2690, 20750, 2750, "2600 MHz"));
+        put(8, new LTEBand(8, 880, 915, 925, 960, 21450, 3450, "900 MHz"));
         put(9, new LTEBand(9, 1749.9, 1784.9, 1844.9, 1879.9, 21800, 3800, "DCS1800 subset"));
         put(10, new LTEBand(10, 1710, 1770, 2110, 2170, 22150, 4150, "Extended AWS/AWS-2/AWS-3"));
         put(11, new LTEBand(11, 1427.9, 1447.9, 1475.9, 1495.9, 22750, 4750, "1.5 GHz lower"));
@@ -102,7 +102,7 @@ public class LteBandCalculationUtil {
         put(17, new LTEBand(17, 704, 716, 734, 746, 23730, 5730, "700 MHz lower BC blocks"));
         put(18, new LTEBand(18, 815, 830, 860, 875, 23850, 5850, "800 MHz lower"));
         put(19, new LTEBand(19, 830, 845, 875, 890, 24000, 6000, "800 MHz upper"));
-        put(20, new LTEBand(20, 832, 862, 791, 821, 24150, 6150, "800 MHz (Digital Dividend)"));
+        put(20, new LTEBand(20, 832, 862, 791, 821, 24150, 6150, "800 MHz"));
         put(21, new LTEBand(21, 1447.9, 1462.9, 1495.9, 1510.9, 24450, 6450, "1.5 GHz upper"));
         put(22, new LTEBand(22, 3410, 3490, 3510, 3590, 24600, 6600, "3.5 GHz"));
         put(23, new LTEBand(23, 2000, 2020, 2180, 2200, 25500, 7500, "2 GHz S-Band"));
@@ -110,7 +110,7 @@ public class LteBandCalculationUtil {
         put(25, new LTEBand(25, 1850, 1915, 1930, 1995, 26040, 8040, "PCS A-G blocks 1900"));
         put(26, new LTEBand(26, 814, 849, 859, 894, 26690, 8690, "ESMR+ 850 (was: iDEN)"));
         put(27, new LTEBand(27, 807, 824, 852, 869, 27040, 9040, "800 MHz SMR (was iDEN)"));
-        put(28, new LTEBand(28, 703, 748, 758, 803, 27210, 9210, "700 APT"));
+        put(28, new LTEBand(28, 703, 748, 758, 803, 27210, 9210, "700 MHz"));
         put(29, new LTEBand(29, 0, 0, 717, 728, 0, 9660, "700 lower DE blocks (suppl. DL)"));
         put(30, new LTEBand(30, 2305, 2315, 2350, 2360, 27660, 9770, "2.3GHz WCS"));
         put(31, new LTEBand(31, 452.5, 457.5, 462.5, 467.5, 27760, 9870, "IMT 450 MHz"));
@@ -120,14 +120,14 @@ public class LteBandCalculationUtil {
         put(35, new LTEBand(35, 1850, 1910, 1850, 1910, 36350, 36350, "1,9 GHz TDD lower"));
         put(36, new LTEBand(36, 1930, 1990, 1930, 1990, 36950, 36950, "1.9 GHz TDD upper"));
         put(37, new LTEBand(37, 1910, 1930, 1910, 1930, 37550, 37550, "PCS TDD"));
-        put(38, new LTEBand(38, 2570, 2620, 2570, 2620, 37750, 37750, "IMT-E 2.6 GHz TDD"));
+        put(38, new LTEBand(38, 2570, 2620, 2570, 2620, 37750, 37750, "2600 MHz TDD"));
         put(39, new LTEBand(39, 1880, 1920, 1880, 1920, 38250, 38250, "IMT 1.9 GHz TDD (was TD-SCDMA)"));
-        put(40, new LTEBand(40, 2300, 2400, 2300, 2400, 38650, 38650, "2.3 GHz TDD"));
+        put(40, new LTEBand(40, 2300, 2400, 2300, 2400, 38650, 38650, "2300 MHz"));
         put(41, new LTEBand(41, 2496, 2690, 2496, 2690, 39650, 39650, "Expanded TDD 2.6 GHz"));
         put(42, new LTEBand(42, 3400, 3600, 3400, 3600, 41590, 41590, "3,4-3,6 GHz"));
         put(43, new LTEBand(43, 3600, 3800, 3600, 3800, 43590, 43590, "3.6-3,8 GHz"));
         put(44, new LTEBand(44, 703, 803, 703, 803, 45590, 45590, "700 MHz APT TDD"));
-        put(45, new LTEBand(45, 1447, 1467, 1447, 1467, 46590, 46590, "TD 1500"));
+        put(45, new LTEBand(45, 1447, 1467, 1447, 1467, 46590, 46590, "1500 MHZ"));
         put(464, new LTEBand(464, 5150, 5925, 5150, 5925, 46790, 46790, "TD Unlicensed"));
         put(47, new LTEBand(47, 5855, 5925, 5855, 5925, 54540, 54540, "Vehicle to Everything (V2X) TDD"));
         put(48, new LTEBand(48, 3550, 3700, 3550, 3700, 55240, 55240, null));
@@ -177,11 +177,11 @@ public class LteBandCalculationUtil {
             this.informal_name = informal_name;
         }
 
-            /** Checks whether a upload frequency is contained in band object
-             *
-             * @param earfcn Frequency to check
-             * @return True if the upload frequency is contained in this band, else false
-             */
+        /** Checks whether a upload frequency is contained in band object
+         *
+         * @param earfcn Frequency to check
+         * @return True if the upload frequency is contained in this band, else false
+         */
         public boolean containsULEarfcn (double earfcn) {
             return earfcn > this.upload_frequency_offset && earfcn < (this.upload_frequency_offset + (this.upload_frequency_upper_bound - this.upload_frequency_lower_bound) * 10);
         }
