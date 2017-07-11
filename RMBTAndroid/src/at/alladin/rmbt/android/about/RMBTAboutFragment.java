@@ -20,8 +20,6 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 import com.google.android.gms.common.GooglePlayServicesUtil;
 
@@ -32,7 +30,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.res.Configuration;
 import android.net.Uri;
@@ -324,11 +321,11 @@ public class RMBTAboutFragment extends Fragment
                         	// loop mode
                         	else if (dataInt == AppConstants.LOOP_MODE_UNLOCK_CODE) {
                         		ConfigHelper.setUserLoopModeState(getActivity(), true);
-                        		Toast.makeText(getActivity(), R.string.about_loop_mode_activated, Toast.LENGTH_LONG).show();
+                        		Toast.makeText(getActivity(), R.string.about_expert_mode_activated, Toast.LENGTH_LONG).show();
                         	}
                         	else if (dataInt == AppConstants.LOOP_MODE_LOCK_CODE) {
                         		ConfigHelper.setUserLoopModeState(getActivity(), false);
-                        		Toast.makeText(getActivity(), R.string.about_loop_mode_deactivated, Toast.LENGTH_LONG).show();
+                        		Toast.makeText(getActivity(), R.string.about_expert_mode_deactivated, Toast.LENGTH_LONG).show();
                         	}
                         	// server selection
                         	else if (dataInt == AppConstants.SERVER_SELECTION_UNLOCK_CODE) {

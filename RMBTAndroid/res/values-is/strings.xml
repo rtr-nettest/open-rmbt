@@ -316,8 +316,8 @@
     <string name="about_hidden_feature_dialog_enter_code">Please enter the code:</string>
     <string name="about_hidden_feature_dialog_msg_deactivated">Deactivated.</string>
     <string name="about_hidden_feature_dialog_msg_activated">Activated.</string>
-    <string name="about_loop_mode_activated">Loop mode available.</string>
-    <string name="about_loop_mode_deactivated">Loop mode removed.</string>
+    <string name="about_expert_mode_activated">Expert mode available.</string>
+    <string name="about_expert_mode_deactivated">Expert mode removed.</string>
     <string name="about_server_selection_activated">Server selection available.</string>
     <string name="about_server_selection_deactivated">Server selection removed.</string>
     <string name="about_hidden_feature_dialog_msg_try_again">Try again!</string>
