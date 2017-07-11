@@ -35,6 +35,7 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceGroup;
 import android.view.MenuItem;
 import android.widget.ListView;
 import at.alladin.rmbt.android.R;
@@ -102,13 +103,12 @@ public class RMBTPreferenceActivity extends PreferenceActivity
         if (!isNewV11Prefs())
         {
 
- 
-            if (ConfigHelper.isUserLoopModeActivated(this) && !ConfigHelper.isDevEnabled(this)) {
-            	addPreferencesFromResource(R.xml.preferences_loop);
-            }
- 
             addPreferencesFromResource(R.xml.preferences);
-            
+
+            //always add loop mode preferences to save position
+            //but hide, if not in expert mode
+            addPreferencesFromResource(R.xml.preferences_loop);
+
             if (ConfigHelper.isDevEnabled(this)) {
                 addPreferencesFromResource(R.xml.preferences_dev);
             }
@@ -124,6 +124,13 @@ public class RMBTPreferenceActivity extends PreferenceActivity
         v.setCacheColorHint(0);
 
         v.setBackgroundResource(R.drawable.app_bgdn_radiant);
+
+        final PreferenceGroup loopModeGroup = (PreferenceGroup) findPreference("loop_mode_group");
+
+        //only show, if on expert mode
+        if (!ConfigHelper.isExpertModeEnabled(this)) {
+            getPreferenceScreen().removePreference(loopModeGroup);
+        }
         
         final Preference loopModeMaxDelayPreference = findPreference("loop_mode_max_delay");
         if (loopModeMaxDelayPreference != null && !ConfigHelper.isDevEnabled(this)) {
@@ -173,7 +180,34 @@ public class RMBTPreferenceActivity extends PreferenceActivity
                 }
             });
         }
-        
+
+        final Preference expertmodePref = findPreference("expert_mode");
+
+        if (expertmodePref != null) {
+            expertmodePref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    if (preference instanceof CheckBoxPreference)
+                    {
+                        final CheckBoxPreference cbp = (CheckBoxPreference) preference;
+
+                        if ((Boolean) newValue) {
+                            getPreferenceScreen().addPreference(loopModeGroup);
+                            ConfigHelper.setUserLoopModeState(getBaseContext(), true);
+                        } else {
+                            getPreferenceScreen().removePreference(loopModeGroup);
+                            ConfigHelper.setUserLoopModeState(getBaseContext(), false);
+                            ConfigHelper.setLoopMode(getBaseContext(), false);
+                            if (loopModePref != null) {
+                                ((CheckBoxPreference) loopModePref).setChecked(false);
+                            }
+                        }
+                    }
+                    return true;
+                }
+            });
+        }
+
         final Preference ndtPref = (Preference) findPreference("ndt");
         if (ndtPref != null)
         {

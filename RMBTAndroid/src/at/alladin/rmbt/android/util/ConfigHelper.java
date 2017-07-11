@@ -113,6 +113,10 @@ public final class ConfigHelper
     	return getSharedPreferences(context).getBoolean("dont_show_menu_before_exit", false);
     }
 
+    public static boolean isExpertModeEnabled(final Context context) {
+        return getSharedPreferences(context).getBoolean("expert_mode", false);
+    }
+
     public static boolean isGPS(final Context context)
     {
         return ! getSharedPreferences(context).getBoolean("no_gps", false);
