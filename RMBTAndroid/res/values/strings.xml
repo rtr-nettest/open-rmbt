@@ -137,8 +137,8 @@
     <string name="about_terms_title">Privacy Policy</string>
     <string name="about_terms_line1">Privacy policy and terms of use</string>
     <string name="about_git_title" translatable="false">Git Repository</string>
-    <string name="about_git_line1" translatable="false">https://github.com/alladin-IT/open-rmbt</string>
-    <string name="about_git_link" translatable="false">https://github.com/alladin-IT/open-rmbt</string>
+    <string name="about_git_line1" translatable="false">https://github.com/rtr-nettest/</string>
+    <string name="about_git_link" translatable="false">https://github.com/rtr-nettest/</string>
     <string name="about_dev_title">Development</string>
     <string name="about_dev_line1" translatable="false">alladin-IT GmbH et al</string>
     <string name="about_dev_line2" translatable="false">https://www.alladin.at/</string>
