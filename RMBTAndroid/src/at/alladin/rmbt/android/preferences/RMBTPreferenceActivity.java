@@ -127,8 +127,9 @@ public class RMBTPreferenceActivity extends PreferenceActivity
 
         final PreferenceGroup loopModeGroup = (PreferenceGroup) findPreference("loop_mode_group");
 
-        //only show, if on expert mode
-        if (!ConfigHelper.isExpertModeEnabled(this)) {
+        //only show, if on expert mode (&& !isUserLoopModeActivated - for migration of old 3.0 clients)
+        if (!ConfigHelper.isExpertModeEnabled(this) &&
+                !ConfigHelper.isUserLoopModeActivated(this)) {
             getPreferenceScreen().removePreference(loopModeGroup);
         }
         
@@ -192,14 +193,22 @@ public class RMBTPreferenceActivity extends PreferenceActivity
                         final CheckBoxPreference cbp = (CheckBoxPreference) preference;
 
                         if ((Boolean) newValue) {
-                            getPreferenceScreen().addPreference(loopModeGroup);
-                            ConfigHelper.setUserLoopModeState(getBaseContext(), true);
+
+                            //add loop mode - only if not dev
+                            if (!ConfigHelper.isDevEnabled(getBaseContext())) {
+                                getPreferenceScreen().addPreference(loopModeGroup);
+                                ConfigHelper.setUserLoopModeState(getBaseContext(), true);
+                            }
                         } else {
-                            getPreferenceScreen().removePreference(loopModeGroup);
-                            ConfigHelper.setUserLoopModeState(getBaseContext(), false);
-                            ConfigHelper.setLoopMode(getBaseContext(), false);
-                            if (loopModePref != null) {
-                                ((CheckBoxPreference) loopModePref).setChecked(false);
+
+                            //remove loop mode, reset settings - only if not dev
+                            if (!ConfigHelper.isDevEnabled(getBaseContext())) {
+                                getPreferenceScreen().removePreference(loopModeGroup);
+                                ConfigHelper.setUserLoopModeState(getBaseContext(), false);
+                                ConfigHelper.setLoopMode(getBaseContext(), false);
+                                if (loopModePref != null) {
+                                    ((CheckBoxPreference) loopModePref).setChecked(false);
+                                }
                             }
                         }
                     }
