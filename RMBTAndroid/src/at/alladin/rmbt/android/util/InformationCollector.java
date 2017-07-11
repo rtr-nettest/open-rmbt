@@ -696,9 +696,10 @@ public class InformationCollector
                 boolean dualSimHandled = false;
                 //Android 5.1; API 22 (Lollipop) - implicit - otherwise subscriptionInfoHelper will be null
                 if (isSuspectedDualSim() && subscriptionInfoHelper!= null && haveReadPhoneStatePerm) {
+                    int simCount = subscriptionInfoHelper.getActiveSimCount();
                     SubscriptionInfoHelper.ActiveDataSubscriptionInfo info = subscriptionInfoHelper.getActiveDataSubscriptionInfo();
-                    fullInfo.setProperty("TELEPHONY_SIM_COUNT", Integer.toString(info.getSimCount()));
-                    if (info.getSimCount() > 1) {
+                    fullInfo.setProperty("TELEPHONY_SIM_COUNT", Integer.toString(simCount));
+                    if (simCount > 1) {
                         isDualSim = true;
                     }
 
@@ -711,7 +712,7 @@ public class InformationCollector
                         fullInfo.setProperty("TELEPHONY_NETWORK_SIM_OPERATOR_NAME", info.getSimOperatorName());
                         //fullInfo.setProperty("TELEPHONY_NETWORK_OPERATOR_NAME", info.getDisplayName());
                     }
-                    if (info.getSimCount() == 1) {
+                    if (simCount == 1) {
                         fullInfo.setProperty("TELEPHONY_NETWORK_OPERATOR_NAME", String.valueOf(telManager.getNetworkOperatorName()));
                         String networkOperator = telManager.getNetworkOperator();
                         if (networkOperator != null && networkOperator.length() >= 5)
