@@ -42,6 +42,7 @@ import android.util.Log;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Strings;
 import com.google.gson.Gson;
 
 import org.json.JSONArray;
@@ -695,25 +696,29 @@ public class InformationCollector
                 boolean dualSimHandled = false;
                 //Android 5.1; API 22 (Lollipop) - implicit - otherwise subscriptionInfoHelper will be null
                 if (isSuspectedDualSim() && subscriptionInfoHelper!= null && haveReadPhoneStatePerm) {
-                    int simCount = subscriptionInfoHelper.getActiveSimCount();
-                    fullInfo.setProperty("TELEPHONY_SIM_COUNT", Integer.toString(simCount));
-                    if (simCount > 1) {
+                    SubscriptionInfoHelper.ActiveDataSubscriptionInfo info = subscriptionInfoHelper.getActiveDataSubscriptionInfo();
+                    fullInfo.setProperty("TELEPHONY_SIM_COUNT", Integer.toString(info.getSimCount()));
+                    if (info.getSimCount() > 1) {
                         isDualSim = true;
                     }
 
-
-
-                    SubscriptionInfoHelper.ActiveDataSubscriptionInfo info = subscriptionInfoHelper.getActiveDataSubscriptionInfo();
                     if (info != null) {
                         dualSimHandled = true;
 
                         //fill info from this
                         fullInfo.setProperty("TELEPHONY_NETWORK_SIM_COUNTRY", info.getCountry());
-                        fullInfo.setProperty("TELEPHONY_NETWORK_SIM_OPERATOR", info.getOperator());
-                        fullInfo.setProperty("TELEPHONY_NETWORK_SIM_OPERATOR_NAME", info.getOperatorName());
-                        fullInfo.setProperty("TELEPHONY_NETWORK_OPERATOR_NAME", info.getDisplayName());
-
-
+                        fullInfo.setProperty("TELEPHONY_NETWORK_SIM_OPERATOR", info.getSimOperator());
+                        fullInfo.setProperty("TELEPHONY_NETWORK_SIM_OPERATOR_NAME", info.getSimOperatorName());
+                        //fullInfo.setProperty("TELEPHONY_NETWORK_OPERATOR_NAME", info.getDisplayName());
+                    }
+                    if (info.getSimCount() == 1) {
+                        fullInfo.setProperty("TELEPHONY_NETWORK_OPERATOR_NAME", String.valueOf(telManager.getNetworkOperatorName()));
+                        String networkOperator = telManager.getNetworkOperator();
+                        if (networkOperator != null && networkOperator.length() >= 5)
+                            networkOperator = String.format("%s-%s", networkOperator.substring(0, 3), networkOperator.substring(3));
+                        fullInfo.setProperty("TELEPHONY_NETWORK_OPERATOR", String.valueOf(networkOperator));
+                        fullInfo.setProperty("TELEPHONY_NETWORK_COUNTRY", String.valueOf(telManager.getNetworkCountryIso()));
+                        fullInfo.setProperty("TELEPHONY_NETWORK_SIM_COUNTRY", String.valueOf(telManager.getSimCountryIso()));
                     }
                 }
                 else if (!isSuspectedDualSim()) {
@@ -757,7 +762,7 @@ public class InformationCollector
                         fullInfo.setProperty("DUAL_SIM", String.valueOf(dualSimDetectionMethod != null));
                         isDualSim = true;
                         if (dualSimDetectionMethod != null) {
-                            fullInfo.setProperty("DUAL_SIM_DETECTION_METHOD", dualSimDetectionMethod);
+                            //fullInfo.setProperty("DUAL_SIM_DETECTION_METHOD", dualSimDetectionMethod);
                             fullInfo.setProperty("TELEPHONY_SIM_COUNT", Integer.toString(2));
                         }
                         else {
@@ -914,6 +919,11 @@ public class InformationCollector
         {
             final String key = (String) pList.nextElement();
             boolean add = true;
+
+            //do not submit empty strings
+            if (Strings.isNullOrEmpty(fullInfo.getProperty(key))) {
+                add = false;
+            }
             if (network == NETWORK_WIFI)
             {
                 if (key.startsWith("TELEPHONY_")) // no mobile data if wifi

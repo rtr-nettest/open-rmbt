@@ -46,8 +46,8 @@ public class SubscriptionInfoHelper {
             //fill info from this
             info.setCountry(activeSubscription.getCountryIso());
             String simOperator = activeSubscription.getMcc() + "-" + String.format("%02d", activeSubscription.getMnc());
-            info.setOperator(String.valueOf(simOperator));
-            info.setOperatorName(activeSubscription.getCarrierName().toString());
+            info.setSimOperator(String.valueOf(simOperator));
+            info.setSimOperatorName(activeSubscription.getCarrierName().toString());
             info.setDisplayName(activeSubscription.getDisplayName().toString());
             info.setSimCount(subscriptionManager.getActiveSubscriptionInfoCount());
             return info;
@@ -62,8 +62,8 @@ public class SubscriptionInfoHelper {
 
     public static class ActiveDataSubscriptionInfo {
         private String country;
-        private String operator;
-        private String operatorName;
+        private String simOperator;
+        private String simOperatorName;
         private String displayName;
         private int simCount;
 
@@ -76,20 +76,20 @@ public class SubscriptionInfoHelper {
             this.country = country;
         }
 
-        public String getOperator() {
-            return operator;
+        public String getSimOperator() {
+            return simOperator;
         }
 
-        public void setOperator(String operator) {
-            this.operator = operator;
+        public void setSimOperator(String simOperator) {
+            this.simOperator = simOperator;
         }
 
-        public String getOperatorName() {
-            return operatorName;
+        public String getSimOperatorName() {
+            return simOperatorName;
         }
 
-        public void setOperatorName(String operatorName) {
-            this.operatorName = operatorName;
+        public void setSimOperatorName(String simOperatorName) {
+            this.simOperatorName = simOperatorName;
         }
 
         public String getDisplayName() {
