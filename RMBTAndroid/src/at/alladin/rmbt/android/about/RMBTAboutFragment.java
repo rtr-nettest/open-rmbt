@@ -168,11 +168,6 @@ public class RMBTAboutFragment extends Fragment
         item.put("text1", getString(R.string.about_git_line1));
         item.put("text2", "");
         list.add(item);
-        item = new HashMap<String, String>();
-        item.put("title", getString(R.string.about_dev_title));
-        item.put("text1", getString(R.string.about_dev_line1));
-        item.put("text2", getString(R.string.about_dev_line2));
-        list.add(item);
 
         final String openSourceSoftwareLicenseInfo = GooglePlayServicesUtil.getOpenSourceSoftwareLicenseInfo(getActivity());
         
