@@ -127,9 +127,15 @@ public class RMBTPreferenceActivity extends PreferenceActivity
 
         final PreferenceGroup loopModeGroup = (PreferenceGroup) findPreference("loop_mode_group");
 
-        //only show, if on expert mode (&& !isUserLoopModeActivated - for migration of old 3.0 clients)
-        if (!ConfigHelper.isExpertModeEnabled(this) &&
-                !ConfigHelper.isUserLoopModeActivated(this)) {
+        //migration from old 3.0 clients
+        if (!ConfigHelper.isExpertModeEnabled(this) && ConfigHelper.isUserLoopModeActivated(this)) {
+            ConfigHelper.setExpertModeEnabled(true, this);
+            CheckBoxPreference pref = (CheckBoxPreference) findPreference("expert_mode");
+            pref.setChecked(true);
+        }
+
+        //only show, if in expert mode
+        if (!ConfigHelper.isExpertModeEnabled(this)) {
             getPreferenceScreen().removePreference(loopModeGroup);
         }
         
