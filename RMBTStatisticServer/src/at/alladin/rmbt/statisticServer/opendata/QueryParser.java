@@ -154,6 +154,7 @@ public class QueryParser {
         allowedFields.put("sender", FieldType.IGNORE);
         allowedFields.put("additional_info", FieldType.IGNORE);
         allowedFields.put("additional_info[]", FieldType.IGNORE);
+        allowedFields.put("radio_band",FieldType.LONG);
         
         //allowedFields.put("ip_anonym", FieldType.STRING);
         //allowedFields.put("ip_anonym[]", FieldType.STRING);
@@ -560,6 +561,9 @@ public class QueryParser {
         }
         else if (opendataField.equals("pinned")) {
         	ret.add("t.pinned");
+        }
+        else if (opendataField.equals("radio_band")) {
+            ret.add("t.radio_band");
         }
          return ret;
     }
