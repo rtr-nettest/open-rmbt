@@ -120,6 +120,11 @@ public class RegistrationResource extends ServerResource
                 if (loopModeData != null) {
                 	loopModeSettings = new Gson().fromJson(loopModeData, LoopModeSettings.class);
                 	loopModeSettings.setClientUuid(uuidString);
+
+                    //old clients expect a "text_counter"
+                    if (request.getJSONObject("loopmode_info").has("text_counter")) {
+                        loopModeSettings.setTestCounter(request.getJSONObject("loopmode_info").optInt("test_count"));
+                    }
                		loopModeTestDao.save(loopModeSettings);
                		if (1 == 2)
                			throw new LoopModeRejectedException();
