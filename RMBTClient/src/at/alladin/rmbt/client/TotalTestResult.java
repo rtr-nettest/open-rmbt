@@ -173,7 +173,7 @@ public class TotalTestResult extends TestResult
                 
                 int targetIdx = bytes.length;
                 for (int j = 0; j < bytes.length; j++)
-                    if (nsecs[j] > targetTime)
+                    if (nsecs[j] >= targetTime)
                     {
                         targetIdx = j;
                         break;
