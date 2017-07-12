@@ -37,7 +37,7 @@ public class LoopModeSettings {
 	@SerializedName("max_tests")
 	protected int maxTests;
 	
-	@SerializedName("text_counter")
+	@SerializedName("test_counter")
 	protected int testCounter;
 
 	public LoopModeSettings() { }
