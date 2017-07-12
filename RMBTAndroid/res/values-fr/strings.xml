@@ -330,6 +330,8 @@
 
     <string name="preferences_skip_qos">Skip QoS</string>
     <string name="preferences_skip_qos_sum">Skip QoS tests</string>
+    <string name="preferences_expert_mode">Expert mode</string>
+    <string name="preferences_expert_mode_sum">Show advanced settings</string>
 
 
     <string name="preferences_loop_mode_wake_lock">Loop WakeLock</string>
