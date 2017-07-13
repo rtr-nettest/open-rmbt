@@ -1,133 +1,136 @@
 Open-RMBT
-===============
+=========
 
-*Open-RMBT* is an open source, multi-threaded bandwidth test written in Java and
+> *Open-RMBT* is an open source, multi-threaded bandwidth test written in Java and
 C, consisting of:
 
-- command line client
-- Java Applet client
-- Android client
-- control Servlet based on Restlet
-- map Servlet based on Restlet
-- statistics Servlet based on Restlet
-- test server (written in C)
-- qos test server
+> * command line client
+> * Java Applet client
+> * Android client
+> * control Servlet based on Restlet
+> * map Servlet based on Restlet
+> * statistics Servlet based on Restlet
+> * qos test server
 
 *Open-RMBT* is released under the [Apache License, Version 2.0]. It was developed
-by [alladin-IT GmbH] and financed by the
-[Austrian Regulatory Authority for Broadcasting and Telecommunications (RTR-GmbH)] [RTR-GmbH].
+by the [Austrian Regulatory Authority for Broadcasting and Telecommunications (RTR-GmbH)](https://www.rtr.at/).
 
- [alladin-IT GmbH]: http://alladin.at/
- [RTR]: https://www.rtr.at/
- [Apache License, Version 2.0]: http://www.apache.org/licenses/LICENSE-2.0
-
-The following Eclipse projects are distributed in this release:
+The following projects are distributed in this release:
 
 - **RMBTSharedCode** - common libraries and classes
 - **RMBTUtil** - common libraries and classes
 - **RMBTControlServer** - Servlet acting as control server for the clients
 - **RMBTMapServer** - Servlet acting as map server
 - **RMBTStatisticServer** - Servlet acting as statistics server
-- **RMBTServer** - speed test server
 - **RMBTQoSServer** - qos test server
 - **RMBTClient** - client code used by *RMBTAndroid*, the command line client and the Applet
 - **RMBTAndroid** - Android App
 
 
-Dependencies
----------------
+### Related materials
 
-The following third party libraries are required dependencies:
-
-### Google Play Services ###
-
-- see <http://developer.android.com/google/play-services/setup.html>.
-- copy "extras/google/google_play_services/libproject" as "google-play-services_lib" into the source distribution of *Open-RMBT*.
+* [RMBT specification](https://www.netztest.at/doc/)
+* [RTR-Netztest/rmbt-server](https://github.com/rtr-nettest/rmbt-server) - Test Server for conducting measurements based on the RMBT protocol
+* [RTR-Netztest/rmbtws](https://github.com/rtr-nettest/rmbtws) - JavaScript client for conducting RMBT-based speed measurements
 
 
-### Android Support Library ###
+System requirements
+-------------------
 
-- see <http://developer.android.com/tools/extras/support-library.html>
-- copy as "RMBTAndroid/libs/android-support-v13.jar"
+* 1-4 physical or virtual servers
+* Everything can also be installed on a single server
+* The test servers (RMBT and Websocket) should run on a physical machine
+* Base system Debian 8 or newer (or similar) 
+* At least on static IPv4 address (IPv6 support recommended, more addresses allow to run more services on port 443)
 
-### Guava ###
-
-- Apache 2.0. License
-- available at <https://code.google.com/p/guava-libraries/>
-- copy as "RMBTSharedCode/lib/guava-18.0.jar"
-
-
-### dnsjava ###
-
-- BSD License
-- available at <http://www.xbill.org/dnsjava/>
-- copy as "RMBTSharedCode/lib/dnsjava-2.1.4.jar"
+  *NOTE: (other Linux distributions can also be used, but commands and package names may need to be changed)*
 
 
-### PostgreSQL JDBC Driver ###
+Installation 
+--------------
 
-- BSD License
-- available at <http://jdbc.postgresql.org/>
-- copy as "RMBTSharedCode/lib/postgresql-9.2-1002.jdbc4.jar"
+### For each server:
+
+1. Setup IP/DNS/hostname
+2. firewall (e.g. iptables)
+3. Install/Setup sshd 
+4. Install/Setup ntpd
+5. dpkg-reconfigure locales
+6. dpkg-reconfigure tzdata
+
+### Database Server
+
+1. Install:
+    * postgresql
+    * postgresql-common
+    * postgresql-contrib
+    * postgresql-9.4-postgis
+    * *for quantile extension; if not found in distribution. Install:*
+      * devscripts
+      * sudo
+      * postgresql-server-dev-all (or ..-9.1)
+      * pgxnclient
+      * Run:
+        ` pgxn install quantile`
+
+2. Run:
+
+    ```bash
+    su - postgres
+    createuser -lSRD rmbt     (add -P if you want to set a password)
+    createuser -lSRDP rmbt_control     (set db pass)
+    createuser -LSRD rmbt_group_control
+    createuser -LSRD rmbt_group_read_only
+    createuser -LSRD rmbt_web_admin
+    echo 'GRANT rmbt_group_read_only TO rmbt_group_control;' | psql
+    echo 'GRANT rmbt_group_control TO rmbt_control;' | psql
+    createdb -O rmbt rmbt
+    psql rmbt < rmbt.sql
+    psql rmbt < rmbt_init.sql
+    ```
+
+3. Edit table "test_server"
+
+   You need to add the key found in secret.h to the test_server table.
+
+### Control and Mapserver
+
+1. Install:
+* nginx
+* openjdk-7-jre
+* openjdk-7-jdk (NOT openjdk-6...!)
+
+2. Edit `/etc/tomcat7/context.xml` (substitute parts with `[]`), add to `<Context>`:
+
+    ```xml
+    <Parameter name="RMBT_SECRETKEY" value="[rmbt secret key]" override="false"/>
+    <Resource 
+       name="jdbc/rmbt" 
+       auth="Container"
+       type="javax.sql.DataSource"
+       maxActive="75" maxIdle="10" maxWait="10000"
+       url="jdbc:postgresql://[db host]/rmbt"
+       driverClassName="org.postgresql.Driver"
+       username="[db user]" password="[db pass]"
+       description="DB Connection" />
+    
+    <Parameter name="RMBT_MAP_HOST" value="[map host]" override="false"/>
+    <Parameter name="RMBT_MAP_PORT" value="[map port]" override="false"/>
+    <Parameter name="RMBT_MAP_SSL" value="[map server ssl ? true : false]" override="false"/>
+    ```
 
 
-### JSON in Java ###
+3. Copy `RMBTControlServer.war` and/or `RMBTMapServer.war` to `/var/lib/tomcat7/webapps/`
 
-- MIT License (+ "The Software shall be used for Good, not Evil.")
-- available at <http://www.json.org/java/index.html>
-- copy as "RMBTSharedCode/lib/org.json.jar" and "RMBTClient/lib/org.json.jar"
-
-
-### Simple Logging Facade for Java (SLF4J) ###
-
-- MIT License
-- available at <http://www.slf4j.org/>
-- copy as "RMBTAndroid/libs/slf4j-android-1.5.8.jar"
+    In case the Java-Postgres connector is missing and not provided 
+    by the package `libpostgresql-jdbc-java` (problem with Debian8) 
+    manually add the jar to the `lib` folder (create folder if it does not exist)
+    
+    `cp /var/lib/tomcat7/webapps/RMBTControlServer/WEB-INF/lib/postgresql-9.4-1201.jdbc41.jar /var/lib/postgresql/netztest/RMBTSharedCode/lib/postgresql-9.4-1201.jdbc41.jar` 
 
 
-### JOpt Simple ###
+4. Run `service tomcat7 restart`
 
-- MIT License
-- available at <http://pholser.github.com/jopt-simple/>
-- copy as "RMBTClient/lib/jopt-simple-3.2.jar"
+### Get in Touch
 
-
-### Apache Commons ###
-
-- Apache 2.0 License
-- available at <http://commons.apache.org/>
-- copy as:
- - "RMBTClient/lib/commons-logging-1.1.1.jar"
- - "RMBTClient/lib/org.apache.httpclient.jar"
- - "RMBTClient/lib/org.apache.httpcore.jar"
- - "RMBTControlServer/WebContent/WEB-INF/lib/commons-csv-1.0.jar"
- - "RMBTControlServer/WebContent/WEB-INF/lib/commons-io-2.4.jar"
-
-
-### Restlet Framework ###
-
-- Version: 2.1
-- Licenses:
-  - Apache 2.0
-  - LGPL license version 3.0
-  - LGPL license version 2.1 
-  - CDDL license version 1.0 or
-  - EPL license version 1.0
-- available at <http://restlet.org/>
-- copy as:
-  - "RMBTControlServer/WebContent/WEB-INF/lib/org.restlet.jar"
-  - "RMBTControlServer/WebContent/WEB-INF/lib/org.restlet.ext.json.jar"
-  - "RMBTControlServer/WebContent/WEB-INF/lib/org.restlet.ext.servlet.jar"
-  - "RMBTMapServer/WebContent/WEB-INF/lib/org.restlet.jar"
-  - "RMBTMapServer/WebContent/WEB-INF/lib/org.restlet.ext.json.jar"
-  - "RMBTMapServer/WebContent/WEB-INF/lib/org.restlet.ext.servlet.jar"
-
-### PostGIS/ODBC ###
-
-- Version: 2.1
-- Licenses:
-  - GPL license version 2.0 (for PostGIS)
-  - LGPL license version 2.1 (for PostGIS/JDBC)
-- available at <http://postgis.net/>
-- copy as:
-  - "RMBTMapServer/WebContent/WEB-INF/lib/postgis.jar"
+* [RTR-Netztest](https://www.netztest.at) on the web
