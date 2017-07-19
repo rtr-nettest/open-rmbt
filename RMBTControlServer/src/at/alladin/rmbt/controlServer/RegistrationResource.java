@@ -126,7 +126,7 @@ public class RegistrationResource extends ServerResource
                     if (request.opt("loopmode_info") instanceof String) {
                         JSONObject legacyObject = new JSONObject(request.getString("loopmode_info"));
                         if (legacyObject.has("text_counter")) {
-                            loopModeSettings.setTestCounter(legacyObject.optInt("test_count"));
+                            loopModeSettings.setTestCounter(legacyObject.optInt("text_count"));
                         }
                     }
 
