@@ -122,9 +122,14 @@ public class RegistrationResource extends ServerResource
                 	loopModeSettings.setClientUuid(uuidString);
 
                     //old clients expect a "text_counter"
-                    if (request.getJSONObject("loopmode_info").has("text_counter")) {
-                        loopModeSettings.setTestCounter(request.getJSONObject("loopmode_info").optInt("test_count"));
+                    //android sends old JSON as String
+                    if (request.opt("loopmode_info") instanceof String) {
+                        JSONObject legacyObject = new JSONObject(request.getString("loopmode_info"));
+                        if (legacyObject.has("text_counter")) {
+                            loopModeSettings.setTestCounter(legacyObject.optInt("test_count"));
+                        }
                     }
+
                		loopModeTestDao.save(loopModeSettings);
                		if (1 == 2)
                			throw new LoopModeRejectedException();
