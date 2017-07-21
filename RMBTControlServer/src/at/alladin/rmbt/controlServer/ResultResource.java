@@ -81,6 +81,7 @@ public class ResultResource extends ServerResource
         //System.out.println(entity);  //debug: dump request
 
         JSONObject request = null;
+        ObjectMapper om = new ObjectMapper();
         
         final ErrorList errorList = new ErrorList();
         final JSONObject answer = new JSONObject();
@@ -309,7 +310,7 @@ public class ResultResource extends ServerResource
                                         }
                                         
                                         final JSONArray geoData = request.optJSONArray("geoLocations");
-                                        
+
                                         if (geoData != null && !test.hasError()) {
                                             for (int i = 0; i < geoData.length(); i++) {
 
@@ -322,22 +323,13 @@ public class ResultResource extends ServerResource
                                                     geoloc.setOpenTestUuid(openTestUuid);
                                                     geoloc.setTest_id(test.getUid());
 
+                                                    om.readerForUpdating(geoloc).readValue(geoDataItem.toString());
+
                                                     final long clientTime = geoDataItem.optLong("tstamp");
                                                     final Timestamp tstamp = java.sql.Timestamp.valueOf(new Timestamp(
                                                             clientTime).toString());
 
                                                     geoloc.setTime(tstamp, test.getField("timezone").toString());
-                                                    geoloc.setAccuracy((float) geoDataItem.optDouble("accuracy", 0));
-                                                    geoloc.setAltitude(geoDataItem.optDouble("altitude", 0));
-                                                    geoloc.setBearing((float) geoDataItem.optDouble("bearing", 0));
-                                                    geoloc.setSpeed((float) geoDataItem.optDouble("speed", 0));
-                                                    geoloc.setProvider(geoDataItem.optString("provider", ""));
-                                                    geoloc.setGeo_lat(geoDataItem.optDouble("geo_lat", 0));
-                                                    geoloc.setGeo_long(geoDataItem.optDouble("geo_long", 0));
-                                                    geoloc.setTime_ns(geoDataItem.optLong("time_ns", 0));
-                                                    if (geoDataItem.has("mock_location")) {
-                                                        geoloc.setMock_location(geoDataItem.getBoolean("mock_location"));
-                                                    }
 
                                                     geoloc.storeLocation();
 
@@ -378,7 +370,7 @@ public class ResultResource extends ServerResource
 
                                         if (request.has("radioInfo")) {
                                             //new radio info code
-                                            ObjectMapper om = new ObjectMapper();
+                                            om = new ObjectMapper();
                                             QueryRunner qr = new QueryRunner();
                                             om.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
                                             List<RadioCell> radioCells = Arrays.asList(om.readValue(request.getJSONObject("radioInfo").getJSONArray("cells").toString(), RadioCell[].class));

@@ -16,18 +16,23 @@
  ******************************************************************************/
 package at.alladin.rmbt.db;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import org.apache.commons.dbutils.QueryRunner;
+import org.apache.commons.dbutils.handlers.MapListHandler;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Timestamp;
-import java.sql.Types;
 import java.util.Calendar;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import at.alladin.rmbt.shared.Helperfunctions;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class GeoLocation
 {
     
@@ -35,13 +40,13 @@ public class GeoLocation
     private UUID open_test_uuid;
     private long test_id;
     private Timestamp time;
-    private float accuracy;
-    private double altitude;
-    private float bearing;
-    private float speed;
+    private Float accuracy;
+    private Double altitude;
+    private Float bearing;
+    private Float speed;
     private String provider;
-    private double geo_lat;
-    private double geo_long;
+    private Double geo_lat;
+    private Double geo_long;
     private long time_ns;
     private Boolean mock_location = null;
     
@@ -65,14 +70,15 @@ public class GeoLocation
         open_test_uuid = null;
         test_id = 0;
         time = null;
-        accuracy = 0;
-        altitude = 0;
-        bearing = 0;
-        speed = 0;
+        accuracy = null;
+        altitude = null;
+        bearing = null;
+        speed = null;
         provider = "";
-        geo_lat = 0;
-        geo_long = 0;
+        geo_lat = null;
+        geo_long = null;
         time_ns = 0;
+        mock_location = null;
         
         timeZone = null;
         
@@ -96,52 +102,35 @@ public class GeoLocation
         PreparedStatement st;
         try
         {
-            st = conn.prepareStatement(
-                    "INSERT INTO geo_location(open_test_uuid, test_id, time, accuracy, altitude, bearing, speed, provider, geo_lat, geo_long, location, time_ns, mock_location) "
-                            + "VALUES(?,?,?,?,?,?,?,?,?,?, ST_TRANSFORM(ST_SetSRID(ST_Point(?, ?), 4326), 900913), ?,?)",
-                    Statement.RETURN_GENERATED_KEYS);
-            
-            /*
-             * Timestamp geotstamp = java.sql.Timestamp.valueOf(new Timestamp(
-             * this.time).toString());
-             */
-            
-            int i=1;
-            
-            st.setObject(i++, open_test_uuid);
-            st.setLong(i++, test_id);
-            st.setTimestamp(i++, time, timeZone);
-            st.setFloat(i++, accuracy);
-            st.setDouble(i++, altitude);
-            st.setFloat(i++, bearing);
-            st.setFloat(i++, speed);
-            st.setString(i++, provider);
-            st.setDouble(i++, geo_lat);
-            st.setDouble(i++, geo_long);
-            st.setDouble(i++, geo_long);
-            st.setDouble(i++, geo_lat);
-            st.setLong(i++, time_ns);
-            if (mock_location != null) {
-                st.setBoolean(i++, mock_location);
-            }
-            else
-            {
-                st.setNull(i++, Types.BOOLEAN);
-            }
-            
-            // System.out.println(st2.toString());
-            
-            final int affectedRows2 = st.executeUpdate();
-            if (affectedRows2 == 0)
+            QueryRunner qr = new QueryRunner();
+            String sql = "INSERT INTO geo_location(open_test_uuid, test_id, time, accuracy, altitude, bearing, speed, provider, geo_lat, geo_long, location, time_ns, mock_location) "
+                    + "VALUES(?,?,?,?,?,?,?,?,?,?, ST_TRANSFORM(ST_SetSRID(ST_Point(?, ?), 4326), 900913), ?,?)";
+
+            //this will return some id
+            MapListHandler results = new MapListHandler();
+            List<Map<String, Object>> insert = qr.insert(conn, sql, results,
+                    open_test_uuid,
+                    test_id,
+                    time,
+                    accuracy,
+                    altitude,
+                    bearing,
+                    speed,
+                    provider,
+                    geo_lat,
+                    geo_long,
+                    geo_lat,
+                    geo_long,
+                    time_ns,
+                    mock_location
+            );
+
+            if (insert.size() == 0)
                 setError("ERROR_DB_STORE_GEOLOCATION");
             else
             {
-                final ResultSet rs = st.getGeneratedKeys();
-                if (rs.next())
-                    // Retrieve the auto generated key(s).
-                    uid = rs.getInt(1);
+                uid = (Long) (insert.get(0).get("uid"));
             }
-            st.close();
         }
         catch (final SQLException e)
         {
@@ -180,22 +169,22 @@ public class GeoLocation
         return time;
     }
     
-    public float getAccuracy()
+    public Float getAccuracy()
     {
         return accuracy;
     }
     
-    public double getAltitude()
+    public Double getAltitude()
     {
         return altitude;
     }
     
-    public float getBearing()
+    public Float getBearing()
     {
         return bearing;
     }
     
-    public float getSpeed()
+    public Float getSpeed()
     {
         return speed;
     }
@@ -205,12 +194,12 @@ public class GeoLocation
         return provider;
     }
     
-    public double getGeo_lat()
+    public Double getGeo_lat()
     {
         return geo_lat;
     }
     
-    public double getGeo_long()
+    public Double getGeo_long()
     {
         return geo_long;
     }
@@ -237,22 +226,22 @@ public class GeoLocation
         timeZone = Helperfunctions.getTimeWithTimeZone(timeZoneId);
     }
     
-    public void setAccuracy(final float accuracy)
+    public void setAccuracy(final Float accuracy)
     {
         this.accuracy = accuracy;
     }
     
-    public void setAltitude(final double altitude)
+    public void setAltitude(final Double altitude)
     {
         this.altitude = altitude;
     }
     
-    public void setBearing(final float bearing)
+    public void setBearing(final Float bearing)
     {
         this.bearing = bearing;
     }
     
-    public void setSpeed(final float speed)
+    public void setSpeed(final Float speed)
     {
         this.speed = speed;
     }
@@ -262,12 +251,12 @@ public class GeoLocation
         this.provider = provider;
     }
     
-    public void setGeo_lat(final double geo_lat)
+    public void setGeo_lat(final Double geo_lat)
     {
         this.geo_lat = geo_lat;
     }
     
-    public void setGeo_long(final double geo_long)
+    public void setGeo_long(final Double geo_long)
     {
         this.geo_long = geo_long;
     }
