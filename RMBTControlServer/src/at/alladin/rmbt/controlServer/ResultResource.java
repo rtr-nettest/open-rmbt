@@ -66,7 +66,7 @@ import at.alladin.rmbt.shared.Helperfunctions;
 import at.alladin.rmbt.shared.ResourceManager;
 import at.alladin.rmbt.shared.model.SpeedItems;
 import at.alladin.rmbt.shared.model.SpeedItems.SpeedItem;
-import at.alladin.rmbt.util.LteBandCalculationUtil;
+import at.alladin.rmbt.util.BandCalculationUtil;
 
 public class ResultResource extends ServerResource
 {
@@ -413,7 +413,20 @@ public class ResultResource extends ServerResource
                                                         cell.getChannelNumber() != null &&
                                                         !radioBandChanged) {
 
-                                                    LteBandCalculationUtil.LTEFrequencyInformation fi = LteBandCalculationUtil.getBandFromEarfcn(cell.getChannelNumber());
+                                                    BandCalculationUtil.FrequencyInformation fi = null;
+                                                    switch(cell.getTechnology()) {
+                                                        case CONNECTION_2G:
+                                                            fi = BandCalculationUtil.getBandFromArfcn(cell.getChannelNumber());
+                                                            break;
+                                                        case CONNECTION_3G:
+                                                            fi = BandCalculationUtil.getBandFromUarfcn(cell.getChannelNumber());
+                                                            break;
+                                                        case CONNECTION_4G:
+                                                            fi = BandCalculationUtil.getBandFromEarfcn(cell.getChannelNumber());
+                                                            break;
+                                                        case CONNECTION_WLAN:
+                                                            break;
+                                                    }
 
                                                     if (fi != null) {
                                                         if (radioBand == null || radioBand.equals(fi.getBand())) {

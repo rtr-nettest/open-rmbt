@@ -41,6 +41,7 @@ import org.restlet.resource.Get;
 import org.restlet.resource.Post;
 
 import at.alladin.rmbt.db.Client;
+import at.alladin.rmbt.db.RadioCell;
 import at.alladin.rmbt.db.Test;
 import at.alladin.rmbt.db.TestNdt;
 import at.alladin.rmbt.db.fields.Field;
@@ -48,7 +49,7 @@ import at.alladin.rmbt.db.fields.TimestampField;
 import at.alladin.rmbt.shared.Helperfunctions;
 import at.alladin.rmbt.shared.ResourceManager;
 import at.alladin.rmbt.shared.SignificantFormat;
-import at.alladin.rmbt.util.LteBandCalculationUtil;
+import at.alladin.rmbt.util.BandCalculationUtil;
 
 public class TestResultDetailResource extends ServerResource
 {
@@ -387,28 +388,23 @@ public class TestResultDetailResource extends ServerResource
                         //band
                         final Field bandField = test.getField("radio_band");
                         if (!bandField.isNull()) {
-                            LteBandCalculationUtil.LTEBand band = LteBandCalculationUtil.getBand(bandField.intValue());
-                            if (band != null && band.getInformalName() != null) {
-                                addString(resultList, "radio_band", bandField + " (" + band.getInformalName() + ")");
-                            } else {
-                                addString(resultList, "radio_band", bandField);
-                            }
-
 
                             //lte frequency
-                            String query = "SELECT DISTINCT channel_number" +
+                            String query = "SELECT DISTINCT channel_number, technology" +
                                     "  FROM radio_cell" +
-                                    "  WHERE open_test_uuid = ? AND active = true AND technology = '4G';";
+                                    "  WHERE open_test_uuid = ? AND active = true AND NOT technology = 'WLAN';";
                             try {
                                 PreparedStatement ps = conn.prepareStatement(query);
                                 //System.out.println(ps);
                                 ps.setObject(1,openTestUUID);
                                 ResultSet resultSet = ps.executeQuery();
                                 Integer channelNumber = null;
+                                RadioCell.Technology technology = null;
                                 boolean channelNumberChanged = false;
                                 while (resultSet.next()) {
                                     if (channelNumber == null && !channelNumberChanged) {
                                         channelNumber = resultSet.getInt(1);
+                                        technology = RadioCell.Technology.forValue(resultSet.getString(2));
                                     }
                                     else {
                                         channelNumberChanged = true;
@@ -416,9 +412,28 @@ public class TestResultDetailResource extends ServerResource
                                     }
                                 }
                                 if (channelNumber != null) {
-                                    LteBandCalculationUtil.LTEFrequencyInformation fi = LteBandCalculationUtil.getBandFromEarfcn(channelNumber);
+                                    BandCalculationUtil.FrequencyInformation fi = null;
+                                    switch (technology) {
+                                        case CONNECTION_2G:
+                                            fi = BandCalculationUtil.getBandFromArfcn(channelNumber);
+                                            break;
+                                        case CONNECTION_3G:
+                                            fi = BandCalculationUtil.getBandFromUarfcn(channelNumber);
+                                            break;
+                                        case CONNECTION_4G:
+                                            fi = BandCalculationUtil.getBandFromEarfcn(channelNumber);
+                                            break;
+                                    }
                                     if (fi != null) {
-                                        addString(resultList, "lte_frequency_dl", fi.getFrequencyDL() + " MHz");
+                                        addString(resultList, "frequency_dl", fi.getFrequencyDL() + " MHz");
+                                        if (fi.getInformalName() != null) {
+                                            addString(resultList, "radio_band", fi.getBand() + " (" + fi.getInformalName() + ")");
+                                        } else {
+                                            addString(resultList, "radio_band", bandField);
+                                        }
+                                    }
+                                    else {
+                                        addString(resultList, "radio_band", bandField);
                                     }
                                 }
                             } catch (SQLException e) {
