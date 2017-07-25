@@ -27,7 +27,8 @@ The following projects are distributed in this release:
 - **RMBTAndroid** - Android App
 
 
-### Related materials
+Related materials
+-----------------
 
 * [RMBT specification](https://www.netztest.at/doc/)
 * [RTR-Netztest/rmbt-server](https://github.com/rtr-nettest/rmbt-server) - Test Server for conducting measurements based on the RMBT protocol
@@ -64,7 +65,8 @@ Installation
     * postgresql
     * postgresql-common
     * postgresql-contrib
-    * postgresql-9.4-postgis
+    * postgis
+    * postgresql-9.6-postgis-2.3
     * *for quantile extension; if not found in distribution. Install:*
       * devscripts
       * sudo
@@ -85,9 +87,15 @@ Installation
     echo 'GRANT rmbt_group_read_only TO rmbt_group_control;' | psql
     echo 'GRANT rmbt_group_control TO rmbt_control;' | psql
     createdb -O rmbt rmbt
-    psql rmbt < rmbt.sql
-    psql rmbt < rmbt_init.sql
+    
+    # if not using postgis 2.1, set the correct version
+    #> sed -i "s/postgis-2\.1/postgis-2.3/g rmbt.sql"
+    
+    cat rmbt.sql | psql rmbt -1
+    cat rmbt_init.sql | psql rmbt -1
+    cat rmbt_qos_init.sql | psql rmbt -1
     ```
+    
 
 3. Edit table "test_server"
 
@@ -96,9 +104,11 @@ Installation
 ### Control and Mapserver
 
 1. Install:
-* nginx
-* openjdk-7-jre
-* openjdk-7-jdk (NOT openjdk-6...!)
+  * Apache Tomcat 7 or higher
+  * nginx (optional)
+  * openjdk-7-jre or higher
+  * openjdk-7-jdk (NOT openjdk-6...!) or higher
+  * libservlet3.1-java
 
 2. Edit `/etc/tomcat7/context.xml` (substitute parts with `[]`), add to `<Context>`:
 
@@ -119,8 +129,15 @@ Installation
     <Parameter name="RMBT_MAP_SSL" value="[map server ssl ? true : false]" override="false"/>
     ```
 
+3. Build the servers
+    
+    The servers can be built with gradle:
+    ```bash
+    ./gradlew :RMBTControlServer:war :RMBTMapServer:war :RMBTStatisticServer:war
+    ```
+    The war files are then located in `RMBT[Control/Map/Statistic]Server/build/lib`.
 
-3. Copy `RMBTControlServer.war` and/or `RMBTMapServer.war` to `/var/lib/tomcat7/webapps/`
+4. Copy `RMBTControlServer.war`, `RMBTMapServer.war` and/or `RMBTStatisticServer.war` to `/var/lib/tomcat7/webapps/`
 
     In case the Java-Postgres connector is missing and not provided 
     by the package `libpostgresql-jdbc-java` (problem with Debian8) 
@@ -129,8 +146,9 @@ Installation
     `cp /var/lib/tomcat7/webapps/RMBTControlServer/WEB-INF/lib/postgresql-9.4-1201.jdbc41.jar /var/lib/postgresql/netztest/RMBTSharedCode/lib/postgresql-9.4-1201.jdbc41.jar` 
 
 
-4. Run `service tomcat7 restart`
+5. Run `service tomcat7 restart`
 
-### Get in Touch
+Get in Touch
+------------
 
 * [RTR-Netztest](https://www.netztest.at) on the web
