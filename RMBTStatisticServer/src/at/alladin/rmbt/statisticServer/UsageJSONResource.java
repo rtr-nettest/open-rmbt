@@ -78,6 +78,7 @@ public class UsageJSONResource extends ServerResource
         	}
         	
         	JSONObject platforms = getPlatforms(new Timestamp(monthBegin.getTimeInMillis()), new Timestamp(monthEnd.getTimeInMillis()));
+        	JSONObject platformsLoopmode = getLoopmodePlatforms(new Timestamp(monthBegin.getTimeInMillis()), new Timestamp(monthEnd.getTimeInMillis()));
         	JSONObject usage = getClassicUsage(new Timestamp(monthBegin.getTimeInMillis()), new Timestamp(monthEnd.getTimeInMillis()));
         	JSONObject versionsIOS = getVersions("iOS", new Timestamp(monthBegin.getTimeInMillis()), new Timestamp(monthEnd.getTimeInMillis()));
         	JSONObject versionsAndroid = getVersions("Android", new Timestamp(monthBegin.getTimeInMillis()), new Timestamp(monthEnd.getTimeInMillis()));
@@ -85,6 +86,7 @@ public class UsageJSONResource extends ServerResource
         	JSONObject networkGroupNames = getNetworkGroupName(new Timestamp(monthBegin.getTimeInMillis()), new Timestamp(monthEnd.getTimeInMillis()));
         	JSONObject networkGroupTypes = getNetworkGroupType(new Timestamp(monthBegin.getTimeInMillis()), new Timestamp(monthEnd.getTimeInMillis()));
         	result.put("platforms", platforms);
+        	result.put("platforms_loopmode", platformsLoopmode);
         	result.put("usage", usage);
         	result.put("versions_ios", versionsIOS);
         	result.put("versions_android", versionsAndroid);
@@ -212,8 +214,7 @@ public class UsageJSONResource extends ServerResource
         ps.setTimestamp(1, begin);
         ps.setTimestamp(2, end);
     	rs = ps.executeQuery();
-		System.out.println(sql);
-		System.out.println(ps);
+
 
 		//one array-item for each day
     	long currentTime = -1;
@@ -265,7 +266,96 @@ public class UsageJSONResource extends ServerResource
     	
     	return returnObj;
     }
-    
+
+	/**
+	 * Returns the statistics for used platforms for a specific timespan [begin, end)
+	 * that conducted measurements in loop mode
+	 * @param begin select all tests with time >= begin
+	 * @param end select all tests with time < end
+	 * @return the structurized JSON object
+	 * @throws SQLException
+	 * @throws JSONException
+	 */
+	private JSONObject getLoopmodePlatforms(Timestamp begin, Timestamp end) throws SQLException, JSONException {
+		JSONObject returnObj = new JSONObject();
+		JSONArray sums = new JSONArray();
+		JSONArray values = new JSONArray();
+		returnObj.put("sums", sums);
+		returnObj.put("values", values);
+
+		HashMap<String,Long> fieldSums = new HashMap<>();
+
+		PreparedStatement ps;
+		ResultSet rs;
+
+		final String sql = "SELECT date_trunc('day', time) _day, platform, count(platform) count_platform" +
+				" FROM (" +
+				"SELECT time, COALESCE(plattform, client_name, 'null') AS platform " +
+				"FROM test " +
+				"INNER JOIN test_loopmode ON test.uuid = test_loopmode.test_uuid " +
+				" WHERE status='FINISHED' AND deleted=false AND time >= ? AND time < ? " +
+				") t" +
+				" GROUP BY _day, platform" +
+				" HAVING count(platform) > 0" +
+				" ORDER BY _day ASC";
+
+		ps = conn.prepareStatement(sql);
+		ps.setTimestamp(1, begin);
+		ps.setTimestamp(2, end);
+		rs = ps.executeQuery();
+
+
+		//one array-item for each day
+		long currentTime = -1;
+		JSONObject currentEntry = null;
+		JSONArray currentEntryValues = null;
+		while(rs.next()) {
+
+			//new item, of a new day is reached
+			long newTime = rs.getDate("_day").getTime();
+			if (currentTime != newTime) {
+				currentTime = newTime;
+				currentEntry = new JSONObject();
+				currentEntryValues = new JSONArray();
+				currentEntry.put("day", rs.getDate("_day").getTime());
+				currentEntry.put("values", currentEntryValues);
+				values.put(currentEntry);
+			}
+
+
+			//disable null-values
+			String platform = rs.getString("platform");
+			long count = rs.getLong("count_platform");
+			if (platform.isEmpty()) {
+				platform = "empty";
+			}
+
+			//add value to sum
+			if (!fieldSums.containsKey(platform)) {
+				fieldSums.put(platform, new Long(0));
+			}
+			fieldSums.put(platform, fieldSums.get(platform) + count);
+
+			JSONObject current = new JSONObject();
+			current.put("field", platform);
+			current.put("value", count);
+			currentEntryValues.put(current);
+		}
+
+		rs.close();
+		ps.close();
+
+		//add field sums
+		for (String field : fieldSums.keySet()) {
+			JSONObject obj = new JSONObject();
+			obj.put("field", field);
+			obj.put("sum", fieldSums.get(field));
+			sums.put(obj);
+		}
+
+		return returnObj;
+	}
+
     /**
      * Returns the statistics for used versions for a specific timespan [begin, end)
      * @param begin select all tests with time >= begin
