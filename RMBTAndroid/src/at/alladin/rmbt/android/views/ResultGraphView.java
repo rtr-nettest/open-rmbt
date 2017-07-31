@@ -296,7 +296,7 @@ public class ResultGraphView extends ScrollView implements EndTaskListener {
 					
 					oldValidValue = value > 0d ? value : oldValidValue;
 					
-					if ("LTE".equals(networkType)) {
+					if ("LTE".equals(networkType) || "LTE CA".equals(networkType)) {
 						if (!lastNetworkType.equals(networkType) && !lastCatTechnology.equals(catTechnology)) {
 							if (curGraph != null) {
 								curGraph.addValue((1-prevValue), time);
