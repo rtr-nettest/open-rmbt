@@ -271,6 +271,8 @@ public final class Helperfunctions
             return "EHRPD";
         case 15:
             return "HSPA+";
+        case 19:
+            return "LTE CA";
         case 98:
             return "LAN";
         case 99:

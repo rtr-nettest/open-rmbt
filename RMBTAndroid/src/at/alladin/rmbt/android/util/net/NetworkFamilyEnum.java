@@ -45,6 +45,7 @@ public enum NetworkFamilyEnum {
 	IDEN("IDEN","2G"),
 	EVDO_B("EVDO_B","2G"),
 	LTE("LTE","4G"),
+	LTE_CA("LTE CA","4G"),
 	EHRPD("EHRPD","2G"),
 	HSPA_PLUS("HSPA+","3G"),
 	UNKNOWN("UNKNOWN");

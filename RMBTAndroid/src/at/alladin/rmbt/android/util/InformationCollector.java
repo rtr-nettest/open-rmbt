@@ -105,6 +105,9 @@ public class InformationCollector
     
     /** Returned by getNetwork() if Bluetooth */
     public static final int NETWORK_BLUETOOTH = 107;
+
+    /** Returned by getNetwork() if LTE Carrier Aggregation ("4G+") (https://github.com/android/platform_frameworks_base/commit/7965fa41) */
+    public static final int NETWORK_TYPE_LTE_CA = 19;
     
     private ConnectivityManager connManager = null;
     
@@ -1423,7 +1426,7 @@ public class InformationCollector
                             activeCell = registeredCells.get(1);
                         }
                     }
-                    else if (network == TelephonyManager.NETWORK_TYPE_LTE) {
+                    else if (network == TelephonyManager.NETWORK_TYPE_LTE || network == NETWORK_TYPE_LTE_CA) {
                         if (registeredCells.get(0).getTechnology() == CellInformationWrapper.Technology.CONNECTION_4G) {
                             activeCell = registeredCells.get(0);
                         }
@@ -1499,6 +1502,7 @@ public class InformationCollector
                 conversionTable.put(CellInformationWrapper.Technology.CONNECTION_2G, TelephonyManager.NETWORK_TYPE_GSM);
                 conversionTable.put(CellInformationWrapper.Technology.CONNECTION_3G, TelephonyManager.NETWORK_TYPE_UMTS);
                 conversionTable.put(CellInformationWrapper.Technology.CONNECTION_4G, TelephonyManager.NETWORK_TYPE_LTE);
+                conversionTable.put(CellInformationWrapper.Technology.CONNECTION_4G, NETWORK_TYPE_LTE_CA);
 
                 lastNetworkType.set(conversionTable.get(activeCell.getTechnology()));
 
@@ -1546,7 +1550,7 @@ public class InformationCollector
                             || network == TelephonyManager.NETWORK_TYPE_EVDO_A
                     /* || network == TelephonyManager.NETWORK_TYPE_EVDO_B */)
                         strength = signalStrength.getEvdoDbm();
-                    else if (network == 13) /* TelephonyManager.NETWORK_TYPE_LTE ; not avail in api 8 */
+                    else if (network == TelephonyManager.NETWORK_TYPE_LTE || network == NETWORK_TYPE_LTE_CA)
                     {
                         try
                         {
