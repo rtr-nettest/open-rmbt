@@ -16,11 +16,7 @@
  ******************************************************************************/
 package at.alladin.rmbt.controlServer;
 
-import java.util.List;
-
-import net.sf.uadetector.ReadableUserAgent;
-import net.sf.uadetector.UserAgentStringParser;
-import net.sf.uadetector.service.UADetectorServiceFactory;
+import com.google.common.net.InetAddresses;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -33,9 +29,11 @@ import org.restlet.engine.header.Header;
 import org.restlet.resource.Get;
 import org.restlet.util.Series;
 
-import at.alladin.rmbt.shared.GeoIPHelper;
+import java.util.List;
+import java.util.Map;
 
-import com.google.common.net.InetAddresses;
+import at.alladin.rmbt.shared.GeoIPHelper;
+import is.tagomor.woothee.Classifier;
 
 public class RequestDataCollector extends ServerResource
 {
@@ -53,16 +51,14 @@ public class RequestDataCollector extends ServerResource
         answer.put("ip", ip);
         answer.put("country_geoip", GeoIPHelper.lookupCountry(InetAddresses.forString(ip)));
         answer.put("port", clientInfo.getPort());
-        
-        UserAgentStringParser parser = UADetectorServiceFactory.getResourceModuleParser();
-        ReadableUserAgent agent = parser.parse(uaString);
-        
-        answer.put("product", agent.getName());
-        answer.put("version", agent.getVersionNumber().getMajor());
-        answer.put("version_minor", agent.getVersionNumber().getMinor());
-        answer.put("category", agent.getDeviceCategory().getCategory());
-        answer.put("os", agent.getOperatingSystem().getFamilyName());
-        answer.put("family", agent.getFamily());
+
+        Map r = Classifier.parse(uaString);
+
+        //replace "Internet Explorer" with "IE" to remain compatible with the old UADetector library
+        answer.put("product", r.get("name").toString().replace("Internet Explorer","IE"));
+        answer.put("version", r.get("version"));
+        answer.put("category", r.get("category"));
+        answer.put("os", r.get("os"));
         answer.put("agent", uaString);
         answer.put("url", getURL().toString());
         

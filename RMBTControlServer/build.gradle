@@ -42,11 +42,12 @@ dependencies {
             'org.json:json:20140107',
             'org.restlet.jse:org.restlet.ext.json:2.1.7',
             'org.restlet.jee:org.restlet.ext.servlet:2.1.7',
-            'net.sf.uadetector:uadetector-resources:2014.10',
+            'is.tagomor.woothee:woothee-java:1.7.0',
             'com.vdurmont:semver4j:2.0.2',
             'commons-dbutils:commons-dbutils:1.6',
             'com.fasterxml.jackson.core:jackson-databind:2.8.8.1'
     )
+    testCompile 'net.sf.uadetector:uadetector-resources:2014.10'
     compile project(':RMBTSharedCode')
     compile project(':RMBTUtil')
 }
