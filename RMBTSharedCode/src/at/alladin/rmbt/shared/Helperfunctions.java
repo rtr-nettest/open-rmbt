@@ -183,6 +183,8 @@ public abstract class Helperfunctions
             return "2G (EHRPD)";
         case 15:
             return "3G (HSPA+)";
+        case 19:
+            return "4G (LTE CA)";
         case 97:
             return "CLI";
         case 98:
