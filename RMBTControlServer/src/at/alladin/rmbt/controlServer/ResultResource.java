@@ -123,19 +123,24 @@ public class ResultResource extends ServerResource
                         
                         try
                         {
-                            
-                            final UUID testUuid = UUID.fromString(token[0]);
-                            UUID openTestUuid=new java.util.UUID( 0L, 0L ); 
-                            
-                            // get open_test_uuid from test table
-                            
-                            final PreparedStatement psOpenUuid = conn.prepareStatement("SELECT open_test_uuid FROM test WHERE uuid = ?");
-                            psOpenUuid.setObject(1, testUuid);
+                            //get test_uuid, open_test_uuid since the token can consist of either one
+                            final UUID tokenUuid = UUID.fromString(token[0]);
+                            final PreparedStatement psOpenUuid = conn.prepareStatement("SELECT uuid, open_test_uuid FROM test WHERE uuid = ? OR open_test_uuid = ?");
+                            psOpenUuid.setObject(1, tokenUuid);
+                            psOpenUuid.setObject(2, tokenUuid);
                             ResultSet rsOpenUuid = psOpenUuid.executeQuery();
-                            if (rsOpenUuid.next())
-                            	openTestUuid = (java.util.UUID) rsOpenUuid.getObject("open_test_uuid");
-                            System.out.println("open_test_uuid: " + openTestUuid.toString());
-                            
+                            UUID testUuid = new java.util.UUID(0L, 0L);
+                            UUID openTestUuid = new java.util.UUID(0L, 0L);
+
+                            if (rsOpenUuid.next()) {
+                                openTestUuid = (java.util.UUID) rsOpenUuid.getObject("open_test_uuid");
+                                testUuid = (java.util.UUID) rsOpenUuid.getObject("uuid");
+                            }
+                            psOpenUuid.close();
+                            //System.out.println("open_test_uuid: " + openTestUuid.toString());
+                            //System.out.println("test_uuid: " + testUuid.toString());
+
+
                             {
                                 
                                 final List<String> clientNames = Arrays.asList(settings.getString("RMBT_CLIENT_NAME")

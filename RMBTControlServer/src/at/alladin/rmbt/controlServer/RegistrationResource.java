@@ -70,7 +70,7 @@ public class RegistrationResource extends ServerResource
     public String request(final String entity)
     {
     	long startTime = System.currentTimeMillis();
-    	
+
 //        final String defaultSecret = params.getFirstValue("RMBT_SECRETKEY");
         
         addAllowOrigin();
@@ -446,7 +446,7 @@ public class RegistrationResource extends ServerResource
                                             errorList.addError("ERROR_DB_STORE_GENERAL");
                                         else
                                         {
-                                            final String data = testUuid + "_" + testSlot;
+                                            final String data = testOpenUuid + "_" + testSlot;
                                             final String hmac = Helperfunctions.calculateHMAC(server.key, data);
                                             if (hmac.length() == 0)
                                                 errorList.addError("ERROR_TEST_TOKEN");
