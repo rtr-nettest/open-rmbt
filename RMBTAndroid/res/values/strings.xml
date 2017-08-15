@@ -440,5 +440,6 @@
     <string name="notification_channel_rmbt_description" translatable="false">Information on test status</string>
     <string name="notification_channel_loop_name" translatable="false">RTR-NetTest loop mode</string>
     <string name="notification_channel_loop_description" translatable="false">Information loop mode</string>
+    <string name="go_to_settings">Change settings</string>
 </resources>
 
