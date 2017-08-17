@@ -119,8 +119,8 @@ public class GeoLocation
                     provider,
                     geo_lat,
                     geo_long,
-                    geo_lat,
                     geo_long,
+                    geo_lat,
                     time_ns,
                     mock_location
             );
