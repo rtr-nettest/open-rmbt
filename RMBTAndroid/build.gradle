@@ -51,8 +51,8 @@ def keystoreProperties = new Properties()
 keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
 android {
-    compileSdkVersion 'android-O'
-    buildToolsVersion '26.0.0-rc2'
+    compileSdkVersion 26
+    buildToolsVersion '26.0.1'
 
 	sourceSets {
 	    main {
@@ -75,9 +75,9 @@ android {
     defaultConfig {
         applicationId "at.alladin.rmbt.android"
         minSdkVersion 15
-        targetSdkVersion 'O'
-        versionCode 30004
-        versionName "3.0.4"
+        targetSdkVersion 26
+        versionCode 30108
+        versionName "3.1.8"
         buildConfigField "long", "BUILD_TIMESTAMP", System.currentTimeMillis() + "L"
 		// Enabling multidex support.
 		multiDexEnabled true
