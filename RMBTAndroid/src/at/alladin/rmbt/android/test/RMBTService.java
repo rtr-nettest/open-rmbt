@@ -30,11 +30,11 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.graphics.Color;
 import android.location.Location;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.WifiLock;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
@@ -259,36 +259,45 @@ public class RMBTService extends Service implements EndTaskListener
 
             // src
             //https://developer.android.com/preview/features/notification-channels.html
+            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                NotificationManager mNotificationManager =
+                        (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                // The user-visible name of the channel.
+                CharSequence name = getString(R.string.notification_channel_rmbt_name);
+                // The user-visible description of the channel.
+                String description = getString(R.string.notification_channel_rmbt_description);
+                int importance = NotificationManager.IMPORTANCE_DEFAULT;
+                NotificationChannel mChannel = new NotificationChannel(rmbtNotify, name, importance);
+                // Configure the notification channel.
+                mChannel.setDescription(description);
+                //mChannel.enableLights(true);
+                // Sets the notification light color for notifications posted to this
+                // channel, if the device supports this feature.
+                //mChannel.setLightColor(Color.BLUE);
+                //mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
+                mNotificationManager.createNotificationChannel(mChannel);
 
-            NotificationManager mNotificationManager =
-                    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            // The id of the channel.
-            String id = rmbtNotify;
-            // The user-visible name of the channel.
-            CharSequence name = getString(R.string.notification_channel_rmbt_name);
-            // The user-visible description of the channel.
-            String description = getString(R.string.notification_channel_rmbt_description);
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel mChannel = new NotificationChannel(id, name, importance);
-            // Configure the notification channel.
-            mChannel.setDescription(description);
-            //mChannel.enableLights(true);
-            // Sets the notification light color for notifications posted to this
-            // channel, if the device supports this feature.
-            //mChannel.setLightColor(Color.BLUE);
-            //mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
-            mNotificationManager.createNotificationChannel(mChannel);
+                final Notification notification = new Notification.Builder(this)
+                        .setSmallIcon(R.drawable.stat_icon_test)
+                        .setContentTitle(res.getText(R.string.test_notification_title))
+                        .setContentText(res.getText(R.string.test_notification_text))
+                        .setTicker(res.getText(R.string.test_notification_ticker))
+                        .setContentIntent(contentIntent)
+                        .setChannelId(rmbtNotify)
+                        .build();
+                startForeground(NotificationIDs.TEST_RUNNING, notification);
+            }
+            else { //fall-back solution for API < 26
+                final Notification notification = new NotificationCompat.Builder(this)
+                        .setSmallIcon(R.drawable.stat_icon_test)
+                        .setContentTitle(res.getText(R.string.test_notification_title))
+                        .setContentText(res.getText(R.string.test_notification_text))
+                        .setTicker(res.getText(R.string.test_notification_ticker))
+                        .setContentIntent(contentIntent)
+                        .build();
+                startForeground(NotificationIDs.TEST_RUNNING, notification);
+            }
 
-            final Notification notification = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.stat_icon_test)
-                .setContentTitle(res.getText(R.string.test_notification_title))
-                .setContentText(res.getText(R.string.test_notification_text))
-                .setTicker(res.getText(R.string.test_notification_ticker))
-                .setContentIntent(contentIntent)
-                .setChannel(rmbtNotify)
-                .build();
-            
-            startForeground(NotificationIDs.TEST_RUNNING, notification);
         }
     }
     
