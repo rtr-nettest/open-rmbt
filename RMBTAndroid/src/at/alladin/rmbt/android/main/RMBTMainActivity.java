@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright 2015, 2016 alladin-IT GmbH
- * Copyright 2015, 2016 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
+ * Copyright 2014-2017 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-/*******************************************************************************
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ******************************************************************************/
+
 package at.alladin.rmbt.android.main;
 
 import java.io.File;
@@ -55,7 +42,6 @@ import android.app.ActionBar;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -66,7 +52,6 @@ import android.content.res.Configuration;
 import android.graphics.PixelFormat;
 import android.location.Location;
 import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -577,7 +562,7 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties,
     		popBackStackFull();
     		break;
     	case R.id.action_help:
-    		showHelp(true);
+    		showUrl(true);
     		break;
     	case R.id.action_history:
     		showHistory(false);
@@ -601,7 +586,7 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties,
     		showSync();
     		break;
     	case R.id.action_menu_help:
-    		showHelp(false);
+    		showUrl(false);
     		break;
     	case R.id.action_menu_share:
     		showShareResultsIntent();
@@ -1193,16 +1178,16 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties,
      * @param url
      */
     
-    public void showHelp(final int resource, boolean popBackStack)
+    public void showUrl(final int resource, boolean popBackStack)
     {
-        showHelp(getResources().getString(resource), popBackStack, AppConstants.PAGE_TITLE_HELP);
+        showUrl(getResources().getString(resource), popBackStack, AppConstants.PAGE_TITLE_HELP);
     }
     
-    public void showHelp(boolean popBackStack) {
-    	showHelp("", popBackStack, AppConstants.PAGE_TITLE_HELP);
+    public void showUrl(boolean popBackStack) {
+    	showUrl("", popBackStack, AppConstants.PAGE_TITLE_HELP);
     }
     
-    public void showHelp(final String url, boolean popBackStack, String titleId)
+    public void showUrl(final String url, boolean popBackStack, String titleId)
     {
     	if (popBackStack) {
     		popBackStackFull();
@@ -1275,7 +1260,7 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties,
         		return;
         	}
         }
-        showHelp(urlStatistic, true, AppConstants.PAGE_TITLE_STATISTICS);
+        showUrl(urlStatistic, true, AppConstants.PAGE_TITLE_STATISTICS);
     }
     
     /**

@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright 2013-2016 alladin-IT GmbH
- * Copyright 2013-2016 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
+ * Copyright 2014-2017 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -650,7 +650,7 @@ public class RMBTMapFragment extends SupportMapFragment implements OnClickListen
             break;
 
         case R.id.mapHelpButton:
-            ((RMBTMainActivity) getActivity()).showHelp("", false, AppConstants.PAGE_TITLE_HELP); // TODO: put correct
+            ((RMBTMainActivity) getActivity()).showUrl("", false, AppConstants.PAGE_TITLE_HELP); // TODO: put correct
                                                         // help url
             break;
 
@@ -828,7 +828,7 @@ public class RMBTMapFragment extends SupportMapFragment implements OnClickListen
         {
             Log.d(getTag(), "go to url: " + openTestUUIDURL);
             final RMBTMainActivity activity = (RMBTMainActivity) getActivity();
-            activity.showHelp(openTestUUIDURL, false, AppConstants.PAGE_TITLE_MAP);
+            activity.showUrl(openTestUUIDURL, false, AppConstants.PAGE_TITLE_MAP);
         }
     }
 
