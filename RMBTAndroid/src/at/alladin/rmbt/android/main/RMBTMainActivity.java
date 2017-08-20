@@ -314,13 +314,6 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties,
         restoreInstance(savedInstanceState);
         super.onCreate(savedInstanceState);
 
-        // identify Amazon Fire devices
-        final String AMAZON_FEATURE_FIRE_TV = "amazon.hardware.fire_tv";
-
-        if (getPackageManager().hasSystemFeature(AMAZON_FEATURE_FIRE_TV)) {
-            Log.d(DEBUG_TAG, "This is a Fire TV device: " + Build.MODEL);
-        }
-
         NetworkInfoCollector.init(this);
         networkInfoCollector = NetworkInfoCollector.getInstance();
         
@@ -1088,24 +1081,38 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties,
     }
     
     public void showMap(boolean popBackStack) {
-    	if (popBackStack) {
-    		popBackStackFull();
-    	}
-    	
-        FragmentTransaction ft;
-        ft = fm.beginTransaction();
-        Fragment f = new RMBTMapFragment();
-        Bundle bundle = new Bundle();
-        bundle.putBoolean(RMBTMapFragment.OPTION_ENABLE_ALL_GESTURES, true);
-        bundle.putBoolean(RMBTMapFragment.OPTION_SHOW_INFO_TOAST, true);
-        bundle.putBoolean(RMBTMapFragment.OPTION_ENABLE_CONTROL_BUTTONS, true);
-        f.setArguments(bundle);
-        ft.replace(R.id.fragment_content, f, AppConstants.PAGE_TITLE_MAP);
-        ft.addToBackStack(AppConstants.PAGE_TITLE_MAP);
-        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-        ft.commit();
 
-        refreshActionBar(AppConstants.PAGE_TITLE_MAP);
+        // Amazon Fire devices do not support Google Maps, thus fall back to browser map
+
+        // identify Amazon Fire devices
+        final String AMAZON_FEATURE_FIRE_TV = "amazon.hardware.fire_tv";
+
+        if (getPackageManager().hasSystemFeature(AMAZON_FEATURE_FIRE_TV)) {
+            Log.d(DEBUG_TAG, "This is a Fire TV device: " + Build.MODEL);
+
+            String url = this.getString(R.string.url_map);
+            showUrl(url, popBackStack, AppConstants.PAGE_TITLE_MAP);
+        }
+        else { // show native map
+            if (popBackStack) {
+                popBackStackFull();
+            }
+
+            FragmentTransaction ft;
+            ft = fm.beginTransaction();
+            Fragment f = new RMBTMapFragment();
+            Bundle bundle = new Bundle();
+            bundle.putBoolean(RMBTMapFragment.OPTION_ENABLE_ALL_GESTURES, true);
+            bundle.putBoolean(RMBTMapFragment.OPTION_SHOW_INFO_TOAST, true);
+            bundle.putBoolean(RMBTMapFragment.OPTION_ENABLE_CONTROL_BUTTONS, true);
+            f.setArguments(bundle);
+            ft.replace(R.id.fragment_content, f, AppConstants.PAGE_TITLE_MAP);
+            ft.addToBackStack(AppConstants.PAGE_TITLE_MAP);
+            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+            ft.commit();
+
+            refreshActionBar(AppConstants.PAGE_TITLE_MAP);
+        }
     }
     
     public RMBTMapFragment showMap(String mapType, LatLng initialCenter, boolean clearFilter, boolean popBackStack) {
@@ -1113,7 +1120,6 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties,
     }
     
     /**
-     * @param testPoint 
      * @param mapType 
      * 
      */
@@ -1175,7 +1181,7 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties,
     
     /**
      * 
-     * @param url
+     * @param resource
      */
     
     public void showUrl(final int resource, boolean popBackStack)
