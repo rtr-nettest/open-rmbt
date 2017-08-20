@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright 2013-2015 alladin-IT GmbH
- * Copyright 2013-2015 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
+ * Copyright 2013-2017 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -132,10 +132,10 @@ public class InfoResource extends ServerResource
         final JSONArray options = new JSONArray();
         
         JSONObject obj = new JSONObject();
-     //   options.put(obj);
-     //   obj.put("title", labels.getString("MAP_FILTER_PERIOD_1_DAY"));
-     //   obj.put("summary", labels.getString("MAP_FILTER_PERIOD_1_DAY"));
-     //   obj.put("period", 1);
+        options.put(obj);
+        obj.put("title", labels.getString("MAP_FILTER_PERIOD_1_DAYS"));
+        obj.put("summary", labels.getString("MAP_FILTER_PERIOD_1_DAYS"));
+        obj.put("period", 1);
         
         obj = new JSONObject();
         options.put(obj);
