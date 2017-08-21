@@ -13,14 +13,14 @@ dependencies {
 	compile project(':RMBTClient')
 	compile project(':RMBTUtil')
 	compile group: 'junit', name: 'junit', version: '4.12'
-	compile 'com.google.android.gms:play-services-maps:10.2.6'
+	compile 'com.google.android.gms:play-services-maps:11.0.4'
 	compile 'dnsjava:dnsjava:2.1.7'
 	compile 'net.sf.jopt-simple:jopt-simple:5.0.3'
 	compile 'org.json:json:5.0.5'
 	compile 'com.fasterxml.jackson.core:jackson-databind:2.8.8.1'
 	// fix dex overflow
 	// see https://stackoverflow.com/questions/38714651/android-studio-dexindexoverflowexception-method-id-not-in
-	compile 'com.android.support:multidex:1.0.0'
+	compile 'com.android.support:multidex:1.0.1'
 
 }
 
@@ -71,8 +71,8 @@ android {
         applicationId "at.alladin.rmbt.android"
         minSdkVersion 15
         targetSdkVersion 25
-        versionCode 30105
-        versionName "3.1.5"
+        versionCode 30109
+        versionName "3.1.9"
         buildConfigField "long", "BUILD_TIMESTAMP", System.currentTimeMillis() + "L"
 		// Enabling multidex support.
 		multiDexEnabled true
