@@ -79,8 +79,10 @@ public class RMBTLoopService extends Service implements ServiceConnection
     private static final String TAG = "RMBTLoopService";
     private static final String RMBT_LOOP_CHANNEL_IDENTIFIER = "RMBT_LOOP_CHANNEL_IDENTIFIER";
 
-    private static final boolean SHOW_DEV_BUTTONS = false;
-    
+    private static final boolean SHOW_FORCE_BUTTON = false;
+    private static final boolean SHOW_STOP_BUTTON = false; //stop is broken: loop is stopped, but UI freezes
+
+
     private WakeLock partialWakeLock;
     private WakeLock dimWakeLock;
     	
@@ -487,13 +489,15 @@ public class RMBTLoopService extends Service implements ServiceConnection
                 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
         {
-            if (SHOW_DEV_BUTTONS) {
-            	final Intent stopIntent = new Intent(ACTION_STOP, null, getApplicationContext(), getClass());
-           		final PendingIntent stopPIntent = PendingIntent.getService(getApplicationContext(), 0, stopIntent, 0);
+            if (SHOW_STOP_BUTTON) {
+                final Intent stopIntent = new Intent(ACTION_STOP, null, getApplicationContext(), getClass());
+                final PendingIntent stopPIntent = PendingIntent.getService(getApplicationContext(), 0, stopIntent, 0);
+                addStopToNotificationBuilder(builder, stopPIntent);
+            }
+                if (SHOW_FORCE_BUTTON) {
                 final Intent forceIntent = new Intent(ACTION_FORCE, null, getApplicationContext(), getClass());
                 final PendingIntent forcePIntent = PendingIntent.getService(getApplicationContext(), 0, forceIntent, 0);
-
-            	addActionToNotificationBuilder(builder, stopPIntent, forcePIntent);
+            	addForceToNotificationBuilder(builder, forcePIntent);
             }
         }
         
@@ -530,12 +534,16 @@ public class RMBTLoopService extends Service implements ServiceConnection
     }
     
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    private static void addActionToNotificationBuilder(NotificationCompat.Builder builder, PendingIntent stopIntent, PendingIntent forceIntent)
+    private static void addStopToNotificationBuilder(NotificationCompat.Builder builder, PendingIntent stopIntent)
     {
         builder.addAction(android.R.drawable.ic_menu_delete, "stop", stopIntent);
+    }
+
+    private static void addForceToNotificationBuilder(NotificationCompat.Builder builder, PendingIntent forceIntent)
+    {
         builder.addAction(android.R.drawable.ic_media_play, "force", forceIntent);
     }
-    
+
     private void updateNotification()
     {
         setNotificationText(notificationBuilder);

@@ -120,7 +120,7 @@
     <string name="test_location_dir_s">S</string>
     <string name="test_location_dir_w">O</string>
     
-    <string name="test_notification_text">Le test est encore en cours.</string>
+    <string name="test_notification_text">Le test est en cours.</string>
     <string name="test_dialog_error_title">Erreur…</string>
     <string name="test_dialog_error_text">Durant l’analyse, une erreur est apparue.</string>
     

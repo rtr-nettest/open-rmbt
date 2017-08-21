@@ -39,7 +39,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
-import android.support.v7.app.NotificationCompat;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import at.alladin.rmbt.android.R;
 import at.alladin.rmbt.android.main.RMBTMainActivity;
@@ -76,7 +76,8 @@ public class RMBTService extends Service implements EndTaskListener
     private Handler handler;
     
     private static final String DEBUG_TAG = "RMBTService";
-    private static final String rmbtNotify = "rmbtNotify";
+    private static final String RMBT_CHANNEL_IDENTIFIER = "RMBT_CHANNEL_IDENTIFIER";
+    private static final boolean ALWAYS_NOTFIY = true; //also notify in loop mode
     private static WifiManager wifiManager;
     private static WifiLock wifiLock;
     private static WakeLock wakeLock;
@@ -250,7 +251,7 @@ public class RMBTService extends Service implements EndTaskListener
     
     private void addNotificationIfTestRunning()
     {
-        if (isTestRunning() && ! bound)
+        if (isTestRunning() && (!bound || ALWAYS_NOTFIY))
         {
             final Resources res = getResources();
             
@@ -266,8 +267,8 @@ public class RMBTService extends Service implements EndTaskListener
                 CharSequence name = getString(R.string.notification_channel_rmbt_name);
                 // The user-visible description of the channel.
                 String description = getString(R.string.notification_channel_rmbt_description);
-                int importance = NotificationManager.IMPORTANCE_DEFAULT;
-                NotificationChannel mChannel = new NotificationChannel(rmbtNotify, name, importance);
+                int importance = NotificationManager.IMPORTANCE_LOW;
+                NotificationChannel mChannel = new NotificationChannel(RMBT_CHANNEL_IDENTIFIER, name, importance);
                 // Configure the notification channel.
                 mChannel.setDescription(description);
                 //mChannel.enableLights(true);
@@ -277,18 +278,9 @@ public class RMBTService extends Service implements EndTaskListener
                 //mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
                 mNotificationManager.createNotificationChannel(mChannel);
 
-                final Notification notification = new Notification.Builder(this)
-                        .setSmallIcon(R.drawable.stat_icon_test)
-                        .setContentTitle(res.getText(R.string.test_notification_title))
-                        .setContentText(res.getText(R.string.test_notification_text))
-                        .setTicker(res.getText(R.string.test_notification_ticker))
-                        .setContentIntent(contentIntent)
-                        .setChannelId(rmbtNotify)
-                        .build();
-                startForeground(NotificationIDs.TEST_RUNNING, notification);
             }
-            else { //fall-back solution for API < 26
-                final Notification notification = new NotificationCompat.Builder(this)
+                //create NotificationCompat Builder, channel identifier will be ignored on Android <= N according to SO 45465542
+                final Notification notification = new NotificationCompat.Builder(this,RMBT_CHANNEL_IDENTIFIER)
                         .setSmallIcon(R.drawable.stat_icon_test)
                         .setContentTitle(res.getText(R.string.test_notification_title))
                         .setContentText(res.getText(R.string.test_notification_text))
@@ -296,8 +288,6 @@ public class RMBTService extends Service implements EndTaskListener
                         .setContentIntent(contentIntent)
                         .build();
                 startForeground(NotificationIDs.TEST_RUNNING, notification);
-            }
-
         }
     }
     

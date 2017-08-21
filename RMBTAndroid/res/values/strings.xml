@@ -201,7 +201,7 @@
     <string name="test_location_dir_s">S</string>
     <string name="test_location_dir_w">W</string>
     
-    <string name="test_notification_text">The test is still running in the background.</string>
+    <string name="test_notification_text">RTR-NetTest is running in the background.</string>
     <string name="test_dialog_error_title">Error…</string>
     <string name="test_dialog_error_text">There has been an error during the test.</string>
     <string name="test_dialog_error_control_server_conn">Connection to test server cannot be established.</string>
