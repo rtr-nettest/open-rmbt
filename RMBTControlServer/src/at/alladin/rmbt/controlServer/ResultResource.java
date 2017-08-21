@@ -128,13 +128,13 @@ public class ResultResource extends ServerResource
                             final PreparedStatement psOpenUuid = conn.prepareStatement("SELECT uuid, open_test_uuid FROM test WHERE uuid = ? OR open_test_uuid = ?");
                             psOpenUuid.setObject(1, tokenUuid);
                             psOpenUuid.setObject(2, tokenUuid);
-                            ResultSet rsOpenUuid = psOpenUuid.executeQuery();
+                            ResultSet rsTokenUuid = psOpenUuid.executeQuery();
                             UUID testUuid = new java.util.UUID(0L, 0L);
                             UUID openTestUuid = new java.util.UUID(0L, 0L);
 
-                            if (rsOpenUuid.next()) {
-                                openTestUuid = (java.util.UUID) rsOpenUuid.getObject("open_test_uuid");
-                                testUuid = (java.util.UUID) rsOpenUuid.getObject("uuid");
+                            if (rsTokenUuid.next()) {
+                                openTestUuid = (java.util.UUID) rsTokenUuid.getObject("open_test_uuid");
+                                testUuid = (java.util.UUID) rsTokenUuid.getObject("uuid");
                             }
                             psOpenUuid.close();
                             //System.out.println("open_test_uuid: " + openTestUuid.toString());
