@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright 2013-2016 alladin-IT GmbH
- * Copyright 2013-2016 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
+ * Copyright 2014-2017 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -388,7 +388,7 @@ public class RMBTResultPagerAdapter extends PagerAdapter {
                         @Override
                         public void onClick(View v)
                         {
-                            activity.showHelp(R.string.url_help_result, false);
+                            activity.showUrl(R.string.url_help_result, false);
                         }
                     });
                     

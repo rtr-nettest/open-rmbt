@@ -37,6 +37,8 @@ import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -563,7 +565,8 @@ public class ClientHandler implements Runnable {
 	    			}
 	    			catch (SocketTimeoutException e) {
 	    				//packet not received
-	    				e.printStackTrace();
+						Logger.getLogger(ClientHandler.class.getName()).log(Level.INFO, "udp socket timeout (port " + port + ")");
+						//e.printStackTrace();
 	    			}
 	    		}
 	    	} catch (IOException e) {

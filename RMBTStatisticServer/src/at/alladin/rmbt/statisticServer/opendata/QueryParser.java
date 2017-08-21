@@ -130,6 +130,7 @@ public class QueryParser {
         allowedFields.put("long[]",FieldType.DOUBLE);
         allowedFields.put("lat",FieldType.DOUBLE);
         allowedFields.put("lat[]",FieldType.DOUBLE);
+        allowedFields.put("radius",FieldType.LONG);
         allowedFields.put("mobile_provider_name", FieldType.STRING);
         allowedFields.put("mobile_provider_name[]", FieldType.STRING);
         allowedFields.put("provider_name",FieldType.STRING);
@@ -211,7 +212,7 @@ public class QueryParser {
                         //allow using wildcard '?' instead of sql '_'
                         value = value.replace('?', '_');
 
-                        whereClause += formatWhereClause(attr, value,negate, type, searchValues);
+                        this.addToWhereParams(attr, value,negate, type);
 
                         break;
                     case DATE:
@@ -235,7 +236,7 @@ public class QueryParser {
                         long v = Long.parseLong(value);
                         value = Long.toString(v);
                         
-                        whereClause += formatWhereClause(attr, value, comperatorDate, negate, type, searchValues);
+                        this.addToWhereParams(attr, value, comperatorDate, negate, type);
                         break;
                     case UUID:
                         if (value.isEmpty()) {
@@ -249,7 +250,7 @@ public class QueryParser {
                             invalidElements.put(attr);
                             continue;
                         }
-                        whereClause += formatWhereClause(attr, value, "=", negate, type, searchValues);
+                        this.addToWhereParams(attr, value, "=", negate, type);
                         break;
                     case BOOLEAN:
                     	if (value.isEmpty() ||
@@ -257,7 +258,7 @@ public class QueryParser {
                             invalidElements.put(attr);
                             continue;
                         }
-                		whereClause += formatWhereClause(attr, value, "=", negate, type, searchValues);
+                        this.addToWhereParams(attr, value, "=", negate, type);
                     	break;
                     case DOUBLE:
                     case LONG:
@@ -271,7 +272,7 @@ public class QueryParser {
                             invalidElements.put(attr);
                             continue;
                         }
-                        whereClause += formatWhereClause(attr, value, comperator, negate, type, searchValues);
+                        this.addToWhereParams(attr, value, comperator, negate, type);
                         break;
                     case IGNORE: 
                     	break; //do nothing
@@ -302,6 +303,22 @@ public class QueryParser {
                 }
             }
             
+        }
+
+        if (invalidElements.length() == 0) {
+            //special treatment for radius (Since lat/long are removed from the list in the process)
+            if (whereParams.containsKey("radius")) {
+                whereClause += this.formatWhereClause(whereParams.get("radius").get(0),searchValues);
+                whereParams.remove("radius");
+            }
+
+            //now, build the where clause
+            for (List<SingleParameter> params : whereParams.values()) {
+                for (SingleParameter param : params) {
+                    whereClause += this.formatWhereClause(param, searchValues);
+                }
+            }
+
         }
         
         //add defaults
@@ -354,46 +371,44 @@ public class QueryParser {
     private String formatWhereClauseDefaults() {
     	String ret = "";
     	if (!this.whereParams.containsKey("implausible")) {
-    		ret += formatWhereClause("implausible", "false", "=", false, FieldType.BOOLEAN, this.searchValues);
+    		ret += formatWhereClause(new SingleParameter("implausible", "false", "=", false, FieldType.BOOLEAN), this.searchValues);
     	}
     	
     	return ret;
     }
     
-    private String formatWhereClause(String attr, String value, boolean negate, FieldType type, Queue<Map.Entry<String, FieldType>> queue) {
-        return formatWhereClause(attr, value,"ILIKE",negate,type,queue);
+    private SingleParameter addToWhereParams(String attr, String value, boolean negate, FieldType type) {
+        return addToWhereParams(attr, value,"ILIKE",negate,type);
     }
-    
+
     /**
-     * Transforms the given parameters in a psql where-clause, starting with "AND"
+     *
      * @param attr the attribute name from the get-request - is replaced with the real column name
      * @param value what the column given in 'attr' should have as value
      * @param comperator the comparator, eg. '=', '>=', '<=' 'LIKE'
      * @param negate true, if the results should NOT match the criteria
      * @param type the type of the column (numeric, string, uuid, date)
-     * @param queue the queue where the resulting transformed value should be put in
-     * @return the formatted AND-Clause for the prepared statement (AND xxx = ?)
+     * @return
      */
-    private String formatWhereClause(String attr, String value, String comperator, boolean negate, FieldType type, Queue<Map.Entry<String, FieldType>> queue) {    
+    private SingleParameter addToWhereParams(String attr, String value, String comperator, boolean negate, FieldType type) {
         //if it is a array => remove the brackets
         if (attr.endsWith("[]")) {
             attr = attr.substring(0,attr.length()-2);
         }
-        
+
         //create meta object and add to data structure
-        SingleParameter param = new SingleParameter(attr, comperator, negate, type, value);
+        SingleParameter param = new SingleParameter(attr, value, comperator, negate, type);
         if (!this.getWhereParams().containsKey(attr)) {
             List<SingleParameter> list = new ArrayList<>();
             this.getWhereParams().put(attr, list);
         }
         this.getWhereParams().get(attr).add(param);
-                
-        
+
         //transform the parameter if a transformator is set
         if (this.transformators.containsKey(attr)) {
             //apply the transformator
             this.transformators.get(attr).transform(param);
-            
+
             //set result to variables
             value = param.getValue();
             comperator = param.getComperator();
@@ -401,6 +416,22 @@ public class QueryParser {
             type = param.getType();
             attr = param.getField();
         }
+
+        return param;
+    }
+
+    /**
+     * Transforms the given parameters in a psql where-clause, starting with "AND"
+     * @param parameter Parameter description
+     * @param queue the queue where the resulting transformed value should be put in
+     * @return the formatted AND-Clause for the prepared statement (AND xxx = ?)
+     */
+    private String formatWhereClause(SingleParameter parameter, Queue<Map.Entry<String, FieldType>> queue) {
+        String attr = parameter.getField();
+        String value = parameter.getValue();
+        String comperator = parameter.getComperator();
+        boolean negate = parameter.isNegated();
+        FieldType type = parameter.getType();
         
         //because we use aliases, some modifications have to be made
        if (attr.equals("model")) {
@@ -461,6 +492,31 @@ public class QueryParser {
             Double v = Double.parseDouble(value)*1000000;
             value = v.toString();
         }
+        else if (attr.equals("radius")) {
+           //this can only be done, if lat and long are set with an equals comperator
+           if (whereParams.containsKey("lat") && whereParams.containsKey("long") &&
+                   whereParams.get("lat").get(0).getComperator().equals("=") &&
+                   whereParams.get("long").get(0).getComperator().equals("=")) {
+               attr = "ST_DWithin(t.location, ST_Transform(ST_SetSRID(ST_MakePoint(?, ?), 4326), 900913), ?)";
+               queue.add(new AbstractMap.SimpleEntry<>(whereParams.get("long").get(0).getValue(), whereParams.get("long").get(0).getType()));
+               queue.add(new AbstractMap.SimpleEntry<>(whereParams.get("lat").get(0).getValue(), whereParams.get("lat").get(0).getType()));
+               queue.add(new AbstractMap.SimpleEntry<>(value, FieldType.LONG));
+
+               //but also remote lat and long from the query
+               whereParams.remove("long");
+               whereParams.remove("lat");
+
+               if (!negate) {
+                   return " AND " + attr;
+               }
+               else {
+                   return " AND NOT " + attr;
+               }
+           }
+           else {
+               return " AND 0=1";
+           }
+       }
         else {
             List<String> attrs = this.getDbFields(attr);
             if (attrs.size() == 1) {
@@ -669,7 +725,7 @@ public class QueryParser {
         private FieldType type;
         private String value;
             
-        private SingleParameter (String field, String comperator, boolean negated, FieldType type, String value) {
+        private SingleParameter (String field, String value, String comperator, boolean negated, FieldType type) {
             this.field = field;
             this.comperator = comperator;
             this.negated = negated;
@@ -716,8 +772,8 @@ public class QueryParser {
         public void setValue(String value) {
             this.value = value;
         }
-        
-        
+
+
     }
     
     public interface SingleParameterTransformator {

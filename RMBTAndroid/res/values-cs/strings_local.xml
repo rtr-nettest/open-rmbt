@@ -38,6 +38,6 @@
     <string name="url_help">https://www.netztest.at/redirect/en/help</string>
     <string name="url_help_result">https://www.netztest.at/redirect/en/help_result</string>
     <string name="url_terms">https://www.netztest.at/redirect/en/terms</string>
-    
+    <string name="url_map">https://www.netztest.at/redirect/en/map</string>
     
 </resources>

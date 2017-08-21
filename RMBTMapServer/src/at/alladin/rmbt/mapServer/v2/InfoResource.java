@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright 2013-2015 alladin-IT GmbH
- * Copyright 2013-2015 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
+ * Copyright 2015-2017 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -230,7 +230,7 @@ public class InfoResource extends ServerResource
     // TIME FILTER
     ///////////////////////////////////////
     
-    private final static int[] OPTION_TIMES_VALUE = new int[] { 7, 30, 90, 180, 365, 730, 1460 };
+    private final static int[] OPTION_TIMES_VALUE = new int[] {1, 7, 30, 90, 180, 365, 730, 1460 };
     
     private ServerOption getTimes() throws JSONException
     {
