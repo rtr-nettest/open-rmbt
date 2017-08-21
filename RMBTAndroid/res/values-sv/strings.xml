@@ -413,6 +413,9 @@
     <string name="lm_measurement_movement_no_gps">Waiting for GPS</string>
     <string name="preferences_loop_mode_waiting_time_title">Waiting time (min)</string>
     <string name="preferences_loop_mode_movement_title">Distance (m)</string>
+    <string name="notification_channel_loop_description">Information on loop mode status</string>
+    <string name="notification_channel_loop_name">RTR-NetTest loop mode</string>
+    <string name="notification_channel_rmbt_description">Information about active test</string>
 
 
 </resources>

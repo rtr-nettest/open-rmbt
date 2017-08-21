@@ -398,6 +398,10 @@
     <string name="lm_measurement_movement_no_gps">Warte auf GPS</string>
     <string name="preferences_loop_mode_waiting_time_title">Wartezeit (min)</string>
     <string name="preferences_loop_mode_movement_title">Distanz (m)</string>
+    <string name="notification_channel_loop_description">Information zum Wiederholungsmodus</string>
+    <string name="notification_channel_loop_name">RTR-Netztest Wiederholungsmodus</string>
+    <string name="notification_channel_rmbt_description">Information zum laufenden Test</string>
+    <string name="notification_channel_rmbt_name">RTR-Netztest</string>
 </resources>
 
 
