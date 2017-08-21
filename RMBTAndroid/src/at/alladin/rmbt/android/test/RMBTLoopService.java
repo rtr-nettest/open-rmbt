@@ -77,7 +77,7 @@ import at.alladin.rmbt.util.model.shared.exception.ErrorStatus;
 public class RMBTLoopService extends Service implements ServiceConnection
 {
     private static final String TAG = "RMBTLoopService";
-    private static final String rmbtLoop = "rmbtLoop";
+    private static final String RMBT_LOOP_CHANNEL_IDENTIFIER = "RMBT_LOOP_CHANNEL_IDENTIFIER";
 
     private static final boolean SHOW_DEV_BUTTONS = false;
     
@@ -464,7 +464,7 @@ public class RMBTLoopService extends Service implements ServiceConnection
             // The user-visible description of the channel.
             String description = getString(R.string.notification_channel_loop_description);
             int importance = NotificationManager.IMPORTANCE_LOW;
-            NotificationChannel mChannel = new NotificationChannel(rmbtLoop, name, importance);
+            NotificationChannel mChannel = new NotificationChannel(RMBT_LOOP_CHANNEL_IDENTIFIER, name, importance);
             // Configure the notification channel.
             mChannel.setDescription(description);
             //mChannel.enableLights(true);
@@ -473,8 +473,11 @@ public class RMBTLoopService extends Service implements ServiceConnection
             //mChannel.setLightColor(Color.BLUE);
             //mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
             mNotificationManager.createNotificationChannel(mChannel);
+            Log.d("loop","new notification channel established");
         }
-        final NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
+
+        //create NotificationCompat Builder, channel identifier will be ignored on Android <= N according to SO 45465542
+        final NotificationCompat.Builder builder = new NotificationCompat.Builder(this, RMBT_LOOP_CHANNEL_IDENTIFIER)
             .setSmallIcon(R.drawable.stat_icon_loop)
             .setContentTitle(res.getText(R.string.loop_notification_title))
             .setTicker(res.getText(R.string.loop_notification_ticker))
