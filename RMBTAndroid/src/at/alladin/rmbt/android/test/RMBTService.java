@@ -23,6 +23,8 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
@@ -32,6 +34,7 @@ import android.location.Location;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.WifiLock;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
@@ -73,7 +76,8 @@ public class RMBTService extends Service implements EndTaskListener
     private Handler handler;
     
     private static final String DEBUG_TAG = "RMBTService";
-    
+    private static final String RMBT_CHANNEL_IDENTIFIER = "RMBT_CHANNEL_IDENTIFIER";
+    private static final boolean ALWAYS_NOTFIY = true; //also notify in loop mode
     private static WifiManager wifiManager;
     private static WifiLock wifiLock;
     private static WakeLock wakeLock;
@@ -247,22 +251,43 @@ public class RMBTService extends Service implements EndTaskListener
     
     private void addNotificationIfTestRunning()
     {
-        if (isTestRunning() && ! bound)
+        if (isTestRunning() && (!bound || ALWAYS_NOTFIY))
         {
             final Resources res = getResources();
             
             final PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(), 0, new Intent(
                     getApplicationContext(), RMBTMainActivity.class), 0);
-            
-            final Notification notification = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.stat_icon_test)
-                .setContentTitle(res.getText(R.string.test_notification_title))
-                .setContentText(res.getText(R.string.test_notification_text))
-                .setTicker(res.getText(R.string.test_notification_ticker))
-                .setContentIntent(contentIntent)
-                .build();
-            
-            startForeground(NotificationIDs.TEST_RUNNING, notification);
+
+            // src
+            //https://developer.android.com/preview/features/notification-channels.html
+            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                NotificationManager mNotificationManager =
+                        (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                // The user-visible name of the channel.
+                CharSequence name = getString(R.string.notification_channel_rmbt_name);
+                // The user-visible description of the channel.
+                String description = getString(R.string.notification_channel_rmbt_description);
+                int importance = NotificationManager.IMPORTANCE_LOW;
+                NotificationChannel mChannel = new NotificationChannel(RMBT_CHANNEL_IDENTIFIER, name, importance);
+                // Configure the notification channel.
+                mChannel.setDescription(description);
+                //mChannel.enableLights(true);
+                // Sets the notification light color for notifications posted to this
+                // channel, if the device supports this feature.
+                //mChannel.setLightColor(Color.BLUE);
+                //mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
+                mNotificationManager.createNotificationChannel(mChannel);
+
+            }
+                //create NotificationCompat Builder, channel identifier will be ignored on Android <= N according to SO 45465542
+                final Notification notification = new NotificationCompat.Builder(this,RMBT_CHANNEL_IDENTIFIER)
+                        .setSmallIcon(R.drawable.stat_icon_test)
+                        .setContentTitle(res.getText(R.string.test_notification_title))
+                        .setContentText(res.getText(R.string.test_notification_text))
+                        .setTicker(res.getText(R.string.test_notification_ticker))
+                        .setContentIntent(contentIntent)
+                        .build();
+                startForeground(NotificationIDs.TEST_RUNNING, notification);
         }
     }
     

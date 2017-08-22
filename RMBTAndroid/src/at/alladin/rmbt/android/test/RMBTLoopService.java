@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.AlarmManager;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -76,9 +77,12 @@ import at.alladin.rmbt.util.model.shared.exception.ErrorStatus;
 public class RMBTLoopService extends Service implements ServiceConnection
 {
     private static final String TAG = "RMBTLoopService";
-    
-    private static final boolean SHOW_DEV_BUTTONS = false;
-    
+    private static final String RMBT_LOOP_CHANNEL_IDENTIFIER = "RMBT_LOOP_CHANNEL_IDENTIFIER";
+
+    private static final boolean SHOW_FORCE_BUTTON = false;
+    private static final boolean SHOW_STOP_BUTTON = false; //stop is broken: loop is stopped, but UI freezes
+
+
     private WakeLock partialWakeLock;
     private WakeLock dimWakeLock;
     	
@@ -446,12 +450,36 @@ public class RMBTLoopService extends Service implements ServiceConnection
     private NotificationCompat.Builder createNotificationBuilder()
     {
         final Resources res = getResources();
-        
+
         Intent notificationIntent = new Intent(getApplicationContext(), RMBTMainActivity.class);
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent openAppIntent = PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, 0);
-        
-        final NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
+
+
+        // src
+        //https://developer.android.com/preview/features/notification-channels.html
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationManager mNotificationManager =
+                    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            // The user-visible name of the channel.
+            CharSequence name = getString(R.string.notification_channel_loop_name);
+            // The user-visible description of the channel.
+            String description = getString(R.string.notification_channel_loop_description);
+            int importance = NotificationManager.IMPORTANCE_LOW;
+            NotificationChannel mChannel = new NotificationChannel(RMBT_LOOP_CHANNEL_IDENTIFIER, name, importance);
+            // Configure the notification channel.
+            mChannel.setDescription(description);
+            //mChannel.enableLights(true);
+            // Sets the notification light color for notifications posted to this
+            // channel, if the device supports this feature.
+            //mChannel.setLightColor(Color.BLUE);
+            //mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
+            mNotificationManager.createNotificationChannel(mChannel);
+            Log.d("loop","new notification channel established");
+        }
+
+        //create NotificationCompat Builder, channel identifier will be ignored on Android <= N according to SO 45465542
+        final NotificationCompat.Builder builder = new NotificationCompat.Builder(this, RMBT_LOOP_CHANNEL_IDENTIFIER)
             .setSmallIcon(R.drawable.stat_icon_loop)
             .setContentTitle(res.getText(R.string.loop_notification_title))
             .setTicker(res.getText(R.string.loop_notification_ticker))
@@ -461,13 +489,15 @@ public class RMBTLoopService extends Service implements ServiceConnection
                 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
         {
-            if (SHOW_DEV_BUTTONS) {
-            	final Intent stopIntent = new Intent(ACTION_STOP, null, getApplicationContext(), getClass());
-           		final PendingIntent stopPIntent = PendingIntent.getService(getApplicationContext(), 0, stopIntent, 0);
+            if (SHOW_STOP_BUTTON) {
+                final Intent stopIntent = new Intent(ACTION_STOP, null, getApplicationContext(), getClass());
+                final PendingIntent stopPIntent = PendingIntent.getService(getApplicationContext(), 0, stopIntent, 0);
+                addStopToNotificationBuilder(builder, stopPIntent);
+            }
+                if (SHOW_FORCE_BUTTON) {
                 final Intent forceIntent = new Intent(ACTION_FORCE, null, getApplicationContext(), getClass());
                 final PendingIntent forcePIntent = PendingIntent.getService(getApplicationContext(), 0, forceIntent, 0);
-
-            	addActionToNotificationBuilder(builder, stopPIntent, forcePIntent);
+            	addForceToNotificationBuilder(builder, forcePIntent);
             }
         }
         
@@ -504,12 +534,16 @@ public class RMBTLoopService extends Service implements ServiceConnection
     }
     
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    private static void addActionToNotificationBuilder(NotificationCompat.Builder builder, PendingIntent stopIntent, PendingIntent forceIntent)
+    private static void addStopToNotificationBuilder(NotificationCompat.Builder builder, PendingIntent stopIntent)
     {
         builder.addAction(android.R.drawable.ic_menu_delete, "stop", stopIntent);
+    }
+
+    private static void addForceToNotificationBuilder(NotificationCompat.Builder builder, PendingIntent forceIntent)
+    {
         builder.addAction(android.R.drawable.ic_media_play, "force", forceIntent);
     }
-    
+
     private void updateNotification()
     {
         setNotificationText(notificationBuilder);

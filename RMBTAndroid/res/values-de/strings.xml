@@ -182,7 +182,7 @@
     <string name="test_location_dir_s">S</string>
     <string name="test_location_dir_w">W</string>
     
-    <string name="test_notification_text">Der Test läuft noch im Hintergrund.</string>
+    <string name="test_notification_text">RTR-Netztest wird im Hintergrund ausgeführt.</string>
     <string name="test_dialog_error_title">Fehler…</string>
     <string name="test_dialog_error_text">Während des Tests ist ein Fehler aufgetreten.</string>
     <string name="test_dialog_error_control_server_conn">Verbindung zum Testserver kann nicht aufgebaut werden.</string>
@@ -398,6 +398,10 @@
     <string name="lm_measurement_movement_no_gps">Warte auf GPS</string>
     <string name="preferences_loop_mode_waiting_time_title">Wartezeit (min)</string>
     <string name="preferences_loop_mode_movement_title">Distanz (m)</string>
+    <string name="notification_channel_loop_description">Information zum Wiederholungsmodus</string>
+    <string name="notification_channel_loop_name">RTR-Netztest Wiederholungsmodus</string>
+    <string name="notification_channel_rmbt_description">Information zum laufenden Test</string>
+    <string name="notification_channel_rmbt_name">RTR-Netztest</string>
 </resources>
 
 

@@ -282,7 +282,7 @@
         <string name="loop_started">Loop mode started.</string>
         <string name="loop_already_active">Loop mode is already active.</string>
 
-        <string name="test_notification_text">The test is still running in the background.</string>
+        <string name="test_notification_text">RTR-NetTest is running in the background.</string>
         <string name="test_dialog_error_title">Error…</string>
         <string name="test_dialog_error_text">There has been an error during the test.</string>
         <string name="test_dialog_error_control_server_conn">Connection to test server cannot be established.</string>
@@ -425,5 +425,8 @@
     <string name="lm_measurement_movement_no_gps">Waiting for GPS</string>
     <string name="preferences_loop_mode_waiting_time_title">Время ожидания</string>
     <string name="preferences_loop_mode_movement_title">Расстояние (м)</string>
+    <string name="notification_channel_loop_description">Information on loop mode status</string>
+    <string name="notification_channel_loop_name">RTR-NetTest loop mode</string>
+    <string name="notification_channel_rmbt_description">Information about active test</string>
 </resources>
 
