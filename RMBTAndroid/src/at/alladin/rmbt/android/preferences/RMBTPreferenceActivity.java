@@ -133,11 +133,6 @@ public class RMBTPreferenceActivity extends PreferenceActivity
             CheckBoxPreference pref = (CheckBoxPreference) findPreference("expert_mode");
             pref.setChecked(true);
         }
-
-        //only show, if in expert mode
-        if (!ConfigHelper.isExpertModeEnabled(this)) {
-            getPreferenceScreen().removePreference(loopModeGroup);
-        }
         
         final Preference loopModeMaxDelayPreference = findPreference("loop_mode_max_delay");
         if (loopModeMaxDelayPreference != null && !ConfigHelper.isDevEnabled(this)) {
@@ -307,6 +302,11 @@ public class RMBTPreferenceActivity extends PreferenceActivity
                     }
                 }
             }
+        }
+
+        //only show, if in expert mode
+        if (!ConfigHelper.isExpertModeEnabled(this)) {
+            getPreferenceScreen().removePreference(loopModeGroup);
         }
     }
     
