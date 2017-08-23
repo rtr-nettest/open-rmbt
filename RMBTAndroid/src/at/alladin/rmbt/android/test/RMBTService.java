@@ -77,7 +77,7 @@ public class RMBTService extends Service implements EndTaskListener
     
     private static final String DEBUG_TAG = "RMBTService";
     private static final String RMBT_CHANNEL_IDENTIFIER = "RMBT_CHANNEL_IDENTIFIER";
-    private static final boolean ALWAYS_NOTFIY = true; //also notify in loop mode
+    private static final boolean ALWAYS_NOTIFY = false; //also notify in loop mode/in foreground
     private static WifiManager wifiManager;
     private static WifiLock wifiLock;
     private static WakeLock wakeLock;
@@ -251,7 +251,7 @@ public class RMBTService extends Service implements EndTaskListener
     
     private void addNotificationIfTestRunning()
     {
-        if (isTestRunning() && (!bound || ALWAYS_NOTFIY))
+        if (isTestRunning() && (!bound || ALWAYS_NOTIFY))
         {
             final Resources res = getResources();
             
