@@ -79,14 +79,16 @@ public class UsageJSONResource extends ServerResource
         	
         	JSONObject platforms = getPlatforms(new Timestamp(monthBegin.getTimeInMillis()), new Timestamp(monthEnd.getTimeInMillis()));
         	JSONObject platformsLoopmode = getLoopmodePlatforms(new Timestamp(monthBegin.getTimeInMillis()), new Timestamp(monthEnd.getTimeInMillis()));
+			JSONObject platformsQoS = getQoSUsage(new Timestamp(monthBegin.getTimeInMillis()), new Timestamp(monthEnd.getTimeInMillis()));
         	JSONObject usage = getClassicUsage(new Timestamp(monthBegin.getTimeInMillis()), new Timestamp(monthEnd.getTimeInMillis()));
         	JSONObject versionsIOS = getVersions("iOS", new Timestamp(monthBegin.getTimeInMillis()), new Timestamp(monthEnd.getTimeInMillis()));
         	JSONObject versionsAndroid = getVersions("Android", new Timestamp(monthBegin.getTimeInMillis()), new Timestamp(monthEnd.getTimeInMillis()));
         	JSONObject versionsApplet = getVersions("Applet", new Timestamp(monthBegin.getTimeInMillis()), new Timestamp(monthEnd.getTimeInMillis()));
         	JSONObject networkGroupNames = getNetworkGroupName(new Timestamp(monthBegin.getTimeInMillis()), new Timestamp(monthEnd.getTimeInMillis()));
         	JSONObject networkGroupTypes = getNetworkGroupType(new Timestamp(monthBegin.getTimeInMillis()), new Timestamp(monthEnd.getTimeInMillis()));
-        	result.put("platforms", platforms);
+			result.put("platforms", platforms);
         	result.put("platforms_loopmode", platformsLoopmode);
+			result.put("platforms_qos", platformsQoS);
         	result.put("usage", usage);
         	result.put("versions_ios", versionsIOS);
         	result.put("versions_android", versionsAndroid);
@@ -119,15 +121,16 @@ public class UsageJSONResource extends ServerResource
     	
     	HashMap<String,Long> fieldSums = new HashMap<>();
     	fieldSums.put("tests", new Long(0));
+		fieldSums.put("finished", new Long(0));
     	fieldSums.put("clients", new Long(0));
     	fieldSums.put("ips", new Long(0));
-    	
+
     	PreparedStatement ps;
         ResultSet rs;
-        
-        
-    	final String select = "date_trunc('day', time) _day, count(uid) count_tests, count(DISTINCT client_id) count_clients, count(DISTINCT client_public_ip) count_ips";
-        final String where = "status='FINISHED' AND deleted=false";
+
+
+		final String select = "date_trunc('day', time) _day, count(uid) count_tests, sum(case when status='FINISHED' then 1 else 0 end) count_finished, count(DISTINCT client_id) count_clients, count(DISTINCT client_public_ip) count_ips";
+        final String where = "deleted=false";
         final String sql = "SELECT " + select + " FROM test WHERE " + where + " AND time >= ? AND time < ? GROUP BY _day ORDER BY _day ASC";
         ps = conn.prepareStatement(sql);
         ps.setTimestamp(1, begin);
@@ -145,6 +148,11 @@ public class UsageJSONResource extends ServerResource
     		jTests.put("field", "tests");
     		jTests.put("value", rs.getLong("count_tests"));
     		currentEntryValues.put(jTests);
+
+			JSONObject jTestsSuccessful = new JSONObject();
+			jTestsSuccessful.put("field", "finished");
+			jTestsSuccessful.put("value", rs.getLong("count_finished"));
+			currentEntryValues.put(jTestsSuccessful);
     		
     		JSONObject jClients = new JSONObject();
     		jClients.put("field", "clients");
@@ -157,9 +165,10 @@ public class UsageJSONResource extends ServerResource
     		currentEntryValues.put(jIPs);
     		
     		fieldSums.put("tests", fieldSums.get("tests") + rs.getLong("count_tests"));
+			fieldSums.put("ips", fieldSums.get("finished") + rs.getLong("count_finished"));
     		fieldSums.put("clients", fieldSums.get("clients") + rs.getLong("count_clients"));
-    		fieldSums.put("ips", fieldSums.get("ips") + rs.getLong("count_ips"));    		
-    		
+    		fieldSums.put("ips", fieldSums.get("ips") + rs.getLong("count_ips"));
+
     		//get some structure in there
     		
     		
@@ -179,6 +188,87 @@ public class UsageJSONResource extends ServerResource
         
     	return returnObj;
     }
+
+
+	private JSONObject getQoSUsage(Timestamp begin, Timestamp end) throws SQLException, JSONException {
+		JSONObject returnObj = new JSONObject();
+		JSONArray sums = new JSONArray();
+		JSONArray values = new JSONArray();
+		returnObj.put("sums", sums);
+		returnObj.put("values", values);
+
+		HashMap<String,Long> fieldSums = new HashMap<>();
+
+		PreparedStatement ps;
+		ResultSet rs;
+
+		final String sql = "SELECT\n" +
+				"  date_trunc('day', time) _day, count(*) count_tests, plattform platform, count(plattform) count_platform\n" +
+				"FROM qos_test_result\n" +
+				"  INNER JOIN test on qos_test_result.test_uid = test.uid\n" +
+				"WHERE\n" +
+				"  test.status='FINISHED' AND test.deleted=false\n" +
+				"  AND time >= ? AND time < ?\n" +
+				"GROUP BY _day, plattform\n" +
+				"HAVING count(plattform) > 0\n" +
+				"ORDER BY _day ASC\n";
+
+		ps = conn.prepareStatement(sql);
+		ps.setTimestamp(1, begin);
+		ps.setTimestamp(2, end);
+		rs = ps.executeQuery();
+
+
+		//one array-item for each day
+		long currentTime = -1;
+		JSONObject currentEntry = null;
+		JSONArray currentEntryValues = null;
+		while(rs.next()) {
+
+			//new item, of a new day is reached
+			long newTime = rs.getDate("_day").getTime();
+			if (currentTime != newTime) {
+				currentTime = newTime;
+				currentEntry = new JSONObject();
+				currentEntryValues = new JSONArray();
+				currentEntry.put("day", rs.getDate("_day").getTime());
+				currentEntry.put("values", currentEntryValues);
+				values.put(currentEntry);
+			}
+
+
+			//disable null-values
+			String platform = rs.getString("platform");
+			long count = rs.getLong("count_platform");
+			if (platform.isEmpty()) {
+				platform = "empty";
+			}
+
+			//add value to sum
+			if (!fieldSums.containsKey(platform)) {
+				fieldSums.put(platform, new Long(0));
+			}
+			fieldSums.put(platform, fieldSums.get(platform) + count);
+
+			JSONObject current = new JSONObject();
+			current.put("field", platform);
+			current.put("value", count);
+			currentEntryValues.put(current);
+		}
+
+		rs.close();
+		ps.close();
+
+		//add field sums
+		for (String field : fieldSums.keySet()) {
+			JSONObject obj = new JSONObject();
+			obj.put("field", field);
+			obj.put("sum", fieldSums.get(field));
+			sums.put(obj);
+		}
+
+		return returnObj;
+	}
     
     /**
      * Returns the statistics for used platforms for a specific timespan [begin, end)
