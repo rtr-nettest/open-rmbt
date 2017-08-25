@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright 2013-2016 alladin-IT GmbH
- * Copyright 2013-2016 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
+ * Copyright 2013-2017 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -115,15 +115,16 @@ public class ControlServerConnection
     }
     
     /**
-     * @param args
+     * @param context
      */
     public ControlServerConnection(final Context context)
     {
         setupServer(context, false);
     }
-    
+
     /**
-     * @param args
+     * @param context
+     * @param useMapServer
      */
     public ControlServerConnection(final Context context, final boolean useMapServer)
     {
@@ -230,7 +231,7 @@ public class ControlServerConnection
         
         final URL hostUrl = getUrl(Config.RMBT_NEWS_HOST_URL);
         
-        Log.i(DEBUG_TAG,"Newsrequest to " + hostUrl);
+        Log.i(DEBUG_TAG,"News request to " + hostUrl);
         
         final JSONObject requestData = new JSONObject();
         
@@ -244,7 +245,7 @@ public class ControlServerConnection
         catch (final JSONException e)
         {
             hasError = true;
-            errorMsg = "Error gernerating request";
+            errorMsg = "Error creating request";
         }
         
         return sendRequest(hostUrl, requestData, "news");
@@ -288,7 +289,7 @@ public class ControlServerConnection
         
         final URL hostUrl = getUrl(Config.RMBT_HISTORY_HOST_URL);
         
-        Log.i(DEBUG_TAG,"Historyrequest to " + hostUrl);
+        Log.i(DEBUG_TAG,"History request to " + hostUrl);
         
         final JSONObject requestData = new JSONObject();
         
@@ -327,7 +328,7 @@ public class ControlServerConnection
         catch (final JSONException e1)
         {
             hasError = true;
-            errorMsg = "Error gernerating request";
+            errorMsg = "Error creating request";
             //e1.printStackTrace();
         }
         
@@ -355,7 +356,7 @@ public class ControlServerConnection
         catch (final JSONException e1)
         {
             hasError = true;
-            errorMsg = "Error gernerating request";
+            errorMsg = "Error creating request";
             // e1.printStackTrace();
         }
         
@@ -393,7 +394,7 @@ public class ControlServerConnection
         catch (final JSONException e1)
         {
             hasError = true;
-            errorMsg = "Error gernerating request";
+            errorMsg = "Error creating request";
             // e1.printStackTrace();
         }
         
@@ -420,7 +421,7 @@ public class ControlServerConnection
         catch (final JSONException e1)
         {
             hasError = true;
-            errorMsg = "Error gernerating request";
+            errorMsg = "Error creating request";
             // e1.printStackTrace();
         }
         
@@ -450,7 +451,7 @@ public class ControlServerConnection
         catch (final JSONException e1)
         {
             hasError = true;
-            errorMsg = "Error gernerating request";
+            errorMsg = "Error creating request";
             // e1.printStackTrace();
         }
         
@@ -501,7 +502,7 @@ public class ControlServerConnection
         catch (final JSONException e1)
         {
             hasError = true;
-            errorMsg = "Error gernerating request";
+            errorMsg = "Error creating request";
             // e1.printStackTrace();
         }
         
@@ -522,7 +523,7 @@ public class ControlServerConnection
         catch (final JSONException e1)
         {
             hasError = true;
-            errorMsg = "Error gernerating request";
+            errorMsg = "Error creating request";
         }
         
         Log.i(DEBUG_TAG, "request to " + hostUrl);
@@ -546,7 +547,7 @@ public class ControlServerConnection
         catch (final JSONException e1)
         {
             hasError = true;
-            errorMsg = "Error gernerating request";
+            errorMsg = "Error creating request";
         }
         
         Log.i(DEBUG_TAG, "request to " + hostUrl);
@@ -602,7 +603,7 @@ public class ControlServerConnection
         catch (final JSONException e1)
         {
             hasError = true;
-            errorMsg = "Error gernerating request";
+            errorMsg = "Error creating request";
             // e1.printStackTrace();
         }
         
