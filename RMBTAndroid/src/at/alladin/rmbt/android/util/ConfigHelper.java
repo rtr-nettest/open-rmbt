@@ -50,15 +50,15 @@ public final class ConfigHelper
     public static void setUUID(final Context context, final String uuid)
     {
         final SharedPreferences pref = getSharedPreferences(context);
-        final boolean devMode = isOverrideControlServer(pref);
-        pref.edit().putString(devMode ? "uuid_dev" : "uuid", uuid).apply();
+        final boolean isOverride = isOverrideControlServer(pref);
+        pref.edit().putString(isOverride ? "uuid_dev" : "uuid", uuid).apply();
     }
     
     public static String getUUID(final Context context)
     {
         final SharedPreferences pref = getSharedPreferences(context);
-        final boolean devMode = isOverrideControlServer(pref);
-        return pref.getString(devMode ? "uuid_dev" : "uuid", "");
+        final boolean isOverride = isOverrideControlServer(pref);
+        return pref.getString(isOverride ? "uuid_dev" : "uuid", "");
     }
     
     public static void setLastNewsUid(final Context context, final long newsUid)
@@ -311,6 +311,11 @@ public final class ConfigHelper
         else
             getSharedPreferences(context).edit().remove("terms_and_conditions_accepted_version").apply();
     }
+
+    public static boolean isOverrideControlServer(final Context context)
+    {
+        return isOverrideControlServer(getSharedPreferences(context));
+    }
     
     private static boolean isOverrideControlServer(final SharedPreferences pref)
     {
@@ -390,12 +395,9 @@ public final class ConfigHelper
     public static String getControlServerName(final Context context)
     {
         final SharedPreferences pref = getSharedPreferences(context);
-        final boolean devMode = isOverrideControlServer(pref);
-        if (devMode)
+        final boolean isOverride = isOverrideControlServer(pref);
+        if (isOverride)
         {
-            final boolean noControlServer = pref.getBoolean("dev_no_control_server", false);
-            if (noControlServer)
-                return null;
             return pref.getString("dev_control_hostname", getDefaultControlServerName(context, pref));
         }
         else
@@ -405,13 +407,9 @@ public final class ConfigHelper
     public static int getControlServerPort(final Context context)
     {
         final SharedPreferences pref = getSharedPreferences(context);
-        final boolean devMode = isOverrideControlServer(pref);
-        if (devMode)
+        final boolean isOverride = isOverrideControlServer(pref);
+        if (isOverride)
         {
-            final boolean noControlServer = pref.getBoolean("dev_no_control_server", false);
-            if (noControlServer)
-                return -1;
-            
             try
             {
                 return Integer.parseInt(pref.getString("dev_control_port", "443"));
@@ -428,12 +426,9 @@ public final class ConfigHelper
     public static boolean isControlSeverSSL(final Context context)
     {
         final SharedPreferences pref = getSharedPreferences(context);
-        final boolean devMode = isOverrideControlServer(pref);
-        if (devMode)
+        final boolean isOverride = isOverrideControlServer(pref);
+        if (isOverride)
         {
-            final boolean noControlServer = pref.getBoolean("dev_no_control_server", false);
-            if (noControlServer)
-                return false;
             if (pref.contains("dev_control_port"))
                 return pref.getBoolean("dev_control_ssl", Config.RMBT_CONTROL_SSL);
             return Config.RMBT_CONTROL_SSL;
@@ -451,8 +446,8 @@ public final class ConfigHelper
     public static String getMapServerName(final Context context)
     {
         final SharedPreferences pref = getSharedPreferences(context);
-        final boolean devMode = isOverrideMapServer(pref);
-        if (devMode)
+        final boolean isOverride = isOverrideMapServer(pref);
+        if (isOverride)
             return pref.getString("dev_map_hostname", "develop");
         else
         {
@@ -463,9 +458,9 @@ public final class ConfigHelper
     public static int getMapServerPort(final Context context)
     {
         final SharedPreferences pref = getSharedPreferences(context);
-        final boolean devMode = isOverrideMapServer(pref);
+        final boolean isOverride = isOverrideMapServer(pref);
 
-        if (devMode)
+        if (isOverride)
         {
             try
             {
@@ -485,8 +480,8 @@ public final class ConfigHelper
     public static boolean isMapSeverSSL(final Context context)
     {
         final SharedPreferences pref = getSharedPreferences(context);
-        final boolean devMode = isOverrideMapServer(pref);
-        if (devMode)
+        final boolean isOverride = isOverrideMapServer(pref);
+        if (isOverride)
             return pref.getBoolean("dev_map_ssl", true);
         else
         {
@@ -631,7 +626,7 @@ public final class ConfigHelper
     public static boolean isDevEnabled(final Context ctx) {
     	return getSharedPreferences(ctx).getBoolean("developer_mode", false);
     }
-    
+
     public static void setDevModeState(final Context ctx, final boolean isEnabled) {
     	getSharedPreferences(ctx).edit().putBoolean("developer_mode", isEnabled).apply();
     }

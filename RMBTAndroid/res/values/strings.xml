@@ -364,8 +364,7 @@
     <string name="title_screen_info_overlay_location_bearing">Bearing</string>
 	<string name="title_screen_info_overlay_location_age">Age</string>
 	<string name="title_screen_empty" translatable="false"></string>
-	<string name="title_screen_developer" translatable="false">dev"</string>
-	
+	<string name="title_screen_developer" translatable="false">-dev-"</string>
 		
 	<string name="captive_portal_found">found</string>
 	<string name="captive_portal_not_found">not found</string>

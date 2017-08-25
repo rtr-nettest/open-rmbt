@@ -621,7 +621,12 @@ public class RMBTMainMenuFragment extends Fragment
 			}
 			
 			if (developerCodeInfoView != null && ConfigHelper.isDevEnabled(getActivity())) {
-				setViewText(developerCodeInfoView, getActivity().getString(R.string.title_screen_developer));
+				if (ConfigHelper.isOverrideControlServer(getActivity())) {
+					setViewText(developerCodeInfoView, ConfigHelper.getControlServerName(getActivity()));
+				} else
+				{
+					setViewText(developerCodeInfoView, getActivity().getString(R.string.title_screen_developer));
+				}
 				setViewVisibility(developerCodeInfoView, View.VISIBLE);
 			}
 		}		
