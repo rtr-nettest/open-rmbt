@@ -273,7 +273,7 @@ public class ControlServerConnection
         catch (final Exception e)
         {
             hasError = true;
-            errorMsg = "Error gernerating request";
+            errorMsg = "Error at request creation";
 		}
         
         return hostUrl != null ? sendRequest(hostUrl, requestData, null) : null;

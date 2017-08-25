@@ -102,8 +102,6 @@ public class RMBTMainMenuFragment extends Fragment
 	}
 	
 	public final static String BUNDLE_INFO_LAST_ANTENNA_IMAGE = "last_antenna_image";
-	public final static String BUNDLE_INFO_CAPTIVE_PORTAL_STATUS = "captive_portal_status";
-	public final static String BUNDLE_INFO_COLLECTOR = "info";
 	public final static int BACKGROUND_TRAFFIC_MEASUREMENT_TIME = 1000;
 	public final static int INFORMATION_COLLECTOR_TIME = 1000;
 	
@@ -122,8 +120,6 @@ public class RMBTMainMenuFragment extends Fragment
     private TextView infoSignalStrengthExtra;
 	private TextView ipv4Label;
 	private TextView ipv6Label;
-    //private TextView infoIp;
-    //private TextView infoTraffic;
     private View ipv4Button;
     private View ipv6Button;
     private View locationButton;
@@ -299,9 +295,7 @@ public class RMBTMainMenuFragment extends Fragment
             });
             startButtonLayout.startAnimation(delayedPulseAnimation);
         }
-        
-        //infoLocation = (TextView) view.findViewById(R.id.info_gps_location);
-        //infoLocation.setVisibility(View.GONE);
+
         infoNetwork = (TextView) view.findViewById(R.id.info_network_name);
         setViewVisibility(infoNetwork, View.GONE);
         
@@ -358,10 +352,10 @@ public class RMBTMainMenuFragment extends Fragment
         			InfoOverlayEnum.DL_TRAFFIC,InfoOverlayEnum.UL_TRAFFIC));
         	
         	infoValueListAdapterMap.put(OverlayType.IPV4, new InfoArrayAdapter(getActivity(), OverlayType.IPV4,
-        			InfoOverlayEnum.IPV4, InfoOverlayEnum.IPV4_PUB));
+        			InfoOverlayEnum.IPV4_LOCAL, InfoOverlayEnum.IPV4_PUB));
         	
         	infoValueListAdapterMap.put(OverlayType.IPV6, new InfoArrayAdapter(getActivity(), OverlayType.IPV6, 
-        			InfoOverlayEnum.IPV6, InfoOverlayEnum.IPV6_PUB));
+        			InfoOverlayEnum.IPV6_LOCAL, InfoOverlayEnum.IPV6_PUB));
         	
         	infoValueListAdapterMap.put(OverlayType.LOCATION, new InfoArrayAdapter(getActivity(), OverlayType.LOCATION,
         			InfoOverlayEnum.LOCATION));
@@ -381,7 +375,6 @@ public class RMBTMainMenuFragment extends Fragment
         
         antennaView = (ImageView) view.findViewById(R.id.antenne_image);
         if (antennaView != null) {
-        	//antennaView.setOnClickListener(detailShowOnClickListener);
         	
         	if (savedInstanceState != null && savedInstanceState.containsKey(BUNDLE_INFO_LAST_ANTENNA_IMAGE)) {
         		int antennaImageId = savedInstanceState.getInt(BUNDLE_INFO_LAST_ANTENNA_IMAGE);
@@ -404,7 +397,6 @@ public class RMBTMainMenuFragment extends Fragment
         infoCollector.removeListener(onInfoChangedListener);
         NetworkInfoCollector.getInstance().removeOnNetworkInfoChangedListener(onNetworkChangedListener);
     	runInfoRunnable = false;
-        //infoLocation.setVisibility(View.GONE);
     	setViewVisibility(infoNetwork, View.GONE);
         setViewVisibility(infoNetworkLabel, View.GONE);
         setViewVisibility(infoNetworkType, View.GONE);
@@ -602,9 +594,7 @@ public class RMBTMainMenuFragment extends Fragment
 				else {
 					refreshAntennaImage(Integer.MIN_VALUE);
 				}
-				
-				//infoCollector.setIpv4(ConfigHelper.getLastIp(getActivity())); 
-				
+
 				networkWatcherRunnable.run();
 				
 				ipv4CheckRunnable.run();
@@ -741,7 +731,6 @@ public class RMBTMainMenuFragment extends Fragment
 			case NETWORK_FAMILY:
 				if (infoNetworkType != null && infoNetworkType.getVisibility() == View.VISIBLE) {
 					infoNetworkType.startAnimation(pulseAnimation);
-					//((RMBTMainActivity)getActivity()).checkIp();
 				}
 				break;
 			case NETWORK_NAME:
@@ -893,7 +882,6 @@ public class RMBTMainMenuFragment extends Fragment
 				if (ipv6Button != null) {
 					ipv6Button.setOnClickListener(detailHideOnClickListener);
 				}
-				//antennaView.setOnClickListener(detailHideOnClickListener);
 				trafficButton.setOnClickListener(detailHideOnClickListener);
 				locationButton.setOnClickListener(detailHideOnClickListener);
 				infoOverlay.setVisibility(View.VISIBLE);
@@ -943,7 +931,6 @@ public class RMBTMainMenuFragment extends Fragment
 		if (ipv6Button != null) {
 			ipv6Button.setOnClickListener(detailShowOnClickListener);
 		}
-		//antennaView.setOnClickListener(detailShowOnClickListener);
 		trafficButton.setOnClickListener(detailShowOnClickListener);
 		locationButton.setOnClickListener(detailShowOnClickListener);							
 	}
@@ -1053,85 +1040,83 @@ public class RMBTMainMenuFragment extends Fragment
 		public int getCount() {
 			return (infoList != null ? infoList.size() : 0);
 		}
-		
+
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-		    View rowView = convertView;
-		    // reuse views
-		    if (rowView == null) {
-			      LayoutInflater inflater = context.getLayoutInflater();
-			      rowView = inflater.inflate(R.layout.info_overlay_detail_item, null);
-			      // configure view holder
-			      ViewHolder viewHolder = new ViewHolder();
-			      viewHolder.name = (TextView) rowView.findViewById(R.id.name);
-			      viewHolder.value = (TextView) rowView.findViewById(R.id.value);
-			      rowView.setTag(viewHolder);
-		    }
-		    
-		    // fill data
-		    NetworkInfoCollector netInfo = ((RMBTMainActivity) getActivity()).getNetworkInfoCollector();
-		    
-		    ViewHolder holder = (ViewHolder) rowView.getTag();
-		    holder.name.setText(infoList.get(position).getTitle(context));
-		    switch (infoList.get(position)) {
-		    case DL_TRAFFIC:
-		    	holder.value.setText(speedFormat.format(((double)interfaceTrafficGatherer.getRxRate() / 125000D)));
-		    	break;
-		    case UL_TRAFFIC:
-		    	holder.value.setText(speedFormat.format(((double)interfaceTrafficGatherer.getTxRate() / 125000D)));
-		    	break;
-		    case LOCATION:
-		    	String locationString = "";
-		    	if (infoCollector.getLocation() != null) {
-		    		locationString = Helperfunctions.getLocationString(getActivity(), getResources(), infoCollector.getLocation() ,0);
-		    	}
-		    	else {
-		    		locationString = getResources().getString(R.string.not_available);
-		    	}
-	    		holder.value.setText(locationString);
-		    	break;
-		    case LOCATION_ACCURACY:
-		    	locationString = "";
-		    	if (infoCollector.getLocation() != null) { 
-		    		final int satellites;
-		    		if (infoCollector.getLocation().getExtras() != null)
-		    		    satellites = infoCollector.getLocation().getExtras().getInt("satellites");
-		    		else
-		    		    satellites = 0;
-                    locationString = Helperfunctions.convertLocationAccuracy(getResources(), 
-		    				infoCollector.getLocation().hasAccuracy(), 
-		    				infoCollector.getLocation().getAccuracy(),
-		    				satellites);
-		    	}
-	    		holder.value.setText(locationString);		    	
-		    	break;
-		    case LOCATION_AGE:
-		    	locationString = "";
-		    	if (infoCollector.getLocation() != null) {
-                    locationString = Helperfunctions.getAgeString(infoCollector.getLocation());
-		    	}
-	    		holder.value.setText(locationString);		    	
-		    	break;
-		    case LOCATION_SOURCE:
-		    	locationString = "";
-		    	if (infoCollector.getLocation() != null) {
-		    		locationString = Helperfunctions.convertLocationProvider(getResources(), infoCollector.getLocation().getProvider());
-		    	}
-	    		holder.value.setText(locationString);
-		    	break;
-		    case LOCATION_ALTITUDE:
-		    	locationString = "";
-		    	if (infoCollector.getLocation() != null) {
-		    		if (infoCollector.getLocation().hasAltitude()) {
-		    			locationString = Helperfunctions.convertLocationAltitude(getResources(), 
-		    					infoCollector.getLocation().hasAltitude(), infoCollector.getLocation().getAltitude());
-		    		}
-		    		else {
-		    			locationString = getActivity().getString(R.string.not_available);
-                    }
-                }
-                holder.value.setText(locationString);
-                break;
+			View rowView = convertView;
+			// reuse views
+			if (rowView == null) {
+				LayoutInflater inflater = context.getLayoutInflater();
+				rowView = inflater.inflate(R.layout.info_overlay_detail_item, null);
+				// configure view holder
+				ViewHolder viewHolder = new ViewHolder();
+				viewHolder.name = (TextView) rowView.findViewById(R.id.name);
+				viewHolder.value = (TextView) rowView.findViewById(R.id.value);
+				rowView.setTag(viewHolder);
+			}
+
+			// fill data
+			NetworkInfoCollector netInfo = ((RMBTMainActivity) getActivity()).getNetworkInfoCollector();
+
+			ViewHolder holder = (ViewHolder) rowView.getTag();
+			holder.name.setText(infoList.get(position).getTitle(context));
+			switch (infoList.get(position)) {
+				case DL_TRAFFIC:
+					holder.value.setText(speedFormat.format(((double) interfaceTrafficGatherer.getRxRate() / 125000D)));
+					break;
+				case UL_TRAFFIC:
+					holder.value.setText(speedFormat.format(((double) interfaceTrafficGatherer.getTxRate() / 125000D)));
+					break;
+				case LOCATION:
+					String locationString = "";
+					if (infoCollector.getLocation() != null) {
+						locationString = Helperfunctions.getLocationString(getActivity(), getResources(), infoCollector.getLocation(), 0);
+					} else {
+						locationString = getResources().getString(R.string.not_available);
+					}
+					holder.value.setText(locationString);
+					break;
+				case LOCATION_ACCURACY:
+					locationString = "";
+					if (infoCollector.getLocation() != null) {
+						final int satellites;
+						if (infoCollector.getLocation().getExtras() != null)
+							satellites = infoCollector.getLocation().getExtras().getInt("satellites");
+						else
+							satellites = 0;
+						locationString = Helperfunctions.convertLocationAccuracy(getResources(),
+								infoCollector.getLocation().hasAccuracy(),
+								infoCollector.getLocation().getAccuracy(),
+								satellites);
+					}
+					holder.value.setText(locationString);
+					break;
+				case LOCATION_AGE:
+					locationString = "";
+					if (infoCollector.getLocation() != null) {
+						locationString = Helperfunctions.getAgeString(infoCollector.getLocation());
+					}
+					holder.value.setText(locationString);
+					break;
+				case LOCATION_SOURCE:
+					locationString = "";
+					if (infoCollector.getLocation() != null) {
+						locationString = Helperfunctions.convertLocationProvider(getResources(), infoCollector.getLocation().getProvider());
+					}
+					holder.value.setText(locationString);
+					break;
+				case LOCATION_ALTITUDE:
+					locationString = "";
+					if (infoCollector.getLocation() != null) {
+						if (infoCollector.getLocation().hasAltitude()) {
+							locationString = Helperfunctions.convertLocationAltitude(getResources(),
+									infoCollector.getLocation().hasAltitude(), infoCollector.getLocation().getAltitude());
+						} else {
+							locationString = getActivity().getString(R.string.not_available);
+						}
+					}
+					holder.value.setText(locationString);
+					break;
 				case LOCATION_SPEED:
 					locationString = "";
 
@@ -1141,73 +1126,70 @@ public class RMBTMainMenuFragment extends Fragment
 						locationString = context.getString(R.string.not_available);
 					}
 
-			    holder.value.setText(locationString);
-				break;
+					holder.value.setText(locationString);
+					break;
 
-                case IPV4:
-                    if (ipv4CheckRunnable.getPrivAddress() != null) {
-			    	holder.value.setText(ipv4CheckRunnable.getPrivAddress().getHostAddress());
-		    	}
-		    	else {
-		    		holder.name.setText("");
-		    		holder.value.setText(getResources().getString(R.string.not_available));
-		    	}
-		    	break;
-		    case IPV6:
-		    	if (ipv6CheckRunnable.getPrivAddress() != null) {
-			    	holder.value.setText(ipv6CheckRunnable.getPrivAddress().getHostAddress());
-		    	}
-		    	else {
-		    		holder.name.setText("");
-		    		holder.value.setText(getResources().getString(R.string.not_available));
-		    	}
-		    	break;
-		    case IPV4_PUB:
-		    	if (ipv4CheckRunnable.getPubAddress() != null) {
-			    	holder.value.setText(ipv4CheckRunnable.getPubAddress().getHostAddress());
-		    	}
-		    	else {
-		    		holder.value.setText(getResources().getString(R.string.not_available));
-		    	}
-		    	break;
-		    case IPV6_PUB:
-		    	if (ipv6CheckRunnable.getPubAddress() != null) {
-			    	holder.value.setText(ipv6CheckRunnable.getPubAddress().getHostAddress());
-		    	}
-		    	else {
-		    		holder.value.setText(getResources().getString(R.string.not_available));
-		    	}
-		    	break;
-		    case CAPTIVE_PORTAL_STATUS:
-		    	holder.value.setText(netInfo.getCaptivePortalStatus().getTitle(context));
-		    	break;
-		    case IS_LINK_LOCAL6:
-		    	if (ipv6CheckRunnable.getPrivAddress() != null) {
-		    		holder.value.setText("" + ipv6CheckRunnable.getPrivAddress().isLinkLocalAddress());
-		    	}
-		    	break;
-		    case IS_LOOPBACK6:
-		    	if (ipv6CheckRunnable.getPrivAddress() != null) {
-		    		holder.value.setText("" + ipv6CheckRunnable.getPrivAddress().isLoopbackAddress());
-		    	}
-		    	break;
-		    case IS_LOOPBACK4:
-		    	if (ipv4CheckRunnable.getPrivAddress() != null) {
-		    		holder.value.setText("" + ipv4CheckRunnable.getPrivAddress().isLoopbackAddress());
-		    	}
-		    	break;
-		    default:
-		    	break;
-		    }
-		    return rowView;
-		    
+				case IPV4_LOCAL:
+					if (ipv4CheckRunnable.getPrivAddress() != null) {
+						holder.value.setText(ipv4CheckRunnable.getPrivAddress().getHostAddress());
+					} else {
+						holder.name.setText("");
+						holder.value.setText(getResources().getString(R.string.not_available));
+					}
+					break;
+
+				case IPV6_LOCAL:
+					if (ipv6CheckRunnable.getPrivAddress() != null) {
+						holder.value.setText(ipv6CheckRunnable.getPrivAddress().getHostAddress());
+					} else {
+						holder.name.setText("");
+						holder.value.setText(getResources().getString(R.string.not_available));
+					}
+					break;
+				case IPV4_PUB:
+					if (ipv4CheckRunnable.getPubAddress() != null) {
+						holder.value.setText(ipv4CheckRunnable.getPubAddress().getHostAddress());
+					} else {
+						holder.value.setText(getResources().getString(R.string.not_available));
+					}
+					break;
+				case IPV6_PUB:
+					if (ipv6CheckRunnable.getPubAddress() != null) {
+						holder.value.setText(ipv6CheckRunnable.getPubAddress().getHostAddress());
+					} else {
+						holder.value.setText(getResources().getString(R.string.not_available));
+					}
+					break;
+				case CAPTIVE_PORTAL_STATUS:
+					holder.value.setText(netInfo.getCaptivePortalStatus().getTitle(context));
+					break;
+				case IS_LINK_LOCAL6:
+					if (ipv6CheckRunnable.getPrivAddress() != null) {
+						holder.value.setText("" + ipv6CheckRunnable.getPrivAddress().isLinkLocalAddress());
+					}
+					break;
+				case IS_LOOPBACK6:
+					if (ipv6CheckRunnable.getPrivAddress() != null) {
+						holder.value.setText("" + ipv6CheckRunnable.getPrivAddress().isLoopbackAddress());
+					}
+					break;
+				case IS_LOOPBACK4:
+					if (ipv4CheckRunnable.getPrivAddress() != null) {
+						holder.value.setText("" + ipv4CheckRunnable.getPrivAddress().isLoopbackAddress());
+					}
+					break;
+				default:
+					break;
+			}
+			return rowView;
+
 		}
 	}
 	
 	public static enum InfoOverlayEnum {
-		IPV4(R.string.title_screen_info_overlay_ipv4_private),
+		IPV4_LOCAL(R.string.title_screen_info_overlay_ipv4_private),
 		IS_LOOPBACK4(R.string.title_screen_info_overlay_is_loopback),
-		IPV6(R.string.title_screen_info_overlay_ipv6_private),
+		IPV6_LOCAL(R.string.title_screen_info_overlay_ipv6_private),
 		IS_LOOPBACK6(R.string.title_screen_info_overlay_is_loopback),
 		IS_LINK_LOCAL6(R.string.title_screen_info_overlay_is_link_local),
 		IPV4_PUB(R.string.title_screen_info_overlay_ipv4_public),

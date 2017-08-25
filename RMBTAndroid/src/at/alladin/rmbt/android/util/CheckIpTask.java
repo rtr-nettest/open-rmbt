@@ -153,7 +153,6 @@ public class CheckIpTask extends AsyncTask<Void, Void, JSONArray>
                             
                             if (newsItem.has("v"))
                             {
-                            	ipv = newsItem.getInt("v");
 								publicIp = newsItem.getString("ip");
                             	
 								if (onCompleteListener != null && !needsRetry) {                            	
