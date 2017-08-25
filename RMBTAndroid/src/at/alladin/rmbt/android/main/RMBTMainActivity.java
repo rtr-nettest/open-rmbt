@@ -951,8 +951,7 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties,
     }
     
     /**
-     * 
-     * @param itemList
+     *
      * @param pos
      */
     public void showHistoryPager(final int pos)
@@ -984,7 +983,7 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties,
     
     /**
      * 
-     * @param uid
+     * @param testUUid
      */
     public void showResultDetail(final String testUUid)
     {    	
@@ -1022,7 +1021,7 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties,
     
     /**
      * 
-     * @param uid
+     * @param testResultArray
      */
     public void showExpandedResultDetail(QoSServerResultCollection testResultArray, DetailType detailType, int position)
     {
@@ -1046,7 +1045,7 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties,
     
     /**
      * 
-     * @param uid
+     * @param resultList
      */
     public void showQoSTestDetails(List<QoSServerResult> resultList, List<QoSServerResultDesc> descList, int index)
     {
@@ -1345,7 +1344,7 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties,
     
     /**
      * 
-     * @param history_filter_devices_filter
+     * @param historyFilterDevicesFilter
      */
     public void setHistoryFilterDevicesFilter(final ArrayList<String> historyFilterDevicesFilter)
     {
@@ -1355,7 +1354,7 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties,
     
     /**
      * 
-     * @param history_filter_networks_filter
+     * @param historyFilterNetworksFilter
      */
     public void setHistoryFilterNetworksFilter(final ArrayList<String> historyFilterNetworksFilter)
     {
@@ -1695,7 +1694,7 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties,
     	
         /**
          * 
-         * @param success
+         * @param status
          */
         public void historyUpdated(int status);
     }
@@ -1922,7 +1921,7 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties,
     
     /**
      * 
-     * @param isEnabled
+     * @param isLocked
      */
     public void setLockNavigationDrawer(boolean isLocked) {
     	if (isLocked) {
