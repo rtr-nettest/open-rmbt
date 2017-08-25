@@ -132,7 +132,7 @@ public class ControlServerConnection
     	resetErrors();
         clientUUID = uuid;
         
-        hostUrl = getUrl(encryption, host, pathPrefix, port, Config.RMBT_CONTROL_V2_TESTS);
+        hostUrl = getUrl(encryption, host, pathPrefix, port, Config.RMBT_QOS_TEST_REQUEST);
         
         System.out.println("Connection to " + hostUrl);
         
@@ -259,7 +259,7 @@ public class ControlServerConnection
         
         clientUUID = uuid;
         
-        hostUrl = getUrl(encryption, host, pathPrefix, port, Config.RMBT_CONTROL_MAIN_URL);
+        hostUrl = getUrl(encryption, host, pathPrefix, port, Config.RMBT_TEST_SETTINGS_REQUEST);
         
         System.out.println("Connection to " + hostUrl);
         
@@ -582,7 +582,7 @@ public class ControlServerConnection
     public void sendNDTResult(final String host, final String pathPrefix, final int port, final boolean encryption,
             final String clientUUID, final UiServicesAdapter data, final String testUuid)
     {
-        hostUrl = getUrl(encryption, host, pathPrefix, port, Config.RMBT_CONTROL_MAIN_URL);
+        hostUrl = getUrl(encryption, host, pathPrefix, port, Config.RMBT_TEST_SETTINGS_REQUEST);
         this.clientUUID = clientUUID;
         sendNDTResult(data, testUuid);
     }

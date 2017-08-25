@@ -412,7 +412,7 @@ public final class ConfigHelper
         {
             try
             {
-                return Integer.parseInt(pref.getString("dev_control_port", "443"));
+                return Integer.parseInt(pref.getString("dev_control_port", String.valueOf(Config.RMBT_CONTROL_PORT)));
             }
             catch (final NumberFormatException e)
             {
