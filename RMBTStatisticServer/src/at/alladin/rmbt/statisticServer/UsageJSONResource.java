@@ -79,7 +79,7 @@ public class UsageJSONResource extends ServerResource
         	
         	JSONObject platforms = getPlatforms(new Timestamp(monthBegin.getTimeInMillis()), new Timestamp(monthEnd.getTimeInMillis()));
         	JSONObject platformsLoopmode = getLoopmodePlatforms(new Timestamp(monthBegin.getTimeInMillis()), new Timestamp(monthEnd.getTimeInMillis()));
-			JSONObject platformsQoS = getQoSUsage(new Timestamp(monthBegin.getTimeInMillis()), new Timestamp(monthEnd.getTimeInMillis()));
+			//JSONObject platformsQoS = getQoSUsage(new Timestamp(monthBegin.getTimeInMillis()), new Timestamp(monthEnd.getTimeInMillis()));
         	JSONObject usage = getClassicUsage(new Timestamp(monthBegin.getTimeInMillis()), new Timestamp(monthEnd.getTimeInMillis()));
         	JSONObject versionsIOS = getVersions("iOS", new Timestamp(monthBegin.getTimeInMillis()), new Timestamp(monthEnd.getTimeInMillis()));
         	JSONObject versionsAndroid = getVersions("Android", new Timestamp(monthBegin.getTimeInMillis()), new Timestamp(monthEnd.getTimeInMillis()));
@@ -88,7 +88,7 @@ public class UsageJSONResource extends ServerResource
         	JSONObject networkGroupTypes = getNetworkGroupType(new Timestamp(monthBegin.getTimeInMillis()), new Timestamp(monthEnd.getTimeInMillis()));
 			result.put("platforms", platforms);
         	result.put("platforms_loopmode", platformsLoopmode);
-			result.put("platforms_qos", platformsQoS);
+			//result.put("platforms_qos", platformsQoS);
         	result.put("usage", usage);
         	result.put("versions_ios", versionsIOS);
         	result.put("versions_android", versionsAndroid);
