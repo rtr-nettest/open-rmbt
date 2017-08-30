@@ -373,7 +373,9 @@
 	<string name="captive_portal_testing">test running…</string>
 	
 	<string name="not_available">Not available</string>
-	
+	<string name="nat_ipv6">NAT IPv6</string>
+	<string name="nat_ipv4">NAT IPv4</string>
+
 	<string name="test_label_test_info">Test information</string>
 	<string name="test_label_progress">Progress</string>
 	<string name="test_label_quality_test">Quality test</string>

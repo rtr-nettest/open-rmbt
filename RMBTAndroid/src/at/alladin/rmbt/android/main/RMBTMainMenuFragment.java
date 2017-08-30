@@ -179,7 +179,7 @@ public class RMBTMainMenuFragment extends Fragment
 
         speedFormat = new DecimalFormat(String.format("@@ %s", getActivity().getResources().getString(R.string.test_mbps)));
         
-        ipv4CheckRunnable = new IpCheckRunnable(getActivity(), IpVersionType.V4, true);
+        ipv4CheckRunnable = new IpCheckRunnable(getActivity(), IpVersionType.V4, false);
         ipv4CheckRunnable.addListener(new OnIpCheckFinishedListener() {
 
 			@Override
@@ -195,7 +195,7 @@ public class RMBTMainMenuFragment extends Fragment
 			}
 		});
         
-        ipv6CheckRunnable = new IpCheckRunnable(getActivity(), IpVersionType.V6, true);
+        ipv6CheckRunnable = new IpCheckRunnable(getActivity(), IpVersionType.V6, false);
         ipv6CheckRunnable.addListener(new OnIpCheckFinishedListener() {
 
 			@Override
@@ -1136,7 +1136,13 @@ public class RMBTMainMenuFragment extends Fragment
 
 				case IPV4_LOCAL:
 					if (ipv4CheckRunnable.getPrivAddress() != null) {
-						holder.value.setText(ipv4CheckRunnable.getPrivAddress().getHostAddress());
+						IpCheckRunnable.IpStatus status = ipv4CheckRunnable.getIpStatus(null);
+						if (status == IpCheckRunnable.IpStatus.CONNECTED_NAT_IPv6_TO_IPv4) {
+							holder.value.setText(getResources().getString(R.string.nat_ipv6));
+						}
+						else {
+							holder.value.setText(ipv4CheckRunnable.getPrivAddress().getHostAddress());
+						}
 					} else {
 						holder.name.setText("");
 						holder.value.setText(getResources().getString(R.string.not_available));
@@ -1145,7 +1151,13 @@ public class RMBTMainMenuFragment extends Fragment
 
 				case IPV6_LOCAL:
 					if (ipv6CheckRunnable.getPrivAddress() != null) {
-						holder.value.setText(ipv6CheckRunnable.getPrivAddress().getHostAddress());
+						IpCheckRunnable.IpStatus status = ipv6CheckRunnable.getIpStatus(null);
+						if (status == IpCheckRunnable.IpStatus.CONNECTED_NAT_IPv4_TO_IPv6) {
+							holder.value.setText(getResources().getString(R.string.nat_ipv4));
+						}
+						else {
+							holder.value.setText(ipv6CheckRunnable.getPrivAddress().getHostAddress());
+						}
 					} else {
 						holder.name.setText("");
 						holder.value.setText(getResources().getString(R.string.not_available));

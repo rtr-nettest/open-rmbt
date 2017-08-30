@@ -95,8 +95,10 @@ public class IpCheckRunnable implements Runnable {
 		NO_ADDRESS(R.drawable.traffic_lights_red),
 		ONLY_LOCAL(R.drawable.traffic_lights_yellow),
 		CONNECTED_NAT(R.drawable.traffic_lights_yellow),
-		CONNECTED_NO_NAT(R.drawable.traffic_lights_green);
-		
+		CONNECTED_NO_NAT(R.drawable.traffic_lights_green),
+		CONNECTED_NAT_IPv4_TO_IPv6(R.drawable.traffic_lights_yellow),
+		CONNECTED_NAT_IPv6_TO_IPv4(R.drawable.traffic_lights_yellow);
+
 		protected int resourceId;
 		IpStatus(int resourceId) {
 			this.resourceId = resourceId;
@@ -236,11 +238,32 @@ public class IpCheckRunnable implements Runnable {
 	
     public IpStatus getIpStatus(IpCheckRunnable...checkRunnables) {
     	if (hasIpFromControlServer.get()) {
+			//public IP and private IP
     		if (pubAddress != null && privAddress != null) {
+				//special treatment if ipv4 vs ipv6 (#928)
+				if (privAddress instanceof Inet4Address && pubAddress instanceof Inet6Address) {
+					return IpStatus.CONNECTED_NAT_IPv4_TO_IPv6;
+				}
+				else if (privAddress instanceof Inet6Address && pubAddress instanceof Inet4Address) {
+					return IpStatus.CONNECTED_NAT_IPv6_TO_IPv4;
+				}
+
+				//if public IP == private IP, no NAT, otherwise, NAT
     			return pubAddress.equals(privAddress) ? IpStatus.CONNECTED_NO_NAT : IpStatus.CONNECTED_NAT;
     		}
-    	
-   			return hasPrivateIp() ? IpStatus.ONLY_LOCAL : IpStatus.NO_ADDRESS;
+
+    		//only private IP
+			if (hasPrivateIp()) {
+				return IpStatus.ONLY_LOCAL;
+			}
+
+			//only public IP (?)
+			if (pubAddress != null) {
+				return IpStatus.NO_ADDRESS;
+			}
+
+			//neither public nor private IP
+			return IpStatus.NO_ADDRESS;
     	}
 
     	boolean hasOtherIpFromControlServer = false;
