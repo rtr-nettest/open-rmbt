@@ -335,21 +335,33 @@ public abstract class Helperfunctions
     {
         try
         {
-            final String ipVersion;
+            final String ipVersionLocal;
+            final String ipVersionPublic;
             if (publicAdr instanceof Inet4Address)
-                ipVersion = "ipv4";
+                ipVersionPublic = "ipv4";
             else if (publicAdr instanceof Inet6Address)
-                ipVersion = "ipv6";
+                ipVersionPublic = "ipv6";
             else
-                ipVersion = "ipv?";
+                ipVersionPublic = "ipv?";
+
+            if (localAdr instanceof Inet4Address)
+                ipVersionLocal = "ipv4";
+            else if (localAdr instanceof Inet6Address)
+                ipVersionLocal = "ipv6";
+            else
+                ipVersionLocal = "ipv?";
             
             if (localAdr.equals(publicAdr))
-                return "no_nat_" + ipVersion;
+                return "no_nat_" + ipVersionPublic;
             else
             {
                 final String localType = isIPLocal(localAdr) ? "local" : "public";
                 final String publicType = isIPLocal(publicAdr) ? "local" : "public";
-                return String.format("nat_%s_to_%s_%s", localType, publicType, ipVersion);
+                if (ipVersionLocal.equals(ipVersionPublic)) {
+                    return String.format("nat_%s_to_%s_%s", localType, publicType, ipVersionPublic);
+                } else {
+                    return String.format("nat_%s_to_%s_%s", ipVersionLocal, publicType, ipVersionPublic);
+                }
             }
         }
         catch (final IllegalArgumentException e)
