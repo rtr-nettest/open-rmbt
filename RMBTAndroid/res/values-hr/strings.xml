@@ -417,5 +417,7 @@
     <string name="notification_channel_loop_name">RTR-NetTest loop mode</string>
     <string name="notification_channel_rmbt_description">Information about active test</string>
     <string name="notification_channel_rmbt_name">RTR-NetTest</string>
+    <string name="nat_ipv6">NAT IPv6</string>
+    <string name="nat_ipv4">NAT IPv4</string>
 
 </resources>

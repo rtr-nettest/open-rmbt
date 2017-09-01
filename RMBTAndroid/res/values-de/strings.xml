@@ -402,6 +402,8 @@
     <string name="notification_channel_loop_name">RTR-Netztest Wiederholungsmodus</string>
     <string name="notification_channel_rmbt_description">Information zum laufenden Test</string>
     <string name="notification_channel_rmbt_name">RTR-Netztest</string>
+    <string name="nat_ipv6">NAT IPv6</string>
+    <string name="nat_ipv4">NAT IPv4</string>
 </resources>
 
 

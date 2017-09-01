@@ -1136,7 +1136,7 @@ public class RMBTMainMenuFragment extends Fragment
 
 				case IPV4_LOCAL:
 					if (ipv4CheckRunnable.getPrivAddress() != null) {
-						IpCheckRunnable.IpStatus status = ipv4CheckRunnable.getIpStatus(null);
+						IpCheckRunnable.IpStatus status = ipv4CheckRunnable.getIpStatus();
 						if (status == IpCheckRunnable.IpStatus.CONNECTED_NAT_IPv6_TO_IPv4) {
 							holder.value.setText(getResources().getString(R.string.nat_ipv6));
 						}
@@ -1151,7 +1151,7 @@ public class RMBTMainMenuFragment extends Fragment
 
 				case IPV6_LOCAL:
 					if (ipv6CheckRunnable.getPrivAddress() != null) {
-						IpCheckRunnable.IpStatus status = ipv6CheckRunnable.getIpStatus(null);
+						IpCheckRunnable.IpStatus status = ipv6CheckRunnable.getIpStatus();
 						if (status == IpCheckRunnable.IpStatus.CONNECTED_NAT_IPv4_TO_IPv6) {
 							holder.value.setText(getResources().getString(R.string.nat_ipv4));
 						}
