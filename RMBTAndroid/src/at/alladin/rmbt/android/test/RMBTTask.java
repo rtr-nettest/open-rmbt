@@ -16,8 +16,10 @@
  ******************************************************************************/
 package at.alladin.rmbt.android.test;
 
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -25,9 +27,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
+import android.net.ConnectivityManager;
+import android.net.LinkProperties;
+import android.net.Network;
+import android.os.Build;
 import android.os.Handler;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -305,6 +312,12 @@ public class RMBTTask
 					    qosTestSettings.setTrafficService(new TrafficServiceImpl());
 						qosTestSettings.setStartTimeNs(getRmbtClient().getControlConnection().getStartTimeNs());
 						qosTestSettings.setUseSsl(ConfigHelper.isQoSSeverSSL(context));
+
+                        //get default dns servers
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            qosTestSettings.setDefaultDnsResolvers(getDnsServers(context));
+                        }
+
 						
 						qosTest = new QualityOfServiceTest(client, qosTestSettings);
                         qosReference.set(qosTest);
@@ -360,7 +373,24 @@ public class RMBTTask
             {}
         }
     }
-    
+
+    @TargetApi(21)
+    private static List<InetAddress> getDnsServers(Context context) {
+        List<InetAddress> servers = new ArrayList<>();
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        Network[] networks = connectivityManager == null ? null : connectivityManager.getAllNetworks();
+        if (networks == null) {
+            return servers;
+        }
+        for(int i = 0; i < networks.length; ++i) {
+            LinkProperties linkProperties = connectivityManager.getLinkProperties(networks[i]);
+            if (linkProperties != null) {
+                servers.addAll(linkProperties.getDnsServers());
+            }
+        }
+        return servers;
+    }
+
     private final AtomicReference<NDTRunner> ndtRunnerHolder = new AtomicReference<NDTRunner>();
     
     public float getNDTProgress()

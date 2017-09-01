@@ -17,6 +17,7 @@
 package at.alladin.rmbt.client.v2.task.service;
 
 import java.io.File;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +34,7 @@ public class TestSettings {
 	private WebsiteTestService websiteTestService;
 	private Class<? extends TracerouteService> tracerouteServiceClazz;
 	private final List<TestProgressListener> testProgressListenerList = new ArrayList<TestProgressListener>();
+	private List<InetAddress> defaultDnsResolvers = new ArrayList<>();
 	
 	public TestSettings() { }
 	
@@ -156,5 +158,13 @@ public class TestSettings {
 				+ ", websiteTestService=" + websiteTestService
 				+ ", testProgressListenerList=" + testProgressListenerList
 				+ "]";
+	}
+
+	public List<InetAddress> getDefaultDnsResolvers() {
+		return defaultDnsResolvers;
+	}
+
+	public void setDefaultDnsResolvers(List<InetAddress> defaultDnsResolvers) {
+		this.defaultDnsResolvers = defaultDnsResolvers;
 	}
 }

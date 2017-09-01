@@ -9,7 +9,7 @@ dependencies {
     compile group: 'org.apache.httpcomponents', name: 'httpcore', version: '4.4.5'
     compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.2'
     compile group: 'net.sf.jopt-simple', name: 'jopt-simple', version: '5.0.3'
-    compile group: 'dnsjava', name: 'dnsjava', version: '2.1.7'
+    compile group: 'dnsjava', name: 'dnsjava', version: '2.1.8'
     compile project(':RMBTSharedCode')
     compile project(':RMBTUtil')
 }

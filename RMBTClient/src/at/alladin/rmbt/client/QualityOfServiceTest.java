@@ -104,6 +104,10 @@ public class QualityOfServiceTest implements Callable<QoSResultCollector> {
 	        	test = new NonTransparentProxyTask(this, taskDesc, threadCounter++);
 			}
 			else if (RMBTClient.TASK_DNS.equals(taskId)) {
+				//Android O - if dns servers are set and default dns servers should be used - use these
+				if (taskDesc.getParams().get(DnsTask.PARAM_DNS_RESOLVER) == null && nnTestSettings.getDefaultDnsResolvers().size() > 0) {
+					taskDesc.getParams().put(DnsTask.PARAM_DNS_RESOLVER, nnTestSettings.getDefaultDnsResolvers().get(0).getHostAddress());
+				}
 	        	test = new DnsTask(this, taskDesc, threadCounter++);
 			}
 			else if (RMBTClient.TASK_TCP.equals(taskId)) {
