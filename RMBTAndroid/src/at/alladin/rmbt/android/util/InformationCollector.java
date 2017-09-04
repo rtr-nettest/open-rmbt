@@ -147,6 +147,7 @@ public class InformationCollector
     private final List<CellInformationWrapper> lastCellInfos = new CopyOnWriteArrayList<>();
 
     private final AtomicInteger signal = new AtomicInteger(Integer.MIN_VALUE);
+    private final AtomicInteger legacySignal = new AtomicInteger(Integer.MIN_VALUE);
     private final AtomicInteger signalType = new AtomicInteger(SINGAL_TYPE_NO_SIGNAL);
     private final AtomicInteger signalRsrq = new AtomicInteger(UNKNOWN);
     
@@ -981,7 +982,7 @@ public class InformationCollector
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             for (CellInformationWrapper ciw : cellInfos) {
                 if ((ciw.getCs().getSignal() != null &&
-                        !(ciw.getCs().getSignal().equals(-51) && signal.get() != -51 && ciw.getTechnology() != CellInformationWrapper.Technology.CONNECTION_WLAN)) ||
+                        !(ciw.getCs().getSignal().equals(-51) && legacySignal.get() != -51 && ciw.getTechnology() != CellInformationWrapper.Technology.CONNECTION_WLAN)) ||
                         ciw.getCs().getRsrp() != null ||
                         ciw.getCs().getRsrq() != null) {
                     useNewApi = true;
@@ -1288,7 +1289,10 @@ public class InformationCollector
     
     public Integer getSignal()
     {
-        final int _signal = signal.get();
+        int _signal = signal.get();
+        if (!isSuspectedDualSim() && _signal == -51) {
+            _signal = legacySignal.get();
+        }
         if (_signal == Integer.MIN_VALUE)
             return null;
         return _signal;
@@ -1643,6 +1647,7 @@ public class InformationCollector
                 }
                                 
                 lastSignalItem.set(signalItem);
+                legacySignal.set(signal.get());
             }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 && telManager != null) {
