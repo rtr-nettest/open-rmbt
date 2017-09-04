@@ -973,9 +973,26 @@ public class InformationCollector
             
         }
 
+        //some hardware manufacturers are implementing the "new" cell info API worse
+        //than the "old" API, returning invalid data.
+        //in this case, a fallback to the old API is performed (#913)
+        //also fix some Samsung devices always returning -51 (#903)
+        boolean useNewApi = false;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            for (CellInformationWrapper ciw : cellInfos) {
+                if ((ciw.getCs().getSignal() != null &&
+                        !(ciw.getCs().getSignal().equals(-51) && signal.get() != -51 && ciw.getTechnology() != CellInformationWrapper.Technology.CONNECTION_WLAN)) ||
+                        ciw.getCs().getRsrp() != null ||
+                        ciw.getCs().getRsrq() != null) {
+                    useNewApi = true;
+                    break;
+                }
+            }
+        }
+
         //new CellInformationWrapper API
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            if (cellInfos.size() > 0) {
+            if (cellInfos.size() > 0 && useNewApi) {
                 //remove invalid entries, set test start time
                 for (Iterator<CellInformationWrapper> iterator = cellInfos.iterator(); iterator.hasNext();) {
                     CellInformationWrapper ciw = iterator.next();
@@ -1048,7 +1065,7 @@ public class InformationCollector
 
         //if the phone supports the new Cell Info API (= Android 4.3+, not Huawei),
         //don't transmit the "old" signal strengths
-        if (cellInfos.size() > 0) {
+        if (cellInfos.size() > 0 && useNewApi) {
             signals.clear();
         }
 

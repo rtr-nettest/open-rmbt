@@ -185,6 +185,11 @@ public class CellInformationWrapper {
         }
 
         public Integer getSignal() {
+            //some devices return invalid values (#913)
+            if (signal != null &&
+                    (signal >= 0 || signal < -140)) {
+                return null;
+            }
             return signal;
         }
 
@@ -206,6 +211,11 @@ public class CellInformationWrapper {
 
         @JsonProperty("lte_rsrp")
         public Integer getRsrp() {
+            //some devices return invalid values (#913)
+            if (rsrp != null &&
+                    (rsrp >= 0 || rsrp < -140)) {
+                return null;
+            }
             return rsrp;
         }
 
@@ -215,6 +225,17 @@ public class CellInformationWrapper {
 
         @JsonProperty("lte_rsrq")
         public Integer getRsrq() {
+            if (rsrq == null) {
+                return null;
+            }
+
+            if (Math.abs(rsrq) > 30) {
+                return null;
+            }
+            // fix invalid rsrq values for some devices (see #996)
+            if (rsrq > 0) {
+                return -rsrq;
+            }
             return rsrq;
         }
 
