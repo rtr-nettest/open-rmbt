@@ -229,7 +229,8 @@ public class CellInformationWrapper {
                 return null;
             }
 
-            if (Math.abs(rsrq) > 30) {
+            // fix invalid rsrq values (see #913)
+            if (Math.abs(rsrq) > 19.5 || Math.abs(rsrq) < 3.0) {
                 return null;
             }
             // fix invalid rsrq values for some devices (see #996)
