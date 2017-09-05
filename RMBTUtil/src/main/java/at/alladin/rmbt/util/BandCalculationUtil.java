@@ -110,14 +110,14 @@ public class BandCalculationUtil {
      * latest update e30 (2017-03-28)
      */
     private static HashMap<Integer, LTEBand> lteBands = new HashMap<Integer, LTEBand>() {{
-        put(1, new LTEBand(1, 1920, 1980, 2110, 2170, 18000, 18599, 18000, "IMT 2.1 GHz"));
+        put(1, new LTEBand(1, 1920, 1980, 2110, 2170, 18000, 18599, 18000, "2100 MHz"));
         put(2, new LTEBand(2, 1850, 1910, 1930, 1990, 18600, 19199, 18000, "PCS A-F blocks 1,9 GHz"));
-        put(3, new LTEBand(3, 1710, 1785, 1805, 1880, 19200, 19949, 18000, "1800 MHz (was GSM-1800/DCS1800)"));
+        put(3, new LTEBand(3, 1710, 1785, 1805, 1880, 19200, 19949, 18000, "1800 MHz"));
         put(4, new LTEBand(4, 1710, 1755, 2110, 2155, 19950, 20399, 18000, "AWS-1 1.7+2.1 GHz"));
         put(5, new LTEBand(5, 824, 849, 869, 894, 20400, 20649, 18000, "850MHz (was CDMA)"));
         put(6, new LTEBand(6, 830, 840, 875, 885, 20650, 20749, 18000, "850MHz subset (was CDMA)"));
-        put(7, new LTEBand(7, 2500, 2570, 2620, 2690, 20750, 21449, 18000, "IMT-E 2.6 GHz FDD"));
-        put(8, new LTEBand(8, 880, 915, 925, 960, 21450, 21799, 18000, "900 MHz (was GSM900)"));
+        put(7, new LTEBand(7, 2500, 2570, 2620, 2690, 20750, 21449, 18000, "2600 MHz"));
+        put(8, new LTEBand(8, 880, 915, 925, 960, 21450, 21799, 18000, "900 MHz"));
         put(9, new LTEBand(9, 1749.9, 1784.9, 1844.9, 1879.9, 21800, 22149, 18000, "DCS1800 subset"));
         put(10, new LTEBand(10, 1710, 1770, 2110, 2170, 22150, 22749, 18000, "Extended AWS/AWS-2/AWS-3"));
         put(11, new LTEBand(11, 1427.9, 1447.9, 1475.9, 1495.9, 22750, 22949, 18000, "1.5 GHz lower"));
@@ -127,7 +127,7 @@ public class BandCalculationUtil {
         put(17, new LTEBand(17, 704, 716, 734, 746, 23730, 23849, 18000, "700 MHz lower BC blocks"));
         put(18, new LTEBand(18, 815, 830, 860, 875, 23850, 23999, 18000, "800 MHz lower"));
         put(19, new LTEBand(19, 830, 845, 875, 890, 24000, 24149, 18000, "800 MHz upper"));
-        put(20, new LTEBand(20, 832, 862, 791, 821, 24150, 24449, 18000, "800 MHz (Digital Dividend)"));
+        put(20, new LTEBand(20, 832, 862, 791, 821, 24150, 24449, 18000, "800 MHz"));
         put(21, new LTEBand(21, 1447.9, 1462.9, 1495.9, 1510.9, 24450, 24599, 18000, "1.5 GHz upper"));
         put(22, new LTEBand(22, 3410, 3490, 3510, 3590, 24600, 25399, 18000, "3.5 GHz"));
         put(23, new LTEBand(23, 2000, 2020, 2180, 2200, 25500, 25699, 18000, "2 GHz S-Band"));
@@ -135,7 +135,7 @@ public class BandCalculationUtil {
         put(25, new LTEBand(25, 1850, 1915, 1930, 1995, 26040, 26689, 18000, "PCS A-G blocks 1900"));
         put(26, new LTEBand(26, 814, 849, 859, 894, 26690, 27039, 18000, "ESMR+ 850 (was: iDEN)"));
         put(27, new LTEBand(27, 807, 824, 852, 869, 27040, 27209, 18000, "800 MHz SMR (was iDEN)"));
-        put(28, new LTEBand(28, 703, 748, 758, 803, 27210, 27659, 18000, "700 APT"));
+        put(28, new LTEBand(28, 703, 748, 758, 803, 27210, 27659, 18000, "700 MHz"));
         put(29, new LTEBand(29, 0, 0, 717, 728, 0, 0, -9660, "700 lower DE blocks (suppl. DL)"));
         put(30, new LTEBand(30, 2305, 2315, 2350, 2360, 27660, 27759, 17890, "2.3GHz WCS"));
         put(31, new LTEBand(31, 452.5, 457.5, 462.5, 467.5, 27760, 27809, 17890, "IMT 450 MHz"));
@@ -145,14 +145,14 @@ public class BandCalculationUtil {
         put(35, new LTEBand(35, 1850, 1910, 1850, 1910, 36350, 36949, 0, "1,9 GHz TDD lower"));
         put(36, new LTEBand(36, 1930, 1990, 1930, 1990, 36950, 37549, 0, "1.9 GHz TDD upper"));
         put(37, new LTEBand(37, 1910, 1930, 1910, 1930, 37550, 37749, 0, "PCS TDD"));
-        put(38, new LTEBand(38, 2570, 2620, 2570, 2620, 37750, 38249, 0, "IMT-E 2.6 GHz TDD"));
+        put(38, new LTEBand(38, 2570, 2620, 2570, 2620, 37750, 38249, 0, "2600 MHz TDD"));
         put(39, new LTEBand(39, 1880, 1920, 1880, 1920, 38250, 38649, 0, "IMT 1.9 GHz TDD (was TD-SCDMA)"));
-        put(40, new LTEBand(40, 2300, 2400, 2300, 2400, 38650, 39649, 0, "2.3 GHz TDD"));
+        put(40, new LTEBand(40, 2300, 2400, 2300, 2400, 38650, 39649, 0, "2300 MHz"));
         put(41, new LTEBand(41, 2496, 2690, 2496, 2690, 39650, 41589, 0, "Expanded TDD 2.6 GHz"));
         put(42, new LTEBand(42, 3400, 3600, 3400, 3600, 41590, 43589, 0, "3,4-3,6 GHz"));
         put(43, new LTEBand(43, 3600, 3800, 3600, 3800, 43590, 45589, 0, "3.6-3,8 GHz"));
         put(44, new LTEBand(44, 703, 803, 703, 803, 45590, 46589, 0, "700 MHz APT TDD"));
-        put(45, new LTEBand(45, 1447, 1467, 1447, 1467, 46590, 46789, 0, "TD 1500"));
+        put(45, new LTEBand(45, 1447, 1467, 1447, 1467, 46590, 46789, 0, "1500 MHZ"));
         put(46, new LTEBand(46, 5150, 5925, 5150, 5925, 46790, 54539, 0, "TD Unlicensed"));
         put(47, new LTEBand(47, 5855, 5925, 5855, 5925, 54540, 55239, 0, "Vehicle to Everything (V2X) TDD"));
         put(65, new LTEBand(65, 1920, 2010, 2110, 2200, 131072, 131971, 65536, "Extended IMT 2100"));
@@ -206,13 +206,13 @@ public class BandCalculationUtil {
      */
     private static List<GSMBand> gsmBands = new ArrayList<GSMBand>() {{
         add(new GSMBand(5, 824.2, 848.8, 869.2, 893.8, 128, 251, 0, "GSM 850"));
-        add(new GSMBand(8, 890.2, 914.8, 935.2, 959.8, 1, 124, 0, "P-GSM 900"));
-        add(new GSMBand(8, 890, 914.8, 935, 959.8, 0, 124, 0, "E-GSM 900"));
-        add(new GSMBand(8, 880.2, 889.8, 925.2, 934.8, 975, 1023, 0, "E-GSM 900"));
-        add(new GSMBand(8, 890, 914.8, 935, 959.8, 0, 124, 0, "R-GSM 900"));
-        add(new GSMBand(8, 876.2, 889.8, 921.2, 934.8, 955, 1023, 0, "R-GSM 900"));
-        add(new GSMBand(3, 1710.2, 1784.8, 1805.2, 1879.8, 512, 885, 0, "1800 DCS"));
-        add(new GSMBand(2, 1850.2, 1909.8, 1930.2, 1989.8, 512, 810, 0, "1900 PCS"));
+        add(new GSMBand(8, 890.2, 914.8, 935.2, 959.8, 1, 124, 0, "GSM 900"));
+        add(new GSMBand(8, 890, 914.8, 935, 959.8, 0, 124, 0, "GSM 900"));
+        add(new GSMBand(8, 880.2, 889.8, 925.2, 934.8, 975, 1023, 0, "GSM 900"));
+        add(new GSMBand(8, 890, 914.8, 935, 959.8, 0, 124, 0, "GSM 900"));
+        add(new GSMBand(8, 876.2, 889.8, 921.2, 934.8, 955, 1023, 0, "GSM 900"));
+        add(new GSMBand(3, 1710.2, 1784.8, 1805.2, 1879.8, 512, 885, 0, "GSM 1800"));
+        add(new GSMBand(2, 1850.2, 1909.8, 1930.2, 1989.8, 512, 810, 0, "GSM 1900"));
     }};
 
     public static abstract class Band {

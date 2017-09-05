@@ -414,7 +414,7 @@ public class ResultResource extends ServerResource
                                                 }
 
                                                 if (Objects.equals(cell.isActive(), true) &&
-                                                        cell.getTechnology() == RadioCell.Technology.CONNECTION_4G &&
+                                                        cell.getTechnology() != RadioCell.Technology.CONNECTION_WLAN &&
                                                         cell.getChannelNumber() != null &&
                                                         !radioBandChanged) {
 
