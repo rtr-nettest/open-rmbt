@@ -198,8 +198,8 @@ public class BandCalculationUtil {
 
     /**
      * Static list of all GSM Bands
-     * taken from the 3GPP TS 45.005 standard
-     * ​http://www.3gpp.org/ftp/Specs/archive/45_series/45.005/45005-e10.zip
+     * taken from the 3GPP TS 45.005 standard​
+     * http://www.3gpp.org/ftp/Specs/archive/45_series/45.005/45005-e10.zip
      * latest update 2017-06
      *
      * order by priority (if one uarfcn is contained in multiple bands)
