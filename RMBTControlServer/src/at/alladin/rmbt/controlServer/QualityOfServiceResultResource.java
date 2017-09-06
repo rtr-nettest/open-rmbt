@@ -106,6 +106,7 @@ public class QualityOfServiceResultResource extends ServerResource
                         {
                             // Check if UUID
                             final UUID testUuid = UUID.fromString(token[0]);
+                            final UUID clientUuid = UUID.fromString(request.getString("client_uuid"));
                             
                             final String data = token[0] + "_" + token[1];
                             
@@ -114,7 +115,7 @@ public class QualityOfServiceResultResource extends ServerResource
                             if (hmac.length() == 0)
                                 errorList.addError("ERROR_TEST_TOKEN");
                             
-                            if (token[2].length() > 0) // && hmac.equals(token[2]))
+                            if (token[2].length() > 0) // && hmac.equals(token[2])) (can be different server keys)
                             {
                                 
                                 final List<String> clientNames = Arrays.asList(settings.getString("RMBT_CLIENT_NAME")
@@ -128,7 +129,8 @@ public class QualityOfServiceResultResource extends ServerResource
                                     throw new SemverException("requirement not satisfied");
                                 }
                                 
-                                if (test.getTestByUuid(testUuid) > 0)
+                                if (test.getTestByOpenTestUuid(testUuid) > 0 ||
+                                        (clientUuid != null && test.getTestByOpenTestUuidAndClientUuid(testUuid, clientUuid) > 0))
                                     if (clientNames.contains(request.optString("client_name")))
                                     {
                                         //save qos test results:

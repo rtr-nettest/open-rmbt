@@ -296,6 +296,26 @@ public class Test extends Table
         }
         return -1;    	
     }
+
+    public long getTestByOpenTestUuidAndClientUuid(final UUID openTestUuid, final UUID clientUuid) {
+        resetError();
+        try
+        {
+            final PreparedStatement st = conn.prepareStatement(SELECT + " JOIN client c ON c.uid = t.client_id WHERE t.deleted = false AND t.implausible = false AND t.open_test_uuid = ? AND c.uuid = ?");
+            st.setObject(1, openTestUuid);
+            st.setObject(1, clientUuid);
+
+            loadTest(st);
+
+            return uid;
+        }
+        catch (final SQLException e)
+        {
+            e.printStackTrace();
+            setError("ERROR_DB_GET_TEST_SQL");
+        }
+        return -1;
+    }
     
     public boolean getTestByUid(final long uid)
     {
