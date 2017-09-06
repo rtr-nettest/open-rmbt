@@ -106,7 +106,13 @@ public class QualityOfServiceResultResource extends ServerResource
                         {
                             // Check if UUID
                             final UUID testUuid = UUID.fromString(token[0]);
-                            final UUID clientUuid = UUID.fromString(request.getString("client_uuid"));
+                            UUID clientUuid = null;
+                            if (request.has("client_uuid")) { //Android
+                                clientUuid = UUID.fromString(request.getString("client_uuid"));
+                            }
+                            else if (request.has("uuid")) { //iOS
+                                clientUuid = UUID.fromString(request.getString("uuid"));
+                            };
                             
                             final String data = token[0] + "_" + token[1];
                             
