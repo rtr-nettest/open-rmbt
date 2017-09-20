@@ -16,10 +16,9 @@
  *******************************************************************************/
 package at.alladin.rmbt.mapServer;
 
-import com.sun.istack.internal.logging.Logger;
-
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.logging.Logger;
 
 import org.restlet.data.MediaType;
 import org.restlet.representation.OutputRepresentation;
@@ -41,7 +40,7 @@ public class ByteArrayOutputRepresentation extends OutputRepresentation
             s.write(data);
         }
         catch (IOException e) {
-            Logger.getLogger(ByteArrayOutputRepresentation.class).fine("Caught OutputRepresentation:IOException: " + e.getMessage());
+            Logger.getLogger(ByteArrayOutputRepresentation.class.getCanonicalName()).fine("Caught OutputRepresentation:IOException: " + e.getMessage());
         }
     }
     
