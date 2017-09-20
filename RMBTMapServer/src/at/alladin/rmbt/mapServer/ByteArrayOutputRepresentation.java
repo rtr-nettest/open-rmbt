@@ -16,6 +16,8 @@
  *******************************************************************************/
 package at.alladin.rmbt.mapServer;
 
+import com.sun.istack.internal.logging.Logger;
+
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -35,7 +37,12 @@ public class ByteArrayOutputRepresentation extends OutputRepresentation
     @Override
     public void write(OutputStream s) throws IOException
     {
-        s.write(data);
+        try {
+            s.write(data);
+        }
+        catch (IOException e) {
+            Logger.getLogger(ByteArrayOutputRepresentation.class).fine("Caught OutputRepresentation:IOException: " + e.getMessage());
+        }
     }
     
 }
