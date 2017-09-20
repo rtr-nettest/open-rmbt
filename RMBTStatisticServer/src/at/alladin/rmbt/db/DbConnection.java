@@ -33,7 +33,7 @@ public class DbConnection
         DataSource _ds = null;
         try
         {
-            _ds = (DataSource) new InitialContext().lookup("java:comp/env/jdbc/rmbt");
+            _ds = (DataSource) new InitialContext().lookup("java:comp/env/jdbc/rmbtro");
         }
         catch (final NamingException e)
         {

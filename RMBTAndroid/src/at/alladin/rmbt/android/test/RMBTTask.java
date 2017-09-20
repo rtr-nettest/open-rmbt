@@ -38,6 +38,9 @@ import android.os.Build;
 import android.os.Handler;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+
+import com.google.common.base.Strings;
+
 import at.alladin.rmbt.android.impl.TracerouteAndroidImpl;
 import at.alladin.rmbt.android.util.Config;
 import at.alladin.rmbt.android.util.ConfigHelper;
@@ -374,11 +377,12 @@ public class RMBTTask
         }
     }
 
-    @TargetApi(21)
+    @TargetApi(23)
     private static List<InetAddress> getDnsServers(Context context) {
         List<InetAddress> servers = new ArrayList<>();
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        Network[] networks = connectivityManager == null ? null : connectivityManager.getAllNetworks();
+        //Network[] networks = connectivityManager == null ? null : connectivityManager.getAllNetworks();
+        Network[] networks = connectivityManager == null ? null : new Network[]{connectivityManager.getActiveNetwork()};
         if (networks == null) {
             return servers;
         }
@@ -388,6 +392,11 @@ public class RMBTTask
                 servers.addAll(linkProperties.getDnsServers());
             }
         }
+
+        for(InetAddress server : servers) {
+            Log.d("dns","DNS server: " + Strings.nullToEmpty(server.getHostName()) + " (" + server.getHostAddress() + ")");
+        }
+
         return servers;
     }
 
