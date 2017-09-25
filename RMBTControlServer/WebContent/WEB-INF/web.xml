@@ -29,7 +29,7 @@
   
   <listener>
     <listener-class>
-     at.alladin.rmbt.controlServer.ContextListener
+        at.rtr.rmbt.controlServer.ContextListener
     </listener-class>
    </listener>
   
@@ -37,7 +37,7 @@
     <context-param>
         <param-name>org.restlet.application</param-name>
         <param-value>
-            at.alladin.rmbt.controlServer.ControlServer
+            at.rtr.rmbt.controlServer.ControlServer
         </param-value>
     </context-param>
 
@@ -49,7 +49,7 @@
         </servlet-class>
         <init-param>
 		  <param-name>org.restlet.application</param-name>
-		  <param-value>at.alladin.rmbt.controlServer.ControlServer</param-value>
+		  <param-value>at.rtr.rmbt.controlServer.ControlServer</param-value>
 		</init-param>
     </servlet>
 

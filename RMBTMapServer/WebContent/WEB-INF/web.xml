@@ -27,14 +27,14 @@
   </welcome-file-list>
   
   <listener>
-    <listener-class>at.alladin.rmbt.shared.cache.CacheContextListener</listener-class>
+    <listener-class>at.rtr.rmbt.shared.cache.CacheContextListener</listener-class>
    </listener>
   
   <!-- Application class name -->
     <context-param>
         <param-name>org.restlet.application</param-name>
         <param-value>
-            at.alladin.rmbt.mapServer.MapServer
+            at.rtr.rmbt.mapServer.MapServer
         </param-value>
     </context-param>
 
@@ -46,7 +46,7 @@
         </servlet-class>
         <init-param>
 		  <param-name>org.restlet.application</param-name>
-		  <param-value>at.alladin.rmbt.mapServer.MapServer</param-value>
+		  <param-value>at.rtr.rmbt.mapServer.MapServer</param-value>
 		</init-param>
     </servlet>
 

@@ -23,7 +23,7 @@
         <jar destfile="/tmp/RMBTApplet.jar" filesetmanifest="mergewithoutmain">
             <manifest>
                 <attribute name="Application-Name" value="RTR-Netztest"/>
-                <attribute name="Main-Class" value="at.alladin.rmbt.client.RMBTClientRunner"/>
+                <attribute name="Main-Class" value="at.rtr.rmbt.client.RMBTClientRunner"/>
                 <attribute name="Class-Path" value="."/>
                 <attribute name="Trusted-Library" value="true"/>
                 <attribute name="Permissions" value="all-permissions"/>
