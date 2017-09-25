@@ -58,7 +58,7 @@ android {
 	    main {
             java {
                 srcDirs = ['src']
-                exclude 'at/alladin/rmbt/client/applet/RMBTApplet.java'
+                exclude 'at/rtr/rmbt/client/applet/RMBTApplet.java'
             }
 	        manifest {
 	            srcFile 'AndroidManifest.xml'

@@ -45,7 +45,7 @@ public class RestService extends ServiceSetting {
 	public static final String PARAM_REST = "server.service.rest";
 	public static final String PARAM_REST_PORT = "server.service.rest.port";
 	public static final String PARAM_REST_SSL = "server.service.rest.ssl";
-	public final static String QOS_KEY_FILE_ABSOLUTE = "src/at/alladin/rmbt/qos/testserver/" + TestServer.QOS_KEY_FILE;
+	public final static String QOS_KEY_FILE_ABSOLUTE = "src/at/rtr/rmbt/qos/testserver/" + TestServer.QOS_KEY_FILE;
 	
 	AtomicBoolean isRunning = new AtomicBoolean(false);
 	

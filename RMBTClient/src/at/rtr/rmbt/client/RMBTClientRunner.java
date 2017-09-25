@@ -109,8 +109,8 @@ public class RMBTClientRunner
         if (options.has("ssl-no-verify"))
             SSLContext.setDefault(RMBTClient.getSSLContext(null, null));
         else
-            SSLContext.setDefault(RMBTClient.getSSLContext("at/alladin/rmbt/crt/ca.pem",
-                    "at/alladin/rmbt/crt/controlserver.pem"));
+            SSLContext.setDefault(RMBTClient.getSSLContext("at/rtr/rmbt/crt/ca.pem",
+                    "at/rtr/rmbt/crt/controlserver.pem"));
         
         boolean reqArgMissing = false;
         if (!options.has("?"))

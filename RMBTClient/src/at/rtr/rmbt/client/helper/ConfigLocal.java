@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package at.alladin.rmbt.client.helper;
+package at.rtr.rmbt.client.helper;
 
 public abstract interface ConfigLocal
 {

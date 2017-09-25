@@ -32,10 +32,10 @@ dependencies {
 
 jar {
    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-   from('src/') {
-      include 'at/alladin/rmbt/qos/testserver/crt/qosserver.jks'
-   }
-   manifest { attributes 'Main-Class': 'at.alladin.rmbt.qos.testserver.TestServer' }
+   from(rootProject.file("private/qosserver.jks"),{
+       into('at/rtr/rmbt/qos/testserver/crt')
+   })
+   manifest { attributes 'Main-Class': 'at.rtr.rmbt.qos.testserver.TestServer' }
 }
 
 task wrapper(type: Wrapper) {

@@ -32,7 +32,7 @@ public class ServerOptionTest extends TestCase{
 
 	@Test
 	public void testOptionFunctionParametersAndTitles() throws Exception {
-		URL url = Thread.currentThread().getContextClassLoader().getResource("at/alladin/rmbt/util/model/option/test1.json");
+		URL url = Thread.currentThread().getContextClassLoader().getResource("at/rtr/rmbt/util/model/option/test1.json");
 		File file = new File(url.getPath());
 		ServerOption option = ServerOption.getGson().fromJson(new FileReader(file), ServerOption.class);
 		
@@ -47,7 +47,7 @@ public class ServerOptionTest extends TestCase{
 
 	@Test
 	public void testOptionFunctionParentCorrectness() throws Exception {
-		URL url = Thread.currentThread().getContextClassLoader().getResource("at/alladin/rmbt/util/model/option/test1.json");
+		URL url = Thread.currentThread().getContextClassLoader().getResource("at/rtr/rmbt/util/model/option/test1.json");
 		File file = new File(url.getPath());
 		ServerOption option = ServerOption.getGson().fromJson(new FileReader(file), ServerOption.class);
 		
@@ -59,7 +59,7 @@ public class ServerOptionTest extends TestCase{
 
 	@Test
 	public void testOptionFunctionLoadingFunction() throws Exception {
-		URL url = Thread.currentThread().getContextClassLoader().getResource("at/alladin/rmbt/util/model/option/test2.json");
+		URL url = Thread.currentThread().getContextClassLoader().getResource("at/rtr/rmbt/util/model/option/test2.json");
 		File file = new File(url.getPath());
 		ServerOption option = ServerOption.getGson().fromJson(new FileReader(file), ServerOption.class);
 		
@@ -71,7 +71,7 @@ public class ServerOptionTest extends TestCase{
 	
 	@Test
 	public void testOptionSelectedParametersWithInheritance() throws Exception {
-		URL url = Thread.currentThread().getContextClassLoader().getResource("at/alladin/rmbt/util/model/option/test2.json");
+		URL url = Thread.currentThread().getContextClassLoader().getResource("at/rtr/rmbt/util/model/option/test2.json");
 		File file = new File(url.getPath());
 		ServerOptionContainer options = new ServerOptionContainer(
 				new ArrayList<>(Arrays.asList(ServerOption.getGson().fromJson(new FileReader(file), ServerOption.class))));
@@ -112,7 +112,7 @@ public class ServerOptionTest extends TestCase{
 	
 	@Test
 	public void testOptionParameterOverrides() throws Exception {
-		URL url = Thread.currentThread().getContextClassLoader().getResource("at/alladin/rmbt/util/model/option/test3.json");
+		URL url = Thread.currentThread().getContextClassLoader().getResource("at/rtr/rmbt/util/model/option/test3.json");
 		File file = new File(url.getPath());
 		ServerOptionContainer options = new ServerOptionContainer(
 				new ArrayList<>(Arrays.asList(ServerOption.getGson().fromJson(new FileReader(file), ServerOption.class))));
@@ -140,7 +140,7 @@ public class ServerOptionTest extends TestCase{
 	
 	@Test
 	public void testOptionDependsOn() throws Exception {
-		URL url = Thread.currentThread().getContextClassLoader().getResource("at/alladin/rmbt/util/model/option/test4.json");
+		URL url = Thread.currentThread().getContextClassLoader().getResource("at/rtr/rmbt/util/model/option/test4.json");
 		File file = new File(url.getPath());
 		ServerOptionContainer options = new ServerOptionContainer(Arrays.asList(ServerOption.getGson().fromJson(new FileReader(file), ServerOption[].class)));
 
@@ -171,7 +171,7 @@ public class ServerOptionTest extends TestCase{
 	
 	@Test
 	public void testSetDefaultValues() throws Exception {
-		URL url = Thread.currentThread().getContextClassLoader().getResource("at/alladin/rmbt/util/model/option/test5.json");
+		URL url = Thread.currentThread().getContextClassLoader().getResource("at/rtr/rmbt/util/model/option/test5.json");
 		File file = new File(url.getPath());
 		ServerOptionContainer options = new ServerOptionContainer(Arrays.asList(ServerOption.getGson().fromJson(new FileReader(file), ServerOption[].class)));
 
