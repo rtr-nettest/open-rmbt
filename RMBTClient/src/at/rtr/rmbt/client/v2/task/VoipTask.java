@@ -371,7 +371,7 @@ public class VoipTask extends AbstractQoSTask {
 	
 	/*
 	 * (non-Javadoc)
-	 * @see at.alladin.rmbt.client.v2.task.AbstractRmbtTask#initTask()
+	 * @see at.rtr.rmbt.client.v2.task.AbstractRmbtTask#initTask()
 	 */
 	@Override
 	public void initTask() {
@@ -380,7 +380,7 @@ public class VoipTask extends AbstractQoSTask {
 	
 	/*
 	 * (non-Javadoc)
-	 * @see at.alladin.rmbt.client.v2.task.QoSTask#getTestType()
+	 * @see at.rtr.rmbt.client.v2.task.QoSTask#getTestType()
 	 */
 	public QoSTestResultEnum getTestType() {
 		return QoSTestResultEnum.VOIP;
@@ -388,7 +388,7 @@ public class VoipTask extends AbstractQoSTask {
 
 	/*
 	 * (non-Javadoc)
-	 * @see at.alladin.rmbt.client.v2.task.QoSTask#needsQoSControlConnection()
+	 * @see at.rtr.rmbt.client.v2.task.QoSTask#needsQoSControlConnection()
 	 */
 	public boolean needsQoSControlConnection() {
 		return true;

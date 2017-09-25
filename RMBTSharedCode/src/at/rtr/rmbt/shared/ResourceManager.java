@@ -21,8 +21,8 @@ import java.util.ResourceBundle;
 
 public abstract class ResourceManager
 {
-    private static final String BASE_NAME_SYSTEM_MESSAGES = "at.alladin.rmbt.res.SystemMessages";
-    private static final String BASE_NAME_CONFIG = "at.alladin.rmbt.res.Configuration";
+    private static final String BASE_NAME_SYSTEM_MESSAGES = "at.rtr.rmbt.res.SystemMessages";
+    private static final String BASE_NAME_CONFIG = "at.rtr.rmbt.res.Configuration";
     
     private static final ResourceControl RESOURCE_CONTROL = new ResourceControl();
     

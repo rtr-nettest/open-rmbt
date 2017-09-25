@@ -62,11 +62,11 @@ import at.rtr.rmbt.util.model.shared.exception.ErrorStatus;
 
 public class RMBTService extends Service implements EndTaskListener
 {
-    public static String ACTION_START_TEST = "at.alladin.rmbt.android.startTest";
-    public static String ACTION_LOOP_TEST = "at.alladin.rmbt.android.loopTest";
-    public static String ACTION_ABORT_TEST = "at.alladin.rmbt.android.abortTest";
-    public static String BROADCAST_TEST_FINISHED = "at.alladin.rmbt.android.test.RMBTService.testFinished";
-    public static String BROADCAST_TEST_ABORTED = "at.alladin.rmbt.android.test.RMBTService.testAborted";
+    public static String ACTION_START_TEST = "at.rtr.rmbt.android.startTest";
+    public static String ACTION_LOOP_TEST = "at.rtr.rmbt.android.loopTest";
+    public static String ACTION_ABORT_TEST = "at.rtr.rmbt.android.abortTest";
+    public static String BROADCAST_TEST_FINISHED = "at.rtr.rmbt.android.test.RMBTService.testFinished";
+    public static String BROADCAST_TEST_ABORTED = "at.rtr.rmbt.android.test.RMBTService.testAborted";
     
     private final int FLAG_ABORTED = 1;
     

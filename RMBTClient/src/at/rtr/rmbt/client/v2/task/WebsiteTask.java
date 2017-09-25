@@ -151,7 +151,7 @@ public class WebsiteTask extends AbstractQoSTask {
 
 	/*
 	 * (non-Javadoc)
-	 * @see at.alladin.rmbt.client.v2.task.AbstractQoSTask#initTask()
+	 * @see at.rtr.rmbt.client.v2.task.AbstractQoSTask#initTask()
 	 */
 	@Override
 	public void initTask() {
