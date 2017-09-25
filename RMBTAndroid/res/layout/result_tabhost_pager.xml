@@ -52,7 +52,7 @@
                 android:layout_height="0dp"
                 android:layout_weight="0" />
 
-            <at.alladin.rmbt.android.main.ExtendedViewPager
+            <at.rtr.rmbt.android.main.ExtendedViewPager
                 xmlns:android="http://schemas.android.com/apk/res/android"
                 android:id="@+id/pager"
                 android:layout_width="fill_parent"

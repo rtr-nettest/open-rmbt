@@ -15,7 +15,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<at.alladin.rmbt.android.util.CheckableRelativeLayout
+<at.rtr.rmbt.android.util.CheckableRelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -84,4 +84,4 @@
 
 	</LinearLayout>
 	 
-</at.alladin.rmbt.android.util.CheckableRelativeLayout>
+</at.rtr.rmbt.android.util.CheckableRelativeLayout>
