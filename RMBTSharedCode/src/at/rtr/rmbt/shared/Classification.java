@@ -34,7 +34,6 @@ public final class Classification
     
     // RSRP limit used for 4G
     public static final int[] THRESHOLD_SIGNAL_RSRP = { -85, -95, -111 };
-    public static final String[] THRESHOLD_SIGNAL_RSRP_CAPTIONS = { "-95", "-111" };
 
     // RSSI limits used for Wifi
     public static final int[] THRESHOLD_SIGNAL_WIFI = { -51, -61, -76 };

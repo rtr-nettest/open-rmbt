@@ -40,16 +40,30 @@ final public class MapServerOptions
     // log(a÷1000000)÷3
     
 	public final static int SUPPORTED_CLASSIFICATION_ITEMS = 4;
-	
-    protected static final int[] colors_ryg = new int[] { 0x600000, 0xff0000, 0xffff00, 0x00ff00, 0x00cb00, 0x009600, 0x006100 };
-    protected static final int[] colors_ryg_short = new int[] { 0x600000, 0xff0000, 0xffff00, 0x00ff00, 0x00b000 };    
-    
-    protected static final double[] values_download = new double[] { 0.3871137516, 0.4623712505, 0.5376287495, 0.6128862484, 0.6881437473, 0.7634012462, 0.8386587451 };
-    protected static final String[] captions_download = new String[] { "0.4", "", "1.4", "", "5.7", "", "22.6" };
-    
-    protected static final double[] values_upload = new double[] { 0.3118562527, 0.3871137516, 0.4623712505, 0.5376287495, 0.6128862484, 0.6881437473, 0.7634012462 };
-    protected static final String[] captions_upload = new String[] { "0.2", "", "0.7", "", "2.8", "", "11.3" };
-    
+
+    protected static final int[] colors_rgb_signal_mobile = new int[] { 0x600000, 0xff0000, 0xffff00, 0x00ff00, 0x008000, 0x005500 };
+    protected static final double[] signal_mobile = new double[]{-130, -101, -93.5, -85, -75, -51};
+    protected static final String[] captions_mobile = new String[]{"-140", "-111", "", "-95", "-85", ""};
+
+    protected static final int[] colors_rgb_signal_wifi = new int[] { 0x600000, 0xff0000, 0xffff00, 0x00ff00, 0x008000, 0x005500 };
+    protected static final double[] signal_wifi = new double[]{-96, -86, -76, -61, -51, -30};
+    protected static final String[] captions_wifi = new String[]{"", "", "-76", "-61", "-51", ""};
+
+    //speed_download_log = log(speed_download_kbit / 4) / 10
+    //speed_download_mbit = 10*10^(speed_download_log*4)/1000
+    //                                                             0.1       0.3       1          3.2        10.0     31.6      100       316        1000
+    protected static final int[] colors_rgb_download = new int[]{0x600000, 0xff0000, 0xffff00, 0x00cb00, 0x009600, 0x008000, 0x006100, 0x005A00, 0x005500};
+    protected static final double[] values_download = new double[]{0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1, 1.125, 1.25};
+    protected static final String[] captions_download = new String[] { "0.1", "", "1.0", "", "10", "", "100", "", "1000" };
+
+
+    protected static final int[] colors_rgb_upload = new int[] { 0xff0000, 0xffff00, 0x00cb00,  0x009600, 0x008000, 0x006100, 0x005A00, 0x005500, 0x005500 };
+    protected static final double[] values_upload = new double[]{0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1, 1.125, 1.25};
+    protected static final String[] captions_upload = new String[] { "0.1", "", "1.0", "", "10", "", "100", "", "1000" };
+
+    //ping_log = log(ping_ms/3)
+    //ping_ms = 10^(ping_log*3)
+    protected static final int[] colors_rgb_ping = new int[] { 0x600000, 0xff0000, 0xffff00, 0x00ff00, 0x00cb00, 0x009600, 0x006100 };
     protected static final double[] values_ping = new double[] { 0.8996566681, 0.7329900014, 0.5663233348, 0.3996566681, 0.2329900014, 0.0663233348, -0.1003433319 };
     protected static final String[] captions_ping = new String[] { "500", "", "50", "", "5", "", "0.5" };
     
@@ -71,7 +85,7 @@ final public class MapServerOptions
 //                        new String[] { "1", "4.5", "20" },
                         
                         // ampel 2
-                        colors_ryg,
+                        colors_rgb_download,
                         values_download,
                         captions_download,
                         
@@ -114,7 +128,7 @@ final public class MapServerOptions
                     new MapOption("speed_upload",
                         "speed_upload_log",
                         "speed_upload is not null AND network_type not in (0, 97, 98, 99)",
-                        colors_ryg,
+                        colors_rgb_upload,
                         values_upload,
                         captions_upload,
                         Classification.THRESHOLD_UPLOAD,
@@ -127,7 +141,7 @@ final public class MapServerOptions
                     new MapOption("ping_median",
                         "ping_median_log",
                         "ping_median is not null AND network_type not in (0, 97, 98, 99)",
-                        colors_ryg,
+                        colors_rgb_ping,
                         values_ping,
                         captions_ping,
                         Classification.THRESHOLD_PING,
@@ -138,9 +152,9 @@ final public class MapServerOptions
             put("mobile/signal",
                     new MapOption("merged_signal",
                     "merged_signal is not null AND network_type not in (0, 97, 98, 99)",
-                    colors_ryg_short,
-                    new double[] { -123.5, -108.5, -93.5, -78.5, -63.5 },
-                    new String[] { "", "-108", "-94", "-78", "" },
+                    colors_rgb_signal_mobile,
+                    signal_mobile,
+                    captions_mobile,
                     Classification.THRESHOLD_SIGNAL_MOBILE,
                     Classification.THRESHOLD_SIGNAL_MOBILE_CAPTIONS,
                     "heatmap",
@@ -149,7 +163,7 @@ final public class MapServerOptions
             put("wifi/download", new MapOption("speed_download",
                     "speed_download_log",
                     "speed_download is not null AND network_type = 99",
-                    colors_ryg,
+                    colors_rgb_download,
                     values_download,
                     captions_download,
                     Classification.THRESHOLD_DOWNLOAD,
@@ -161,7 +175,7 @@ final public class MapServerOptions
                     new MapOption("speed_upload",
                     "speed_upload_log",
                     "speed_upload is not null AND network_type = 99",
-                    colors_ryg,
+                    colors_rgb_upload,
                     values_upload,
                     captions_upload,
                     Classification.THRESHOLD_UPLOAD,
@@ -173,7 +187,7 @@ final public class MapServerOptions
                     new MapOption("ping_median",
                     "ping_median_log",
                     "ping_median is not null AND network_type = 99",
-                    colors_ryg,
+                    colors_rgb_ping,
                     values_ping,
                     captions_ping,
                     Classification.THRESHOLD_PING,
@@ -183,9 +197,9 @@ final public class MapServerOptions
             
             put("wifi/signal", new MapOption("signal_strength",
                     "signal_strength is not null AND network_type = 99",
-                    colors_ryg_short,
-                    new double[] { -98.5, -83.5, -68.5, -53.5, -38.5 },
-                    new String[] { "-99", "", "-69", "", "-39" },
+                    colors_rgb_signal_wifi,
+                    signal_wifi,
+                    captions_wifi,
                     Classification.THRESHOLD_SIGNAL_WIFI,
                     Classification.THRESHOLD_SIGNAL_WIFI_CAPTIONS,
                     "heatmap",
@@ -195,7 +209,7 @@ final public class MapServerOptions
                     new MapOption("speed_download", 
                     "speed_download_log",
                     "speed_download is not null AND network_type = 98",
-                    colors_ryg,
+                    colors_rgb_download,
                     values_download,
                     captions_download,
                     Classification.THRESHOLD_DOWNLOAD,
@@ -207,7 +221,7 @@ final public class MapServerOptions
                     new MapOption("speed_upload",
                     "speed_upload_log",
                     "speed_upload is not null AND network_type = 98",
-                    colors_ryg,
+                    colors_rgb_upload,
                     values_upload,
                     captions_upload,
                     Classification.THRESHOLD_UPLOAD,
@@ -219,7 +233,7 @@ final public class MapServerOptions
                     new MapOption("ping_median",
                     "ping_median_log",
                     "ping_median is not null AND network_type = 98",
-                    colors_ryg,
+                    colors_rgb_ping,
                     values_ping,
                     captions_ping,
                     Classification.THRESHOLD_PING,
@@ -231,7 +245,7 @@ final public class MapServerOptions
                     new MapOption("speed_download", 
                     "speed_download_log",
                     "speed_download is not null",
-                    colors_ryg,
+                    colors_rgb_download,
                     values_download,
                     captions_download,
                     Classification.THRESHOLD_DOWNLOAD,
@@ -243,7 +257,7 @@ final public class MapServerOptions
                     new MapOption("speed_upload",
                     "speed_upload_log",
                     "speed_upload is not null",
-                    colors_ryg,
+                    colors_rgb_upload,
                     values_upload,
                     captions_upload,
                     Classification.THRESHOLD_UPLOAD,
@@ -255,7 +269,7 @@ final public class MapServerOptions
                     new MapOption("ping_median",
                     "ping_median_log",
                     "ping_median is not null",
-                    colors_ryg,
+                    colors_rgb_ping,
                     values_ping,
                     captions_ping,
                     Classification.THRESHOLD_PING,
