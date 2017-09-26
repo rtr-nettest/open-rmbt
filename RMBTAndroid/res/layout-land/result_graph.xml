@@ -50,7 +50,7 @@
                 android:id="@+id/result_graph_title_dl"
                 android:text="@string/test_bottom_test_status_down" />
             
-            <at.alladin.rmbt.android.graphview.CustomizableGraphView
+            <at.rtr.rmbt.android.graphview.CustomizableGraphView
                 android:id="@+id/graph_download"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -78,7 +78,7 @@
                 android:id="@+id/result_graph_title_ul"
                 android:text="@string/test_bottom_test_status_up" />
             
-            <at.alladin.rmbt.android.graphview.CustomizableGraphView
+            <at.rtr.rmbt.android.graphview.CustomizableGraphView
                 android:id="@+id/graph_upload"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -125,7 +125,7 @@
                 android:text="@string/term_signal" />
             
 
-            <at.alladin.rmbt.android.graphview.CustomizableGraphView
+            <at.rtr.rmbt.android.graphview.CustomizableGraphView
                 android:id="@+id/graph_signal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

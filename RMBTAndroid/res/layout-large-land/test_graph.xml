@@ -24,7 +24,7 @@
     android:paddingLeft="5dp"
     android:paddingRight="5dp" >
 
-        <at.alladin.rmbt.android.graphview.CustomizableGraphView
+        <at.rtr.rmbt.android.graphview.CustomizableGraphView
             android:id="@+id/test_graph"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
