@@ -80,15 +80,15 @@ public abstract class JSONParser
                 ((HttpURLConnection)urlConnection).disconnect();
         }
     }
-    
-    public static String sendToUrl(final URL url, final String data) throws IOException 
+
+    public static String sendToUrl(final URL url, final String data, int connectTimeout) throws IOException
     {
         final HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
         try {
             urlConnection.setDoOutput(true);
             urlConnection.setDoInput(true);
             
-            urlConnection.setConnectTimeout(CONNECT_TIMEOUT);
+            urlConnection.setConnectTimeout(connectTimeout);
             urlConnection.setReadTimeout(READ_TIMEOUT);
             
             urlConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
@@ -126,13 +126,17 @@ public abstract class JSONParser
     }
     
     
-    public static JSONObject sendJSONToUrl(final URL url, final JSONObject data)
+    public static JSONObject sendJSONToUrl(final URL url, final JSONObject data) {
+        return sendJSONToUrl(url, data, CONNECT_TIMEOUT);
+    }
+
+    public static JSONObject sendJSONToUrl(final URL url, final JSONObject data, int connectTimeout)
     {
         try
         {
             if (CAPABILITIES != null)
                 data.put("capabilities", CAPABILITIES);
-            final String output = sendToUrl(url, data.toString());
+            final String output = sendToUrl(url, data.toString(), connectTimeout);
             return new JSONObject(output);
         }
         catch (final Exception e)

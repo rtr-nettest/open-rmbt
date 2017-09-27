@@ -292,6 +292,11 @@ public class RMBTTask
                     System.err.println(client.getErrorMsg());
                     hasError = true;
                 }
+
+                if (client.getStatus() == TestStatus.ERROR) {
+                    hasError = true;
+                    System.err.println(client.getErrorMsg());
+                }
                 
                 if (hasError) {
                 	error.set(RMBTTaskError.SPEEDTEST_ERROR);

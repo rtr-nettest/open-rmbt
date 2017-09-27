@@ -376,20 +376,20 @@ public class ControlServerConnection
         
         if (resultURL != null)
         {
-            
+
             final JSONObject testData = new JSONObject();
-            
+
             try
             {
                 testData.put("client_uuid", clientUUID);
                 testData.put("client_name", Config.RMBT_CLIENT_NAME);
                 testData.put("client_version", Config.RMBT_VERSION_NUMBER);
                 testData.put("client_language", Locale.getDefault().getLanguage());
-                
+
                 testData.put("time", System.currentTimeMillis());
-                
+
                 testData.put("test_token", testToken);
-                
+
                 testData.put("test_port_remote", result.port_remote);
                 testData.put("test_bytes_download", result.bytes_download);
                 testData.put("test_bytes_upload", result.bytes_upload);
@@ -404,19 +404,19 @@ public class ControlServerConnection
                 testData.put("test_speed_download", (long) Math.floor(result.speed_download + 0.5d));
                 testData.put("test_speed_upload", (long) Math.floor(result.speed_upload + 0.5d));
                 testData.put("test_ping_shortest", result.ping_shortest);
-               
+
                 //dz todo - add interface values
-                
+
                 // total bytes on interface
                 testData.put("test_if_bytes_download", result.getTotalTrafficMeasurement(TrafficDirection.RX));
-                testData.put("test_if_bytes_upload", result.getTotalTrafficMeasurement(TrafficDirection.TX)); 
+                testData.put("test_if_bytes_upload", result.getTotalTrafficMeasurement(TrafficDirection.TX));
                 // bytes during download test
                 testData.put("testdl_if_bytes_download", result.getTrafficByTestPart(TestStatus.DOWN, TrafficDirection.RX));
                 testData.put("testdl_if_bytes_upload", result.getTrafficByTestPart(TestStatus.DOWN, TrafficDirection.TX));
                 // bytes during upload test
                 testData.put("testul_if_bytes_download", result.getTrafficByTestPart(TestStatus.UP, TrafficDirection.RX));
                 testData.put("testul_if_bytes_upload", result.getTrafficByTestPart(TestStatus.UP, TrafficDirection.TX));
-                
+
                 //relative timestamps:
                 TestMeasurement dlMeasurement = result.getTestMeasurementByTestPart(TestStatus.DOWN);
                 if (dlMeasurement != null) {
@@ -424,12 +424,12 @@ public class ControlServerConnection
                 }
                 TestMeasurement ulMeasurement = result.getTestMeasurementByTestPart(TestStatus.UP);
                 if (ulMeasurement != null) {
-                    testData.put("time_ul_ns", ulMeasurement.getTimeStampStart() - startTimeNs);	
-                }                	
-                
-                
+                    testData.put("time_ul_ns", ulMeasurement.getTimeStampStart() - startTimeNs);
+                }
+
+
                 final JSONArray pingData = new JSONArray();
-                
+
                 if (result.pings != null && !result.pings.isEmpty())
                 {
                     for (final Ping ping : result.pings)
@@ -441,22 +441,22 @@ public class ControlServerConnection
                         pingData.put(pingItem);
                     }
                 }
-                
+
                 testData.put("pings", pingData);
-                
+
                 JSONArray speedDetail = new JSONArray();
-                
+
                 if (result.speedItems != null)
                 {
                     for (SpeedItem item : result.speedItems) {
                         speedDetail.put(item.toJSON());
                     }
                 }
-                
+
                 testData.put("speed_detail", speedDetail);
-                
+
                 addToJSONObject(testData, additionalValues);
-                
+
                 // System.out.println(testData.toString(4));
             }
             catch (final JSONException e1)
@@ -470,47 +470,38 @@ public class ControlServerConnection
 
             for (int i = 0; response == null && i < 4; i++) {
                 //try again
-                try {
-                    long backoff = Math.round(Math.pow((i),2)*1000);
-                    System.out.println("Submitting the results failed, trying again with " + backoff + " ms backoff");
-                    Thread.sleep(backoff);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                System.out.println("Trying again");
-                response = JSONParser.sendJSONToUrl(resultURL, testData);
+                int connectTimeout = JSONParser.CONNECT_TIMEOUT + (int) Math.round(Math.pow(3,i)*1000);
+                System.out.println("Submitting the results failed, trying again with " + connectTimeout + " ms timeout");
+                response = JSONParser.sendJSONToUrl(resultURL, testData, connectTimeout);
             }
-            
-            if (response != null)
-                try
-                {
+
+            if (response != null) {
+                try {
                     final JSONArray errorList = response.getJSONArray("error");
-                    
+
                     // System.out.println(response.toString(4));
-                    
-                    if (errorList.length() == 0)
-                    {
+
+                    if (errorList.length() == 0) {
                         lastTestResult = testData;
                         // System.out.println("All is fine");
-                        
-                    }
-                    else
-                    {
-                        for (int i = 0; i < errorList.length(); i++)
-                        {
+
+                    } else {
+                        for (int i = 0; i < errorList.length(); i++) {
                             if (i > 0)
                                 errorMsg += "\n";
                             errorMsg += errorList.getString(i);
                         }
                     }
-                    
+
                     // }
-                }
-                catch (final JSONException e)
-                {
+                } catch (final JSONException e) {
                     errorMsg = "Error parsing server response";
                     e.printStackTrace();
                 }
+            }
+            else {
+                errorMsg = "Result submission failed";
+            }
         }
         else
             errorMsg = "No URL to send the Data to.";
