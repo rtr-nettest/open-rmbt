@@ -464,9 +464,22 @@ public class ControlServerConnection
                 errorMsg = "Error gernerating request";
                 e1.printStackTrace();
             }
-            
+
             // getting JSON string from URL
-            final JSONObject response = JSONParser.sendJSONToUrl(resultURL, testData);
+            JSONObject response = JSONParser.sendJSONToUrl(resultURL, testData);
+
+            for (int i = 0; response == null && i < 4; i++) {
+                //try again
+                try {
+                    long backoff = Math.round(Math.pow((i),2)*1000);
+                    System.out.println("Submitting the results failed, trying again with " + backoff + " ms backoff");
+                    Thread.sleep(backoff);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                System.out.println("Trying again");
+                response = JSONParser.sendJSONToUrl(resultURL, testData);
+            }
             
             if (response != null)
                 try
