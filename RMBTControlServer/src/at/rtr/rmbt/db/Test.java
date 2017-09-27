@@ -263,7 +263,7 @@ public class Test extends Table
         resetError();
         try
         {
-            final PreparedStatement st = conn.prepareStatement(SELECT + " WHERE t.deleted = false AND t.implausible = false AND t.uuid = ?");
+            final PreparedStatement st = conn.prepareStatement(SELECT + " WHERE t.deleted = false AND t.implausible = false AND t.uuid = ? AND t.status = 'FINISHED'");
             st.setObject(1, uuid);
             
             loadTest(st);
