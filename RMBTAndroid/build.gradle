@@ -14,13 +14,17 @@ subprojects{
 }
 
 dependencies {
-	compile project(':RMBTClient')
-	compile project(':RMBTUtil')
+	compile (project(':RMBTClient')) {
+		exclude group: 'org.apache.httpcomponents', module: 'httpclient'
+		exclude group: 'org.json', module: 'json'
+    }
+	compile (project(':RMBTUtil')) {
+		exclude group: 'org.json', module: 'json'
+    }
 	compile group: 'junit', name: 'junit', version: '4.12'
 	compile 'com.google.android.gms:play-services-maps:11.0.4'
 	compile 'dnsjava:dnsjava:2.1.7'
 	compile 'net.sf.jopt-simple:jopt-simple:5.0.3'
-	compile 'org.json:json:5.0.5'
 	compile 'com.fasterxml.jackson.core:jackson-databind:2.8.8.1'
 	// fix dex overflow
 	// see https://stackoverflow.com/questions/38714651/android-studio-dexindexoverflowexception-method-id-not-in
