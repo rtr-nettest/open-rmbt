@@ -257,13 +257,33 @@ public class Test extends Table
             setError("ERROR_DB_GET_TEST_SQL");
         }
     }
-    
-    public long getTestByUuid(final UUID uuid)
+
+    public long getFinishedTestByUuid(final UUID uuid)
     {
         resetError();
         try
         {
             final PreparedStatement st = conn.prepareStatement(SELECT + " WHERE t.deleted = false AND t.implausible = false AND t.uuid = ? AND t.status = 'FINISHED'");
+            st.setObject(1, uuid);
+
+            loadTest(st);
+
+            return uid;
+        }
+        catch (final SQLException e)
+        {
+            e.printStackTrace();
+            setError("ERROR_DB_GET_TEST_SQL");
+        }
+        return -1;
+    }
+
+    public long getTestByUuid(final UUID uuid)
+    {
+        resetError();
+        try
+        {
+            final PreparedStatement st = conn.prepareStatement(SELECT + " WHERE t.deleted = false AND t.implausible = false AND t.uuid = ?");
             st.setObject(1, uuid);
             
             loadTest(st);

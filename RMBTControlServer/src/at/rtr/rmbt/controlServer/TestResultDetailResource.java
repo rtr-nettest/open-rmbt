@@ -137,7 +137,7 @@ public class TestResultDetailResource extends ServerResource
                     TestNdt ndt = new TestNdt(conn);
                     
                     final String testUuid = request.optString("test_uuid");
-                    if (testUuid != null && test.getTestByUuid(UUID.fromString(testUuid)) > 0
+                    if (testUuid != null && test.getFinishedTestByUuid(UUID.fromString(testUuid)) > 0
                             && client.getClientByUid(test.getField("client_id").intValue()))
                     {
                         
