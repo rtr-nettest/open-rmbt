@@ -877,16 +877,16 @@ public class InformationCollector
 	        else if (network == NETWORK_BLUETOOTH)
 	        	return "Bluetooth";
 	        else {
-	        	String TelephonyNetworkOperator = fullInfo.getProperty("TELEPHONY_NETWORK_OPERATOR");
-	        	String TelephonyNetworkOperatorName = fullInfo.getProperty("TELEPHONY_NETWORK_OPERATOR_NAME");
-	        	if (TelephonyNetworkOperator.length() == 0 && TelephonyNetworkOperatorName.length() == 0)
+	        	String telephonyNetworkOperator = fullInfo.getProperty("TELEPHONY_NETWORK_OPERATOR");
+	        	String telephonyNetworkOperatorName = fullInfo.getProperty("TELEPHONY_NETWORK_OPERATOR_NAME");
+	        	if (telephonyNetworkOperator.length() == 0 && telephonyNetworkOperatorName.length() == 0)
 	        		return "-";
-	        	else if (TelephonyNetworkOperator.length() == 0)
-	        		return TelephonyNetworkOperatorName;
-	        	else if (TelephonyNetworkOperatorName.length() == 0)
-	        		return TelephonyNetworkOperator;
+	        	else if (telephonyNetworkOperator.length() == 0)
+	        		return telephonyNetworkOperatorName;
+	        	else if (telephonyNetworkOperatorName.length() == 0)
+	        		return telephonyNetworkOperator;
 	        	else 
-	        		return String.format("%s (%s)", TelephonyNetworkOperatorName, TelephonyNetworkOperator);
+	        		return String.format("%s (%s)", telephonyNetworkOperatorName, telephonyNetworkOperator);
 	        }
     	}
 
@@ -1530,9 +1530,12 @@ public class InformationCollector
                 lastActiveCell.set(activeCell);
 
                 if (fullInfo != null) {
-                    fullInfo.setProperty("TELEPHONY_NETWORK_OPERATOR",
-                            String.valueOf(activeCell.getCi().getMcc() + "-" +
-                                    String.format("%02d", activeCell.getCi().getMnc())));
+                    if (activeCell.getCi().getMcc() != null &&
+                            activeCell.getCi().getMnc() != null) {
+                        fullInfo.setProperty("TELEPHONY_NETWORK_OPERATOR",
+                                String.valueOf(activeCell.getCi().getMcc() + "-" +
+                                        String.format("%02d", activeCell.getCi().getMnc())));
+                    }
                 }
                 //missing: country
             }
