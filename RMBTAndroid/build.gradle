@@ -80,8 +80,8 @@ android {
         applicationId "at.alladin.rmbt.android"
         minSdkVersion 15
         targetSdkVersion 26
-        versionCode 30203
-        versionName "3.2.3"
+        versionCode 30205
+        versionName "3.2.5"
         buildConfigField "long", "BUILD_TIMESTAMP", System.currentTimeMillis() + "L"
 		// Enabling multidex support.
 		multiDexEnabled true
