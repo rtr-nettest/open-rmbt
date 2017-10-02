@@ -168,7 +168,7 @@ public class BandCalculationUtil {
     /**
      * Static list of all UMTS Bands
      * taken from the 3GPP TS 25.101 standard
-     * ​ftp://ftp.3gpp.org/Specs/latest/Rel-14/25_series/25101-e00.zip
+     * ftp://ftp.3gpp.org/Specs/latest/Rel-14/25_series/25101-e00.zip
      * latest update 2016-06
      *
      * order by priority (if one uarfcn is contained in multiple bands)
@@ -198,7 +198,7 @@ public class BandCalculationUtil {
 
     /**
      * Static list of all GSM Bands
-     * taken from the 3GPP TS 45.005 standard​
+     * taken from the 3GPP TS 45.005 standard
      * http://www.3gpp.org/ftp/Specs/archive/45_series/45.005/45005-e10.zip
      * latest update 2017-06
      *
