@@ -792,15 +792,15 @@ public class RMBTTestFragment extends Fragment implements ServiceConnection
             final Toast toast = Toast.makeText(getActivity(), R.string.test_toast_error_text_qos, Toast.LENGTH_LONG);
             toast.show();
         }
-        
-        dismissDialogs();
-        
+
         final String testUuid = rmbtService == null ? null : rmbtService.getTestUuid(true);
-        if (testUuid == null)
+        if (testUuid == null || rmbtService.getError() != RMBTTask.RMBTTaskError.NONE)
         {
-        	showErrorDialog(R.string.test_dialog_error_text);
-        	return;
+            showErrorDialog(R.string.test_dialog_error_text);
+            return;
         }
+
+        dismissDialogs();
         
         ((RMBTMainActivity) getActivity()).showResultsAfterTest(testUuid);
     }
