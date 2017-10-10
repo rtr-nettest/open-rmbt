@@ -26,6 +26,7 @@ public class LoopModeUnlockTest {
 
 	@Test
 	public void unlockCodeCheck() {
-		assertEquals("valid code 56676602", true, ConfigHelper.isValidCheckSum(56676602));
+		assertEquals("invalid code 12345676", false, ConfigHelper.isValidCheckSum(12345676));
+		assertEquals("valid code 12345613", true, ConfigHelper.isValidCheckSum(12345613));
 	}
 }
