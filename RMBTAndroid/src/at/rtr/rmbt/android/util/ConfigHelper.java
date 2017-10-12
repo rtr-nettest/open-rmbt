@@ -597,15 +597,7 @@ public final class ConfigHelper
 
     	return name;
     }
-/*
- *  Dev mode activation using separate app (obsolete)
- *     
- *     
-    public static boolean isDevEnabled(final Context ctx)
-    {
-        return PackageManager.SIGNATURE_MATCH == ctx.getPackageManager().checkSignatures(ctx.getPackageName(), at.alladin.rmbt.android.util.Config.RMBT_DEV_UNLOCK_PACKAGE_NAME);
-    }
-*/    
+
     public static boolean isUserLoopModeActivated(final Context ctx) {
     	return getSharedPreferences(ctx).getBoolean("user_loop_mode", false);
     }
