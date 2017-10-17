@@ -23,7 +23,7 @@
     <string name="test_notification_ticker">Open-RMBT running…</string>
     <string name="test_notification_title">Open-RMBT</string>
     
-    <string name="menu_rtr_web_link"></string>
+    <string name="menu_rtr_web_link">https://www.rtr.at</string>
     <string name="about_rtr_line1"></string>
     
     <string name="about_web_line1" translatable="false"></string>
