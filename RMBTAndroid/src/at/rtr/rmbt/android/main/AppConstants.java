@@ -26,6 +26,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Build;
 import at.alladin.rmbt.android.R;
+import at.alladin.rmbt.android.BuildConfig;
 import at.rtr.rmbt.util.capability.Capabilities;
 
 public class AppConstants {
@@ -56,22 +57,22 @@ public class AppConstants {
 	public final static int LOOP_MODE_MAX_TESTS = 100;
 	public final static int LOOP_MODE_DEFAULT_TESTS = 10;
 
-	public final static int LOOP_MODE_UNLOCK_CODE = 123456789;
-	public final static int LOOP_MODE_LOCK_CODE = 123456789;
+	public final static int LOOP_MODE_UNLOCK_CODE = BuildConfig.LOOP_MODE_UNLOCK_CODE;
+	public final static int LOOP_MODE_LOCK_CODE = BuildConfig.LOOP_MODE_LOCK_CODE;
 	
 	
 	//////////////////////////////////////////////////
 	// server selection values 
 	////////////////////////////////////////////////
 
-	public final static int SERVER_SELECTION_UNLOCK_CODE = 123456789;
-	public final static int SERVER_SELECTION_LOCK_CODE = 123456789;
+	public final static int SERVER_SELECTION_UNLOCK_CODE = BuildConfig.SERVER_SELECTION_UNLOCK_CODE;
+	public final static int SERVER_SELECTION_LOCK_CODE = BuildConfig.SERVER_SELECTION_LOCK_CODE;
 	//////////////////////////////////////////////////
 	// server selection values 
 	////////////////////////////////////////////////
 
-	public final static int DEVELOPER_UNLOCK_CODE = 123456789;
-	public final static int DEVELOPER_LOCK_CODE = 123456789;
+	public final static int DEVELOPER_UNLOCK_CODE = BuildConfig.DEVELOPER_UNLOCK_CODE;
+	public final static int DEVELOPER_LOCK_CODE = BuildConfig.DEVELOPER_LOCK_CODE;
 	
 	
 	//////////////////////////////////////////////////

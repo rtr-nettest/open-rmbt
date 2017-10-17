@@ -73,7 +73,7 @@
         <service android:enabled="true" android:name="at.rtr.rmbt.android.test.RMBTService" android:exported="false" />
         <service android:enabled="true" android:name="at.rtr.rmbt.android.test.RMBTLoopService" android:exported="false" />
         
-        <meta-data android:name="com.google.android.maps.v2.API_KEY" android:value="YOUR_CODE"/>
+        <meta-data android:name="com.google.android.maps.v2.API_KEY" android:value="${googleMapsApiKey}"/>
         <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version" />
         
     </application>

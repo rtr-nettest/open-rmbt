@@ -54,6 +54,11 @@ def keystoreProperties = new Properties()
 // Load your keystore.properties file into the keystoreProperties object.
 keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
+// Other keys
+def appSecretPropertiesFile = rootProject.file("private/appSecrets.properties")
+def appSecretProperties = new Properties()
+appSecretProperties.load(new FileInputStream(appSecretPropertiesFile))
+
 android {
     compileSdkVersion 26
     buildToolsVersion '26.0.1'
@@ -74,15 +79,31 @@ android {
 	            srcDir 'assets'
 	        }
 	    }
+
+		debug {
+			res.srcDirs = ['../private/RMBTAndroid/res']
+		}
+
+		release {
+			res.srcDirs = ['../private/RMBTAndroid/res']
+		}
 	}
 
     defaultConfig {
         applicationId "at.alladin.rmbt.android"
+		manifestPlaceholders = [googleMapsApiKey:appSecretProperties['googleMapsApiKey']]
         minSdkVersion 15
         targetSdkVersion 26
         versionCode 30205
         versionName "3.2.5"
         buildConfigField "long", "BUILD_TIMESTAMP", System.currentTimeMillis() + "L"
+		buildConfigField "int", "LOOP_MODE_UNLOCK_CODE",appSecretProperties['loopModeUnlockCode']
+		buildConfigField "int", "LOOP_MODE_LOCK_CODE",appSecretProperties['loopModeLockCode']
+		buildConfigField "int", "SERVER_SELECTION_UNLOCK_CODE",appSecretProperties['serverSelectionUnlockCode']
+		buildConfigField "int", "SERVER_SELECTION_LOCK_CODE",appSecretProperties['serverSelectionLockCode']
+		buildConfigField "int", "DEVELOPER_UNLOCK_CODE",appSecretProperties['developerUnlockCode']
+		buildConfigField "int", "DEVELOPER_LOCK_CODE",appSecretProperties['developerLockCode']
+
 		// Enabling multidex support.
 		multiDexEnabled true
     }

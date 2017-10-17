@@ -24,6 +24,9 @@ sourceSets {
         java { srcDir 'src' }
         resources { srcDir 'src' }
     }
+    release {
+        resources { srcDir '../private/RMBTStatisticServer/src' }
+    }
     test {
         java {
             srcDir 'test/java'
