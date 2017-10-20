@@ -4,12 +4,12 @@
    Copyright 2013-2017 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
 
    This product includes software developed at
-   alladin-IT GmbH (https://alladin.at/).
-   
-   This product includes software developed at
    Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
    (https://www.rtr.at/).
-
+   
+   This product includes software developed at
+   alladin-IT GmbH (https://alladin.at/).
+  
    This software contains code derived from the
    Web100 Network Diagnostic Tool (NDT), which is open source software,
    available under the "new BSD license". The original software is available
@@ -20,4 +20,8 @@
    available under the "GNU Lesser General Public License" (version 2).
    The original software is available from
    https://github.com/maxmind/geoip-api-java
+   
+   This software contains code that is released under licenses different
+   from the project license. In this case, the applicable license is stated
+   in the file headers.
    =========================================================================
