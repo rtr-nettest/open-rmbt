@@ -63,6 +63,9 @@ war {
             into('META-INF') 
             include 'context.xml' 
     }
+    from("../private/RMBTControlServer/src") {
+        into ("WEB-INF/classes")
+    }
 }
 
 
