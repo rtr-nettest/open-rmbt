@@ -22,8 +22,11 @@ repositories {
 
 sourceSets {
     main {
-        java { srcDir 'src' }
-        resources { srcDir 'src' }
+        java { srcDirs = ['src'] }
+        resources { srcDirs = [
+                'src',
+                '../private/RMBTControlServer/src'
+        ]}
     }
 }
 
@@ -62,9 +65,6 @@ war {
     from(buildDir){ 
             into('META-INF') 
             include 'context.xml' 
-    }
-    from("../private/RMBTControlServer/src") {
-        into ("WEB-INF/classes")
     }
 }
 

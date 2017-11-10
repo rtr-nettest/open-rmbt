@@ -21,11 +21,11 @@ repositories {
 
 sourceSets {
     main {
-        java { srcDir 'src' }
-        resources { srcDir 'src' }
-    }
-    release {
-        resources { srcDir '../private/RMBTStatisticServer/src' }
+        java { srcDirs = ['src'] }
+        resources { srcDirs = [
+                'src',
+                '../private/RMBTStatisticServer/src'
+        ]}
     }
     test {
         java {
@@ -69,9 +69,6 @@ war {
     from(buildDir){ 
             into('META-INF') 
             include 'context.xml' 
-    }
-    from("../private/RMBTStatisticServer/src") {
-        into ("WEB-INF/classes")
     }
 }
 
