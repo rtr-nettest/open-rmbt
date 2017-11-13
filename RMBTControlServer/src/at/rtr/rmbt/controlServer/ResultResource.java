@@ -86,41 +86,36 @@ public class ResultResource extends ServerResource
         
         System.out.println(MessageFormat.format(labels.getString("NEW_RESULT"), getIP()));
         
-        if (entity != null && !entity.isEmpty())
+        if (entity != null && !entity.isEmpty()) {
             // try parse the string to a JSON object
-            try
-            {
+            try {
                 request = new JSONObject(entity);
                 //System.out.println(request.toString(2));
-                               
+
                 final String lang = request.optString("client_language");
-                
+
                 // Load Language Files for Client
-                
+
                 final List<String> langs = Arrays.asList(settings.getString("RMBT_SUPPORTED_LANGUAGES").split(",\\s*"));
-                
-                if (langs.contains(lang))
-                {
+
+                if (langs.contains(lang)) {
                     errorList.setLanguage(lang);
                     labels = ResourceManager.getSysMsgBundle(new Locale(lang));
                 }
-                
+
 //                System.out.println(request.toString(4));
-                
-                if (conn != null)
-                {
+
+                if (conn != null) {
                     boolean oldAutoCommitState = conn.getAutoCommit();
                     conn.setAutoCommit(false);
-                    
+
                     final Test test = new Test(conn);
-                    
-                    if (request.optString("test_token").length() > 0)
-                    {
-                        
+
+                    if (request.optString("test_token").length() > 0) {
+
                         final String[] token = request.getString("test_token").split("_");
-                        
-                        try
-                        {
+
+                        try {
                             //get test_uuid, open_test_uuid since the token can consist of either one
                             final UUID tokenUuid = UUID.fromString(token[0]);
                             final PreparedStatement psOpenUuid = conn.prepareStatement("SELECT uuid, open_test_uuid FROM test WHERE uuid = ? OR open_test_uuid = ?");
@@ -140,45 +135,48 @@ public class ResultResource extends ServerResource
 
 
                             {
-                                
+
                                 final List<String> clientNames = Arrays.asList(settings.getString("RMBT_CLIENT_NAME")
                                         .split(",\\s*"));
 
                                 String versionString = request.optString("client_version");
                                 versionString = (versionString.length() == 3) ? (versionString + ".0") : versionString; //adjust old versions
-                                Semver version = new Semver(versionString,Semver.SemverType.NPM);
+                                Semver version = new Semver(versionString, Semver.SemverType.NPM);
                                 Requirement requirement = Requirement.buildNPM(settings.getString("RMBT_VERSION_NUMBER"));
                                 if (!version.satisfies(requirement)) {
                                     throw new SemverException("requirement not satisfied");
                                 }
-                                
-                                if (test.getTestByUuid(testUuid) > 0)
+
+                                if (test.getTestByUuid(testUuid) > 0) {
                                     if (clientNames.contains(request.optString("client_name"))) {
-                                        
+
                                         test.setFields(request);
-                                        
+
                                         final String networkOperator = request.optString("telephony_network_operator");
-                                        if (MCC_MNC_PATTERN.matcher(networkOperator).matches())
+                                        if (MCC_MNC_PATTERN.matcher(networkOperator).matches()) {
                                             test.getField("network_operator").setString(networkOperator);
-                                        else
+                                        }
+                                        else {
                                             test.getField("network_operator").setString(null);
-                                        
+                                        }
+
                                         final String networkSimOperator = request.optString("telephony_network_sim_operator");
-                                        if (MCC_MNC_PATTERN.matcher(networkSimOperator).matches())
+                                        if (MCC_MNC_PATTERN.matcher(networkSimOperator).matches()) {
                                             test.getField("network_sim_operator").setString(networkSimOperator);
-                                        else
+                                        }
+                                        else {
                                             test.getField("network_sim_operator").setString(null);
-                                        
-                                        
+                                        }
+
+
                                         // RMBTClient Info
-                                        
+
                                         final String ipLocalRaw = request.optString("test_ip_local", null);
-                                        if (ipLocalRaw != null)
-                                        {
+                                        if (ipLocalRaw != null) {
                                             final InetAddress ipLocalAddress = InetAddresses.forString(ipLocalRaw);
                                             // original address (not filtered)
                                             test.getField("client_ip_local").setString(
-                                            		InetAddresses.toAddrString(ipLocalAddress));
+                                                    InetAddresses.toAddrString(ipLocalAddress));
                                             // anonymized local address
                                             final String ipLocalAnonymized = Helperfunctions.anonymizeIp(ipLocalAddress);
                                             test.getField("client_ip_local_anonymized").setString(ipLocalAnonymized);
@@ -190,77 +188,49 @@ public class ResultResource extends ServerResource
                                             test.getField("nat_type")
                                                     .setString(Helperfunctions.getNatType(ipLocalAddress, ipPublicAddress));
                                         }
-                                        
+
                                         final String ipServer = request.optString("test_ip_server", null);
-                                        if (ipServer != null)
-                                        {
+                                        if (ipServer != null) {
                                             final InetAddress testServerInetAddress = InetAddresses.forString(ipServer);
                                             test.getField("server_ip").setString(
                                                     InetAddresses.toAddrString(testServerInetAddress));
                                         }
-                                        
+
                                         //log IP address
                                         final String ipSource = getIP();
                                         test.getField("source_ip").setString(ipSource);
-                                        
+
                                         //log anonymized address
-                                        try{
-                                        	final InetAddress ipSourceIP = InetAddress.getByName(ipSource);
+                                        try {
+                                            final InetAddress ipSourceIP = InetAddress.getByName(ipSource);
                                             final String ipSourceAnonymized = Helperfunctions.anonymizeIp(ipSourceIP);
                                             test.getField("source_ip_anonymized").setString(ipSourceAnonymized);
-                                        } catch(UnknownHostException e){
+                                        } catch (UnknownHostException e) {
                                             System.out.println("Exception thrown:" + e);
                                         }
-                                        
+
 
                                         //avoid null value on user_server_selection
-                                        if (test.getField("user_server_selection").toString()!="true") 
-                                           test.getField("user_server_selection").setString("false");
-                                        
-                                        
+                                        if (test.getField("user_server_selection").toString() != "true") {
+                                            test.getField("user_server_selection").setString("false");
+                                        }
+
                                         // Additional Info
-                                        
+
                                         JSONArray speedData = request.optJSONArray("speed_detail");
-                                        
-                                        if (speedData != null && !test.hasError())
-                                        {
-                                            
-                                            // old implementation - extra table, JSON converted into SQL columns
-                                            
-                                            /*
-                                                final PreparedStatement psSpeed = conn.prepareStatement("INSERT INTO test_speed (test_id, upload, thread, time, bytes) VALUES (?,?,?,?,?)");
-                                                psSpeed.setLong(1, test.getUid());
-                                                for (int i = 0; i < speedData.length(); i++)
-                                                {
-                                                    final JSONObject item = speedData.getJSONObject(i);
-                                                    
-                                                    final String direction = item.optString("direction");
-                                                    if (direction != null && (direction.equals("download") || direction.equals("upload")))
-                                                    {
-                                                        psSpeed.setBoolean(2, direction.equals("upload"));
-                                                        psSpeed.setInt(3, item.optInt("thread"));
-                                                        psSpeed.setLong(4, item.optLong("time"));
-                                                        psSpeed.setLong(5, item.optLong("bytes"));
-                                                        
-                                                        psSpeed.executeUpdate();
-                                                    }
-                                                }
-                                            */
-                                            
-                                            
+
+                                        if (speedData != null && !test.hasError()) {
                                             // next implementation - JSON result as JSON string within the test table
-                                            
+
                                             final SpeedItems speedItems = new SpeedItems();
-                                            for (int i = 0; i < speedData.length(); i++)
-                                            {
+                                            for (int i = 0; i < speedData.length(); i++) {
                                                 final JSONObject item = speedData.getJSONObject(i);
                                                 final String direction = item.optString("direction");
-                                                if (direction != null && (direction.equals("download") || direction.equals("upload")))
-                                                {
+                                                if (direction != null && (direction.equals("download") || direction.equals("upload"))) {
                                                     final boolean upload = direction.equals("upload");
                                                     final int thread = item.optInt("thread");
                                                     final SpeedItem speedItem = new SpeedItem(item.optLong("time"), item.optLong("bytes"));
-                                                    
+
                                                     if (upload)
                                                         speedItems.addSpeedItemUpload(speedItem, thread);
                                                     else
@@ -270,48 +240,46 @@ public class ResultResource extends ServerResource
                                             final String speedItemsJson = getGson(false).toJson(speedItems);
 
                                             final PreparedStatement psSpeed = conn.prepareStatement("INSERT INTO speed (open_test_uuid,items) VALUES (?,?::JSONB)");
-                                            psSpeed.setObject(1,openTestUuid);
-                                            psSpeed.setString(2,speedItemsJson);
+                                            psSpeed.setObject(1, openTestUuid);
+                                            psSpeed.setString(2, speedItemsJson);
                                             psSpeed.executeUpdate();
-  
+
                                         }
-                                        
+
                                         final JSONArray pingData = request.optJSONArray("pings");
-                                        
-                                        if (pingData != null && !test.hasError())
-                                        {
+
+                                        if (pingData != null && !test.hasError()) {
                                             final PreparedStatement psPing = conn.prepareStatement("INSERT INTO ping (open_test_uuid,test_id, value, value_server, time_ns) " + "VALUES(?,?,?,?,?)");
-                                            psPing.setObject(1,openTestUuid);
+                                            psPing.setObject(1, openTestUuid);
                                             psPing.setLong(2, test.getUid());
-                                            
-                                            for (int i = 0; i < pingData.length(); i++)
-                                            {
-                                                
+
+                                            for (int i = 0; i < pingData.length(); i++) {
+
                                                 final JSONObject pingDataItem = pingData.getJSONObject(i);
-                                                
+
                                                 long valueClient = pingDataItem.optLong("value", -1);
                                                 if (valueClient >= 0)
                                                     psPing.setLong(3, valueClient);
                                                 else
                                                     psPing.setNull(3, Types.BIGINT);
-                                                
+
                                                 long valueServer = pingDataItem.optLong("value_server", -1);
                                                 if (valueServer >= 0)
                                                     psPing.setLong(4, valueServer);
                                                 else
                                                     psPing.setNull(4, Types.BIGINT);
-                                                
+
                                                 long timeNs = pingDataItem.optLong("time_ns", -1);
                                                 if (timeNs >= 0)
                                                     psPing.setLong(5, timeNs);
                                                 else
                                                     psPing.setNull(5, Types.BIGINT);
 
-                                                
+
                                                 psPing.executeUpdate();
                                             }
                                         }
-                                        
+
                                         final JSONArray geoData = request.optJSONArray("geoLocations");
 
                                         if (geoData != null && !test.hasError()) {
@@ -387,7 +355,7 @@ public class ResultResource extends ServerResource
                                                 //System.out.println(cell);
                                                 cell.setOpenTestUuid(openTestUuid);
                                                 String sql = "INSERT INTO radio_cell(uuid, open_test_uuid, mnc, mcc, location_id, area_code, primary_scrambling_code, technology, channel_number, registered, active)" +
-                                                                     "        VALUES(?,?,?,?,?,?,?,?,?,?,?);";
+                                                        "        VALUES(?,?,?,?,?,?,?,?,?,?,?);";
 
                                                 //this will return some id
                                                 MapHandler results = new MapHandler();
@@ -406,8 +374,7 @@ public class ResultResource extends ServerResource
 
                                                 if (channelNumber == null) {
                                                     channelNumber = cell.getChannelNumber();
-                                                }
-                                                else if (!channelNumber.equals(cell.getChannelNumber())) {
+                                                } else if (!channelNumber.equals(cell.getChannelNumber())) {
                                                     channelChanged = true;
                                                 }
 
@@ -417,7 +384,7 @@ public class ResultResource extends ServerResource
                                                         !radioBandChanged) {
 
                                                     BandCalculationUtil.FrequencyInformation fi = null;
-                                                    switch(cell.getTechnology()) {
+                                                    switch (cell.getTechnology()) {
                                                         case CONNECTION_2G:
                                                             fi = BandCalculationUtil.getBandFromArfcn(cell.getChannelNumber());
                                                             break;
@@ -449,7 +416,7 @@ public class ResultResource extends ServerResource
                                                 TimestampField time = (TimestampField) test.getField("time");
                                                 GregorianCalendar calendar = new GregorianCalendar();
                                                 calendar.setTime(time.getDate());
-                                                calendar.add(Calendar.MILLISECOND, (int) (signal.getTimeNs() /1e6));
+                                                calendar.add(Calendar.MILLISECOND, (int) (signal.getTimeNs() / 1e6));
                                                 signal.setTime(calendar.getTime());
 
                                                 String sql = "INSERT INTO radio_signal(cell_uuid, open_test_uuid, network_type_id, bit_error_rate, wifi_link_speed, " +
@@ -457,7 +424,7 @@ public class ResultResource extends ServerResource
                                                         "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
                                                 MapHandler results = new MapHandler();
 
-                                                qr.insert(conn, sql,results,
+                                                qr.insert(conn, sql, results,
                                                         signal.getCellUuid(),
                                                         signal.getOpenTestUuid(),
                                                         signal.getNetworkTypeId(),
@@ -490,8 +457,7 @@ public class ResultResource extends ServerResource
                                                     if (signal.getWifiLinkSpeed() != null && signal.getWifiLinkSpeed() < minLinkSpeed) {
                                                         minLinkSpeed = signal.getWifiLinkSpeed();
                                                     }
-                                                }
-                                                else {
+                                                } else {
                                                     //System.out.println("not active: " + signal);
                                                 }
 
@@ -499,7 +465,7 @@ public class ResultResource extends ServerResource
                                         }
 
                                         final JSONArray cellData = request.optJSONArray("cellLocations");
-                                        
+
                                         if (cellData != null && !test.hasError()) {
                                             for (int i = 0; i < cellData.length(); i++) {
 
@@ -536,31 +502,29 @@ public class ResultResource extends ServerResource
 
 
                                         final int networkType = test.getField("network_type").intValue();
-                                        
+
                                         final JSONArray signalData = request.optJSONArray("signals");
-                                        
-                                        if (signalData != null && !test.hasError())
-                                        {
-                                            
-                                            for (int i = 0; i < signalData.length(); i++)
-                                            {
-                                                
+
+                                        if (signalData != null && !test.hasError()) {
+
+                                            for (int i = 0; i < signalData.length(); i++) {
+
                                                 final JSONObject signalDataItem = signalData.getJSONObject(i);
-                                                
+
                                                 final Signal signal = new Signal(conn);
-                                                
+
                                                 signal.setOpenTestUuid(openTestUuid);
                                                 signal.setTest_id(test.getUid());
-                                                
+
                                                 final long clientTime = signalDataItem.optLong("time");
                                                 final Timestamp tstamp = java.sql.Timestamp.valueOf(new Timestamp(
                                                         clientTime).toString());
-                                                
+
                                                 signal.setTime(tstamp, test.getField("timezone").toString());
-                                                
+
                                                 final int thisNetworkType = signalDataItem.optInt("network_type_id", 0);
                                                 signal.setNetwork_type_id(thisNetworkType);
-                                                
+
                                                 final int signalStrength = signalDataItem.optInt("signal_strength",
                                                         UNKNOWN);
                                                 if (signalStrength != UNKNOWN)
@@ -585,15 +549,14 @@ public class ResultResource extends ServerResource
                                                 signal.setLte_rssnr(lteRssnr);
                                                 signal.setLte_cqi(lteCqi);
                                                 signal.setTime_ns(timeNs);
-                                                
+
                                                 signal.storeSignal();
-                                                
+
                                                 if (networkType == 99) // wlan
                                                 {
                                                     if (rssi < minSignalStrength && rssi != UNKNOWN)
                                                         minSignalStrength = rssi;
-                                                }
-                                                else if (signalStrength < minSignalStrength && signalStrength != UNKNOWN)
+                                                } else if (signalStrength < minSignalStrength && signalStrength != UNKNOWN)
                                                     minSignalStrength = signalStrength;
 
                                                 if (lteRsrp < minLteRsrp && lteRsrp != UNKNOWN)
@@ -604,13 +567,12 @@ public class ResultResource extends ServerResource
 
                                                 if (thisLinkSpeed != 0 && (minLinkSpeed == UNKNOWN || thisLinkSpeed < minLinkSpeed))
                                                     minLinkSpeed = thisLinkSpeed;
-                                                
-                                                if (signal.hasError())
-                                                {
+
+                                                if (signal.hasError()) {
                                                     errorList.addError(signal.getError());
                                                     break;
                                                 }
-                                                
+
                                             }
 
                                         }
@@ -618,30 +580,33 @@ public class ResultResource extends ServerResource
                                         // set rssi value (typically GSM,UMTS, but also old LTE-phones)
                                         if (minSignalStrength != Integer.MAX_VALUE
                                                 && minSignalStrength != UNKNOWN
-                                                && minSignalStrength != 0) // 0 dBm is out of range
+                                                && minSignalStrength != 0) { // 0 dBm is out of range
                                             ((IntField) test.getField("signal_strength")).setValue(minSignalStrength);
+                                        }
                                         // set rsrp value (typically LTE)
                                         if (minLteRsrp != Integer.MAX_VALUE
                                                 && minLteRsrp != UNKNOWN
-                                                && minLteRsrp != 0) // 0 dBm is out of range
+                                                && minLteRsrp != 0) { // 0 dBm is out of range
                                             ((IntField) test.getField("lte_rsrp")).setValue(minLteRsrp);
+                                        }
                                         // set rsrq value (LTE)
                                         if (minLteRsrq != Integer.MAX_VALUE
-                                                && minLteRsrq != UNKNOWN)
+                                                && minLteRsrq != UNKNOWN) {
                                             ((IntField) test.getField("lte_rsrq")).setValue(minLteRsrq);
+                                        }
 
-                                        if (minLinkSpeed != Integer.MAX_VALUE && minLinkSpeed != UNKNOWN)
+                                        if (minLinkSpeed != Integer.MAX_VALUE && minLinkSpeed != UNKNOWN) {
                                             ((IntField) test.getField("wifi_link_speed")).setValue(minLinkSpeed);
+                                        }
 
                                         if (radioBand != null) {
                                             ((IntField) test.getField("radio_band")).setValue(radioBand);
                                         }
-                                        if (!channelChanged && channelNumber != null)
-                                        {
+                                        if (!channelChanged && channelNumber != null) {
                                             ((IntField) test.getField("channel_number")).setValue(channelNumber);
                                         }
                                         // use max network type
-                                        
+
                                         final String sqlMaxNetworkType = "SELECT nt.uid, nt.technology_order" +
                                                 " FROM" +
                                                 " (SELECT s.network_type_id" +
@@ -660,11 +625,9 @@ public class ResultResource extends ServerResource
                                         final PreparedStatement psMaxNetworkType = conn.prepareStatement(sqlMaxNetworkType);
                                         psMaxNetworkType.setObject(1, openTestUuid);
                                         psMaxNetworkType.setObject(2, openTestUuid);
-                                        if (psMaxNetworkType.execute())
-                                        {
+                                        if (psMaxNetworkType.execute()) {
                                             final ResultSet rs = psMaxNetworkType.getResultSet();
-                                            if (rs.next())
-                                            {
+                                            if (rs.next()) {
                                                 final int maxNetworkType = rs.getInt("uid");
                                                 if (maxNetworkType != 0)
                                                     ((IntField) test.getField("network_type")).setValue(maxNetworkType);
@@ -693,104 +656,107 @@ public class ResultResource extends ServerResource
                                                 "           ON nt.uid = s2.network_type_id) s3" +
                                                 "  ) agg" +
                                                 " JOIN network_type nt ON nt.aggregate=agg.agg;";
-                                        
+
                                         final PreparedStatement psAgg = conn.prepareStatement(sqlAggSignal);
                                         psAgg.setObject(1, openTestUuid);
                                         psAgg.setObject(2, openTestUuid);
-                                        if (psAgg.execute())
-                                        {
+                                        if (psAgg.execute()) {
                                             final ResultSet rs = psAgg.getResultSet();
-                                            if (rs.next())
-                                            {
+                                            if (rs.next()) {
                                                 final int newNetworkType = rs.getInt("uid");
                                                 if (newNetworkType != 0)
                                                     ((IntField) test.getField("network_type")).setValue(newNetworkType);
                                             }
                                         }
-                                        
+
                                         ///////// android_permissions
                                         final JSONArray androidPermissionStatus = request.optJSONArray("android_permission_status");
                                         String androidPermissionStatusString = null;
-                                        if (androidPermissionStatus != null)
-                                        {
+                                        if (androidPermissionStatus != null) {
                                             androidPermissionStatusString = androidPermissionStatus.toString();
-                                            if (androidPermissionStatusString.length() > 1000) // sanity check
+                                            if (androidPermissionStatusString.length() > 1000) { // sanity check
                                                 androidPermissionStatusString = null;
+                                            }
                                         }
-                                        
+
                                         test.getField("android_permissions").setString(androidPermissionStatusString);
                                         ///////////
-                                        
-                                        
+
+
                                         if (test.getField("network_type").intValue() <= 0)
                                             errorList.addError("ERROR_NETWORK_TYPE");
-                                        
+
                                         final IntField downloadField = (IntField) test.getField("speed_download");
-                                        if (downloadField.isNull() || downloadField.intValue() <= 0 || downloadField.intValue() > 10000000) // 10 gbit/s limit
+                                        if (downloadField.isNull() || downloadField.intValue() <= 0 || downloadField.intValue() > 10000000) { // 10 gbit/s limit
                                             errorList.addError("ERROR_DOWNLOAD_INSANE");
-                                        
+                                        }
+
                                         final IntField upField = (IntField) test.getField("speed_upload");
-                                        if (upField.isNull() || upField.intValue() <= 0 || upField.intValue() > 10000000) // 10 gbit/s limit
+                                        if (upField.isNull() || upField.intValue() <= 0 || upField.intValue() > 10000000) { // 10 gbit/s limit
                                             errorList.addError("ERROR_UPLOAD_INSANE");
-                                        
+                                        }
+
                                         //clients still report eg: "test_ping_shortest":9195040 (note the 'test_' prefix there!)
                                         final LongField pingField = (LongField) test.getField("ping_shortest");
-                                        if (pingField.isNull() || pingField.longValue() <= 0 || pingField.longValue() > 60000000000L) // 1 min limit
+                                        if (pingField.isNull() || pingField.longValue() <= 0 || pingField.longValue() > 60000000000L) { // 1 min limit
                                             errorList.addError("ERROR_PING_INSANE");
-                                        
-                                        
-                                        if (errorList.isEmpty())
+                                        }
+
+
+                                        if (errorList.isEmpty()) {
                                             test.getField("status").setString("FINISHED");
-                                        else
+                                        }
+                                        else {
                                             test.getField("status").setString("ERROR");
-                                        
+                                        }
+
                                         test.storeTestResults(false);
-                                        
-                                        if (test.hasError())
+
+                                        if (test.hasError()) {
                                             errorList.addError(test.getError());
-                                        
-                                    }
-                                    else
+                                        }
+
+                                    } else {
                                         errorList.addError("ERROR_CLIENT_VERSION");
+                                    }
+                                }
                             }
-                        }
-                        catch (final IllegalArgumentException e)
-                        {
+                        } catch (final IllegalArgumentException e) {
                             e.printStackTrace();
                             errorList.addError("ERROR_TEST_TOKEN_MALFORMED");
-                        }
-                        catch (SemverException e) {
+                        } catch (SemverException e) {
                             errorList.addError("ERROR_CLIENT_VERSION" + e);
                         }
 
-                    }
-                    else
+                    } else {
                         errorList.addError("ERROR_TEST_TOKEN_MISSING");
-                                        
+                    }
+
                     conn.commit();
                     conn.setAutoCommit(oldAutoCommitState); // be nice and restore old state TODO: do it in finally
-                }
-                else
+                } else {
                     errorList.addError("ERROR_DB_CONNECTION");
-                
-            }
-            catch (final JSONException | IOException e)
-            {
+                }
+
+            } catch (final JSONException | IOException e) {
                 errorList.addError("ERROR_REQUEST_JSON");
                 System.out.println("Error parsing JSDON Data " + e.toString());
                 e.printStackTrace();
-            }
-            catch (final SQLException e)
-            {
+            } catch (final SQLException e) {
                 System.out.println("Error while storing data " + e.toString());
                 e.printStackTrace();
             }
-        else
+        }
+        else {
             errorList.addErrorString("Expected request is missing.");
+        }
         
         try
         {
             answer.putOpt("error", errorList.getList());
+            if (errorList.getLength() > 0) {
+                System.out.println("Errors handling test result: " + errorList.getList().toString());
+            }
         }
         catch (final JSONException e)
         {
