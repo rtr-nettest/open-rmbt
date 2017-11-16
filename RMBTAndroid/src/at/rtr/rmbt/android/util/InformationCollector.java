@@ -794,7 +794,8 @@ public class InformationCollector
      * @return indication of a dualsim device
      */
     public boolean isSuspectedDualSim() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                && telManager != null) {
             return (telManager.getPhoneCount() > 1);
         }
         return true;
