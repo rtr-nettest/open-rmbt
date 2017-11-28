@@ -141,7 +141,11 @@ public class RMBTClient
     	return getInstance(host, pathPrefix, port, encryption, geoInfo, uuid, clientType, 
     			clientName, clientVersion, overrideParams, additionalValues, null);
     }
-    
+
+    /**
+     * Gets a new instance of RMBTClient or
+     * "null", if the connection to the given ControlServer cannot be established
+     */
     public static RMBTClient getInstance(final String host, final String pathPrefix, final int port,
             final boolean encryption, final ArrayList<String> geoInfo, final String uuid, final String clientType,
             final String clientName, final String clientVersion, final RMBTTestParameter overrideParams,

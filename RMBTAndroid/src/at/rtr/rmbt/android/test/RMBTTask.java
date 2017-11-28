@@ -226,6 +226,9 @@ public class RMBTTask
                 final ArrayList<String> geoInfo = fullInfo.getCurLocation();
                 
                 final Set<ErrorStatus> errorSet = new HashSet<ErrorStatus>();
+
+                //obtain new RMBTClient connected to the given ControlServer
+                //or NULL in case a connection cannot be established
                 client = RMBTClient.getInstance(controlServer, null, controlPort, controlSSL, geoInfo, uuid,
                         Config.RMBT_CLIENT_TYPE, Config.RMBT_CLIENT_NAME,
                         fullInfo.getInfo("CLIENT_SOFTWARE_VERSION"), null, fullInfo.getInitialInfo(), errorSet);
@@ -272,7 +275,6 @@ public class RMBTTask
                     	
                         if (result != null && ! fullInfo.getIllegalNetworkTypeChangeDetcted()) {
                             client.sendResult(fullInfo.getResultValues(controlConnection.getStartTimeNs()));
-                            
                         }
                         else {
                             hasError = true;
@@ -280,6 +282,7 @@ public class RMBTTask
                     }
                     catch (final Exception e)
                     {
+                        hasError = true;
                         e.printStackTrace();
                     }
                     finally
