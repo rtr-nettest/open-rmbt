@@ -454,7 +454,7 @@ public class ResultResource extends ServerResource
                                                     if (signal.getLteRsrp() != null && signal.getLteRsrq() < minLteRsrq) {
                                                         minLteRsrq = signal.getLteRsrq();
                                                     }
-                                                    if (signal.getWifiLinkSpeed() != null && signal.getWifiLinkSpeed() < minLinkSpeed) {
+                                                    if (signal.getWifiLinkSpeed() != null && (signal.getWifiLinkSpeed() < minLinkSpeed || minLinkSpeed == UNKNOWN)) {
                                                         minLinkSpeed = signal.getWifiLinkSpeed();
                                                     }
                                                 } else {
