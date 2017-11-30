@@ -101,7 +101,7 @@ Installation
 
    You need to add the key found in secret.h to the test_server table.
 
-### Control and Mapserver
+### Control-,  Map- and StatisticServer
 
 1. Install:
   * Apache Tomcat 7 or higher
@@ -109,6 +109,7 @@ Installation
   * openjdk-7-jre or higher
   * openjdk-7-jdk (NOT openjdk-6...!) or higher
   * libservlet3.1-java
+  * geoip-database
 
 2. Edit `/etc/tomcat7/context.xml` (substitute parts with `[]`), add to `<Context>`:
 
