@@ -63,6 +63,7 @@ public class RegistrationResource extends ServerResource
         int port;
         String address;
         byte[] key;
+        String type;
     }
     
     
@@ -108,7 +109,9 @@ public class RegistrationResource extends ServerResource
             try
             {
                 request = new JSONObject(entity);
-                
+
+                readCapabilities(request);
+
                 UUID uuid = null;
                 final String uuidString = request.optString("uuid", "");
                 if (uuidString.length() != 0)
@@ -244,11 +247,14 @@ public class RegistrationResource extends ServerResource
                             
                             boolean testServerEncryption = true; // encryption is mandatory
                             
-                            final String serverType;
-                            if (request.optString("client").equals("RMBTws"))
-                                serverType = "RMBTws";
+                            final String[] serverTypes;
+                            if (capabilities.getRmbtHttp()) {
+                                serverTypes = new String[]{"RMBThttp"};
+                            }
+                            else if (request.optString("client").equals("RMBTws"))
+                                serverTypes = new String[]{"RMBThttp", "RMBTws"};
                             else
-                                serverType = "RMBT";
+                                serverTypes = new String[]{"RMBT"};
                             
                             final Boolean ipv6;
                             if (clientAddress instanceof Inet6Address)
@@ -271,7 +277,7 @@ public class RegistrationResource extends ServerResource
                             
                             if (server == null)
                                 server = getNearestServer(errorList, geolat, geolong, geotime, clientIpString,
-                                    asCountry, geoIpCountry, serverType, testServerEncryption, ipv6);
+                                    asCountry, geoIpCountry, serverTypes, testServerEncryption, ipv6);
                             
                             try
                             {
@@ -290,6 +296,7 @@ public class RegistrationResource extends ServerResource
                                 answer.put("test_server_port", server.port);
                                 answer.put("test_server_name", server.name);
                                 answer.put("test_server_encryption", testServerEncryption);
+                                answer.put("test_server_type", server.type);
                                 
                                 answer.put("test_duration", settings.getString("RMBT_DURATION"));
                                 answer.put("test_numthreads", settings.getString("RMBT_NUM_THREADS"));
@@ -589,13 +596,15 @@ public class RegistrationResource extends ServerResource
     }
     
     private TestServer getNearestServer(final ErrorList errorList, final double geolat, final double geolong,
-            final long geotime, final String clientIp, final String asCountry, final String geoIpCountry, final String serverType,
+            final long geotime, final String clientIp, final String asCountry, final String geoIpCountry, final String[] serverTypes,
             final boolean ssl, final Boolean ipv6)
     {
+
+        final String serverTypesClause = "server_type = ?" + Strings.repeat(" OR server_type = ? ", serverTypes.length - 1);
         
         final String sql = "SELECT * FROM test_server"
                 + " WHERE active"
-                + " AND server_type = ?"
+                + " AND (" + serverTypesClause + ")"
                 // country column obsolete, replaced by countries array
 //                + " AND (country = ? OR country = 'any' OR country IS NULL)"
 //                + " ORDER BY"
@@ -617,10 +626,11 @@ public class RegistrationResource extends ServerResource
                 country = geoIpCountry;
             
             int i = 1;
-            ps.setString(i++, serverType);
+            for (String serverType : serverTypes) {
+                ps.setString(i++, serverType);
+            }
             
             ps.setString(i++, country);
-            
             try (ResultSet rs = ps.executeQuery())
             {
                 if (! rs.next())
@@ -652,7 +662,8 @@ public class RegistrationResource extends ServerResource
         result.port = rs.getInt(ssl ? "port_ssl" : "port");
         result.name = rs.getString("name") + " (" + rs.getString("city") + ")";
         result.key = rs.getString("key").getBytes();
-        
+        result.type = rs.getString("server_type");
+
         return result;
     }
     

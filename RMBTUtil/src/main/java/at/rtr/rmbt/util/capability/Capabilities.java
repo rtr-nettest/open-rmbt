@@ -31,6 +31,9 @@ public class Capabilities {
 	@SerializedName("qos")
 	protected QualityOfServiceCapability qos = new QualityOfServiceCapability();
 
+	@SerializedName("RMBThttp")
+	private boolean rmbtHttp = false;
+
 	/**
 	 * classification capability
 	 * @return
@@ -53,6 +56,14 @@ public class Capabilities {
 
 	public void setQos(QualityOfServiceCapability qos) {
 		this.qos = qos;
+	}
+
+	public boolean getRmbtHttp() {
+		return rmbtHttp;
+	}
+
+	public void setRmbtHttp(boolean rmbtHttp) {
+		this.rmbtHttp = rmbtHttp;
 	}
 
 	@Override
