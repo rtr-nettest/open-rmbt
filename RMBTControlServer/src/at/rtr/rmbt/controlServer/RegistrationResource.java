@@ -249,7 +249,7 @@ public class RegistrationResource extends ServerResource
                             
                             final String[] serverTypes;
                             if (capabilities.getRmbtHttp()) {
-                                serverTypes = new String[]{"RMBThttp"};
+                                serverTypes = new String[]{"RMBThttp", "RMBT"};
                             }
                             else if (request.optString("client").equals("RMBTws"))
                                 serverTypes = new String[]{"RMBThttp", "RMBTws"};
