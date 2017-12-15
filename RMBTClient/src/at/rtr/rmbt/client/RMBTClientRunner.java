@@ -71,7 +71,9 @@ public class RMBTClientRunner
                 
                 acceptsAll(Arrays.asList("s", "ssl"), "use SSL/TLS");
                 
-                acceptsAll(Arrays.asList("ssl-no-verify"), "turn off SSL/TLS certificate validation");
+                acceptsAll(Arrays.asList("ssl-no-verify"), "turn off SSL/TLS certificate validation (default)");
+                acceptsAll(Arrays.asList("ssl-verify"), "turn on SSL/TLS certificate validation");
+
                 
                 acceptsAll(Arrays.asList("t", "threads"), "number of threads")
                         .withRequiredArg().ofType(Integer.class);
@@ -106,11 +108,11 @@ public class RMBTClientRunner
         
         final String[] requiredArgs = { "h", "p" };
         
-        if (options.has("ssl-no-verify"))
-            SSLContext.setDefault(RMBTClient.getSSLContext(null, null));
-        else
+        if (options.has("ssl-verify"))
             SSLContext.setDefault(RMBTClient.getSSLContext("at/rtr/rmbt/crt/ca.pem",
                     "at/rtr/rmbt/crt/controlserver.pem"));
+        else
+            SSLContext.setDefault(RMBTClient.getSSLContext(null, null));
         
         boolean reqArgMissing = false;
         if (!options.has("?"))
@@ -161,7 +163,7 @@ public class RMBTClientRunner
             numThreads = (Integer) options.valueOf("t");
         if (options.has("d"))
             duration = (Integer) options.valueOf("d");
-        
+
         int numPings = 10;
         
         RMBTTestParameter overrideParams = null;

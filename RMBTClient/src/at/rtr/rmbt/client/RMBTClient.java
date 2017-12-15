@@ -519,10 +519,9 @@ public class RMBTClient
                 if (controlConnection != null)
                 {
                     log("");
-                    final String testId = controlConnection.getTestId();
                     final String testUUID = params.getUUID();
                     final long testTime = controlConnection.getTestTime();
-                    log(String.format(Locale.US, "uid=%s, time=%s, uuid=%s\n", testId, new SimpleDateFormat(
+                    log(String.format(Locale.US, "time=%s, uuid=%s\n", new SimpleDateFormat(
                             "yyyy-MM-dd HH:mm:ss.SSS", Locale.US).format(new Date(testTime)), testUUID));
                 }
                 

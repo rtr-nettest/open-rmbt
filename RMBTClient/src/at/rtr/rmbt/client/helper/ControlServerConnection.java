@@ -52,7 +52,7 @@ public class ControlServerConnection
     private boolean testEncryption;
     
     private String testToken = "";
-    private String testId = "";
+    //private String testId = "";
     private String testUuid = "";
     
     private long testTime = 0;
@@ -316,12 +316,11 @@ public class ControlServerConnection
                 
                 if (errorList.length() == 0)
                 {
-                    
+
                     clientUUID = response.optString("uuid", clientUUID);
                     
                     testToken = response.getString("test_token");
-                    
-                    testId = response.getString("test_id");
+
                     testUuid = response.getString("test_uuid");
                     
                     testTime = System.currentTimeMillis() + 1000 * response.getLong("test_wait");
@@ -680,11 +679,6 @@ public class ControlServerConnection
      */
     public long getStartTimeMillis() {
     	return startTimeMillis;
-    }
-    
-    public String getTestId()
-    {
-        return testId;
     }
     
     public String getTestUuid()

@@ -1,14 +1,24 @@
 apply plugin: 'java'
+apply plugin: 'com.github.johnrengelman.shadow'
 sourceCompatibility = 1.7
 
 repositories {
     mavenCentral()
 }
 
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.2'
+    }
+}
+
 dependencies {
     compile group: 'org.apache.httpcomponents', name: 'httpcore', version: '4.4.5'
     compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.2'
-    compile group: 'net.sf.jopt-simple', name: 'jopt-simple', version: '5.0.3'
+    compile group: 'net.sf.jopt-simple', name: 'jopt-simple', version: '5.0.4'
     compile group: 'dnsjava', name: 'dnsjava', version: '2.1.8'
     compile project(':RMBTSharedCode')
     compile project(':RMBTUtil')
@@ -24,6 +34,16 @@ sourceSets {
 subprojects{
     evaluationDependsOn(':RMBTSharedCode')
     evaluationDependsOn(':RMBTUtil')
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'at.rtr.rmbt.client.RMBTClientRunner'
+    }
+}
+
+shadowJar {
+    baseName = 'RMBTClient'
 }
 
 def revisionPropertiesFile = file("${buildDir}/resources/main/revision.properties")
