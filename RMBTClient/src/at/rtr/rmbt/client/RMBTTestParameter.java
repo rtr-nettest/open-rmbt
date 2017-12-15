@@ -16,6 +16,8 @@
  ******************************************************************************/
 package at.rtr.rmbt.client;
 
+import at.rtr.rmbt.client.helper.Config;
+
 public class RMBTTestParameter
 {
     
@@ -30,9 +32,11 @@ public class RMBTTestParameter
     private final int numThreads;
     private final int numPings;
     private final long startTime;
-    
+    private final String serverType;
+
+    //RMBT
     public RMBTTestParameter(final String host, final int port, final boolean encryption, final String token,
-            final int duration, final int numThreads, final int numPings, final long startTime)
+            final int duration, final int numThreads, final int numPings, final long startTime, final String serverType)
     {
         super();
         this.host = host;
@@ -43,8 +47,10 @@ public class RMBTTestParameter
         this.numThreads = numThreads;
         this.numPings = numPings;
         this.startTime = startTime;
+        this.serverType = serverType;
     }
-    
+
+    //QoS
     public RMBTTestParameter(final String host, final int port, final boolean encryption,
             final int duration, final int numThreads, final int numPings)
     {
@@ -57,6 +63,7 @@ public class RMBTTestParameter
         this.numPings = numPings;
         this.token = null;
         this.startTime = 0;
+        this.serverType = Config.SERVER_TYPE_QOS;
     }
     
     public String getHost()
@@ -112,6 +119,10 @@ public class RMBTTestParameter
     public long getStartTime()
     {
         return startTime;
+    }
+
+    public String getServerType() {
+        return serverType;
     }
 
     public void check() throws IllegalArgumentException

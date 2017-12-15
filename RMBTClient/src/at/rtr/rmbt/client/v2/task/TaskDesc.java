@@ -19,6 +19,7 @@ package at.rtr.rmbt.client.v2.task;
 import java.util.HashMap;
 
 import at.rtr.rmbt.client.RMBTTestParameter;
+import at.rtr.rmbt.client.helper.Config;
 
 /**
  * 
@@ -46,7 +47,7 @@ public class TaskDesc extends RMBTTestParameter {
 	 */
 	public TaskDesc(String host, int port, boolean encryption, String token,
 			int duration, int numThreads, int numPings, long startTime, HashMap<String, Object> params) {
-		super(host, port, encryption, token, duration, numThreads, numPings, startTime);
+		super(host, port, encryption, token, duration, numThreads, numPings, startTime, Config.SERVER_TYPE_QOS);
 		this.params = params;
 	}
 	

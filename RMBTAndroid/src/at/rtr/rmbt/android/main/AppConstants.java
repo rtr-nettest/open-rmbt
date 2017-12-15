@@ -146,6 +146,7 @@ public class AppConstants {
 	public static Capabilities getCapabilities() {
     	final Capabilities capabilities = new Capabilities();
     	capabilities.getClassificationCapability().setCount(4);
+    	capabilities.setRmbtHttp(true);
     	return capabilities; 
 	}
 }

@@ -29,6 +29,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import at.rtr.rmbt.client.helper.Config;
 import at.rtr.rmbt.client.v2.task.AbstractQoSTask;
 import at.rtr.rmbt.client.v2.task.DnsTask;
 import at.rtr.rmbt.client.v2.task.HttpProxyTask;
@@ -185,7 +186,7 @@ public class QualityOfServiceTest implements Callable<QoSResultCollector> {
 					RMBTTestParameter params = new RMBTTestParameter(test.getTestServerAddr(), test.getTestServerPort(), 
 									nnTestSettings.isUseSsl(), test.getTaskDesc().getToken(), 
 									test.getTaskDesc().getDuration(), test.getTaskDesc().getNumThreads(),
-									test.getTaskDesc().getNumPings(), test.getTaskDesc().getStartTime());
+									test.getTaskDesc().getNumPings(), test.getTaskDesc().getStartTime(), Config.SERVER_TYPE_QOS);
 					controlConnectionMap.put(test.getTestServerAddr(), new QoSControlConnection(getRMBTClient(), params));
 				}
 				

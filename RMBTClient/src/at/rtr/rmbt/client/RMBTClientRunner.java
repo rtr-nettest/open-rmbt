@@ -87,6 +87,8 @@ public class RMBTClientRunner
                         .ofType(String.class);
                 
                 acceptsAll(Arrays.asList("q", "qos"), "run qos tests");
+
+                acceptsAll(Arrays.asList("server-type"),"type of test server to use, if a token is supplied (default: RMBT)");
                 
             }
         };
@@ -136,6 +138,13 @@ public class RMBTClientRunner
             System.exit(1);
             return;
         }
+
+        final String serverType;
+        if (options.has("server-type")) {
+            serverType = options.valueOf("server-type").toString();
+        } else {
+            serverType = Config.SERVER_TYPE_RMBT;
+        }
         
         final RMBTClient client;
         
@@ -183,7 +192,7 @@ public class RMBTClientRunner
             final String token = (String) options.valueOf("token");
             final long startTime = System.currentTimeMillis(); // startTime = now
             
-            final RMBTTestParameter params = new RMBTTestParameter(host, port, encryption, token, duration, numPings, numPings, startTime);
+            final RMBTTestParameter params = new RMBTTestParameter(host, port, encryption, token, duration, numPings, numPings, startTime, serverType);
             
             client = new RMBTClient(params, null);
         }

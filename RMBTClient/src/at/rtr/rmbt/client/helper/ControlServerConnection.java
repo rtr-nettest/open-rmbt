@@ -41,6 +41,7 @@ import at.rtr.rmbt.client.ndt.UiServicesAdapter;
 import at.rtr.rmbt.client.v2.task.TaskDesc;
 import at.rtr.rmbt.client.v2.task.service.TestMeasurement;
 import at.rtr.rmbt.client.v2.task.service.TestMeasurement.TrafficDirection;
+import at.rtr.rmbt.util.capability.Capabilities;
 import at.rtr.rmbt.util.model.shared.exception.ErrorStatus;
 
 public class ControlServerConnection
@@ -58,6 +59,7 @@ public class ControlServerConnection
     private long testTime = 0;
     
     private String testHost = "";
+    private String serverType;
     private int testPort = 0;
     private String remoteIp = "";
     private String serverName;
@@ -110,7 +112,13 @@ public class ControlServerConnection
             return null;
         }
     }
-    
+
+    public ControlServerConnection() {
+        Capabilities capabilities = new Capabilities();
+        capabilities.setRmbtHttp(true);
+        JSONParser.setCapabilities(capabilities);
+    }
+
     /**
      * requests the parameters for the v2 tests
      * @param host
@@ -278,7 +286,7 @@ public class ControlServerConnection
             startTimeMillis = System.currentTimeMillis();
             regData.put("time", startTimeMillis);
             startTimeNs = System.nanoTime();
-            
+
             if (geoInfo != null)
             {
                 final JSONObject locData = new JSONObject();
@@ -327,6 +335,7 @@ public class ControlServerConnection
                     
                     testHost = response.getString("test_server_address");
                     testPort = response.getInt("test_server_port");
+                    serverType = response.optString("test_server_type", Config.SERVER_TYPE_RMBT);
                     testEncryption = response.getBoolean("test_server_encryption");
                     serverName = response.optString("test_server_name", null);
                     provider = response.optString("provider", null);
@@ -712,7 +721,7 @@ public class ControlServerConnection
             if (overrideParams.getNumThreads() > 0)
                 numThreads = overrideParams.getNumThreads();
         }
-        return new RMBTTestParameter(host, port, encryption, testToken, duration, numThreads, numPings, testTime);
+        return new RMBTTestParameter(host, port, encryption, testToken, duration, numThreads, numPings, testTime, serverType);
     }
 
 	public Set<ErrorStatus> getLastErrorList() {

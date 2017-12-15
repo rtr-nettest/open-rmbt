@@ -56,5 +56,9 @@ public abstract interface Config
 
     public static final String MLAB_NS = "http://mlab-ns.appspot.com/ndt?format=json";
     public static final String NDT_FALLBACK_HOST = "ndt.iupui.donar.measurement-lab.org";
-    
+
+    public static final String SERVER_TYPE_QOS = "QoS";
+    public static final String SERVER_TYPE_RMBT = "RMBT";
+    public static final String SERVER_TYPE_RMBT_HTTP = "RMBThttp";
+
 }

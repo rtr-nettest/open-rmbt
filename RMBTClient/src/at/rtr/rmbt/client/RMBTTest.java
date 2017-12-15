@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright 2013-2015 alladin-IT GmbH
- * Copyright 2013-2015 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
+ * Copyright 2013-2017 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@ import java.util.regex.Pattern;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 
+import at.rtr.rmbt.client.helper.Config;
 import at.rtr.rmbt.client.helper.TestStatus;
 
 public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestResult>
@@ -283,8 +284,36 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
         in = new InputStreamCounter(s.getInputStream());
         reader = new BufferedReader(new InputStreamReader(in, "US-ASCII"), 4096);
         out = new OutputStreamCounter(s.getOutputStream());
-        
-        String line = reader.readLine();
+
+        String line;
+
+        //Server type RMBThttp -> The client has to do a HTTP request and upgrade the connection
+        if(params.getServerType().equals(Config.SERVER_TYPE_RMBT_HTTP)) {
+            log(String.format(Locale.US, "thread %d: requesting HTTP upgrade", threadId));
+            //Request RMBT test
+            final String request = "GET /rmbt HTTP/1.1\r\n" +
+                    "Connection: Upgrade\r\n" +
+                    "Upgrade: RMBT\r\n" +
+                    "RMBT-Version: 1.2\r\n" +
+                    "\r\n";
+
+            out.write(request.getBytes("US-ASCII"));
+            out.flush();
+
+            line = reader.readLine();
+
+            //Read the HTTP response (terminated with an empty newline)
+            if (!line.contains("101")) { //HTTP status code 101 Switching Protocols
+                log(String.format(Locale.US, "thread %d: got '%s' expected '%s'", threadId, line, EXPECT_GREETING));
+                return null;
+            }
+            while (!line.equals("\r\n") && !line.isEmpty()) {
+                line = reader.readLine();
+            }
+        }
+        //At this point, the communication is based on RMBT
+        // - either directly from the start, or from switching from RMBThttp
+        line = reader.readLine();
         if (!line.contains(EXPECT_GREETING))
         {
             log(String.format(Locale.US, "thread %d: got '%s' expected '%s'", threadId, line, EXPECT_GREETING));
