@@ -69,7 +69,8 @@ public class SettingsResource extends ServerResource
             try
             {
                 request = new JSONObject(entity);
-                
+                readCapabilities(request);
+
                 String lang = request.optString("language");
                 
                 // Load Language Files for Client
@@ -256,7 +257,12 @@ public class SettingsResource extends ServerResource
                         // It returns false if there is no such key, or if the value is not Boolean.TRUE or the String "true". 
                         if (userServerSelection)
                         {
-                        	jsonItem.put("servers", getServers());
+                            if (capabilities.getRmbtHttp()) {
+                                jsonItem.put("servers", getServersHttp());
+                            }
+                            else {
+                                jsonItem.put("servers", getServers());
+                            }
                         	jsonItem.put("servers_ws", getServersWs());
                         	jsonItem.put("servers_qos", getServersQos());
                         	
@@ -367,74 +373,60 @@ public class SettingsResource extends ServerResource
 
     private JSONArray getServers() throws JSONException
     {
-        final String sql = "SELECT * FROM test_server WHERE active AND selectable AND server_type = 'RMBT'";
-        final JSONArray result = new JSONArray();
-        try (PreparedStatement ps = conn.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery())
-        {
-            while (rs.next())
-            {
-                final JSONObject obj = new JSONObject();
-                
-                obj.put("name", rs.getString("name"));
-                obj.put("uuid", rs.getString("uuid"));
-                
-                result.put(obj);
-            }
-        }
-        catch (SQLException e)
-        {
-            e.printStackTrace();
-        }
-        return result;
+        return getServers(new String[]{"RMBT"});
+    }
+
+    private JSONArray getServersHttp() throws JSONException
+    {
+        return getServers(new String[]{"RMBT", "RMBThttp"});
     }
     
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
     private JSONArray getServersWs() throws JSONException
     {
-        final String sql = "SELECT * FROM test_server WHERE selectable AND server_type = 'RMBTws'";
-        final JSONArray result = new JSONArray();
-        try (PreparedStatement ps = conn.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery())
-        {
-            while (rs.next())
-            {
-                final JSONObject obj = new JSONObject();
-                
-                obj.put("name", rs.getString("name"));
-                obj.put("uuid", rs.getString("uuid"));
-                
-                result.put(obj);
-            }
-        }
-        catch (SQLException e)
-        {
-            e.printStackTrace();
-        }
-        return result;
+        return getServers(new String[]{"RMBTws","RMBThttp"});
     }
 // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
     private JSONArray getServersQos() throws JSONException
     {
-        final String sql = "SELECT * FROM test_server WHERE selectable AND server_type = 'QoS'";
+        return getServers(new String[]{"QoS"});
+    }
+
+    /**
+     * Retrieve all servers of the given types
+     * @param serverTypes list of allowed server types
+     * @return
+     */
+    private JSONArray getServers(String[] serverTypes) {
+        //empty
+        if (serverTypes.length == 0) {
+            return new JSONArray();
+        }
+
+        final String serverTypesClause = "server_type = ?" + Strings.repeat(" OR server_type = ? ", serverTypes.length - 1);
+
+        final String sql = "SELECT * FROM test_server WHERE active AND selectable AND (" + serverTypesClause + ")";
         final JSONArray result = new JSONArray();
-        try (PreparedStatement ps = conn.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery())
-        {
-            while (rs.next())
-            {
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+            int i = 1;
+            for (String serverType : serverTypes) {
+                ps.setString(i++, serverType);
+            }
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
                 final JSONObject obj = new JSONObject();
-                
+
                 obj.put("name", rs.getString("name"));
                 obj.put("uuid", rs.getString("uuid"));
-                
+
                 result.put(obj);
             }
-        }
-        catch (SQLException e)
-        {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return result;
