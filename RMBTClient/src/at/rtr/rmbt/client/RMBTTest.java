@@ -291,11 +291,11 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
         if(params.getServerType().equals(Config.SERVER_TYPE_RMBT_HTTP)) {
             log(String.format(Locale.US, "thread %d: requesting HTTP upgrade", threadId));
             //Request RMBT test
-            final String request = "GET /rmbt HTTP/1.1\r\n" +
+            final String request = String.format("GET /rmbt HTTP/1.1\r\n" +
                     "Connection: Upgrade\r\n" +
                     "Upgrade: RMBT\r\n" +
-                    "RMBT-Version: 1.2\r\n" +
-                    "\r\n";
+                    "RMBT-Version: %s\r\n" +
+                    "\r\n", Config.RMBT_LATEST_SERVER);
 
             out.write(request.getBytes("US-ASCII"));
             out.flush();
