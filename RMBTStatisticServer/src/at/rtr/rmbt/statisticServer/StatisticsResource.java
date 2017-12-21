@@ -1,13 +1,13 @@
 /*******************************************************************************
  * Copyright 2013-2016 alladin-IT GmbH
- * Copyright 2013-2016 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
- * 
+ * Copyright 2013-2017 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -44,7 +44,7 @@ public class StatisticsResource extends ServerResource
     private static final int CACHE_STALE = 3600;
     private static final int CACHE_EXPIRE = 7200;
     private static final boolean ONLY_PINNED = true;
-    
+
     private final CacheHelper cache = CacheHelper.getInstance();
 
     @Get
@@ -52,9 +52,19 @@ public class StatisticsResource extends ServerResource
     public String request(final String entity)
     {
         addAllowOrigin();
-        
-        final StatisticParameters params = new StatisticParameters(settings.getString("RMBT_DEFAULT_LANGUAGE"), entity);
-        
+
+        JSONObject request;
+        if (entity != null && !entity.isEmpty()) {
+            request = new JSONObject(entity);
+        }
+        else {
+            request = new JSONObject();
+        }
+        readCapabilities(request);
+
+        final boolean ultraGreen = (capabilities.getClassificationCapability().getCount() == 4);
+        final StatisticParameters params = new StatisticParameters(settings.getString("RMBT_DEFAULT_LANGUAGE"), request);
+
         final String cacheKey = CacheHelper.getHash(params);
         final ObjectWithTimestamp cacheObject = cache.getWithTimestamp(cacheKey, CACHE_STALE);
         if (cacheObject != null)
@@ -69,7 +79,7 @@ public class StatisticsResource extends ServerResource
                     public void run()
                     {
                         System.out.println("adding in background: " + cacheKey);
-                        final String result = generateStatistics(params, cacheKey);
+                        final String result = generateStatistics(params, cacheKey, ultraGreen);
                         if (result != null)
                             cache.set(cacheKey, CACHE_EXPIRE, result, true);
                     }
@@ -79,14 +89,14 @@ public class StatisticsResource extends ServerResource
             return result; // cache hit
         }
         System.out.println("not in cache");
-        
-        final String result = generateStatistics(params, cacheKey);
+
+        final String result = generateStatistics(params, cacheKey, ultraGreen);
         if (result != null)
             cache.set(cacheKey, CACHE_EXPIRE, result, true);
         return result;
     }
 
-    private static String generateStatistics(final StatisticParameters params, final String cacheKey)
+    private static String generateStatistics(final StatisticParameters params, final String cacheKey, final boolean ultraGreen)
     {
         String result;
         final String lang = params.getLang();
@@ -99,11 +109,11 @@ public class StatisticsResource extends ServerResource
         final String country = params.getCountry();
         final java.sql.Timestamp endDate = params.getEndDate();
         final int province = params.getProvince();
-        
+
         final boolean userServerSelection = params.getUserServerSelection();
-        
+
         boolean useMobileProvider = false;
-        
+
         final boolean signalMobile;
         final String where;
         String signalColumn = null;
@@ -111,7 +121,7 @@ public class StatisticsResource extends ServerResource
         {
             signalMobile = true;
             useMobileProvider = true;
-            
+
             if (networkTypeGroup == null)
                 where = "nt.type = 'MOBILE'";
             else
@@ -165,16 +175,16 @@ public class StatisticsResource extends ServerResource
             answer.put("quantile", quantile);
             answer.put("duration", durationDays);
             answer.put("type", type);
-            
+
             try (PreparedStatement ps = selectProviders(conn, true, quantile, durationDays, accuracy, country,
-            		useMobileProvider, where, signalMobile, userServerSelection,endDate,province,signalColumn);
+                    useMobileProvider, where, signalMobile, userServerSelection, endDate, province, signalColumn, ultraGreen);
                 ResultSet rs = ps.executeQuery())
             {
                 fillJSON(lang, rs, providers);
             }
-            
+
             try (PreparedStatement ps = selectProviders(conn, false, quantile, durationDays, accuracy, country,
-            		useMobileProvider, where, signalMobile, userServerSelection,endDate,province,signalColumn);
+                    useMobileProvider, where, signalMobile, userServerSelection, endDate, province, signalColumn, ultraGreen);
                 ResultSet rs = ps.executeQuery())
             {
                 final JSONArray providersSumsArray = new JSONArray();
@@ -240,10 +250,29 @@ public class StatisticsResource extends ServerResource
     		return countries;
 	    }
     }
-    
+
+    private static String getClausesFor(String dbKey, String jsonKey, boolean ultraGreen, boolean inverse) {
+        String sql;
+        if (!ultraGreen) {
+            sql = String.format(" sum((%1$s >= ?)::int)::double precision / count(%1$s) %2$s_green," +
+                    " sum((%1$s < ? and %1$s >= ?)::int)::double precision / count(%1$s) %2$s_yellow," +
+                    " sum((%1$s < ?)::int)::double precision / count(%1$s) %2$s_red ", dbKey, jsonKey);
+        }
+        else {
+            sql = String.format(" sum((%1$s >= ?)::int)::double precision / count(%1$s) %2$s_ultragreen," +
+                    " sum((%1$s < ? and %1$s >= ?)::int)::double precision / count(%1$s) %2$s_green," +
+                    " sum((%1$s < ? and %1$s >= ?)::int)::double precision / count(%1$s) %2$s_yellow," +
+                    " sum((%1$s < ?)::int)::double precision / count(%1$s) %2$s_red ", dbKey, jsonKey);
+        }
+        if (inverse) {
+            sql = sql.replace(">","[inverse]").replace("<",">").replace("[inverse]","<");
+        }
+        return sql;
+    }
+
     private static PreparedStatement selectProviders(final Connection conn, final boolean group, final float quantile, final int durationDays, final double accuracy,
             final String country, final boolean useMobileProvider, final String where, final boolean signalMobile, final boolean userServerSelection,
-            final java.sql.Timestamp endDate, final int province, final String signalColumn) throws SQLException
+            final java.sql.Timestamp endDate, final int province, final String signalColumn, final boolean ultraGreen) throws SQLException
     {
         PreparedStatement ps;
         String sql = String
@@ -254,22 +283,11 @@ public class StatisticsResource extends ServerResource
                         " quantile(speed_upload::bigint, ?::double precision) quantile_up," +
                         " quantile(%1$s::bigint, ?::double precision) quantile_signal," +
                         " quantile(ping_median::bigint, ?::double precision) quantile_ping," +
-                        
-                        " sum((speed_download >= ?)::int)::double precision / count(speed_download) down_green," +
-                        " sum((speed_download < ? and speed_download >= ?)::int)::double precision / count(speed_download) down_yellow," +
-                        " sum((speed_download < ?)::int)::double precision / count(speed_download) down_red," +
-                                                
-                        " sum((speed_upload >= ?)::int)::double precision / count(speed_upload) up_green," +
-                        " sum((speed_upload < ? and speed_upload >= ?)::int)::double precision / count(speed_upload) up_yellow," +
-                        " sum((speed_upload < ?)::int)::double precision / count(speed_upload) up_red," +
-                        
-                        " sum((%1$s >= ?)::int)::double precision / count(%1$s) signal_green," +
-                        " sum((%1$s < ? and %1$s >= ?)::int)::double precision / count(%1$s) signal_yellow," +
-                        " sum((%1$s < ?)::int)::double precision / count(%1$s) signal_red," + 
-                        
-                        " sum((ping_median <= ?)::int)::double precision / count(ping_median) ping_green," +
-                        " sum((ping_median > ? and ping_median <= ?)::int)::double precision / count(ping_median) ping_yellow," +
-                        " sum((ping_median > ?)::int)::double precision / count(ping_median) ping_red" +
+
+                        getClausesFor("speed_download", "down", ultraGreen, false) + "," +
+                        getClausesFor("speed_upload", "up", ultraGreen, false) + "," +
+                        getClausesFor("%1$s", "signal", ultraGreen, false) + "," +
+                        getClausesFor("ping_median", "ping", ultraGreen, true) +
                         
                         " FROM test t" +
                         " LEFT JOIN network_type nt ON nt.uid=t.network_type" +
@@ -301,22 +319,11 @@ public class StatisticsResource extends ServerResource
                             " quantile(speed_upload::bigint, ?::double precision) quantile_up," +
                             " quantile(%1$s::bigint, ?::double precision) quantile_signal," +
                             " quantile(ping_median::bigint, ?::double precision) quantile_ping," +
-                            
-                            " sum((speed_download >= ?)::int)::double precision / count(speed_download) down_green," +
-                            " sum((speed_download < ? and speed_download >= ?)::int)::double precision / count(speed_download) down_yellow," +
-                            " sum((speed_download < ?)::int)::double precision / count(speed_download) down_red," +
-                                                    
-                            " sum((speed_upload >= ?)::int)::double precision / count(speed_upload) up_green," +
-                            " sum((speed_upload < ? and speed_upload >= ?)::int)::double precision / count(speed_upload) up_yellow," +
-                            " sum((speed_upload < ?)::int)::double precision / count(speed_upload) up_red," +
-                            
-                            " sum((%1$s >= ?)::int)::double precision / count(%1$s) signal_green," +
-                            " sum((%1$s < ? and %1$s >= ?)::int)::double precision / count(%1$s) signal_yellow," +
-                            " sum((%1$s < ?)::int)::double precision / count(%1$s) signal_red," + 
-                            
-                            " sum((ping_median <= ?)::int)::double precision / count(ping_median) ping_green," +
-                            " sum((ping_median > ? and ping_median <= ?)::int)::double precision / count(ping_median) ping_yellow," +
-                            " sum((ping_median > ?)::int)::double precision / count(ping_median) ping_red" +
+
+                            getClausesFor("speed_download", "down", ultraGreen, false) + "," +
+                            getClausesFor("speed_upload", "up", ultraGreen, false) + "," +
+                            getClausesFor("%1$s", "signal", ultraGreen, false) + "," +
+                            getClausesFor("ping_median", "ping", ultraGreen, true) +
                             
                             " FROM test t" +
                             " LEFT JOIN network_type nt ON nt.uid=t.network_type" +
@@ -338,7 +345,8 @@ public class StatisticsResource extends ServerResource
                             signalColumn,
                             where);
         }
-        
+
+        System.out.println(sql);
         ps = conn.prepareStatement(sql);
         
         int i = 1;
@@ -347,28 +355,44 @@ public class StatisticsResource extends ServerResource
         ps.setFloat(i++, 1 - quantile); // inverse for ping
         
         final int[] td = Classification.THRESHOLD_DOWNLOAD;
-        ps.setInt(i++, td[0]);
-        ps.setInt(i++, td[0]);
+        if (ultraGreen) {
+            ps.setInt(i++, td[0]);
+            ps.setInt(i++, td[0]);
+        }
         ps.setInt(i++, td[1]);
         ps.setInt(i++, td[1]);
+        ps.setInt(i++, td[2]);
+        ps.setInt(i++, td[2]);
         
         final int[] tu = Classification.THRESHOLD_UPLOAD;
-        ps.setInt(i++, tu[0]);
-        ps.setInt(i++, tu[0]);
+        if (ultraGreen) {
+            ps.setInt(i++, tu[0]);
+            ps.setInt(i++, tu[0]);
+        }
         ps.setInt(i++, tu[1]);
         ps.setInt(i++, tu[1]);
+        ps.setInt(i++, tu[2]);
+        ps.setInt(i++, tu[2]);
         
         final int[] ts = signalMobile ? Classification.THRESHOLD_SIGNAL_MOBILE : Classification.THRESHOLD_SIGNAL_WIFI;
-        ps.setInt(i++, ts[0]);
-        ps.setInt(i++, ts[0]);
+        if (ultraGreen) {
+            ps.setInt(i++, ts[0]);
+            ps.setInt(i++, ts[0]);
+        }
         ps.setInt(i++, ts[1]);
         ps.setInt(i++, ts[1]);
+        ps.setInt(i++, ts[2]);
+        ps.setInt(i++, ts[2]);
         
         final int[] tp = Classification.THRESHOLD_PING;
-        ps.setInt(i++, tp[0]);
-        ps.setInt(i++, tp[0]);
+        if (ultraGreen) {
+            ps.setInt(i++, tp[0]);
+            ps.setInt(i++, tp[0]);
+        }
         ps.setInt(i++, tp[1]);
         ps.setInt(i++, tp[1]);
+        ps.setInt(i++, tp[2]);
+        ps.setInt(i++, tp[2]);
         
         if (country != null) {
         	if (useMobileProvider) {

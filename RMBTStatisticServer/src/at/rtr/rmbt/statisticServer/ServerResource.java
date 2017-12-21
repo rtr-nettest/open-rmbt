@@ -27,6 +27,8 @@ import java.util.ResourceBundle;
 import javax.naming.NamingException;
 
 import org.joda.time.DateTime;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.restlet.data.Reference;
 import org.restlet.engine.header.Header;
 import org.restlet.representation.Representation;
@@ -76,6 +78,14 @@ public class ServerResource extends org.restlet.resource.ServerResource
         if (prettyPrint)
             gb = gb.setPrettyPrinting();
         return gb.create();
+    }
+
+    public void readCapabilities(final JSONObject request) throws JSONException {
+        if (request != null) {
+            if (request.has("capabilities")) {
+                capabilities = new Gson().fromJson(request.get("capabilities").toString(), Capabilities.class);
+            }
+        }
     }
     
     @Override

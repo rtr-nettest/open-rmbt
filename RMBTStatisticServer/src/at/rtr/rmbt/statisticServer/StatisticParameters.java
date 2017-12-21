@@ -44,7 +44,7 @@ public class StatisticParameters implements Serializable, Funnel<StatisticParame
     private final java.sql.Timestamp endDate;
     private final int province;
     
-    public StatisticParameters(String defaultLang, String params)
+    public StatisticParameters(String defaultLang, JSONObject request)
     {
         String _lang = defaultLang;
         float _quantile = 0.5f; // median is default quantile
@@ -57,12 +57,10 @@ public class StatisticParameters implements Serializable, Funnel<StatisticParame
         boolean _userServerSelection = false;
         java.sql.Timestamp _endDate = null; 
         int _province = -1;
-        
-        if (params != null && !params.isEmpty())
+
             // try parse the string to a JSON object
             try
             {
-                final JSONObject request = new JSONObject(params);
                 _lang = request.optString("language" , _lang);
                 
                 final double __quantile = request.optDouble("quantile", Double.NaN);
