@@ -59,11 +59,7 @@ public class ResultUpdateResource extends ServerResource
                 request = new JSONObject(entity);
                 final UUID clientUUID = UUID.fromString(request.getString("uuid"));
                 final UUID testUUID = UUID.fromString(request.getString("test_uuid"));
-                final int zipCode = request.optInt("zip_code",0);
-                final double geoLat = request.optDouble("geo_lat", Double.NaN);
-                final double geoLong = request.optDouble("geo_long", Double.NaN);
-                final float geoAccuracy = (float) request.optDouble("accuracy", 0);
-                final String provider = request.optString("provider").toLowerCase();
+                final Boolean aborted = request.has("aborted") && request.getBoolean("aborted");
 
                 
                 final Client client = new Client(conn);
@@ -77,30 +73,45 @@ public class ResultUpdateResource extends ServerResource
                 
                 if (test.getField("client_id").longValue() != clientId)
                     throw new IllegalArgumentException("client UUID does not match test");
-                
-                if (zipCode > 0) {
-                	((IntField)test.getField("zip_code")).setValue(zipCode);
+
+                //either do geolocation update or mark test as ABORTED
+                //Test was aborted - mark test as "ABORTED" in the database
+                if (aborted) {
+                    test.getField("status").setString("ABORTED");
                 }
-                if (!Double.isNaN(geoLat) && !Double.isNaN(geoLong) && 
-                		(provider.equals(GEO_PROVIDER_GEOCODER) || provider.equals(GEO_PROVIDER_MANUAL))) {
-                	final GeoLocation geoloc = new GeoLocation(conn);
-                	geoloc.setTest_id(test.getUid());
-                	
-                	final Timestamp tstamp = java.sql.Timestamp.valueOf(new Timestamp(
-                            (new Date().getTime())).toString());
-                	geoloc.setTime(tstamp, TimeZone.getDefault().toString());
-                    geoloc.setAccuracy(geoAccuracy);
-                    geoloc.setGeo_lat(geoLat);
-                    geoloc.setGeo_long(geoLong);
-                    geoloc.setProvider(provider);
-                    geoloc.storeLocation();
-                	
-                	((DoubleField) test.getField("geo_lat")).setValue(geoLat);
-                	((DoubleField) test.getField("geo_long")).setValue(geoLong);
-                	((DoubleField) test.getField("geo_accuracy")).setValue(geoAccuracy);
-                	test.getField("geo_provider").setString(provider);
+                else {
+                    System.out.println("updating zip");
+                    //a manual geolocation was provided
+                    final int zipCode = request.optInt("zip_code",0);
+                    final double geoLat = request.optDouble("geo_lat", Double.NaN);
+                    final double geoLong = request.optDouble("geo_long", Double.NaN);
+                    final float geoAccuracy = (float) request.optDouble("accuracy", 0);
+                    final String provider = request.optString("provider").toLowerCase();
+
+                    if (zipCode > 0) {
+                        ((IntField)test.getField("zip_code")).setValue(zipCode);
+                    }
+                    if (!Double.isNaN(geoLat) && !Double.isNaN(geoLong) &&
+                            (provider.equals(GEO_PROVIDER_GEOCODER) || provider.equals(GEO_PROVIDER_MANUAL))) {
+                        final GeoLocation geoloc = new GeoLocation(conn);
+                        geoloc.setTest_id(test.getUid());
+
+                        final Timestamp tstamp = java.sql.Timestamp.valueOf(new Timestamp(
+                                (new Date().getTime())).toString());
+                        geoloc.setTime(tstamp, TimeZone.getDefault().toString());
+                        geoloc.setAccuracy(geoAccuracy);
+                        geoloc.setGeo_lat(geoLat);
+                        geoloc.setGeo_long(geoLong);
+                        geoloc.setProvider(provider);
+                        geoloc.storeLocation();
+
+                        ((DoubleField) test.getField("geo_lat")).setValue(geoLat);
+                        ((DoubleField) test.getField("geo_long")).setValue(geoLong);
+                        ((DoubleField) test.getField("geo_accuracy")).setValue(geoAccuracy);
+                        test.getField("geo_provider").setString(provider);
+                    }
                 }
-                
+
                 test.storeTestResults(true);
                 
                 if (test.hasError())
