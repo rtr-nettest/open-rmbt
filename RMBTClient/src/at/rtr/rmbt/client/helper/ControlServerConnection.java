@@ -376,6 +376,26 @@ public class ControlServerConnection
             errorMsg = "No response";
         return errorMsg;
     }
+
+    /**
+     * Best effort: Try to set a test as "aborted"
+     *   This may or may not work, depending on the user behaviour
+     */
+    public void abortStartedTest() {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("uuid", clientUUID);
+        jsonObject.put("test_uuid", testUuid);
+        jsonObject.put("aborted", true);
+
+        try {
+
+            JSONObject ret = JSONParser.sendJSONToUrl(hostUrl.toURI().resolve(Config.RMBT_CONTROL_PATH + Config.RMBT_UPDATE_RESULT_URL).toURL(), jsonObject);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+    }
     
     public String sendTestResult(TotalTestResult result, JSONObject additionalValues)
     {

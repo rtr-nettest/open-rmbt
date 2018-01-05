@@ -52,6 +52,7 @@ public abstract interface Config
     public static final String RMBT_TESTRESULT_OPENDATA_HOST_URL = "/v2/opentests/";
     public static final String RMBT_SYNC_HOST_URL = "/sync";
     public static final String RMBT_SETTINGS_HOST_URL = "/settings";
+    public static final String RMBT_UPDATE_RESULT_URL = "/resultUpdate";
 
     public static final String RMBT_ENCRYPTION_STRING = "TLS";
 

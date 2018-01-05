@@ -549,6 +549,7 @@ public class RMBTClient
             }
             catch (final InterruptedException e)
             {
+                //Client is interrupted e.g. if a user of the Android app pushed the "Back"-button
                 log("RMBTClient interrupted!");
                 abortTest(false);
                 throw e;
@@ -567,8 +568,10 @@ public class RMBTClient
         
         if (error)
             setErrorStatus();
-        else
+        else {
             setStatus(TestStatus.ABORTED);
+            controlConnection.abortStartedTest();
+        }
         aborted.set(true);
         
         if (testThreadPool != null)
