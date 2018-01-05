@@ -38,7 +38,7 @@ public class ResultUpdateResource extends ServerResource
 	private final static String GEO_PROVIDER_MANUAL = "manual";
 	private final static String GEO_PROVIDER_GEOCODER = "geocoder";
 	
-    @Post("json")
+    @Post("json|txt")
     public String request(final String entity)
     {
         addAllowOrigin();

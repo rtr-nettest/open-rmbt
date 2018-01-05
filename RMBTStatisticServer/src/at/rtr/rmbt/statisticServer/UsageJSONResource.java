@@ -122,6 +122,7 @@ public class UsageJSONResource extends ServerResource
     	HashMap<String,Long> fieldSums = new HashMap<>();
     	fieldSums.put("tests", new Long(0));
 		fieldSums.put("finished", new Long(0));
+		fieldSums.put("aborted", new Long(0));
     	fieldSums.put("clients", new Long(0));
     	fieldSums.put("ips", new Long(0));
 
@@ -129,7 +130,7 @@ public class UsageJSONResource extends ServerResource
         ResultSet rs;
 
 
-		final String select = "date_trunc('day', time) _day, count(uid) count_tests, sum(case when status='FINISHED' then 1 else 0 end) count_finished, count(DISTINCT client_id) count_clients, count(DISTINCT client_public_ip) count_ips";
+		final String select = "date_trunc('day', time) _day, count(uid) count_tests, sum(case when status='FINISHED' then 1 else 0 end) count_finished, sum(case when status='ABORTED' then 1 else 0 end) count_aborted, count(DISTINCT client_id) count_clients, count(DISTINCT client_public_ip) count_ips";
         final String where = "deleted=false";
         final String sql = "SELECT " + select + " FROM test WHERE " + where + " AND time >= ? AND time < ? GROUP BY _day ORDER BY _day ASC";
         ps = conn.prepareStatement(sql);
@@ -153,6 +154,11 @@ public class UsageJSONResource extends ServerResource
 			jTestsSuccessful.put("field", "finished");
 			jTestsSuccessful.put("value", rs.getLong("count_finished"));
 			currentEntryValues.put(jTestsSuccessful);
+
+			JSONObject jTestsAborted = new JSONObject();
+			jTestsAborted.put("field", "aborted");
+			jTestsAborted.put("value", rs.getLong("count_aborted"));
+			currentEntryValues.put(jTestsAborted);
     		
     		JSONObject jClients = new JSONObject();
     		jClients.put("field", "clients");
@@ -165,7 +171,8 @@ public class UsageJSONResource extends ServerResource
     		currentEntryValues.put(jIPs);
     		
     		fieldSums.put("tests", fieldSums.get("tests") + rs.getLong("count_tests"));
-			fieldSums.put("ips", fieldSums.get("finished") + rs.getLong("count_finished"));
+			fieldSums.put("finished", fieldSums.get("finished") + rs.getLong("count_finished"));
+			fieldSums.put("aborted", fieldSums.get("aborted") + rs.getLong("count_aborted"));
     		fieldSums.put("clients", fieldSums.get("clients") + rs.getLong("count_clients"));
     		fieldSums.put("ips", fieldSums.get("ips") + rs.getLong("count_ips"));
 
