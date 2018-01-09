@@ -22,15 +22,15 @@ dependencies {
 		exclude group: 'org.json', module: 'json'
     }
 	compile group: 'junit', name: 'junit', version: '4.12'
-	compile 'com.google.android.gms:play-services-maps:11.0.4'
-	compile 'dnsjava:dnsjava:2.1.7'
-	compile 'net.sf.jopt-simple:jopt-simple:5.0.3'
+	compile 'com.google.android.gms:play-services-maps:11.8.0'
+	compile 'dnsjava:dnsjava:2.1.8'
+	compile 'net.sf.jopt-simple:jopt-simple:5.0.4'
 	compile 'com.fasterxml.jackson.core:jackson-databind:2.8.8.1'
 	// fix dex overflow
 	// see https://stackoverflow.com/questions/38714651/android-studio-dexindexoverflowexception-method-id-not-in
-	compile 'com.android.support:multidex:1.0.1'
+	compile 'com.android.support:multidex:1.0.2'
 
-    compile 'com.android.support:appcompat-v7:26.0.1'
+    compile 'com.android.support:appcompat-v7:27.0.2'
 }
 
 def signDebugApp = true
