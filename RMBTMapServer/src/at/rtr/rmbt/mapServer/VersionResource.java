@@ -18,7 +18,9 @@ package at.rtr.rmbt.mapServer;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.restlet.data.Parameter;
 import org.restlet.resource.Get;
+import org.restlet.util.Series;
 
 import at.rtr.rmbt.shared.RevisionHelper;
 
@@ -32,8 +34,11 @@ public class VersionResource extends ServerResource
         {
             final JSONObject answer = new JSONObject();
             answer.put("version", RevisionHelper.getVerboseRevision());
-//            answer.put("gitId", RevisionHelper.getServerVersion());
-            
+            answer.put("system_UUID", getSetting("system_UUID",""));
+            final Series<Parameter> ctxParams = getContext().getParameters();
+            final String hostId = ctxParams.getFirstValue("HOST_ID");
+            if (hostId != null)
+                answer.put("host",hostId);
             return answer.toString();
         }
         catch (JSONException e)

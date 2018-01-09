@@ -17,6 +17,8 @@
 package at.rtr.rmbt.mapServer;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -119,5 +121,37 @@ public class ServerResource extends org.restlet.resource.ServerResource
     public void doOptions(final Representation entity)
     {
         addAllowOrigin();
+    }
+
+
+    protected String getSetting(String key, String lang)
+    {
+        if (conn == null)
+            return null;
+
+
+        try (final PreparedStatement st = conn.prepareStatement(
+                "SELECT value"
+                        + " FROM settings"
+                        + " WHERE key=? AND (lang IS NULL OR lang = ?)"
+                        + " ORDER BY lang NULLS LAST LIMIT 1");)
+        {
+
+            st.setString(1, key);
+            st.setString(2, lang);
+
+            try (final ResultSet rs = st.executeQuery();)
+            {
+
+                if (rs != null && rs.next())
+                    return rs.getString("value");
+            }
+            return null;
+        }
+        catch (SQLException e)
+        {
+            e.printStackTrace();
+            return null;
+        }
     }
 }
