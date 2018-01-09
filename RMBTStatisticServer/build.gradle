@@ -59,6 +59,7 @@ dependencies {
     compile 'org.apache.jcs:jcs:1.3'
     compile project(':RMBTSharedCode')
     compile project(':RMBTUtil')
+    compile 'org.restlet.jse:org.restlet:2.3-M4'
 }
 
 
