@@ -166,6 +166,10 @@ public class RMBTAboutFragment extends Fragment
         item.put("text2", "");
         list.add(item);
 
+        /*
+        * It is not longer necessary to link to the play service license
+        ** https://developers.google.com/android/reference/com/google/android/gms/common/GooglePlayServicesUtil.html#getOpenSourceSoftwareLicenseInfo(android.content.Context)
+
         final String openSourceSoftwareLicenseInfo = GooglePlayServicesUtil.getOpenSourceSoftwareLicenseInfo(getActivity());
         
         if (openSourceSoftwareLicenseInfo != null)
@@ -175,7 +179,7 @@ public class RMBTAboutFragment extends Fragment
             item.put("text1", getString(R.string.about_gms_legal_line1));
             item.put("text2", "");
             list.add(item);
-        }
+        }*/
         
         if (ConfigHelper.isDevEnabled(getActivity()))
         {
@@ -249,18 +253,7 @@ public class RMBTAboutFragment extends Fragment
                 case 6:
                     startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.about_git_link))));
                     break;
-                
-                case 7:
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.about_dev_link))));
-                    break;
-                    
-                case 8:
-                    final String licenseInfo = GooglePlayServicesUtil.getOpenSourceSoftwareLicenseInfo(getActivity());
-                    AlertDialog.Builder licenseDialog = new AlertDialog.Builder(getActivity());
-                    licenseDialog.setMessage(licenseInfo);
-                    licenseDialog.show();
-                    break;
-                
+
                 default:
                     break;
                 }

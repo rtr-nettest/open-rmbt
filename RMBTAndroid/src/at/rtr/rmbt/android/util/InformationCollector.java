@@ -981,7 +981,8 @@ public class InformationCollector
         //also fix some Samsung devices always returning -51 (#903)
         boolean useNewApi = false;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            for (CellInformationWrapper ciw : cellInfos) {
+            for (Iterator<CellInformationWrapper> iterator = cellInfos.iterator(); iterator.hasNext();) {
+                CellInformationWrapper ciw = iterator.next();
                 if ((ciw.getCs().getSignal() != null &&
                         !(ciw.getCs().getSignal().equals(-51) && legacySignal.get() != -51 && ciw.getTechnology() != CellInformationWrapper.Technology.CONNECTION_WLAN)) ||
                         ciw.getCs().getRsrp() != null ||
@@ -1651,7 +1652,7 @@ public class InformationCollector
                 }
                                 
                 lastSignalItem.set(signalItem);
-                legacySignal.set(signal.get());
+                legacySignal.set(strength);
             }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 && telManager != null) {
