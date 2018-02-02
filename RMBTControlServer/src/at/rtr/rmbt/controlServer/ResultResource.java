@@ -74,7 +74,7 @@ public class ResultResource extends ServerResource
     @Post("json")
     public String request(final String entity) 
     {
-        addAllowOrigin();
+        addAllowRestrictedOrigin();
 
         //System.out.println(entity);  //debug: dump request
 

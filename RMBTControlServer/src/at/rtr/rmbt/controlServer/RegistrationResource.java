@@ -74,7 +74,7 @@ public class RegistrationResource extends ServerResource
 
 //        final String defaultSecret = params.getFirstValue("RMBT_SECRETKEY");
         
-        addAllowOrigin();
+        addAllowRestrictedOrigin();
         
         JSONObject request = null;
         

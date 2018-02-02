@@ -139,17 +139,33 @@ public class ServerResource extends org.restlet.resource.ServerResource
     @SuppressWarnings("unchecked")
     protected void addAllowOrigin()
     {
+        addAllowOrgin("*");
+    }
+
+    private void addAllowOrgin(String origin) {
         Series<Header> responseHeaders = (Series<Header>) getResponse().getAttributes().get("org.restlet.http.headers");
         if (responseHeaders == null)
         {
             responseHeaders = new Series<>(Header.class);
             getResponse().getAttributes().put("org.restlet.http.headers", responseHeaders);
         }
-        responseHeaders.add("Access-Control-Allow-Origin", "*");
+        responseHeaders.add("Access-Control-Allow-Origin", origin);
         responseHeaders.add("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
         responseHeaders.add("Access-Control-Allow-Headers", "Content-Type");
         responseHeaders.add("Access-Control-Allow-Credentials", "false");
         responseHeaders.add("Access-Control-Max-Age", "60");
+    }
+
+    /**
+     * Add a allow-origin header with the value given in the server's "ALLOWED_ORIGIN" value (e.g. in context.xml)
+     * or no allow-origin header, if such a header is not given.
+     */
+    protected void addAllowRestrictedOrigin(){
+        String allowedOrigin = getContext().getParameters().getFirstValue("ALLOWED_ORIGIN");
+        if (allowedOrigin != null) {
+            addAllowOrgin(allowedOrigin);
+            System.out.println("adding origin: " + allowedOrigin);
+        }
     }
 
     @Options

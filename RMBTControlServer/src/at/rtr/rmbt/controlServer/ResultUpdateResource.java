@@ -41,7 +41,7 @@ public class ResultUpdateResource extends ServerResource
     @Post("json|txt")
     public String request(final String entity)
     {
-        addAllowOrigin();
+        addAllowRestrictedOrigin();
         
         JSONObject request = null;
         

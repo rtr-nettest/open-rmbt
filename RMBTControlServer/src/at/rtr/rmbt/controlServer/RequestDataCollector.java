@@ -40,7 +40,7 @@ public class RequestDataCollector extends ServerResource
     @Get("json")
     public String request(final String entity) throws JSONException
     {
-        addAllowOrigin();
+        addAllowRestrictedOrigin();
         
         final JSONObject answer = new JSONObject();
         
