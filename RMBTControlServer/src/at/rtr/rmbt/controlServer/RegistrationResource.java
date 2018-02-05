@@ -31,6 +31,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -90,18 +91,29 @@ public class RegistrationResource extends ServerResource
         
         final String geoIpCountry = GeoIPHelper.lookupCountry(clientAddress);
         // public_ip_asn
-        final Long asn = Helperfunctions.getASN(clientAddress);
+        final Long asn;
         // public_ip_as_name 
         // country_asn (2 digit country code of AS, eg. AT or EU)
         final String asName;
         final String asCountry;
-        if (asn == null) {
-            asName = null;
-            asCountry =null;
-        }
-        else {
-            asName = Helperfunctions.getASName(asn);
-            asCountry = Helperfunctions.getAScountry(asn);
+
+        //try AS resolution service 1
+        final Helperfunctions.ASInformation asInformation = Helperfunctions.getASInformation(clientAddress);
+        if (asInformation != null) {
+            asn = asInformation.getNumber();
+            asName = asInformation.getName();
+            asCountry = asInformation.getCountry();
+        } else {
+            //if this fails, try AS resolution service 2
+            Logger.getGlobal().info("AS resolution failed with service A");
+            asn = Helperfunctions.getASN(clientAddress);
+            if (asn == null) {
+                asName = null;
+                asCountry = null;
+            } else {
+                asName = Helperfunctions.getASName(asn);
+                asCountry = Helperfunctions.getAScountry(asn);
+            }
         }
         
         if (entity != null && !entity.isEmpty())

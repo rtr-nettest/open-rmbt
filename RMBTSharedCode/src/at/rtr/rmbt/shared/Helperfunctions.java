@@ -47,6 +47,9 @@ import org.xbill.DNS.Type;
 
 import com.google.common.net.InetAddresses;
 
+import jodd.http.HttpRequest;
+import jodd.http.HttpResponse;
+
 public abstract class Helperfunctions
 {
     public static String calculateHMAC(final byte[] secret, final String data)
@@ -430,6 +433,26 @@ public abstract class Helperfunctions
         }
     }
 
+    public static ASInformation getASInformation(final InetAddress addr) {
+        try {
+            String ipAsString = addr.getHostAddress();
+            HttpResponse response = HttpRequest.create("GET","https://api.iptoasn.com/v1/as/ip/" + addr.getHostAddress()) // "https://api.iptoasn.com/v1/as/ip/84.115.199.32")
+                    .accept("application/json")
+                    .acceptEncoding("UTF-8")
+                    .timeout(3000)
+                    .send();
+
+            JSONObject jo = new JSONObject(response.body());
+            ASInformation as = new ASInformation(jo.getString("as_description"),
+                    jo.getString("as_country_code"),
+                    jo.getLong("as_number"));
+            return as;
+        }
+        catch(RuntimeException e) {
+            return null;
+        }
+    }
+
     public static Long getASN(final InetAddress adr)
     {
         try
@@ -539,6 +562,36 @@ public abstract class Helperfunctions
         {
         }
         return null;
+    }
+
+    public static class ASInformation {
+        private final String name;
+        private final String country;
+        private final Long number;
+
+        public ASInformation(String name, String country, Long number) {
+            this.name = name;
+            this.country = country;
+            this.number = number;
+        }
+
+
+        public String getName() {
+            return name;
+        }
+
+        public String getCountry() {
+            return country;
+        }
+
+        public Long getNumber() {
+            return number;
+        }
+
+        @Override
+        public String toString() {
+            return "ASN: " + number + ", country: " + country + ", name: " + name;
+        }
     }
 
     /**

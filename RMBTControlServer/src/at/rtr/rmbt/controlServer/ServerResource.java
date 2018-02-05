@@ -164,7 +164,6 @@ public class ServerResource extends org.restlet.resource.ServerResource
         String allowedOrigin = getContext().getParameters().getFirstValue("ALLOWED_ORIGIN");
         if (allowedOrigin != null) {
             addAllowOrgin(allowedOrigin);
-            System.out.println("adding origin: " + allowedOrigin);
         }
     }
 
