@@ -16,9 +16,15 @@
  ******************************************************************************/
 package at.rtr.rmbt.shared;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -46,9 +52,6 @@ import org.xbill.DNS.TextParseException;
 import org.xbill.DNS.Type;
 
 import com.google.common.net.InetAddresses;
-
-import jodd.http.HttpRequest;
-import jodd.http.HttpResponse;
 
 public abstract class Helperfunctions
 {
@@ -436,13 +439,19 @@ public abstract class Helperfunctions
     public static ASInformation getASInformation(final InetAddress addr) {
         try {
             String ipAsString = addr.getHostAddress();
-            HttpResponse response = HttpRequest.create("GET","https://api.iptoasn.com/v1/as/ip/" + addr.getHostAddress()) // "https://api.iptoasn.com/v1/as/ip/84.115.199.32")
-                    .accept("application/json")
-                    .acceptEncoding("UTF-8")
-                    .timeout(3000)
-                    .send();
 
-            JSONObject jo = new JSONObject(response.body());
+            final HttpURLConnection urlConnection = (HttpURLConnection) new URL("https://api.iptoasn.com/v1/as/ip/" + ipAsString).openConnection();
+            urlConnection.setConnectTimeout(3000);
+            urlConnection.setRequestProperty("Accept", "application/json");
+            final StringBuilder stringBuilder = new StringBuilder();
+            final BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+            int read;
+            final char[] chars = new char[1024];
+            while ((read = reader.read(chars)) != -1) {
+                stringBuilder.append(chars, 0, read);
+            }
+
+            JSONObject jo = new JSONObject(stringBuilder.toString());
             ASInformation as = new ASInformation(jo.getString("as_description"),
                     jo.getString("as_country_code"),
                     jo.getLong("as_number"));
@@ -450,7 +459,12 @@ public abstract class Helperfunctions
         }
         catch(RuntimeException e) {
             return null;
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            return null;
         }
+        return null;
     }
 
     public static Long getASN(final InetAddress adr)
