@@ -230,7 +230,7 @@ public class InfoResource extends ServerResource
     // TIME FILTER
     ///////////////////////////////////////
     
-    private final static int[] OPTION_TIMES_VALUE = new int[] {1, 7, 30, 90, 180, 365, 730, 1460 };
+    private final static int[] OPTION_TIMES_VALUE = new int[] {1, 7, 30, 90, 180, 365, 730, 1460, 2920 };
     
     private ServerOption getTimes() throws JSONException
     {

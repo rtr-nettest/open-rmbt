@@ -180,6 +180,12 @@ public class InfoResource extends ServerResource
         obj.put("summary", labels.getString("MAP_FILTER_PERIOD_1460_DAYS"));
         obj.put("period", 1460);
 
+        obj = new JSONObject();
+        options.put(obj);
+        obj.put("title", labels.getString("MAP_FILTER_PERIOD_2920_DAYS"));
+        obj.put("summary", labels.getString("MAP_FILTER_PERIOD_2920_DAYS"));
+        obj.put("period", 2920);
+
 
         final JSONObject result = new JSONObject();
 

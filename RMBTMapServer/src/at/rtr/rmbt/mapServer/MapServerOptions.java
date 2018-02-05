@@ -383,7 +383,7 @@ final public class MapServerOptions
                     try
                     {
                         int _period = Integer.parseInt(input);
-                        if (_period <= 0 || _period > 1460)
+                        if (_period <= 0 || _period > 2922)
                             _period = 1;
                         final int period = _period;
                         
@@ -414,7 +414,7 @@ final public class MapServerOptions
                     try
                     {
                         int _age = Integer.parseInt(input);
-                        if (_age <= 0 || _age > 1460)
+                        if (_age <= 0 || _age > 2922)
                             _age = 0;
                         final int age = _age;
                         
