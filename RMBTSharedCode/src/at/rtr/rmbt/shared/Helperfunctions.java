@@ -1,13 +1,13 @@
 /*******************************************************************************
  * Copyright 2013-2015 alladin-IT GmbH
  * Copyright 2013-2015 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -62,12 +62,12 @@ public abstract class Helperfunctions
         }
         catch (final GeneralSecurityException e)
         {
-            
+
             System.out.println("Unexpected error while creating hash: " + e.getMessage());
             return "";
         }
     }
-    
+
     /**
      * @return
      */
@@ -75,7 +75,7 @@ public abstract class Helperfunctions
     {
         return TimeZone.getDefault().getID();
     }
-    
+
     public static TimeZone getTimeZone(final String id)
     {
         if (id == null)
@@ -83,41 +83,41 @@ public abstract class Helperfunctions
         else
             return TimeZone.getTimeZone(id);
     }
-    
+
     public static Calendar getTimeWithTimeZone(final String timezoneId)
     {
-        
+
         final TimeZone timeZone = TimeZone.getTimeZone(timezoneId);
-        
+
         final Calendar timeWithZone = Calendar.getInstance(timeZone);
-        
+
         return timeWithZone;
     }
-    
+
     public static SimpleDateFormat getDateFormat(final String lang)
     {
         SimpleDateFormat format;
-        
+
         if (lang.equals("de"))
             format = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
         else
             format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        
+
         return format;
     }
-    
+
     public static String geoToString(final Double geoLat, final Double geoLong)
     {
-        
+
         if (geoLat == null || geoLong == null)
             return null;
-        
+
         int latd, lond; // latitude degrees and minutes, longitude degrees and
                         // minutes
         double latm, lonm; // latitude and longitude seconds.
-        
+
         // decimal degrees to degrees minutes seconds
-        
+
         double temp;
         // latitude
         temp = java.lang.Math.abs(geoLat);
@@ -125,14 +125,14 @@ public abstract class Helperfunctions
         latm = (temp - latd) * 60.0;
         if (geoLat < 0)
             latd = -latd;
-        
+
         // longitude
         temp = java.lang.Math.abs(geoLong);
         lond = (int) temp;
         lonm = (temp - lond) * 60.0;
         if (geoLong < 0)
             lond = -lond;
-        
+
         final String dirLat;
         if (geoLat >= 0)
             dirLat = "N";
@@ -143,13 +143,13 @@ public abstract class Helperfunctions
             dirLon = "E";
         else
             dirLon = "W";
-        
+
         return String.format("%s %02d°%02.3f'  %s %02d°%02.3f'", dirLat, latd, latm, dirLon, lond, lonm);
     }
-    
+
     public static String getNetworkTypeName(final int type)
     {
-        
+
         // TODO: read from DB
         switch (type)
         {
@@ -209,7 +209,7 @@ public abstract class Helperfunctions
             return "UNKNOWN";
         }
     }
-    
+
     public static String getRoamingType(final ResourceBundle labels, final int roamingType)
     {
         final String roamingValue;
@@ -230,12 +230,12 @@ public abstract class Helperfunctions
         }
         return roamingValue;
     }
-    
+
     public static boolean isIPLocal(final InetAddress adr)
     {
         return adr.isLinkLocalAddress() || adr.isLoopbackAddress() || adr.isSiteLocalAddress();
     }
-    
+
  /*
     public static String filterIp(InetAddress inetAddress)
     { // obsoleted by removal of old client_local_ip column
@@ -248,7 +248,7 @@ public abstract class Helperfunctions
                 ipVersion = "ipv6";
             else
                 ipVersion = "ipv?";
-            
+
             if (inetAddress.isAnyLocalAddress())
                 return "wildcard_" + ipVersion;
             if (inetAddress.isSiteLocalAddress())
@@ -264,8 +264,8 @@ public abstract class Helperfunctions
             return "illegal_ip";
         }
     }
-    
-   */ 
+
+   */
     public static String IpType(InetAddress inetAddress)
     {
         try
@@ -277,7 +277,7 @@ public abstract class Helperfunctions
                 ipVersion = "ipv6";
             else
                 ipVersion = "ipv?";
-            
+
             if (inetAddress.isAnyLocalAddress())
                 return "wildcard_" + ipVersion;
             if (inetAddress.isSiteLocalAddress())
@@ -294,9 +294,9 @@ public abstract class Helperfunctions
             return "illegal_ip";
         }
     }
-    
-    
-    
+
+
+
     public static String anonymizeIp(final InetAddress inetAddress)
     {
         return anonymizeIp(inetAddress, "");
@@ -330,7 +330,7 @@ public abstract class Helperfunctions
             return null;
         }
     }
-    
+
     public static String getNatType(final InetAddress localAdr, final InetAddress publicAdr)
     {
         try
@@ -350,7 +350,7 @@ public abstract class Helperfunctions
                 ipVersionLocal = "ipv6";
             else
                 ipVersionLocal = "ipv?";
-            
+
             if (localAdr.equals(publicAdr))
                 return "no_nat_" + ipVersionPublic;
             else
@@ -369,13 +369,13 @@ public abstract class Helperfunctions
             return "illegal_ip";
         }
     }
-    
+
     public static String reverseDNSLookup(final InetAddress adr)
     {
         try
         {
             final Name name = ReverseMap.fromAddress(adr);
-            
+
             final Lookup lookup = new Lookup(name, Type.PTR);
             lookup.setResolver(new SimpleResolver());
             lookup.setCache(null);
@@ -393,7 +393,7 @@ public abstract class Helperfunctions
         }
         return null;
     }
-    
+
     public static Name getReverseIPName(final InetAddress adr, final Name postfix)
     {
         final byte[] addr = adr.getAddress();
@@ -429,7 +429,7 @@ public abstract class Helperfunctions
             throw new IllegalStateException("name cannot be invalid");
         }
     }
-    
+
     public static Long getASN(final InetAddress adr)
     {
         try
@@ -439,12 +439,14 @@ public abstract class Helperfunctions
                 postfix = Name.fromConstantString("origin6.asn.cymru.com");
             else
                 postfix = Name.fromConstantString("origin.asn.cymru.com");
-            
+
             final Name name = getReverseIPName(adr, postfix);
             System.out.println("lookup: " + name);
-            
+
             final Lookup lookup = new Lookup(name, Type.TXT);
-            lookup.setResolver(new SimpleResolver());
+            SimpleResolver resolver = new SimpleResolver();
+            resolver.setTimeout(3);
+            lookup.setResolver(resolver);
             lookup.setCache(null);
             final Record[] records = lookup.run();
             if (lookup.getResult() == Lookup.SUCCESSFUL)
@@ -468,7 +470,7 @@ public abstract class Helperfunctions
         }
         return null;
     }
-    
+
     public static String getASName(final long asn)
     {
         try
@@ -476,7 +478,7 @@ public abstract class Helperfunctions
             final Name postfix = Name.fromConstantString("asn.cymru.com.");
             final Name name = new Name(String.format("AS%d", asn), postfix);
             System.out.println("lookup: " + name);
-            
+
             final Lookup lookup = new Lookup(name, Type.TXT);
             lookup.setResolver(new SimpleResolver());
             lookup.setCache(null);
@@ -491,7 +493,7 @@ public abstract class Helperfunctions
                         if (strings != null && !strings.isEmpty())
                         {
                             System.out.println(strings);
-                            
+
                             final String result = strings.get(0);
                             final String[] parts = result.split(" ?\\| ?");
                             if (parts != null && parts.length >= 1)
@@ -512,7 +514,7 @@ public abstract class Helperfunctions
             final Name postfix = Name.fromConstantString("asn.cymru.com.");
             final Name name = new Name(String.format("AS%d", asn), postfix);
             System.out.println("lookup: " + name);
-            
+
             final Lookup lookup = new Lookup(name, Type.TXT);
             lookup.setResolver(new SimpleResolver());
             lookup.setCache(null);
@@ -538,34 +540,34 @@ public abstract class Helperfunctions
         }
         return null;
     }
-    
+
     /**
-     * 
+     *
      * @param <T>
      * @param array
      * @return
      */
     public static <T extends Object> String join(String glue, T[] array) {
     	StringBuilder sb = new StringBuilder("");
-    	
+
     	int len = array.length;
-    	
+
     	if (len < 1) {
     		return null;
     	}
-    	
+
     	for (int i = 0; i < (len-1); i++) {
     		sb.append(String.valueOf(array[i]));
     		sb.append(glue);
     	}
-    	
+
     	sb.append(String.valueOf(array[len-1]));
-    	
+
     	return sb.toString();
     }
 
     /**
-     * 
+     *
      * @param json
      * @param excludeKeys
      * @return
@@ -573,9 +575,9 @@ public abstract class Helperfunctions
     @SuppressWarnings("unchecked")
 	public static String json2htmlWithLinks(JSONObject json) {
     	StringBuilder result = new StringBuilder();
-    	
+
     	Iterator<String> jsonIterator = json.keys();
-    	
+
     	try {
         	while (jsonIterator.hasNext()) {
         		String key = jsonIterator.next();
@@ -593,21 +595,21 @@ public abstract class Helperfunctions
        					result.append("\"" + key + "\" => \"" + keyValue + "\"");
        				}
        			}
-       			
+
        			if (jsonIterator.hasNext()) {
        				result.append(", ");
        			}
-        	}    		
+        	}
     	}
     	catch (JSONException e) {
     		return null;
     	}
-    	
+
     	return result.toString();
     }
-    
+
     /**
-     * 
+     *
      * @param json
      * @param excludeKeys
      * @return
@@ -615,14 +617,14 @@ public abstract class Helperfunctions
     @SuppressWarnings("unchecked")
 	public static String json2hstore(JSONObject json, Set<String> excludeKeys) {
     	StringBuilder result = new StringBuilder();
-    	
+
     	Iterator<String> jsonIterator = json.keys();
-    	
+
     	try {
         	boolean isFirst = true;
         	while (jsonIterator.hasNext()) {
         		String key = jsonIterator.next();
-        
+
         		if (excludeKeys == null || !excludeKeys.contains(key)) {
         			if (!isFirst) {
             			if (json.opt(key) instanceof JSONObject) {
@@ -639,7 +641,7 @@ public abstract class Helperfunctions
             					}
             				}
             				result.append(", \"" + key + "\" => " + data);
-            				//result.append(", \"" + key + "\" => \"" + json.getString(key).replaceAll("\"","\\\\\"").replaceAll("'","\\\\'") + "\"");	
+            				//result.append(", \"" + key + "\" => \"" + json.getString(key).replaceAll("\"","\\\\\"").replaceAll("'","\\\\'") + "\"");
             			}
         			}
         			else {
@@ -662,12 +664,12 @@ public abstract class Helperfunctions
             			}
         			}
         		}
-        	}    		
+        	}
     	}
     	catch (JSONException e) {
     		return null;
     	}
-    	
+
     	return result.toString();
     }
 }
