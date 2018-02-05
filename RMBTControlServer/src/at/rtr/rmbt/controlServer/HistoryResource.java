@@ -48,7 +48,7 @@ public class HistoryResource extends ServerResource
     public String request(final String entity)
     {   	
     	long startTime = System.currentTimeMillis();
-        addAllowOrigin();
+        addAllowRestrictedOrigin();
         
         JSONObject request = null;
         

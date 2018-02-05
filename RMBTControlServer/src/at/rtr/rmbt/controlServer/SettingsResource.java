@@ -53,7 +53,7 @@ public class SettingsResource extends ServerResource
     @Post("json")
     public String request(final String entity)
     {   long startTime = System.currentTimeMillis();
-        addAllowOrigin();
+        addAllowRestrictedOrigin();
         
         JSONObject request = null;
         

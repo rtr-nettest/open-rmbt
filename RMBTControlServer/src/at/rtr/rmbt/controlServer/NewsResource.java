@@ -37,7 +37,7 @@ public class NewsResource extends ServerResource
     @Post("json")
     public String request(final String entity)
     {
-        addAllowOrigin();
+        addAllowRestrictedOrigin();
         
         JSONObject request = null;
         
