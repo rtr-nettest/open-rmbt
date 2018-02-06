@@ -41,8 +41,8 @@ import at.rtr.rmbt.shared.cache.CacheHelper.ObjectWithTimestamp;
 
 public class StatisticsResource extends ServerResource
 {
-    private static final int CACHE_STALE = 3600;
-    private static final int CACHE_EXPIRE = 7200;
+    private static final int CACHE_STALE = 3600; //1 hour
+    private static final int CACHE_EXPIRE = 21600; //6 hours
     private static final boolean ONLY_PINNED = true;
 
     private final CacheHelper cache = CacheHelper.getInstance();
