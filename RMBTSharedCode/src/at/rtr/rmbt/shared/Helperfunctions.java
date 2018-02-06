@@ -455,6 +455,11 @@ public abstract class Helperfunctions
             ASInformation as = new ASInformation(jo.getString("as_description"),
                     jo.getString("as_country_code"),
                     jo.getLong("as_number"));
+
+            if (as.getNumber() <= 0) {
+                return null;
+            }
+
             return as;
         }
         catch(RuntimeException e) {

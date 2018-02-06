@@ -17,18 +17,22 @@
 package at.rtr.rmbt.controlServer;
 
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import javax.naming.NamingException;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 import at.rtr.rmbt.db.DbConnection;
 import at.rtr.rmbt.shared.GeoIPHelper;
+import at.rtr.rmbt.shared.Helperfunctions;
 import at.rtr.rmbt.shared.RevisionHelper;
 
 import com.google.common.net.InetAddresses;
@@ -138,5 +142,61 @@ public class ContextListener implements ServletContextListener
                 }
             }
         }, 0, 24, TimeUnit.HOURS);
+
+        scheduler.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                System.out.println("Looking up missing ASN infos");
+                //add AS to all tests of the last two days where lookup failed previously
+                try
+                {
+                    Connection conn = DbConnection.getConnection();
+                    final PreparedStatement ps1 = conn.prepareStatement("SELECT uid, client_public_ip from test where public_ip_asn is null and client_public_ip is not null and time > current_date - interval '7 days' order by uid desc LIMIT 10000;");
+                    final PreparedStatement ps2 = conn.prepareStatement("UPDATE test SET public_ip_asn = ?, country_asn = ?, public_ip_as_name = ? WHERE uid = ?;");
+                    final PreparedStatement ps3 = conn.prepareStatement("SELECT rmbt_set_provider_from_as(uid) from test where  uid = ?;");
+
+
+                    final ResultSet rs1 = ps1.executeQuery();
+
+                    while (rs1.next())
+                    {
+                        final long uid = rs1.getLong(1);
+                        final String ip = rs1.getString(2);
+
+                        System.out.println("Setting AS for: " + uid);
+
+                        try {
+                            InetAddress ipp = InetAddress.getByName(ip);
+                            Helperfunctions.ASInformation asn;
+                            asn = Helperfunctions.getASInformation(ipp);
+                            if (asn != null) {
+                                final String asName = asn.getName();
+                                final String asCountry = asn.getCountry();
+                                ps2.setLong(1, asn.getNumber());
+                                ps2.setString(2, asCountry);
+                                ps2.setString(3, asName);
+                                ps2.setLong(4, uid);
+
+                                ps3.setLong(1, uid);
+
+                                ps2.executeUpdate();
+                                ps3.execute();
+
+                                System.out.println("Setting AS: uid: " + uid + " asn:" + asn + " name:" + asName + " country:" + asCountry);
+                            }
+                        } catch (SQLException e)
+                        {
+                            e.printStackTrace();
+                        }
+                        Thread.sleep(10);
+                    }
+
+                }
+                catch (SQLException | InterruptedException | UnknownHostException | NamingException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        }, 2, 24, TimeUnit.HOURS);
     }
 }
