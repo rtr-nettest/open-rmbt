@@ -16,23 +16,25 @@
  ******************************************************************************/
 package at.rtr.rmbt.statisticServer;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.restlet.resource.Get;
+import org.restlet.resource.Post;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.Calendar;
+import java.util.Queue;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.naming.NamingException;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.restlet.resource.Get;
-import org.restlet.resource.Post;
 
 import at.rtr.rmbt.db.DbConnection;
 import at.rtr.rmbt.shared.Classification;
@@ -45,7 +47,10 @@ public class StatisticsResource extends ServerResource
     private static final int CACHE_EXPIRE = 21600; //6 hours
     private static final boolean ONLY_PINNED = true;
 
-    private final CacheHelper cache = CacheHelper.getInstance();
+    private static final CacheHelper cache = CacheHelper.getInstance();
+
+    //put last 10.000 request entities into a cache :) (O(10KB*1000=10MB))
+    private static final LinkedBlockingQueue<String> lastRequests = new LinkedBlockingQueue<>(10000);
 
     @Get
     @Post("json")
@@ -63,10 +68,21 @@ public class StatisticsResource extends ServerResource
         readCapabilities(request);
 
         final boolean ultraGreen = (capabilities.getClassificationCapability().getCount() == 4);
+
+        //add to last requests
+        lastRequests.add(entity);
+
+        String result = generateStatistics(request, ultraGreen);
+
+        return result;
+    }
+
+    public static String generateStatistics(final JSONObject request, final boolean ultraGreen) {
         final StatisticParameters params = new StatisticParameters(settings.getString("RMBT_DEFAULT_LANGUAGE"), request);
 
         final String cacheKey = CacheHelper.getHash(params);
         final ObjectWithTimestamp cacheObject = cache.getWithTimestamp(cacheKey, CACHE_STALE);
+
         if (cacheObject != null)
         {
             final String result = (String)cacheObject.o;
@@ -560,5 +576,9 @@ public class StatisticsResource extends ServerResource
             }
             providers.put(obj);
         }
+    }
+
+    public static Queue<String> getLastRequests() {
+        return lastRequests;
     }
 }

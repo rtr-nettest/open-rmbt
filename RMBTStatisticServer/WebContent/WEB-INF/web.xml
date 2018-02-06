@@ -29,7 +29,8 @@
   
   <listener>
     <listener-class>at.rtr.rmbt.shared.cache.CacheContextListener</listener-class>
-   </listener>
+    <listener-class>at.rtr.rmbt.statisticServer.ContextListener</listener-class>
+  </listener>
   
   <!-- Application class name -->
     <context-param>

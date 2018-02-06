@@ -53,8 +53,8 @@ import com.google.gson.JsonSerializer;
 public class ServerResource extends org.restlet.resource.ServerResource
 {
     protected Connection conn;
-    protected ResourceBundle labels;
-    protected ResourceBundle settings;
+    protected static ResourceBundle labels;
+    protected static ResourceBundle settings;
     protected Capabilities capabilities = new Capabilities();
     
     public static class MyDateTimeAdapter implements JsonSerializer<DateTime>, JsonDeserializer<DateTime>

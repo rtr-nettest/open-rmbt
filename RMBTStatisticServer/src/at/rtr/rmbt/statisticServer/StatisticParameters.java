@@ -46,7 +46,7 @@ public class StatisticParameters implements Serializable, Funnel<StatisticParame
     
     public StatisticParameters(String defaultLang, JSONObject request)
     {
-        String _lang = defaultLang;
+        String _lang = defaultLang; //needed later for json default values, e.g. "All providers"
         float _quantile = 0.5f; // median is default quantile
         int _duration = 90;
         int _maxDevices = 100;
