@@ -102,7 +102,7 @@ public class ContextListener implements ServletContextListener
                 }
 
             }
-        }, 1, 30, TimeUnit.SECONDS);
+        }, 1, 60, TimeUnit.MINUTES);
 
     }
 }
