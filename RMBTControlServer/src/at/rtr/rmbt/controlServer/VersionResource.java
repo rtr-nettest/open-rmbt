@@ -30,6 +30,7 @@ public class VersionResource extends ServerResource
     @Get("json")
     public String request(final String entity)
     {
+        addAllowOrigin();
         try
         {
             final JSONObject answer = new JSONObject();

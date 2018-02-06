@@ -35,7 +35,8 @@ public class ImplausibilityHelperResource extends ServerResource{
 	@Post("json")
     public String request(final String entity) throws JSONException
     {   	
-        //addAllowOrigin();
+        addAllowRestrictedOrigin();
+
 		final JSONObject answer = new JSONObject();
 		JSONObject request;
         try {

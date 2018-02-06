@@ -47,59 +47,7 @@ public class ContextListener implements ServletContextListener
     }
     
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-    
-    @SuppressWarnings("unused")
-    private void getGeoIPs()
-    {
-        scheduler.submit(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                try
-                {
-                    System.out.println("getting geoips");
-                    final Connection conn = DbConnection.getConnection();
-                    
-                    final boolean oldAutoCommitState = conn.getAutoCommit();
-                    conn.setAutoCommit(false);
-                    // allow update only 5min after test was started
-                    final PreparedStatement psUpd = conn.prepareStatement("UPDATE test SET country_geoip=? WHERE uid=? and (now() - time  < interval '5' minute)");
-                    final PreparedStatement ps = conn.prepareStatement("SELECT uid,client_public_ip FROM test WHERE client_public_ip IS NOT NULL AND country_geoip IS NULL");
-                    ps.execute();
-                    final ResultSet rs = ps.getResultSet();
-                    int count = 0;
-                    while (rs.next())
-                    {
-                        Thread.sleep(5);
-                        count++;
-                        if ((count % 1000) == 0)
-                            System.out.println(count + " geoips updated");
-                        final long uid = rs.getLong("uid");
-                        final String ip = rs.getString("client_public_ip");
-                        final InetAddress ia = InetAddresses.forString(ip);
-                        final String country = GeoIPHelper.lookupCountry(ia);
-                        if (country != null)
-                        {
-                            psUpd.setString(1, country);
-                            psUpd.setLong(2, uid);
-                            psUpd.executeUpdate();
-                        }
-                    }
-                    psUpd.close();
-                    ps.close();
-                    conn.commit();
-                    conn.setAutoCommit(oldAutoCommitState);
-                }
-                catch (Exception e)
-                {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
-    
+
     @Override
     public void contextInitialized(ServletContextEvent sce)
     {

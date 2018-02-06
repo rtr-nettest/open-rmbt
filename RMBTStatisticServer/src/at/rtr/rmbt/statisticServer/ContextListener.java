@@ -60,8 +60,6 @@ public class ContextListener implements ServletContextListener
             public void run()
             {
                 Logger.getLogger(ContextListener.class.getName()).info("renewing /statistics cache");
-                System.out.println(1);
-
                 Queue<String> lastRequests = StatisticsResource.getLastRequests();
 
                 Collection<String> asList = new ArrayList<>(lastRequests);
