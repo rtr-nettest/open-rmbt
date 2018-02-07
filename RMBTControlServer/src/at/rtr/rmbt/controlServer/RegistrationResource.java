@@ -269,12 +269,31 @@ public class RegistrationResource extends ServerResource
                                 serverTypes = new String[]{"RMBT"};
                             
                             final Boolean ipv6;
-                            if (clientAddress instanceof Inet6Address)
-                                ipv6 = true;
-                            else if (clientAddress instanceof Inet4Address)
-                                ipv6 = false;
-                            else // should never happen, unless ipv > 6 is available
-                                ipv6 = null;
+
+                            //allow clients to explicitly request a specific version in the test request
+                            if (request.has("protocol_version")) {
+                                if (request.optString("protocol_version","").equals("ipv6")) {
+                                    ipv6 = true;
+                                }
+                                else if (request.optString("protocol_version","").equals("ipv4")) {
+                                    ipv6 = false;
+                                }
+                                else {
+                                    errorList.addError("ERROR_IP_STRING");
+                                    ipv6 = null;
+                                }
+                            }
+                            else {
+                                if (clientAddress instanceof Inet6Address) {
+                                    ipv6 = true;
+                                }
+                                else if (clientAddress instanceof Inet4Address) {
+                                    ipv6 = false;
+                                }
+                                else { // should never happen, unless ipv > 6 is available
+                                    ipv6 = null;
+                                }
+                            }
                             
                             TestServer server = null;
                             
