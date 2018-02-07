@@ -26,7 +26,14 @@ import org.json.JSONObject;
 public class StringField extends FieldAdapter<String>
 {
     private static final long serialVersionUID = 1L;
-    
+    private int maxLength = -1;
+
+    public StringField(final String dbKey, final String jsonKey, int maxLength)
+    {
+        super(dbKey, jsonKey, false);
+        this.maxLength = maxLength;
+    }
+
     public StringField(final String dbKey, final String jsonKey)
     {
         super(dbKey, jsonKey, false);
@@ -40,7 +47,12 @@ public class StringField extends FieldAdapter<String>
     @Override
     public void setString(final String string)
     {
-        value = string;
+        if (maxLength > 0 && string != null) {
+            value = string.substring(0,Math.min(string.length(), maxLength));
+        }
+        else {
+            value = string;
+        }
     }
     
     @Override
@@ -61,8 +73,9 @@ public class StringField extends FieldAdapter<String>
     @Override
     public void setField(final JSONObject obj)
     {
-        if (jsonKey != null && obj.has(jsonKey))
-            value = obj.optString(jsonKey, null);
+        if (jsonKey != null && obj.has(jsonKey)) {
+            setString(obj.optString(jsonKey, null));
+        }
     }
     
 }
