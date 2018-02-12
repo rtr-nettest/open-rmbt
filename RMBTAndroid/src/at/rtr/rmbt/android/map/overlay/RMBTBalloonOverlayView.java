@@ -78,6 +78,7 @@ public class RMBTBalloonOverlayView extends View
         resultItems = item.getResultItems();
         
         resultListView.removeAllViews();
+        Log.d(DEBUG_TAG, "Removed views");
         
         final float scale = getResources().getDisplayMetrics().density;
         
