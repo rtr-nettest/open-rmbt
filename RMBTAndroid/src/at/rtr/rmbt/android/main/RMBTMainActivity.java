@@ -639,6 +639,7 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties,
     protected void onResume() {
     	super.onResume();
         Log.i(DEBUG_TAG, "onResume");
+        checkSettings(false, null);
         waitForSettings();
     	ViewServer.get(this).setFocusedWindow(this);
         redirectSystemOutput(ConfigHelper.isSystemOutputRedirectedToFile(this));
@@ -704,6 +705,13 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties,
         final String uuid = ConfigHelper.getUUID(getApplicationContext());
         return (uuid != null && uuid.length() > 0);
     }
+
+    public boolean haveControlServerVersion()
+    {
+        final String controlServerVersion = ConfigHelper.getControlServerVersion(getApplicationContext());
+        Log.d("main","ControlServerVersion was null");
+        return (controlServerVersion != null);
+    }
     
     public boolean haveHistoryFilters()
     {
@@ -716,10 +724,11 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties,
     public void checkSettings(boolean force, final EndTaskListener endTaskListener)
     {   
     	Log.i(DEBUG_TAG,"checkSettings force="+force);
-        if (settingsTask != null && settingsTask.getStatus() == AsyncTask.Status.RUNNING)
+        if (settingsTask != null && settingsTask.getStatus() == AsyncTask.Status.RUNNING) {
             return;
+        }
         
-        if (! force && haveUuid() && haveHistoryFilters())
+        if (! force && haveUuid() && haveHistoryFilters() && haveControlServerVersion())
             return;
         
         settingsTask = new CheckSettingsTask(this);
