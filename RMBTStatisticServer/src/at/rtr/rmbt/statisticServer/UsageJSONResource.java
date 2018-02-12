@@ -20,9 +20,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -76,25 +79,53 @@ public class UsageJSONResource extends ServerResource
         		monthEnd = now;
         		monthEnd.add(Calendar.DATE,-1);
         	}
-        	
-        	JSONObject platforms = getPlatforms(new Timestamp(monthBegin.getTimeInMillis()), new Timestamp(monthEnd.getTimeInMillis()));
-        	JSONObject platformsLoopmode = getLoopmodePlatforms(new Timestamp(monthBegin.getTimeInMillis()), new Timestamp(monthEnd.getTimeInMillis()));
-			//JSONObject platformsQoS = getQoSUsage(new Timestamp(monthBegin.getTimeInMillis()), new Timestamp(monthEnd.getTimeInMillis()));
-        	JSONObject usage = getClassicUsage(new Timestamp(monthBegin.getTimeInMillis()), new Timestamp(monthEnd.getTimeInMillis()));
-        	JSONObject versionsIOS = getVersions("iOS", new Timestamp(monthBegin.getTimeInMillis()), new Timestamp(monthEnd.getTimeInMillis()));
-        	JSONObject versionsAndroid = getVersions("Android", new Timestamp(monthBegin.getTimeInMillis()), new Timestamp(monthEnd.getTimeInMillis()));
-        	JSONObject versionsApplet = getVersions("Applet", new Timestamp(monthBegin.getTimeInMillis()), new Timestamp(monthEnd.getTimeInMillis()));
-        	JSONObject networkGroupNames = getNetworkGroupName(new Timestamp(monthBegin.getTimeInMillis()), new Timestamp(monthEnd.getTimeInMillis()));
-        	JSONObject networkGroupTypes = getNetworkGroupType(new Timestamp(monthBegin.getTimeInMillis()), new Timestamp(monthEnd.getTimeInMillis()));
-			result.put("platforms", platforms);
-        	result.put("platforms_loopmode", platformsLoopmode);
-			//result.put("platforms_qos", platformsQoS);
-        	result.put("usage", usage);
-        	result.put("versions_ios", versionsIOS);
-        	result.put("versions_android", versionsAndroid);
-        	result.put("versions_applet", versionsApplet);
-        	result.put("network_group_names", networkGroupNames);
-        	result.put("network_group_types", networkGroupTypes);
+
+
+			Set<String> statistics = new HashSet<>(Arrays.asList("platforms", "platforms_loopmode", "usage", "versions_ios",
+					"versions_android", "versions_applet", "network_group_names", "network_group_types"));
+			if (getParameters.getNames().contains("statistic") || getParameters.getNames().contains("statistic[]")) {
+				statistics.clear();
+				statistics.addAll(Arrays.asList(getParameters.getValuesArray("statistic")));
+				statistics.addAll(Arrays.asList(getParameters.getValuesArray("statistic[]")));
+			}
+
+			if (statistics.contains("platforms")) {
+				JSONObject platforms = getPlatforms(new Timestamp(monthBegin.getTimeInMillis()), new Timestamp(monthEnd.getTimeInMillis()));
+				result.put("platforms", platforms);
+			}
+			if (statistics.contains("platforms_loopmode")) {
+				JSONObject platformsLoopmode = getLoopmodePlatforms(new Timestamp(monthBegin.getTimeInMillis()), new Timestamp(monthEnd.getTimeInMillis()));
+				result.put("platforms_loopmode", platformsLoopmode);
+			}
+        	if (statistics.contains("usage")) {
+				JSONObject usage = getClassicUsage(new Timestamp(monthBegin.getTimeInMillis()), new Timestamp(monthEnd.getTimeInMillis()));
+				result.put("usage", usage);
+			}
+			if (statistics.contains("versions_ios")) {
+				JSONObject versionsIOS = getVersions("iOS", new Timestamp(monthBegin.getTimeInMillis()), new Timestamp(monthEnd.getTimeInMillis()));
+				result.put("versions_ios", versionsIOS);
+			}
+			if (statistics.contains("versions_android")) {
+				JSONObject versionsAndroid = getVersions("Android", new Timestamp(monthBegin.getTimeInMillis()), new Timestamp(monthEnd.getTimeInMillis()));
+				result.put("versions_android", versionsAndroid);
+			}
+			if (statistics.contains("versions_applet")) {
+				JSONObject versionsApplet = getVersions("Applet", new Timestamp(monthBegin.getTimeInMillis()), new Timestamp(monthEnd.getTimeInMillis()));
+				result.put("versions_applet", versionsApplet);
+			}
+			if (statistics.contains("network_group_names")) {
+				JSONObject networkGroupNames = getNetworkGroupName(new Timestamp(monthBegin.getTimeInMillis()), new Timestamp(monthEnd.getTimeInMillis()));
+				result.put("network_group_names", networkGroupNames);
+			}
+			if (statistics.contains("network_group_types")) {
+				JSONObject networkGroupTypes = getNetworkGroupType(new Timestamp(monthBegin.getTimeInMillis()), new Timestamp(monthEnd.getTimeInMillis()));
+				result.put("network_group_types", networkGroupTypes);
+			}
+			if (statistics.contains("platforms_qos")) {
+                JSONObject platformsQoS = getQoSUsage(new Timestamp(monthBegin.getTimeInMillis()), new Timestamp(monthEnd.getTimeInMillis()));
+				result.put("platforms_qos", platformsQoS);
+			}
+
         }
         catch (SQLException e)
         {
