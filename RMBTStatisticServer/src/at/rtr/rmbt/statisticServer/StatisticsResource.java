@@ -70,7 +70,9 @@ public class StatisticsResource extends ServerResource
         final boolean ultraGreen = (capabilities.getClassificationCapability().getCount() == 4);
 
         //add to last requests
-        lastRequests.add(entity);
+        if (entity != null) {
+            lastRequests.add(entity);
+        }
 
         String result = generateStatistics(request, ultraGreen);
 
