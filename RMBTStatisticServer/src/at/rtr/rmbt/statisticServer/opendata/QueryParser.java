@@ -125,7 +125,9 @@ public class QueryParser {
         allowedFields.put("signal_strength", FieldType.LONG);
         allowedFields.put("signal_strength[]", FieldType.LONG);
         allowedFields.put("open_uuid",FieldType.UUID);
+        allowedFields.put("open_test_uuid",FieldType.UUID);
         allowedFields.put("client_uuid",FieldType.UUID);
+        allowedFields.put("test_uuid",FieldType.UUID);
         allowedFields.put("long",FieldType.DOUBLE);
         allowedFields.put("long[]",FieldType.DOUBLE);
         allowedFields.put("lat",FieldType.DOUBLE);
@@ -243,9 +245,15 @@ public class QueryParser {
                             invalidElements.put(attr);
                             continue;
                         }
-                        value = value.substring(1); //cut prefix
+
+                        //for UUID: allow comma-seperated "OR" conjunction
+                        String[] uuids = value.split(",");
+
                         try {
-                            UUID.fromString(value);
+                            for (String uuid : uuids) {
+                                uuid = uuid.substring(1); //cut prefix
+                                UUID.fromString(uuid);
+                            }
                         } catch(IllegalArgumentException e) {
                             invalidElements.put(attr);
                             continue;
@@ -517,6 +525,21 @@ public class QueryParser {
                return " AND 0=1";
            }
        }
+       else if (type == FieldType.UUID) {
+           String[] uuids = value.split(",");
+           for (int i=0;i<uuids.length;i++) {
+               uuids[i] = uuids[i].substring(1);
+           }
+           String dbField = this.getDbFields(attr).get(0);
+           String queryPart = " AND (" + dbField + " = ?";
+           queue.add(new AbstractMap.SimpleEntry<>(uuids[0], type));
+           for (int i=1;i<uuids.length;i++) {
+               queryPart += " OR " + dbField + " = ?";
+               queue.add(new AbstractMap.SimpleEntry<>(uuids[i], type));
+           }
+           queryPart +=") ";
+           return queryPart;
+       }
         else {
             List<String> attrs = this.getDbFields(attr);
             if (attrs.size() == 1) {
@@ -620,6 +643,12 @@ public class QueryParser {
         }
         else if (opendataField.equals("radio_band")) {
             ret.add("t.radio_band");
+        }
+        else if (opendataField.equals("open_test_uuid")) {
+            ret.add("t.open_test_uuid");
+        }
+        else if (opendataField.equals("test_uuid")) {
+            ret.add("t.uuid");
         }
          return ret;
     }
