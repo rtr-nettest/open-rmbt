@@ -258,7 +258,7 @@
 
 	<!-- QoS -->	
 	<string name="result_qos_stats">Qualitätstests</string>
-	<string name="about_control_server_version">Control Server Version</string>
+	<string name="about_control_server">Control Server</string>
 	
 	<string name="result_qos_error_no_data_available">Es wurde kein QoS-Test durchgeführt.</string>
 	

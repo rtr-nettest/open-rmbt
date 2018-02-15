@@ -230,7 +230,7 @@
 	
 	
 	<!-- QoS -->
-	<string name="about_control_server_version">Wersja serwera sterującego</string>
+	<string name="about_control_server">Serwera sterującego</string>
 	
 	<string name="term_signal">Sygnał</string>
 	

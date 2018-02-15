@@ -211,7 +211,7 @@
     <string name="test_dialog_error_control_server_conn">Connection to test server cannot be established.</string>
 
     <!-- QoS values: -->
-    <string name="about_control_server_version">Version du serveur de contrôle</string>
+    <string name="about_control_server">Serveur de contrôle</string>
     <string name="preferences_dont_show_menu_on_exit">Pas de menu à la fermeture</string>
     <string name="preferences_dont_show_menu_on_exit_sum">Ne pas afficher le menu de l\'application avant de le fermer.</string>
     

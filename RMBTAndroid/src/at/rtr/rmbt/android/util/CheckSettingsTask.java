@@ -80,15 +80,13 @@ public class CheckSettingsTask extends AsyncTask<Void, Void, JSONArray>
     @Override
     protected JSONArray doInBackground(final Void... params)
     {
-        JSONArray resultList = null;
         
         serverConn = new ControlServerConnection(activity.getApplicationContext());
-        
-        resultList = serverConn.requestSettings();
-        
-        return resultList;
+
+        return serverConn.requestSettings();
+
     }
-    
+
     /**
 	 * 
 	 */

@@ -135,7 +135,7 @@
 	
 	<!-- QoS values: -->
 	
-	<string name="about_control_server_version">Версия сервера управления</string>
+	<string name="about_control_server">Cервера управления</string>
 		
 	<string name="term_signal">Пинг</string>
     <string name="term_signal_quality">Quality</string>	

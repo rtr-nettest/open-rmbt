@@ -21,8 +21,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
-import com.google.android.gms.common.GooglePlayServicesUtil;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ClipData;
@@ -55,6 +53,7 @@ import at.alladin.rmbt.android.BuildConfig;
 import at.alladin.rmbt.android.R;
 import at.rtr.rmbt.android.main.AppConstants;
 import at.rtr.rmbt.android.main.RMBTMainActivity;
+import at.rtr.rmbt.android.util.CheckSettingsTask;
 import at.rtr.rmbt.android.util.ConfigHelper;
 import at.rtr.rmbt.android.util.RMBTTermsFragment;
 import at.rtr.rmbt.client.helper.RevisionHelper;
@@ -125,6 +124,10 @@ public class RMBTAboutFragment extends Fragment
         final String clientUUID = String.format("U%s", ConfigHelper.getUUID(activity.getApplicationContext()));
         
         final String controlServerVersion = ConfigHelper.getControlServerVersion(activity);
+        final String controlServerName = ConfigHelper.getControlServerName(activity);
+        final String cachedControlServerNameIpv4 = ConfigHelper.getCachedControlServerNameIpv4(activity);
+        final String cachedControlServerNameIpv6 = ConfigHelper.getCachedControlServerNameIpv6(activity);
+        final String mapServerName = ConfigHelper.getMapServerName(activity);
         
         final ListView listView = (ListView) view.findViewById(R.id.aboutList);
         
@@ -189,10 +192,17 @@ public class RMBTAboutFragment extends Fragment
             item.put("text2", "");
             list.add(item);
         }
-        
+
+
         item = new HashMap<String, String>();
-        item.put("title", getString(R.string.about_control_server_version));
+        item.put("title", getString(R.string.about_control_server));
         item.put("text1", controlServerVersion != null ? controlServerVersion : "---");
+        item.put("text2", controlServerName+" ("+cachedControlServerNameIpv4+"/"+cachedControlServerNameIpv6+")");
+        list.add(item);
+
+        item = new HashMap<String, String>();
+        item.put("title", getString(R.string.about_map_server));
+        item.put("text1", mapServerName);
         item.put("text2", "");
         list.add(item);
         
@@ -233,7 +243,7 @@ public class RMBTAboutFragment extends Fragment
                     /* Fill it with Data */
                     emailIntent.setType("plain/text");
                     emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[] { getString(R.string.about_email_email) });
-                    emailIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.about_email_subject));
+                    emailIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.about_email_subject)+" "+clientVersion);
                     emailIntent.putExtra(Intent.EXTRA_TEXT, "");
                     
                     /* Send it off to the Activity-Chooser */

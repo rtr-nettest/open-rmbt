@@ -209,7 +209,7 @@
     <string name="test_dialog_error_control_server_conn">Connection to test server cannot be established.</string>
 
     <!-- QoS values: -->
-    <string name="about_control_server_version">Control server version</string>
+    <string name="about_control_server">Control server</string>
     <string name="preferences_dont_show_menu_on_exit">No menu on close</string>
     <string name="preferences_dont_show_menu_on_exit_sum">Don\'t show application menu before closing it.</string>
     <string name="qos_test_name_website">Reference web page</string>
