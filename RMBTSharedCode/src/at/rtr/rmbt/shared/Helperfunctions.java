@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.logging.Logger;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -600,6 +601,10 @@ public abstract class Helperfunctions
         }
 
         public String getCountry() {
+            if (country != null && country.length() > 2) {
+                Logger.getLogger(Helperfunctions.class.getName()).info("Country code cut to 2 chars: " + country);
+                return country.substring(0,2);
+            }
             return country;
         }
 

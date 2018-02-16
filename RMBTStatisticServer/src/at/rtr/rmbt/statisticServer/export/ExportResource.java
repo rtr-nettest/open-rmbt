@@ -206,7 +206,8 @@ public class ExportResource extends ServerResource
                 " (ndt.s2cspd*1000)::int ndt_download_kbit," +
                 " (ndt.c2sspd*1000)::int ndt_upload_kbit," +
                 " COALESCE(t.implausible, false) implausible," +
-                " t.signal_strength" +
+                " t.signal_strength," +
+                " t.pinned pinned" +
                 " FROM test t" +
                 " LEFT JOIN network_type nt ON nt.uid=t.network_type" +
                 " LEFT JOIN device_map adm ON adm.codename=t.model" +

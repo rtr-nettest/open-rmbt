@@ -49,6 +49,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 import at.rtr.rmbt.db.Cell_location;
@@ -118,7 +119,7 @@ public class ResultResource extends ServerResource
                         try {
                             //get test_uuid, open_test_uuid since the token can consist of either one
                             final UUID tokenUuid = UUID.fromString(token[0]);
-                            final PreparedStatement psOpenUuid = conn.prepareStatement("SELECT uuid, open_test_uuid FROM test WHERE uuid = ? OR open_test_uuid = ?");
+                            final PreparedStatement psOpenUuid = conn.prepareStatement("SELECT uuid, open_test_uuid FROM test WHERE uuid = ? OR open_test_uuid = ? AND status = 'STARTED'");
                             psOpenUuid.setObject(1, tokenUuid);
                             psOpenUuid.setObject(2, tokenUuid);
                             ResultSet rsTokenUuid = psOpenUuid.executeQuery();
@@ -128,6 +129,9 @@ public class ResultResource extends ServerResource
                             if (rsTokenUuid.next()) {
                                 openTestUuid = (java.util.UUID) rsTokenUuid.getObject("open_test_uuid");
                                 testUuid = (java.util.UUID) rsTokenUuid.getObject("uuid");
+                            }
+                            else {
+                                Logger.getLogger(ResultResource.class.getName()).info("UUID not found with STARTED test : " + tokenUuid.toString());
                             }
                             psOpenUuid.close();
                             //System.out.println("open_test_uuid: " + openTestUuid.toString());
