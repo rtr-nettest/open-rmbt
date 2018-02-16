@@ -597,14 +597,14 @@ public abstract class Helperfunctions
 
 
         public String getName() {
-            if (name != null && name.length() > 2) {
-                Logger.getLogger(Helperfunctions.class.getName()).info("Country code cut to 2 chars: " + name);
-                return name.substring(0,2);
-            }
             return name;
         }
 
         public String getCountry() {
+            if (country != null && country.length() > 2) {
+                Logger.getLogger(Helperfunctions.class.getName()).info("Country code cut to 2 chars: " + country);
+                return country.substring(0,2);
+            }
             return country;
         }
 
