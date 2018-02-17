@@ -42,10 +42,15 @@ public class Test extends Table
             " pMob.shortname mobile_provider_name," +
             " pSim.shortname network_sim_operator_mcc_mnc_text," +
             " pPro.shortname provider_id_name," +
-            " k.gemeinde community," +
-            " k.bezirk district," +
-            " k.land province," +
-            " k.anhang cov800cat," +
+            " t.land_cover land_cover," +
+            " t.kg_nr_bev kg_nr_bev," +
+            " t.gkz_bev gkz_bev," +
+            " t.gkz_sa gkz_sa," +
+            " k.kg locality," +
+            " k.pg community," +
+            " k.pb district," +
+            " k.bl province," +
+            " t.land_cover land_cover," +
             " COALESCE(adm.fullname, t.model) model_fullname," +
             " pServ.name server_name" +
             " FROM test t" +
@@ -57,7 +62,7 @@ public class Test extends Table
             " ON t.mobile_provider_id=pMob.uid" +
             " LEFT JOIN device_map adm ON adm.codename=t.model" +
             " LEFT JOIN test_server pServ ON t.server_id=pServ.uid" +
-            " LEFT JOIN kategorisierte_gemeinden k ON t.gkz=k.gemeinde_i";
+            " LEFT JOIN oesterreich_bev_kg_lam_mitattribute_2017_10_02 k ON t.kg_nr_bev=k.kg_nr_int";
     
     private final static ThreadLocal<Field[]> PER_THREAD_FIELDS = new ThreadLocal<Field[]>() {
         protected Field[] initialValue() {
@@ -147,11 +152,14 @@ public class Test extends Table
             new LongField("total_bytes_upload", "test_total_bytes_upload"), 
             new IntField("wifi_link_speed", null),
             new BooleanField("network_is_roaming", "telephony_network_is_roaming"),
-            new IntField("gkz",null,true),
+            new IntField("gkz_bev",null,true),
+            new IntField("gkz_sa",null,true),
+            new IntField("kg_nr_bev",null,true),
+            new IntField("land_cover",null,true),
+            new StringField("locality",null,true),
             new StringField("community",null,true),
             new StringField("district",null,true),
             new StringField("province",null,true),
-            new StringField("cov800cat",null,true),
             new StringField("provider_id_name", null, true),
             new StringField("geo_provider", "provider"),
             new DoubleField("geo_accuracy", "accuracy"),

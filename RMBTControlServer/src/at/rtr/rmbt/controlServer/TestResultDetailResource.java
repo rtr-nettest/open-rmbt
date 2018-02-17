@@ -217,7 +217,7 @@ public class TestResultDetailResource extends ServerResource
                             addString(
                                     resultList,
                                     "signal_strength",
-                                    String.format("%d %s", signalStrengthField.intValue(),
+                                    String.format(Locale.ENGLISH,"%d %s", signalStrengthField.intValue(),
                                             labels.getString("RESULT_SIGNAL_UNIT")));
 
                         //signal strength RSRP in dBm (LTE) - csv 29
@@ -226,7 +226,7 @@ public class TestResultDetailResource extends ServerResource
                             addString(
                                     resultList,
                                     "signal_rsrp",
-                                    String.format("%d %s", lteRsrpField.intValue(),
+                                    String.format(Locale.ENGLISH,"%d %s", lteRsrpField.intValue(),
                                             labels.getString("RESULT_SIGNAL_UNIT")));
 
                         //signal quality in LTE, RSRQ in dB
@@ -235,7 +235,7 @@ public class TestResultDetailResource extends ServerResource
                             addString(
                                     resultList,
                                     "signal_rsrq",
-                                    String.format("%d %s", lteRsrqField.intValue(),
+                                    String.format(Locale.ENGLISH,"%d %s", lteRsrqField.intValue(),
                                             labels.getString("RESULT_DB_UNIT")));
                       
                         // network, eg. "3G (HSPA+)
@@ -269,28 +269,17 @@ public class TestResultDetailResource extends ServerResource
                         final Field countryGeoipField = test.getField("country_geoip");
                         if (!countryGeoipField.isNull())
                             addString(resultList, "country_geoip", countryGeoipField.toString());
-                        
-                        /*
-                        final Field gkzField = test.getField("gkz");
-                        if (!gkzField.isNull())
-                        {
-                            	addString(resultList, "gkz", gkzField.toString());
-                        }
-                        */
-                        
+
                         final Field communityField = test.getField("community");
                         if (!communityField.isNull())
                         {
                             	addString(resultList, "community", communityField.toString());
                         }
-
-                        final Field cov800catField = test.getField("cov800cat");
-                        if (!cov800catField.isNull())
+                        final Field localityField = test.getField("locality");
+                        if (!localityField.isNull())
                         {
-                            	addString(resultList, "cov800cat", cov800catField.toString());
+                            addString(resultList, "locality", localityField.toString());
                         }
-
-
                         final Field districtField = test.getField("district");
                         if (!districtField.isNull())
                         {
@@ -303,7 +292,30 @@ public class TestResultDetailResource extends ServerResource
                             	addString(resultList, "province", provinceField.toString());
                         }
 
-                        
+
+                        final Field kgNrField = test.getField("kg_nr_bev");
+                        if (!kgNrField.isNull())
+                        {
+                            addString(resultList, "kg_nr", kgNrField.toString());
+                        }
+
+                        final Field gkzField = test.getField("gkz_bev");
+                        if (!gkzField.isNull())
+                        {
+                            addString(resultList, "gkz_bev", gkzField.toString());
+                        }
+
+                        final Field gkzSaField = test.getField("gkz_sa");
+                        if (!gkzSaField.isNull())
+                        {
+                            addString(resultList, "gkz_sa", gkzSaField.toString());
+                        }
+
+                        final Field landCoverField = test.getField("land_cover");
+                        if (!landCoverField.isNull())
+                        {
+                            addString(resultList, "land_cover", landCoverField.toString());
+                        }
                         // public client ip (private)
                         addString(resultList, "client_public_ip", test.getField("client_public_ip"));
 

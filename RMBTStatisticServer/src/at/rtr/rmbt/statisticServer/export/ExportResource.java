@@ -183,7 +183,8 @@ public class ExportResource extends ServerResource
                 " WHEN (t.geo_accuracy < 100) AND ((t.geo_provider = 'manual') OR (t.geo_provider = 'geocoder')) THEN 100" + // limit accuracy to 100m
                 " WHEN (t.geo_accuracy < ?) THEN round(t.geo_accuracy::float * 10)/10" +
                 " ELSE null END) loc_accuracy, " +
-                " t.gkz gkz," +
+                " t.gkz_bev gkz," +
+                " NULL zip," +
                 " t.country_location country_location," + 
                 " t.speed_download download_kbit," +
                 " t.speed_upload upload_kbit," +
@@ -206,8 +207,12 @@ public class ExportResource extends ServerResource
                 " (ndt.c2sspd*1000)::int ndt_upload_kbit," +
                 " COALESCE(t.implausible, false) implausible," +
                 " t.signal_strength," +
-                " t.pinned pinned" +
+                " t.pinned pinned," +
+                " t.kg_nr_bev kg_nr," +
+                " t.gkz_sa gkz_sa," +
+                " t.land_cover" +
                 " FROM test t" +
+                /* no comma at then end !! */
                 " LEFT JOIN network_type nt ON nt.uid=t.network_type" +
                 " LEFT JOIN device_map adm ON adm.codename=t.model" +
                 " LEFT JOIN test_server ts ON ts.uid=t.server_id" +
