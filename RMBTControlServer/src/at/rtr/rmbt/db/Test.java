@@ -21,6 +21,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import at.rtr.rmbt.db.fields.BooleanField;
 import at.rtr.rmbt.db.fields.DoubleField;
@@ -82,8 +84,8 @@ public class Test extends Table
             new StringField("client_version", "client_version"),
             new StringField("client_name", "client_name"),
             new StringField("client_language", "client_language"),
-            new StringField("client_ip_local",null),
-            new StringField("client_ip_local_anonymized",null),
+            new StringField("client_ip_local",null, 50),
+            new StringField("client_ip_local_anonymized",null, 50),
             new StringField("client_ip_local_type","client_local_ip"),
             new StringField("token", null),
             new IntField("server_id", null),
@@ -129,9 +131,9 @@ public class Test extends Table
             new LongField("nsec_download", "test_nsec_download"),
             new LongField("nsec_upload", "test_nsec_upload"), 
             new StringField("server_ip", null),           
-            new StringField("source_ip", null),
-            new StringField("source_ip_anonymized",null),
-            new StringField("client_software_version", "client_software_version"),
+            new StringField("source_ip", null, 50),
+            new StringField("source_ip_anonymized",null, 50),
+            new StringField("client_software_version", "client_software_version", 50),
             new DoubleField("geo_lat", "geo_lat"), 
             new DoubleField("geo_long", "geo_long"),
             new IntField("network_type", "network_type"), 
@@ -194,7 +196,7 @@ public class Test extends Table
     
     public void storeTestResults(boolean update)
     {
-        
+        PreparedStatement st = null;
         try
         {
             
@@ -209,8 +211,7 @@ public class Test extends Table
             	updateString = ""; // update allowed
             else
             	updateString =" AND status = 'STARTED' "; //results are only stored when status was "STARTED"
-            
-            PreparedStatement st;
+
             // allow updates only when previous status was 'started' and max 5min after test was started
             st = conn.prepareStatement("UPDATE test " + "SET " + sqlBuilder
                     + ", location = ST_TRANSFORM(ST_SetSRID(ST_Point(?, ?), 4326), 900913) WHERE uid = ? " + 
@@ -235,6 +236,7 @@ public class Test extends Table
         catch (final SQLException e)
         {
             setError("ERROR_DB_STORE_TEST_SQL");
+            Logger.getLogger(Test.class.getName()).log(Level.WARNING,"Failed: " + st.toString());
             e.printStackTrace();
             
         }
