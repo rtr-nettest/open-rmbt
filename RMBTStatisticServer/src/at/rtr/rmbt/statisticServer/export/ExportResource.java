@@ -183,7 +183,6 @@ public class ExportResource extends ServerResource
                 " WHEN (t.geo_accuracy < 100) AND ((t.geo_provider = 'manual') OR (t.geo_provider = 'geocoder')) THEN 100" + // limit accuracy to 100m
                 " WHEN (t.geo_accuracy < ?) THEN round(t.geo_accuracy::float * 10)/10" +
                 " ELSE null END) loc_accuracy, " +
-                " (CASE WHEN (t.zip_code < 1000 OR t.zip_code > 9999) THEN null ELSE t.zip_code END) zip_code," +
                 " t.gkz gkz," +
                 " t.country_location country_location," + 
                 " t.speed_download download_kbit," +
