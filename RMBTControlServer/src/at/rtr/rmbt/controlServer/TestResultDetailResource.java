@@ -269,15 +269,6 @@ public class TestResultDetailResource extends ServerResource
                         final Field countryGeoipField = test.getField("country_geoip");
                         if (!countryGeoipField.isNull())
                             addString(resultList, "country_geoip", countryGeoipField.toString());
-
-                        final Field zipCodeField = test.getField("zip_code");
-                        if (!zipCodeField.isNull())
-                        {
-                            final String zipCode = zipCodeField.toString();
-                            final int zipCodeInt = zipCodeField.intValue();
-                            if (zipCodeInt > 999 || zipCodeInt <= 9999)  // plausibility of zip code (must be 4 digits in Austria)
-                            	addString(resultList, "zip_code", zipCode);
-                        }
                         
                         /*
                         final Field gkzField = test.getField("gkz");

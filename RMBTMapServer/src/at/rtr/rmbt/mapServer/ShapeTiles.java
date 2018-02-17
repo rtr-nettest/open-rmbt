@@ -83,25 +83,6 @@ public class ShapeTiles extends TileRestlet<ShapeTileParameters>
             for (final SQLFilter sf : filters)
                 whereSQL.append(" AND ").append(sf.where);
             
-            /*
-             * old zip code
-             * 
-            final String sql = String.format(
-                    "WITH box AS" 
-                    + " (SELECT ST_SetSRID(ST_MakeBox2D(ST_Point(?,?),"
-                    + " ST_Point(?,?)), 900913) AS box)" 
-                    + " SELECT"
-                    + " ST_SnapToGrid(ST_intersection(p.the_geom, box.box), ?,?,?,?) AS geom," 
-                    + " count(\"%1$s\") count,"
-                    + " quantile(\"%1$s\",?) val" 
-                    + " FROM box, plz2001 p" 
-                    + " JOIN v_test2 t ON t.zip_code=p.plz_4"
-                    + " WHERE" + " %2$s" 
-                    + " AND p.the_geom && box.box" 
-                    + " AND ST_intersects(p.the_geom, box.box)"
-                    + " GROUP BY p.the_geom, box.box", mo.valueColumnLog, whereSQL);
-            */
-            
             final String sql = String.format(
                     "WITH box AS" 
                     + " (SELECT ST_SetSRID(ST_MakeBox2D(ST_Point(?,?),"

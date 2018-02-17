@@ -89,14 +89,12 @@ public class Measurement
     protected Boolean run_ndt;
     protected Integer num_threads_requested;
     protected String client_public_ip_anonymized;
-    protected Integer zip_code;
     protected String geo_provider;
     protected Double geo_accuracy;
     protected boolean deleted;
     protected String comment;
     protected UUID open_uuid;
     protected DateTime client_time;
-    protected Integer zip_code_geo;
     protected Integer mobile_provider_id;
     protected Integer roaming_type;
     protected UUID open_test_uuid;
@@ -670,14 +668,6 @@ public class Measurement
     {
         this.client_public_ip_anonymized = client_public_ip_anonymized;
     }
-    public Integer getZip_code()
-    {
-        return zip_code;
-    }
-    public void setZip_code(Integer zip_code)
-    {
-        this.zip_code = zip_code;
-    }
     public String getGeo_provider()
     {
         return geo_provider;
@@ -725,14 +715,6 @@ public class Measurement
     public void setClient_time(DateTime client_time)
     {
         this.client_time = client_time;
-    }
-    public Integer getZip_code_geo()
-    {
-        return zip_code_geo;
-    }
-    public void setZip_code_geo(Integer zip_code_geo)
-    {
-        this.zip_code_geo = zip_code_geo;
     }
     public Integer getMobile_provider_id()
     {

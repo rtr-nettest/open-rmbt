@@ -157,9 +157,6 @@ public class RMBTApplet extends Applet
                                     jsonResult.put("geoLocations", itemList);
                                 }
                                 
-                                if (zip != null)
-                                    jsonResult.put("zip_code", zip);
-                                
                                 if (product != null)
                                 {
                                     jsonResult.put("model", product);

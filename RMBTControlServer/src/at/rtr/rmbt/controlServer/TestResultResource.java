@@ -309,15 +309,7 @@ public class TestResultResource extends ServerResource
                         	}                        	
                         }
                         
-                        resultList.put(jsonItem); 
-                        
-                        final Field zip_code = test.getField("zip_code");
-                        if (! zip_code.isNull())
-                            jsonItem.put("zip_code", zip_code.intValue());
-                        
-                        final Field zip_code_geo = test.getField("zip_code_geo");
-                        if (! zip_code_geo.isNull())
-                            jsonItem.put("zip_code_geo", zip_code_geo.intValue());
+                        resultList.put(jsonItem);
                         
                         String providerString = test.getField("provider_id_name").toString();
                         if (providerString == null)

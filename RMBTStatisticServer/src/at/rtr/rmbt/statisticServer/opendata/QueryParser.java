@@ -106,8 +106,6 @@ public class QueryParser {
         allowedFields.put("ping_ms[]", FieldType.DOUBLE);        
         allowedFields.put("time", FieldType.DATE);    
         allowedFields.put("time[]", FieldType.DATE);
-        allowedFields.put("zip_code", FieldType.LONG);        
-        allowedFields.put("zip_code[]", FieldType.LONG);
         allowedFields.put("gkz", FieldType.LONG);
         allowedFields.put("gkz[]", FieldType.LONG);
         allowedFields.put("cat_technology", FieldType.STRING);        
@@ -546,8 +544,7 @@ public class QueryParser {
                 attr = attrs.get(0);
             }
         }
-        
-        //, zip_code are not renamed
+
         
         queue.add(new AbstractMap.SimpleEntry<>(value, type));
         if (negate) {

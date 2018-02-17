@@ -147,8 +147,6 @@ public class Test extends Table
             new LongField("total_bytes_upload", "test_total_bytes_upload"), 
             new IntField("wifi_link_speed", null),
             new BooleanField("network_is_roaming", "telephony_network_is_roaming"),
-            new IntField("zip_code", "zip_code"),
-            new IntField("zip_code_geo", null), 
             new IntField("gkz",null,true),
             new StringField("community",null,true),
             new StringField("district",null,true),

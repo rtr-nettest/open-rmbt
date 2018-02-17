@@ -82,7 +82,6 @@ public class ImageExport extends ServerResource {
                 //+ " to_char(t.time AT TIME ZONE 'UTC', 'YYYY-MM-DD HH24:MI') \"time\","
                 + " nt.name network_type,"
                 //+ " t.geo_provider loc_src,"
-                //+ " t.zip_code,"
                 + " t.speed_download download_kbit,"
                 + " t.speed_upload upload_kbit,"
                 + " (t.ping_median::float / 1000000) ping_ms,"

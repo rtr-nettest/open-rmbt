@@ -80,17 +80,14 @@ public class ResultUpdateResource extends ServerResource
                     test.getField("status").setString("ABORTED");
                 }
                 else {
-                    System.out.println("updating zip");
+                    System.out.println("updating geoloc");
                     //a manual geolocation was provided
-                    final int zipCode = request.optInt("zip_code",0);
                     final double geoLat = request.optDouble("geo_lat", Double.NaN);
                     final double geoLong = request.optDouble("geo_long", Double.NaN);
                     final float geoAccuracy = (float) request.optDouble("accuracy", 0);
                     final String provider = request.optString("provider").toLowerCase();
 
-                    if (zipCode > 0) {
-                        ((IntField)test.getField("zip_code")).setValue(zipCode);
-                    }
+
                     if (!Double.isNaN(geoLat) && !Double.isNaN(geoLong) &&
                             (provider.equals(GEO_PROVIDER_GEOCODER) || provider.equals(GEO_PROVIDER_MANUAL))) {
                         final GeoLocation geoloc = new GeoLocation(conn);
