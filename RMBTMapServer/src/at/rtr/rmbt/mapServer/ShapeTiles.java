@@ -85,18 +85,18 @@ public class ShapeTiles extends TileRestlet<ShapeTileParameters>
             
             final String sql = String.format(
                     "WITH box AS" 
-                    + " (SELECT ST_SetSRID(ST_MakeBox2D(ST_Point(?,?),"
-                    + " ST_Point(?,?)), 900913) AS box)" 
+                    + " (SELECT ST_Transform(ST_SetSRID(ST_MakeBox2D(ST_Point(?,?),"
+                    + " ST_Point(?,?)), 900913), 31287) AS box)"
                     + " SELECT"
-                    + " ST_SnapToGrid(ST_intersection(p.the_geom, box.box), ?,?,?,?) AS geom," 
+                    + " ST_SnapToGrid(ST_Transform(ST_intersection(p.geom, box.box), 900913), ?,?,?,?) AS geom,"
                     + " count(\"%1$s\") count,"
                     + " quantile(\"%1$s\",?) val" 
-                    + " FROM box, kategorisierte_gemeinden p" 
-                    + " JOIN v_test2 t ON t.gkz=p.gemeinde_i"
+                    + " FROM box, oesterreich_bev_kg_lam_mitattribute_2017_10_02 p"
+                    + " JOIN v_test3 t ON t.kg_nr_bev=p.kg_nr_int"
                     + " WHERE" + " %2$s" 
-                    + " AND p.the_geom && box.box" 
-                    + " AND ST_intersects(p.the_geom, box.box)"
-                    + " GROUP BY p.the_geom, box.box", mo.valueColumnLog, whereSQL);
+                    + " AND p.geom && box.box"
+                    + " AND ST_intersects(p.geom, box.box)"
+                    + " GROUP BY p.geom, box.box", mo.valueColumnLog, whereSQL);
             
             
             ps = con.prepareStatement(sql);
@@ -120,7 +120,7 @@ public class ShapeTiles extends TileRestlet<ShapeTileParameters>
             
             for (final SQLFilter sf : filters)
                 idx = sf.fillParams(idx, ps);
-            
+
             rs = ps.executeQuery();
             if (rs == null)
                 throw new IllegalArgumentException();
