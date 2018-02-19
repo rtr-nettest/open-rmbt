@@ -82,12 +82,15 @@ public class ShapeTiles extends TileRestlet<ShapeTileParameters>
             final StringBuilder whereSQL = new StringBuilder(mo.sqlFilter);
             for (final SQLFilter sf : filters)
                 whereSQL.append(" AND ").append(sf.where);
-            
+
+            //debugging hint: St_AsText allows human-readable representation of a geometry object
             final String sql = String.format(
-                    "WITH box AS" 
+                    "WITH box AS"
+                            //input from Browser is converted to 900913; has to be transformed to 31287 for use with bev data
                     + " (SELECT ST_Transform(ST_SetSRID(ST_MakeBox2D(ST_Point(?,?),"
                     + " ST_Point(?,?)), 900913), 31287) AS box)"
                     + " SELECT"
+                            //output has to be transformed to 900913 for Browsers
                     + " ST_SnapToGrid(ST_Transform(ST_intersection(p.geom, box.box), 900913), ?,?,?,?) AS geom,"
                     + " count(\"%1$s\") count,"
                     + " quantile(\"%1$s\",?) val" 
