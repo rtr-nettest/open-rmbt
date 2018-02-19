@@ -270,15 +270,15 @@ public class TestResultDetailResource extends ServerResource
                         if (!countryGeoipField.isNull())
                             addString(resultList, "country_geoip", countryGeoipField.toString());
 
-                        final Field communityField = test.getField("community");
-                        if (!communityField.isNull())
-                        {
-                            	addString(resultList, "community", communityField.toString());
-                        }
                         final Field localityField = test.getField("locality");
                         if (!localityField.isNull())
                         {
                             addString(resultList, "locality", localityField.toString());
+                        }
+                        final Field communityField = test.getField("community");
+                        if (!communityField.isNull())
+                        {
+                            	addString(resultList, "community", communityField.toString());
                         }
                         final Field districtField = test.getField("district");
                         if (!districtField.isNull())
