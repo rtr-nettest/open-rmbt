@@ -184,7 +184,7 @@ public class ExportResource extends ServerResource
                 " WHEN (t.geo_accuracy < ?) THEN round(t.geo_accuracy::float * 10)/10" +
                 " ELSE null END) loc_accuracy, " +
                 " t.gkz_bev gkz," +
-                " NULL zip," +
+                " NULL zip_code," +
                 " t.country_location country_location," + 
                 " t.speed_download download_kbit," +
                 " t.speed_upload upload_kbit," +
