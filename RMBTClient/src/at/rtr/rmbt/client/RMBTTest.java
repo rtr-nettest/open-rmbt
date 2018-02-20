@@ -37,6 +37,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.MatchResult;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.net.ssl.SSLSession;
@@ -314,8 +315,15 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
         //At this point, the communication is based on RMBT
         // - either directly from the start, or from switching from RMBThttp
         line = reader.readLine();
-        if (!line.contains(EXPECT_GREETING))
-        {
+        if (line.contains(EXPECT_GREETING)) {
+            line = line.trim();
+            Matcher matcher = RMBT_SERVER_PATTERN.matcher(line.trim());
+            String version;
+            if (matcher.find()) {
+                version = matcher.group(1);
+                testResult.client_version = version;
+            }
+        } else {
             log(String.format(Locale.US, "thread %d: got '%s' expected '%s'", threadId, line, EXPECT_GREETING));
             return null;
         }

@@ -486,6 +486,9 @@ public class RMBTClient
                         
                         // aggregate speedItems
                         result.speedItems.addAll(testResult.speedItems);
+
+                        //set client version
+                        result.client_version = testResult.client_version;
                     }
                 }
                 

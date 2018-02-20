@@ -26,6 +26,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Locale;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
@@ -34,6 +35,7 @@ import at.rtr.rmbt.client.helper.Config;
 
 public abstract class AbstractRMBTTest {
     protected static final String EXPECT_GREETING = Config.RMBT_SERVER_NAME;
+    protected static final Pattern RMBT_SERVER_PATTERN = Pattern.compile(Config.RMBT_VERSION_EXPRESSION);
 	
     protected final RMBTClient client;
     protected final RMBTTestParameter params;
