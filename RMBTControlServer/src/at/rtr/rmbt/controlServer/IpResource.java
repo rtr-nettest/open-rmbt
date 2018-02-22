@@ -43,159 +43,16 @@ public class IpResource extends ServerResource
         final ErrorList errorList = new ErrorList();
         final JSONObject answer = new JSONObject();
         String answerString;
-        
-        
-        
+
+
         final String clientIpRaw = getIP();
         final InetAddress clientAddress = InetAddresses.forString(clientIpRaw);
 
         System.out.println(MessageFormat.format(labels.getString("NEW_IP_REQ"), clientIpRaw));
         
         if (entity != null && !entity.isEmpty()) {
-            // try parse the string to a JSON object
             try
             {
-            	// debug parameters sent
-            	request = new JSONObject(entity);
-            	System.out.println(request.toString(4));
-
-            	/* sample request data
-            	{
-
-                "api_level": "22",
-                "device": "hammerhead",
-                "language": "de",
-                "last_signal_item": {
-                   "lte_rsrp": -106,
-                   "lte_rsrq": -11,
-                   "lte_rssnr": 300,
-                   "network_type_id": 13,
-                   "time": 1031122064510
-                 },
-                 "location": {
-                   "accuracy": 24,
-                   "age": 82517,
-                   "altitude": 612,
-                   "lat": 47.11288465,
-                   "long": 15.1345835,
-                   "provider": "gps",
-                   "speed": 0
-                  },
-
-            	  "model": "Nexus 5",
-            	  "os_version": "5.0(1570415)",
-            	  "plattform": "Android",
-            	  "product": "hammerhead",
-            	  "softwareRevision": "master_initial-2413-gf89049d",
-            	  "softwareVersionCode": 20046,
-            	  "softwareVersionName": "2.0.46",
-            	  "timezone": "Europe/Vienna",
-            	  "type": "MOBILE",
-            	  "uuid": "........(uuid)........"
-            	}
-            	 */
-            	UUID uuid = null;
-            	final String uuidString = request.optString("uuid", "");
-            	if (uuidString.length() != 0)
-            		uuid = UUID.fromString(uuidString);
-
-               	final String clientPlattform = request.getString("plattform");
-               	final String clientModel = request.getString("model");
-               	final String clientProduct = request.getString("product");
-               	final String clientDevice = request.getString("device");
-               	final int clientSoftwareVersionCode = request.getInt("softwareVersionCode");
-               	final String clientApiLevel = request.getString("api_level");
-
-            	final JSONObject location = request.optJSONObject("location");
-				final JSONObject signal = request.optJSONObject("last_signal_item");
-
-            	long geoage = 0; // age in ms
-            	double geolat = 0;
-            	double geolong = 0;
-            	float geoaccuracy = 0; // in m
-            	double geoaltitude = 0;
-            	float geospeed = 0; // in m/s
-            	String geoprovider = "";
-
-            	if (!request.isNull("location"))
-            	{
-            		geoage = location.optLong("age", 0);
-            		geolat = location.optDouble("lat", 0);
-            		geolong = location.optDouble("long", 0);
-            		geoaccuracy = (float) location.optDouble("accuracy", 0);
-            		geoaltitude = location.optDouble("altitude", 0);
-            		geospeed = (float) location.optDouble("speed", 0);
-            		geoprovider = location.optString("provider", "");
-            	}
-
-            	double signalnetworktypeid = 0;
-				long signaltime = 0;
-				double signalwifirssi = 0;
-				double signalltersrp = 0;
-				double signalltersrq = 0;
-				double signalrssi = 0;
-				double signalltecqi = 0;
-
-				if (!request.isNull("last_signal_item"))
-				{
-					signalnetworktypeid = signal.optDouble("network_type_id", 0);
-					signaltime = signal.optLong("time", 0);
-					signalwifirssi = signal.optDouble("wifi_rssi", 0);
-					signalltersrp = signal.optDouble("lte_rsrp", 0);
-					signalltersrq = signal.optDouble("lte_rsrq", 0);
-					signalltecqi = signal.optDouble("lte_cqi", 0);
-					signalrssi = signal.optDouble("signal_strength", 0);
-
-				}
-
-               	if (errorList.getLength() == 0)
-            		try
-            	{
-            			PreparedStatement st;
-            			st = conn
-            					.prepareStatement(
-            							"INSERT INTO status(client_uuid,time,plattform,model,product,device,software_version_code,api_level,ip,"
-            							+ "age,lat,long,accuracy,altitude,speed,provider, "
-										+ "signalnetworktypeid,signaltime,signalwifirssi,signalltersrp,signalltersrq,signalrssi,signalltecqi"
-												+ " )"
-            									+ "VALUES(?, NOW(),?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-            									Statement.RETURN_GENERATED_KEYS);
-            			int i = 1;
-            			st.setObject(i++, uuid);
-            			st.setObject(i++, clientPlattform);
-            			st.setObject(i++, clientModel);
-            			st.setObject(i++, clientProduct);
-            			st.setObject(i++, clientDevice);
-            			st.setObject(i++, clientSoftwareVersionCode);
-            			st.setObject(i++, clientApiLevel);
-            			st.setObject(i++, clientIpRaw);
-            			// location information
-            			st.setObject(i++, geoage);
-            			st.setObject(i++, geolat);
-            			st.setObject(i++, geolong);
-            			st.setObject(i++, geoaccuracy);
-            			st.setObject(i++, geoaltitude);
-            			st.setObject(i++, geospeed);
-            			st.setObject(i++, geoprovider);
-
-						st.setObject(i++, signalnetworktypeid);
-						st.setObject(i++,signaltime);
-						st.setObject(i++, signalwifirssi);
-						st.setObject(i++, signalltersrp);
-						st.setObject(i++, signalltersrq);
-						st.setObject(i++, signalrssi);
-						st.setObject(i++, signalltecqi);
-
-            			final int affectedRows = st.executeUpdate();
-            			if (affectedRows == 0)
-            				errorList.addError("ERROR_DB_STORE_STATUS");
-            	}
-            	catch (final SQLException e)
-            	{
-            		errorList.addError("ERROR_DB_STORE_GENERAL");
-            		e.printStackTrace();
-            	}
-            	
                 answer.put("ip", clientIpRaw);
                 if (clientAddress instanceof Inet4Address) {
                 	answer.put("v", "4");
