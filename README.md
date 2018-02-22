@@ -38,13 +38,13 @@ Related materials
 System requirements
 -------------------
 
-* 1-4 physical or virtual servers
-* Everything can also be installed on a single server
+* 1-3 servers
+* Everything can be installed on a single server
 * The test servers (RMBT and Websocket) should run on a physical machine
-* Base system Debian 8 or newer (or similar) 
-* At least on static IPv4 address (IPv6 support recommended, more addresses allow to run more services on port 443)
+* Base system Debian 9 or newer (or similar) 
+* At least one static IPv4 address (IPv6 support recommended, more addresses allow to run more services on port 443)
 
-  *NOTE: (other Linux distributions can also be used, but commands and package names may need to be changed)*
+  *NOTE: other Linux distributions can also be used, but commands and package names may be different*
 
 
 Installation 
@@ -54,10 +54,12 @@ Installation
 
 1. Setup IP/DNS/hostname
 2. firewall (e.g. iptables)
-3. Install/Setup sshd 
-4. Install/Setup ntpd
-5. dpkg-reconfigure locales
-6. dpkg-reconfigure tzdata
+3. Install git
+4. Install and configure sshd 
+5. Install and configure ntp
+6. dpkg-reconfigure locales (database requires en_US.UTF-8)
+7. dpkg-reconfigure tzdata
+8. Install and configure letsencrypt
 
 ### Database Server
 
@@ -66,11 +68,11 @@ Installation
     * postgresql-common
     * postgresql-contrib
     * postgis
-    * postgresql-9.6-postgis-2.3
-    * *for quantile extension; if not found in distribution. Install:*
+    * postgresql-10-postgis-2.4
+    * *for quantile extension; Install:*
       * devscripts
       * sudo
-      * postgresql-server-dev-all (or ..-9.1)
+      * postgresql-server-dev-all (or ..-10)
       * pgxnclient
       * Run:
         ` pgxn install quantile`
@@ -79,57 +81,78 @@ Installation
 
     ```bash
     su - postgres
-    createuser -lSRD rmbt     (add -P if you want to set a password)
-    createuser -lSRDP rmbt_control     (set db pass)
+    createuser -lSRD rmbt     # (set db pass)
+    createuser -lSRDP rmbt_control     # (set db pass)
     createuser -LSRD rmbt_group_control
     createuser -LSRD rmbt_group_read_only
-    createuser -LSRD rmbt_web_admin
     echo 'GRANT rmbt_group_read_only TO rmbt_group_control;' | psql
     echo 'GRANT rmbt_group_control TO rmbt_control;' | psql
     createdb -O rmbt rmbt
+ 
+    # (additional users might be needed for replication and nagios)
     
-    # if not using postgis 2.1, set the correct version
-    #> sed -i "s/postgis-2\.1/postgis-2.3/g rmbt.sql"
+    # if not using postgis 2.4, set the correct version
+    #> sed -i "s/postgis-2\.4/postgis-X.Y/g rmbt.sql"
     
-    cat rmbt.sql | psql rmbt -1
     cat rmbt_init.sql | psql rmbt -1
-    cat rmbt_qos_init.sql | psql rmbt -1
     ```
-    
+    (optional: add additional open databases, eg. Corine)
 
 3. Edit table "test_server"
 
-   You need to add the key found in secret.h to the test_server table.
-
+   You need to add the test server key to the test_server table.
+   
+4. Optimise postgres settings
+   
+    Check the values of 
+    * shared_buffers
+    * work_mem
+    * max_worker_processes
+    * max_parallel_workers_per_gather
+    * max_parallel_workers
+    
 ### Control-,  Map- and StatisticServer
 
 1. Install:
-  * Apache Tomcat 7 or higher
-  * nginx (optional)
-  * openjdk-7-jre or higher
-  * openjdk-7-jdk (NOT openjdk-6...!) or higher
+  * Apache Tomcat 8 or higher
+  * nginx (optional, highly recommended)
+  * openjdk-8-jre (do not use a higher version)
   * libservlet3.1-java
   * geoip-database
 
 2. Edit `/etc/tomcat7/context.xml` (substitute parts with `[]`), add to `<Context>`:
 
+   For control server:
     ```xml
-    <Parameter name="RMBT_SECRETKEY" value="[rmbt secret key]" override="false"/>
+    <Context>
     <Resource 
        name="jdbc/rmbt" 
        auth="Container"
        type="javax.sql.DataSource"
-       maxActive="75" maxIdle="10" maxWait="10000"
+       maxActive="200" maxIdle="10" maxWait="10000"
        url="jdbc:postgresql://[db host]/rmbt"
        driverClassName="org.postgresql.Driver"
-       username="[db user]" password="[db pass]"
-       description="DB Connection" />
-    
-    <Parameter name="RMBT_MAP_HOST" value="[map host]" override="false"/>
-    <Parameter name="RMBT_MAP_PORT" value="[map port]" override="false"/>
-    <Parameter name="RMBT_MAP_SSL" value="[map server ssl ? true : false]" override="false"/>
+       username="rmbt_control" password="[db r/w pass]"
+       description="DB RW Connection" />
+    <Parameter name="RMBT_SECRETKEY" value="[rmbt qos secret key]" override="false" />
+    </Context>
     ```
-
+    For statistic/map servers:
+    
+    ```xml
+    <Context>
+    <Resource 
+       name="jdbc/rmbtro" 
+       auth="Container"
+       type="javax.sql.DataSource"
+       maxActive="200" maxIdle="10" maxWait="10000"
+       url="jdbc:postgresql://[db host]/rmbt"
+       driverClassName="org.postgresql.Driver"
+       username="rmbt" password="[read only pass]"
+       description="DB RO Connection" />
+    </Context>
+     
+    ```
 3. Build the servers
     
     The servers can be built with gradle:
@@ -140,14 +163,19 @@ Installation
 
 4. Copy `RMBTControlServer.war`, `RMBTMapServer.war` and/or `RMBTStatisticServer.war` to `/var/lib/tomcat7/webapps/`
 
-    In case the Java-Postgres connector is missing and not provided 
-    by the package `libpostgresql-jdbc-java` (problem with Debian8) 
+    In case the Java-Postgres connector is missing:
+    Add the package `libpostgresql-jdbc-java`
     manually add the jar to the `lib` folder (create folder if it does not exist)
     
-    `cp /var/lib/tomcat7/webapps/RMBTControlServer/WEB-INF/lib/postgresql-9.4-1201.jdbc41.jar /var/lib/postgresql/netztest/RMBTSharedCode/lib/postgresql-9.4-1201.jdbc41.jar` 
+    `cp /var/lib/tomcat7/webapps/RMBTControlServer/WEB-INF/lib/postgresql-XXX.jdbcYY.jar /var/lib/postgresql/netztest/RMBTSharedCode/lib/postgresql-XXX.jdbcYY.jar` 
 
 
-5. Run `service tomcat7 restart`
+5. Run `service tomcat8 restart`
+
+6. Optimize tomcat settings
+
+    Check the values in /etc/default/tomcat8
+    * JAVA_OPTS -Xmms MEM -Xmx MEM
 
 Get in Touch
 ------------
