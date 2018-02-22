@@ -39,7 +39,7 @@
     <string name="preferences_skip_qos">Пропускать Качество соединения</string>
     <string name="preferences_skip_qos_sum">Пропускать Качество соединения tests</string>
     <string name="preferences_expert_mode">Expert mode</string>
-    <string name="preferences_expert_mode_sum">Show advanced settings</string>
+    <string name="preferences_expert_mode_sum">Show advanced settings and information</string>
     
     <string name="preferences_loop_mode">Режим петли</string>
     <string name="preferences_loop_mode_sum">Новые тесты запускаются по истечении времени ожидания или покрытия.</string>

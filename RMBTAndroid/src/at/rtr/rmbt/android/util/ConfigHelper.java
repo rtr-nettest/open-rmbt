@@ -116,8 +116,8 @@ public final class ConfigHelper
         return getSharedPreferences(context).getBoolean("expert_mode", false);
     }
 
-    public static void setExpertModeEnabled(final boolean isExpertModeEnabled, Context context) {
-        getSharedPreferences(context).edit().putBoolean("expert_mode", isExpertModeEnabled).apply();
+    public static void setExpertModeEnabled(final boolean value, Context context) {
+        getSharedPreferences(context).edit().putBoolean("expert_mode", value).apply();
     }
 
     public static boolean isGPS(final Context context)

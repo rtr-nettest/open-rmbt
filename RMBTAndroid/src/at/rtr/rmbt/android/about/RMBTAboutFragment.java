@@ -184,27 +184,25 @@ public class RMBTAboutFragment extends Fragment
             list.add(item);
         }*/
         
-        if (ConfigHelper.isDevEnabled(getActivity()))
-        {
+        if (ConfigHelper.isExpertModeEnabled(getActivity())) {
             item = new HashMap<String, String>();
             item.put("title", getString(R.string.about_test_counter_title));
             item.put("text1", Integer.toString(ConfigHelper.getTestCounter(getActivity())));
             item.put("text2", "");
             list.add(item);
+
+            item = new HashMap<String, String>();
+            item.put("title", getString(R.string.about_control_server));
+            item.put("text1", controlServerVersion != null ? controlServerVersion : "---");
+            item.put("text2", controlServerName + " (" + cachedControlServerNameIpv4 + "/" + cachedControlServerNameIpv6 + ")");
+            list.add(item);
+
+            item = new HashMap<String, String>();
+            item.put("title", getString(R.string.about_map_server));
+            item.put("text1", mapServerName);
+            item.put("text2", "");
+            list.add(item);
         }
-
-
-        item = new HashMap<String, String>();
-        item.put("title", getString(R.string.about_control_server));
-        item.put("text1", controlServerVersion != null ? controlServerVersion : "---");
-        item.put("text2", controlServerName+" ("+cachedControlServerNameIpv4+"/"+cachedControlServerNameIpv6+")");
-        list.add(item);
-
-        item = new HashMap<String, String>();
-        item.put("title", getString(R.string.about_map_server));
-        item.put("text1", mapServerName);
-        item.put("text2", "");
-        list.add(item);
         
         sa = new RMBTAboutAdapter(getActivity(), list, R.layout.about_item, new String[] { "title", "text1", "text2" },
                 new int[] { R.id.title, R.id.text1, R.id.text2 });

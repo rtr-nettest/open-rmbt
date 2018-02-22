@@ -126,13 +126,6 @@ public class RMBTPreferenceActivity extends PreferenceActivity
         v.setBackgroundResource(R.drawable.app_bgdn_radiant);
 
         final PreferenceGroup loopModeGroup = (PreferenceGroup) findPreference("loop_mode_group");
-
-        //migration from old 3.0 clients
-        if (!ConfigHelper.isExpertModeEnabled(this) && ConfigHelper.isUserLoopModeActivated(this)) {
-            ConfigHelper.setExpertModeEnabled(true, this);
-            CheckBoxPreference pref = (CheckBoxPreference) findPreference("expert_mode");
-            pref.setChecked(true);
-        }
         
         final Preference loopModeMaxDelayPreference = findPreference("loop_mode_max_delay");
         if (loopModeMaxDelayPreference != null && !ConfigHelper.isDevEnabled(this)) {
