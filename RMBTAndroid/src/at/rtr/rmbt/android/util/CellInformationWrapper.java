@@ -212,7 +212,7 @@ public class CellInformationWrapper {
         public Integer getRsrp() {
             //some devices return invalid values (#913)
             if (rsrp != null &&
-                    (rsrp >= 0 || rsrp < -140 || rsrq == -1)) {
+                    (rsrp >= 0 || rsrp < -140 || (rsrq != null && rsrq == -1))) {
                 return null;
             }
             return rsrp;
