@@ -123,8 +123,8 @@ public class ResultResource extends ServerResource
                             psOpenUuid.setObject(1, tokenUuid);
                             psOpenUuid.setObject(2, tokenUuid);
                             ResultSet rsTokenUuid = psOpenUuid.executeQuery();
-                            UUID testUuid = new java.util.UUID(0L, 0L);
-                            UUID openTestUuid = new java.util.UUID(0L, 0L);
+                            UUID testUuid = null;
+                            UUID openTestUuid = null;
 
                             if (rsTokenUuid.next()) {
                                 openTestUuid = (java.util.UUID) rsTokenUuid.getObject("open_test_uuid");
@@ -151,7 +151,7 @@ public class ResultResource extends ServerResource
                                     throw new SemverException("requirement not satisfied");
                                 }
 
-                                if (test.getTestByUuid(testUuid) > 0) {
+                                if (testUuid != null && test.getTestByUuid(testUuid) > 0) {
                                     if (clientNames.contains(request.optString("client_name"))) {
 
                                         test.setFields(request);
@@ -455,7 +455,7 @@ public class ResultResource extends ServerResource
                                                     if (signal.getLteRsrp() != null && signal.getLteRsrp() < minLteRsrp) {
                                                         minLteRsrp = signal.getLteRsrp();
                                                     }
-                                                    if (signal.getLteRsrp() != null && signal.getLteRsrq() < minLteRsrq) {
+                                                    if (signal.getLteRsrq() != null && signal.getLteRsrq() < minLteRsrq) {
                                                         minLteRsrq = signal.getLteRsrq();
                                                     }
                                                     if (signal.getWifiLinkSpeed() != null && (signal.getWifiLinkSpeed() < minLinkSpeed || minLinkSpeed == UNKNOWN)) {

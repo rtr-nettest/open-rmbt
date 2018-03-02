@@ -41,6 +41,11 @@ public class RadioSignal {
 
 
     public Integer getSignal() {
+        //some devices return invalid values (#913)
+        if (signal != null &&
+                (signal >= 0 || signal < -140)) {
+            return null;
+        }
         return signal;
     }
 
@@ -57,6 +62,11 @@ public class RadioSignal {
     }
 
     public Integer getLteRsrp() {
+        //some devices return invalid values (#913)
+        if (lteRsrp != null &&
+                (lteRsrp >= 0 || lteRsrp < -140 || (lteRsrq != null && lteRsrq == -1))) {
+            return null;
+        }
         return lteRsrp;
     }
 
@@ -65,6 +75,19 @@ public class RadioSignal {
     }
 
     public Integer getLteRsrq() {
+        //some devices return invalid values (#913)
+        if (lteRsrq == null) {
+            return null;
+        }
+
+        // fix invalid rsrq values (see #913)
+        if (Math.abs(lteRsrq) > 19.5 || Math.abs(lteRsrq) < 3.0) {
+            return null;
+        }
+        // fix invalid rsrq values for some devices (see #996)
+        if (lteRsrq > 0) {
+            return -lteRsrq;
+        }
         return lteRsrq;
     }
 
