@@ -570,16 +570,6 @@ public class TestResultDetailResource extends ServerResource
                         addString(resultList, "model", test.getField("model_fullname"));
                         addString(resultList, "client_name", test.getField("client_name"));
                         addString(resultList, "client_software_version", test.getField("client_software_version"));
-                        final String encryption = test.getField("encryption").toString();
-                        
-                        if (encryption != null)
-                        {
-                            addString(
-                                    resultList,
-                                    "encryption",
-                                    "NONE".equals(encryption) ? labels
-                                            .getString("key_encryption_false") : labels.getString("key_encryption_true"));
-                        }
                         
                         addString(resultList, "client_version", test.getField("client_version"));
                                                

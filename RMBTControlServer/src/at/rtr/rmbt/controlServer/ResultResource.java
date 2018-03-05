@@ -156,6 +156,11 @@ public class ResultResource extends ServerResource
 
                                         test.setFields(request);
 
+                                        //print encryption to log if applicable
+                                        if (request.has("test_encryption")) {
+                                            Logger.getLogger(ResultResource.class.getName()).info("Encryption: " + request.getString("test_encryption"));
+                                        }
+
                                         final String networkOperator = request.optString("telephony_network_operator");
                                         if (MCC_MNC_PATTERN.matcher(networkOperator).matches()) {
                                             test.getField("network_operator").setString(networkOperator);

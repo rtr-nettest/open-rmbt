@@ -97,7 +97,6 @@ public class Test extends Table
             new IntField("speed_download", "test_speed_download"), // note the '_test' prefix!
             new LongField("ping_shortest", "test_ping_shortest"), // note the '_test' prefix!
             new LongField("ping_median", null),
-            new StringField("encryption", "test_encryption", 50), // note the '_test' prefix!
             new StringField("client_public_ip", null),
             new StringField("client_public_ip_anonymized", null),
             new StringField("plattform", "plattform"),
