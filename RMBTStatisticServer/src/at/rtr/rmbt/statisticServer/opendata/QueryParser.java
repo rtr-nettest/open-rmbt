@@ -157,6 +157,7 @@ public class QueryParser {
         allowedFields.put("additional_info[]", FieldType.IGNORE);
         allowedFields.put("radio_band",FieldType.LONG);
         allowedFields.put("land_cover",FieldType.LONG);
+        allowedFields.put("land_cover[]",FieldType.LONG);
 
         //allowedFields.put("ip_anonym", FieldType.STRING);
         //allowedFields.put("ip_anonym[]", FieldType.STRING);
