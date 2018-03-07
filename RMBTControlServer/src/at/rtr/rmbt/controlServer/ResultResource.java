@@ -347,6 +347,10 @@ public class ResultResource extends ServerResource
                                         Integer radioBand = null;
                                         boolean channelChanged = false;
                                         Integer channelNumber = null;
+                                        boolean locationIdChanged = false;
+                                        Integer locationId = null;
+                                        boolean areaCodeChanged = false;
+                                        Integer areaCode = null;
 
                                         if (request.has("radioInfo")) {
                                             //new radio info code
@@ -388,31 +392,52 @@ public class ResultResource extends ServerResource
                                                 }
 
                                                 if (Objects.equals(cell.isActive(), true) &&
-                                                        cell.getTechnology() != RadioCell.Technology.CONNECTION_WLAN &&
-                                                        cell.getChannelNumber() != null &&
-                                                        !radioBandChanged) {
-
-                                                    BandCalculationUtil.FrequencyInformation fi = null;
-                                                    switch (cell.getTechnology()) {
-                                                        case CONNECTION_2G:
-                                                            fi = BandCalculationUtil.getBandFromArfcn(cell.getChannelNumber());
-                                                            break;
-                                                        case CONNECTION_3G:
-                                                            fi = BandCalculationUtil.getBandFromUarfcn(cell.getChannelNumber());
-                                                            break;
-                                                        case CONNECTION_4G:
-                                                            fi = BandCalculationUtil.getBandFromEarfcn(cell.getChannelNumber());
-                                                            break;
-                                                        case CONNECTION_WLAN:
-                                                            break;
+                                                        cell.getTechnology() != RadioCell.Technology.CONNECTION_WLAN) {
+                                                    if (locationId == null && !locationIdChanged) {
+                                                        locationId = cell.getLocationId();
+                                                    }
+                                                    else {
+                                                        if (!locationId.equals(cell.getLocationId())) {
+                                                            locationIdChanged = true;
+                                                            locationId = null;
+                                                        }
                                                     }
 
-                                                    if (fi != null) {
-                                                        if (radioBand == null || radioBand.equals(fi.getBand())) {
-                                                            radioBand = fi.getBand();
-                                                        } else {
-                                                            radioBand = null;
-                                                            radioBandChanged = true;
+                                                    if (areaCode == null && !areaCodeChanged) {
+                                                        areaCode = cell.getAreaCode();
+                                                    }
+                                                    else {
+                                                        if (!areaCode.equals(cell.getAreaCode())) {
+                                                            areaCodeChanged = true;
+                                                            areaCode = null;
+                                                        }
+                                                    }
+
+                                                    if (cell.getChannelNumber() != null &&
+                                                            !radioBandChanged) {
+
+                                                        BandCalculationUtil.FrequencyInformation fi = null;
+                                                        switch (cell.getTechnology()) {
+                                                            case CONNECTION_2G:
+                                                                fi = BandCalculationUtil.getBandFromArfcn(cell.getChannelNumber());
+                                                                break;
+                                                            case CONNECTION_3G:
+                                                                fi = BandCalculationUtil.getBandFromUarfcn(cell.getChannelNumber());
+                                                                break;
+                                                            case CONNECTION_4G:
+                                                                fi = BandCalculationUtil.getBandFromEarfcn(cell.getChannelNumber());
+                                                                break;
+                                                            case CONNECTION_WLAN:
+                                                                break;
+                                                        }
+
+                                                        if (fi != null) {
+                                                            if (radioBand == null || radioBand.equals(fi.getBand())) {
+                                                                radioBand = fi.getBand();
+                                                            } else {
+                                                                radioBand = null;
+                                                                radioBandChanged = true;
+                                                            }
                                                         }
                                                     }
                                                 }
@@ -610,6 +635,12 @@ public class ResultResource extends ServerResource
 
                                         if (radioBand != null) {
                                             ((IntField) test.getField("radio_band")).setValue(radioBand);
+                                        }
+                                        if (locationId != null) {
+                                            ((IntField) test.getField("cell_location_id")).setValue(locationId);
+                                        }
+                                        if (areaCode != null) {
+                                            ((IntField) test.getField("cell_area_code")).setValue(areaCode);
                                         }
                                         if (!channelChanged && channelNumber != null) {
                                             ((IntField) test.getField("channel_number")).setValue(channelNumber);

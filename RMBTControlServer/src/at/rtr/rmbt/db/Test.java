@@ -182,6 +182,8 @@ public class Test extends Table
             new JsonField("android_permissions", null),
             //new StringField("dual_sim_detection_method", "dual_sim_detection_method"),
             new IntField("radio_band", null),
+            new IntField("cell_location_id", null),
+            new IntField("cell_area_code", null),
             new IntField("channel_number", null),
             new IntField("sim_count","telephony_sim_count")
             };
