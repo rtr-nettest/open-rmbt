@@ -130,8 +130,8 @@ public class StatusResource extends ServerResource
         	PreparedStatement st;
         	st = conn
         			.prepareStatement(
-        					" SELECT st_contains(the_geom, ST_TRANSFORM(ST_GeomFromText( ? ,4326),900913)) home_country " +
-        					" FROM  ne_50m_admin_0_countries " +
+        					" SELECT st_contains(geom, ST_TRANSFORM(ST_GeomFromText( ? ,4326),900913)) home_country " +
+        					" FROM  ne_10m_admin_0_countries " +
         					" WHERE wb_a2 = ? ");
         	int i = 1;   
         	final String point = "POINT(" + String.valueOf(geolong) + " " + String.valueOf(geolat) +  ")";
