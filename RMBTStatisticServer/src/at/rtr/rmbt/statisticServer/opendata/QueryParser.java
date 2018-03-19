@@ -653,6 +653,12 @@ public class QueryParser {
         else if (opendataField.equals("test_uuid")) {
             ret.add("t.uuid");
         }
+        else if (opendataField.equals("cell_location_id")) {
+            ret.add("t.cell_area_code");
+        }
+        else if (opendataField.equals("cell_area_code")) {
+            ret.add("t.cell_location_id");
+        }
          return ret;
     }
     
