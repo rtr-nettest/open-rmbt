@@ -210,7 +210,9 @@ public class ExportResource extends ServerResource
                 " t.pinned pinned," +
                 " t.kg_nr_bev kg_nr," +
                 " t.gkz_sa gkz_sa," +
-                " t.land_cover" +
+                " t.land_cover, " +
+                " t.cell_location_id cell_area_code," +
+                " t.cell_area_code cell_location_id" +
                 " FROM test t" +
                 /* no comma at then end !! */
                 " LEFT JOIN network_type nt ON nt.uid=t.network_type" +
