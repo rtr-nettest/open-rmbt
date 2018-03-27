@@ -126,8 +126,14 @@ public class RegistrationResource extends ServerResource
 
                 UUID uuid = null;
                 final String uuidString = request.optString("uuid", "");
-                if (uuidString.length() != 0)
-                    uuid = UUID.fromString(uuidString);
+                if (!uuidString.isEmpty()) {
+                    if (uuidString.startsWith("U") && uuidString.length() > 1) {
+                        uuid = UUID.fromString(uuidString.substring(1));
+                    }
+                    else {
+                        uuid = UUID.fromString(uuidString);
+                    }
+                }
                 
                 final String loopModeData = request.optString("loopmode_info", null);
                 LoopModeSettings loopModeSettings = null;
