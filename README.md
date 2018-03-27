@@ -64,7 +64,7 @@ Installation
 ### Database Server
 
 1. Install:
-    * postgresql
+    * postgresql (version 10 and higher)
     * postgresql-common
     * postgresql-contrib
     * postgis
