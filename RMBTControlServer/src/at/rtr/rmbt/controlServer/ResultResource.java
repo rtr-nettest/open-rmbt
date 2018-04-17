@@ -406,7 +406,7 @@ public class ResultResource extends ServerResource
                                                     if (areaCode == null && !areaCodeChanged) {
                                                         areaCode = cell.getAreaCode();
                                                     }
-                                                    else {
+                                                    else if (areaCode != null){
                                                         if (!areaCode.equals(cell.getAreaCode())) {
                                                             areaCodeChanged = true;
                                                             areaCode = null;
