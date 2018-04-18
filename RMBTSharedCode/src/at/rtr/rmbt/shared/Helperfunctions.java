@@ -453,15 +453,18 @@ public abstract class Helperfunctions
             }
 
             JSONObject jo = new JSONObject(stringBuilder.toString());
-            ASInformation as = new ASInformation(jo.getString("as_description"),
-                    jo.getString("as_country_code"),
-                    jo.getLong("as_number"));
+            ASInformation as = new ASInformation(jo.optString("as_description", null),
+                    jo.optString("as_country_code", null),
+                    jo.optLong("as_number", 0));
 
             if (as.getNumber() <= 0) {
                 return null;
             }
 
             return as;
+        }
+        catch (JSONException e) {
+            return null;
         }
         catch(RuntimeException e) {
             return null;
