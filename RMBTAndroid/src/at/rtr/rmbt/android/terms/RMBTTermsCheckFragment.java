@@ -64,8 +64,16 @@ public class RMBTTermsCheckFragment extends Fragment
         tcWvs.loadUrl("file:///android_res/raw/terms_conditions_short.html");
         
         final WebView tcWvl = (WebView) view.findViewById(R.id.termsCheckWebViewLong);
-        tcWvl.loadUrl("file:///android_res/raw/terms_conditions_long.html");
-        
+
+        //in case of an update to the terms and conditions, this may change
+        String tcUrl = ConfigHelper.getTCUrl(getActivity());
+        if (tcUrl != null) {
+            tcWvl.loadUrl(tcUrl);
+        }
+        else {
+            tcWvl.loadUrl("file:///android_res/raw/terms_conditions_long.html");
+        }
+
         final Activity activity = getActivity();
         if (! (activity instanceof RMBTMainActivity))
             firstTime = false;

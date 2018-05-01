@@ -292,7 +292,18 @@ public final class ConfigHelper
     
     public static boolean isTCAccepted(final Context context)
     {
-        final int tcNeedVersion = context.getResources().getInteger(R.integer.rmbt_terms_version);
+        final int tcVersionApp = context.getResources().getInteger(R.integer.rmbt_terms_version);
+
+        //maybe there is a newer version than the version the app was shipped with
+        final int tcVersionServer = getSharedPreferences(context).getInt("terms_and_conditions_current_version", 0);
+
+        //app version is newer than server version -> remove saved url
+        if (tcVersionApp > tcVersionServer) {
+            getSharedPreferences(context).edit().remove("terms_and_conditions_url").apply();
+        }
+
+        final int tcNeedVersion = Math.max(tcVersionApp, tcVersionServer);
+
         final int tcAcceptedVersion = getTCAcceptedVersion(context);
         return tcAcceptedVersion == tcNeedVersion;
     }
@@ -301,14 +312,27 @@ public final class ConfigHelper
     {
         return getSharedPreferences(context).getInt("terms_and_conditions_accepted_version", 0);
     }
+
+    public static String getTCUrl(final Context context) {
+        return getSharedPreferences(context).getString("terms_and_conditions_url", null);
+    }
     
     public static void setTCAccepted(final Context context, final boolean accepted)
     {
-        final int tcVersion = context.getResources().getInteger(R.integer.rmbt_terms_version);
+        //maybe there is a newer version than the version the app was shipped with
+        final int tcVersionApp = context.getResources().getInteger(R.integer.rmbt_terms_version);
+        final int tcVersionServer = getSharedPreferences(context).getInt("terms_and_conditions_current_version", 0);
+
+        final int tcVersion = Math.max(tcVersionApp, tcVersionServer);
         if (accepted)
             getSharedPreferences(context).edit().putInt("terms_and_conditions_accepted_version", tcVersion).apply();
         else
             getSharedPreferences(context).edit().remove("terms_and_conditions_accepted_version").apply();
+    }
+
+    public static void setTCVersionAndUrl(final Context context, final String tcUrl, final int tcNeedVersion) {
+        getSharedPreferences(context).edit().putString("terms_and_conditions_url", tcUrl).apply();
+        getSharedPreferences(context).edit().putInt("terms_and_conditions_current_version", tcNeedVersion).apply();
     }
 
     public static boolean isOverrideControlServer(final Context context)

@@ -179,6 +179,17 @@ public class CheckSettingsTask extends AsyncTask<Void, Void, JSONArray>
                     		ConfigHelper.setControlServerVersion(activity, versions.optString("control_server_version"));
                     	}
                     }
+
+                    /* terms and conditions */
+                    JSONObject terms = resultListItem.optJSONObject("terms_and_conditions");
+                    if (terms != null) {
+                        final int termsVersion = terms.optInt("version",0);
+
+                        //language selected by ControlServer
+                        final String termsUrl = terms.optString("url",null);
+
+                        ConfigHelper.setTCVersionAndUrl(activity, termsUrl, termsVersion);
+                    }
                     
                     // ///////////////////////////////////////////////////////
                     // HISTORY / FILTER

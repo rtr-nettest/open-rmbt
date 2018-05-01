@@ -450,7 +450,7 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties,
             }
         };
     }
-    
+
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
     {
@@ -732,6 +732,7 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties,
             return;
         
         settingsTask = new CheckSettingsTask(this);
+        final Context context = this;
         settingsTask.setEndTaskListener(new EndTaskListener()
         {
             @Override
@@ -741,6 +742,12 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties,
                     loadingDialog.dismiss();
                 if (endTaskListener != null)
                     endTaskListener.taskEnded(result);
+
+                //check if TC are still current
+                if (! ConfigHelper.isTCAccepted(context))
+                {
+                    showTermsCheck();
+                }
             }
         });
         
