@@ -48,13 +48,7 @@
             android:orientation="vertical" >
 
             <WebView
-                android:id="@+id/termsCheckWebViewShort"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@color/transparent" />
-
-            <WebView
-                android:id="@+id/termsCheckWebViewLong"
+                android:id="@+id/termsCheckWebView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@color/transparent" />

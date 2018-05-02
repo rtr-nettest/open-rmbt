@@ -59,11 +59,8 @@ public class RMBTTermsCheckFragment extends Fragment
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState)
     {
         view = inflater.inflate(R.layout.terms_check, container, false);
-        
-        final WebView tcWvs = (WebView) view.findViewById(R.id.termsCheckWebViewShort);
-        tcWvs.loadUrl("file:///android_res/raw/terms_conditions_short.html");
-        
-        final WebView tcWvl = (WebView) view.findViewById(R.id.termsCheckWebViewLong);
+
+        final WebView tcWvl = (WebView) view.findViewById(R.id.termsCheckWebView);
 
         //in case of an update to the terms and conditions, this may change
         String tcUrl = ConfigHelper.getTCUrl(getActivity());
@@ -71,7 +68,7 @@ public class RMBTTermsCheckFragment extends Fragment
             tcWvl.loadUrl(tcUrl);
         }
         else {
-            tcWvl.loadUrl("file:///android_res/raw/terms_conditions_long.html");
+            tcWvl.loadUrl("file:///android_res/raw/terms_conditions.html");
         }
 
         final Activity activity = getActivity();
