@@ -298,7 +298,7 @@ public final class ConfigHelper
         final int tcVersionServer = getSharedPreferences(context).getInt("terms_and_conditions_current_version", 0);
 
         //app version is newer than server version -> remove saved url
-        if (tcVersionApp >= tcVersionServer) {
+        if (tcVersionApp > tcVersionServer) {
             getSharedPreferences(context).edit().remove("terms_and_conditions_url").apply();
         }
 

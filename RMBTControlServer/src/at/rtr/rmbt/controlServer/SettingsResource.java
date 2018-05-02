@@ -232,7 +232,37 @@ public class SettingsResource extends ServerResource
                                     jsonItem.put("history", subItem);
                                 
                             }
-                        
+
+                        String platform = request.optString("platform",null);
+                    	if (platform == null) {
+                            platform = request.optString("plattform");
+                        }
+
+                        String tcUrl = null;
+                    	Integer tcVersion = null;
+                        if (platform != null && platform.toLowerCase().equals("android")) {
+                            tcUrl = getSetting("tc_url_android", lang);
+                            try {
+                                tcVersion = Integer.valueOf(getSetting("tc_version_android", lang));
+                            } catch (NumberFormatException e) {}
+                        }
+
+                        //fallback
+                        if (tcUrl == null ){
+                            tcUrl = getSetting("tc_url", lang);
+                            try {
+                                tcVersion = Integer.valueOf(getSetting("tc_version", lang));
+                            } catch (NumberFormatException e) {}
+                        }
+
+                        if (tcUrl != null && tcVersion != null) {
+                            //put there: TC version and url
+                            //@TODO: Dependent on reported client language
+                            JSONObject tcInformation = new JSONObject();
+                            tcInformation.put("url", tcUrl);
+                            tcInformation.put("version", tcVersion);
+                            jsonItem.put("terms_and_conditions", tcInformation);
+                        }
                         
                         //also put there: basis-urls for all services
                         final JSONObject jsonItemURLs = new JSONObject();
