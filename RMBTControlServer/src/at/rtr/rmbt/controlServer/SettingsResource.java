@@ -379,14 +379,14 @@ public class SettingsResource extends ServerResource
         
         answerString = answer.toString();
         
-        try
-        {
-            System.out.println(answer.toString(4));
-        }
-        catch (final JSONException e)
-        {
-            e.printStackTrace();
-        }
+//        try
+//        {
+//            System.out.println(answer.toString(4));
+//        }
+//        catch (final JSONException e)
+//        {
+//            e.printStackTrace();
+//        }
         
         
         answerString = answer.toString();
