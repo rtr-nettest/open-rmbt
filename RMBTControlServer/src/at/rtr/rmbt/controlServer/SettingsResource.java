@@ -246,13 +246,21 @@ public class SettingsResource extends ServerResource
                                 tcVersion = Integer.valueOf(getSetting("tc_version_android", lang));
                             } catch (NumberFormatException e) {}
                         }
+                        else if (platform != null && platform.toLowerCase().equals("ios")) {
+                            tcUrl = getSetting("tc_url_ios", lang);
+                            try {
+                                tcVersion = Integer.valueOf(getSetting("tc_version_ios", lang));
+                            } catch (NumberFormatException e) {}
+                        }
 
                         //fallback
-                        if (tcUrl == null ){
-                            tcUrl = getSetting("tc_url", lang);
+                        if (tcVersion == null ) {
                             try {
                                 tcVersion = Integer.valueOf(getSetting("tc_version", lang));
                             } catch (NumberFormatException e) {}
+                            if (tcUrl == null) {
+                                tcUrl = getSetting("tc_url", lang);
+                            }
                         }
 
                         if (tcUrl != null && tcVersion != null) {
@@ -371,14 +379,14 @@ public class SettingsResource extends ServerResource
         
         answerString = answer.toString();
         
-//        try
-//        {
-//            System.out.println(answer.toString(4));
-//        }
-//        catch (final JSONException e)
-//        {
-//            e.printStackTrace();
-//        }
+        try
+        {
+            System.out.println(answer.toString(4));
+        }
+        catch (final JSONException e)
+        {
+            e.printStackTrace();
+        }
         
         
         answerString = answer.toString();
