@@ -239,9 +239,11 @@ public class SettingsResource extends ServerResource
                         }
 
                         String tcUrl = null;
+                    	String tcNdtUrl = null;
                     	Integer tcVersion = null;
                         if (platform != null && platform.toLowerCase().equals("android")) {
                             tcUrl = getSetting("tc_url_android", lang);
+                            tcNdtUrl = getSetting("tc_ndt_url_android", lang);
                             try {
                                 tcVersion = Integer.valueOf(getSetting("tc_version_android", lang));
                             } catch (NumberFormatException e) {}
@@ -269,6 +271,9 @@ public class SettingsResource extends ServerResource
                             JSONObject tcInformation = new JSONObject();
                             tcInformation.put("url", tcUrl);
                             tcInformation.put("version", tcVersion);
+                            if (tcNdtUrl != null) {
+                                tcInformation.put("ndt_url", tcNdtUrl);
+                            }
                             jsonItem.put("terms_and_conditions", tcInformation);
                         }
                         
