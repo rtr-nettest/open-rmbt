@@ -217,7 +217,18 @@ public class RMBTCheckFragment extends Fragment
         }
         
         final WebView wv = (WebView) v.findViewById(R.id.ndtInfoWebView);
-        wv.loadUrl(checkType.getTemplateFile());
+
+        String url = checkType.getTemplateFile();
+
+        //ndt terms may be loaded from URL
+        if (checkType == CheckType.NDT) {
+            final String ndtUrl = ConfigHelper.getTCNdtUrl(getActivity());
+            if (ndtUrl != null) {
+                url = ndtUrl;
+            }
+        }
+
+        wv.loadUrl(url);
         
         buttonAccept.setOnClickListener(new OnClickListener()
         {

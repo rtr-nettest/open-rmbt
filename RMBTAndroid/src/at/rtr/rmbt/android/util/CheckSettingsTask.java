@@ -187,8 +187,9 @@ public class CheckSettingsTask extends AsyncTask<Void, Void, JSONArray>
 
                         //language selected by ControlServer
                         final String termsUrl = terms.optString("url",null);
+                        final String termsNdtUrl = terms.optString("ndt_url", null);
 
-                        ConfigHelper.setTCVersionAndUrl(activity, termsUrl, termsVersion);
+                        ConfigHelper.setTCVersionAndUrl(activity, termsUrl, termsNdtUrl, termsVersion);
                     }
                     
                     // ///////////////////////////////////////////////////////

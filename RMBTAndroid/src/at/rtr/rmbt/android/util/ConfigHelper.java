@@ -300,6 +300,7 @@ public final class ConfigHelper
         //app version is newer than server version -> remove saved url
         if (tcVersionApp > tcVersionServer) {
             getSharedPreferences(context).edit().remove("terms_and_conditions_url").apply();
+            getSharedPreferences(context).edit().remove("terms_and_conditions_ndt_url").apply();
         }
 
         final int tcNeedVersion = Math.max(tcVersionApp, tcVersionServer);
@@ -316,7 +317,11 @@ public final class ConfigHelper
     public static String getTCUrl(final Context context) {
         return getSharedPreferences(context).getString("terms_and_conditions_url", null);
     }
-    
+
+    public static String getTCNdtUrl(final Context context) {
+        return getSharedPreferences(context).getString("terms_and_conditions_ndt_url", null);
+    }
+
     public static void setTCAccepted(final Context context, final boolean accepted)
     {
         //maybe there is a newer version than the version the app was shipped with
@@ -330,8 +335,9 @@ public final class ConfigHelper
             getSharedPreferences(context).edit().remove("terms_and_conditions_accepted_version").apply();
     }
 
-    public static void setTCVersionAndUrl(final Context context, final String tcUrl, final int tcNeedVersion) {
+    public static void setTCVersionAndUrl(final Context context, final String tcUrl, final String tcNdtUrl, final int tcNeedVersion) {
         getSharedPreferences(context).edit().putString("terms_and_conditions_url", tcUrl).apply();
+        getSharedPreferences(context).edit().putString("terms_and_conditions_ndt_url", tcNdtUrl).apply();
         getSharedPreferences(context).edit().putInt("terms_and_conditions_current_version", tcNeedVersion).apply();
     }
 
