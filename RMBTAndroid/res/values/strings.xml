@@ -117,7 +117,7 @@
     <string name="preferences_dev_huge_signal" translatable="false" >Show huge signal</string>
     <string name="preferences_dev_huge_signal_sum" translatable="false" >Shows signal in huge font on start screen</string>
 
-    <string name="preferences_default_control_hostname" translatable="false" >develop.netztest.at</string>
+    <string name="preferences_default_control_hostname" translatable="false" >dev.netztest.at</string>
 
 
     <string name="menu_button_start">START</string>
