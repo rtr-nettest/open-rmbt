@@ -84,6 +84,12 @@ public class ContextListener implements ServletContextListener
 
                 asList = asSortedMap.values();
 
+                //clear queue, re-insert single values
+                lastRequests.clear();
+                for (String entry : asList) {
+                    lastRequests.add(entry);
+                }
+
                 //print
                 int i=0;
                 for (String entry : asList) {

@@ -71,7 +71,11 @@ public class StatisticsResource extends ServerResource
 
         //add to last requests
         if (entity != null) {
-            lastRequests.add(entity);
+            boolean success = lastRequests.offer(entity);
+            if (!success) {
+                lastRequests.poll();
+            }
+
         }
 
         String result = generateStatistics(request, ultraGreen);
