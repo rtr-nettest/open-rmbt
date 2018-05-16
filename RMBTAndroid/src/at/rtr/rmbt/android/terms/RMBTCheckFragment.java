@@ -47,15 +47,15 @@ public class RMBTCheckFragment extends Fragment
 	public enum CheckType {
 		NDT("file:///android_res/raw/ndt_info.html", AppConstants.PAGE_TITLE_NDT_CHECK, 
 				R.string.terms_ndt_header, R.string.terms_ndt_accept_text, false,
-                CheckLayoutType.ACCEPT_BUTTON, true, new int[] {R.string.terms_ndt_accept_button}),
+                CheckLayoutType.ACCEPT_BUTTON, true, new int[] {R.string.terms_ndt_accept_button}, false),
 		LOOP_MODE("file:///android_res/raw/loop_mode_info.html", AppConstants.PAGE_TITLE_LOOP_MODE_CHECK, 
 				R.string.terms_loop_mode_header, 0, true,
                 CheckLayoutType.ACCEPT_AND_CANCEL_BUTTON, false,
-                new int[] {R.string.terms_check_accept_button, R.string.terms_check_decline_button}),
+                new int[] {R.string.terms_check_accept_button, R.string.terms_check_decline_button}, true),
         LOOP_MODE2("file:///android_res/raw/loop_mode_info2.html", AppConstants.PAGE_TITLE_LOOP_MODE_CHECK2,
                 R.string.terms_loop_mode_header2,0, true,
                 CheckLayoutType.ACCEPT_AND_CANCEL_BUTTON, false,
-                new int[] {R.string.terms_check_accept_button, R.string.terms_check_decline_button});
+                new int[] {R.string.terms_check_accept_button, R.string.terms_check_decline_button}, true);
 
         private final String templateFile;
 		private final String fragmentTag;
@@ -65,10 +65,23 @@ public class RMBTCheckFragment extends Fragment
         private final CheckLayoutType layoutType;
         private final boolean hasCheckbox;
         private final int[] buttonStringIds;
-		
+        private final boolean finishActivity;
+
+        /**
+         * Construct a new Check Fragment
+         * @param templateFile URL of the HTML file to be displayed in the webview
+         * @param fragmentTag
+         * @param titleId id of the title to be displayed
+         * @param textId id of the text to be displayed (deprecated)
+         * @param defaultIsChecked checkbox checked by default (if contains a checkbox)
+         * @param layoutType layout type (accept, accept and cancel)
+         * @param hasCheckbox if a checkbox is contained
+         * @param buttonStringIds string ids of the buttons
+         * @param finishActivity true if activity should be finished in case of decline
+         */
 		CheckType(final String templateFile, final String fragmentTag, final int titleId,
                   final int textId, final boolean defaultIsChecked, final CheckLayoutType layoutType,
-                  final boolean hasCheckbox, final int[] buttonStringIds) {
+                  final boolean hasCheckbox, final int[] buttonStringIds, final boolean finishActivity) {
 			this.templateFile = templateFile;
 			this.fragmentTag = fragmentTag;
 			this.titleId = titleId;
@@ -77,6 +90,7 @@ public class RMBTCheckFragment extends Fragment
             this.layoutType = layoutType;
             this.hasCheckbox = hasCheckbox;
             this.buttonStringIds = buttonStringIds;
+            this.finishActivity = finishActivity;
 		}
 
 		public String getTemplateFile() {
@@ -288,8 +302,10 @@ public class RMBTCheckFragment extends Fragment
             public void onClick(final View v)
             {
                 getActivity().getSupportFragmentManager().popBackStack();
-                getActivity().setResult(Activity.RESULT_CANCELED);
-                getActivity().finish();
+                if (checkType.finishActivity) {
+                    getActivity().setResult(Activity.RESULT_CANCELED);
+                    getActivity().finish();
+                }
             }
         });
         
