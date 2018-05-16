@@ -198,8 +198,8 @@ public class Client
               uuid = UUID.randomUUID();
             
             st = conn.prepareStatement(
-                    "INSERT INTO client(uuid, client_type_id, time, sync_group_id, sync_code, terms_and_conditions_accepted, terms_and_conditions_accepted_version)"
-                            + "VALUES( CAST( ? AS UUID), ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+                    "INSERT INTO client(uuid, client_type_id, time, sync_group_id, sync_code, terms_and_conditions_accepted, terms_and_conditions_accepted_version, terms_and_conditions_accepted_timestamp)"
+                            + "VALUES( CAST( ? AS UUID), ?, ?, ?, ?, ?, ?, NOW())", Statement.RETURN_GENERATED_KEYS);
             
             st.setString(1, uuid.toString());
             st.setInt(2, client_type_id);
@@ -287,8 +287,8 @@ public class Client
         
         try
         {
-            
-            final PreparedStatement st = conn.prepareStatement("UPDATE client SET terms_and_conditions_accepted_version = ? WHERE uuid = ? ::UUID");
+
+            final PreparedStatement st = conn.prepareStatement("UPDATE client SET terms_and_conditions_accepted_version = ?, terms_and_conditions_accepted_timestamp = NOW() WHERE uuid = ? ::UUID");
             st.setInt(1, tcAcceptedVersion);
             st.setString(2, uuid.toString());
             st.executeUpdate();

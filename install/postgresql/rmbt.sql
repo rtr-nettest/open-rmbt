@@ -2280,6 +2280,7 @@ CREATE TABLE client (
     sync_code_timestamp timestamp with time zone,
     blacklisted boolean DEFAULT false NOT NULL,
     terms_and_conditions_accepted_version integer,
+    terms_and_conditions_accepted_timestamp timestamp with time zone,
     last_seen timestamp with time zone
 );
 
