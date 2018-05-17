@@ -279,6 +279,10 @@ public class RegistrationResource extends ServerResource
                             }
                             else if (request.optString("client").equals("RMBTws"))
                                 serverTypes = new String[]{"RMBThttp", "RMBTws"};
+                            else if (request.optString("client").equals("HW-PROBE")) {
+                                serverTypes = new String[]{"RMBT"};
+                                testServerEncryption = false;
+                            }
                             else
                                 serverTypes = new String[]{"RMBT"};
                             
