@@ -26,11 +26,7 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Logger;
 
 import org.json.JSONException;
@@ -210,6 +206,11 @@ public class RegistrationResource extends ServerResource
                         
                         String timeZoneId = request.getString("timezone");
                         // String tmpTimeZoneId = timeZoneId;
+
+                        //lookup if timezone is valid
+                        if (!Arrays.asList(TimeZone.getAvailableIDs()).contains(timeZoneId)) {
+                            errorList.addError("ERROR_TIMEZONE");
+                        }
                         
                         final long clientTime = request.getLong("time");
                         final Timestamp clientTstamp = java.sql.Timestamp.valueOf(new Timestamp(clientTime).toString());
