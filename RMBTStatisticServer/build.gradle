@@ -73,11 +73,13 @@ war {
 }
 
 def revisionPropertiesFile = file("${buildDir}/resources/main/revision.properties")
-processResources << {
-    String revisionProperties = "git.describe=" + getVersionNameFromGit() + "\n"
-    revisionProperties = revisionProperties + "git.branch=" + getBranchFromGit() + "\n"
-    revisionProperties = revisionProperties + "git.dirty=" + getDirtyFromGit() + "\n"
-    revisionProperties = revisionProperties + "git.id=" + getHashFromGit() + "\n"
-    revisionProperties = revisionProperties + "git.revision=" + getVersionCodeFromGit() + "\n"
-    revisionPropertiesFile.write(revisionProperties, 'UTF-8')
+processResources {
+    doLast {
+        String revisionProperties = "git.describe=" + getVersionNameFromGit() + "\n"
+        revisionProperties = revisionProperties + "git.branch=" + getBranchFromGit() + "\n"
+        revisionProperties = revisionProperties + "git.dirty=" + getDirtyFromGit() + "\n"
+        revisionProperties = revisionProperties + "git.id=" + getHashFromGit() + "\n"
+        revisionProperties = revisionProperties + "git.revision=" + getVersionCodeFromGit() + "\n"
+        revisionPropertiesFile.write(revisionProperties, 'UTF-8')
+    }
 }
