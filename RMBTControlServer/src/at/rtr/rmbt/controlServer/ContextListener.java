@@ -64,9 +64,9 @@ public class ContextListener implements ServletContextListener
                     final Connection conn = DbConnection.getConnection();
                     //purge test table
                     PreparedStatement ps = conn.prepareStatement(
-                    "UPDATE test SET client_public_ip = NULL, public_ip_rdns = NULL, source_ip = NULL, client_ip_local = NULL "
+                    "UPDATE test SET client_public_ip = NULL, public_ip_rdns = NULL, source_ip = NULL, client_ip_local = NULL, wifi_bssid = NULL, wifi_ssid = NULL "
                     + "WHERE time < NOW() - CAST('4 months' AS INTERVAL) "
-                    + "AND (client_public_ip IS NOT NULL OR public_ip_rdns IS NOT NULL OR source_ip IS NOT NULL OR client_ip_local IS NOT NULL)");
+                    + "AND (client_public_ip IS NOT NULL OR public_ip_rdns IS NOT NULL OR source_ip IS NOT NULL OR client_ip_local IS NOT NULL OR wifi_bssid IS NOT NULL OR wifi_ssid IS NOT NULL)");
                     ps.executeUpdate();
                     ps.close();
                     //purge ndt table
