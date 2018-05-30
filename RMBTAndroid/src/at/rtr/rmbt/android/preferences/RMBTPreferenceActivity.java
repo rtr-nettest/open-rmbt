@@ -103,11 +103,12 @@ public class RMBTPreferenceActivity extends PreferenceActivity
         if (!isNewV11Prefs())
         {
 
-            addPreferencesFromResource(R.xml.preferences);
+            // add user-mode-loop settings if not in developer mode
+            if (!ConfigHelper.isDevEnabled(this)) {
+                addPreferencesFromResource(R.xml.preferences_loop);
+            }
 
-            //always add loop mode preferences to save position
-            //but hide, if not in expert mode
-            addPreferencesFromResource(R.xml.preferences_loop);
+            addPreferencesFromResource(R.xml.preferences);
 
             if (ConfigHelper.isDevEnabled(this)) {
                 addPreferencesFromResource(R.xml.preferences_dev);
@@ -126,6 +127,11 @@ public class RMBTPreferenceActivity extends PreferenceActivity
         v.setBackgroundResource(R.drawable.app_bgdn_radiant);
 
         final PreferenceGroup loopModeGroup = (PreferenceGroup) findPreference("loop_mode_group");
+
+        if (!ConfigHelper.isDevEnabled(getBaseContext())) {
+            getPreferenceScreen().addPreference(loopModeGroup);
+            ConfigHelper.setUserLoopModeState(getBaseContext(), true);
+        }
         
         final Preference loopModeMaxDelayPreference = findPreference("loop_mode_max_delay");
         if (loopModeMaxDelayPreference != null && !ConfigHelper.isDevEnabled(this)) {
@@ -150,19 +156,39 @@ public class RMBTPreferenceActivity extends PreferenceActivity
 				}
 			});
         }
-        
+
         final Preference loopModePref = (Preference) findPreference("loop_mode");
-        if (loopModePref != null)
-        {
-        	loopModePref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+        if (loopModePref != null) {
+            CheckBoxPreference CheckBoxLoopMode = (CheckBoxPreference) findPreference("loop_mode");
+            if (loopModeGroup != null) {
+                if (CheckBoxLoopMode.isChecked()) {
+                    loopModeGroup.addPreference(loopModeMaxMovementPreference);
+                    loopModeGroup.addPreference(loopModeMaxDelayPreference);
+                } else {
+                    loopModeGroup.removePreference(loopModeMaxMovementPreference);
+                    loopModeGroup.removePreference(loopModeMaxDelayPreference);
+                }
+            }
+
+
+            loopModePref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference)
                 {
                     if (preference instanceof CheckBoxPreference)
                     {
                         final CheckBoxPreference cbp = (CheckBoxPreference) preference;
-                        
-                        if (cbp.isChecked())
+                        if (loopModeGroup != null) {
+                            if (cbp.isChecked()) {
+                                loopModeGroup.addPreference(loopModeMaxMovementPreference);
+                                loopModeGroup.addPreference(loopModeMaxDelayPreference);
+                            } else {
+                                loopModeGroup.removePreference(loopModeMaxMovementPreference);
+                                loopModeGroup.removePreference(loopModeMaxDelayPreference);
+                            }
+                        }
+
+                        if (cbp.isChecked() && !ConfigHelper.isDevEnabled(getBaseContext()))
                         {
                             cbp.setChecked(false);
                             final Intent intent = new Intent(getBaseContext(), RMBTTermsActivity.class);
@@ -185,26 +211,15 @@ public class RMBTPreferenceActivity extends PreferenceActivity
                     if (preference instanceof CheckBoxPreference)
                     {
                         final CheckBoxPreference cbp = (CheckBoxPreference) preference;
-
+/*
                         if ((Boolean) newValue) {
 
-                            //add loop mode - only if not dev
-                            if (!ConfigHelper.isDevEnabled(getBaseContext())) {
-                                getPreferenceScreen().addPreference(loopModeGroup);
-                                ConfigHelper.setUserLoopModeState(getBaseContext(), true);
-                            }
+
                         } else {
 
-                            //remove loop mode, reset settings - only if not dev
-                            if (!ConfigHelper.isDevEnabled(getBaseContext())) {
-                                getPreferenceScreen().removePreference(loopModeGroup);
-                                ConfigHelper.setUserLoopModeState(getBaseContext(), false);
-                                ConfigHelper.setLoopMode(getBaseContext(), false);
-                                if (loopModePref != null) {
-                                    ((CheckBoxPreference) loopModePref).setChecked(false);
-                                }
-                            }
+
                         }
+                        */
                     }
                     return true;
                 }
@@ -296,11 +311,12 @@ public class RMBTPreferenceActivity extends PreferenceActivity
                 }
             }
         }
-
+/*
         //only show, if in expert mode
         if (!ConfigHelper.isExpertModeEnabled(this)) {
             getPreferenceScreen().removePreference(loopModeGroup);
         }
+        */
     }
     
     @Override
@@ -312,6 +328,15 @@ public class RMBTPreferenceActivity extends PreferenceActivity
         }
         else if (requestCode == REQUEST_LOOP_MODE_CHECK) {
         	((CheckBoxPreference) findPreference("loop_mode")).setChecked(ConfigHelper.isLoopMode(this));
+            if (resultCode==0) {
+                final PreferenceGroup loopModeGroup = (PreferenceGroup) findPreference("loop_mode_group");
+                if (loopModeGroup != null) {
+                    final Preference loopModeMaxMovementPreference = findPreference("loop_mode_max_movement");
+                    final Preference loopModeMaxDelayPreference = findPreference("loop_mode_max_delay");
+                    loopModeGroup.removePreference(loopModeMaxMovementPreference);
+                    loopModeGroup.removePreference(loopModeMaxDelayPreference);
+                }
+            }
         }
     }
     
