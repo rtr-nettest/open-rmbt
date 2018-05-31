@@ -405,6 +405,8 @@
     <string name="nat_ipv6">NAT IPv6</string>
     <string name="nat_ipv4">NAT IPv4</string>
     <string name="preferences_expert">Einstellungen für Experten</string>
+    <string name="preferences_radio_info">Mobilfunkinformation</string>
+    <string name="preferences_radio_info_sum">Details der Mobilfunkkonfiguration</string>
 </resources>
 
 

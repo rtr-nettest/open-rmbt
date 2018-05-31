@@ -29,6 +29,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.content.ActivityNotFoundException;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
@@ -117,8 +118,24 @@ public class RMBTPreferenceActivity extends PreferenceActivity
             }
 
         }
-        
-        
+
+        final Preference radioInfo = (Preference) findPreference("radio_info");
+        if (radioInfo != null) {
+
+            radioInfo.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    Intent i = new Intent(Intent.ACTION_VIEW);
+                    i.setClassName("com.android.settings", "com.android.settings.RadioInfo");
+                    try {
+                        startActivity(i);
+                    } catch (ActivityNotFoundException e) {
+                    }
+                    return true;
+                }
+            });
+        }
+
         ActionBar actionBar = getActionBar();
         actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
         actionBar.setDisplayHomeAsUpEnabled(true);
@@ -212,9 +229,11 @@ public class RMBTPreferenceActivity extends PreferenceActivity
         if (expertPreferences != null && ipv4Only != null) {
             if (CheckBoxExpertMode.isChecked()) {
                 expertPreferences.addPreference(ipv4Only);
+                expertPreferences.addPreference(radioInfo);
             } else {
                 expertPreferences.removePreference(ipv4Only);
                 CheckBoxIpv4Only.setChecked(false);
+                expertPreferences.removePreference(radioInfo);
             }
         }
 
@@ -228,9 +247,11 @@ public class RMBTPreferenceActivity extends PreferenceActivity
                         if (expertPreferences != null && ipv4Only != null) {
                             if ((Boolean) newValue) {
                                 expertPreferences.addPreference(ipv4Only);
+                                expertPreferences.addPreference(radioInfo);
                             } else {
                                 expertPreferences.removePreference(ipv4Only);
                                 CheckBoxIpv4Only.setChecked(false);
+                                expertPreferences.removePreference(radioInfo);
                             }
                         }
                     }

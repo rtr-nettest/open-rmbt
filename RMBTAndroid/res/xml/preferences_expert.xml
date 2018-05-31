@@ -32,6 +32,13 @@
                 android:defaultValue="false"
                 android:layout="@layout/preferences_item"/>
 
+            <Preference
+                android:key="radio_info"
+                android:title="@string/preferences_radio_info"
+                android:summary="@string/preferences_radio_info_sum"
+                android:layout="@layout/preferences_item"/>
+
+
         </PreferenceCategory>
         
     </PreferenceScreen>

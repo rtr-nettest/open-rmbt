@@ -76,6 +76,10 @@
     
     <string name="preferences_ipv4_only">IPv4 only</string>
     <string name="preferences_ipv4_only_sum">Never use IPv6</string>
+
+
+    <string name="preferences_radio_info">Radio info</string>
+    <string name="preferences_radio_info_sum">Details on radio configuration</string>
     
     <string name="preferences_category_developer">Development</string>
     <string name="preferences_category_loop_mode">Loop mode settings</string>
