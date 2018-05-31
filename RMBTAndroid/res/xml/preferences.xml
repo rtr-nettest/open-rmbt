@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   Copyright 2013-2016 alladin-IT GmbH
-  Copyright 2013-2016 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
+  Copyright 2013-2018 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
   
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -25,14 +25,7 @@
                 android:summary="@string/preferences_ndt_sum"
                 android:defaultValue="false"
                 android:layout="@layout/preferences_item"/>
-            
-            <CheckBoxPreference
-                android:key="ipv4_only"
-                android:title="@string/preferences_ipv4_only" 
-                android:summary="@string/preferences_ipv4_only_sum"
-                android:defaultValue="false"
-                android:layout="@layout/preferences_item"/>
-            
+
             <CheckBoxPreference
                 android:key="skip_qos"
                 android:title="@string/preferences_skip_qos" 
@@ -47,13 +40,6 @@
                 android:layout="@layout/preferences_item"
                  />
 
-            <CheckBoxPreference
-                android:key="expert_mode"
-                android:title="@string/preferences_expert_mode"
-                android:summary="@string/preferences_expert_mode_sum"
-                android:defaultValue="false"
-                android:layout="@layout/preferences_item"/>
-                                    
         </PreferenceCategory>
         <PreferenceCategory android:title="@string/preferences_category_test" android:layout="@layout/preferences_category" android:key="server_selection_preferences">
             

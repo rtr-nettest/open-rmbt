@@ -30,6 +30,8 @@
     <string name="preferences">Settings</string>
     
     <string name="preferences_category_test">Test settings</string>
+
+    <string name="preferences_expert">Expert settings</string>
     
     <string name="preferences_location_settings">Location</string>
     <string name="preferences_location_settings_sum">Change location settings</string>

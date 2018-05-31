@@ -419,6 +419,7 @@
     <string name="notification_channel_rmbt_name">RTR-NetTest</string>
     <string name="nat_ipv6">NAT IPv6</string>
     <string name="nat_ipv4">NAT IPv4</string>
+    <string name="preferences_expert">Expert settings</string>
 
 
 </resources>

@@ -110,6 +110,8 @@ public class RMBTPreferenceActivity extends PreferenceActivity
 
             addPreferencesFromResource(R.xml.preferences);
 
+            addPreferencesFromResource(R.xml.preferences_expert);
+
             if (ConfigHelper.isDevEnabled(this)) {
                 addPreferencesFromResource(R.xml.preferences_dev);
             }
@@ -201,8 +203,20 @@ public class RMBTPreferenceActivity extends PreferenceActivity
                 }
             });
         }
-
+        final PreferenceGroup expertPreferences = (PreferenceGroup) findPreference("expert_preferences");
+        getPreferenceScreen().addPreference(expertPreferences);
         final Preference expertmodePref = findPreference("expert_mode");
+        final CheckBoxPreference CheckBoxExpertMode = (CheckBoxPreference) findPreference("expert_mode");
+        final CheckBoxPreference CheckBoxIpv4Only = (CheckBoxPreference) findPreference("ipv4_only");
+        final Preference ipv4Only = findPreference("ipv4_only");
+        if (expertPreferences != null && ipv4Only != null) {
+            if (CheckBoxExpertMode.isChecked()) {
+                expertPreferences.addPreference(ipv4Only);
+            } else {
+                expertPreferences.removePreference(ipv4Only);
+                CheckBoxIpv4Only.setChecked(false);
+            }
+        }
 
         if (expertmodePref != null) {
             expertmodePref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
@@ -211,15 +225,14 @@ public class RMBTPreferenceActivity extends PreferenceActivity
                     if (preference instanceof CheckBoxPreference)
                     {
                         final CheckBoxPreference cbp = (CheckBoxPreference) preference;
-/*
-                        if ((Boolean) newValue) {
-
-
-                        } else {
-
-
+                        if (expertPreferences != null && ipv4Only != null) {
+                            if ((Boolean) newValue) {
+                                expertPreferences.addPreference(ipv4Only);
+                            } else {
+                                expertPreferences.removePreference(ipv4Only);
+                                CheckBoxIpv4Only.setChecked(false);
+                            }
                         }
-                        */
                     }
                     return true;
                 }
