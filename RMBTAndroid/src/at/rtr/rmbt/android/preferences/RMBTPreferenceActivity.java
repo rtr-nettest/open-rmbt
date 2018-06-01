@@ -103,13 +103,12 @@ public class RMBTPreferenceActivity extends PreferenceActivity
         super.onCreate(savedInstanceState);
         if (!isNewV11Prefs())
         {
+            addPreferencesFromResource(R.xml.preferences);
 
             // add user-mode-loop settings if not in developer mode
             if (!ConfigHelper.isDevEnabled(this)) {
                 addPreferencesFromResource(R.xml.preferences_loop);
             }
-
-            addPreferencesFromResource(R.xml.preferences);
 
             addPreferencesFromResource(R.xml.preferences_expert);
 
