@@ -1,11 +1,11 @@
 apply plugin: 'com.android.application'
 
 repositories {
-	mavenCentral()
-	jcenter()
 	maven {
 		url 'https://maven.google.com'
 	}
+	mavenCentral()
+	jcenter()
 }
 
 
