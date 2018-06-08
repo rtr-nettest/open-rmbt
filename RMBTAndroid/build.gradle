@@ -60,7 +60,7 @@ def appSecretProperties = new Properties()
 appSecretProperties.load(new FileInputStream(appSecretPropertiesFile))
 
 android {
-    compileSdkVersion 'android-P'
+    compileSdkVersion 28
 //  obsolete since Android studio 3.0.0
 //  buildToolsVersion '27.0.3'
 
@@ -94,7 +94,7 @@ android {
         applicationId "at.alladin.rmbt.android"
 		manifestPlaceholders = [googleMapsApiKey:appSecretProperties['googleMapsApiKey']]
         minSdkVersion 15
-        targetSdkVersion 'P'
+        targetSdkVersion 28
         versionCode 30311
         versionName "3.3.11"
         buildConfigField "long", "BUILD_TIMESTAMP", System.currentTimeMillis() + "L"
