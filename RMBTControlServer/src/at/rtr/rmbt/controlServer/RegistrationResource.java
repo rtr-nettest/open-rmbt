@@ -313,6 +313,12 @@ public class RegistrationResource extends ServerResource
                                     ipv6 = null;
                                 }
                             }
+
+                            //allow clients to explicitly request a certain num_threads
+                            String numThreads = settings.getString("RMBT_NUM_THREADS");
+                            if (request.has("num_threads") && request.optInt("num_threads", -1) > 0) {
+                                numThreads = request.optString("num_threads");
+                            }
                             
                             TestServer server = null;
                             
@@ -349,7 +355,7 @@ public class RegistrationResource extends ServerResource
                                 answer.put("test_server_type", server.type);
                                 
                                 answer.put("test_duration", settings.getString("RMBT_DURATION"));
-                                answer.put("test_numthreads", settings.getString("RMBT_NUM_THREADS"));
+                                answer.put("test_numthreads", numThreads);
                                 answer.put("test_numpings", settings.getString("RMBT_NUM_PINGS"));
                                 
                                 answer.put("client_remote_ip", clientIpString);
@@ -419,7 +425,7 @@ public class RegistrationResource extends ServerResource
                                     // duration (requested)
                                     st.setInt(i++, Integer.parseInt(settings.getString("RMBT_DURATION")));
                                     // num_threads_requested 
-                                    st.setInt(i++, Integer.parseInt(settings.getString("RMBT_NUM_THREADS")));
+                                    st.setInt(i++, Integer.parseInt(numThreads));
                                     // status (of test)
                                     st.setString(i++, "STARTED"); //was "RUNNING" before
                                     // software_revision (of client)
