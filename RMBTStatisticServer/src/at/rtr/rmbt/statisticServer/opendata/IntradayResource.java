@@ -15,13 +15,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
-public class HourlyResource extends ServerResource {
+public class IntradayResource extends ServerResource {
     private static final int CACHE_EXP = 3600;
     private final CacheHelper cache = CacheHelper.getInstance();
 
 
     @Get("json")
     public String request(final String entity) throws JSONException {
+        addAllowOrigin();
         QueryParser qp = new QueryParser();
         Form parameters = getRequest().getResourceRef().getQueryAsForm();
 
@@ -85,7 +86,7 @@ public class HourlyResource extends ServerResource {
         try {
             PreparedStatement ps = conn.prepareStatement(sql);
             qp.fillInWhereClause(ps, 1);
-            System.out.println(ps);
+            //System.out.println(ps);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 HourlyStatistic stats = new HourlyStatistic(rs.getDouble("quantile_down"),

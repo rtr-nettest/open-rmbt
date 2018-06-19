@@ -16,7 +16,7 @@
  ******************************************************************************/
 package at.rtr.rmbt.statisticServer;
 
-import at.rtr.rmbt.statisticServer.opendata.HourlyResource;
+import at.rtr.rmbt.statisticServer.opendata.IntradayResource;
 import org.restlet.Application;
 import org.restlet.Context;
 import org.restlet.Restlet;
@@ -69,7 +69,7 @@ public class StatisticServer extends Application
 
         router.attach("/opentests/histogram", HistogramResource.class);
         router.attach("/opentests/statistics", OpenTestStatisticsResource.class);
-        router.attach("/opentests/hourly", HourlyResource.class);
+        router.attach("/opentests/intraday", IntradayResource.class);
         //router.attach("/opentests/histogra{histogram}", OpenTestSearchResource.class);
         
         router.attach("/opentests/search", at.rtr.rmbt.statisticServer.opendata.OpenTestSearchResource.class, Template.MODE_STARTS_WITH);
