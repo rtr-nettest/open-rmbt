@@ -782,8 +782,8 @@ public class ResultResource extends ServerResource
                 errorList.addError("ERROR_REQUEST_JSON");
                 System.out.println("Error parsing JSDON Data " + e.toString());
                 e.printStackTrace();
-            } catch (final SQLException e) {
-                System.out.println("Error while storing data " + e.toString());
+            } catch (final SQLException | NullPointerException e) {
+                System.out.println("Error while storing data " + e.toString() + " (" + entity + ")");
                 e.printStackTrace();
             }
         }
