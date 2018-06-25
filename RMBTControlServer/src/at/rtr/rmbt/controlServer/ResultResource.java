@@ -347,7 +347,7 @@ public class ResultResource extends ServerResource
                                         Integer radioBand = null;
                                         boolean channelChanged = false;
                                         Integer channelNumber = null;
-                                        boolean locationIdChanged = false;
+                                        boolean locationIdChanged = false; //location id changed somewhere in the test
                                         Integer locationId = null;
                                         boolean areaCodeChanged = false;
                                         Integer areaCode = null;
@@ -397,7 +397,8 @@ public class ResultResource extends ServerResource
                                                         locationId = cell.getLocationId();
                                                     }
                                                     else {
-                                                        if (!locationId.equals(cell.getLocationId())) {
+                                                        if (!locationIdChanged &&
+                                                                !locationId.equals(cell.getLocationId())) {
                                                             locationIdChanged = true;
                                                             locationId = null;
                                                         }
