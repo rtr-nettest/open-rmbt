@@ -72,11 +72,7 @@ public class IntradayResource extends ServerResource {
                 "  quantile(t.speed_upload :: bigint, 0.5)            quantile_up," +
                 "  quantile(t.ping_median :: bigint, 0.5)             quantile_ping" +
                 " FROM test t" +
-                " LEFT JOIN network_type nt ON nt.uid=t.network_type" +
-                " LEFT JOIN device_map adm ON adm.codename=t.model" +
-                " LEFT JOIN test_server ts ON ts.uid=t.server_id" +
-                " LEFT JOIN provider prov ON provider_id = prov.uid " +
-                " LEFT JOIN provider mprov ON mobile_provider_id = mprov.uid" +
+                qp.getJoins() +
                 " WHERE t.deleted = false" +
                 " AND status = 'FINISHED' " + qp.getWhereClause("AND") +
                 " GROUP BY hour;";

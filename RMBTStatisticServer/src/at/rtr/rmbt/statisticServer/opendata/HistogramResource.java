@@ -336,11 +336,7 @@ public class HistogramResource extends ServerResource{
 				+ " width_bucket(" + field + "," + lowerBound + "," + upperBound + "," + histogramClasses + ") bucket, "
 				+ " count(*) cnt "
 				+ " from test t "
-				+ " LEFT JOIN network_type nt ON nt.uid=t.network_type"
-				+ " LEFT JOIN device_map adm ON adm.codename=t.model"
-				+ " LEFT JOIN test_server ts ON ts.uid=t.server_id"
-				+ " LEFT JOIN provider prov ON provider_id = prov.uid "
-				+ " LEFT JOIN provider mprov ON mobile_provider_id = mprov.uid"
+				+ qp.getJoins()
 				+ " where " + field + " > 0 " 
 				+ " AND t.deleted = false"
 				+ " AND status = 'FINISHED' " + qp.getWhereClause("AND") 
