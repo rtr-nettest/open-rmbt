@@ -376,12 +376,8 @@ public class TestResultDetailResource extends ServerResource
                         	addString(resultList, "network_sim_operator_name", test.getField("network_sim_operator_name"));
 
                         	final Field networkSimOperatorField = test.getField("network_sim_operator");
-                        	final Field networkSimOperatorTextField = test.getField("network_sim_operator_mcc_mnc_text");
-                        	if (networkSimOperatorTextField.isNull())
-                        		addString(resultList, "network_sim_operator", networkSimOperatorField);
-                        	else
-                        		addString(resultList, "network_sim_operator",
-                        				String.format("%s (%s)", networkSimOperatorTextField, networkSimOperatorField));
+
+                        	addString(resultList, "network_sim_operator", networkSimOperatorField);
 
                         	final Field roamingTypeField = test.getField("roaming_type");
                         	if (!roamingTypeField.isNull())
