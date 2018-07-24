@@ -588,6 +588,8 @@ public class RMBTClient
         System.out.println("Shutting down RMBT thread pool...");
         if (testThreadPool != null)
             testThreadPool.shutdownNow();
+        if (getCommonThreadPool() != null)
+            getCommonThreadPool().shutdownNow();
         
         System.out.println("Shutdown finished.");
     }
