@@ -24,7 +24,18 @@ public class IntradayResource extends ServerResource {
     public String request(final String entity) throws JSONException {
         addAllowOrigin();
         QueryParser qp = new QueryParser();
-        Form parameters = getRequest().getResourceRef().getQueryAsForm();
+        qp.getAllowedFields().put("quantile", QueryParser.FieldType.IGNORE);
+
+        final Form parameters = getRequest().getResourceRef().getQueryAsForm();
+        double quantile = 0.5;
+        if (parameters.getNames().contains("quantile")) {
+            try {
+                quantile = Double.parseDouble(parameters.getFirstValue("quantile"));
+                quantile = Math.min(quantile,1);
+                quantile = Math.max(quantile,0);
+            }
+            catch (NumberFormatException e) { }
+        }
 
         //set transformator for time to allow for broader caching
         qp.registerSingleParameterTransformator("time", new QueryParser.SingleParameterTransformator() {
@@ -42,14 +53,14 @@ public class IntradayResource extends ServerResource {
         qp.parseQuery(parameters);
 
         //try cache first
-        String cacheKey = "opentest-hourly-" + "-" + qp.hashCode();
+        String cacheKey = "opentest-hourly-" + "-" + qp.hashCode() + "-" + quantile;
         String cacheString = (String) cache.get(cacheKey);
         if (cacheString != null) {
             //System.out.println("cache hit for hourly");
             return cacheString;
         }
 
-        List<HourlyStatistic> statistics = queryDb(qp);
+        List<HourlyStatistic> statistics = queryDb(qp, quantile);
 
         JSONArray ret = new JSONArray();
 
@@ -64,13 +75,13 @@ public class IntradayResource extends ServerResource {
         return ret.toString();
     }
 
-    private List<HourlyStatistic> queryDb(QueryParser qp) {
+    private List<HourlyStatistic> queryDb(QueryParser qp, double quantile) {
         String sql = "SELECT" +
                 "  count(t.open_test_uuid)," +
                 "  extract(hour from t.time AT TIME ZONE t.timezone) AS hour," +
-                "  quantile(t.speed_download :: bigint, 0.5)          quantile_down," +
-                "  quantile(t.speed_upload :: bigint, 0.5)            quantile_up," +
-                "  quantile(t.ping_median :: bigint, 0.5)             quantile_ping" +
+                "  quantile(t.speed_download :: bigint, ?)          quantile_down," +
+                "  quantile(t.speed_upload :: bigint, ?)            quantile_up," +
+                "  quantile(t.ping_median :: bigint, ?)             quantile_ping" +
                 " FROM test t" +
                 qp.getJoins() +
                 " WHERE t.deleted = false" +
@@ -81,7 +92,10 @@ public class IntradayResource extends ServerResource {
 
         try {
             PreparedStatement ps = conn.prepareStatement(sql);
-            qp.fillInWhereClause(ps, 1);
+            ps.setDouble(1, quantile);
+            ps.setDouble(2, quantile);
+            ps.setDouble(3, quantile);
+            qp.fillInWhereClause(ps, 4);
             //System.out.println(ps);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
