@@ -286,6 +286,8 @@ public class RMBTClientRunner
                     System.out.println("NDT finished.");
                 }
             }
+
+            RMBTClient.getCommonThreadPool().shutdownNow();
         }
         
     }
