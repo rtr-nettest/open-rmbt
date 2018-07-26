@@ -108,7 +108,9 @@ public class QueryParser {
         allowedFields.put("time[]", FieldType.DATE);
         allowedFields.put("gkz", FieldType.LONG);
         allowedFields.put("gkz[]", FieldType.LONG);
-        allowedFields.put("cat_technology", FieldType.STRING);        
+        allowedFields.put("gkz_sa", FieldType.LONG);
+        allowedFields.put("gkz_sa[]", FieldType.LONG);
+        allowedFields.put("cat_technology", FieldType.STRING);
         allowedFields.put("cat_technology[]", FieldType.STRING);        
         allowedFields.put("client_version", FieldType.STRING);
         allowedFields.put("client_version[]", FieldType.STRING);
@@ -658,6 +660,9 @@ public class QueryParser {
         }
         else if (opendataField.equals("cell_area_code")) {
             ret.add("t.cell_location_id");
+        }
+        else if (opendataField.equals("gkz")) {
+            ret.add("t.gkz_bev");
         }
          return ret;
     }
