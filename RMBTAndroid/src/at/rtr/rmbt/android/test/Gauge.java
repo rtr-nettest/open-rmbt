@@ -31,6 +31,7 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Region;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.util.Log;
 
 public class Gauge extends Drawable
@@ -104,8 +105,16 @@ public class Gauge extends Drawable
         final Rect r = getBounds();
         
         final int saveCount = canvas.save();
-        
-        canvas.clipRect(r, Region.Op.REPLACE);
+
+        //Fix for Android P, where Region.Op.REPLACE was removed
+        //this may have a performance impact.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            canvas.clipRect(r);
+        }
+        else {
+            canvas.clipRect(r, Region.Op.REPLACE);
+        }
+
         canvas.translate(r.left, r.top);
         
         canvas.drawBitmap(background, 0, 0, paint);
