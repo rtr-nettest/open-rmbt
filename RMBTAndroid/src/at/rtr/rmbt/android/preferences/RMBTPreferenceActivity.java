@@ -124,12 +124,26 @@ public class RMBTPreferenceActivity extends PreferenceActivity
             radioInfo.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    Intent i = new Intent(Intent.ACTION_VIEW);
-                    i.setClassName("com.android.settings", "com.android.settings.RadioInfo");
-                    try {
-                        startActivity(i);
-                    } catch (ActivityNotFoundException e) {
-                    }
+                    //inform user about consequences
+                    AlertDialog.Builder builder = new AlertDialog.Builder(RMBTPreferenceActivity.this);
+
+                    builder.setMessage(R.string.preferences_radio_info_warning_message)
+                            .setTitle(R.string.preferences_radio_info_warning_title);
+
+                    builder.setPositiveButton(R.string.preferences_radio_info_warning_button, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            // User clicked OK button
+                            Intent i = new Intent(Intent.ACTION_VIEW);
+                            i.setClassName("com.android.settings", "com.android.settings.RadioInfo");
+                            try {
+                                startActivity(i);
+                            } catch (ActivityNotFoundException e) {
+                            }
+                        }
+                    });
+
+                    builder.show();
+
                     return true;
                 }
             });

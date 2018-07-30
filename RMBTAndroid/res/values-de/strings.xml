@@ -407,6 +407,9 @@
     <string name="preferences_expert">Einstellungen für Experten</string>
     <string name="preferences_radio_info">Mobilfunkinformation</string>
     <string name="preferences_radio_info_sum">Details der Mobilfunkkonfiguration</string>
+    <string name="preferences_radio_info_warning_title">Mobilfunkkonfiguration</string>
+    <string name="preferences_radio_info_warning_message">Achtung: Änderungen in den erweiterten Einstellungen der Mobilfunkkonfiguration können Auswirkungen auf Funktion, Stabilität und Performance Ihres Gerätes haben.</string>
+    <string name="preferences_radio_info_warning_button">Ich bin mir der Gefahren bewusst</string>
 </resources>
 
 
