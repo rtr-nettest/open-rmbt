@@ -92,7 +92,7 @@ public class QoSResultResource extends ServerResource
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (UnsupportedOperationException e) {
-				errorList.addError("ERROR_REQUEST_QOS_RESULT_DETAIL_NO_UUID");
+                errorList.addError("ERROR_REQUEST_QOS_RESULT_DETAIL_NO_UUID", false);
 			}
 
         else

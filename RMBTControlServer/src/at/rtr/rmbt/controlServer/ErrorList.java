@@ -42,13 +42,17 @@ public class ErrorList
         errorList = new JSONArray();
         labels = ResourceManager.getSysMsgBundle();
     }
-    
-    public void addError(final String errorLabel)
+
+    public void addError(final String errorLabel) {
+        addError(errorLabel, true);
+    }
+
+    public void addError(final String errorLabel, boolean logError)
     {
         try
         {
             final String errorText = labels.getString(errorLabel);
-            addErrorString(errorText);
+            addErrorString(errorText, logError);
             
             if ("ERROR_REQUEST_REJECTED".equals(errorLabel)) {
             	errorFlags.add(ErrorStatus.TEST_REJECTED);
@@ -68,13 +72,20 @@ public class ErrorList
                     + labels.getLocale().toString());
         }
     }
-    
-    public void addErrorString(final String errorText)
+
+    public void addErrorString(final String errorText) {
+        addErrorString(errorText, true);
+    }
+
+    public void addErrorString(final String errorText, final boolean logError)
     {
         try
         {
             errorList.put(errorList.length(), errorText);
-            System.out.println(errorText);
+
+            if (logError) {
+                System.out.println(errorText);
+            }
         }
         catch (final JSONException e)
         {
