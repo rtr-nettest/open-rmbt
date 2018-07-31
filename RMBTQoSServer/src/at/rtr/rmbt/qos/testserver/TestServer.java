@@ -603,7 +603,7 @@ public class TestServer {
 				TestServerConsole.log("Trying to register UDP Candidate on " + localAddr + ":" + port , 0, TestServerServiceEnum.UDP_SERVICE);
 				for (AbstractUdpServer<?> udpServer : TestServer.udpServerMap.get(port)) {
 					TestServerConsole.log("Comparing: " + localAddr + " <-> " + udpServer.getAddress(), 0, TestServerServiceEnum.UDP_SERVICE);
-					if (udpServer.getAddress().equals(localAddr)) {
+					if (udpServer.getAddress().equals(localAddr) || (udpServer.getAddress() != null && udpServer.getAddress().isAnyLocalAddress())) {
 						TestServerConsole.log("Registering UDP Candidate on " + localAddr + ":" + port , 0, TestServerServiceEnum.UDP_SERVICE);
 						TestServerConsole.log("Registering UDP Candidate for UdpServer: " + udpServer.toString(), 2, TestServerServiceEnum.UDP_SERVICE);
 						((AbstractUdpServer<T>) udpServer).getIncomingMap().put(uuid, udpData);
