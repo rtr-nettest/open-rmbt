@@ -80,7 +80,10 @@
 
     <string name="preferences_radio_info">Radio info</string>
     <string name="preferences_radio_info_sum">Details on radio configuration</string>
-    
+    <string name="preferences_radio_info_warning_title">Radio settings</string>
+    <string name="preferences_radio_info_warning_message">Be careful: Changing advanced settings of your radio configuration might be harmful to the stability and performance of your device.</string>
+    <string name="preferences_radio_info_warning_button">I accept the risk</string>
+
     <string name="preferences_category_developer">Development</string>
     <string name="preferences_category_loop_mode">Loop mode settings</string>
     <string name="preferences_category_dev_loop_mode" translatable="false" >Developer loop mode settings</string>
