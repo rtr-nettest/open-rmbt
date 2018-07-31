@@ -49,6 +49,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
@@ -292,6 +293,9 @@ public class ResultResource extends ServerResource
                                         final JSONArray geoData = request.optJSONArray("geoLocations");
 
                                         if (geoData != null && !test.hasError()) {
+                                            float minAccuracy = Float.MAX_VALUE;
+                                            final AtomicReference<JSONObject> firstAccuratePosition = new AtomicReference<>();
+
                                             for (int i = 0; i < geoData.length(); i++) {
 
                                                 final JSONObject geoDataItem = geoData.getJSONObject(i);
@@ -313,29 +317,37 @@ public class ResultResource extends ServerResource
 
                                                     geoloc.storeLocation();
 
-                                                    // Store Last Geolocation as
-                                                    // Testlocation
-                                                    if (i == geoData.length() - 1) {
-                                                        if (geoDataItem.has("geo_lat"))
-                                                            test.getField("geo_lat").setField(geoDataItem);
-
-                                                        if (geoDataItem.has("geo_long"))
-                                                            test.getField("geo_long").setField(geoDataItem);
-
-                                                        if (geoDataItem.has("accuracy"))
-                                                            test.getField("geo_accuracy").setField(geoDataItem);
-
-                                                        if (geoDataItem.has("provider"))
-                                                            test.getField("geo_provider").setField(geoDataItem);
+                                                    // Store first accurate geolocation as testlocation
+                                                    if (geoloc.getAccuracy() != null && geoloc.getAccuracy() < minAccuracy) {
+                                                        minAccuracy = geoloc.getAccuracy();
+                                                        firstAccuratePosition.set(geoDataItem);
+                                                    }
+                                                    // Fallback: Store Last Geolocation as
+                                                    // testlocation
+                                                    else if (i == geoData.length() - 1) {
+                                                        firstAccuratePosition.set(geoDataItem);
                                                     }
 
                                                     if (geoloc.hasError()) {
                                                         errorList.addError(geoloc.getError());
                                                         break;
                                                     }
-
                                                 }
+                                            }
 
+                                            if (firstAccuratePosition.get() != null) {
+                                                JSONObject geoDataItem = firstAccuratePosition.get();
+                                                if (geoDataItem.has("geo_lat"))
+                                                    test.getField("geo_lat").setField(geoDataItem);
+
+                                                if (geoDataItem.has("geo_long"))
+                                                    test.getField("geo_long").setField(geoDataItem);
+
+                                                if (geoDataItem.has("accuracy"))
+                                                    test.getField("geo_accuracy").setField(geoDataItem);
+
+                                                if (geoDataItem.has("provider"))
+                                                    test.getField("geo_provider").setField(geoDataItem);
                                             }
                                         }
 
