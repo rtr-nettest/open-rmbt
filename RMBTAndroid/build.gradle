@@ -60,8 +60,9 @@ def appSecretProperties = new Properties()
 appSecretProperties.load(new FileInputStream(appSecretPropertiesFile))
 
 android {
-    compileSdkVersion 27
-    buildToolsVersion '27.0.3'
+    compileSdkVersion 28
+//  obsolete since Android studio 3.0.0
+//  buildToolsVersion '27.0.3'
 
 	sourceSets {
 	    main {
