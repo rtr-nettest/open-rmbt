@@ -521,7 +521,7 @@ public class RMBTMainMenuFragment extends Fragment
 							}
 
 							String networkName = informationCollector.getOperatorName();
-							if (networkName != null && !"()".equals(networkName) && !"-".equals(networkName)) {
+							if (networkName != null && !networkName.isEmpty() && !"()".equals(networkName) && !"-".equals(networkName)) {
 								infoCollector.setNetworkName(networkName);
 								infoNetwork.setText(networkName);
 							}
