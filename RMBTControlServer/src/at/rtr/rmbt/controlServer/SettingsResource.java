@@ -469,6 +469,7 @@ public class SettingsResource extends ServerResource
 
                 result.put(obj);
             }
+            ps.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }

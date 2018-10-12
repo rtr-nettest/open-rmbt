@@ -211,6 +211,7 @@ public class QualityOfServiceResultResource extends ServerResource
                                         	resultDao.updateCounter(testResult, updateCounterPs);
                                         	//System.out.println("UPDATING: " + testResult.toString());
                                         }
+                                        updateCounterPs.close();
                                     }
                                     else
                                         errorList.addError("ERROR_CLIENT_VERSION");

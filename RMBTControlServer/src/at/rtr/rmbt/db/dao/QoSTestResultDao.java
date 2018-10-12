@@ -172,7 +172,9 @@ public class QoSTestResultDao implements CrudPrimaryKeyDao<QoSTestResult, Long> 
 			ps.setLong(6, result.getUid());
 		}
 
-		return ps.executeUpdate();
+		int affected = ps.executeUpdate();
+		ps.close();
+		return affected;
 	}
 	
 	/**

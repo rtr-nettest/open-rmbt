@@ -253,6 +253,7 @@ public class ResultResource extends ServerResource
                                             psSpeed.setObject(1, openTestUuid);
                                             psSpeed.setString(2, speedItemsJson);
                                             psSpeed.executeUpdate();
+                                            psSpeed.close();
 
                                         }
 
@@ -288,6 +289,7 @@ public class ResultResource extends ServerResource
 
                                                 psPing.executeUpdate();
                                             }
+                                            psPing.close();
                                         }
 
                                         final JSONArray geoData = request.optJSONArray("geoLocations");
@@ -686,6 +688,7 @@ public class ResultResource extends ServerResource
                                                     ((IntField) test.getField("network_type")).setValue(maxNetworkType);
                                             }
                                         }
+                                        psMaxNetworkType.close();
                                         
                                         /*
                                          * check for different types (e.g.
@@ -721,6 +724,7 @@ public class ResultResource extends ServerResource
                                                     ((IntField) test.getField("network_type")).setValue(newNetworkType);
                                             }
                                         }
+                                        psAgg.close();
 
                                         ///////// android_permissions
                                         final JSONArray androidPermissionStatus = request.optJSONArray("android_permission_status");

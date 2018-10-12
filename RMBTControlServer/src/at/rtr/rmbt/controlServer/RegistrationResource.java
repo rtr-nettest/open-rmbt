@@ -490,6 +490,7 @@ public class RegistrationResource extends ServerResource
                                             if (rs2.next())
                                                 provider = rs2.getString(1);
                                         }
+                                        getProviderSt.close();
                                         
                                         if (provider != null)
                                             answer.put("provider", provider);
@@ -504,6 +505,7 @@ public class RegistrationResource extends ServerResource
                                             if (rs2.next())
                                                 testSlot = rs2.getInt(1);
                                         }
+                                        testSlotStatement.close();
                                         
                                         if (testSlot < 0)
                                             errorList.addError("ERROR_DB_STORE_GENERAL");
@@ -520,6 +522,7 @@ public class RegistrationResource extends ServerResource
                                             updateSt.setString(1, token);
                                             updateSt.setLong(2, key);
                                             updateSt.executeUpdate();
+                                            updateSt.close();
                                             
                                             answer.put("test_token", token);
                                             
