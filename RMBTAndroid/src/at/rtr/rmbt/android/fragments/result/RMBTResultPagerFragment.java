@@ -235,7 +235,7 @@ public class RMBTResultPagerFragment extends Fragment implements OnTabChangeList
     }
 
     public void setActionBarItems() {
-    	System.out.println("SET ACTIONBARI TEMS");
+    	System.out.println("SET ACTIONBAR ITEMS");
     	if (viewPager != null) {
     		switch (viewPager.getCurrentItem()) {
     		case RMBTResultPagerAdapter.RESULT_PAGE_MAIN_MENU:
