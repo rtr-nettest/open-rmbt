@@ -269,7 +269,8 @@ public class TestResultResource extends ServerResource
                             	}
 
                             	final Field roamingTypeField = test.getField("roaming_type");
-                            	if (! roamingTypeField.isNull() && roamingTypeField.intValue() > 0)
+                            	if (! roamingTypeField.isNull() &&
+                                        roamingTypeField.intValue() > 1) // only display international roaming
                             	{
                             		singleItem = new JSONObject();
                             		singleItem.put("title", labels.getString("RESULT_ROAMING"));
