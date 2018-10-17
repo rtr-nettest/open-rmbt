@@ -161,24 +161,25 @@ public class TestResultDetailResource extends ServerResource
                         }
 
 
-                            final JSONObject singleItem = addObject(resultList, "time");
+
                         final Field timeField = test.getField("time");
                         if (!timeField.isNull()) {
+                            final JSONObject timeItem = addObject(resultList, "time");
                         	final Date date = ((TimestampField) timeField).getDate();
                         	final long time = date.getTime();
-                        	singleItem.put("time", time); //csv 3
+                        	timeItem.put("time", time); //csv 3
 
                         	final Field timezoneField = test.getField("timezone");
                         	if (!timezoneField.isNull()) {
                         		final String tzString = timezoneField.toString();
                         		final TimeZone tz = TimeZone.getTimeZone(timezoneField.toString());
-                        		singleItem.put("timezone", tzString);
+                        		timeItem.put("timezone", tzString);
 
 
                         		final DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM,
                         				DateFormat.MEDIUM, locale);
                         		dateFormat.setTimeZone(tz);
-                        		singleItem.put("value", dateFormat.format(date));
+                        		timeItem.put("value", dateFormat.format(date));
 
                         		final Format tzFormat = new DecimalFormat("+0.##;-0.##", new DecimalFormatSymbols(locale));
 
@@ -592,12 +593,17 @@ public class TestResultDetailResource extends ServerResource
                         //addString(resultList, "uuid", String.format("T%s", test.getField("uuid")));
 
                         if (! openTestUUIDField.isNull()) {
-                                    addString(resultList, "open_test_uuid", String.format("O%s", openTestUUIDField));
+                            final JSONObject openTestUUIDItem = addObject(resultList, "open_test_uuid");
+                            openTestUUIDItem.put("value", String.format("O%s", openTestUUIDField));
+                            openTestUUIDItem.put("open_test_uuid", String.format("O%s", openTestUUIDField));
                         }
 
                         final Field openUUIDField = test.getField("open_uuid");
-                        if (! openUUIDField.isNull())
-                            addString(resultList, "open_uuid", String.format("P%s", openUUIDField));
+                        if (!openUUIDField.isNull()) {
+                            final JSONObject openUUIDItem = addObject(resultList, "open_uuid");
+                            openUUIDItem.put("value", String.format("P%s", openUUIDField));
+                            openUUIDItem.put("open_uuid", String.format("P%s", openUUIDField));
+                        }
           
                         //todo: Add "user_server_selection" Flag
                         
