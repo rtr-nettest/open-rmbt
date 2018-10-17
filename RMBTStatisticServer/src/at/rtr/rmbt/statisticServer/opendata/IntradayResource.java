@@ -106,6 +106,7 @@ public class IntradayResource extends ServerResource {
                         rs.getLong("count"));
                 ret.add(stats);
             }
+            ps.close();
 
 
         } catch (SQLException e) {
