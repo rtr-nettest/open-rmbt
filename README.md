@@ -12,7 +12,7 @@ C, consisting of:
 > * statistics Servlet based on Restlet
 > * qos test server
 
-*Open-RMBT* is released under the [Apache License, Version 2.0]. It was developed
+*Open-RMBT* is released under the [Apache License, Version 2.0](LICENSE). It was developed
 by the [Austrian Regulatory Authority for Broadcasting and Telecommunications (RTR-GmbH)](https://www.rtr.at/).
 
 The following projects are distributed in this release:
@@ -33,6 +33,7 @@ Related materials
 * [RMBT specification](https://www.netztest.at/doc/)
 * [RTR-Netztest/rmbt-server](https://github.com/rtr-nettest/rmbt-server) - Test Server for conducting measurements based on the RMBT protocol
 * [RTR-Netztest/rmbtws](https://github.com/rtr-nettest/rmbtws) - JavaScript client for conducting RMBT-based speed measurements
+* [RTR-Netztest/open-rmbt-ios](https://github.com/rtr-nettest/open-rmbt-ios) - iOS app
 
 
 System requirements
