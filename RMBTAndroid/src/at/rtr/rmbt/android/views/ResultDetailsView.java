@@ -18,7 +18,12 @@ package at.rtr.rmbt.android.views;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
+import android.content.Intent;
+import android.net.Uri;
+import android.widget.*;
+import at.rtr.rmbt.android.util.ConfigHelper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,12 +33,6 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.LinearLayout;
-import android.widget.ListAdapter;
-import android.widget.ListView;
-import android.widget.ProgressBar;
-import android.widget.SimpleAdapter;
-import android.widget.TextView;
 import at.alladin.rmbt.android.R;
 import at.rtr.rmbt.android.main.RMBTMainActivity;
 import at.rtr.rmbt.android.util.CheckTestResultDetailTask;
@@ -114,7 +113,32 @@ public class ResultDetailsView extends LinearLayout implements EndTaskListener {
         emptyView.setVisibility(View.GONE);
         
         progessBar = (ProgressBar) view.findViewById(R.id.progressBar);
-                
+
+        //register a listener on the listview, as certain items may result in an action
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                Map<String, String> item = (Map<String, String>) parent.getItemAtPosition(position);
+                if (item.containsKey("open_test_uuid")) {
+                    String openTestUUIDURL = null;
+                    final String openDataPrefix = ConfigHelper.getVolatileSetting("url_open_data_prefix");
+                    if (openDataPrefix != null && openDataPrefix.length() > 0)
+                    {
+                        final String openUUID = item.get("open_test_uuid");
+                        if (openUUID != null && openUUID.length() > 0) {
+                            openTestUUIDURL = openDataPrefix + openUUID;// + "#noMMenu";
+                            //activity.showUrl(openTestUUIDURL, false, AppConstants.PAGE_TITLE_MAP); //show within app
+
+                            Intent i = new Intent(Intent.ACTION_VIEW);
+                            i.setData(Uri.parse(openTestUUIDURL));
+                            activity.startActivity(i);
+                        }
+                    }
+                }
+            }
+        });
+
         return view;
     }
     
@@ -179,6 +203,12 @@ public class ResultDetailsView extends LinearLayout implements EndTaskListener {
                     }
                     else
                         viewItem.put("value", singleItem.optString("value", ""));
+
+                    //find the open_test_uuid by value
+                    if (singleItem.has("open_test_uuid")) {
+                        viewItem.put("open_test_uuid",singleItem.optString("open_test_uuid"));
+                    }
+
                     itemList.add(viewItem);
                 }	
             }
