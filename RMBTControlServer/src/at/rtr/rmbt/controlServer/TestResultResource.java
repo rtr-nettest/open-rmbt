@@ -372,8 +372,8 @@ RESULT_SHARE_TEXT_PROVIDER_ADD = Operator: {0}\n
                         			modelString,                  //field 9
                         			//dz add location
                         			shareLocation,				  //field 10
-                        			getSetting("url_open_data_prefix", lang) +
-                        			openTestUUID);                //field 11    
+                                    getSetting("url_share", lang) +
+                                    openTestUUID);                //field 11
                         else 
                         	shareText = MessageFormat.format(labels.getString("RESULT_SHARE_TEXT"),
                         			timeString,                   //field 0
@@ -390,8 +390,8 @@ RESULT_SHARE_TEXT_PROVIDER_ADD = Operator: {0}\n
                         							modelString,                  //field 9
                         							//dz add location
                         							shareLocation,				  //field 10
-                        							getSetting("url_open_data_prefix", lang) +
-                        							openTestUUID);                //field 11
+                                                    getSetting("url_share", lang) +
+                                                    openTestUUID);                //field 11
                         jsonItem.put("share_text", shareText);
 
                         final String shareSubject = MessageFormat.format(labels.getString("RESULT_SHARE_SUBJECT"),

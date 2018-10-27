@@ -280,6 +280,7 @@ public class SettingsResource extends ServerResource
                         //also put there: basis-urls for all services
                         final JSONObject jsonItemURLs = new JSONObject();
                         jsonItemURLs.put("open_data_prefix", getSetting("url_open_data_prefix", lang));
+                        jsonItemURLs.put("url_share", getSetting("url_share", lang));
                         jsonItemURLs.put("statistics", getSetting("url_statistics", lang));
                         jsonItemURLs.put("control_ipv4_only", getSetting("control_ipv4_only", lang));
                         jsonItemURLs.put("control_ipv6_only", getSetting("control_ipv6_only", lang));
