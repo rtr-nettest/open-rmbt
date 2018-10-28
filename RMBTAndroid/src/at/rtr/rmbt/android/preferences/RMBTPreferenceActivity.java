@@ -137,7 +137,10 @@ public class RMBTPreferenceActivity extends PreferenceActivity
                             i.setClassName("com.android.settings", "com.android.settings.RadioInfo");
                             try {
                                 startActivity(i);
-                            } catch (ActivityNotFoundException e) {
+                            }
+                            catch (ActivityNotFoundException e) {
+                            }
+                            catch (SecurityException e) {
                             }
                         }
                     });
