@@ -449,6 +449,7 @@ public abstract class Helperfunctions
             final HttpURLConnection urlConnection = (HttpURLConnection) new URL("https://api.iptoasn.com/v1/as/ip/" + ipAsString).openConnection();
             urlConnection.setConnectTimeout(3000);
             urlConnection.setRequestProperty("Accept", "application/json");
+            urlConnection.setRequestProperty("User-Agent", "curl/7.47.0");
             final StringBuilder stringBuilder = new StringBuilder();
             final BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
             int read;
