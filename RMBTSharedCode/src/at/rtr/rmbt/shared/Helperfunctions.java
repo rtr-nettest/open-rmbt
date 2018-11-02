@@ -56,6 +56,9 @@ import com.google.common.net.InetAddresses;
 
 public abstract class Helperfunctions
 {
+    //DNS timeout in seconds
+    private static final int DNS_TIMEOUT = 1;
+
     public static String calculateHMAC(final byte[] secret, final String data)
     {
         try
@@ -384,7 +387,9 @@ public abstract class Helperfunctions
             final Name name = ReverseMap.fromAddress(adr);
 
             final Lookup lookup = new Lookup(name, Type.PTR);
-            lookup.setResolver(new SimpleResolver());
+            SimpleResolver simpleResolver = new SimpleResolver();
+            simpleResolver.setTimeout(DNS_TIMEOUT);
+            lookup.setResolver(simpleResolver);
             lookup.setCache(null);
             final Record[] records = lookup.run();
             if (lookup.getResult() == Lookup.SUCCESSFUL)
