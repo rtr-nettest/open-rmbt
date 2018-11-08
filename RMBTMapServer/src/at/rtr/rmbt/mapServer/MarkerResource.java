@@ -467,7 +467,7 @@ public class MarkerResource extends ServerResource
 										jsonItemList.put(singleItem);
 									}
 
-									if (roamingType > 0)
+									if (roamingType == 2) //only display info on international roaming
 									{
 										singleItem = new JSONObject();
 										singleItem.put("title", labels.getString("RESULT_ROAMING"));
@@ -491,6 +491,7 @@ public class MarkerResource extends ServerResource
 						}
 						else
 							System.out.println("Error executing SQL.");
+						ps.close();
 					}
 					else
 						System.out.println("No Database Connection.");
