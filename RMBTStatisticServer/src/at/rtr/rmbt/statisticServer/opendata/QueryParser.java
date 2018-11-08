@@ -147,6 +147,8 @@ public class QueryParser {
         allowedFields.put("network_country[]",FieldType.STRING);
         allowedFields.put("country_geoip",FieldType.STRING);
         allowedFields.put("country_geoip[]",FieldType.STRING);
+        allowedFields.put("country_location", FieldType.STRING);
+        allowedFields.put("country_location[]", FieldType.STRING);
         allowedFields.put("user_server_selection",FieldType.BOOLEAN);
         allowedFields.put("developer_code",FieldType.STRING); //for backwards compatiblity with old web page
         allowedFields.put("loc_accuracy",FieldType.LONG);
