@@ -399,9 +399,10 @@ public class ResultResource extends ServerResource
                                                         cell.isRegistered(),
                                                         cell.isActive());
 
-                                                if (channelNumber == null) {
+                                                if (channelNumber == null && Objects.equals(cell.isActive(), true)) {
                                                     channelNumber = cell.getChannelNumber();
-                                                } else if (!channelNumber.equals(cell.getChannelNumber())) {
+                                                } else if (channelNumber != null && Objects.equals(cell.isActive(), true) &&
+                                                        !channelNumber.equals(cell.getChannelNumber())) {
                                                     channelChanged = true;
                                                 }
 
