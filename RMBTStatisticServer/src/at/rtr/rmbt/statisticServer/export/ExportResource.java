@@ -26,16 +26,27 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import at.rtr.rmbt.statisticServer.opendata.dto.OpenTestExportDTO;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.dataformat.csv.CsvGenerator;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.dbutils.BasicRowProcessor;
+import org.apache.commons.dbutils.GenerousBeanProcessor;
+import org.apache.commons.dbutils.handlers.BeanListHandler;
 import org.apache.commons.io.IOUtils;
 import org.restlet.data.Disposition;
 import org.restlet.data.MediaType;
 import org.restlet.representation.OutputRepresentation;
 import org.restlet.representation.Representation;
+import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
 
 import at.rtr.rmbt.statisticServer.ServerResource;
@@ -159,7 +170,7 @@ public class ExportResource extends ServerResource
         final String sql = "SELECT" +
                 " ('P' || t.open_uuid) open_uuid," +
                 " ('O' || t.open_test_uuid) open_test_uuid," + 
-                " to_char(t.time AT TIME ZONE 'UTC', 'YYYY-MM-DD HH24:MI:SS') time_utc," +
+                " to_char(t.time AT TIME ZONE 'UTC', 'YYYY-MM-DD HH24:MI:SS') \"time\"," +
                 " nt.group_name cat_technology," +
                 " nt.name network_type," +
                 " (CASE WHEN (t.geo_accuracy < ?) AND (t.geo_provider IS DISTINCT FROM 'manual') AND (t.geo_provider IS DISTINCT FROM 'geocoder') THEN" +
@@ -167,13 +178,13 @@ public class ExportResource extends ServerResource
                 " WHEN (t.geo_accuracy < ?) THEN" +
                 " ROUND(t.geo_lat*1111)/1111" +
                 " ELSE null" +
-                " END) lat," + 
+                " END) latitude," +
                 " (CASE WHEN (t.geo_accuracy < ?) AND (t.geo_provider IS DISTINCT FROM 'manual') AND (t.geo_provider IS DISTINCT FROM 'geocoder') THEN" +
                 " t.geo_long" +
                 " WHEN (t.geo_accuracy < ?) THEN" +
                 " ROUND(t.geo_long*741)/741 " +
                 " ELSE null" +
-                " END) long," + 
+                " END) longitude," +
                 " (CASE WHEN ((t.geo_provider = 'manual') OR (t.geo_provider = 'geocoder')) THEN" +
                 " 'rastered'" + //make raster transparent
                 " ELSE t.geo_provider" +
@@ -231,6 +242,9 @@ public class ExportResource extends ServerResource
         final List<String[]> data = new ArrayList<>();
         PreparedStatement ps = null;
         ResultSet rs = null;
+        final CsvMapper cm = new CsvMapper();
+        final CsvSchema schema;
+        final List<OpenTestExportDTO> results;
         try
         {
             ps = conn.prepareStatement(sql);
@@ -247,25 +261,19 @@ public class ExportResource extends ServerResource
             if (!ps.execute())
                 return null;
             rs = ps.getResultSet();
-            
-            final ResultSetMetaData meta = rs.getMetaData();
-            final int colCnt = meta.getColumnCount();
-            columns = new String[colCnt];
-            for (int i = 0; i < colCnt; i++)
-                columns[i] = meta.getColumnName(i + 1);
-            
-            while (rs.next())
-            {
-                final String[] line = new String[colCnt];
-                
-                for (int i = 0; i < colCnt; i++)
-                {
-                    final Object obj = rs.getObject(i + 1);
-                    line[i] = obj == null ? null : obj.toString();
-                }
-                
-                data.add(line);
-            }
+
+
+            BeanListHandler<OpenTestExportDTO> handler = new BeanListHandler<>(OpenTestExportDTO.class,new BasicRowProcessor(new GenerousBeanProcessor()));
+            results = handler.handle(rs);
+
+
+
+            cm.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
+            cm.enable(CsvGenerator.Feature.STRICT_CHECK_FOR_QUOTING);
+            schema = cm.schemaFor(OpenTestExportDTO.class).withHeader();
+
+
+
         }
         catch (final SQLException e)
         {
@@ -315,8 +323,11 @@ public class ExportResource extends ServerResource
                 
                 final OutputStreamWriter osw = new OutputStreamWriter(outf);
                 final CSVPrinter csvPrinter = new CSVPrinter(osw, csvFormat);
-                
-                for (final String c : columns)
+
+
+                cm.writer(schema).writeValue(outf, results);
+
+                /* for (final String c : columns)
                     csvPrinter.print(c);
                 csvPrinter.println();
                 
@@ -326,7 +337,7 @@ public class ExportResource extends ServerResource
                         csvPrinter.print(f);
                     csvPrinter.println();
                 }
-                csvPrinter.flush();
+                csvPrinter.flush();*/
                 
                 if (zip)
                     outf.close();
