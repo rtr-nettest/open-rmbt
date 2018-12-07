@@ -3,6 +3,7 @@ package at.rtr.rmbt.statisticServer.opendata.dto;
 import at.rtr.rmbt.util.BandCalculationUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.ApiModelProperty;
 
 public class SignalGraphItemDTO {
 
@@ -61,6 +62,9 @@ public class SignalGraphItemDTO {
 
     }
 
+    @JsonProperty("time_elapsed")
+    @ApiModelProperty(value = "The time elapsed since the start of the test in milliseconds.",
+            example = "55")
     public long getTimeElapsed() {
         return timeElapsed;
     }
@@ -69,6 +73,9 @@ public class SignalGraphItemDTO {
         this.timeElapsed = timeElapsed;
     }
 
+    @JsonProperty("network_type")
+    @ApiModelProperty(value = "Type of the network, e.g. GSM, EDGE, UMTS, HSPA, LTE, LAN, WLAN…",
+            example = "LTE")
     public String getNetworkType() {
         return networkType;
     }
@@ -77,6 +84,9 @@ public class SignalGraphItemDTO {
         this.networkType = networkType;
     }
 
+    @JsonProperty("signal_strength")
+    @ApiModelProperty(value = "Signal strength (RSSI) in dBm.",
+            example = "-85")
     public Integer getSignalStrength() {
         if (signalStrength != null && signalStrength == 0) {
             return null;
@@ -88,6 +98,9 @@ public class SignalGraphItemDTO {
         this.signalStrength = signalStrength;
     }
 
+    @JsonProperty("lte_rsrp")
+    @ApiModelProperty(value = "LTE signal strength in dBm.",
+            example = "-77")
     public Integer getLteRsrp() {
         if (lteRsrp != null && lteRsrp == 0) {
             return null;
@@ -99,6 +112,9 @@ public class SignalGraphItemDTO {
         this.lteRsrp = lteRsrp;
     }
 
+    @JsonProperty("lte_rsrq")
+    @ApiModelProperty(value = "LTE signal quality in decibels.",
+            example = "-6")
     public Integer getLteRsrq() {
         if (lteRsrq != null && lteRsrq == 0) {
             return null;
@@ -110,6 +126,9 @@ public class SignalGraphItemDTO {
         this.lteRsrq = lteRsrq;
     }
 
+    @JsonProperty("cat_technology")
+    @ApiModelProperty(value = "Technology category of the network, e.g. “3G”, “4G”, “WLAN”.",
+            example = "3G")
     public String getCatTechnology() {
         return catTechnology;
     }
@@ -119,6 +138,7 @@ public class SignalGraphItemDTO {
     }
 
     @JsonProperty("cell_info_2G")
+    @ApiModelProperty(value = "Additional information about the used 2G radio cell")
     public CellInfo2G getCellInfo2G() {
         return cellInfo2G;
     }
@@ -128,6 +148,7 @@ public class SignalGraphItemDTO {
     }
 
     @JsonProperty("cell_info_3G")
+    @ApiModelProperty(value = "Additional information about the used 3G radio cell")
     public CellInfo3G getCellInfo3G() {
         return cellInfo3G;
     }
@@ -137,6 +158,7 @@ public class SignalGraphItemDTO {
     }
 
     @JsonProperty("cell_info_4G")
+    @ApiModelProperty(value = "Additional information about the used 4G radio cell")
     public CellInfo4G getCellInfo4G() {
         return cellInfo4G;
     }
@@ -153,10 +175,16 @@ public class SignalGraphItemDTO {
             this.setFi(fi);
         }
 
+        @JsonProperty("frequency_dl")
+        @ApiModelProperty(value = "Frequency of the downlink in MHz",
+                example = "934.4")
         public Double getFrequencyDl() {
             return (getFi() == null) ? null : getFi().getFrequencyDL();
         }
 
+        @JsonProperty("band")
+        @ApiModelProperty(value = "Band",
+                example = "1")
         public Integer getBand() {
             return (getFi() == null) ? null : getFi().getBand();
         }
@@ -184,18 +212,30 @@ public class SignalGraphItemDTO {
             setArfcn(channelNumber);
         }
 
+        @JsonProperty("lac")
+        @ApiModelProperty(value = "16-bit Location Area Code, 0..65535",
+                example = "47170")
         public Integer getLac() {
             return lac;
         }
 
+        @JsonProperty("cid")
+        @ApiModelProperty(value = "16-bit GSM Cell Identity described in TS 27.007, 0..65535",
+                example = "18804")
         public Integer getCid() {
             return cid;
         }
 
+        @JsonProperty("bsic")
+        @ApiModelProperty(value = "6-bit Base Station Identity Code",
+                example = "58")
         public Integer getBsic() {
             return bsic;
         }
 
+        @JsonProperty("arfcn")
+        @ApiModelProperty(value = "16-bit GSM Absolute RF Channel Number",
+                example = "1021")
         public Integer getArfcn() {
             return arfcn;
         }
@@ -235,18 +275,30 @@ public class SignalGraphItemDTO {
         }
 
 
+        @JsonProperty("lac")
+        @ApiModelProperty(value = "16-bit Location Area Code, 0..65535",
+                example = "2510")
         public Integer getLac() {
             return lac;
         }
 
+        @JsonProperty("cid")
+        @ApiModelProperty(value = "CID 28-bit UMTS Cell Identity described in TS 25.331, 0..268435455",
+                example = "9908484")
         public Integer getCid() {
             return cid;
         }
 
+        @JsonProperty("psc")
+        @ApiModelProperty(value = "9-bit UMTS Primary Scrambling Code described in TS 25.331, 0..511",
+                example = "27")
         public Integer getPsc() {
             return psc;
         }
 
+        @JsonProperty("uarfcn")
+        @ApiModelProperty(value = "16-bit UMTS Absolute RF Channel Number",
+                example = "10687")
         public Integer getUarfcn() {
             return uarfcn;
         }
@@ -285,19 +337,26 @@ public class SignalGraphItemDTO {
             setEarfcn(channelNumber);
         }
 
-
+        @ApiModelProperty(value = "16-bit Tracking Area Code",
+                example = "6710")
         public Integer getTac() {
             return tac;
         }
 
+        @ApiModelProperty(value = "28-bit Cell Identity",
+                example = "189954")
         public Integer getCi() {
             return ci;
         }
 
+        @ApiModelProperty(value = "Physical Cell Id 0..503",
+                example = "35")
         public Integer getPci() {
             return pci;
         }
 
+        @ApiModelProperty(value = "18-bit Absolute RF Channel Number",
+                example = "2850")
         public Integer getEarfcn() {
             return earfcn;
         }

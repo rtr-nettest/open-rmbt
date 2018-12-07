@@ -3,6 +3,7 @@ package at.rtr.rmbt.statisticServer.opendata.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.ApiModelProperty;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -44,6 +45,8 @@ public class LocationGraphDTO {
         private Double altitude;
         private String provider;
 
+        @ApiModelProperty(value = "Direction of travel of the hosting device in degrees, where 0° ≤ bearing < 360°, counting clockwise relative to the true north",
+                example = "195.4")
         public Double getBearing() {
             if (getProvider().equals("gps")) {
                 return bearing;
@@ -51,6 +54,8 @@ public class LocationGraphDTO {
             return null;
         }
 
+        @ApiModelProperty(value = "Speed of the client device in meters per second",
+                example = "22.4")
         public Double getSpeed() {
             if (getProvider().equals("gps")) {
                 return speed;
@@ -60,6 +65,8 @@ public class LocationGraphDTO {
 
 
         @JsonProperty("long")
+        @ApiModelProperty(value = "Longitude of the client position.",
+                example = "14.20882799")
         public double getLongitude() {
             return longitude;
         }
@@ -69,6 +76,8 @@ public class LocationGraphDTO {
         }
 
         @JsonProperty("lat")
+        @ApiModelProperty(value = "Latitude of the client position.",
+                example = "47.76077786")
         public double getLatitude() {
             return latitude;
         }
@@ -78,6 +87,8 @@ public class LocationGraphDTO {
         }
 
         @JsonProperty("loc_accuracy")
+        @ApiModelProperty(value = "Estimation of accuracy of client location.",
+                example = "8")
         public Double getLocAccuracy() {
             if (locAccuracy > 0) {
                 return locAccuracy;
@@ -89,6 +100,9 @@ public class LocationGraphDTO {
             this.locAccuracy = locAccuracy;
         }
 
+        @JsonProperty("time_elapsed")
+        @ApiModelProperty(value = "The time elapsed since the start of the test in milliseconds.",
+                example = "55")
         public long getTimeElapsed() {
             return timeElapsed;
         }
@@ -109,6 +123,8 @@ public class LocationGraphDTO {
         }
 
         @JsonProperty("loc_src")
+        @ApiModelProperty(value = "Source for the geo location-data. Values: “gps”, “network”.",
+                example = "gps")
         public String getProvider() {
             return provider;
         }
