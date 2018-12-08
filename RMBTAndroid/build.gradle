@@ -30,7 +30,8 @@ dependencies {
 	// see https://stackoverflow.com/questions/38714651/android-studio-dexindexoverflowexception-method-id-not-in
 	implementation 'com.android.support:multidex:1.0.3'
 
-    implementation 'com.android.support:appcompat-v7:27.1.1'
+    //noinspection GradleCompatible
+    implementation 'com.android.support:appcompat-v7:28.0.0'
 }
 
 def signDebugApp = true
@@ -94,9 +95,9 @@ android {
         applicationId "at.alladin.rmbt.android"
 		manifestPlaceholders = [googleMapsApiKey:appSecretProperties['googleMapsApiKey']]
         minSdkVersion 15
-        targetSdkVersion 27
-        versionCode 30402
-        versionName "3.4.2"
+        targetSdkVersion 28
+        versionCode 30403
+        versionName "3.4.3"
         buildConfigField "long", "BUILD_TIMESTAMP", System.currentTimeMillis() + "L"
 		buildConfigField "int", "LOOP_MODE_UNLOCK_CODE",appSecretProperties['loopModeUnlockCode']
 		buildConfigField "int", "LOOP_MODE_LOCK_CODE",appSecretProperties['loopModeLockCode']
