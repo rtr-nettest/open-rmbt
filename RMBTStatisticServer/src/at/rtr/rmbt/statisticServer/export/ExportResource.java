@@ -18,12 +18,15 @@ package at.rtr.rmbt.statisticServer.export;
 
 import at.rtr.rmbt.statisticServer.ServerResource;
 import at.rtr.rmbt.statisticServer.opendata.dto.OpenTestExportDTO;
+import at.rtr.rmbt.statisticServer.opendata.dto.OpenTestSearchDTO;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.SequenceWriter;
 import com.fasterxml.jackson.dataformat.csv.CsvGenerator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.github.sett4.dataformat.xlsx.XlsxMapper;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.dbutils.BasicRowProcessor;
@@ -36,6 +39,8 @@ import org.restlet.representation.OutputRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
 
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
@@ -49,6 +54,7 @@ import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+@Api(value="/export", description = "Open test export")
 public class ExportResource extends ServerResource
 {
     private static final String FILENAME_CSV_HOURS = "netztest-opendata_hours-%HOURS%.csv";
@@ -67,6 +73,11 @@ public class ExportResource extends ServerResource
     private static long cacheThresholdMs;
 
     @Get
+    @GET
+    @Path("/export")
+    @ApiOperation(httpMethod = "GET",
+            value = "Search for open data tests",
+            response = OpenTestExportDTO.class)
     public Representation request(final String entity)
     {
         //Before doing anything => check if a cached file already exists and is new enough
