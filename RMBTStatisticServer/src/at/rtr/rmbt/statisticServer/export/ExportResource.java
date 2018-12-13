@@ -26,9 +26,10 @@ import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.github.sett4.dataformat.xlsx.XlsxMapper;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.dbutils.BasicRowProcessor;
 import org.apache.commons.dbutils.GenerousBeanProcessor;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
@@ -74,10 +75,17 @@ public class ExportResource extends ServerResource
 
     @Get
     @GET
-    @Path("/export")
+    @Path("/export/netztest-opendata-{year}-{month}.{format}")
     @ApiOperation(httpMethod = "GET",
-            value = "Search for open data tests",
-            response = OpenTestExportDTO.class)
+            value = "Export open data as CSV or XLSX",
+            response = OpenTestExportDTO.class,
+            produces = "text/csv",
+            nickname = "export")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "year", value = "Mandatory. The year that should be exported.", dataType = "string", example = "2017", paramType = "path", required = true),
+            @ApiImplicitParam(name = "month", value = "Mandatory. The year that should be exported.", dataType = "integer", example = "0", paramType = "path", required = true),
+            @ApiImplicitParam(name = "format", value = "Mandatory. Either ZIP (CSV) or XLSX.", dataType = "string", example = "xlsx", paramType = "path", required = true)
+    })
     public Representation request(final String entity)
     {
         //Before doing anything => check if a cached file already exists and is new enough
