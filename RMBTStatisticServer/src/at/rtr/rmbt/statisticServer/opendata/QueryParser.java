@@ -311,7 +311,8 @@ public class QueryParser {
                         sortOrder = value;
                         break;
                     case OUTPUT_FORMAT:
-                        if (value.isEmpty() || !(value.toLowerCase().equals("json") || (value.toLowerCase().equals("csv")))) {
+                        if (value.isEmpty() || !(value.toLowerCase().equals("json") || (value.toLowerCase().equals("csv")) ||
+                                (value.toLowerCase().equals("xlsx")) )) {
                             invalidElements.add(attr);
                             continue;
                         }

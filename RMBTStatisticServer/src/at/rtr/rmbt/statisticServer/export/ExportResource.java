@@ -352,7 +352,8 @@ public class ExportResource extends ServerResource
                     final CsvSchema schema;
                     cm.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
                     cm.enable(CsvGenerator.Feature.STRICT_CHECK_FOR_QUOTING);
-                    schema = cm.schemaFor(OpenTestExportDTO.class).withHeader();
+                    schema = CsvSchema.builder().setLineSeparator("\r\n").setUseHeader(true)
+                            .addColumnsFrom(cm.schemaFor(OpenTestExportDTO.class)).build();
                     cm.writer(schema).writeValue(outf, results);
                 }
                 

@@ -111,8 +111,9 @@ public class LocationGraphDTO {
             this.timeElapsed = timeElapsed;
         }
 
+        @ApiModelProperty(value="Altitude of the client position in meters", example = "300.4")
         public Double getAltitude() {
-            if (altitude == null && altitude != 0) {
+            if (altitude != null && altitude != 0) {
                 return altitude;
             }
             return null;
