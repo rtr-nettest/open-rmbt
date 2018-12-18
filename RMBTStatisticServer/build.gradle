@@ -96,6 +96,12 @@ swagger {
         info {
             title = 'RTR NetTest OpenData'
             version = 'v1'
+            description = 'Open Data API for RTR-Netztest\n ' +
+                    'For further information, please consult <https://www.netztest.at/en/Opendata>\n ' +
+                    'For high-volume requests, please contact RTR (netztest@rtr.at) for instructions regarding the parameter "sender". ' +
+                    'Users with a registered sender ID can be informed in case of major interface changes.\n ' +
+                    'Data accessible via the Open Data Interface are made available under Creative Commons Attribution 4.0 (CC BY 4.0). ' +
+                    'Regarding privacy policy and terms of use, please refer to https://www.rtr.at/en/tk/netztestterms.'
             contact {
                 email = 'netztest@rtr.at'
                 name = 'RTR-Netztest-Team'

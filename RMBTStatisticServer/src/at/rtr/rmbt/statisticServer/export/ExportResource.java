@@ -55,7 +55,7 @@ import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-@Api(value="/export", description = "Open test export")
+@Api(value="/export")
 public class ExportResource extends ServerResource
 {
     private static final String FILENAME_CSV_HOURS = "netztest-opendata_hours-%HOURS%.csv";
@@ -78,6 +78,7 @@ public class ExportResource extends ServerResource
     @Path("/export/netztest-opendata-{year}-{month}.{format}")
     @ApiOperation(httpMethod = "GET",
             value = "Export open data as CSV or XLSX",
+            notes = "Bulk export open data entries",
             response = OpenTestExportDTO.class,
             produces = "text/csv",
             nickname = "export")
