@@ -26,9 +26,9 @@ import javax.sql.DataSource;
 public class DbConnection
 {
     
-    private static final DataSource ds;
+    private static DataSource ds;
     
-    static
+    private static void init()
     {
         DataSource _ds = null;
         try
@@ -43,6 +43,9 @@ public class DbConnection
     
     public static Connection getConnection() throws NamingException, SQLException
     {
+        if (ds == null || ds.getConnection() == null) {
+            init();
+        }
         final Connection connection = ds.getConnection();
         connection.setAutoCommit(true);
         return connection;

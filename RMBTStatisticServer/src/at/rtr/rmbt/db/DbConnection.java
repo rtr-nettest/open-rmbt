@@ -25,10 +25,10 @@ import javax.sql.DataSource;
 
 public class DbConnection
 {
-    
-    private static final DataSource ds;
-    
-    static
+
+    private static DataSource ds;
+
+    private static void init()
     {
         DataSource _ds = null;
         try
@@ -40,9 +40,12 @@ public class DbConnection
         }
         ds = _ds;
     }
-    
+
     public static Connection getConnection() throws NamingException, SQLException
     {
+        if (ds == null || ds.getConnection() == null) {
+            init();
+        }
         return ds.getConnection();
     }
 }
