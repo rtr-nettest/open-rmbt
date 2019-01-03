@@ -43,7 +43,7 @@ public class DbConnection
 
     public static Connection getConnection() throws NamingException, SQLException
     {
-        if (ds == null || ds.getConnection() == null) {
+        if (ds == null) {
             init();
         }
         return ds.getConnection();
