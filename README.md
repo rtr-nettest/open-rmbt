@@ -94,7 +94,7 @@ Installation
     
     # if not using postgis 2.4, set the correct version
     #> sed -i "s/postgis-2\.4/postgis-X.Y/g rmbt.sql"
-    
+    cat rmbt.sql | psql rmbt -1
     cat rmbt_init.sql | psql rmbt -1
     ```
     (optional: add additional open databases, eg. Corine)
