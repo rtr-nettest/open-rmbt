@@ -29,7 +29,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.dbutils.BasicRowProcessor;
 import org.apache.commons.dbutils.GenerousBeanProcessor;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
@@ -68,7 +67,6 @@ public class ExportResource extends ServerResource
     private static final String FILENAME_ZIP_CURRENT = "netztest-opendata.zip";
     private static final String FILENAME_XLSX_CURRENT = "netztest-opendata.xlsx";
 
-    private static final CSVFormat csvFormat = CSVFormat.RFC4180;
     private static final boolean zip = true;
     
     private static long cacheThresholdMs;
