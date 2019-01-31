@@ -16,21 +16,22 @@
  ******************************************************************************/
 package at.rtr.rmbt.statisticServer.export;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
+import at.rtr.rmbt.statisticServer.ServerResource;
+import at.rtr.rmbt.statisticServer.opendata.dto.OpenTestExportDTO;
+import at.rtr.rmbt.statisticServer.opendata.dto.OpenTestSearchDTO;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.SequenceWriter;
+import com.fasterxml.jackson.dataformat.csv.CsvGenerator;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+import com.github.sett4.dataformat.xlsx.XlsxMapper;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import org.apache.commons.dbutils.BasicRowProcessor;
+import org.apache.commons.dbutils.GenerousBeanProcessor;
+import org.apache.commons.dbutils.handlers.BeanListHandler;
 import org.apache.commons.io.IOUtils;
 import org.restlet.data.Disposition;
 import org.restlet.data.MediaType;
@@ -38,30 +39,52 @@ import org.restlet.representation.OutputRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
 
-import at.rtr.rmbt.statisticServer.ServerResource;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.util.Date;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.logging.Logger;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
+@Api(value="/export")
 public class ExportResource extends ServerResource
 {
     private static final String FILENAME_CSV_HOURS = "netztest-opendata_hours-%HOURS%.csv";
     private static final String FILENAME_ZIP_HOURS = "netztest-opendata_hours-%HOURS%.zip";
+    private static final String FILENAME_XLSX_HOURS = "netztest-opendata_hours-%HOURS%.zip";
     private static final String FILENAME_CSV = "netztest-opendata-%YEAR%-%MONTH%.csv";
+    private static final String FILENAME_XLSX = "netztest-opendata-%YEAR%-%MONTH%.xlsx";
     private static final String FILENAME_ZIP = "netztest-opendata-%YEAR%-%MONTH%.zip";
     private static final String FILENAME_CSV_CURRENT = "netztest-opendata.csv";
     private static final String FILENAME_ZIP_CURRENT = "netztest-opendata.zip";
-    
-    private static final CSVFormat csvFormat = CSVFormat.RFC4180;
+    private static final String FILENAME_XLSX_CURRENT = "netztest-opendata.xlsx";
+
     private static final boolean zip = true;
     
     private static long cacheThresholdMs;
 
     @Get
+    @GET
+    @Path("/export/netztest-opendata-{year}-{month}.{format}")
+    @ApiOperation(httpMethod = "GET",
+            value = "Export open data as CSV or XLSX",
+            notes = "Bulk export open data entries",
+            response = OpenTestExportDTO.class,
+            produces = "text/csv",
+            nickname = "export")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "year", value = "Mandatory. The year that should be exported.", dataType = "string", example = "2017", paramType = "path", required = true),
+            @ApiImplicitParam(name = "month", value = "Mandatory. The year that should be exported.", dataType = "integer", example = "0", paramType = "path", required = true),
+            @ApiImplicitParam(name = "format", value = "Mandatory. Either ZIP (CSV) or XLSX.", dataType = "string", example = "xlsx", paramType = "path", required = true)
+    })
     public Representation request(final String entity)
     {
         //Before doing anything => check if a cached file already exists and is new enough
@@ -69,6 +92,7 @@ public class ExportResource extends ServerResource
         
     	final String filename_zip;
     	final String filename_csv;
+    	final String filename_xlsx;
     	
         //allow filtering by month/year
         int year = -1;
@@ -76,6 +100,12 @@ public class ExportResource extends ServerResource
         int hours = -1;
         boolean hoursExport = false;
         boolean dateExport = false;
+
+        String tFormat = "csv";
+        if (getRequest().getAttributes().containsKey("format")) {
+            tFormat = getRequest().getAttributes().get("format").toString();
+        }
+        final boolean xlsx = tFormat.contains("xlsx");
         
         if (getRequest().getAttributes().containsKey("hours")) { // export by hours
         	try {
@@ -102,20 +132,23 @@ public class ExportResource extends ServerResource
         if (hoursExport) {
         	filename_zip = FILENAME_ZIP_HOURS.replace("%HOURS%", String.format("%03d",hours));
         	filename_csv = FILENAME_CSV_HOURS.replace("%HOURS%", String.format("%03d",hours));
+        	filename_xlsx = FILENAME_XLSX_HOURS.replace("%HOURS%", String.format("%03d",hours));
         	cacheThresholdMs = 5*60*1000; //5 minutes
         } else if (dateExport) {
         	filename_zip = FILENAME_ZIP.replace("%YEAR%", Integer.toString(year)).replace("%MONTH%",String.format("%02d",month));
         	filename_csv = FILENAME_CSV.replace("%YEAR%", Integer.toString(year)).replace("%MONTH%",String.format("%02d",month));
+        	filename_xlsx = FILENAME_XLSX.replace("%YEAR%", Integer.toString(year)).replace("%MONTH%",String.format("%02d",month));
         	cacheThresholdMs  = 23*60*60*1000; //23 hours
         } else {	
         	filename_zip = FILENAME_ZIP_CURRENT;
         	filename_csv = FILENAME_CSV_CURRENT;
+        	filename_xlsx = FILENAME_XLSX_CURRENT;
         	cacheThresholdMs = 3*60*60*1000; //3 hours
         }
+        final String filename = ((xlsx)?filename_xlsx:(zip)?filename_zip:filename_csv);
 
-
-        final File cachedFile = new File(property + File.separator + ((zip)?filename_zip:filename_csv));
-        final File generatingFile = new File(property + File.separator + ((zip)?filename_zip:filename_csv) + "_tmp");
+        final File cachedFile = new File(property + File.separator + filename);
+        final File generatingFile = new File(property + File.separator + filename + "_tmp");
         if (cachedFile.exists()) {
             
             //check if file has been recently created OR a file is currently being created
@@ -123,7 +156,7 @@ public class ExportResource extends ServerResource
             		(generatingFile.exists() && (generatingFile.lastModified() + cacheThresholdMs) > (new Date()).getTime())) {
 
                 //if so, return the cached file instead of a cost-intensive new one
-                final OutputRepresentation result = new OutputRepresentation(zip ? MediaType.APPLICATION_ZIP
+                final OutputRepresentation result = new OutputRepresentation(xlsx ? MediaType.APPLICATION_MSOFFICE_XLSX : zip ? MediaType.APPLICATION_ZIP
                 : MediaType.TEXT_CSV) {
 
                     @Override
@@ -134,10 +167,9 @@ public class ExportResource extends ServerResource
                     }
                     
                 };
-                if (zip)
-                {
+                if (xlsx || zip) {
                     final Disposition disposition = new Disposition(Disposition.TYPE_ATTACHMENT);
-                    disposition.setFilename(filename_zip);
+                    disposition.setFilename(filename);
                     result.setDisposition(disposition);
                 }
                 return result;
@@ -159,7 +191,7 @@ public class ExportResource extends ServerResource
         final String sql = "SELECT" +
                 " ('P' || t.open_uuid) open_uuid," +
                 " ('O' || t.open_test_uuid) open_test_uuid," + 
-                " to_char(t.time AT TIME ZONE 'UTC', 'YYYY-MM-DD HH24:MI:SS') time_utc," +
+                " to_char(t.time AT TIME ZONE 'UTC', 'YYYY-MM-DD HH24:MI:SS') \"time\"," +
                 " nt.group_name cat_technology," +
                 " nt.name network_type," +
                 " (CASE WHEN (t.geo_accuracy < ?) AND (t.geo_provider IS DISTINCT FROM 'manual') AND (t.geo_provider IS DISTINCT FROM 'geocoder') THEN" +
@@ -167,13 +199,13 @@ public class ExportResource extends ServerResource
                 " WHEN (t.geo_accuracy < ?) THEN" +
                 " ROUND(t.geo_lat*1111)/1111" +
                 " ELSE null" +
-                " END) lat," + 
+                " END) latitude," +
                 " (CASE WHEN (t.geo_accuracy < ?) AND (t.geo_provider IS DISTINCT FROM 'manual') AND (t.geo_provider IS DISTINCT FROM 'geocoder') THEN" +
                 " t.geo_long" +
                 " WHEN (t.geo_accuracy < ?) THEN" +
                 " ROUND(t.geo_long*741)/741 " +
                 " ELSE null" +
-                " END) long," + 
+                " END) longitude," +
                 " (CASE WHEN ((t.geo_provider = 'manual') OR (t.geo_provider = 'geocoder')) THEN" +
                 " 'rastered'" + //make raster transparent
                 " ELSE t.geo_provider" +
@@ -231,6 +263,8 @@ public class ExportResource extends ServerResource
         final List<String[]> data = new ArrayList<>();
         PreparedStatement ps = null;
         ResultSet rs = null;
+
+        final List<OpenTestExportDTO> results;
         try
         {
             ps = conn.prepareStatement(sql);
@@ -247,25 +281,11 @@ public class ExportResource extends ServerResource
             if (!ps.execute())
                 return null;
             rs = ps.getResultSet();
-            
-            final ResultSetMetaData meta = rs.getMetaData();
-            final int colCnt = meta.getColumnCount();
-            columns = new String[colCnt];
-            for (int i = 0; i < colCnt; i++)
-                columns[i] = meta.getColumnName(i + 1);
-            
-            while (rs.next())
-            {
-                final String[] line = new String[colCnt];
-                
-                for (int i = 0; i < colCnt; i++)
-                {
-                    final Object obj = rs.getObject(i + 1);
-                    line[i] = obj == null ? null : obj.toString();
-                }
-                
-                data.add(line);
-            }
+
+
+            BeanListHandler<OpenTestExportDTO> handler = new BeanListHandler<>(OpenTestExportDTO.class,new BasicRowProcessor(new GenerousBeanProcessor()));
+            results = handler.handle(rs);
+
         }
         catch (final SQLException e)
         {
@@ -287,7 +307,7 @@ public class ExportResource extends ServerResource
             }
         }
         
-        final OutputRepresentation result = new OutputRepresentation(zip ? MediaType.APPLICATION_ZIP
+        final OutputRepresentation result = new OutputRepresentation(xlsx ? MediaType.APPLICATION_MSOFFICE_XLSX : zip ? MediaType.APPLICATION_ZIP
                 : MediaType.TEXT_CSV)
         {
             @Override
@@ -296,10 +316,10 @@ public class ExportResource extends ServerResource
                 //cache in file => create temporary temporary file (to 
                 // handle errors while fulfilling a request)
                 String property = System.getProperty("java.io.tmpdir");
-                final File cachedFile = new File(property + File.separator + ((zip)?filename_zip:filename_csv) + "_tmp");
+                final File cachedFile = new File(property + File.separator + filename + "_tmp");
                 OutputStream outf = new FileOutputStream(cachedFile);
                 
-                if (zip)
+                if (zip && !xlsx)
                 {
                     final ZipOutputStream zos = new ZipOutputStream(outf);
                     final ZipEntry zeLicense = new ZipEntry("LIZENZ.txt");
@@ -314,19 +334,27 @@ public class ExportResource extends ServerResource
                 }
                 
                 final OutputStreamWriter osw = new OutputStreamWriter(outf);
-                final CSVPrinter csvPrinter = new CSVPrinter(osw, csvFormat);
-                
-                for (final String c : columns)
-                    csvPrinter.print(c);
-                csvPrinter.println();
-                
-                for (final String[] line : data)
-                {
-                    for (final String f : line)
-                        csvPrinter.print(f);
-                    csvPrinter.println();
+
+
+
+                if (xlsx) {
+                    XlsxMapper mapper = new XlsxMapper();
+                    mapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
+                    CsvSchema schema = mapper.schemaFor(OpenTestExportDTO.class).withHeader();
+                    SequenceWriter sequenceWriter = mapper.writer(schema).writeValues(outf);
+                    sequenceWriter.writeAll(results);
+                    sequenceWriter.flush();
+                    sequenceWriter.close();
                 }
-                csvPrinter.flush();
+                else {
+                    final CsvMapper cm = new CsvMapper();
+                    final CsvSchema schema;
+                    cm.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
+                    cm.enable(CsvGenerator.Feature.STRICT_CHECK_FOR_QUOTING);
+                    schema = CsvSchema.builder().setLineSeparator("\r\n").setUseHeader(true)
+                            .addColumnsFrom(cm.schemaFor(OpenTestExportDTO.class)).build();
+                    cm.writer(schema).writeValue(outf, results);
+                }
                 
                 if (zip)
                     outf.close();
@@ -334,7 +362,7 @@ public class ExportResource extends ServerResource
                 //if we reach this code, the data is now cached in a temporary tmp-file
                 //so, rename the file for "production use2
                 //concurrency issues should be solved by the operating system
-                File newCacheFile = new File(property + File.separator + ((zip)?filename_zip:filename_csv));
+                File newCacheFile = new File(property + File.separator + filename);
                 Files.move(cachedFile.toPath(), newCacheFile.toPath(), StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
                 
                 FileInputStream fis = new FileInputStream(newCacheFile);
@@ -343,10 +371,9 @@ public class ExportResource extends ServerResource
                 out.close();
             }
         };
-        if (zip)
-        {
+        if (xlsx || zip) {
             final Disposition disposition = new Disposition(Disposition.TYPE_ATTACHMENT);
-            disposition.setFilename(filename_zip);
+            disposition.setFilename(filename);
             result.setDisposition(disposition);
         }
         

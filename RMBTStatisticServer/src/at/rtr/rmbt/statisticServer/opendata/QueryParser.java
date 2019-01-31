@@ -180,13 +180,13 @@ public class QueryParser {
         allowedFields.put("format", FieldType.OUTPUT_FORMAT);
     }
     
-    public JSONArray parseQuery(Form getParameters) {
+    public List<String> parseQuery(Form getParameters) {
         //Values for the database
         searchValues.clear();
 
         this.whereClause = "";
         this.orderClause = "";
-        final JSONArray invalidElements = new JSONArray();
+        final List<String> invalidElements = new ArrayList<>();
         final JSONObject response = new JSONObject();
         
         String sortBy="";
@@ -194,7 +194,7 @@ public class QueryParser {
         for (String attr : getParameters.getNames()) {
             //check if attribute is allowed
             if (!allowedFields.containsKey(attr)) {
-                invalidElements.put(attr);
+                invalidElements.add(attr);
                 continue;
             }
 
@@ -213,7 +213,7 @@ public class QueryParser {
                 switch (type) {
                     case STRING:
                         if (value.isEmpty()) {
-                            invalidElements.put(attr);
+                            invalidElements.add(attr);
                             continue;
                         }
                         //allow using wildcard '*' instead of sql '%'
@@ -235,7 +235,7 @@ public class QueryParser {
                             //try parsing the date
                             long v = parseDate(value);
                             if (v == -1) {
-                                invalidElements.put(attr);
+                                invalidElements.add(attr);
                                 continue;
                             }
                             
@@ -250,7 +250,7 @@ public class QueryParser {
                         break;
                     case UUID:
                         if (value.isEmpty()) {
-                            invalidElements.put(attr);
+                            invalidElements.add(attr);
                             continue;
                         }
 
@@ -263,7 +263,7 @@ public class QueryParser {
                                 UUID.fromString(uuid);
                             }
                         } catch(IllegalArgumentException e) {
-                            invalidElements.put(attr);
+                            invalidElements.add(attr);
                             continue;
                         }
                         this.addToWhereParams(attr, value, "=", negate, type);
@@ -271,7 +271,7 @@ public class QueryParser {
                     case BOOLEAN:
                     	if (value.isEmpty() ||
                 			(!value.toLowerCase().equals("false") && !value.toLowerCase().equals("true"))) {
-                            invalidElements.put(attr);
+                            invalidElements.add(attr);
                             continue;
                         }
                         this.addToWhereParams(attr, value, "=", negate, type);
@@ -285,7 +285,7 @@ public class QueryParser {
                             value = value.substring(1);
                         }
                         if (value.isEmpty() || (type == FieldType.DOUBLE && !isDouble(value)) || (type == FieldType.LONG && !isLong(value))) {
-                            invalidElements.put(attr);
+                            invalidElements.add(attr);
                             continue;
                         }
                         this.addToWhereParams(attr, value, comperator, negate, type);
@@ -294,7 +294,7 @@ public class QueryParser {
                     	break; //do nothing
                     case SORTBY:
                         if (value.isEmpty() || !openDataFieldsSortable.contains(value)) {
-                            invalidElements.put(attr);
+                            invalidElements.add(attr);
                             continue;
                         }
                         sortBy = value;
@@ -305,14 +305,15 @@ public class QueryParser {
                         if (value.isEmpty() || 
                                 (!value.toUpperCase().equals("ASC") && !value.toUpperCase().equals("DESC")) || 
                                 !getParameters.getNames().contains("sort_by")) {
-                            invalidElements.put(attr);
+                            invalidElements.add(attr);
                             continue;
                         }
                         sortOrder = value;
                         break;
                     case OUTPUT_FORMAT:
-                        if (value.isEmpty() || !(value.toLowerCase().equals("json") || (value.toLowerCase().equals("csv")))) {
-                            invalidElements.put(attr);
+                        if (value.isEmpty() || !(value.toLowerCase().equals("json") || (value.toLowerCase().equals("csv")) ||
+                                (value.toLowerCase().equals("xlsx")) )) {
+                            invalidElements.add(attr);
                             continue;
                         }
                         break;
@@ -321,7 +322,7 @@ public class QueryParser {
             
         }
 
-        if (invalidElements.length() == 0) {
+        if (invalidElements.size() == 0) {
             //special treatment for radius (Since lat/long are removed from the list in the process)
             if (whereParams.containsKey("radius")) {
                 whereClause += this.formatWhereClause(whereParams.get("radius").get(0),searchValues);

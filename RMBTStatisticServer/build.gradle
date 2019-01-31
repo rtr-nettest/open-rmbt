@@ -4,6 +4,11 @@ buildscript {
     }
 }
 
+plugins {
+    id "com.benjaminsproule.swagger" version "1.0.4"
+}
+
+apply plugin: 'com.benjaminsproule.swagger'
 apply plugin: 'war'
 sourceCompatibility = '1.7'
 
@@ -17,6 +22,7 @@ repositories {
     mavenCentral()
     maven{url 'http://maven.restlet.com'}
     maven{url 'https://oss.sonatype.org/content/repositories/snapshots/'}
+    maven { url 'https://jitpack.io' }
 }
 
 sourceSets {
@@ -54,9 +60,15 @@ dependencies {
     compile 'org.restlet.jse:org.restlet.ext.json:2.1.7'
     compile 'org.restlet.jee:org.restlet.ext.servlet:2.1.7'
     compile 'org.json:json:20140107'
-    compile 'org.apache.commons:commons-csv:1.4'
     compile 'commons-io:commons-io:2.4'
     compile 'org.apache.jcs:jcs:1.3'
+    compile 'io.swagger:swagger-annotations:1.5.15'
+    //compile 'io.swagger:swagger-core:1.5.15'
+    compile 'javax.ws.rs:javax.ws.rs-api:2.0.1'
+    compile 'com.fasterxml.jackson:jackson-base:2.9.7'
+    compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.9.7'
+    compile group: 'commons-dbutils', name: 'commons-dbutils', version: '1.7'
+    compile 'com.github.sett4:jackson-dataformat-xlsx-lite:2.9.6-1'
     compile project(':RMBTSharedCode')
     compile project(':RMBTUtil')
 }
@@ -69,6 +81,38 @@ war {
     from(buildDir){ 
             into('META-INF') 
             include 'context.xml' 
+    }
+}
+
+
+swagger {
+    apiSource {
+        springmvc = false
+        locations = ['at.rtr.rmbt.statisticServer']
+        schemes = ['https']
+        host = 'data.netztest.at'
+        basePath = '/RMBTStatisticServer'
+        info {
+            title = 'RTR NetTest OpenData'
+            version = 'v1'
+            description = 'Open Data API for RTR-Netztest\n ' +
+                    'For further information, please consult <https://www.netztest.at/en/Opendata>\n ' +
+                    'For high-volume requests, please contact RTR (netztest@rtr.at) for instructions regarding the parameter "sender". ' +
+                    'Users with a registered sender ID can be informed in case of major interface changes.\n ' +
+                    'Data accessible via the Open Data Interface are made available under Creative Commons Attribution 4.0 (CC BY 4.0). ' +
+                    'Regarding privacy policy and terms of use, please refer to https://www.rtr.at/en/tk/netztestterms.'
+            contact {
+                email = 'netztest@rtr.at'
+                name = 'RTR-Netztest-Team'
+                url = 'https://www.netztest.at'
+            }
+            license {
+                url = 'http://www.apache.org/licenses/LICENSE-2.0.html'
+                name = 'Apache 2.0'
+            }
+        }
+        swaggerDirectory = "${project.rootDir}/RMBTStatisticServer/doc/"
+        outputFormats = ['json']
     }
 }
 

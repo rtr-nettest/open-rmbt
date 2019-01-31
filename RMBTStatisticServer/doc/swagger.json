@@ -1,0 +1,1439 @@
+{
+  "swagger" : "2.0",
+  "info" : {
+    "description" : "Open Data API for RTR-Netztest\n For further information, please consult <https://www.netztest.at/en/Opendata>\n For high-volume requests, please contact RTR (netztest@rtr.at) for instructions regarding the parameter \"sender\". Users with a registered sender ID can be informed in case of major interface changes.\n Data accessible via the Open Data Interface are made available under Creative Commons Attribution 4.0 (CC BY 4.0). Regarding privacy policy and terms of use, please refer to https://www.rtr.at/en/tk/netztestterms.",
+    "version" : "v1",
+    "title" : "RTR NetTest OpenData",
+    "contact" : {
+      "name" : "RTR-Netztest-Team",
+      "url" : "https://www.netztest.at",
+      "email" : "netztest@rtr.at"
+    },
+    "license" : {
+      "name" : "Apache 2.0",
+      "url" : "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "host" : "data.netztest.at",
+  "basePath" : "/RMBTStatisticServer",
+  "tags" : [ {
+    "name" : "export"
+  }, {
+    "name" : "opentests"
+  }, {
+    "name" : "opentestssearch"
+  } ],
+  "schemes" : [ "https" ],
+  "paths" : {
+    "/export/netztest-opendata-{year}-{month}.{format}" : {
+      "get" : {
+        "tags" : [ "export" ],
+        "summary" : "Export open data as CSV or XLSX",
+        "description" : "Bulk export open data entries",
+        "operationId" : "export",
+        "parameters" : [ {
+          "name" : "year",
+          "in" : "path",
+          "description" : "Mandatory. The year that should be exported.",
+          "required" : true,
+          "type" : "string",
+          "x-example" : "2017"
+        }, {
+          "name" : "month",
+          "in" : "path",
+          "description" : "Mandatory. The year that should be exported.",
+          "required" : true,
+          "type" : "integer",
+          "x-example" : 0
+        }, {
+          "name" : "format",
+          "in" : "path",
+          "description" : "Mandatory. Either ZIP (CSV) or XLSX.",
+          "required" : true,
+          "type" : "string",
+          "x-example" : "xlsx"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/OpenTestExportDTO"
+            }
+          }
+        }
+      }
+    },
+    "/opentests/search" : {
+      "get" : {
+        "tags" : [ "opentestssearch" ],
+        "summary" : "Search for open data tests",
+        "description" : "Date fields have to be submitted as a number, representing the number of milliseconds that have elapsed since midnight, January 1st, 1970 or in the format “yyyy-MM-dd HH:mm:ss”. The time is given in UTC.\n\nDecimal point (Full Stop “.”) is always used to separate the integer part from the fractional part of a number written in decimal form. This is independent from the local or regional settings.\n\nNumeric fields also allow using the comparators ‘>’ and ‘<’ (meaning ‘=>’ and ‘=<’ respectively). Dates have always to be queried as ranges by using these comparators.\n\nString fields allow using the wildcard ‘*’ for matching any literals and ‘?’ for matching one arbitrary literal.\n\nIt is possible, to begin each filter argument with an exclamation mark (!) to negate the filter. E.g. network_type=!LAN will yield all tests where the network type was not LAN.\n\nThe criteria denoted with [] can be used more than once in a query. Data has to match all criteria. If an array for one criterion is given, the data has to match each entry.\n\nGenerally a query on a parameter value ‘null’ is not possible, except for the parameter loc_accuracy, where the value -1 means ‘null’. Non-‘null’ values are queried with any single or multiple values.",
+        "operationId" : "search",
+        "parameters" : [ {
+          "name" : "download_kbit",
+          "in" : "query",
+          "description" : "Download speed in kilobit per second",
+          "required" : false,
+          "type" : "string",
+          "x-example" : ">6903"
+        }, {
+          "name" : "upload_kbit",
+          "in" : "query",
+          "description" : "Upload speed in kilobit per second.",
+          "required" : false,
+          "type" : "string",
+          "x-example" : "<4670"
+        }, {
+          "name" : "ping_ms",
+          "in" : "query",
+          "description" : "Median ping (round-trip time) in milliseconds, measured on the server side. In previous versions (before June 3rd 2015) this was the minimum ping measured on the client side.",
+          "required" : false,
+          "type" : "string",
+          "x-example" : "<16"
+        }, {
+          "name" : "gkz",
+          "in" : "query",
+          "description" : "Community ID (Gemeindekennzahl, see <http://www.bev.gv.at/portal/page?_pageid=713,2601287&_dad=portal&_schema=PORTAL>).",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "gkz_sa",
+          "in" : "query",
+          "description" : "Community ID (Gemeindekennzahl, see <http://www.statistik.at/web_de/klassifikationen/regionale_gliederungen/gemeinden/index.html>)",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "cat_technology",
+          "in" : "query",
+          "description" : "Technology category of the network, e.g. “3G”, “4G”, “WLAN”.",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "client_version",
+          "in" : "query",
+          "description" : "Software version number of the client.",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "model",
+          "in" : "query",
+          "description" : "Name of the device used.",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "network_name",
+          "in" : "query",
+          "description" : "Display name of the mobile network.",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "network_type",
+          "in" : "query",
+          "description" : "Type of the network, e.g. MOBILE, LAN, WLAN.",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "platform",
+          "in" : "query",
+          "description" : "Platform on which the test has been conducted",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "signal_strength",
+          "in" : "query",
+          "description" : "Signal strength (RSSI) in dBm.",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "open_uuid",
+          "in" : "query",
+          "description" : "Open-UUID: Identifies the client that conducted the test. The a new Open-UUID is assigned to the client on a regular basis.",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "open_test_uuid",
+          "in" : "query",
+          "description" : "The UUID of the test.",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "client_uuid",
+          "in" : "query",
+          "description" : "The private UUID of a client",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "test_uuid",
+          "in" : "query",
+          "description" : "The private UUID of a test",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "long",
+          "in" : "query",
+          "description" : "Longitude of the client position.",
+          "required" : false,
+          "type" : "number"
+        }, {
+          "name" : "lat",
+          "in" : "query",
+          "description" : "Latitude of the client position.",
+          "required" : false,
+          "type" : "number"
+        }, {
+          "name" : "radius",
+          "in" : "query",
+          "description" : "Radius in meters defining based on lat/long parameters",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "mobile_provider_name",
+          "in" : "query",
+          "description" : "mobile operator name",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "provider_name",
+          "in" : "query",
+          "description" : "Name of the internet service provider.",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "sim_mcc_mnc",
+          "in" : "query",
+          "description" : "Network identification of the SIM provider. The digits of MCC and MNC have the same meaning as described in “network_mcc_mnc”.",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "sim_country",
+          "in" : "query",
+          "description" : "Home country of the SIM card in ISO 3166.",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "network_country",
+          "in" : "query",
+          "description" : "Country of the network in ISO 3166.",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "country_geoip",
+          "in" : "query",
+          "description" : "Country according client IP address.",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "country_location",
+          "in" : "query",
+          "description" : "Country of geo-location.",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "user_server_selection",
+          "in" : "query",
+          "description" : "Legacy",
+          "required" : false,
+          "type" : "boolean"
+        }, {
+          "name" : "loc_accuracy",
+          "in" : "query",
+          "description" : "Estimation of accuracy of client location in meters",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "public_ip_as_name",
+          "in" : "query",
+          "description" : "Name of the AS of the clients public IP.",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "time",
+          "in" : "query",
+          "description" : "UTC date and time when test was started.",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "radio_band",
+          "in" : "query",
+          "description" : "Radio band used when conducting the test.",
+          "required" : false,
+          "type" : "integer",
+          "format" : "int64"
+        }, {
+          "name" : "cell_area_code",
+          "in" : "query",
+          "description" : "Number describing the coarse location of a cell. E.g. the Tracking Area Code (TAC) in case of 4G or the Location Area Code (LAC) in case of 2G or 3G",
+          "required" : false,
+          "type" : "integer",
+          "format" : "int64"
+        }, {
+          "name" : "cell_location_id",
+          "in" : "query",
+          "description" : "Number identifying the location of a cell. E.g. the 28-bit Cell Identity (CI) in case of 4G, the 28-bit UMTS Cell Identity (CID) in case of UMTS or the 16-bit GSM Cell Identity (CID) in case of GSM.",
+          "required" : false,
+          "type" : "integer",
+          "format" : "int64"
+        }, {
+          "name" : "additional_info",
+          "in" : "query",
+          "description" : "additional properties to return",
+          "required" : false,
+          "type" : "string",
+          "x-example" : "download_classification"
+        }, {
+          "name" : "format",
+          "in" : "query",
+          "description" : "Desired output format, either 'csv' or 'json', default: json",
+          "required" : false,
+          "type" : "string",
+          "x-example" : "json"
+        }, {
+          "name" : "sort_by",
+          "in" : "query",
+          "description" : "The field for which the data are sorted. Valid fields are: “download_kbit\", \"upload_kbit\", \"time\", \"signal_strength\" and \"ping_ms\"",
+          "required" : false,
+          "type" : "string",
+          "x-example" : "download_kbit"
+        }, {
+          "name" : "sort_order",
+          "in" : "query",
+          "description" : "The sort_by-Parameter specifies the field, the sort_order-Parameter specifies the direction ('asc' or 'desc').\n Per Default, the results are sorted by the time of the test in descending order (i.e. sort_by=time&sort_order=desc).\n If the sort parameters are specified, the value of the cursor is a multiple of the parameter max_results, otherwise it is an arbitrary number.",
+          "required" : false,
+          "type" : "string",
+          "x-example" : "asc"
+        }, {
+          "name" : "max_results",
+          "in" : "query",
+          "description" : "This is the page size, i.e. maximum number of result items that are returned per page.\n The default value is 100 items per page. The page size limit is 10000 items, i.e. not more than 10000 results can be displayed in a page.",
+          "required" : false,
+          "type" : "integer",
+          "x-example" : 10
+        }, {
+          "name" : "cursor",
+          "in" : "query",
+          "description" : "used for pagination if the query returns more than the number of items according to parameter max_results. The value to be used for the display of the next page is given by the previous response in returned parameter next_cursor.",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "sender",
+          "in" : "query",
+          "description" : "Sender ID",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "timestamp",
+          "in" : "query",
+          "description" : "Alias '_'. Will be ignored and can be used to prevent caching of the response.",
+          "required" : false,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/OpenTestSearchDTO"
+            }
+          }
+        }
+      }
+    },
+    "/opentests/{open-test-uuid}" : {
+      "get" : {
+        "tags" : [ "opentests" ],
+        "summary" : "query for OpenTests",
+        "description" : "Query for a specific measurement result",
+        "operationId" : "opentest-query",
+        "parameters" : [ {
+          "name" : "open-test-uuid",
+          "in" : "path",
+          "description" : "Mandatory. The open-test-uuid of the test.",
+          "required" : true,
+          "type" : "string",
+          "x-example" : "Oc1326b7c-4141-42cb-b8c5-922c356a6cee"
+        }, {
+          "name" : "verbose",
+          "in" : "query",
+          "description" : "Optional. If >0 the threadwise speed curve is additionally returned.",
+          "required" : false,
+          "type" : "integer",
+          "x-example" : 0
+        }, {
+          "name" : "sender",
+          "in" : "query",
+          "description" : "Optional. ID of the sender, for authentification.",
+          "required" : false,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/OpenTestDetailsDTO"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions" : {
+    "CellInfo2G" : {
+      "type" : "object",
+      "properties" : {
+        "lac" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : 47170,
+          "description" : "16-bit Location Area Code, 0..65535"
+        },
+        "cid" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : 18804,
+          "description" : "16-bit GSM Cell Identity described in TS 27.007, 0..65535"
+        },
+        "bsic" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : 58,
+          "description" : "6-bit Base Station Identity Code"
+        },
+        "arfcn" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : 1021,
+          "description" : "16-bit GSM Absolute RF Channel Number"
+        },
+        "frequency_dl" : {
+          "type" : "number",
+          "format" : "double",
+          "example" : 934.4,
+          "description" : "Frequency of the downlink in MHz",
+          "readOnly" : true
+        },
+        "band" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : 1,
+          "description" : "Band",
+          "readOnly" : true
+        }
+      }
+    },
+    "CellInfo3G" : {
+      "type" : "object",
+      "properties" : {
+        "lac" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : 2510,
+          "description" : "16-bit Location Area Code, 0..65535"
+        },
+        "cid" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : 9908484,
+          "description" : "CID 28-bit UMTS Cell Identity described in TS 25.331, 0..268435455"
+        },
+        "psc" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : 27,
+          "description" : "9-bit UMTS Primary Scrambling Code described in TS 25.331, 0..511"
+        },
+        "uarfcn" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : 10687,
+          "description" : "16-bit UMTS Absolute RF Channel Number"
+        },
+        "frequency_dl" : {
+          "type" : "number",
+          "format" : "double",
+          "example" : 934.4,
+          "description" : "Frequency of the downlink in MHz",
+          "readOnly" : true
+        },
+        "band" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : 1,
+          "description" : "Band",
+          "readOnly" : true
+        }
+      }
+    },
+    "CellInfo4G" : {
+      "type" : "object",
+      "properties" : {
+        "tac" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : 6710,
+          "description" : "16-bit Tracking Area Code"
+        },
+        "ci" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : 189954,
+          "description" : "28-bit Cell Identity"
+        },
+        "pci" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : 35,
+          "description" : "Physical Cell Id 0..503"
+        },
+        "earfcn" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : 2850,
+          "description" : "18-bit Absolute RF Channel Number"
+        },
+        "frequency_dl" : {
+          "type" : "number",
+          "format" : "double",
+          "example" : 934.4,
+          "description" : "Frequency of the downlink in MHz",
+          "readOnly" : true
+        },
+        "band" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : 1,
+          "description" : "Band",
+          "readOnly" : true
+        }
+      }
+    },
+    "LocationGraphItem" : {
+      "type" : "object",
+      "properties" : {
+        "bearing" : {
+          "type" : "number",
+          "format" : "double",
+          "example" : 195.4,
+          "description" : "Direction of travel of the hosting device in degrees, where 0° ≤ bearing < 360°, counting clockwise relative to the true north"
+        },
+        "speed" : {
+          "type" : "number",
+          "format" : "double",
+          "example" : 22.4,
+          "description" : "Speed of the client device in meters per second"
+        },
+        "altitude" : {
+          "type" : "number",
+          "format" : "double",
+          "example" : 300.4,
+          "description" : "Altitude of the client position in meters"
+        },
+        "long" : {
+          "type" : "number",
+          "format" : "double",
+          "example" : 14.20882799,
+          "description" : "Longitude of the client position."
+        },
+        "lat" : {
+          "type" : "number",
+          "format" : "double",
+          "example" : 47.76077786,
+          "description" : "Latitude of the client position."
+        },
+        "loc_accuracy" : {
+          "type" : "number",
+          "format" : "double",
+          "example" : 8.0,
+          "description" : "Estimation of accuracy of client location."
+        },
+        "time_elapsed" : {
+          "type" : "integer",
+          "format" : "int64",
+          "example" : 55,
+          "description" : "The time elapsed since the start of the test in milliseconds."
+        },
+        "loc_src" : {
+          "type" : "string",
+          "example" : "gps",
+          "description" : "Source for the geo location-data. Values: “gps”, “network”."
+        }
+      }
+    },
+    "OpenTestDTO" : {
+      "type" : "object",
+      "properties" : {
+        "open_uuid" : {
+          "type" : "string",
+          "example" : "P9f2b7bb1-39ea-454e-aa97-538564d7f8f1",
+          "description" : "Open UUID identifying a test"
+        },
+        "open_test_uuid" : {
+          "type" : "string",
+          "example" : "Oa1f286be-3c91-4f7d-b3d3-29d0e143e20d",
+          "description" : "Open UUID identifying a user"
+        },
+        "time" : {
+          "type" : "string",
+          "example" : "2018-07-15 01:55"
+        },
+        "lat" : {
+          "type" : "number",
+          "format" : "double",
+          "example" : 48.2029024,
+          "description" : "Latitude of the client position."
+        },
+        "long" : {
+          "type" : "number",
+          "format" : "double",
+          "example" : 16.3967841,
+          "description" : "Longitude of the client position."
+        },
+        "download_kbit" : {
+          "type" : "integer",
+          "format" : "int64",
+          "example" : 6903,
+          "description" : "Download speed in kilobit per second"
+        },
+        "upload_kbit" : {
+          "type" : "integer",
+          "format" : "int64",
+          "example" : 1565,
+          "description" : "Upload speed in kilobit per second"
+        },
+        "ping_ms" : {
+          "type" : "number",
+          "format" : "double",
+          "example" : 16.178334,
+          "description" : "Median ping (round-trip time) in milliseconds, measured on the server side. In previous versions (before June 3rd 2015) this was the minimum ping measured on the client side."
+        },
+        "signal_strength" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : -56,
+          "description" : "Signal strength (RSSI) in dBm."
+        },
+        "lte_rsrp" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : -81,
+          "description" : "LTE signal strength in dBm."
+        },
+        "platform" : {
+          "type" : "string",
+          "example" : "RMBTws",
+          "description" : "Platform on which the test has been conducted. E.g.\n* “Android” (= Google Android App),\n* “iOS” (= Apple iOs App),\n* Applet (= Java applet test within a browser),\n* RMBTjs (= simple JavaScript test within a browser, without Java),\n* RMBTws (= advanced JavaScript test using WebSockets within the browser).\n"
+        },
+        "provider_name" : {
+          "type" : "string",
+          "example" : "Provider",
+          "description" : "Name of the internet service provider."
+        },
+        "model" : {
+          "type" : "string",
+          "example" : "Sony Xperia Tablet Z LTE",
+          "description" : "Name of the device used."
+        },
+        "loc_accuracy" : {
+          "type" : "number",
+          "format" : "double",
+          "example" : 15.28,
+          "description" : "Estimation of accuracy of client location in meters"
+        },
+        "download_classification" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : 2,
+          "description" : "Classification for the download speed in a traffic-light system.\n\n0 = unknown, 1 = red, 2 = yellow, 3 = green."
+        },
+        "upload_classification" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : 1,
+          "description" : "Classification for the upload speed in a traffic-light system.\n\n0 = unknown, 1 = red, 2 = yellow, 3 = green."
+        },
+        "ping_classification" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : 3,
+          "description" : "Classification for the ping speed in a traffic-light system.\n\n0 = unknown, 1 = red, 2 = yellow, 3 = green."
+        }
+      }
+    },
+    "OpenTestDetailsDTO" : {
+      "type" : "object",
+      "properties" : {
+        "open_uuid" : {
+          "type" : "string",
+          "example" : "P9f2b7bb1-39ea-454e-aa97-538564d7f8f1",
+          "description" : "Open UUID identifying a test"
+        },
+        "open_test_uuid" : {
+          "type" : "string",
+          "example" : "Oa1f286be-3c91-4f7d-b3d3-29d0e143e20d",
+          "description" : "Open UUID identifying a user"
+        },
+        "time" : {
+          "type" : "string",
+          "example" : "2018-07-15 01:55"
+        },
+        "lat" : {
+          "type" : "number",
+          "format" : "double",
+          "example" : 48.2029024,
+          "description" : "Latitude of the client position."
+        },
+        "long" : {
+          "type" : "number",
+          "format" : "double",
+          "example" : 16.3967841,
+          "description" : "Longitude of the client position."
+        },
+        "download_kbit" : {
+          "type" : "integer",
+          "format" : "int64",
+          "example" : 6903,
+          "description" : "Download speed in kilobit per second"
+        },
+        "upload_kbit" : {
+          "type" : "integer",
+          "format" : "int64",
+          "example" : 1565,
+          "description" : "Upload speed in kilobit per second"
+        },
+        "ping_ms" : {
+          "type" : "number",
+          "format" : "double",
+          "example" : 16.178334,
+          "description" : "Median ping (round-trip time) in milliseconds, measured on the server side. In previous versions (before June 3rd 2015) this was the minimum ping measured on the client side."
+        },
+        "signal_strength" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : -56,
+          "description" : "Signal strength (RSSI) in dBm."
+        },
+        "lte_rsrp" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : -81,
+          "description" : "LTE signal strength in dBm."
+        },
+        "platform" : {
+          "type" : "string",
+          "example" : "RMBTws",
+          "description" : "Platform on which the test has been conducted. E.g.\n* “Android” (= Google Android App),\n* “iOS” (= Apple iOs App),\n* Applet (= Java applet test within a browser),\n* RMBTjs (= simple JavaScript test within a browser, without Java),\n* RMBTws (= advanced JavaScript test using WebSockets within the browser).\n"
+        },
+        "provider_name" : {
+          "type" : "string",
+          "example" : "Provider",
+          "description" : "Name of the internet service provider."
+        },
+        "model" : {
+          "type" : "string",
+          "example" : "Sony Xperia Tablet Z LTE",
+          "description" : "Name of the device used."
+        },
+        "loc_accuracy" : {
+          "type" : "number",
+          "format" : "double",
+          "example" : 15.28,
+          "description" : "Estimation of accuracy of client location in meters"
+        },
+        "download_classification" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : 2,
+          "description" : "Classification for the download speed in a traffic-light system.\n\n0 = unknown, 1 = red, 2 = yellow, 3 = green."
+        },
+        "upload_classification" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : 1,
+          "description" : "Classification for the upload speed in a traffic-light system.\n\n0 = unknown, 1 = red, 2 = yellow, 3 = green."
+        },
+        "distance" : {
+          "type" : "number",
+          "format" : "double",
+          "example" : 134.0,
+          "description" : "The distance that the user moved in meters."
+        },
+        "error" : {
+          "type" : "string"
+        },
+        "ping_classification" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : 3,
+          "description" : "Classification for the ping speed in a traffic-light system.\n\n0 = unknown, 1 = red, 2 = yellow, 3 = green."
+        },
+        "cat_technology" : {
+          "type" : "string",
+          "example" : "4G",
+          "description" : "Technology category of the network, e.g. “3G”, “4G”, “WLAN”."
+        },
+        "network_type" : {
+          "type" : "string",
+          "example" : "WLAN",
+          "description" : "Type of the network, e.g. MOBILE, LAN, WLAN."
+        },
+        "loc_src" : {
+          "type" : "string",
+          "example" : "gps",
+          "description" : "Source for the geo location-data. Values: “gps”, “network”.",
+          "enum" : [ "gps", "network" ]
+        },
+        "public_ip_as_name" : {
+          "type" : "string",
+          "example" : "AS32768 Provider",
+          "description" : "Name of the AS of the clients public IP."
+        },
+        "zip_code" : {
+          "type" : "integer",
+          "format" : "int64",
+          "description" : "Obsolete, always 'null'"
+        },
+        "kg_nr" : {
+          "type" : "integer",
+          "format" : "int64",
+          "example" : 1009,
+          "description" : "Number of the cadastral community, see <http://www.bev.gv.at/portal/page?_pageid=713,2601287&_dad=portal&_schema=PORTAL>"
+        },
+        "gkz" : {
+          "type" : "integer",
+          "format" : "int64",
+          "example" : 90001,
+          "description" : "Community ID (Gemeindekennzahl, see <http://www.bev.gv.at/portal/page?_pageid=713,2601287&_dad=portal&_schema=PORTAL>)."
+        },
+        "gkz_sa" : {
+          "type" : "integer",
+          "format" : "int64",
+          "example" : 90601,
+          "description" : "Community ID (Gemeindekennzahl, see <http://www.statistik.at/web_de/klassifikationen/regionale_gliederungen/gemeinden/index.html>)"
+        },
+        "land_cover" : {
+          "type" : "integer",
+          "format" : "int64",
+          "example" : 112,
+          "description" : "Classification of the land cover within austria, see <http://www.umweltbundesamt.at/fileadmin/site/umweltthemen/raumplanung/1_flaechennutzung/corine/CORINE_Nomenklatur.pdf> and <https://www.eea.europa.eu/data-and-maps/data/clc-2006-vector-4>"
+        },
+        "locality" : {
+          "type" : "string",
+          "example" : "Mariahilf",
+          "description" : "Name of the cadastral community, see: <http://www.bev.gv.at/portal/page?_pageid=713,2601287&_dad=portal&_schema=PORTAL>"
+        },
+        "community" : {
+          "type" : "string",
+          "example" : "Wien",
+          "description" : "Name of Austrian community (Gemeinde)."
+        },
+        "district" : {
+          "type" : "string",
+          "example" : "Mistelbach",
+          "description" : "Name of Austrian district (Bezirk)."
+        },
+        "province" : {
+          "type" : "string",
+          "example" : "Wien",
+          "description" : "Name of Austrian province (Bundesland)"
+        },
+        "lte_rsrq" : {
+          "type" : "number",
+          "format" : "double",
+          "example" : -6.0,
+          "description" : "LTE signal quality in decibels"
+        },
+        "server_name" : {
+          "type" : "string",
+          "example" : "RTR-DEVELOP-SERVER",
+          "description" : "Name of the test-server."
+        },
+        "implausible" : {
+          "type" : "boolean",
+          "example" : true,
+          "description" : "Identification of implausible test results."
+        },
+        "pinned" : {
+          "type" : "boolean",
+          "description" : "_True_, if if the test is relevant for generating the statistics (e.g. not part of a series)"
+        },
+        "test_duration" : {
+          "type" : "integer",
+          "format" : "int64",
+          "example" : 7,
+          "description" : "Duration of the test per direction (up- or download) in seconds."
+        },
+        "num_threads_requested" : {
+          "type" : "integer",
+          "format" : "int64",
+          "example" : 3,
+          "description" : "Number of threads requested by the server."
+        },
+        "num_threads" : {
+          "type" : "integer",
+          "format" : "int64",
+          "example" : 3,
+          "description" : "Number of threads used for the downlink test."
+        },
+        "num_threads_ul" : {
+          "type" : "integer",
+          "format" : "int64",
+          "example" : 3,
+          "description" : "Number of threads used for the uplink test."
+        },
+        "model_native" : {
+          "type" : "string",
+          "example" : "SGP321",
+          "description" : "Name of the device used, raw device name."
+        },
+        "product" : {
+          "type" : "string",
+          "example" : "SGP321",
+          "description" : "Name of the client device."
+        },
+        "client_version" : {
+          "type" : "string",
+          "example" : "1.1",
+          "description" : "Software version number of the client."
+        },
+        "network_mcc_mnc" : {
+          "type" : "string",
+          "example" : "232-05",
+          "description" : "Network identification whereas the first three digits represent the country, the digits following the dash represent the mobile network provider within that country."
+        },
+        "network_country" : {
+          "type" : "integer",
+          "format" : "int64",
+          "example" : "DE",
+          "description" : "Country of the network in ISO 3166."
+        },
+        "roaming_type" : {
+          "type" : "integer",
+          "format" : "int64",
+          "example" : 1,
+          "description" : "Integer representing the roaming status of the client:\n* 0: no roaming,\n* 1: national roaming,\n* 2: international roaming.",
+          "enum" : [ 0, 1, 2 ]
+        },
+        "network_name" : {
+          "type" : "string",
+          "example" : "3 AT",
+          "description" : "Display name of the mobile network."
+        },
+        "sim_mcc_mnc" : {
+          "type" : "string",
+          "example" : "232-01",
+          "description" : "Network identification of the SIM provider. The digits of MCC and MNC have the same meaning as described in “network_mcc_mnc”."
+        },
+        "sim_country" : {
+          "type" : "string",
+          "example" : "AT",
+          "description" : "Home country of the SIM card in ISO 3166."
+        },
+        "connection" : {
+          "type" : "string",
+          "example" : "nat_local_to_public_ipv4",
+          "description" : "Type of connection in terms of NAT and IP-Version (e.g. behind NAT with local to public IP and IPv4)."
+        },
+        "asn" : {
+          "type" : "integer",
+          "format" : "int64",
+          "example" : 6830,
+          "description" : "Autonomous system number."
+        },
+        "ip_anonym" : {
+          "type" : "string",
+          "example" : "80.108.108",
+          "description" : "The anonymized IP-Address of the client."
+        },
+        "ndt_download_kbit" : {
+          "type" : "number",
+          "format" : "double",
+          "example" : 1443.0,
+          "description" : "Download speed in the NDT-test in kilobit per second."
+        },
+        "ndt_upload_kbit" : {
+          "type" : "number",
+          "format" : "double",
+          "example" : 2334.0,
+          "description" : "Upload speed in the NDT-test in kilobit per second."
+        },
+        "country_geoip" : {
+          "type" : "string",
+          "example" : "HU",
+          "description" : "Country according client IP address."
+        },
+        "country_asn" : {
+          "type" : "string",
+          "example" : "FI",
+          "description" : "Country of AS of client IP."
+        },
+        "country_location" : {
+          "type" : "string",
+          "example" : "FR",
+          "description" : "Country of geo-location."
+        },
+        "bytes_download" : {
+          "type" : "integer",
+          "format" : "int64",
+          "example" : 13653343,
+          "description" : "Total number of bytes downloaded during download test (excluding training-phase)."
+        },
+        "bytes_upload" : {
+          "type" : "integer",
+          "format" : "int64",
+          "example" : 3712431,
+          "description" : "Total number of bytes uploaded during upload test (excluding training-phase)."
+        },
+        "test_if_bytes_download" : {
+          "type" : "integer",
+          "format" : "int64",
+          "example" : 4991145,
+          "description" : "Data volume received on the interface during the test (including training phase)."
+        },
+        "test_if_bytes_upload" : {
+          "type" : "integer",
+          "format" : "int64",
+          "example" : 1961967,
+          "description" : "Data volume transmitted on the interface during the test (including training phase)."
+        },
+        "testdl_if_bytes_download" : {
+          "type" : "integer",
+          "format" : "int64",
+          "example" : 4580781,
+          "description" : "Data volume received on the interface during the download test."
+        },
+        "testdl_if_bytes_upload" : {
+          "type" : "integer",
+          "format" : "int64",
+          "example" : 107077,
+          "description" : "Data volume transmitted on the interface during the download test."
+        },
+        "testul_if_bytes_download" : {
+          "type" : "integer",
+          "format" : "int64",
+          "example" : 57372,
+          "description" : "Data volume received on the interface during the upload test."
+        },
+        "testul_if_bytes_upload" : {
+          "type" : "integer",
+          "format" : "int64",
+          "example" : 1627790,
+          "description" : "Data volume transmitted on the interface during the upload test."
+        },
+        "duration_download_ms" : {
+          "type" : "number",
+          "format" : "double",
+          "example" : 7000.13,
+          "description" : "Duration of download test in ms."
+        },
+        "duration_upload_ms" : {
+          "type" : "number",
+          "format" : "double",
+          "example" : 7000.11,
+          "description" : "Duration of upload test in ms."
+        },
+        "time_dl_ms" : {
+          "type" : "number",
+          "format" : "double",
+          "example" : 3692.15,
+          "description" : "Relative start time of download in ms."
+        },
+        "time_ul_ms" : {
+          "type" : "number",
+          "format" : "double",
+          "example" : 13496.54,
+          "description" : "Relative start time of upload in ms."
+        },
+        "channel_number" : {
+          "type" : "integer",
+          "format" : "int64",
+          "example" : 397,
+          "description" : "Channel number of the radio channel used during a measurement. E.g. the 18-bit Absolute RF Channel Number (EARFCN) in case of 4G or the 16-bit UMTS Absolute RF Channel Number (UARFCN) in case of 3G."
+        },
+        "radio_band" : {
+          "type" : "integer",
+          "format" : "int64",
+          "example" : 20,
+          "description" : "Radio band used when conducting the test."
+        },
+        "cell_area_code" : {
+          "type" : "integer",
+          "format" : "int64",
+          "example" : 10156,
+          "description" : "Number describing the coarse location of a cell. E.g. the Tracking Area Code (TAC) in case of 4G or the Location Area Code (LAC) in case of 2G or 3G"
+        },
+        "cell_location_id" : {
+          "type" : "integer",
+          "format" : "int64",
+          "example" : 28708964,
+          "description" : "Number identifying the location of a cell. E.g. the 28-bit Cell Identity (CI) in case of 4G, the 28-bit UMTS Cell Identity (CID) in case of UMTS or the 16-bit GSM Cell Identity (CID) in case of GSM."
+        },
+        "signal_classification" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : 2,
+          "description" : "Classification for the signal strength in a traffic-light system."
+        },
+        "wifi_link_speed" : {
+          "type" : "number",
+          "format" : "double",
+          "example" : 7562.0,
+          "description" : "WLAN link speed according to the Android API."
+        },
+        "speed_curve" : {
+          "description" : "Aggregated history of transferred data bytes during a test.",
+          "$ref" : "#/definitions/OpenTestGraphDTO"
+        },
+        "speed_curve_threadwise" : {
+          "type" : "object",
+          "description" : "History of transferred data bytes per thread during a test. Returned only if verbose>0.",
+          "additionalProperties" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/SpeedItemThreadwise"
+              }
+            }
+          }
+        }
+      }
+    },
+    "OpenTestExportDTO" : {
+      "type" : "object",
+      "properties" : {
+        "open_uuid" : {
+          "type" : "string",
+          "example" : "P9f2b7bb1-39ea-454e-aa97-538564d7f8f1",
+          "description" : "Open UUID identifying a test"
+        },
+        "open_test_uuid" : {
+          "type" : "string",
+          "example" : "Oa1f286be-3c91-4f7d-b3d3-29d0e143e20d",
+          "description" : "Open UUID identifying a user"
+        },
+        "time_utc" : {
+          "type" : "string",
+          "example" : "2018-07-15 01:55"
+        },
+        "cat_technology" : {
+          "$ref" : "#/definitions/OpenTestDetailsDTO/properties/cat_technology"
+        },
+        "network_type" : {
+          "$ref" : "#/definitions/OpenTestDetailsDTO/properties/network_type"
+        },
+        "lat" : {
+          "type" : "number",
+          "format" : "double",
+          "example" : 48.2029024,
+          "description" : "Latitude of the client position."
+        },
+        "long" : {
+          "type" : "number",
+          "format" : "double",
+          "example" : 16.3967841,
+          "description" : "Longitude of the client position."
+        },
+        "loc_src" : {
+          "$ref" : "#/definitions/OpenTestDetailsDTO/properties/loc_src"
+        },
+        "loc_accuracy" : {
+          "type" : "number",
+          "format" : "double",
+          "example" : 15.28,
+          "description" : "Estimation of accuracy of client location in meters"
+        },
+        "gkz" : {
+          "$ref" : "#/definitions/OpenTestDetailsDTO/properties/gkz"
+        },
+        "zip_code" : {
+          "$ref" : "#/definitions/OpenTestDetailsDTO/properties/zip_code"
+        },
+        "country_location" : {
+          "$ref" : "#/definitions/OpenTestDetailsDTO/properties/country_location"
+        },
+        "download_kbit" : {
+          "type" : "integer",
+          "format" : "int64",
+          "example" : 6903,
+          "description" : "Download speed in kilobit per second"
+        },
+        "upload_kbit" : {
+          "type" : "integer",
+          "format" : "int64",
+          "example" : 1565,
+          "description" : "Upload speed in kilobit per second"
+        },
+        "ping_ms" : {
+          "type" : "number",
+          "format" : "double",
+          "example" : 16.178334,
+          "description" : "Median ping (round-trip time) in milliseconds, measured on the server side. In previous versions (before June 3rd 2015) this was the minimum ping measured on the client side."
+        },
+        "lte_rsrp" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : -81,
+          "description" : "LTE signal strength in dBm."
+        },
+        "lte_rsrq" : {
+          "$ref" : "#/definitions/OpenTestDetailsDTO/properties/lte_rsrq"
+        },
+        "server_name" : {
+          "$ref" : "#/definitions/OpenTestDetailsDTO/properties/server_name"
+        },
+        "test_duration" : {
+          "$ref" : "#/definitions/OpenTestDetailsDTO/properties/test_duration"
+        },
+        "num_threads" : {
+          "$ref" : "#/definitions/OpenTestDetailsDTO/properties/num_threads"
+        },
+        "platform" : {
+          "type" : "string",
+          "example" : "RMBTws",
+          "description" : "Platform on which the test has been conducted. E.g.\n* “Android” (= Google Android App),\n* “iOS” (= Apple iOs App),\n* Applet (= Java applet test within a browser),\n* RMBTjs (= simple JavaScript test within a browser, without Java),\n* RMBTws (= advanced JavaScript test using WebSockets within the browser).\n"
+        },
+        "model" : {
+          "type" : "string",
+          "example" : "Sony Xperia Tablet Z LTE",
+          "description" : "Name of the device used."
+        },
+        "client_version" : {
+          "$ref" : "#/definitions/OpenTestDetailsDTO/properties/client_version"
+        },
+        "network_mcc_mnc" : {
+          "$ref" : "#/definitions/OpenTestDetailsDTO/properties/network_mcc_mnc"
+        },
+        "network_name" : {
+          "$ref" : "#/definitions/OpenTestDetailsDTO/properties/network_name"
+        },
+        "sim_mcc_mnc" : {
+          "$ref" : "#/definitions/OpenTestDetailsDTO/properties/sim_mcc_mnc"
+        },
+        "nat_type" : {
+          "$ref" : "#/definitions/OpenTestDetailsDTO/properties/connection"
+        },
+        "asn" : {
+          "$ref" : "#/definitions/OpenTestDetailsDTO/properties/asn"
+        },
+        "ip_anonym" : {
+          "$ref" : "#/definitions/OpenTestDetailsDTO/properties/ip_anonym"
+        },
+        "ndt_download_kbit" : {
+          "$ref" : "#/definitions/OpenTestDetailsDTO/properties/ndt_download_kbit"
+        },
+        "ndt_upload_kbit" : {
+          "$ref" : "#/definitions/OpenTestDetailsDTO/properties/ndt_upload_kbit"
+        },
+        "implausible" : {
+          "$ref" : "#/definitions/OpenTestDetailsDTO/properties/implausible"
+        },
+        "signal_strength" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : -56,
+          "description" : "Signal strength (RSSI) in dBm."
+        },
+        "pinned" : {
+          "$ref" : "#/definitions/OpenTestDetailsDTO/properties/pinned"
+        },
+        "kg_nr" : {
+          "$ref" : "#/definitions/OpenTestDetailsDTO/properties/kg_nr"
+        },
+        "gkz_sa" : {
+          "$ref" : "#/definitions/OpenTestDetailsDTO/properties/gkz_sa"
+        },
+        "land_cover" : {
+          "$ref" : "#/definitions/OpenTestDetailsDTO/properties/land_cover"
+        },
+        "cell_area_code" : {
+          "$ref" : "#/definitions/OpenTestDetailsDTO/properties/cell_area_code"
+        },
+        "cell_location_id" : {
+          "$ref" : "#/definitions/OpenTestDetailsDTO/properties/cell_location_id"
+        },
+        "channel_number" : {
+          "$ref" : "#/definitions/OpenTestDetailsDTO/properties/channel_number"
+        },
+        "radio_band" : {
+          "$ref" : "#/definitions/OpenTestDetailsDTO/properties/radio_band"
+        }
+      }
+    },
+    "OpenTestGraphDTO" : {
+      "type" : "object",
+      "properties" : {
+        "download" : {
+          "type" : "array",
+          "description" : "Measurements of downloaded bytes at various times during the test.",
+          "items" : {
+            "$ref" : "#/definitions/SpeedGraphItemDTO"
+          }
+        },
+        "upload" : {
+          "type" : "array",
+          "description" : "Measurements of uploaded bytes at various times during the test.",
+          "items" : {
+            "$ref" : "#/definitions/SpeedGraphItemDTO"
+          }
+        },
+        "ping" : {
+          "type" : "array",
+          "description" : "The client’s pings throughout the test",
+          "items" : {
+            "$ref" : "#/definitions/PingGraphItemDTO"
+          }
+        },
+        "signal" : {
+          "type" : "array",
+          "description" : "Measurements of signal strength and network type at various times during the test.",
+          "items" : {
+            "$ref" : "#/definitions/SignalGraphItemDTO"
+          }
+        },
+        "location" : {
+          "type" : "array",
+          "description" : "The client’s locations throughout the test.",
+          "items" : {
+            "$ref" : "#/definitions/LocationGraphItem"
+          }
+        }
+      }
+    },
+    "OpenTestSearchDTO" : {
+      "type" : "object",
+      "properties" : {
+        "next_cursor" : {
+          "type" : "integer",
+          "format" : "int64",
+          "example" : 866505,
+          "description" : "cursor for next page"
+        },
+        "duration_ms" : {
+          "type" : "integer",
+          "format" : "int64",
+          "example" : 234,
+          "description" : "duration of the search request in milliseconds"
+        },
+        "error" : {
+          "type" : "string",
+          "description" : "Error while conducting the search"
+        },
+        "results" : {
+          "type" : "array",
+          "description" : "test results matching the criteria",
+          "items" : {
+            "$ref" : "#/definitions/OpenTestDTO"
+          }
+        },
+        "invalid_fields" : {
+          "type" : "array",
+          "example" : "[\"download_kbit\"]",
+          "description" : "Invalid fields in the search request",
+          "items" : {
+            "type" : "string"
+          }
+        }
+      }
+    },
+    "PingGraphItemDTO" : {
+      "type" : "object",
+      "properties" : {
+        "ping_ms" : {
+          "type" : "number",
+          "format" : "double",
+          "example" : 8.0,
+          "description" : "Ping (round-trip time) in milliseconds, measured on the server side."
+        },
+        "time_elapsed" : {
+          "type" : "integer",
+          "format" : "int64",
+          "example" : 55,
+          "description" : "The time elapsed since the start of the test in milliseconds."
+        }
+      }
+    },
+    "SignalGraphItemDTO" : {
+      "type" : "object",
+      "properties" : {
+        "time_elapsed" : {
+          "type" : "integer",
+          "format" : "int64",
+          "example" : 55,
+          "description" : "The time elapsed since the start of the test in milliseconds."
+        },
+        "network_type" : {
+          "type" : "string",
+          "example" : "LTE",
+          "description" : "Type of the network, e.g. GSM, EDGE, UMTS, HSPA, LTE, LAN, WLAN…"
+        },
+        "signal_strength" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : -85,
+          "description" : "Signal strength (RSSI) in dBm."
+        },
+        "lte_rsrp" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : -77,
+          "description" : "LTE signal strength in dBm."
+        },
+        "lte_rsrq" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : -6,
+          "description" : "LTE signal quality in decibels."
+        },
+        "cat_technology" : {
+          "type" : "string",
+          "example" : "3G",
+          "description" : "Technology category of the network, e.g. “3G”, “4G”, “WLAN”."
+        },
+        "cell_info_2G" : {
+          "description" : "Additional information about the used 2G radio cell",
+          "$ref" : "#/definitions/CellInfo2G"
+        },
+        "cell_info_3G" : {
+          "description" : "Additional information about the used 3G radio cell",
+          "$ref" : "#/definitions/CellInfo3G"
+        },
+        "cell_info_4G" : {
+          "description" : "Additional information about the used 4G radio cell",
+          "$ref" : "#/definitions/CellInfo4G"
+        }
+      }
+    },
+    "SpeedGraphItemDTO" : {
+      "type" : "object",
+      "properties" : {
+        "bytes_total" : {
+          "type" : "number",
+          "format" : "double",
+          "example" : 4096.0,
+          "description" : "The sum of all bytes transferred since the start of the test phase."
+        },
+        "time_elapsed" : {
+          "type" : "integer",
+          "format" : "int64",
+          "example" : 55,
+          "description" : "The time elapsed since the start of the test phase in milliseconds."
+        }
+      }
+    },
+    "SpeedItemThreadwise" : {
+      "type" : "object",
+      "properties" : {
+        "bytes_total" : {
+          "type" : "number",
+          "format" : "double",
+          "example" : 4096.0,
+          "description" : "The sum of all bytes transferred since the start of the test phase."
+        },
+        "time_elapsed_ns" : {
+          "type" : "integer",
+          "format" : "int64",
+          "example" : 41183662,
+          "description" : "The time elapsed since the start of the test phase for this thread, in nanoseconds."
+        }
+      }
+    }
+  }
+}
