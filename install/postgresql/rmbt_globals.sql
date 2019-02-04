@@ -1,0 +1,46 @@
+-- 2019-02-04_20-14-39 rmbt_globals.sql
+-- pg_dumpall -g >> rmbt_globals.sql
+
+--
+-- PostgreSQL database cluster dump
+--
+
+SET default_transaction_read_only = off;
+
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+
+--
+-- Roles
+--
+
+CREATE ROLE nagios;
+ALTER ROLE nagios WITH NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB LOGIN NOREPLICATION NOBYPASSRLS;
+CREATE ROLE postgres;
+ALTER ROLE postgres WITH SUPERUSER INHERIT CREATEROLE CREATEDB LOGIN REPLICATION NOBYPASSRLS PASSWORD '-change-me';
+CREATE ROLE replication;
+ALTER ROLE replication WITH NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB LOGIN REPLICATION NOBYPASSRLS PASSWORD '-change-me';
+CREATE ROLE rmbt;
+ALTER ROLE rmbt WITH NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB LOGIN NOREPLICATION NOBYPASSRLS PASSWORD '-change-me';
+CREATE ROLE rmbt_control;
+ALTER ROLE rmbt_control WITH NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB LOGIN NOREPLICATION NOBYPASSRLS PASSWORD '-change-me';
+CREATE ROLE rmbt_group_control;
+ALTER ROLE rmbt_group_control WITH NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB NOLOGIN NOREPLICATION NOBYPASSRLS;
+CREATE ROLE rmbt_group_read_only;
+ALTER ROLE rmbt_group_read_only WITH NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB NOLOGIN NOREPLICATION NOBYPASSRLS;
+
+
+--
+-- Role memberships
+--
+
+GRANT rmbt_group_control TO rmbt_control;
+GRANT rmbt_group_read_only TO rmbt_control;
+
+
+
+
+--
+-- PostgreSQL database cluster dump complete
+--
+
