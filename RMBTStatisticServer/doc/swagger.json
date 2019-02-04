@@ -835,9 +835,9 @@
           "description" : "Name of Austrian province (Bundesland)"
         },
         "lte_rsrq" : {
-          "type" : "number",
-          "format" : "double",
-          "example" : -6.0,
+          "type" : "integer",
+          "format" : "int64",
+          "example" : -6,
           "description" : "LTE signal quality in decibels"
         },
         "server_name" : {
@@ -942,15 +942,15 @@
           "description" : "The anonymized IP-Address of the client."
         },
         "ndt_download_kbit" : {
-          "type" : "number",
-          "format" : "double",
-          "example" : 1443.0,
+          "type" : "integer",
+          "format" : "int64",
+          "example" : 1443,
           "description" : "Download speed in the NDT-test in kilobit per second."
         },
         "ndt_upload_kbit" : {
-          "type" : "number",
-          "format" : "double",
-          "example" : 2334.0,
+          "type" : "integer",
+          "format" : "int64",
+          "example" : 2334,
           "description" : "Upload speed in the NDT-test in kilobit per second."
         },
         "country_geoip" : {
@@ -1071,9 +1071,9 @@
           "description" : "Classification for the signal strength in a traffic-light system."
         },
         "wifi_link_speed" : {
-          "type" : "number",
-          "format" : "double",
-          "example" : 7562.0,
+          "type" : "integer",
+          "format" : "int64",
+          "example" : 7562,
           "description" : "WLAN link speed according to the Android API."
         },
         "speed_curve" : {
