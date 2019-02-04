@@ -1,2081 +1,4093 @@
+-- 
+-- 2019-02-04_21-19-54 rmbt_init.sql table as2provider
 --
 -- PostgreSQL database dump
 --
 
+-- Dumped from database version 10.6 (Debian 10.6-1.pgdg90+1)
+-- Dumped by pg_dump version 10.6 (Debian 10.6-1.pgdg90+1)
+
 SET statement_timeout = 0;
 SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
 SET client_min_messages = warning;
+SET row_security = off;
 
-SET search_path = public, pg_catalog;
+SET default_tablespace = '';
 
---
--- Name: android_device_map_uid_seq; Type: SEQUENCE SET; Schema: public; Owner: rmbt
---
-
-SELECT pg_catalog.setval('android_device_map_uid_seq', 6151, true);
-
+SET default_with_oids = false;
 
 --
--- Data for Name: provider; Type: TABLE DATA; Schema: public; Owner: rmbt
+-- Name: as2provider; Type: TABLE; Schema: public; Owner: rmbt
 --
 
-COPY provider (uid, name, mcc_mnc, shortname, map_filter) FROM stdin;
-3	Orange Austria Telecommunication GmbH (alt)	232-05	Orange AT (alt)	f
-4	Hutchison 3G Austria GmbH (alt)	232-10	3AT (alt)	f
-7	tele.ring	232-07	tele.ring	f
-8	Bob	232-11	Bob	f
-9	YESSS! Telekommunikation GmbH	232-12	Yesss!	f
-1	A1 Telekom Austria AG - Mobilnetz	232-01	A1 TA Mobilnetz	t
-12	Tele2 Telecommunication GmbH	\N	Tele2	t
-14	Colt Technology Services GmbH	\N	Colt	t
-13	T-Systems Austria GesmbH	\N	T-Systems	t
-16	LIWEST Kabelmedien GmbH	\N	LIWEST	t
-17	AT&T Global Network Services Austria GmbH	\N	AT&T	t
-18	Belgacom International Carrier Services S.A.	\N	Belgacom	t
-20	Verizon Austria GmbH	\N	Verizon	t
-21	BT Austria GmbH	\N	BT Austria	t
-22	WIEN ENERGIE GmbH	\N	WIEN ENERGIE	t
-23	ACOnet	\N	ACOnet	t
-24	next layer Telekommunikationsdienstleistungs-GmbH	\N	next layer	t
-25	A1 Telekom Austria AG - Festnetz	\N	A1 TA Festnetz	t
-27	ÖBB Telekom Service GmbH	\N	ÖBB	t
-28	KAPPER NETWORK-COMMUNICATIONS GmbH	\N	Kapper	t
-29	WVNET Information und Kommunikation GmbH	\N	WVNET	t
-30	Flughafen Wien AG	\N	Flughafen Wien	t
-31	Technische Universität Wien	\N	TU Wien	t
-32	Universität Wien	\N	Uni Wien	t
-33	Wirtschaftsuniversität Wien	\N	WU Wien	t
-34	Citycom Telekommunikation GmbH	\N	Citycom	t
-35	i3B - Internetbreitband GmbH	\N	i3B	t
-2	T-Mobile Austria GmbH	232-03	T-Mobile AT	t
-36	Hutchison Drei Austria GmbH	232-10	Hutchison Drei	t
-5	UPC Austria GmbH	\N	UPC AT	t
-37	Gamsjäger Kabel-TV & ISP Betriebs GmbH	\N	Gamsjäger	t
-39	Lycamobile Austria Ltd	232-08	Lycamobile	f
-41	UPC Austria Services GmbH - Mobilnetz	232-13	UPC Mobilnetz	f
-10	Mundio Mobile (Austria) Limited	232-15	Mundio	f
-42	MASS Response Service GmbH	232-17	MASS Response	f
-43	smartspace GmbH	232-18	smartspace	f
-45	Tele2 Telecommunication GmbH - Mobilnetz	232-19	Tele2 Mobilnetz	f
-46	MTEL Austrija GmbH	232-20	MTEL	f
-48	ÖBB - Infrastruktur AG - Mobilnetz	232-91	ÖBB Mobilnetz	f
-49	ArgoNET GmbH	232-92	ArgoNET	f
-6	kabelplus GmbH	\N	kabelplus	t
-15	Salzburg AG für Energie, Verkehr und Telekommunikation	\N	Salzburg AG	t
-50	Salzburg AG für Energie, Verkehr und Telekommunikation - Mobilnetz	232-21	Salzburg AG Mobilnetz	f
-51	Energie AG Oberösterreich Data GmbH	\N	Energie AG	t
-52	NETcompany - WLAN Internet Provider GmbH	\N	NETcompany	t
-\.
+CREATE TABLE public.as2provider (
+    uid integer NOT NULL,
+    asn bigint,
+    dns_part character varying(200),
+    provider_id integer
+);
+
+
+ALTER TABLE public.as2provider OWNER TO rmbt;
+
+--
+-- Name: as2provider_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
+--
+
+CREATE SEQUENCE public.as2provider_uid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.as2provider_uid_seq OWNER TO rmbt;
+
+--
+-- Name: as2provider_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
+--
+
+ALTER SEQUENCE public.as2provider_uid_seq OWNED BY public.as2provider.uid;
+
+
+--
+-- Name: as2provider uid; Type: DEFAULT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.as2provider ALTER COLUMN uid SET DEFAULT nextval('public.as2provider_uid_seq'::regclass);
 
 
 --
 -- Data for Name: as2provider; Type: TABLE DATA; Schema: public; Owner: rmbt
 --
 
-COPY as2provider (uid, asn, dns_part, provider_id) FROM stdin;
-6	16305	\N	1
-7	8412	\N	2
-8	8339	\N	6
-9	29287	\N	22
-10	1853	\N	23
-11	1764	\N	24
-4	8447	\N	25
-15	12605	\N	16
-16	3330	\N	27
-17	48943	\N	28
-18	29081	\N	29
-20	8445	\N	15
-21	1776	\N	33
-22	760	\N	32
-23	679	\N	31
-24	1901	\N	25
-14	1257	\N	12
-25	8437	\N	12
-19	28771	\N	30
-13	3248	\N	12
-26	15824	\N	25
-27	29056	\N	34
-28	39912	\N	35
-3	12635	\N	36
-5	25255	\N	36
-1	6830	%.at	5
-29	43848	\N	37
-30	49808	\N	51
-63	50226	\N	52
-\.
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (6, 16305, NULL, 1);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (7, 8412, NULL, 2);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (8, 8339, NULL, 6);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (9, 29287, NULL, 22);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (10, 1853, NULL, 23);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (11, 1764, NULL, 24);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (15, 12605, NULL, 16);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (16, 3330, NULL, 27);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (17, 48943, NULL, 28);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (18, 29081, NULL, 29);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (20, 8445, NULL, 15);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (21, 1776, NULL, 33);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (22, 760, NULL, 32);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (23, 679, NULL, 31);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (19, 28771, NULL, 30);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (27, 29056, NULL, 34);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (28, 39912, NULL, 35);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (3, 12635, NULL, 36);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (5, 25255, NULL, 36);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (29, 43848, NULL, 37);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (30, 49808, NULL, 51);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (63, 50226, NULL, 52);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (1, 6830, NULL, 5);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (98, 51265, NULL, 118);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (99, 31510, NULL, 119);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (100, 5385, NULL, 120);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (101, 56672, NULL, 51);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (102, 8559, NULL, 6);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (4, 8447, NULL, 1);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (24, 1901, NULL, 1);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (26, 15824, NULL, 1);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (96, 12793, NULL, 1);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (97, 8562, NULL, 1);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (103, 50782, NULL, 121);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (104, 200970, NULL, 122);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (105, 60823, NULL, 123);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (106, 200683, NULL, 124);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (107, 28760, NULL, 128);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (108, 35370, NULL, 129);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (109, 39878, NULL, 130);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (110, 56833, NULL, 135);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (111, 8387, NULL, 136);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (112, 13292, NULL, 137);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (113, 59890, NULL, 142);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (114, 24992, NULL, 144);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (115, 34318, NULL, 146);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (116, 41491, NULL, 147);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (117, 34502, NULL, 149);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (25, 8437, NULL, 36);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (118, 25447, NULL, 126);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (119, 207203, NULL, 125);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (120, 31543, NULL, 127);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (121, 42473, NULL, 131);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (122, 28919, NULL, 132);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (123, 24953, NULL, 133);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (124, 28889, NULL, 134);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (125, 24792, NULL, 138);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (126, 47692, NULL, 139);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (127, 35369, NULL, 140);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (128, 50719, NULL, 141);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (129, 12577, NULL, 143);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (130, 8245, NULL, 145);
+INSERT INTO public.as2provider (uid, asn, dns_part, provider_id) VALUES (131, 34347, NULL, 148);
 
 
 --
 -- Name: as2provider_uid_seq; Type: SEQUENCE SET; Schema: public; Owner: rmbt
 --
 
-SELECT pg_catalog.setval('as2provider_uid_seq', 95, true);
+SELECT pg_catalog.setval('public.as2provider_uid_seq', 150, true);
+
+
+--
+-- Name: as2provider as2provider_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.as2provider
+    ADD CONSTRAINT as2provider_pkey PRIMARY KEY (uid);
+
+
+--
+-- Name: as2provider_provider_id_idx; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX as2provider_provider_id_idx ON public.as2provider USING btree (provider_id);
+
+
+--
+-- Name: as2provider as2provider_provider_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.as2provider
+    ADD CONSTRAINT as2provider_provider_id_fkey FOREIGN KEY (provider_id) REFERENCES public.provider(uid);
+
+
+--
+-- Name: TABLE as2provider; Type: ACL; Schema: public; Owner: rmbt
+--
+
+GRANT SELECT ON TABLE public.as2provider TO rmbt_group_read_only;
+
+
+--
+-- PostgreSQL database dump complete
+--
+
+-- 2019-02-04_21-19-54 rmbt_init.sql table client_type
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 10.6 (Debian 10.6-1.pgdg90+1)
+-- Dumped by pg_dump version 10.6 (Debian 10.6-1.pgdg90+1)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+SET row_security = off;
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+-- Name: client_type; Type: TABLE; Schema: public; Owner: rmbt
+--
+
+CREATE TABLE public.client_type (
+    uid integer NOT NULL,
+    name character varying(200)
+);
+
+
+ALTER TABLE public.client_type OWNER TO rmbt;
+
+--
+-- Name: client_type_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
+--
+
+CREATE SEQUENCE public.client_type_uid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.client_type_uid_seq OWNER TO rmbt;
+
+--
+-- Name: client_type_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
+--
+
+ALTER SEQUENCE public.client_type_uid_seq OWNED BY public.client_type.uid;
+
+
+--
+-- Name: client_type uid; Type: DEFAULT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.client_type ALTER COLUMN uid SET DEFAULT nextval('public.client_type_uid_seq'::regclass);
 
 
 --
 -- Data for Name: client_type; Type: TABLE DATA; Schema: public; Owner: rmbt
 --
 
-COPY client_type (uid, name) FROM stdin;
-1	DESKTOP
-2	MOBILE
-\.
+INSERT INTO public.client_type (uid, name) VALUES (1, 'DESKTOP');
+INSERT INTO public.client_type (uid, name) VALUES (2, 'MOBILE');
 
 
 --
 -- Name: client_type_uid_seq; Type: SEQUENCE SET; Schema: public; Owner: rmbt
 --
 
-SELECT pg_catalog.setval('client_type_uid_seq', 2, true);
+SELECT pg_catalog.setval('public.client_type_uid_seq', 2, true);
 
 
 --
--- Data for Name: device_map; Type: TABLE DATA; Schema: public; Owner: rmbt
+-- Name: client_type client_type_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
 --
 
-COPY device_map (uid, codename, fullname, source, "timestamp") FROM stdin;
-141	GT-N7000	Galaxy Note	manual	2012-10-30 12:27:55.955292+01
-\.
+ALTER TABLE ONLY public.client_type
+    ADD CONSTRAINT client_type_pkey PRIMARY KEY (uid);
 
+
+--
+-- Name: TABLE client_type; Type: ACL; Schema: public; Owner: rmbt
+--
+
+GRANT SELECT ON TABLE public.client_type TO rmbt_group_read_only;
+
+
+--
+-- PostgreSQL database dump complete
+--
+
+-- 2019-02-04_21-19-54 rmbt_init.sql table mcc2country
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 10.6 (Debian 10.6-1.pgdg90+1)
+-- Dumped by pg_dump version 10.6 (Debian 10.6-1.pgdg90+1)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+SET row_security = off;
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+-- Name: mcc2country; Type: TABLE; Schema: public; Owner: rmbt
+--
+
+CREATE TABLE public.mcc2country (
+    mcc character varying(3) NOT NULL,
+    country character varying(2) NOT NULL
+);
+
+
+ALTER TABLE public.mcc2country OWNER TO rmbt;
 
 --
 -- Data for Name: mcc2country; Type: TABLE DATA; Schema: public; Owner: rmbt
 --
 
-COPY mcc2country (mcc, country) FROM stdin;
-202	gr
-204	nl
-206	be
-208	fr
-213	ad
-214	es
-216	hu
-218	ba
-219	hr
-220	rs
-222	it
-226	ro
-228	ch
-230	cz
-231	sk
-232	at
-234	gb
-235	gb
-238	dk
-240	se
-242	no
-244	fi
-246	lt
-247	lv
-248	ee
-250	ru
-255	ua
-257	by
-259	md
-260	pl
-262	de
-266	gi
-268	pt
-270	lu
-272	ie
-274	is
-276	al
-278	mt
-280	cy
-282	ge
-284	bg
-286	tr
-288	fo
-290	gl
-292	sm
-293	si
-294	mk
-295	li
-297	me
-302	ca
-308	pm
-310	us
-311	us
-312	us
-313	us
-316	us
-334	mx
-338	jm
-340	gp
-342	bb
-344	ag
-346	ky
-348	vg
-350	bm
-352	gd
-354	ms
-356	kn
-358	lc
-360	vc
-362	cw
-363	aw
-365	ai
-366	dm
-368	cu
-370	do
-372	ht
-374	tt
-376	tc
-400	az
-401	kz
-402	bt
-404	in
-405	in
-410	pk
-412	af
-413	lk
-414	mm
-415	lb
-416	jo
-417	sy
-418	iq
-419	kw
-420	sa
-421	ye
-422	om
-424	ae
-425	il
-426	bh
-427	qa
-428	mn
-429	np
-432	ir
-434	uz
-436	tj
-437	kg
-438	tm
-440	jp
-441	jp
-450	kr
-452	vn
-454	hk
-455	mo
-456	kh
-457	la
-460	cn
-470	bd
-472	mv
-502	my
-505	au
-510	id
-514	tl
-515	ph
-520	th
-525	sg
-528	bn
-530	nz
-537	pg
-539	to
-540	sb
-541	vu
-542	fj
-546	nc
-547	pf
-548	ck
-549	ws
-550	fm
-552	pw
-553	tv
-555	nu
-602	eg
-603	dz
-604	ma
-605	tn
-607	gm
-608	sn
-609	mr
-610	ml
-611	gn
-612	ci
-613	bf
-614	ne
-615	tg
-616	bj
-617	mu
-618	lr
-619	sl
-620	gh
-621	ng
-622	td
-623	cf
-624	cm
-625	cv
-626	st
-627	gq
-628	ga
-629	cg
-630	cd
-631	ao
-632	gw
-633	sc
-634	sd
-635	rw
-636	et
-637	so
-638	dj
-639	ke
-640	tz
-641	ug
-642	bi
-643	mz
-645	zm
-646	mg
-648	zw
-649	na
-650	mw
-651	ls
-652	bw
-653	sz
-654	km
-655	za
-659	ss
-702	bz
-704	gt
-706	sv
-708	hn
-710	ni
-712	cr
-714	pa
-716	pe
-722	ar
-724	br
-730	cl
-732	co
-734	ve
-736	bo
-738	gy
-740	ec
-744	py
-746	sr
-748	uy
-750	fk
-\.
+INSERT INTO public.mcc2country (mcc, country) VALUES ('202', 'gr');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('204', 'nl');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('206', 'be');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('208', 'fr');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('213', 'ad');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('214', 'es');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('216', 'hu');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('218', 'ba');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('219', 'hr');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('220', 'rs');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('222', 'it');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('226', 'ro');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('228', 'ch');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('230', 'cz');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('231', 'sk');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('232', 'at');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('234', 'gb');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('235', 'gb');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('238', 'dk');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('240', 'se');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('242', 'no');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('244', 'fi');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('246', 'lt');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('247', 'lv');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('248', 'ee');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('250', 'ru');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('255', 'ua');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('257', 'by');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('259', 'md');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('260', 'pl');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('262', 'de');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('266', 'gi');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('268', 'pt');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('270', 'lu');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('272', 'ie');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('274', 'is');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('276', 'al');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('278', 'mt');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('280', 'cy');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('282', 'ge');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('284', 'bg');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('286', 'tr');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('288', 'fo');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('290', 'gl');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('292', 'sm');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('293', 'si');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('294', 'mk');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('295', 'li');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('297', 'me');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('302', 'ca');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('308', 'pm');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('310', 'us');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('311', 'us');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('312', 'us');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('313', 'us');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('316', 'us');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('334', 'mx');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('338', 'jm');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('340', 'gp');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('342', 'bb');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('344', 'ag');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('346', 'ky');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('348', 'vg');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('350', 'bm');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('352', 'gd');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('354', 'ms');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('356', 'kn');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('358', 'lc');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('360', 'vc');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('362', 'cw');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('363', 'aw');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('365', 'ai');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('366', 'dm');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('368', 'cu');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('370', 'do');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('372', 'ht');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('374', 'tt');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('376', 'tc');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('400', 'az');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('401', 'kz');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('402', 'bt');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('404', 'in');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('405', 'in');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('410', 'pk');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('412', 'af');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('413', 'lk');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('414', 'mm');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('415', 'lb');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('416', 'jo');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('417', 'sy');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('418', 'iq');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('419', 'kw');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('420', 'sa');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('421', 'ye');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('422', 'om');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('424', 'ae');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('425', 'il');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('426', 'bh');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('427', 'qa');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('428', 'mn');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('429', 'np');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('432', 'ir');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('434', 'uz');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('436', 'tj');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('437', 'kg');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('438', 'tm');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('440', 'jp');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('441', 'jp');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('450', 'kr');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('452', 'vn');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('454', 'hk');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('455', 'mo');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('456', 'kh');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('457', 'la');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('460', 'cn');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('470', 'bd');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('472', 'mv');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('502', 'my');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('505', 'au');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('510', 'id');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('514', 'tl');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('515', 'ph');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('520', 'th');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('525', 'sg');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('528', 'bn');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('530', 'nz');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('537', 'pg');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('539', 'to');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('540', 'sb');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('541', 'vu');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('542', 'fj');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('546', 'nc');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('547', 'pf');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('548', 'ck');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('549', 'ws');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('550', 'fm');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('552', 'pw');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('553', 'tv');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('555', 'nu');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('602', 'eg');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('603', 'dz');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('604', 'ma');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('605', 'tn');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('607', 'gm');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('608', 'sn');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('609', 'mr');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('610', 'ml');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('611', 'gn');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('612', 'ci');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('613', 'bf');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('614', 'ne');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('615', 'tg');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('616', 'bj');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('617', 'mu');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('618', 'lr');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('619', 'sl');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('620', 'gh');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('621', 'ng');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('622', 'td');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('623', 'cf');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('624', 'cm');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('625', 'cv');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('626', 'st');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('627', 'gq');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('628', 'ga');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('629', 'cg');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('630', 'cd');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('631', 'ao');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('632', 'gw');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('633', 'sc');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('634', 'sd');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('635', 'rw');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('636', 'et');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('637', 'so');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('638', 'dj');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('639', 'ke');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('640', 'tz');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('641', 'ug');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('642', 'bi');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('643', 'mz');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('645', 'zm');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('646', 'mg');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('648', 'zw');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('649', 'na');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('650', 'mw');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('651', 'ls');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('652', 'bw');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('653', 'sz');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('654', 'km');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('655', 'za');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('659', 'ss');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('702', 'bz');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('704', 'gt');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('706', 'sv');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('708', 'hn');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('710', 'ni');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('712', 'cr');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('714', 'pa');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('716', 'pe');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('722', 'ar');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('724', 'br');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('730', 'cl');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('732', 'co');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('734', 've');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('736', 'bo');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('738', 'gy');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('740', 'ec');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('744', 'py');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('746', 'sr');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('748', 'uy');
+INSERT INTO public.mcc2country (mcc, country) VALUES ('750', 'fk');
+
+
+--
+-- Name: mcc2country mcc2country_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.mcc2country
+    ADD CONSTRAINT mcc2country_pkey PRIMARY KEY (mcc);
+
+
+--
+-- Name: mcc2country_mcc; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX mcc2country_mcc ON public.mcc2country USING btree (mcc);
+
+
+--
+-- Name: TABLE mcc2country; Type: ACL; Schema: public; Owner: rmbt
+--
+
+GRANT SELECT ON TABLE public.mcc2country TO rmbt_group_read_only;
+
+
+--
+-- PostgreSQL database dump complete
+--
+
+-- 2019-02-04_21-19-54 rmbt_init.sql table mccmnc2name
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 10.6 (Debian 10.6-1.pgdg90+1)
+-- Dumped by pg_dump version 10.6 (Debian 10.6-1.pgdg90+1)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+SET row_security = off;
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+-- Name: mccmnc2name; Type: TABLE; Schema: public; Owner: rmbt
+--
+
+CREATE TABLE public.mccmnc2name (
+    uid integer NOT NULL,
+    mccmnc character varying(7) NOT NULL,
+    valid_from date DEFAULT '0001-01-01'::date,
+    valid_to date DEFAULT '9999-12-31'::date,
+    country character varying(2),
+    name character varying(200) NOT NULL,
+    shortname character varying(100),
+    use_for_sim boolean DEFAULT true,
+    use_for_network boolean DEFAULT true,
+    mcc_mnc_network_mapping character varying(10),
+    comment character varying(200),
+    mapped_uid integer
+);
+
+
+ALTER TABLE public.mccmnc2name OWNER TO rmbt;
+
+--
+-- Name: mccmnc2name_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
+--
+
+CREATE SEQUENCE public.mccmnc2name_uid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.mccmnc2name_uid_seq OWNER TO rmbt;
+
+--
+-- Name: mccmnc2name_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
+--
+
+ALTER SEQUENCE public.mccmnc2name_uid_seq OWNED BY public.mccmnc2name.uid;
+
+
+--
+-- Name: mccmnc2name uid; Type: DEFAULT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.mccmnc2name ALTER COLUMN uid SET DEFAULT nextval('public.mccmnc2name_uid_seq'::regclass);
 
 
 --
 -- Data for Name: mccmnc2name; Type: TABLE DATA; Schema: public; Owner: rmbt
 --
 
-COPY mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) FROM stdin;
-1614	412-01	0001-01-01	9999-12-31	af	AWCC	AWCC	t	t	\N	\N	\N
-1615	412-20	0001-01-01	9999-12-31	af	Roshan	Roshan	t	t	\N	\N	\N
-1616	412-30	0001-01-01	9999-12-31	af	New1	\N	t	t	\N	\N	\N
-1617	412-40	0001-01-01	9999-12-31	af	Areeba Afghanistan	MTN	t	t	\N	\N	\N
-1618	412-88	0001-01-01	9999-12-31	af	Afghan Telecom	\N	t	t	\N	\N	\N
-1619	276-01	0001-01-01	9999-12-31	al	Albanian Mobile Communications (AMC)	AMS	t	t	\N	\N	\N
-1621	276-03	0001-01-01	9999-12-31	al	Eagle Mobile	Eagle Mobile	t	t	\N	\N	\N
-1622	276-04	0001-01-01	9999-12-31	al	Mobile 4 AL	Plus Communication	t	t	\N	\N	\N
-1623	603-01	0001-01-01	9999-12-31	dz	Algérie Telecom	Mobilis	t	t	\N	\N	\N
-1624	603-02	0001-01-01	9999-12-31	dz	Orascom Telecom Algérie	Djezzy	t	t	\N	\N	\N
-1625	213-03	0001-01-01	9999-12-31	ad	Mobiland	Mobiland	t	t	\N	\N	\N
-1626	631-02	0001-01-01	9999-12-31	ao	Unitel	Unitel	t	t	\N	\N	\N
-1627	631-04	0001-01-01	9999-12-31	ao	Movicel	Movicel	t	t	\N	\N	\N
-1628	365-010	0001-01-01	9999-12-31	ai	Weblinks Limited	\N	t	t	\N	\N	\N
-1629	365-840	0001-01-01	9999-12-31	ai	Cable and Wireless (Anguilla) Ltd trading as Lime	Cable & Wireless	t	t	\N	\N	\N
-1630	344-030	0001-01-01	9999-12-31	ag	APUA PCS	\N	t	t	\N	\N	\N
-1631	344-920	0001-01-01	9999-12-31	ag	Cable & Wireless (Antigua) trading as Lime	Lime	t	t	\N	\N	\N
-1632	344-930	0001-01-01	9999-12-31	ag	AT&T Wireless (Antigua)	\N	t	t	\N	\N	\N
-1633	722-010	0001-01-01	9999-12-31	ar	Compañia de Radiocomunicaciones Moviles S.A.	\N	t	t	\N	\N	\N
-1634	722-020	0001-01-01	9999-12-31	ar	Nextel Argentina srl	\N	t	t	\N	\N	\N
-1635	722-070	0001-01-01	9999-12-31	ar	Telefónica Comunicaciones Personales S.A.	\N	t	t	\N	\N	\N
-1636	722-310	0001-01-01	9999-12-31	ar	CTI PCS S.A.	Claro	t	t	\N	\N	\N
-1637	722-320	0001-01-01	9999-12-31	ar	Compañia de Telefonos del Interior Norte S.A.	Claro	t	t	\N	\N	\N
-1638	722-330	0001-01-01	9999-12-31	ar	Compañia de Telefonos del Interior S.A.	Claro	t	t	\N	\N	\N
-1639	722-341	0001-01-01	9999-12-31	ar	Telecom Personal S.A.	Personal	t	t	\N	\N	\N
-1640	363-01	0001-01-01	9999-12-31	aw	Setar GSM	SETAR	t	t	\N	\N	\N
-1641	505-01	0001-01-01	9999-12-31	au	Telstra Corporation Ltd.	Telstra	t	t	\N	\N	\N
-1642	505-02	0001-01-01	9999-12-31	au	Optus Mobile Pty. Ltd.	Optus	t	t	\N	\N	\N
-1644	505-04	0001-01-01	9999-12-31	au	Department of Defence	Department of Defence	t	t	\N	\N	\N
-1645	505-05	0001-01-01	9999-12-31	au	The Ozitel Network Pty. Ltd.	Ozitel	t	t	\N	\N	\N
-1646	505-06	0001-01-01	9999-12-31	au	Hutchison 3G Australia Pty. Ltd.	Hi3G	t	t	\N	\N	\N
-1647	505-07	0001-01-01	9999-12-31	au	Vodafone Network Pty. Ltd.	\N	t	t	\N	\N	\N
-1648	505-08	0001-01-01	9999-12-31	au	One.Tel GSM 1800 Pty. Ltd.	One.Tel	t	t	\N	\N	\N
-1649	505-09	0001-01-01	9999-12-31	au	Airnet Commercial Australia Ltd.	Airnet	t	t	\N	\N	\N
-1650	505-10	0001-01-01	9999-12-31	au	Norfolk Telecom	\N	t	t	\N	\N	\N
-1651	505-11	0001-01-01	9999-12-31	au	Telstra Corporation Ltd.	Telstra Corporation Ltd.	t	t	\N	\N	\N
-1652	505-12	0001-01-01	9999-12-31	au	Hutchison Telecommunications (Australia) Pty. Ltd.	Hi3G	t	t	\N	\N	\N
-1653	505-13	0001-01-01	9999-12-31	au	Railcorp	Railcorp	t	t	\N	\N	\N
-1654	505-14	0001-01-01	9999-12-31	au	AAPT Ltd.	AAPT	t	t	\N	\N	\N
-1655	505-15	0001-01-01	9999-12-31	au	3GIS Pty Ltd. (Telstra & Hutchison 3G)	3GIS	t	t	\N	\N	\N
-1656	505-16	0001-01-01	9999-12-31	au	Victorian Rail Track	\N	t	t	\N	\N	\N
-1657	505-17	0001-01-01	9999-12-31	au	Vivid Wireless Pty Ltd	\N	t	t	\N	\N	\N
-1658	505-18	0001-01-01	9999-12-31	au	Pactel International Pty Ltd	\N	t	t	\N	\N	\N
-1659	505-19	0001-01-01	9999-12-31	au	Lycamobile Pty Ltd	\N	t	t	\N	\N	\N
-1660	505-20	0001-01-01	9999-12-31	au	Ausgrid Corporation	\N	t	t	\N	\N	\N
-1661	505-21	0001-01-01	9999-12-31	au	Queensland Rail Limited	SOUL	t	t	\N	\N	\N
-1662	505-22	0001-01-01	9999-12-31	au	iiNet Ltd	\N	t	t	\N	\N	\N
-1663	505-23	0001-01-01	9999-12-31	au	Challenge Networks Pty Ltd	\N	t	t	\N	\N	\N
-1664	505-24	0001-01-01	9999-12-31	au	Advanced Communications Technologies Pty. Ltd.	Advanced Communications Technologies Pty. Ltd.	t	t	\N	\N	\N
-1665	505-25	0001-01-01	9999-12-31	au	Pilbara Iron Company Services Pty Ltd	\N	t	t	\N	\N	\N
-1666	505-26	0001-01-01	9999-12-31	au	Dialogue Communications Pty Ltd	\N	t	t	\N	\N	\N
-1667	505-27	0001-01-01	9999-12-31	au	Nexium Telecommunications	\N	t	t	\N	\N	\N
-1668	505-62	0001-01-01	9999-12-31	au	NBNCo Limited	\N	t	t	\N	\N	\N
-1669	505-68	0001-01-01	9999-12-31	au	NBNCo Limited	\N	t	t	\N	\N	\N
-1670	505-71	0001-01-01	9999-12-31	au	Telstra Corporation Ltd.	Telstra	t	t	\N	\N	\N
-1671	505-72	0001-01-01	9999-12-31	au	Telstra Corporation Ltd.	Telstra	t	t	\N	\N	\N
-1672	505-88	0001-01-01	9999-12-31	au	Localstar Holding Pty. Ltd.	Localstar Holding Pty. Ltd.	t	t	\N	\N	\N
-1673	505-90	0001-01-01	9999-12-31	au	Optus Ltd.	Optus	t	t	\N	\N	\N
-1674	505-99	0001-01-01	9999-12-31	au	One.Tel GSM 1800 Pty. Ltd.	One.Tel GSM 1800 Pty. Ltd.	t	t	\N	\N	\N
-1675	400-01	0001-01-01	9999-12-31	az	Azercell Limited Liability Joint Venture	Azercell	t	t	\N	\N	\N
-1676	400-02	0001-01-01	9999-12-31	az	Bakcell Limited Liabil;ity Company	Bakcell	t	t	\N	\N	\N
-1677	400-03	0001-01-01	9999-12-31	az	Catel JV	FONEX	t	t	\N	\N	\N
-1678	400-04	0001-01-01	9999-12-31	az	Azerphone LLC	Nar Mobile (Azerfon)	t	t	\N	\N	\N
-1679	426-01	0001-01-01	9999-12-31	bh	BATELCO	Batelco	t	t	\N	\N	\N
-1680	426-02	0001-01-01	9999-12-31	bh	Zain Bahrain	Zain BH	t	t	\N	\N	\N
-1681	426-03	0001-01-01	9999-12-31	bh	Civil Aviation Authority	\N	t	t	\N	\N	\N
-1682	426-04	0001-01-01	9999-12-31	bh	STC Bahrain	Viva	t	t	\N	\N	\N
-1683	426-05	0001-01-01	9999-12-31	bh	Royal Court	\N	t	t	\N	\N	\N
-1684	470-01	0001-01-01	9999-12-31	bd	GramenPhone	GramenPhone	t	t	\N	\N	\N
-1685	470-02	0001-01-01	9999-12-31	bd	Aktel	Robi	t	t	\N	\N	\N
-1686	470-03	0001-01-01	9999-12-31	bd	Mobile 2000	Banglalink	t	t	\N	\N	\N
-1687	342-600	0001-01-01	9999-12-31	bb	Cable & Wireless (Barbados) Ltd. trading as Lime	Lime (Cable & Wireless)	t	t	\N	\N	\N
-1688	342-820	0001-01-01	9999-12-31	bb	Sunbeach Communications	Sunbeach Communications	t	t	\N	\N	\N
-1689	257-01	0001-01-01	9999-12-31	by	MDC Velcom	Velcom	t	t	\N	\N	\N
-1690	257-02	0001-01-01	9999-12-31	by	MTS	MTS	t	t	\N	\N	\N
-1691	257-03	0001-01-01	9999-12-31	by	BelCel Joint Venture (JV)	DIALLOG	t	t	\N	\N	\N
-1692	257-04	0001-01-01	9999-12-31	by	Closed joint-stock company "Belarusian telecommunication network"	life :)	t	t	\N	\N	\N
-1693	257-05	0001-01-01	9999-12-31	by	Republican Unitary Telecommunication Enterprise (RUE) Beltelecom (National Telecommunications Operat	\N	t	t	\N	\N	\N
-1694	257-06	0001-01-01	9999-12-31	by	Yota Bel Foreign Limited Liability Company (FLLC)	\N	t	t	\N	\N	\N
-1695	206-01	0001-01-01	9999-12-31	be	Proximus	Proximus	t	t	\N	\N	\N
-1696	206-10	0001-01-01	9999-12-31	be	Mobistar	Mobistar	t	t	\N	\N	\N
-1697	206-20	0001-01-01	9999-12-31	be	Base	Base	t	t	\N	\N	\N
-1698	702-67	0001-01-01	9999-12-31	bz	Belize Telecommunications Ltd., GSM 1900	DigiCell	t	t	\N	\N	\N
-1699	702-68	0001-01-01	9999-12-31	bz	International Telecommunications Ltd. (INTELCO)	IntelCo	t	t	\N	\N	\N
-1700	616-01	0001-01-01	9999-12-31	bj	Libercom	Libercom	t	t	\N	\N	\N
-1701	616-02	0001-01-01	9999-12-31	bj	Telecel	Moov	t	t	\N	\N	\N
-1702	616-03	0001-01-01	9999-12-31	bj	Spacetel Benin	MTN	t	t	\N	\N	\N
-1703	350-000	0001-01-01	9999-12-31	bm	Bermuda Digital Communications Ltd (CellOne)	\N	t	t	\N	\N	\N
-1704	402-11	0001-01-01	9999-12-31	bt	Bhutan Telecom Ltd	B-Mobile	t	t	\N	\N	\N
-1705	402-17	0001-01-01	9999-12-31	bt	B-Mobile of Bhutan Telecom	B-Mobile of Bhutan Telecom	t	t	\N	\N	\N
-1706	736-01	0001-01-01	9999-12-31	bo	Nuevatel S.A.	Nuevatel	t	t	\N	\N	\N
-1707	736-02	0001-01-01	9999-12-31	bo	ENTEL S.A.	Entel	t	t	\N	\N	\N
-1708	736-03	0001-01-01	9999-12-31	bo	Telecel S.A.	Tigo	t	t	\N	\N	\N
-1709	218-03	0001-01-01	9999-12-31	ba	Eronet Mobile Communications Ltd.	HT-Eronet	t	t	\N	\N	\N
-1710	218-05	0001-01-01	9999-12-31	ba	MOBIS (Mobilina Srpske)	m:tel	t	t	\N	\N	\N
-1711	218-90	0001-01-01	9999-12-31	ba	GSMBIH	BH Mobile	t	t	\N	\N	\N
-1712	652-01	0001-01-01	9999-12-31	bw	Mascom Wireless (Pty) Ltd.	Mascom	t	t	\N	\N	\N
-1714	652-04	0001-01-01	9999-12-31	bw	Botswana Telecommunications Corporation (BTC)	BTC Mobile	t	t	\N	\N	\N
-1715	724-00	0001-01-01	9999-12-31	br	NEXTEL	Nextel	t	t	\N	\N	\N
-1716	724-01	0001-01-01	9999-12-31	br	SISTEER DO BRASIL TELECOMUNICAÇÔES (MVNO)	CRT Cellular	t	t	\N	\N	\N
-1717	724-02	0001-01-01	9999-12-31	br	TIM REGIÂO I	TIM	t	t	\N	\N	\N
-1718	724-03	0001-01-01	9999-12-31	br	TIM REGIÂO III	TIM	t	t	\N	\N	\N
-1719	724-04	0001-01-01	9999-12-31	br	TIM REGIÂO III	TIM	t	t	\N	\N	\N
-1720	724-05	0001-01-01	9999-12-31	br	CLARO	Claro	t	t	\N	\N	\N
-1721	724-06	0001-01-01	9999-12-31	br	VIVO REGIÂO II	Vivo	t	t	\N	\N	\N
-1722	724-10	0001-01-01	9999-12-31	br	VIVO REGIÂO III	Vivo	t	t	\N	\N	\N
-1723	724-11	0001-01-01	9999-12-31	br	VIVO REGIÂO I	Vivo	t	t	\N	\N	\N
-1724	724-15	0001-01-01	9999-12-31	br	SERCOMTEL	Sercomtel	t	t	\N	\N	\N
-1725	724-16	0001-01-01	9999-12-31	br	BRT CELULAR	Oi	t	t	\N	\N	\N
-1726	724-18	0001-01-01	9999-12-31	br	DATORA (MVNO)	Norte Brasil Tel	t	t	\N	\N	\N
-1727	724-23	0001-01-01	9999-12-31	br	TELEMIG CELULAR	Oi	t	t	\N	\N	\N
-1728	724-24	0001-01-01	9999-12-31	br	AMAZONIA CELULAR	Oi / Brasil Telecom	t	t	\N	\N	\N
-1729	724-30	0001-01-01	9999-12-31	br	TNL PCS Oi	\N	t	t	\N	\N	\N
-1730	724-31	0001-01-01	9999-12-31	br	TNL PCS Oi	Oi	t	t	\N	\N	\N
-1731	724-32	0001-01-01	9999-12-31	br	CTBC CELULAR R III	CTBC Celular	t	t	\N	\N	\N
-1732	724-33	0001-01-01	9999-12-31	br	CTBC CELULAR R II	CTBC Celular	t	t	\N	\N	\N
-1733	724-34	0001-01-01	9999-12-31	br	CTBC CELULAR R I	CTBC Celular	t	t	\N	\N	\N
-1734	724-35	0001-01-01	9999-12-31	br	TELCOM	Telebahia Cel	t	t	\N	\N	\N
-1735	724-36	0001-01-01	9999-12-31	br	OPTIONS	\N	t	t	\N	\N	\N
-1736	724-37	0001-01-01	9999-12-31	br	UNICEL	Aeiou	t	t	\N	\N	\N
-1737	724-38	0001-01-01	9999-12-31	br	CLARO	\N	t	t	\N	\N	\N
-1738	724-39	0001-01-01	9999-12-31	br	NEXTEL (SMP)	Nextel	t	t	\N	\N	\N
-1739	724-54	0001-01-01	9999-12-31	br	PORTO SEGURO TELECOMUNICAÇÔES (MVNO)	\N	t	t	\N	\N	\N
-1740	724-99	0001-01-01	9999-12-31	br	LOCAL (STFC)	\N	t	t	\N	\N	\N
-1741	348-170	0001-01-01	9999-12-31	vg	Cable & Wireless (BVI) Ltd trading as lime	Cabel & Wireless	t	t	\N	\N	\N
-1742	348-370	0001-01-01	9999-12-31	vg	BVI Cable TV Ltd	\N	t	t	\N	\N	\N
-1743	348-570	0001-01-01	9999-12-31	vg	Caribbean Cellular Telephone Ltd.	CCT Boatphone	t	t	\N	\N	\N
-1744	348-770	0001-01-01	9999-12-31	vg	Digicel (BVI) Ltd	Digicel	t	t	\N	\N	\N
-1745	528-11	0001-01-01	9999-12-31	bn	DST Com	DSTCom	t	t	\N	\N	\N
-1746	284-01	0001-01-01	9999-12-31	bg	Mobiltel EAD	M-Tel	t	t	\N	\N	\N
-1747	284-05	0001-01-01	9999-12-31	bg	Globul	GLOBUL	t	t	\N	\N	\N
-1748	613-02	0001-01-01	9999-12-31	bf	Celtel	Zain	t	t	\N	\N	\N
-1749	613-03	0001-01-01	9999-12-31	bf	Telecel	Telcel Faso	t	t	\N	\N	\N
-1750	642-01	0001-01-01	9999-12-31	bi	Econet	Spacetel	t	t	\N	\N	\N
-1751	642-02	0001-01-01	9999-12-31	bi	Africell	Africell	t	t	\N	\N	\N
-1752	642-03	0001-01-01	9999-12-31	bi	ONAMOB	Onatel	t	t	\N	\N	\N
-1753	642-07	0001-01-01	9999-12-31	bi	LACELL	Smart Mobile	t	t	\N	\N	\N
-1754	642-08	0001-01-01	9999-12-31	bi	HITS TELECOM	HiTs Telecom	t	t	\N	\N	\N
-1755	642-82	0001-01-01	9999-12-31	bi	U.COM	U-COM Burundi	t	t	\N	\N	\N
-1756	456-01	0001-01-01	9999-12-31	kh	Mobitel (Cam GSM)	Mobitel	t	t	\N	\N	\N
-1757	456-02	0001-01-01	9999-12-31	kh	Hello	Hello	t	t	\N	\N	\N
-1758	456-03	0001-01-01	9999-12-31	kh	S Telecom (CDMA)	S Telecom	t	t	\N	\N	\N
-1759	456-04	0001-01-01	9999-12-31	kh	Cadcomms	QB	t	t	\N	\N	\N
-1760	456-05	0001-01-01	9999-12-31	kh	Starcell	Star-Cell	t	t	\N	\N	\N
-1761	456-06	0001-01-01	9999-12-31	kh	Smart	Smart Mobile	t	t	\N	\N	\N
-1762	456-08	0001-01-01	9999-12-31	kh	Viettel	Mefone	t	t	\N	\N	\N
-1763	456-18	0001-01-01	9999-12-31	kh	Mfone	Mfone	t	t	\N	\N	\N
-1764	624-01	0001-01-01	9999-12-31	cm	Mobile Telephone Networks Cameroon	MTN Cameroon	t	t	\N	\N	\N
-1766	302-220	0001-01-01	9999-12-31	ca	Telus Mobility	Telus	t	t	\N	\N	\N
-1767	302-221	0001-01-01	9999-12-31	ca	Telus Mobility	Telus	t	t	\N	\N	\N
-1768	302-222	0001-01-01	9999-12-31	ca	Telus Mobility	\N	t	t	\N	\N	\N
-1769	302-250	0001-01-01	9999-12-31	ca	ALO Mobile Inc	\N	t	t	\N	\N	\N
-1770	302-270	0001-01-01	9999-12-31	ca	Bragg Communications	\N	t	t	\N	\N	\N
-1771	302-290	0001-01-01	9999-12-31	ca	Airtel Wireless	Aurtek Wurekess	t	t	\N	\N	\N
-1772	302-320	0001-01-01	9999-12-31	ca	Dave Wireless	Mobilicity	t	t	\N	\N	\N
-1773	302-340	0001-01-01	9999-12-31	ca	Execulink	\N	t	t	\N	\N	\N
-1774	302-360	0001-01-01	9999-12-31	ca	Telus Mobility	MiKE	t	t	\N	\N	\N
-1775	302-370	0001-01-01	9999-12-31	ca	Microcell	Fido	t	t	\N	\N	\N
-1776	302-380	0001-01-01	9999-12-31	ca	Dryden Mobility	DMTS	t	t	\N	\N	\N
-1777	302-390	0001-01-01	9999-12-31	ca	Dryden Mobility	\N	t	t	\N	\N	\N
-1778	302-490	0001-01-01	9999-12-31	ca	Globalive Wireless	WIND Mobile	t	t	\N	\N	\N
-1779	302-500	0001-01-01	9999-12-31	ca	Videotron Ltd	Videotron	t	t	\N	\N	\N
-1780	302-510	0001-01-01	9999-12-31	ca	Videotron Ltd	Videotron	t	t	\N	\N	\N
-1781	302-530	0001-01-01	9999-12-31	ca	Keewatinook Okimacinac	\N	t	t	\N	\N	\N
-1782	302-560	0001-01-01	9999-12-31	ca	Lynx Mobility	\N	t	t	\N	\N	\N
-1783	302-570	0001-01-01	9999-12-31	ca	Light Squared	\N	t	t	\N	\N	\N
-1784	302-590	0001-01-01	9999-12-31	ca	Quadro Communication	\N	t	t	\N	\N	\N
-1785	302-610	0001-01-01	9999-12-31	ca	Bell Mobility	Bell	t	t	\N	\N	\N
-1786	302-620	0001-01-01	9999-12-31	ca	Ice Wireless	ICE Wireless	t	t	\N	\N	\N
-1787	302-630	0001-01-01	9999-12-31	ca	Aliant Mobility	\N	t	t	\N	\N	\N
-1788	302-640	0001-01-01	9999-12-31	ca	Bell Mobility	Bell	t	t	\N	\N	\N
-1789	302-656	0001-01-01	9999-12-31	ca	Tbay Mobility	TBay	t	t	\N	\N	\N
-1790	302-660	0001-01-01	9999-12-31	ca	MTS Mobility	\N	t	t	\N	\N	\N
-1791	302-670	0001-01-01	9999-12-31	ca	CityTel Mobility	\N	t	t	\N	\N	\N
-1792	302-680	0001-01-01	9999-12-31	ca	Sask Tel Mobility	SaskTel	t	t	\N	\N	\N
-1793	302-690	0001-01-01	9999-12-31	ca	Bell Mobility	\N	t	t	\N	\N	\N
-1794	302-710	0001-01-01	9999-12-31	ca	Globalstar	Globalstar	t	t	\N	\N	\N
-1795	302-720	0001-01-01	9999-12-31	ca	Rogers Wireless	Rogers Wireless	t	t	\N	\N	\N
-1796	302-730	0001-01-01	9999-12-31	ca	TerreStar Solutions	\N	t	t	\N	\N	\N
-1797	302-740	0001-01-01	9999-12-31	ca	Shaw Telecom G.P.	\N	t	t	\N	\N	\N
-1798	302-760	0001-01-01	9999-12-31	ca	Public Mobile Inc	\N	t	t	\N	\N	\N
-1799	302-770	0001-01-01	9999-12-31	ca	Rural Com	\N	t	t	\N	\N	\N
-1800	302-780	0001-01-01	9999-12-31	ca	Sask Tel Mobility	SaskTel	t	t	\N	\N	\N
-1801	302-860	0001-01-01	9999-12-31	ca	Telus Mobility	\N	t	t	\N	\N	\N
-1802	302-880	0001-01-01	9999-12-31	ca	Telus/Bell shared	Bell / Telus / SaskTel	t	t	\N	\N	\N
-1803	302-940	0001-01-01	9999-12-31	ca	Wightman Telecom	\N	t	t	\N	\N	\N
-1804	302-990	0001-01-01	9999-12-31	ca	Test	\N	t	t	\N	\N	\N
-1805	625-01	0001-01-01	9999-12-31	cv	Cabo Verde Telecom	CVMOVEL	t	t	\N	\N	\N
-1806	625-02	0001-01-01	9999-12-31	cv	T+Telecomunicaçôes	T+	t	t	\N	\N	\N
-1807	346-140	0001-01-01	9999-12-31	ky	Cable & Wireless (Cayman) trading as Lime	Cable & Wireless (Lime)	t	t	\N	\N	\N
-1808	623-01	0001-01-01	9999-12-31	cf	Centrafrique Telecom Plus (CTP)	MOOV	t	t	\N	\N	\N
-1809	623-02	0001-01-01	9999-12-31	cf	Telecel Centrafrique (TC)	TC	t	t	\N	\N	\N
-1811	622-01	0001-01-01	9999-12-31	td	Celtel	Zain	t	t	\N	\N	\N
-1812	622-02	0001-01-01	9999-12-31	td	Tchad Mobile	Tawali	t	t	\N	\N	\N
-1813	730-01	0001-01-01	9999-12-31	cl	Entel Telefónica Móvil	entel	t	t	\N	\N	\N
-1814	730-02	0001-01-01	9999-12-31	cl	Telefónica Móvil	movistar	t	t	\N	\N	\N
-1815	730-03	0001-01-01	9999-12-31	cl	Smartcom	Claro	t	t	\N	\N	\N
-1816	730-04	0001-01-01	9999-12-31	cl	Centennial Cayman Corp. Chile S.A.	Nextel	t	t	\N	\N	\N
-1817	730-05	0001-01-01	9999-12-31	cl	Multikom S.A.	VTR Móvil	t	t	\N	\N	\N
-1818	730-06	0001-01-01	9999-12-31	cl	Blue Two Chile SA	\N	t	t	\N	\N	\N
-1819	730-07	0001-01-01	9999-12-31	cl	Telefónica Móviles Chile S.A.	\N	t	t	\N	\N	\N
-1820	730-08	0001-01-01	9999-12-31	cl	VTR Móvil S.A.	\N	t	t	\N	\N	\N
-1821	730-09	0001-01-01	9999-12-31	cl	Centennial Cayman Corp. Chile S.A.	Nextel	t	t	\N	\N	\N
-1822	730-10	0001-01-01	9999-12-31	cl	Entel	entel	t	t	\N	\N	\N
-1823	730-11	0001-01-01	9999-12-31	cl	Celupago S.A.	\N	t	t	\N	\N	\N
-1824	730-12	0001-01-01	9999-12-31	cl	Telestar Móvil S.A.	\N	t	t	\N	\N	\N
-1825	730-13	0001-01-01	9999-12-31	cl	TRIBE Mobile Chile SPA	\N	t	t	\N	\N	\N
-1826	730-14	0001-01-01	9999-12-31	cl	Netline Telefónica Móvil Ltda	\N	t	t	\N	\N	\N
-1827	460-00	0001-01-01	9999-12-31	cn	China Mobile	China Mobile	t	t	\N	\N	\N
-1828	460-01	0001-01-01	9999-12-31	cn	China Unicom	China Unicom	t	t	\N	\N	\N
-1829	460-03	0001-01-01	9999-12-31	cn	China Unicom CDMA	China Unicom CDMA	t	t	\N	\N	\N
-1830	460-04	0001-01-01	9999-12-31	cn	China Satellite Global Star Network	China Satellite Global Star Network	t	t	\N	\N	\N
-1831	732-001	0001-01-01	9999-12-31	co	Colombia Telecomunicaciones S.A. - Telecom	\N	t	t	\N	\N	\N
-1832	732-002	0001-01-01	9999-12-31	co	Edatel S.A.	\N	t	t	\N	\N	\N
-1833	732-020	0001-01-01	9999-12-31	co	Emtelsa	\N	t	t	\N	\N	\N
-1834	732-099	0001-01-01	9999-12-31	co	Emcali	\N	t	t	\N	\N	\N
-1835	732-101	0001-01-01	9999-12-31	co	Comcel S.A. Occel S.A./Celcaribe	Comcel	t	t	\N	\N	\N
-1836	732-102	0001-01-01	9999-12-31	co	Bellsouth Colombia S.A.	Movistar	t	t	\N	\N	\N
-1837	732-103	0001-01-01	9999-12-31	co	Colombia Móvil S.A.	Tigo	t	t	\N	\N	\N
-1838	732-111	0001-01-01	9999-12-31	co	Colombia Móvil S.A.	Tigo	t	t	\N	\N	\N
-1839	732-123	0001-01-01	9999-12-31	co	Telefónica Móviles Colombia S.A.	Movistar	t	t	\N	\N	\N
-1840	732-130	0001-01-01	9999-12-31	co	Avantel	Avantel	t	t	\N	\N	\N
-1841	654-01	0001-01-01	9999-12-31	km	HURI - SNPT	HURI - SNPT	t	t	\N	\N	\N
-1842	629-01	0001-01-01	9999-12-31	cg	Celtel	Zain	t	t	\N	\N	\N
-1843	629-10	0001-01-01	9999-12-31	cg	Libertis Telecom	Libertis Telecom	t	t	\N	\N	\N
-1844	548-01	0001-01-01	9999-12-31	ck	Telecom Cook	Telecom Cook	t	t	\N	\N	\N
-1845	712-01	0001-01-01	9999-12-31	cr	Instituto Costarricense de Electricidad - ICE	ICE	t	t	\N	\N	\N
-1846	712-02	0001-01-01	9999-12-31	cr	Instituto Costarricense de Electricidad - ICE	ICE	t	t	\N	\N	\N
-1847	712-03	0001-01-01	9999-12-31	cr	CLARO CR Telecomunicaciones S.A.	ICE	t	t	\N	\N	\N
-1848	712-04	0001-01-01	9999-12-31	cr	Telefónica de Costa Rica TC, S.A.	\N	t	t	\N	\N	\N
-1849	712-20	0001-01-01	9999-12-31	cr	Virtualis	\N	t	t	\N	\N	\N
-1850	612-02	0001-01-01	9999-12-31	ci	Atlantique Cellulaire	Moov	t	t	\N	\N	\N
-1852	612-04	0001-01-01	9999-12-31	ci	Comium Côte dIvoire	Koz	t	t	\N	\N	\N
-1853	612-05	0001-01-01	9999-12-31	ci	Loteny Telecom	MTN	t	t	\N	\N	\N
-1854	612-06	0001-01-01	9999-12-31	ci	Oricel Côte dIvoire	OriCel	t	t	\N	\N	\N
-1855	612-07	0001-01-01	9999-12-31	ci	Aircomm Côte dIvoire	\N	t	t	\N	\N	\N
-1857	219-02	0001-01-01	9999-12-31	hr	Tele2/Tele2 d.o.o.	Tele2	t	t	\N	\N	\N
-1858	219-10	0001-01-01	9999-12-31	hr	VIPnet/VIPnet d.o.o.	VIPnet	t	t	\N	\N	\N
-1859	368-01	0001-01-01	9999-12-31	cu	ETECSA	Cubacel	t	t	\N	\N	\N
-1860	362-51	0001-01-01	9999-12-31	cw	TELCELL GSM	TelCell	t	t	\N	\N	\N
-1861	362-69	0001-01-01	9999-12-31	cw	CT GSM	Digicel	t	t	\N	\N	\N
-1862	362-91	0001-01-01	9999-12-31	cw	SETEL GSM	UTS	t	t	\N	\N	\N
-1863	280-01	0001-01-01	9999-12-31	cy	CYTA	Cytamobile-Vodafone	t	t	\N	\N	\N
-1864	280-10	0001-01-01	9999-12-31	cy	Scancom (Cyprus) Ltd.	MTN	t	t	\N	\N	\N
-1865	280-20	0001-01-01	9999-12-31	cy	Primetel PLC	Primetel	t	t	\N	\N	\N
-1866	280-22	0001-01-01	9999-12-31	cy	Lemontel Ltd	\N	t	t	\N	\N	\N
-1868	230-02	0001-01-01	9999-12-31	cz	Telefónica O2 Czech Republic a.s.	O2	t	t	\N	\N	\N
-1870	230-04	0001-01-01	9999-12-31	cz	Mobilkom a.s.	U:fon	t	t	\N	\N	\N
-1871	230-05	0001-01-01	9999-12-31	cz	Travel Telekommunikation, s.r.o.	Travel Telecomunication s.r.o.	t	t	\N	\N	\N
-1872	230-08	0001-01-01	9999-12-31	cz	Compatel s.r.o	\N	t	t	\N	\N	\N
-1873	230-98	0001-01-01	9999-12-31	cz	Sprava Zeleznicni Dopravni Cesty	SŽDC s.o.	t	t	\N	\N	\N
-1874	630-01	0001-01-01	9999-12-31	cd	Vodacom Congo RDC sprl	Vodacom	t	t	\N	\N	\N
-1875	630-02	0001-01-01	9999-12-31	cd	AIRTEL sprl	Zain	t	t	\N	\N	\N
-1876	630-05	0001-01-01	9999-12-31	cd	Supercell Sprl	Supercell	t	t	\N	\N	\N
-1877	630-86	0001-01-01	9999-12-31	cd	Congo-Chine Telecom s.a.r.l.	CCT	t	t	\N	\N	\N
-1878	630-88	0001-01-01	9999-12-31	cd	YOZMA TIMETURNS sprl	Yozma Timeturns	t	t	\N	\N	\N
-1879	630-89	0001-01-01	9999-12-31	cd	OASIS sprl	SAIT Telecom	t	t	\N	\N	\N
-1880	630-90	0001-01-01	9999-12-31	cd	Africell RDC	\N	t	t	\N	\N	\N
-1869	230-03	0001-01-01	9999-12-31	cz	Vodafone Czech Republic a.s.	Vodafone cz	t	t	\N	\N	\N
-1810	623-03	0001-01-01	9999-12-31	cf	Celca (Socatel)	Orange cf	t	t	\N	\N	\N
-1851	612-03	0001-01-01	9999-12-31	ci	Orange Côte dIvoire	Orange ci	t	t	\N	\N	\N
-1881	238-01	0001-01-01	9999-12-31	dk	TDC Mobil	TDC	t	t	\N	\N	\N
-1882	238-02	0001-01-01	9999-12-31	dk	Sonofon	Telenor	t	t	\N	\N	\N
-1883	238-03	0001-01-01	9999-12-31	dk	MIGway A/S	End2End	t	t	\N	\N	\N
-1884	238-04	0001-01-01	9999-12-31	dk	NextGen Mobile Ltd T/A CardBoardFish	\N	t	t	\N	\N	\N
-1886	238-07	0001-01-01	9999-12-31	dk	Barablu Mobile Ltd.	Mundio Mobile	t	t	\N	\N	\N
-1887	238-08	0001-01-01	9999-12-31	dk	Nordisk Mobiltelefon Danmark A/S	Nordisk Mobiltelefon	t	t	\N	\N	\N
-1888	238-10	0001-01-01	9999-12-31	dk	TDC Mobil	TDC	t	t	\N	\N	\N
-1889	238-12	0001-01-01	9999-12-31	dk	Lycamobile Denmark	Lyca	t	t	\N	\N	\N
-1890	238-20	0001-01-01	9999-12-31	dk	Telia	Telia	t	t	\N	\N	\N
-1891	238-28	0001-01-01	9999-12-31	dk	CoolTEL	\N	t	t	\N	\N	\N
-1892	238-66	0001-01-01	9999-12-31	dk	TT-Netvaerket P/S	\N	t	t	\N	\N	\N
-1893	238-77	0001-01-01	9999-12-31	dk	Tele2	Telenor	t	t	\N	\N	\N
-1894	638-01	0001-01-01	9999-12-31	dj	Evatis	Evatis	t	t	\N	\N	\N
-1895	366-110	0001-01-01	9999-12-31	dm	Cable & Wireless Dominica Ltd trading as Lime	Cable & Wireless Dominica Ltd.	t	t	\N	\N	\N
-1897	370-02	0001-01-01	9999-12-31	do	Verizon Dominicana S.A.	Claro	t	t	\N	\N	\N
-1898	370-03	0001-01-01	9999-12-31	do	Tricom S.A.	Tricom	t	t	\N	\N	\N
-1899	370-04	0001-01-01	9999-12-31	do	CentennialDominicana	Viva	t	t	\N	\N	\N
-1900	740-00	0001-01-01	9999-12-31	ec	Otecel S.A. - Bellsouth	Moviestar	t	t	\N	\N	\N
-1901	740-01	0001-01-01	9999-12-31	ec	Porta GSM	Porta	t	t	\N	\N	\N
-1902	740-02	0001-01-01	9999-12-31	ec	Telecsa S.A.	Alegro	t	t	\N	\N	\N
-1903	602-01	0001-01-01	9999-12-31	eg	Mobinil	Mobinil	t	t	\N	\N	\N
-1905	602-03	0001-01-01	9999-12-31	eg	Etisalat	Etisalat	t	t	\N	\N	\N
-1906	706-01	0001-01-01	9999-12-31	sv	CTE Telecom Personal, S.A. de C.V.	CTW Telecom Personal	t	t	\N	\N	\N
-1907	706-02	0001-01-01	9999-12-31	sv	Digicel, S.A. de C.V.	Digicel	t	t	\N	\N	\N
-1908	706-03	0001-01-01	9999-12-31	sv	Telemóvil El Salvador, S.A.	Tigo	t	t	\N	\N	\N
-1909	627-01	0001-01-01	9999-12-31	gq	Guinea Ecuatorial de Telecomunicaciones Sociedad Anónima (GETESA)	Orange GQ	t	t	\N	\N	\N
-1910	248-01	0001-01-01	9999-12-31	ee	EMT GSM	EMT	t	t	\N	\N	\N
-1911	248-02	0001-01-01	9999-12-31	ee	RLE	Elisa	t	t	\N	\N	\N
-1912	248-03	0001-01-01	9999-12-31	ee	Tele2	Tele 2	t	t	\N	\N	\N
-1913	248-04	0001-01-01	9999-12-31	ee	OY Top Connect	OY Top Connect	t	t	\N	\N	\N
-1914	248-05	0001-01-01	9999-12-31	ee	AS Bravocom Mobiil	AS Bravocom Mobiil	t	t	\N	\N	\N
-1915	248-06	0001-01-01	9999-12-31	ee	ProGroup Holding OY	OY ViaTel (UMTS)	t	t	\N	\N	\N
-1916	248-07	0001-01-01	9999-12-31	ee	Televõrgu AS	Televõrgu AS	t	t	\N	\N	\N
-1917	248-71	0001-01-01	9999-12-31	ee	Siseministeerium (Ministry of Interior)	Siseministeerium (Ministry of Interior)	t	t	\N	\N	\N
-1918	636-01	0001-01-01	9999-12-31	et	ETH MTN	ETH MTN	t	t	\N	\N	\N
-1919	750-001	0001-01-01	9999-12-31	fk	Touch	\N	t	t	\N	\N	\N
-1920	288-01	0001-01-01	9999-12-31	fo	Faroese Telecom - GSM	Faroese Telecom - GSM	t	t	\N	\N	\N
-1922	288-03	0001-01-01	9999-12-31	fo	Edge Mobile Sp/F	\N	t	t	\N	\N	\N
-1924	542-02	0001-01-01	9999-12-31	fj	Digicel (Fiji) Ltd	Digicel	t	t	\N	\N	\N
-1925	542-03	0001-01-01	9999-12-31	fj	Telecom Fiji Ltd (CDMA)	\N	t	t	\N	\N	\N
-1926	244-03	0001-01-01	9999-12-31	fi	DNA Oy	DNA	t	t	\N	\N	\N
-1927	244-04	0001-01-01	9999-12-31	fi	DNA Oy	\N	t	t	\N	\N	\N
-1928	244-05	0001-01-01	9999-12-31	fi	Elisa Oy	Elisa	t	t	\N	\N	\N
-1929	244-09	0001-01-01	9999-12-31	fi	Nokia Siemens Networks Oy	Finnet	t	t	\N	\N	\N
-1930	244-10	0001-01-01	9999-12-31	fi	TDC Oy FINLAND	TDC	t	t	\N	\N	\N
-1931	244-12	0001-01-01	9999-12-31	fi	DNA Oy	DNA	t	t	\N	\N	\N
-1932	244-13	0001-01-01	9999-12-31	fi	DNA Oy	\N	t	t	\N	\N	\N
-1933	244-14	0001-01-01	9999-12-31	fi	Alands Mobilteleofn Ab	AMT	t	t	\N	\N	\N
-1934	244-16	0001-01-01	9999-12-31	fi	Oy Finland Tele2 AB	Oy Finland Tele2 AB	t	t	\N	\N	\N
-1935	244-21	0001-01-01	9999-12-31	fi	Saunalahti Group Oyj	Saunalahti	t	t	\N	\N	\N
-1936	244-29	0001-01-01	9999-12-31	fi	SCNL TRUPHONE	Scnl Truphone	t	t	\N	\N	\N
-1937	244-91	0001-01-01	9999-12-31	fi	TeliaSonera Finland Oyj	Sonera	t	t	\N	\N	\N
-1940	208-03	0001-01-01	9999-12-31	fr	MobiquiThings	\N	t	t	\N	\N	\N
-1941	208-04	0001-01-01	9999-12-31	fr	Sisteer	\N	t	t	\N	\N	\N
-1942	208-05	0001-01-01	9999-12-31	fr	Globalstar Europe	Globalstar Europe	t	t	\N	\N	\N
-1943	208-06	0001-01-01	9999-12-31	fr	Globalstar Europe	Globalstar Europe	t	t	\N	\N	\N
-1944	208-07	0001-01-01	9999-12-31	fr	Globalstar Europe	Globalstar Europe	t	t	\N	\N	\N
-1945	208-09	0001-01-01	9999-12-31	fr	SFR	\N	t	t	\N	\N	\N
-1946	208-10	0001-01-01	9999-12-31	fr	S.F.R.	SFR	t	t	\N	\N	\N
-1947	208-11	0001-01-01	9999-12-31	fr	S.F.R.	SFR	t	t	\N	\N	\N
-1948	208-13	0001-01-01	9999-12-31	fr	SFR	SFR	t	t	\N	\N	\N
-1949	208-14	0001-01-01	9999-12-31	fr	RFF	Free Mobile	t	t	\N	\N	\N
-1950	208-15	0001-01-01	9999-12-31	fr	Free Mobile	Free Mobile	t	t	\N	\N	\N
-1951	208-20	0001-01-01	9999-12-31	fr	Bouygues Telecom	Bouygues	t	t	\N	\N	\N
-1952	208-21	0001-01-01	9999-12-31	fr	Bouygues Telecom	Bouygues	t	t	\N	\N	\N
-1953	208-22	0001-01-01	9999-12-31	fr	Transatel	\N	t	t	\N	\N	\N
-1954	208-23	0001-01-01	9999-12-31	fr	Omer Telecom Ltd	\N	t	t	\N	\N	\N
-1955	208-24	0001-01-01	9999-12-31	fr	Mobiqui Things	\N	t	t	\N	\N	\N
-1956	208-25	0001-01-01	9999-12-31	fr	Lycamobile	\N	t	t	\N	\N	\N
-1957	208-26	0001-01-01	9999-12-31	fr	NRJ Mobile	\N	t	t	\N	\N	\N
-1958	208-27	0001-01-01	9999-12-31	fr	Afone	\N	t	t	\N	\N	\N
-1959	208-28	0001-01-01	9999-12-31	fr	Astrium	\N	t	t	\N	\N	\N
-1960	208-29	0001-01-01	9999-12-31	fr	Société International Mobile Communication	\N	t	t	\N	\N	\N
-1961	208-30	0001-01-01	9999-12-31	fr	Symacom	\N	t	t	\N	\N	\N
-1962	208-31	0001-01-01	9999-12-31	fr	Mundio Mobile	\N	t	t	\N	\N	\N
-1963	208-88	0001-01-01	9999-12-31	fr	Bouygues Telecom	Bouygues	t	t	\N	\N	\N
-1964	208-89	0001-01-01	9999-12-31	fr	Omer Telecom Ltd	\N	t	t	\N	\N	\N
-1965	208-90	0001-01-01	9999-12-31	fr	Images & Réseaux	\N	t	t	\N	\N	\N
-1966	208-91	0001-01-01	9999-12-31	fr	Orange France	\N	t	t	\N	\N	\N
-1967	340-11	0001-01-01	9999-12-31	gf	Guyane Téléphone Mobile	\N	t	t	\N	\N	\N
-1968	547-10	0001-01-01	9999-12-31	pf	Mara Telecom	\N	t	t	\N	\N	\N
-1969	547-15	0001-01-01	9999-12-31	pf	Pacific Mobile Telecom	\N	t	t	\N	\N	\N
-1970	547-20	0001-01-01	9999-12-31	pf	Tikiphone	Tikiphone	t	t	\N	\N	\N
-1971	628-01	0001-01-01	9999-12-31	ga	LIBERTIS	Libertis	t	t	\N	\N	\N
-1972	628-02	0001-01-01	9999-12-31	ga	MOOV	Moov	t	t	\N	\N	\N
-1973	628-03	0001-01-01	9999-12-31	ga	CELTEL	Airtel	t	t	\N	\N	\N
-1896	370-01	0001-01-01	9999-12-31	do	Orange Dominicana, S.A.	Orange do	t	t	\N	\N	\N
-1938	208-01	0001-01-01	9999-12-31	fr	Orange France	Orange fr	t	t	\N	\N	\N
-1939	208-02	0001-01-01	9999-12-31	fr	Orange France	Orange fr	t	t	\N	\N	\N
-1974	628-04	0001-01-01	9999-12-31	ga	USAN GABON	Azur	t	t	\N	\N	\N
-1975	628-05	0001-01-01	9999-12-31	ga	Réseau de l’Administration Gabonaise (RAG)	RAG	t	t	\N	\N	\N
-1976	607-01	0001-01-01	9999-12-31	gm	Gamcel	Gamcel	t	t	\N	\N	\N
-1977	607-02	0001-01-01	9999-12-31	gm	Africell	Africell	t	t	\N	\N	\N
-1978	607-03	0001-01-01	9999-12-31	gm	Comium Services Ltd	Comium	t	t	\N	\N	\N
-1979	607-04	0001-01-01	9999-12-31	gm	Qcell	QCell	t	t	\N	\N	\N
-1980	282-01	0001-01-01	9999-12-31	ge	Geocell Ltd.	Geocell	t	t	\N	\N	\N
-1981	282-02	0001-01-01	9999-12-31	ge	Magti GSM Ltd.	MagtiCom	t	t	\N	\N	\N
-1982	282-03	0001-01-01	9999-12-31	ge	Iberiatel Ltd.	Iberiatel	t	t	\N	\N	\N
-1983	282-04	0001-01-01	9999-12-31	ge	Mobitel Ltd.	Beeline	t	t	\N	\N	\N
-1984	282-05	0001-01-01	9999-12-31	ge	Silknet JSC	SLINKNET	t	t	\N	\N	\N
-1987	262-03	0001-01-01	9999-12-31	de	E-Plus Mobilfunk GmbH & Co. KG	E-plus	t	t	\N	\N	\N
-1988	262-04	0001-01-01	9999-12-31	de	Vodafone D2 GmbH	Vodafone (Reserved)	t	t	\N	\N	\N
-1989	262-05	0001-01-01	9999-12-31	de	E-Plus Mobilfunk GmbH & Co. KG	E-Plus (Reserved)	t	t	\N	\N	\N
-1990	262-06	0001-01-01	9999-12-31	de	T-Mobile Deutschland GmbH	T-Mobile (Reserved)	t	t	\N	\N	\N
-1991	262-07	0001-01-01	9999-12-31	de	O2 (Germany) GmbH & Co. OHG	O2	t	t	\N	\N	\N
-1992	262-08	0001-01-01	9999-12-31	de	O2 (Germany) GmbH & Co. OHG	O2	t	t	\N	\N	\N
-1994	262-10	0001-01-01	9999-12-31	de	Arcor AG & Co.	Arcor AG & Co. (GSM-R)	t	t	\N	\N	\N
-1995	262-11	0001-01-01	9999-12-31	de	O2 (Germany) GmbH & Co. OHG	O2 (RESERVED)	t	t	\N	\N	\N
-1996	262-12	0001-01-01	9999-12-31	de	Dolphin Telecom (Deutschland) GmbH	Dolphin Telecom (Deutschland) GmbH	t	t	\N	\N	\N
-1997	262-13	0001-01-01	9999-12-31	de	Mobilcom Multimedia GmbH	Mobilcom Multimedia GmbH	t	t	\N	\N	\N
-1998	262-14	0001-01-01	9999-12-31	de	Group 3G UMTS GmbH (Quam)	Group 3G UMTS GmbH (Quam)	t	t	\N	\N	\N
-1999	262-15	0001-01-01	9999-12-31	de	Airdata AG	Airdata	t	t	\N	\N	\N
-2000	262-76	0001-01-01	9999-12-31	de	Siemens AG, ICMNPGUSTA	Siemens AG,	t	t	\N	\N	\N
-2001	262-77	0001-01-01	9999-12-31	de	E-Plus Mobilfunk GmbH & Co. KG	E-Plus	t	t	\N	\N	\N
-2002	620-01	0001-01-01	9999-12-31	gh	Spacefon	MTN	t	t	\N	\N	\N
-2004	620-03	0001-01-01	9999-12-31	gh	Mobitel	tiGO	t	t	\N	\N	\N
-2005	620-04	0001-01-01	9999-12-31	gh	Kasapa Telecom Ltd.	Expresso	t	t	\N	\N	\N
-2006	620-11	0001-01-01	9999-12-31	gh	Netafriques Dot Com Ltd	\N	t	t	\N	\N	\N
-2007	266-01	0001-01-01	9999-12-31	gi	Gibtelecom GSM	GibTel	t	t	\N	\N	\N
-2008	266-06	0001-01-01	9999-12-31	gi	CTS	CTS Mobile	t	t	\N	\N	\N
-2009	266-09	0001-01-01	9999-12-31	gi	Eazi Telecom Limited	Cloud9 Mobile Communications	t	t	\N	\N	\N
-2010	202-01	0001-01-01	9999-12-31	gr	Cosmote	Cosmote	t	t	\N	\N	\N
-2011	202-02	0001-01-01	9999-12-31	gr	Cosmote	\N	t	t	\N	\N	\N
-2012	202-03	0001-01-01	9999-12-31	gr	OTE	\N	t	t	\N	\N	\N
-2013	202-04	0001-01-01	9999-12-31	gr	EDISY	\N	t	t	\N	\N	\N
-2015	202-06	0001-01-01	9999-12-31	gr	COSMOLINE	\N	t	t	\N	\N	\N
-2016	202-07	0001-01-01	9999-12-31	gr	AMD TELECOM	\N	t	t	\N	\N	\N
-2017	202-09	0001-01-01	9999-12-31	gr	WIND	Wind	t	t	\N	\N	\N
-2018	202-10	0001-01-01	9999-12-31	gr	WIND	Wind	t	t	\N	\N	\N
-2019	290-01	0001-01-01	9999-12-31	gl	Tele Greenland	Tele Greenland	t	t	\N	\N	\N
-2020	352-110	0001-01-01	9999-12-31	gd	Cable & Wireless Grenada ltd trading as lime	Cable & Wireless	t	t	\N	\N	\N
-2022	340-02	0001-01-01	9999-12-31	gp	Outremer Telecom	Outremer	t	t	\N	\N	\N
-2023	340-03	0001-01-01	9999-12-31	gp	Saint Martin et Saint Barthelemy Telcell Sarl	Telcell	t	t	\N	\N	\N
-2024	340-08	0001-01-01	9999-12-31	gp	Dauphin Telecom	MIO GSM	t	t	\N	\N	\N
-2025	340-10	0001-01-01	9999-12-31	gp	Guadeloupe Téléphone Mobile	\N	t	t	\N	\N	\N
-2026	340-20	0001-01-01	9999-12-31	gp	Bouygues Telecom Caraïbe	Digicel	t	t	\N	\N	\N
-2027	704-01	0001-01-01	9999-12-31	gt	Servicios de Comunicaciones Personales Inalámbricas, S.A. (SERCOM, S.A	Claro	t	t	\N	\N	\N
-2028	704-02	0001-01-01	9999-12-31	gt	Comunicaciones Celulares S.A.	Comcel / Tigo	t	t	\N	\N	\N
-2029	704-03	0001-01-01	9999-12-31	gt	Telefónica Centroamérica Guatemala S.A.	Movistar	t	t	\N	\N	\N
-2030	611-01	0001-01-01	9999-12-31	gn	Orange Guinée	Orange S.A.	t	t	\N	\N	\N
-2031	611-02	0001-01-01	9999-12-31	gn	Sotelgui	Sotelgui	t	t	\N	\N	\N
-2032	611-05	0001-01-01	9999-12-31	gn	Cellcom Guinée SA	Cellcom	t	t	\N	\N	\N
-2033	632-01	0001-01-01	9999-12-31	gw	Guinétel S.A.	Guinétel S.A.	t	t	\N	\N	\N
-2034	632-02	0001-01-01	9999-12-31	gw	Spacetel Guiné-Bissau S.A.	Spacetel Guiné-Bissau S.A.	t	t	\N	\N	\N
-2035	738-01	0001-01-01	9999-12-31	gy	Cel*Star (Guyana) Inc.	Digicel	t	t	\N	\N	\N
-2036	372-01	0001-01-01	9999-12-31	ht	Comcel	Voila	t	t	\N	\N	\N
-2037	372-02	0001-01-01	9999-12-31	ht	Digicel	Digicel	t	t	\N	\N	\N
-2038	372-03	0001-01-01	9999-12-31	ht	Rectel	NATCOM	t	t	\N	\N	\N
-2039	708-001	0001-01-01	9999-12-31	hn	Megatel	\N	t	t	\N	\N	\N
-2040	708-002	0001-01-01	9999-12-31	hn	Celtel	\N	t	t	\N	\N	\N
-2041	708-040	0001-01-01	9999-12-31	hn	Digicel Honduras	\N	t	t	\N	\N	\N
-2042	454-00	0001-01-01	9999-12-31	hk	GSM900/HKCSL	1O1O / One2Free	t	t	\N	\N	\N
-2043	454-01	0001-01-01	9999-12-31	hk	MVNO/CITIC	CITIC Telecom 1616	t	t	\N	\N	\N
-2044	454-02	0001-01-01	9999-12-31	hk	3G Radio System/HKCSL3G	CSL	t	t	\N	\N	\N
-2045	454-03	0001-01-01	9999-12-31	hk	3G Radio System/Hutchison 3G	3 (3G)	t	t	\N	\N	\N
-2046	454-04	0001-01-01	9999-12-31	hk	GSM900/GSM1800/Hutchison	3 (2G)	t	t	\N	\N	\N
-2047	454-05	0001-01-01	9999-12-31	hk	CDMA/Hutchison	3 (CDMA)	t	t	\N	\N	\N
-2048	454-06	0001-01-01	9999-12-31	hk	GSM900/SmarTone	SmarTone-Vodafone	t	t	\N	\N	\N
-2049	454-07	0001-01-01	9999-12-31	hk	MVNO/China Unicom International Ltd.	China Unicom (Hong Kong) Ltd	t	t	\N	\N	\N
-2050	454-08	0001-01-01	9999-12-31	hk	MVNO/Trident	Trident Telecom	t	t	\N	\N	\N
-2051	454-09	0001-01-01	9999-12-31	hk	MVNO/China Motion Telecom (HK) Ltd.	China Motion Telecom	t	t	\N	\N	\N
-2052	454-10	0001-01-01	9999-12-31	hk	GSM1800New World PCS Ltd.	New World Mobility	t	t	\N	\N	\N
-2053	454-11	0001-01-01	9999-12-31	hk	MVNO/CHKTL	China-Hong Kong Telecom	t	t	\N	\N	\N
-2054	454-12	0001-01-01	9999-12-31	hk	GSM1800/Peoples Telephone Company Ltd.	CMCC HK	t	t	\N	\N	\N
-2055	454-15	0001-01-01	9999-12-31	hk	3G Radio System/SMT3G	3G Radio System/SMT3G	t	t	\N	\N	\N
-2056	454-16	0001-01-01	9999-12-31	hk	GSM1800/Mandarin Communications Ltd.	PCCW Mobile	t	t	\N	\N	\N
-2057	454-18	0001-01-01	9999-12-31	hk	GSM7800/Hong Kong CSL Ltd.	CSL	t	t	\N	\N	\N
-2058	454-19	0001-01-01	9999-12-31	hk	3G Radio System/Sunday3G	PCCW Mobile	t	t	\N	\N	\N
-2059	454-2X	0001-01-01	9999-12-31	hk	Public Mobile Networks/Reserved	\N	t	t	\N	\N	\N
-1986	262-02	0001-01-01	9999-12-31	de	Vodafone D2 GmbH	Vodafone de	t	t	\N	\N	\N
-2021	340-01	0001-01-01	9999-12-31	gp	Orange Caraïbe Mobiles	Orange gp	t	t	\N	\N	\N
-2060	454-3X	0001-01-01	9999-12-31	hk	Public Mobile Networks/Reserved	\N	t	t	\N	\N	\N
-2061	216-01	0001-01-01	9999-12-31	hu	Telenor Hungary Ltd	Telenor	t	t	\N	\N	\N
-2064	274-01	0001-01-01	9999-12-31	is	Iceland Telecom Ltd.	Siminn	t	t	\N	\N	\N
-2067	274-04	0001-01-01	9999-12-31	is	IMC Islande ehf	Viking	t	t	\N	\N	\N
-2068	274-07	0001-01-01	9999-12-31	is	IceCell ehf	IceCell	t	t	\N	\N	\N
-2069	404-00	0001-01-01	9999-12-31	in	Dishnet Wireless Ltd, Madhya Pradesh	Sistema Shyam	t	t	\N	\N	\N
-2071	404-02	0001-01-01	9999-12-31	in	Bharti Airtel Ltd., Punjab	Airtel	t	t	\N	\N	\N
-2072	404-03	0001-01-01	9999-12-31	in	Bharti Airtel Ltd., H.P.	Airtel	t	t	\N	\N	\N
-2073	404-04	0001-01-01	9999-12-31	in	Idea Cellular Ltd., Delhi	Idea	t	t	\N	\N	\N
-2075	404-06	0001-01-01	9999-12-31	in	Bharti Airtel Ltd., Karnataka	\N	t	t	\N	\N	\N
-2076	404-07	0001-01-01	9999-12-31	in	Idea Cellular Ltd., Andhra Pradesh	Idea	t	t	\N	\N	\N
-2077	404-09	0001-01-01	9999-12-31	in	Reliance Telecom Ltd., Assam	Reliance Telecom	t	t	\N	\N	\N
-2078	404-10	0001-01-01	9999-12-31	in	Bharti Airtel Ltd., Delhi	Airtel	t	t	\N	\N	\N
-2080	404-12	0001-01-01	9999-12-31	in	Idea Mobile Communications Ltd., Haryana	Idea	t	t	\N	\N	\N
-2082	404-14	0001-01-01	9999-12-31	in	Spice Communications PVT Ltd., Punjab	Idea	t	t	\N	\N	\N
-2084	404-16	0001-01-01	9999-12-31	in	Bharti Airtel Ltd, North East	Airtel	t	t	\N	\N	\N
-2085	404-17	0001-01-01	9999-12-31	in	Dishnet Wireless Ltd, West Bengal	Aircel	t	t	\N	\N	\N
-2086	404-18	0001-01-01	9999-12-31	in	Reliance Telecom Ltd., H.P.	Reliance Telecom	t	t	\N	\N	\N
-2087	404-19	0001-01-01	9999-12-31	in	Idea Mobile Communications Ltd., Kerala	Idea	t	t	\N	\N	\N
-2089	404-21	0001-01-01	9999-12-31	in	BPL Mobile Communications Ltd., Mumbai	LOOP	t	t	\N	\N	\N
-2090	404-22	0001-01-01	9999-12-31	in	Idea Cellular Ltd., Maharashtra	Idea	t	t	\N	\N	\N
-2091	404-23	0001-01-01	9999-12-31	in	Idea Cellular Ltd, Maharashtra	\N	t	t	\N	\N	\N
-2092	404-24	0001-01-01	9999-12-31	in	Idea Cellular Ltd., Gujarat	Idea	t	t	\N	\N	\N
-2093	404-25	0001-01-01	9999-12-31	in	Dishnet Wireless Ltd, Bihar	Aircel	t	t	\N	\N	\N
-2095	404-29	0001-01-01	9999-12-31	in	Dishnet Wireless Ltd, Assam	Aircel	t	t	\N	\N	\N
-2097	404-31	0001-01-01	9999-12-31	in	Bharti Airtel Ltd., Kolkata	Airtel	t	t	\N	\N	\N
-2098	404-33	0001-01-01	9999-12-31	in	Dishnet Wireless Ltd, North East	Aircel	t	t	\N	\N	\N
-2099	404-34	0001-01-01	9999-12-31	in	BSNL, Haryana	BSNL	t	t	\N	\N	\N
-2100	404-35	0001-01-01	9999-12-31	in	Dishnet Wireless Ltd, Himachal Pradesh	Aircel	t	t	\N	\N	\N
-2101	404-36	0001-01-01	9999-12-31	in	Reliance Telecom Ltd., Bihar	Reliance Telecom	t	t	\N	\N	\N
-2102	404-37	0001-01-01	9999-12-31	in	Dishnet Wireless Ltd, J&K	Aircel	t	t	\N	\N	\N
-2103	404-38	0001-01-01	9999-12-31	in	BSNL, Assam	BSNL	t	t	\N	\N	\N
-2104	404-40	0001-01-01	9999-12-31	in	Bharti Airtel Ltd., Chennai	Airtel	t	t	\N	\N	\N
-2105	404-41	0001-01-01	9999-12-31	in	Aircell Cellular Ltd, Chennai	Aircel	t	t	\N	\N	\N
-2106	404-42	0001-01-01	9999-12-31	in	Aircel Ltd., Tamil Nadu	Aircel	t	t	\N	\N	\N
-2108	404-44	0001-01-01	9999-12-31	in	Spice Communications PVT Ltd., Karnataka	Idea	t	t	\N	\N	\N
-2110	404-48	0001-01-01	9999-12-31	in	Dishnet Wireless Ltd, UP (West)	\N	t	t	\N	\N	\N
-2111	404-49	0001-01-01	9999-12-31	in	Bharti Airtel Ltd., Andra Pradesh	Airtel	t	t	\N	\N	\N
-2112	404-50	0001-01-01	9999-12-31	in	Reliance Telecom Ltd., North East	Reliance Telecom	t	t	\N	\N	\N
-2113	404-51	0001-01-01	9999-12-31	in	BSNL, H.P.	BSNL	t	t	\N	\N	\N
-2114	404-52	0001-01-01	9999-12-31	in	Reliance Telecom Ltd., Orissa	Reliance Telecom	t	t	\N	\N	\N
-2115	404-53	0001-01-01	9999-12-31	in	BSNL, Punjab	BSNL	t	t	\N	\N	\N
-2116	404-54	0001-01-01	9999-12-31	in	BSNL, UP (West)	BSNL	t	t	\N	\N	\N
-2117	404-55	0001-01-01	9999-12-31	in	BSNL, UP (East)	BSNL	t	t	\N	\N	\N
-2118	404-56	0001-01-01	9999-12-31	in	Idea Mobile Communications Ltd., UP (West)	Idea	t	t	\N	\N	\N
-2119	404-57	0001-01-01	9999-12-31	in	BSNL, Gujarat	BSNL	t	t	\N	\N	\N
-2120	404-58	0001-01-01	9999-12-31	in	BSNL, Madhya Pradesh	BSNL	t	t	\N	\N	\N
-2121	404-59	0001-01-01	9999-12-31	in	BSNL, Rajasthan	BSNL	t	t	\N	\N	\N
-2123	404-61	0001-01-01	9999-12-31	in	Dishnet Wireless Ltd, Punjab	\N	t	t	\N	\N	\N
-2124	404-62	0001-01-01	9999-12-31	in	BSNL, J&K	BSNL	t	t	\N	\N	\N
-2125	404-63	0001-01-01	9999-12-31	in	Dishnet Wireless Ltd, Haryana	\N	t	t	\N	\N	\N
-2126	404-64	0001-01-01	9999-12-31	in	BSNL, Chennai	BSNL	t	t	\N	\N	\N
-2127	404-65	0001-01-01	9999-12-31	in	Dishnet Wireless Ltd, UP (East)	\N	t	t	\N	\N	\N
-2128	404-66	0001-01-01	9999-12-31	in	BSNL, Maharashtra	BSNL	t	t	\N	\N	\N
-2129	404-67	0001-01-01	9999-12-31	in	Reliance Telecom Ltd., Madhya Pradesh	Reliance Telecom	t	t	\N	\N	\N
-2130	404-68	0001-01-01	9999-12-31	in	MTNL, Delhi	Dolphin	t	t	\N	\N	\N
-2131	404-69	0001-01-01	9999-12-31	in	MTNL, Mumbai	Dolphin	t	t	\N	\N	\N
-2132	404-70	0001-01-01	9999-12-31	in	Bharti Hexacom Ltd, Rajasthan	Airtel	t	t	\N	\N	\N
-2133	404-71	0001-01-01	9999-12-31	in	BSNL, Karnataka	BSNL	t	t	\N	\N	\N
-2134	404-72	0001-01-01	9999-12-31	in	BSNL, Kerala	BSNL	t	t	\N	\N	\N
-2135	404-73	0001-01-01	9999-12-31	in	BSNL, Andhra Pradesh	BSNL	t	t	\N	\N	\N
-2136	404-74	0001-01-01	9999-12-31	in	BSNL, West Bengal	BSNL	t	t	\N	\N	\N
-2137	404-75	0001-01-01	9999-12-31	in	BSNL, Bihar	BSNL	t	t	\N	\N	\N
-2138	404-76	0001-01-01	9999-12-31	in	BSNL, Orissa	BSNL	t	t	\N	\N	\N
-2139	404-77	0001-01-01	9999-12-31	in	BSNL, North East	BSNL	t	t	\N	\N	\N
-2140	404-78	0001-01-01	9999-12-31	in	BTA Cellcom Ltd., Madhya Pradesh	Idea	t	t	\N	\N	\N
-2141	404-79	0001-01-01	9999-12-31	in	BSNL, Andaman & Nicobar	BSNL	t	t	\N	\N	\N
-2142	404-80	0001-01-01	9999-12-31	in	BSNL, Tamil Nadu	BSNL	t	t	\N	\N	\N
-2063	216-70	0001-01-01	9999-12-31	hu	Vodafone	Vodafone hu	t	t	\N	\N	\N
-2143	404-81	0001-01-01	9999-12-31	in	BSNL, Kolkata	BSNL	t	t	\N	\N	\N
-2144	404-82	0001-01-01	9999-12-31	in	Idea Telecommunications Ltd, H.P.	Idea	t	t	\N	\N	\N
-2145	404-83	0001-01-01	9999-12-31	in	Reliable Internet Services Ltd., Kolkata	Reliance Telecom	t	t	\N	\N	\N
-2147	404-85	0001-01-01	9999-12-31	in	Reliance Telecom Ltd., W.B. & A.N.	Reliance Telecom	t	t	\N	\N	\N
-2149	404-87	0001-01-01	9999-12-31	in	Idea Telecommunications Ltd, Rajasthan	Idea	t	t	\N	\N	\N
-2151	404-89	0001-01-01	9999-12-31	in	Idea Telecommunications Ltd, UP (East)	Idea	t	t	\N	\N	\N
-2152	404-90	0001-01-01	9999-12-31	in	Bharti Airtel Ltd., Maharashtra	Airtel	t	t	\N	\N	\N
-2153	404-91	0001-01-01	9999-12-31	in	Dishnet Wireless Ltd, Kolkata	Aircel	t	t	\N	\N	\N
-2154	404-92	0001-01-01	9999-12-31	in	Bharti Airtel Ltd., Mumbai	Airtel	t	t	\N	\N	\N
-2155	404-93	0001-01-01	9999-12-31	in	Bharti Airtel Ltd., Madhya Pradesh	Airtel	t	t	\N	\N	\N
-2156	404-94	0001-01-01	9999-12-31	in	Bharti Airtel Ltd., Tamil Nadu	Airtel	t	t	\N	\N	\N
-2157	404-95	0001-01-01	9999-12-31	in	Bharti Airtel Ltd., Kerala	Airtel	t	t	\N	\N	\N
-2158	404-96	0001-01-01	9999-12-31	in	Bharti Airtel Ltd., Haryana	Airtel	t	t	\N	\N	\N
-2159	404-97	0001-01-01	9999-12-31	in	Bharti Airtel Ltd., UP (West)	Airtel	t	t	\N	\N	\N
-2160	404-98	0001-01-01	9999-12-31	in	Bharti Airtel Ltd., Gujarat	Airtel	t	t	\N	\N	\N
-2161	404-99	0001-01-01	9999-12-31	in	Dishnet Wireless Ltd, Kerala	\N	t	t	\N	\N	\N
-2162	405-000	0001-01-01	9999-12-31	in	Shyam Telelink Ltd, Rajasthan	\N	t	t	\N	\N	\N
-2163	405-005	0001-01-01	9999-12-31	in	Reliance Communications Ltd/GSM, Delhi	\N	t	t	\N	\N	\N
-2164	405-006	0001-01-01	9999-12-31	in	Reliance Communications Ltd/GSM, Gujarat	\N	t	t	\N	\N	\N
-2165	405-007	0001-01-01	9999-12-31	in	Reliance Communications Ltd/GSM, Haryana	\N	t	t	\N	\N	\N
-2166	405-009	0001-01-01	9999-12-31	in	Reliance Communications Ltd/GSM, J&K	\N	t	t	\N	\N	\N
-2167	405-010	0001-01-01	9999-12-31	in	Reliance Communications Ltd,/GSM Karnataka	\N	t	t	\N	\N	\N
-2168	405-011	0001-01-01	9999-12-31	in	Reliance Communications Ltd/GSM, Kerala	\N	t	t	\N	\N	\N
-2169	405-012	0001-01-01	9999-12-31	in	Reliance Infocomm Ltd, Andhra Pradesh	\N	t	t	\N	\N	\N
-2170	405-013	0001-01-01	9999-12-31	in	Reliance Communications Ltd/GSM, Maharashtra	\N	t	t	\N	\N	\N
-2171	405-014	0001-01-01	9999-12-31	in	Reliance Communications Ltd/GSM, Madhya Pradesh	\N	t	t	\N	\N	\N
-2172	405-018	0001-01-01	9999-12-31	in	Reliance Communications Ltd/GSM, Punjab	\N	t	t	\N	\N	\N
-2173	405-020	0001-01-01	9999-12-31	in	Reliance Communications Ltd/GSM, Tamilnadu	\N	t	t	\N	\N	\N
-2174	405-021	0001-01-01	9999-12-31	in	Reliance Communications Ltd/GSM, UP (East)	\N	t	t	\N	\N	\N
-2175	405-022	0001-01-01	9999-12-31	in	Reliance Communications Ltd/GSM, UP (West)	\N	t	t	\N	\N	\N
-2176	405-025	0001-01-01	9999-12-31	in	Tata Teleservices Ltd/GSM, Andhra Pradesh	\N	t	t	\N	\N	\N
-2177	405-027	0001-01-01	9999-12-31	in	Tata Teleservices Ltd,/GSM Bihar	\N	t	t	\N	\N	\N
-2178	405-029	0001-01-01	9999-12-31	in	Tata Teleservices Ltd/GSM, Delhi	\N	t	t	\N	\N	\N
-2179	405-030	0001-01-01	9999-12-31	in	Tata Teleservices Ltd/GSM, Gujarat	\N	t	t	\N	\N	\N
-2180	405-031	0001-01-01	9999-12-31	in	Tata Teleservices Ltd/GSM, Haryana	\N	t	t	\N	\N	\N
-2181	405-032	0001-01-01	9999-12-31	in	Tata Teleservices Ltd/GSM, Himachal Pradesh	\N	t	t	\N	\N	\N
-2182	405-033	0001-01-01	9999-12-31	in	Reliance Infocomm Ltd, Bihar	\N	t	t	\N	\N	\N
-2183	405-034	0001-01-01	9999-12-31	in	Tata Teleservices Ltd/GSM, Kamataka	\N	t	t	\N	\N	\N
-2184	405-035	0001-01-01	9999-12-31	in	Tata Teleservices Ltd/GSM, Kerala	\N	t	t	\N	\N	\N
-2185	405-036	0001-01-01	9999-12-31	in	Tata Teleservices Ltd/GSM, Kolkata	\N	t	t	\N	\N	\N
-2186	405-037	0001-01-01	9999-12-31	in	Tata Teleservices Ltd/GSM, Maharashtra	\N	t	t	\N	\N	\N
-2187	405-038	0001-01-01	9999-12-31	in	Tata Teleservices Ltd/GSM, Madhya Pradesh	\N	t	t	\N	\N	\N
-2188	405-039	0001-01-01	9999-12-31	in	Tata Teleservices Ltd/GSM, Mumbai	\N	t	t	\N	\N	\N
-2189	405-040	0001-01-01	9999-12-31	in	Reliance Infocomm Ltd, Chennai	\N	t	t	\N	\N	\N
-2190	405-041	0001-01-01	9999-12-31	in	Tata Teleservices Ltd/GSM, Orissa	\N	t	t	\N	\N	\N
-2191	405-042	0001-01-01	9999-12-31	in	Tata Teleservices Ltd/GSM, Punjab	\N	t	t	\N	\N	\N
-2192	405-043	0001-01-01	9999-12-31	in	Tata Teleservices Ltd/GSM, Rajasthan	\N	t	t	\N	\N	\N
-2193	405-044	0001-01-01	9999-12-31	in	Tata Teleservices Ltd/GSM, Tamilnadu	\N	t	t	\N	\N	\N
-2194	405-045	0001-01-01	9999-12-31	in	Tata Teleservices Ltd/GSM, UP (East)	\N	t	t	\N	\N	\N
-2195	405-046	0001-01-01	9999-12-31	in	Tata Teleservices Ltd/GSM, UP (West)	\N	t	t	\N	\N	\N
-2196	405-047	0001-01-01	9999-12-31	in	Tata Teleservices Ltd/GSM, West Bengal	\N	t	t	\N	\N	\N
-2197	405-08	0001-01-01	9999-12-31	in	Reliance Infocomm Ltd, Himachal Pradesh	Reliance Telecom	t	t	\N	\N	\N
-2198	405-12	0001-01-01	9999-12-31	in	Reliance Infocomm Ltd, Kolkata	Reliance Telecom	t	t	\N	\N	\N
-2199	405-15	0001-01-01	9999-12-31	in	Reliance Infocomm Ltd, Mumbai	Reliance Telecom	t	t	\N	\N	\N
-2200	405-17	0001-01-01	9999-12-31	in	Reliance Infocomm Ltd, Orissa	Reliance Telecom	t	t	\N	\N	\N
-2201	405-23	0001-01-01	9999-12-31	in	Reliance Infocomm Ltd, West bengal	Reliance Telecom	t	t	\N	\N	\N
-2202	405-28	0001-01-01	9999-12-31	in	Tata Teleservices Ltd, Chennai	TATA Teleservices	t	t	\N	\N	\N
-2203	405-52	0001-01-01	9999-12-31	in	Bharti Airtel Ltd, Bihar	Airtel	t	t	\N	\N	\N
-2204	405-53	0001-01-01	9999-12-31	in	Bharti Airtel Ltd, Orissa	Airtel	t	t	\N	\N	\N
-2205	405-54	0001-01-01	9999-12-31	in	Bharti Airtel Ltd, UP (East)	Airtel	t	t	\N	\N	\N
-2206	405-55	0001-01-01	9999-12-31	in	Bharti Airtel Ltd, J&K	Airtel	t	t	\N	\N	\N
-2207	405-56	0001-01-01	9999-12-31	in	Bharti Airtel Ltd, Assam	Airtel	t	t	\N	\N	\N
-2210	405-68	0001-01-01	9999-12-31	in	Vodaphone/Hutchison, Madhya Pradesh	\N	t	t	\N	\N	\N
-2211	405-70	0001-01-01	9999-12-31	in	Aditya Birla Telecom Ltd, Bihar	Idea	t	t	\N	\N	\N
-2212	405-71	0001-01-01	9999-12-31	in	Essar Spacetel Ltd, Himachal Pradesh	\N	t	t	\N	\N	\N
-2213	405-72	0001-01-01	9999-12-31	in	Essar Spacetel Ltd, North East	\N	t	t	\N	\N	\N
-2214	405-73	0001-01-01	9999-12-31	in	Essar Spacetel Ltd, Assam	\N	t	t	\N	\N	\N
-2215	405-74	0001-01-01	9999-12-31	in	Essar Spacetel Ltd, J&K	\N	t	t	\N	\N	\N
-2222	405-76	0001-01-01	9999-12-31	in	Essar Spacetel Ltd, Orissa	\N	t	t	\N	\N	\N
-2223	405-77	0001-01-01	9999-12-31	in	Essar Spacetel Ltd, Maharashtra	\N	t	t	\N	\N	\N
-2224	405-799	0001-01-01	9999-12-31	in	Idea Cellular Ltd, MUMBAI	Idea	t	t	\N	\N	\N
-2225	405-800	0001-01-01	9999-12-31	in	Aircell Ltd, Delhi	Aircel	t	t	\N	\N	\N
-2226	405-801	0001-01-01	9999-12-31	in	Aircell Ltd, Andhra Pradesh	Aircel	t	t	\N	\N	\N
-2227	405-802	0001-01-01	9999-12-31	in	Aircell Ltd, Gujarat	Aircel	t	t	\N	\N	\N
-2228	405-803	0001-01-01	9999-12-31	in	Aircell Ltd, Kamataka	Aircel	t	t	\N	\N	\N
-2229	405-804	0001-01-01	9999-12-31	in	Aircell Ltd, Maharashtra	Aircel	t	t	\N	\N	\N
-2230	405-805	0001-01-01	9999-12-31	in	Aircell Ltd, Mumbai	Aircel	t	t	\N	\N	\N
-2231	405-806	0001-01-01	9999-12-31	in	Aircell Ltd, Rajasthan	Aircel	t	t	\N	\N	\N
-2232	405-807	0001-01-01	9999-12-31	in	Dishnet Wireless Ltd, Haryana	Aircel	t	t	\N	\N	\N
-2233	405-808	0001-01-01	9999-12-31	in	Dishnet Wireless Ltd, Madhya Pradesh	Aircel	t	t	\N	\N	\N
-2234	405-809	0001-01-01	9999-12-31	in	Dishnet Wireless Ltd, Kerala	Aircel	t	t	\N	\N	\N
-2235	405-81	0001-01-01	9999-12-31	in	Aircell Ltd, Delhi	\N	t	t	\N	\N	\N
-2236	405-82	0001-01-01	9999-12-31	in	Aircell Ltd, Andhra Pradesh	\N	t	t	\N	\N	\N
-2237	405-83	0001-01-01	9999-12-31	in	Aircell Ltd, Gujarat	\N	t	t	\N	\N	\N
-2238	405-84	0001-01-01	9999-12-31	in	Aircell Ltd, Maharashtra	\N	t	t	\N	\N	\N
-2239	405-85	0001-01-01	9999-12-31	in	Aircell Ltd, Mumbai	\N	t	t	\N	\N	\N
-2240	405-86	0001-01-01	9999-12-31	in	Aircell Ltd, Rajasthan	\N	t	t	\N	\N	\N
-2241	510-00	0001-01-01	9999-12-31	id	PSN	PSN	t	t	\N	\N	\N
-2242	510-01	0001-01-01	9999-12-31	id	Satelindo	INDOSAT	t	t	\N	\N	\N
-2243	510-08	0001-01-01	9999-12-31	id	Natrindo (Lippo Telecom)	AXIS	t	t	\N	\N	\N
-2244	510-10	0001-01-01	9999-12-31	id	Telkomsel	Telkomsel	t	t	\N	\N	\N
-2245	510-11	0001-01-01	9999-12-31	id	Excelcomindo	XL	t	t	\N	\N	\N
-2246	510-21	0001-01-01	9999-12-31	id	Indosat - M3	IM3	t	t	\N	\N	\N
-2247	510-28	0001-01-01	9999-12-31	id	Komselindo	Fren/Hepi	t	t	\N	\N	\N
-2248	432-11	0001-01-01	9999-12-31	ir	Telecommunication Company of Iran (TCI)	IR-MCI	t	t	\N	\N	\N
-2249	432-14	0001-01-01	9999-12-31	ir	Telecommunication Kish Co. (KIFZO)	TKC	t	t	\N	\N	\N
-2250	432-19	0001-01-01	9999-12-31	ir	Telecommunication Company of Iran (TCI) - Isfahan Celcom GSM	MTCE	t	t	\N	\N	\N
-2251	418-05	0001-01-01	9999-12-31	iq	Asia Cell	Asia Cell	t	t	\N	\N	\N
-2252	418-20	0001-01-01	9999-12-31	iq	Zain Iraq (previously Atheer)	Zain	t	t	\N	\N	\N
-2253	418-30	0001-01-01	9999-12-31	iq	Zain Iraq (previously Iraqna)	Zain	t	t	\N	\N	\N
-2254	418-40	0001-01-01	9999-12-31	iq	Korek Telecom	Korek	t	t	\N	\N	\N
-2255	418-47	0001-01-01	9999-12-31	iq	Iraq Central Cooperative Association for Communication and Transportat	\N	t	t	\N	\N	\N
-2256	418-48	0001-01-01	9999-12-31	iq	ITC Fanoos	\N	t	t	\N	\N	\N
-2257	418-49	0001-01-01	9999-12-31	iq	Iraqtel	\N	t	t	\N	\N	\N
-2258	418-62	0001-01-01	9999-12-31	iq	Itisaluna	\N	t	t	\N	\N	\N
-2259	418-70	0001-01-01	9999-12-31	iq	Kalimat	\N	t	t	\N	\N	\N
-2260	418-80	0001-01-01	9999-12-31	iq	Iraqi Telecommunications & Post Company (ITPC)	\N	t	t	\N	\N	\N
-2261	418-81	0001-01-01	9999-12-31	iq	ITPC (Al-Mazaya)	\N	t	t	\N	\N	\N
-2262	418-83	0001-01-01	9999-12-31	iq	ITPC (Sader Al-Iraq)	\N	t	t	\N	\N	\N
-2263	418-84	0001-01-01	9999-12-31	iq	ITPC (Eaamar Albasrah)	\N	t	t	\N	\N	\N
-2264	418-85	0001-01-01	9999-12-31	iq	ITPC (Anwar Yagotat Alkhalee)	\N	t	t	\N	\N	\N
-2265	418-86	0001-01-01	9999-12-31	iq	ITPC (Furatfone)	\N	t	t	\N	\N	\N
-2266	418-87	0001-01-01	9999-12-31	iq	ITPC (Al-Seraj)	\N	t	t	\N	\N	\N
-2267	418-88	0001-01-01	9999-12-31	iq	ITPC (High Link)	\N	t	t	\N	\N	\N
-2268	418-89	0001-01-01	9999-12-31	iq	ITPC (Al-Shams)	\N	t	t	\N	\N	\N
-2269	418-91	0001-01-01	9999-12-31	iq	ITPC (Belad Babel)	\N	t	t	\N	\N	\N
-2270	418-92	0001-01-01	9999-12-31	iq	ITPC (Al Nakheel)	Omnnea	t	t	\N	\N	\N
-2271	418-93	0001-01-01	9999-12-31	iq	ITPC (Iraqcell)	\N	t	t	\N	\N	\N
-2272	418-94	0001-01-01	9999-12-31	iq	ITPC (Shaly)	\N	t	t	\N	\N	\N
-2274	272-02	0001-01-01	9999-12-31	ie	Telefonica Ltd	O2	t	t	\N	\N	\N
-2275	272-03	0001-01-01	9999-12-31	ie	Meteor Mobile Communications Ltd.	Meteor	t	t	\N	\N	\N
-2276	272-07	0001-01-01	9999-12-31	ie	Eircom	Eircom	t	t	\N	\N	\N
-2277	272-09	0001-01-01	9999-12-31	ie	Clever Communications Ltd.	Clever Communications Ltd.	t	t	\N	\N	\N
-2279	425-02	0001-01-01	9999-12-31	il	Cellcom Israel Ltd.	Cellcom	t	t	\N	\N	\N
-2280	425-03	0001-01-01	9999-12-31	il	Pelephone Communications Ltd.	Pelephone	t	t	\N	\N	\N
-2281	425-04	0001-01-01	9999-12-31	il	Globalsim Ltd	\N	t	t	\N	\N	\N
-2282	425-06	0001-01-01	9999-12-31	il	Wataniya	Wataniya Palestine	t	t	\N	\N	\N
-2283	425-07	0001-01-01	9999-12-31	il	Mirs Ltd	Hot Mobile	t	t	\N	\N	\N
-2284	425-08	0001-01-01	9999-12-31	il	Golan Telecom Ltd	Golan Telecom	t	t	\N	\N	\N
-2285	425-11	0001-01-01	9999-12-31	il	365 Telecom (MVNO)	\N	t	t	\N	\N	\N
-2286	425-12	0001-01-01	9999-12-31	il	Free Telecom (MVNO)	\N	t	t	\N	\N	\N
-2287	425-13	0001-01-01	9999-12-31	il	Ituran Cellular Communications	\N	t	t	\N	\N	\N
-2288	425-14	0001-01-01	9999-12-31	il	Alon Cellular Ltd.	\N	t	t	\N	\N	\N
-2289	425-15	0001-01-01	9999-12-31	il	Home Cellular (MVNO)	\N	t	t	\N	\N	\N
-2290	425-16	0001-01-01	9999-12-31	il	Rami Levi (MVNO)	\N	t	t	\N	\N	\N
-2291	425-17	0001-01-01	9999-12-31	il	Gale Phone (MVNO)	\N	t	t	\N	\N	\N
-2292	425-18	0001-01-01	9999-12-31	il	Cellact Communications Ltd (MVNO)	\N	t	t	\N	\N	\N
-2293	425-20	0001-01-01	9999-12-31	il	Bezeq Ltd	\N	t	t	\N	\N	\N
-2294	222-01	0001-01-01	9999-12-31	it	Telecom Italia Mobile (TIM)	TIM	t	t	\N	\N	\N
-2295	222-02	0001-01-01	9999-12-31	it	Elsacom	Elsacom	t	t	\N	\N	\N
-2297	222-77	0001-01-01	9999-12-31	it	IPSE 2000	IPSE 2000	t	t	\N	\N	\N
-2298	222-88	0001-01-01	9999-12-31	it	Wind	Wind	t	t	\N	\N	\N
-2299	222-98	0001-01-01	9999-12-31	it	Blu	Blu	t	t	\N	\N	\N
-2300	222-99	0001-01-01	9999-12-31	it	H3G	3 Italia	t	t	\N	\N	\N
-2301	338-020	0001-01-01	9999-12-31	jm	Cable & Wireless Jamaica Ltd.	\N	t	t	\N	\N	\N
-2302	338-050	0001-01-01	9999-12-31	jm	Digicel (Jamaica) Ltd.	\N	t	t	\N	\N	\N
-2303	338-110	0001-01-01	9999-12-31	jm	Cable & Wireless Jamaica Ltd trading as Lime	\N	t	t	\N	\N	\N
-2304	440-01	0001-01-01	9999-12-31	jp	NTT DoCoMo Inc.	DoCoMo	t	t	\N	\N	\N
-2305	440-02	0001-01-01	9999-12-31	jp	NTT DoCoMo Kansai Inc.	DoCoMo	t	t	\N	\N	\N
-2306	440-03	0001-01-01	9999-12-31	jp	NTT DoCoMo Hokuriku Inc.	DoCoMo	t	t	\N	\N	\N
-2307	440-04	0001-01-01	9999-12-31	jp	Vodafone	Softbank	t	t	\N	\N	\N
-2308	440-06	0001-01-01	9999-12-31	jp	Vodafone	Softbank	t	t	\N	\N	\N
-2309	440-07	0001-01-01	9999-12-31	jp	KDDI Corporation	KDDI	t	t	\N	\N	\N
-2310	440-08	0001-01-01	9999-12-31	jp	KDDI Corporation	KDDI	t	t	\N	\N	\N
-2278	425-01	0001-01-01	9999-12-31	il	Partner Communications Co. Ltd.	Orange il	t	t	\N	\N	\N
-2311	440-09	0001-01-01	9999-12-31	jp	NTT DoCoMo Kansai Inc.	DoCoMo	t	t	\N	\N	\N
-2312	440-10	0001-01-01	9999-12-31	jp	NTT DoCoMo Kansai Inc.	DoCoMo	t	t	\N	\N	\N
-2313	440-11	0001-01-01	9999-12-31	jp	NTT DoCoMo Tokai Inc.	DoCoMo	t	t	\N	\N	\N
-2314	440-12	0001-01-01	9999-12-31	jp	NTT DoCoMo Inc.	DoCoMo	t	t	\N	\N	\N
-2315	440-13	0001-01-01	9999-12-31	jp	NTT DoCoMo Inc.	DoCoMo	t	t	\N	\N	\N
-2316	440-14	0001-01-01	9999-12-31	jp	NTT DoCoMo Tohoku Inc.	DoCoMo	t	t	\N	\N	\N
-2317	440-15	0001-01-01	9999-12-31	jp	NTT DoCoMo Inc.	DoCoMo	t	t	\N	\N	\N
-2318	440-16	0001-01-01	9999-12-31	jp	NTT DoCoMo Inc.	DoCoMo	t	t	\N	\N	\N
-2319	440-17	0001-01-01	9999-12-31	jp	NTT DoCoMo Inc.	DoCoMo	t	t	\N	\N	\N
-2320	440-18	0001-01-01	9999-12-31	jp	NTT DoCoMo Tokai Inc.	DoCoMo	t	t	\N	\N	\N
-2321	440-19	0001-01-01	9999-12-31	jp	NTT DoCoMo Hokkaido Inc.	DoCoMo	t	t	\N	\N	\N
-2322	440-20	0001-01-01	9999-12-31	jp	NTT DoCoMo Hokuriku Inc.	SoftBank	t	t	\N	\N	\N
-2323	440-21	0001-01-01	9999-12-31	jp	NTT DoCoMo Inc.	DoCoMo	t	t	\N	\N	\N
-2324	440-22	0001-01-01	9999-12-31	jp	NTT DoCoMo Kansai Inc.	DoCoMo	t	t	\N	\N	\N
-2325	440-23	0001-01-01	9999-12-31	jp	NTT DoCoMo Tokai Inc.	DoCoMo	t	t	\N	\N	\N
-2326	440-24	0001-01-01	9999-12-31	jp	NTT DoCoMo Chugoku Inc.	DoCoMo	t	t	\N	\N	\N
-2327	440-25	0001-01-01	9999-12-31	jp	NTT DoCoMo Hokkaido Inc.	DoCoMo	t	t	\N	\N	\N
-2328	440-26	0001-01-01	9999-12-31	jp	NTT DoCoMo Kyushu Inc.	DoCoMo	t	t	\N	\N	\N
-2329	440-27	0001-01-01	9999-12-31	jp	NTT DoCoMo Tohoku Inc.	DoCoMo	t	t	\N	\N	\N
-2330	440-28	0001-01-01	9999-12-31	jp	NTT DoCoMo Shikoku Inc.	DoCoMo	t	t	\N	\N	\N
-2331	440-29	0001-01-01	9999-12-31	jp	NTT DoCoMo Inc.	DoCoMo	t	t	\N	\N	\N
-2332	440-30	0001-01-01	9999-12-31	jp	NTT DoCoMo Inc.	DoCoMo	t	t	\N	\N	\N
-2333	440-31	0001-01-01	9999-12-31	jp	NTT DoCoMo Kansai Inc.	DoCoMo	t	t	\N	\N	\N
-2334	440-32	0001-01-01	9999-12-31	jp	NTT DoCoMo Inc.	DoCoMo	t	t	\N	\N	\N
-2335	440-33	0001-01-01	9999-12-31	jp	NTT DoCoMo Tokai Inc.	DoCoMo	t	t	\N	\N	\N
-2336	440-34	0001-01-01	9999-12-31	jp	NTT DoCoMo Kyushu Inc.	DoCoMo	t	t	\N	\N	\N
-2337	440-35	0001-01-01	9999-12-31	jp	NTT DoCoMo Kansai Inc.	DoCoMo	t	t	\N	\N	\N
-2338	440-36	0001-01-01	9999-12-31	jp	NTT DoCoMo Inc.	DoCoMo	t	t	\N	\N	\N
-2339	440-37	0001-01-01	9999-12-31	jp	NTT DoCoMo Inc.	DoCoMo	t	t	\N	\N	\N
-2340	440-38	0001-01-01	9999-12-31	jp	NTT DoCoMo Inc.	DoCoMo	t	t	\N	\N	\N
-2341	440-39	0001-01-01	9999-12-31	jp	NTT DoCoMo Inc.	DoCoMo	t	t	\N	\N	\N
-2342	440-40	0001-01-01	9999-12-31	jp	Vodafone	Softbank	t	t	\N	\N	\N
-2343	440-41	0001-01-01	9999-12-31	jp	Vodafone	Softbank	t	t	\N	\N	\N
-2344	440-42	0001-01-01	9999-12-31	jp	Vodafone	Softbank	t	t	\N	\N	\N
-2345	440-43	0001-01-01	9999-12-31	jp	Vodafone	Softbank	t	t	\N	\N	\N
-2346	440-44	0001-01-01	9999-12-31	jp	Vodafone	Softbank	t	t	\N	\N	\N
-2347	440-45	0001-01-01	9999-12-31	jp	Vodafone	Softbank	t	t	\N	\N	\N
-2348	440-46	0001-01-01	9999-12-31	jp	Vodafone	Softbank	t	t	\N	\N	\N
-2349	440-47	0001-01-01	9999-12-31	jp	Vodafone	Softbank	t	t	\N	\N	\N
-2350	440-48	0001-01-01	9999-12-31	jp	Vodafone	Softbank	t	t	\N	\N	\N
-2351	440-49	0001-01-01	9999-12-31	jp	NTT DoCoMo Inc.	KDDI	t	t	\N	\N	\N
-2352	440-50	0001-01-01	9999-12-31	jp	KDDI Corporation	KDDI	t	t	\N	\N	\N
-2353	440-51	0001-01-01	9999-12-31	jp	KDDI Corporation	KDDI	t	t	\N	\N	\N
-2354	440-52	0001-01-01	9999-12-31	jp	KDDI Corporation	KDDI	t	t	\N	\N	\N
-2355	440-53	0001-01-01	9999-12-31	jp	KDDI Corporation	KDDI	t	t	\N	\N	\N
-2356	440-54	0001-01-01	9999-12-31	jp	KDDI Corporation	KDDI	t	t	\N	\N	\N
-2357	440-55	0001-01-01	9999-12-31	jp	KDDI Corporation	KDDI	t	t	\N	\N	\N
-2358	440-56	0001-01-01	9999-12-31	jp	KDDI Corporation	KDDI	t	t	\N	\N	\N
-2359	440-58	0001-01-01	9999-12-31	jp	NTT DoCoMo Kansai Inc.	DoCoMo	t	t	\N	\N	\N
-2360	440-60	0001-01-01	9999-12-31	jp	NTT DoCoMo Kansai Inc.	DoCoMo	t	t	\N	\N	\N
-2361	440-61	0001-01-01	9999-12-31	jp	NTT DoCoMo Chugoku Inc.	DoCoMo	t	t	\N	\N	\N
-2362	440-62	0001-01-01	9999-12-31	jp	NTT DoCoMo Kyushu Inc.	DoCoMo	t	t	\N	\N	\N
-2363	440-63	0001-01-01	9999-12-31	jp	NTT DoCoMo Inc.	DoCoMo	t	t	\N	\N	\N
-2364	440-64	0001-01-01	9999-12-31	jp	NTT DoCoMo Inc.	Softbank	t	t	\N	\N	\N
-2365	440-65	0001-01-01	9999-12-31	jp	NTT DoCoMo Shikoku Inc.	DoCoMo	t	t	\N	\N	\N
-2366	440-66	0001-01-01	9999-12-31	jp	NTT DoCoMo Inc.	DoCoMo	t	t	\N	\N	\N
-2367	440-67	0001-01-01	9999-12-31	jp	NTT DoCoMo Tohoku Inc.	DoCoMo	t	t	\N	\N	\N
-2368	440-68	0001-01-01	9999-12-31	jp	NTT DoCoMo Kyushu Inc.	DoCoMo	t	t	\N	\N	\N
-2369	440-69	0001-01-01	9999-12-31	jp	NTT DoCoMo Inc.	DoCoMo	t	t	\N	\N	\N
-2370	440-70	0001-01-01	9999-12-31	jp	KDDI Corporation	Au	t	t	\N	\N	\N
-2371	440-71	0001-01-01	9999-12-31	jp	KDDI Corporation	KDDI	t	t	\N	\N	\N
-2372	440-72	0001-01-01	9999-12-31	jp	KDDI Corporation	KDDI	t	t	\N	\N	\N
-2373	440-73	0001-01-01	9999-12-31	jp	KDDI Corporation	KDDI	t	t	\N	\N	\N
-2374	440-74	0001-01-01	9999-12-31	jp	KDDI Corporation	KDDI	t	t	\N	\N	\N
-2375	440-75	0001-01-01	9999-12-31	jp	KDDI Corporation	KDDI	t	t	\N	\N	\N
-2376	440-76	0001-01-01	9999-12-31	jp	KDDI Corporation	KDDI	t	t	\N	\N	\N
-2377	440-77	0001-01-01	9999-12-31	jp	KDDI Corporation	KDDI	t	t	\N	\N	\N
-2378	440-78	0001-01-01	9999-12-31	jp	Okinawa Cellular Telephone	Okinawa	t	t	\N	\N	\N
-2379	440-79	0001-01-01	9999-12-31	jp	KDDI Corporation	KDDI	t	t	\N	\N	\N
-2380	440-80	0001-01-01	9999-12-31	jp	TU-KA Cellular Tokyo Inc.	TU-KA	t	t	\N	\N	\N
-2381	440-81	0001-01-01	9999-12-31	jp	TU-KA Cellular Tokyo Inc.	TU-KA	t	t	\N	\N	\N
-2382	440-82	0001-01-01	9999-12-31	jp	TU-KA Phone Kansai Inc.	TU-KA	t	t	\N	\N	\N
-2383	440-83	0001-01-01	9999-12-31	jp	TU-KA Cellular Tokai Inc.	TU-KA	t	t	\N	\N	\N
-2384	440-84	0001-01-01	9999-12-31	jp	TU-KA Phone Kansai Inc.	\N	t	t	\N	\N	\N
-2385	440-85	0001-01-01	9999-12-31	jp	TU-KA Cellular Tokai Inc.	TU-KA	t	t	\N	\N	\N
-2386	440-86	0001-01-01	9999-12-31	jp	TU-KA Cellular Tokyo Inc.	TU-KA	t	t	\N	\N	\N
-2387	440-87	0001-01-01	9999-12-31	jp	NTT DoCoMo Chugoku Inc.	DoCoMo	t	t	\N	\N	\N
-2388	440-88	0001-01-01	9999-12-31	jp	KDDI Corporation	KDDI	t	t	\N	\N	\N
-2389	440-89	0001-01-01	9999-12-31	jp	KDDI Corporation	KDDI	t	t	\N	\N	\N
-2390	440-90	0001-01-01	9999-12-31	jp	Vodafone	Softbank	t	t	\N	\N	\N
-2391	440-92	0001-01-01	9999-12-31	jp	Vodafone	Softbank	t	t	\N	\N	\N
-2392	440-93	0001-01-01	9999-12-31	jp	Vodafone	Softbank	t	t	\N	\N	\N
-2393	440-94	0001-01-01	9999-12-31	jp	Vodafone	Softbank	t	t	\N	\N	\N
-2394	440-95	0001-01-01	9999-12-31	jp	Vodafone	Softbank	t	t	\N	\N	\N
-2395	440-96	0001-01-01	9999-12-31	jp	Vodafone	Softbank	t	t	\N	\N	\N
-2396	440-97	0001-01-01	9999-12-31	jp	Vodafone	Softbank	t	t	\N	\N	\N
-2397	440-98	0001-01-01	9999-12-31	jp	Vodafone	Softbank	t	t	\N	\N	\N
-2398	440-99	0001-01-01	9999-12-31	jp	NTT DoCoMo Inc.	DoCoMo	t	t	\N	\N	\N
-2399	441-40	0001-01-01	9999-12-31	jp	NTT DoCoMo Inc.	\N	t	t	\N	\N	\N
-2400	441-41	0001-01-01	9999-12-31	jp	NTT DoCoMo Inc.	\N	t	t	\N	\N	\N
-2401	441-42	0001-01-01	9999-12-31	jp	NTT DoCoMo Inc.	\N	t	t	\N	\N	\N
-2402	441-43	0001-01-01	9999-12-31	jp	NTT DoCoMo Kansai Inc.	\N	t	t	\N	\N	\N
-2403	441-44	0001-01-01	9999-12-31	jp	NTT DoCoMo Chugoku Inc.	\N	t	t	\N	\N	\N
-2404	441-45	0001-01-01	9999-12-31	jp	NTT DoCoMo Shikoku Inc.	\N	t	t	\N	\N	\N
-2405	441-50	0001-01-01	9999-12-31	jp	TU-KA Cellular Tokyo Inc.	\N	t	t	\N	\N	\N
-2406	441-51	0001-01-01	9999-12-31	jp	TU-KA Phone Kansai Inc.	\N	t	t	\N	\N	\N
-2407	441-61	0001-01-01	9999-12-31	jp	Vodafone	\N	t	t	\N	\N	\N
-2408	441-62	0001-01-01	9999-12-31	jp	Vodafone	\N	t	t	\N	\N	\N
-2409	441-63	0001-01-01	9999-12-31	jp	Vodafone	\N	t	t	\N	\N	\N
-2410	441-64	0001-01-01	9999-12-31	jp	Vodafone	\N	t	t	\N	\N	\N
-2411	441-65	0001-01-01	9999-12-31	jp	Vodafone	\N	t	t	\N	\N	\N
-2412	441-70	0001-01-01	9999-12-31	jp	KDDI Corporation	\N	t	t	\N	\N	\N
-2413	441-90	0001-01-01	9999-12-31	jp	NTT DoCoMo Inc.	\N	t	t	\N	\N	\N
-2414	441-91	0001-01-01	9999-12-31	jp	NTT DoCoMo Inc.	\N	t	t	\N	\N	\N
-2415	441-92	0001-01-01	9999-12-31	jp	NTT DoCoMo Inc.	\N	t	t	\N	\N	\N
-2416	441-93	0001-01-01	9999-12-31	jp	NTT DoCoMo Hokkaido Inc.	\N	t	t	\N	\N	\N
-2417	441-94	0001-01-01	9999-12-31	jp	NTT DoCoMo Tohoku Inc.	\N	t	t	\N	\N	\N
-2418	441-98	0001-01-01	9999-12-31	jp	NTT DoCoMo Kyushu Inc.	\N	t	t	\N	\N	\N
-2419	441-99	0001-01-01	9999-12-31	jp	NTT DoCoMo Kyushu Inc.	\N	t	t	\N	\N	\N
-2420	416-01	0001-01-01	9999-12-31	jo	Fastlink	zain JO	t	t	\N	\N	\N
-2421	416-02	0001-01-01	9999-12-31	jo	Xpress	XPress Telecom	t	t	\N	\N	\N
-2422	416-03	0001-01-01	9999-12-31	jo	Umniah	Umniah	t	t	\N	\N	\N
-2424	401-01	0001-01-01	9999-12-31	kz	Kar-Tel llc	Beeline	t	t	\N	\N	\N
-2425	401-02	0001-01-01	9999-12-31	kz	TSC Kazak Telecom	Kcell	t	t	\N	\N	\N
-2426	639-02	0001-01-01	9999-12-31	ke	Safaricom Ltd.	Safaricom	t	t	\N	\N	\N
-2427	639-03	0001-01-01	9999-12-31	ke	Kencell Communications Ltd.	Zain	t	t	\N	\N	\N
-2428	450-02	0001-01-01	9999-12-31	kr	KT Freetel	KT	t	t	\N	\N	\N
-2429	450-03	0001-01-01	9999-12-31	kr	SK Telecom	Digital 017	t	t	\N	\N	\N
-2430	450-06	0001-01-01	9999-12-31	kr	LG UPLUS	LGT	t	t	\N	\N	\N
-2431	419-02	0001-01-01	9999-12-31	kw	Mobile Telecommunications Company	Zain	t	t	\N	\N	\N
-2432	419-03	0001-01-01	9999-12-31	kw	Wataniya Telecom	Wataniya	t	t	\N	\N	\N
-2433	419-04	0001-01-01	9999-12-31	kw	Viva	Viva	t	t	\N	\N	\N
-2434	437-01	0001-01-01	9999-12-31	kg	Bitel GSM	Bitel GSM	t	t	\N	\N	\N
-2435	457-01	0001-01-01	9999-12-31	la	Lao Telecommunications	LaoTel	t	t	\N	\N	\N
-2436	457-02	0001-01-01	9999-12-31	la	ETL Mobile	ETL	t	t	\N	\N	\N
-2437	457-08	0001-01-01	9999-12-31	la	Millicom	Tigo	t	t	\N	\N	\N
-2438	247-01	0001-01-01	9999-12-31	lv	Latvijas Mobilais Telefons SIA	LMT	t	t	\N	\N	\N
-2439	247-02	0001-01-01	9999-12-31	lv	Tele2	Tele2	t	t	\N	\N	\N
-2440	247-03	0001-01-01	9999-12-31	lv	Telekom Baltija	Triatel	t	t	\N	\N	\N
-2441	247-04	0001-01-01	9999-12-31	lv	Beta Telecom	\N	t	t	\N	\N	\N
-2442	247-05	0001-01-01	9999-12-31	lv	Bite Mobile	Bite	t	t	\N	\N	\N
-2443	247-06	0001-01-01	9999-12-31	lv	Rigatta	Rigatta	t	t	\N	\N	\N
-2444	247-07	0001-01-01	9999-12-31	lv	Master Telecom	Master Telecom (MTS)	t	t	\N	\N	\N
-2445	247-08	0001-01-01	9999-12-31	lv	IZZI	IZZI	t	t	\N	\N	\N
-2446	415-05	0001-01-01	9999-12-31	lb	Ogero Telecom	Ogero Mobile	t	t	\N	\N	\N
-2447	415-32	0001-01-01	9999-12-31	lb	Cellis	\N	t	t	\N	\N	\N
-2448	415-33	0001-01-01	9999-12-31	lb	Cellis	\N	t	t	\N	\N	\N
-2449	415-34	0001-01-01	9999-12-31	lb	Cellis	\N	t	t	\N	\N	\N
-2450	415-35	0001-01-01	9999-12-31	lb	Cellis	\N	t	t	\N	\N	\N
-2451	415-36	0001-01-01	9999-12-31	lb	Libancell	\N	t	t	\N	\N	\N
-2452	415-37	0001-01-01	9999-12-31	lb	Libancell	\N	t	t	\N	\N	\N
-2453	415-38	0001-01-01	9999-12-31	lb	Libancell	\N	t	t	\N	\N	\N
-2454	415-39	0001-01-01	9999-12-31	lb	Libancell	\N	t	t	\N	\N	\N
-2455	651-01	0001-01-01	9999-12-31	ls	Vodacom Lesotho (pty) Ltd.	Vodacom	t	t	\N	\N	\N
-2456	651-02	0001-01-01	9999-12-31	ls	Econet Ezin-cel	Econet Ezin-cel	t	t	\N	\N	\N
-2457	618-04	0001-01-01	9999-12-31	lr	Comium Liberia	Comium	t	t	\N	\N	\N
-2458	295-01	0001-01-01	9999-12-31	li	Swisscom Schweiz AG	Swisscom	t	t	\N	\N	\N
-2460	295-05	0001-01-01	9999-12-31	li	Mobilkom (Liechtenstein) AG	FL1	t	t	\N	\N	\N
-2461	295-06	0001-01-01	9999-12-31	li	Cubic AG	\N	t	t	\N	\N	\N
-2462	246-01	0001-01-01	9999-12-31	lt	Omnitel	Omnitel	t	t	\N	\N	\N
-2463	246-02	0001-01-01	9999-12-31	lt	Bité GSM	Bite GSM	t	t	\N	\N	\N
-2464	246-03	0001-01-01	9999-12-31	lt	Tele2	Tele2	t	t	\N	\N	\N
-2465	270-01	0001-01-01	9999-12-31	lu	P&T Luxembourg	LuxGSM	t	t	\N	\N	\N
-2466	270-77	0001-01-01	9999-12-31	lu	Tango	Tango	t	t	\N	\N	\N
-2468	455-00	0001-01-01	9999-12-31	mo	SmarTone – Comunicações Mõveis, S.A.	SmarTone	t	t	\N	\N	\N
-2469	455-01	0001-01-01	9999-12-31	mo	Companhia de Telecomunicações de Macau S.A.R.L.	CTM	t	t	\N	\N	\N
-2470	455-02	0001-01-01	9999-12-31	mo	China Telecom (Macau) Limitada	China Telecom	t	t	\N	\N	\N
-2472	455-04	0001-01-01	9999-12-31	mo	Companhia de Telecomunicações de Macau S.A.R.L.	CTM	t	t	\N	\N	\N
-2474	455-06	0001-01-01	9999-12-31	mo	SmarTone – Comunicações Mõveis, S.A.	\N	t	t	\N	\N	\N
-2475	646-01	0001-01-01	9999-12-31	mg	Celtel Madagascar (Zain), GSM	Zain	t	t	\N	\N	\N
-2477	646-04	0001-01-01	9999-12-31	mg	Telecom Malagasy Mobile, GSM	Telma	t	t	\N	\N	\N
-2478	650-01	0001-01-01	9999-12-31	mw	Telekom Network Ltd.	TNM	t	t	\N	\N	\N
-2479	650-10	0001-01-01	9999-12-31	mw	Celtel ltd.	Airtel	t	t	\N	\N	\N
-2480	502-10	0001-01-01	9999-12-31	my	DIGI Telecommunications	\N	t	t	\N	\N	\N
-2481	502-12	0001-01-01	9999-12-31	my	Malaysian Mobile Services Sdn Bhd	Maxis	t	t	\N	\N	\N
-2482	502-13	0001-01-01	9999-12-31	my	Celcom (Malaysia) Berhad	Celcom	t	t	\N	\N	\N
-2483	502-14	0001-01-01	9999-12-31	my	Telekom Malaysia Berhad	\N	t	t	\N	\N	\N
-2484	502-16	0001-01-01	9999-12-31	my	DIGI Telecommunications	DiGi	t	t	\N	\N	\N
-2485	502-17	0001-01-01	9999-12-31	my	Malaysian Mobile Services Sdn Bhd	Maxis	t	t	\N	\N	\N
-2486	502-18	0001-01-01	9999-12-31	my	U Mobile Sdn. Bhd.	U Mobile	t	t	\N	\N	\N
-2487	502-19	0001-01-01	9999-12-31	my	Celcom (Malaysia) Berhad	Celcom	t	t	\N	\N	\N
-2488	502-20	0001-01-01	9999-12-31	my	Electcoms Wireless Sdn Bhd	\N	t	t	\N	\N	\N
-2489	472-01	0001-01-01	9999-12-31	mv	DhiMobile	Dhiraagu	t	t	\N	\N	\N
-2490	610-01	0001-01-01	9999-12-31	ml	Malitel	Malitel	t	t	\N	\N	\N
-2492	278-21	0001-01-01	9999-12-31	mt	go mobile	GO	t	t	\N	\N	\N
-2493	278-77	0001-01-01	9999-12-31	mt	3G Telecommunications Ltd	Melita	t	t	\N	\N	\N
-2494	340-12	0001-01-01	9999-12-31	mq	Martinique Téléphone Mobile	\N	t	t	\N	\N	\N
-2423	416-77	0001-01-01	9999-12-31	jo	Mobilecom	Orange jo	t	t	\N	\N	\N
-2495	609-01	0001-01-01	9999-12-31	mr	Mattel S.A.	Mattel	t	t	\N	\N	\N
-2496	609-02	0001-01-01	9999-12-31	mr	Chinguitel S.A.	Chinguitel S.A.	t	t	\N	\N	\N
-2497	609-10	0001-01-01	9999-12-31	mr	Mauritel Mobiles	Mauritel	t	t	\N	\N	\N
-2499	617-02	0001-01-01	9999-12-31	mu	Mahanagar Telephone (Mauritius) Ltd.	MTML	t	t	\N	\N	\N
-2500	617-03	0001-01-01	9999-12-31	mu	Mahanagar Telephone (Mauritius) Ltd.	\N	t	t	\N	\N	\N
-2501	617-10	0001-01-01	9999-12-31	mu	Emtel	Emtel	t	t	\N	\N	\N
-2502	334-020	0001-01-01	9999-12-31	mx	Telcel	\N	t	t	\N	\N	\N
-2503	550-01	0001-01-01	9999-12-31	fm	FSM Telecom	FSM Telecom	t	t	\N	\N	\N
-2505	259-02	0001-01-01	9999-12-31	md	Moldcell GSM	Moldcell	t	t	\N	\N	\N
-2506	259-04	0001-01-01	9999-12-31	md	Eventis Mobile GSM	Evntis	t	t	\N	\N	\N
-2507	259-05	0001-01-01	9999-12-31	md	J.S.C. Moldtelecom/3G UMTS (W-CDMA)	\N	t	t	\N	\N	\N
-2508	259-99	0001-01-01	9999-12-31	md	J.S.C. Moldtelecom	\N	t	t	\N	\N	\N
-2509	428-99	0001-01-01	9999-12-31	mn	Mobicom	MobiCom	t	t	\N	\N	\N
-2510	297-01	0001-01-01	9999-12-31	me	Telenor Montenegro	Telenor	t	t	\N	\N	\N
-2512	297-03	0001-01-01	9999-12-31	me	Mtel Montenegro	m:tel CG	t	t	\N	\N	\N
-2513	354-860	0001-01-01	9999-12-31	ms	Cable & Wireless (West Indies) Ltd trading as Lime	Cable & Wireless West Indies (Montserrat)	t	t	\N	\N	\N
-2514	604-00	0001-01-01	9999-12-31	ma	Méditélécom (GSM)	Méditel	t	t	\N	\N	\N
-2515	604-01	0001-01-01	9999-12-31	ma	Ittissalat Al Maghrid	IAM	t	t	\N	\N	\N
-2516	643-01	0001-01-01	9999-12-31	mz	T.D.M. GSM	mCel	t	t	\N	\N	\N
-2517	643-03	0001-01-01	9999-12-31	mz	Movitel	Movitel	t	t	\N	\N	\N
-2518	643-04	0001-01-01	9999-12-31	mz	VM Sarl	Vodacom	t	t	\N	\N	\N
-2519	414-01	0001-01-01	9999-12-31	mm	Myanmar Post and Telecommunication	MPT	t	t	\N	\N	\N
-2520	649-01	0001-01-01	9999-12-31	na	Mobile Telecommunications Ltd.	MTC	t	t	\N	\N	\N
-2521	649-02	0001-01-01	9999-12-31	na	Telecom Namibia	Switch	t	t	\N	\N	\N
-2522	649-03	0001-01-01	9999-12-31	na	Powercom Pty Ltd (leo)	Leo	t	t	\N	\N	\N
-2523	429-01	0001-01-01	9999-12-31	np	Nepal Telecommunications	Namaste / Nt Mobile	t	t	\N	\N	\N
-2524	204-02	0001-01-01	9999-12-31	nl	Tele2 (Netherlands) B.V.	Tele2	t	t	\N	\N	\N
-2525	204-03	0001-01-01	9999-12-31	nl	Blyk N.V.	Voiceworks B.V	t	t	\N	\N	\N
-2527	204-05	0001-01-01	9999-12-31	nl	Elephant Talk Comm. Premium Rate Serv. Neth. B.V.	Elephant Talk Communications	t	t	\N	\N	\N
-2528	204-06	0001-01-01	9999-12-31	nl	Barablu Mobile Benelux Ltd	Mundio Mobile	t	t	\N	\N	\N
-2529	204-07	0001-01-01	9999-12-31	nl	Teleena holding B.V.	Teleena	t	t	\N	\N	\N
-2530	204-08	0001-01-01	9999-12-31	nl	KPN Mobile The Netherlands B.V.	KPN	t	t	\N	\N	\N
-2531	204-10	0001-01-01	9999-12-31	nl	KPN B.V.	KPN	t	t	\N	\N	\N
-2532	204-12	0001-01-01	9999-12-31	nl	Telfort B.V.	Telfort	t	t	\N	\N	\N
-2533	204-14	0001-01-01	9999-12-31	nl	INMO B.V.	6GMobile	t	t	\N	\N	\N
-2534	204-16	0001-01-01	9999-12-31	nl	T-Mobile Netherlands B.V.	T-mobile	t	t	\N	\N	\N
-2535	204-18	0001-01-01	9999-12-31	nl	Telfort B.V.	UPC	t	t	\N	\N	\N
-2536	204-20	0001-01-01	9999-12-31	nl	Orange Nederland N.V.	T-mobile	t	t	\N	\N	\N
-2537	204-21	0001-01-01	9999-12-31	nl	ProRail B.V.	ProRail B.V	t	t	\N	\N	\N
-2538	204-60	0001-01-01	9999-12-31	nl	KPN B.V.	\N	t	t	\N	\N	\N
-2539	204-69	0001-01-01	9999-12-31	nl	KPN Mobile The Netherlands B.V.	KPN	t	t	\N	\N	\N
-2540	546-01	0001-01-01	9999-12-31	nc	OPT Mobilis	Mobilis	t	t	\N	\N	\N
-2541	530-00	0001-01-01	9999-12-31	nz	Reserved for AMPS MIN based IMSIs	Telecom	t	t	\N	\N	\N
-2543	530-02	0001-01-01	9999-12-31	nz	Teleom New Zealand CDMA Network	Telecom	t	t	\N	\N	\N
-2544	530-03	0001-01-01	9999-12-31	nz	Woosh Wireless - CDMA Network	Woosh	t	t	\N	\N	\N
-2545	530-04	0001-01-01	9999-12-31	nz	TelstraClear - GSM Network	TelstraClear	t	t	\N	\N	\N
-2629	260-27	0001-01-01	9999-12-31	pl	Intertelcom / Intertelcom Sp. z o.o.	\N	t	t	\N	\N	\N
-2546	530-05	0001-01-01	9999-12-31	nz	Telecom New Zealand - UMTS Ntework	XT Mobile (Telecom)	t	t	\N	\N	\N
-2547	530-06	0001-01-01	9999-12-31	nz	FX Networks Ltd	Skinny	t	t	\N	\N	\N
-2548	530-07	0001-01-01	9999-12-31	nz	Bluereach Limited	\N	t	t	\N	\N	\N
-2549	530-24	0001-01-01	9999-12-31	nz	NZ Communications - UMTS Network	2degrees	t	t	\N	\N	\N
-2550	710-21	0001-01-01	9999-12-31	ni	Empresa Nicaragüense de Telecomunicaciones, S.A. (ENITEL)	Claro	t	t	\N	\N	\N
-2551	710-73	0001-01-01	9999-12-31	ni	Servicios de Comunicaciones, S.A. (SERCOM)	SERCOM	t	t	\N	\N	\N
-2552	614-01	0001-01-01	9999-12-31	ne	Sahel.Com	SahelCom	t	t	\N	\N	\N
-2553	614-02	0001-01-01	9999-12-31	ne	Celtel	Zain	t	t	\N	\N	\N
-2554	614-03	0001-01-01	9999-12-31	ne	Telecel	Telecel	t	t	\N	\N	\N
-2555	621-20	0001-01-01	9999-12-31	ng	Econet Wireless Nigeria Ltd.	Airtel	t	t	\N	\N	\N
-2556	621-30	0001-01-01	9999-12-31	ng	MTN Nigeria Communications	MTN	t	t	\N	\N	\N
-2557	621-40	0001-01-01	9999-12-31	ng	MTEL	M-Tel	t	t	\N	\N	\N
-2558	621-50	0001-01-01	9999-12-31	ng	Globacom	Glo	t	t	\N	\N	\N
-2559	621-60	0001-01-01	9999-12-31	ng	EMTS	Etisalat	t	t	\N	\N	\N
-2560	555-01	0001-01-01	9999-12-31	nu	Telecom Niue	\N	t	t	\N	\N	\N
-2561	242-01	0001-01-01	9999-12-31	no	Telenor Norge AS	Telenor	t	t	\N	\N	\N
-2562	242-02	0001-01-01	9999-12-31	no	NetCom AS	Netcom	t	t	\N	\N	\N
-2563	242-03	0001-01-01	9999-12-31	no	Teletopia Gruppen AS	MTU	t	t	\N	\N	\N
-2564	242-04	0001-01-01	9999-12-31	no	Tele2 Norge AS	Tele2	t	t	\N	\N	\N
-2565	242-05	0001-01-01	9999-12-31	no	Network Norway AS	Network Norway	t	t	\N	\N	\N
-2566	242-06	0001-01-01	9999-12-31	no	ICE Norge AS	ICE	t	t	\N	\N	\N
-2567	242-07	0001-01-01	9999-12-31	no	Ventelo Bedrift AS	Ventelo	t	t	\N	\N	\N
-2568	242-08	0001-01-01	9999-12-31	no	TDC AS	TDC	t	t	\N	\N	\N
-2569	242-09	0001-01-01	9999-12-31	no	Com4 AS	Com4	t	t	\N	\N	\N
-2570	242-10	0001-01-01	9999-12-31	no	Post-og teletilsynet	\N	t	t	\N	\N	\N
-2571	242-11	0001-01-01	9999-12-31	no	Systemnet AS	Systemnet AS	t	t	\N	\N	\N
-2572	242-12	0001-01-01	9999-12-31	no	Telenor Norge AS	Telenor	t	t	\N	\N	\N
-2573	242-20	0001-01-01	9999-12-31	no	Jernbaneverket	Jernbaneverket	t	t	\N	\N	\N
-2574	242-21	0001-01-01	9999-12-31	no	Jernbaneverket	Jernbaneverket	t	t	\N	\N	\N
-2575	242-22	0001-01-01	9999-12-31	no	Network Norway AS	Network Norway	t	t	\N	\N	\N
-2576	242-23	0001-01-01	9999-12-31	no	Lycamobile Norway Ltd	Lyca Mobile Ltd	t	t	\N	\N	\N
-2577	242-24	0001-01-01	9999-12-31	no	Mobile Norway AS	\N	t	t	\N	\N	\N
-2578	422-02	0001-01-01	9999-12-31	om	Oman Mobile Telecommunications Company (Oman Mobile)	Oman Mobile	t	t	\N	\N	\N
-2579	422-03	0001-01-01	9999-12-31	om	Oman Qatari Telecommunications Company (Nawras)	Nawras	t	t	\N	\N	\N
-2580	422-04	0001-01-01	9999-12-31	om	Oman Telecommunications Company (Omantel)	Oman Telecommunications Company (Omantel)	t	t	\N	\N	\N
-2526	204-04	0001-01-01	9999-12-31	nl	Vodafone Libertel N.V.	Vodafone nl	t	t	\N	\N	\N
-2498	617-01	0001-01-01	9999-12-31	mu	Cellplus	Orange mu	t	t	\N	\N	\N
-2504	259-01	0001-01-01	9999-12-31	md	Orange Moldova GSM	Orange md	t	t	\N	\N	\N
-2581	410-01	0001-01-01	9999-12-31	pk	Mobilink	Mobilink	t	t	\N	\N	\N
-2582	410-03	0001-01-01	9999-12-31	pk	PAK Telecom Mobile Ltd. (UFONE)	Ufone	t	t	\N	\N	\N
-2583	410-04	0001-01-01	9999-12-31	pk	CMPak	Zong	t	t	\N	\N	\N
-2584	410-06	0001-01-01	9999-12-31	pk	Telenor Pakistan	Telenor	t	t	\N	\N	\N
-2585	410-07	0001-01-01	9999-12-31	pk	Warid Telecom	Warid	t	t	\N	\N	\N
-2586	552-01	0001-01-01	9999-12-31	pw	Palau National Communications Corp. (a.k.a. PNCC)	PNCC	t	t	\N	\N	\N
-2587	714-01	0001-01-01	9999-12-31	pa	Cable & Wireless Panama S.A.	Cable & Wireless	t	t	\N	\N	\N
-2588	714-02	0001-01-01	9999-12-31	pa	BSC de Panama S.A.	movistar	t	t	\N	\N	\N
-2589	714-020	0001-01-01	9999-12-31	pa	Telefónica Móviles Panamá S.A.	\N	t	t	\N	\N	\N
-2590	714-03	0001-01-01	9999-12-31	pa	Claro Panamá, S.A.	Claro	t	t	\N	\N	\N
-2591	714-04	0001-01-01	9999-12-31	pa	Digicel (Panamá), S.A.	Digicel	t	t	\N	\N	\N
-2592	537-01	0001-01-01	9999-12-31	pg	Bmobile	B-Mobile	t	t	\N	\N	\N
-2593	537-02	0001-01-01	9999-12-31	pg	Greencom	Greencom	t	t	\N	\N	\N
-2594	537-03	0001-01-01	9999-12-31	pg	Digicel Ltd	Digicel	t	t	\N	\N	\N
-2595	744-01	0001-01-01	9999-12-31	py	Hola Paraguay S.A.	VOX	t	t	\N	\N	\N
-2596	744-02	0001-01-01	9999-12-31	py	Hutchison Telecom S.A.	Claro	t	t	\N	\N	\N
-2597	744-03	0001-01-01	9999-12-31	py	Compañia Privada de Comunicaciones S.A.	Compañia Privada de Comunicaciones S.A.	t	t	\N	\N	\N
-2598	716-10	0001-01-01	9999-12-31	pe	TIM Peru	Claro	t	t	\N	\N	\N
-2599	515-01	0001-01-01	9999-12-31	ph	Islacom	Islacom	t	t	\N	\N	\N
-2600	515-02	0001-01-01	9999-12-31	ph	Globe Telecom	Globe	t	t	\N	\N	\N
-2601	515-03	0001-01-01	9999-12-31	ph	Smart Communications	Smart	t	t	\N	\N	\N
-2602	515-05	0001-01-01	9999-12-31	ph	Digitel	Sun	t	t	\N	\N	\N
-2603	260-01	0001-01-01	9999-12-31	pl	Plus / Polkomtel S.A.	Plus (Polkomtel)	t	t	\N	\N	\N
-2606	260-04	0001-01-01	9999-12-31	pl	LTE / CenterNet S.A.	Tele 2 (Netia)	t	t	\N	\N	\N
-2607	260-05	0001-01-01	9999-12-31	pl	Orange(UMTS) / PTK Centertel Sp. z o.o.	Polska Telefonia Komórkowa Centertel Sp. z o.o.	t	t	\N	\N	\N
-2608	260-06	0001-01-01	9999-12-31	pl	Play / P4 Sp. z o.o.	Play (P4)	t	t	\N	\N	\N
-2609	260-07	0001-01-01	9999-12-31	pl	Netia / Netia S.A.	Netia (Using P4 Nw)	t	t	\N	\N	\N
-2610	260-08	0001-01-01	9999-12-31	pl	E-Telko / E-Telko Sp. z o.o.	E-Telko Sp. z o.o.	t	t	\N	\N	\N
-2611	260-09	0001-01-01	9999-12-31	pl	Lycamobile / Lycamobile Sp. z o.o.	Telekomunikacja Kolejowa (GSM-R)	t	t	\N	\N	\N
-2612	260-10	0001-01-01	9999-12-31	pl	Sferia / Sferia S.A.	Sferia (Using T-mobile)	t	t	\N	\N	\N
-2613	260-11	0001-01-01	9999-12-31	pl	Nordisk Polska / Nordisk Polska Sp. z o.o.	\N	t	t	\N	\N	\N
-2614	260-12	0001-01-01	9999-12-31	pl	Cyfrowy Polsat / Cyfrowy Polsat S.A.	Cyfrowy Polsat	t	t	\N	\N	\N
-2615	260-13	0001-01-01	9999-12-31	pl	Sferia / Sferia S.A.	\N	t	t	\N	\N	\N
-2616	260-14	0001-01-01	9999-12-31	pl	Sferia / Sferia S.A.	Sferia (Using T-mobile)	t	t	\N	\N	\N
-2617	260-15	0001-01-01	9999-12-31	pl	CenterNet / CenterNet S.A.	CenterNet (UMTS Data only)	t	t	\N	\N	\N
-2618	260-16	0001-01-01	9999-12-31	pl	Mobyland / Mobyland Sp. z o.o.	Mobyland (UMTS)	t	t	\N	\N	\N
-2619	260-17	0001-01-01	9999-12-31	pl	Aero 2 / Aero 2 Sp. z o.o.	Aero2 (UMTS)	t	t	\N	\N	\N
-2620	260-18	0001-01-01	9999-12-31	pl	AMD Telecom / AMD Telecom S.A.	\N	t	t	\N	\N	\N
-2621	260-19	0001-01-01	9999-12-31	pl	Teleena / Teleena Holding BV	\N	t	t	\N	\N	\N
-2622	260-20	0001-01-01	9999-12-31	pl	Mobile.Net / Mobile.Net Sp. z o.o.	\N	t	t	\N	\N	\N
-2623	260-21	0001-01-01	9999-12-31	pl	Exteri / Exteri Sp. z o.o.	\N	t	t	\N	\N	\N
-2624	260-22	0001-01-01	9999-12-31	pl	Arcomm / Arcomm Sp. z o.o.	\N	t	t	\N	\N	\N
-2625	260-23	0001-01-01	9999-12-31	pl	Amicomm / Amicomm Sp. z o.o.	\N	t	t	\N	\N	\N
-2626	260-24	0001-01-01	9999-12-31	pl	WideNet / WideNet Sp. z o.o.	\N	t	t	\N	\N	\N
-2627	260-25	0001-01-01	9999-12-31	pl	BS&T / Best Solutions & Technology Sp. z o.o.	\N	t	t	\N	\N	\N
-2628	260-26	0001-01-01	9999-12-31	pl	ATE / ATE-Advanced Technology & Experience Sp. z o.o.	\N	t	t	\N	\N	\N
-2630	260-28	0001-01-01	9999-12-31	pl	PhoneNet / PhoneNet Sp. z o.o.	\N	t	t	\N	\N	\N
-2631	260-29	0001-01-01	9999-12-31	pl	Interfonica / Interfonica Sp. z o.o.	\N	t	t	\N	\N	\N
-2632	260-30	0001-01-01	9999-12-31	pl	GrandTel / GrandTel Sp. z o.o.	\N	t	t	\N	\N	\N
-2633	260-31	0001-01-01	9999-12-31	pl	Phone IT / Phone IT Sp. z o.o.	\N	t	t	\N	\N	\N
-2634	260-32	0001-01-01	9999-12-31	pl	Compatel Ltd / COMPATEL LIMITED	\N	t	t	\N	\N	\N
-2635	260-33	0001-01-01	9999-12-31	pl	Truphone Poland / Truphone Poland Sp. Z o.o.	\N	t	t	\N	\N	\N
-2636	260-34	0001-01-01	9999-12-31	pl	T-Mobile / PTC S.A.	\N	t	t	\N	\N	\N
-2637	260-98	0001-01-01	9999-12-31	pl	Play (testowy) / P4 Sp. z o.o.	\N	t	t	\N	\N	\N
-2639	268-03	0001-01-01	9999-12-31	pt	Optimus - Telecomunicaçôes, S.A.	Optimus	t	t	\N	\N	\N
-2640	268-05	0001-01-01	9999-12-31	pt	Oniway - Inforcomunicaçôes, S.A.	Oniway - Inforcomunicaçôes, S.A.	t	t	\N	\N	\N
-2641	268-06	0001-01-01	9999-12-31	pt	TMN - Telecomunicaçôes Movéis Nacionais, S.A.	TMN	t	t	\N	\N	\N
-2642	427-01	0001-01-01	9999-12-31	qa	QATARNET	Qtel	t	t	\N	\N	\N
-2643	226-01	0001-01-01	9999-12-31	ro	Vodafone	Vodafone Romania SA	t	t	\N	\N	\N
-2644	226-02	0001-01-01	9999-12-31	ro	Romtelecom	Romtelecom	t	t	\N	\N	\N
-2645	226-03	0001-01-01	9999-12-31	ro	Cosmote	Cosmote (Zapp)	t	t	\N	\N	\N
-2646	226-04	0001-01-01	9999-12-31	ro	Cosmote	Cosmote (Zapp)	t	t	\N	\N	\N
-2647	226-05	0001-01-01	9999-12-31	ro	Digi.Mobil	Digi mobil	t	t	\N	\N	\N
-2648	226-06	0001-01-01	9999-12-31	ro	Cosmote	Cosmote	t	t	\N	\N	\N
-2649	226-10	0001-01-01	9999-12-31	ro	Orange	Orange Romania	t	t	\N	\N	\N
-2650	226-11	0001-01-01	9999-12-31	ro	Enigma-System	\N	t	t	\N	\N	\N
-2651	250-01	0001-01-01	9999-12-31	ru	Mobile Telesystems	MTS	t	t	\N	\N	\N
-2652	250-02	0001-01-01	9999-12-31	ru	Megafon	MegaFon	t	t	\N	\N	\N
-2653	250-03	0001-01-01	9999-12-31	ru	Nizhegorodskaya Cellular Communications	NCC	t	t	\N	\N	\N
-2654	250-04	0001-01-01	9999-12-31	ru	Sibchallenge	Sibchallenge	t	t	\N	\N	\N
-2655	250-05	0001-01-01	9999-12-31	ru	Mobile Comms System	ETK	t	t	\N	\N	\N
-2656	250-07	0001-01-01	9999-12-31	ru	BM Telecom	SMARTS	t	t	\N	\N	\N
-2657	250-10	0001-01-01	9999-12-31	ru	Don Telecom	DTC	t	t	\N	\N	\N
-2658	250-11	0001-01-01	9999-12-31	ru	Orensot	Orensot	t	t	\N	\N	\N
-2659	250-12	0001-01-01	9999-12-31	ru	Baykal Westcom	Baykal	t	t	\N	\N	\N
-2660	250-13	0001-01-01	9999-12-31	ru	Kuban GSM	KUGSM	t	t	\N	\N	\N
-2661	250-16	0001-01-01	9999-12-31	ru	New Telephone Company	NTC	t	t	\N	\N	\N
-2662	250-17	0001-01-01	9999-12-31	ru	Ermak RMS	Utel	t	t	\N	\N	\N
-2663	250-19	0001-01-01	9999-12-31	ru	Volgograd Mobile	Indigo	t	t	\N	\N	\N
-2664	250-20	0001-01-01	9999-12-31	ru	ECC	Tele2	t	t	\N	\N	\N
-2665	250-28	0001-01-01	9999-12-31	ru	Extel	Beeline	t	t	\N	\N	\N
-2605	260-03	0001-01-01	9999-12-31	pl	Orange / PTK Centertel Sp. z o.o.	Orange pl	t	t	\N	\N	\N
-2666	250-39	0001-01-01	9999-12-31	ru	Uralsvyazinform	Utel	t	t	\N	\N	\N
-2667	250-44	0001-01-01	9999-12-31	ru	Stuvtelesot	Stuvtelesot	t	t	\N	\N	\N
-2668	250-92	0001-01-01	9999-12-31	ru	Printelefone	MTS - Primtelefon	t	t	\N	\N	\N
-2669	250-93	0001-01-01	9999-12-31	ru	Telecom XXI	Telecom XXI	t	t	\N	\N	\N
-2670	250-99	0001-01-01	9999-12-31	ru	Beeline	Beeline	t	t	\N	\N	\N
-2671	635-10	0001-01-01	9999-12-31	rw	MTN Rwandacell	MTN	t	t	\N	\N	\N
-2672	635-14	0001-01-01	9999-12-31	rw	AIRTEL RWANDA Ltd	\N	t	t	\N	\N	\N
-2673	356-110	0001-01-01	9999-12-31	kn	Cable & Wireless St Kitts & Nevis Ltd trading as Lime	LIME	t	t	\N	\N	\N
-2674	358-110	0001-01-01	9999-12-31	lc	Cable & Wireless (St Lucia) Ltd trading as Lime	Lime (Cable & Wireless)	t	t	\N	\N	\N
-2675	308-01	0001-01-01	9999-12-31	pm	St. Pierre-et-Miquelon Télécom	Ameris	t	t	\N	\N	\N
-2676	360-110	0001-01-01	9999-12-31	vc	Cable & Wireless St Vincent and the Grenadines Ltd trading as lime	Lime (Cable & Wireless)	t	t	\N	\N	\N
-2677	549-01	0001-01-01	9999-12-31	ws	Telecom Samoa Cellular Ltd.	Digicel	t	t	\N	\N	\N
-2678	549-27	0001-01-01	9999-12-31	ws	GoMobile SamoaTel Ltd	SamoaTel	t	t	\N	\N	\N
-2679	292-01	0001-01-01	9999-12-31	sm	Prima San Marino / San Marino Telecom	\N	t	t	\N	\N	\N
-2680	626-01	0001-01-01	9999-12-31	st	Companhia Santomese de Telecomunicações	CSTmovel	t	t	\N	\N	\N
-2681	420-01	0001-01-01	9999-12-31	sa	Saudi Telecom	Al Jawal	t	t	\N	\N	\N
-2682	420-03	0001-01-01	9999-12-31	sa	Etihad Etisalat Company (Mobily)	Mobily	t	t	\N	\N	\N
-2684	608-02	0001-01-01	9999-12-31	sn	Sentel GSM	Tigo	t	t	\N	\N	\N
-2685	608-03	0001-01-01	9999-12-31	sn	Expresso Sénégal	Expresso	t	t	\N	\N	\N
-2686	220-01	0001-01-01	9999-12-31	rs	Telenor d.o.o.	Telenor	t	t	\N	\N	\N
-2687	220-03	0001-01-01	9999-12-31	rs	Telekom Srbija a.d.	mt:s	t	t	\N	\N	\N
-2688	220-05	0001-01-01	9999-12-31	rs	Vip mobile d.o.o.	VIP	t	t	\N	\N	\N
-2689	633-01	0001-01-01	9999-12-31	sc	Cable & Wireless (Seychelles) Ltd.	Cable & Wireless	t	t	\N	\N	\N
-2690	633-02	0001-01-01	9999-12-31	sc	Mediatech International Ltd.	Mediatech International	t	t	\N	\N	\N
-2691	633-10	0001-01-01	9999-12-31	sc	Telecom (Seychelles) Ltd.	Airtel	t	t	\N	\N	\N
-2692	619-01	0001-01-01	9999-12-31	sl	Celtel	Airtel	t	t	\N	\N	\N
-2693	619-02	0001-01-01	9999-12-31	sl	Millicom	Tigo	t	t	\N	\N	\N
-2694	619-03	0001-01-01	9999-12-31	sl	Africell	Africell	t	t	\N	\N	\N
-2695	619-04	0001-01-01	9999-12-31	sl	Comium (Sierra Leone) Ltd.	Comium	t	t	\N	\N	\N
-2696	619-05	0001-01-01	9999-12-31	sl	Lintel (Sierra Leone) Ltd.	Africell	t	t	\N	\N	\N
-2697	619-25	0001-01-01	9999-12-31	sl	Mobitel	Mobitel	t	t	\N	\N	\N
-2698	619-40	0001-01-01	9999-12-31	sl	Datatel (SL) Ltd GSM	Datatel (SL) Ltd GSM	t	t	\N	\N	\N
-2699	619-50	0001-01-01	9999-12-31	sl	Datatel (SL) Ltd CDMA	Dtatel (SL) Ltd CDMA	t	t	\N	\N	\N
-2700	525-01	0001-01-01	9999-12-31	sg	SingTel ST GSM900	SingTel	t	t	\N	\N	\N
-2701	525-02	0001-01-01	9999-12-31	sg	SingTel ST GSM1800	SingTel-G18	t	t	\N	\N	\N
-2702	525-03	0001-01-01	9999-12-31	sg	MobileOne	M1	t	t	\N	\N	\N
-2703	525-05	0001-01-01	9999-12-31	sg	Starhub	StarHub	t	t	\N	\N	\N
-2704	525-12	0001-01-01	9999-12-31	sg	Digital Trunked Radio Network	Digital Trunked Radio Network	t	t	\N	\N	\N
-2709	293-40	0001-01-01	9999-12-31	si	SI Mobil	Si.mobil	t	t	\N	\N	\N
-2710	293-41	0001-01-01	9999-12-31	si	Mobitel	Mobitel	t	t	\N	\N	\N
-2711	293-64	0001-01-01	9999-12-31	si	T-2 d.o.o.	T-2	t	t	\N	\N	\N
-2712	293-70	0001-01-01	9999-12-31	si	Tusmobil d.o.o.	Tušmobil	t	t	\N	\N	\N
-2713	540-02	0001-01-01	9999-12-31	sb	Bemobile (BMobile (SI) Ltd)	\N	t	t	\N	\N	\N
-2714	637-30	0001-01-01	9999-12-31	so	Golis Telecommunications Company	Golis	t	t	\N	\N	\N
-2715	637-70	0001-01-01	9999-12-31	so	Onkod Telecom Ltd.	\N	t	t	\N	\N	\N
-2716	655-01	0001-01-01	9999-12-31	za	Vodacom (Pty) Ltd.	Vodacom	t	t	\N	\N	\N
-2717	655-02	0001-01-01	9999-12-31	za	Telkom SA Ltd	Telkom Mobile / 8.ta	t	t	\N	\N	\N
-2718	655-04	0001-01-01	9999-12-31	za	Sasol (Pty) Ltd	Sasol (PTY) LTD	t	t	\N	\N	\N
-2719	655-06	0001-01-01	9999-12-31	za	Sentech (Pty) Ltd.	Sentech	t	t	\N	\N	\N
-2720	655-07	0001-01-01	9999-12-31	za	Cell C (Pty) Ltd.	Cell C & Virgin	t	t	\N	\N	\N
-2721	655-10	0001-01-01	9999-12-31	za	Mobile Telephone Networks (MTN) Pty Ltd	MTN	t	t	\N	\N	\N
-2722	655-11	0001-01-01	9999-12-31	za	SAPS Gauteng	SAPS Gauteng	t	t	\N	\N	\N
-2723	655-12	0001-01-01	9999-12-31	za	Mobile Telephone Networks (MTN) Pty Ltd	\N	t	t	\N	\N	\N
-2724	655-13	0001-01-01	9999-12-31	za	Neotel Pty Ltd	Neotel	t	t	\N	\N	\N
-2725	655-19	0001-01-01	9999-12-31	za	Wireless Business Solutions (iBurst)	iBurst	t	t	\N	\N	\N
-2726	655-21	0001-01-01	9999-12-31	za	Cape Town Metropolitan Council	Cape Town Metropolitan Council	t	t	\N	\N	\N
-2727	655-25	0001-01-01	9999-12-31	za	Wirels Connect	Wirels Connect	t	t	\N	\N	\N
-2728	655-27	0001-01-01	9999-12-31	za	A to Z Vaal Industrial Supplies Pty Ltd	\N	t	t	\N	\N	\N
-2729	655-30	0001-01-01	9999-12-31	za	Bokamoso Consortium Pty Ltd	Bokamoso Consortium	t	t	\N	\N	\N
-2730	655-31	0001-01-01	9999-12-31	za	Karabo Telecoms (Pty) Ltd.	Karabo Telecoms (Pty) Ltd.	t	t	\N	\N	\N
-2731	655-32	0001-01-01	9999-12-31	za	Ilizwi Telecommunications Pty Ltd	Ilizwi Telecommunications	t	t	\N	\N	\N
-2732	655-33	0001-01-01	9999-12-31	za	Thinta Thinta Telecommunications Pty Ltd	Thinta Thinta Telecommunications	t	t	\N	\N	\N
-2733	655-34	0001-01-01	9999-12-31	za	Bokone Telecoms Pty Ltd	Bokone Telecoms	t	t	\N	\N	\N
-2734	655-35	0001-01-01	9999-12-31	za	Kingdom Communications Pty Ltd	Kingdom Communications	t	t	\N	\N	\N
-2735	655-36	0001-01-01	9999-12-31	za	Amatole Telecommunication Pty Ltd	Amatole Telecommunication Services	t	t	\N	\N	\N
-2736	655-41	0001-01-01	9999-12-31	za	South African Police Service	South African Police Service	t	t	\N	\N	\N
-2737	659-12	0001-01-01	9999-12-31	ss	Sudani/Sudatel	\N	t	t	\N	\N	\N
-2738	659-91	0001-01-01	9999-12-31	ss	Zain-South Sudan	\N	t	t	\N	\N	\N
-2739	659-92	0001-01-01	9999-12-31	ss	MTN-South Sudan	\N	t	t	\N	\N	\N
-2740	659-95	0001-01-01	9999-12-31	ss	Vivacel/NOW	\N	t	t	\N	\N	\N
-2741	659-97	0001-01-01	9999-12-31	ss	Gemtel	\N	t	t	\N	\N	\N
-2744	214-04	0001-01-01	9999-12-31	es	Xfera Móviles, SA	Yoigo	t	t	\N	\N	\N
-2745	214-05	0001-01-01	9999-12-31	es	Telefónica Móviles España, SAU	TME	t	t	\N	\N	\N
-2747	214-07	0001-01-01	9999-12-31	es	Telefónica Móviles España, SAU	movistar	t	t	\N	\N	\N
-2748	214-08	0001-01-01	9999-12-31	es	Euskaltel, SA	Euskaltel	t	t	\N	\N	\N
-2742	214-01	0001-01-01	9999-12-31	es	Vodafone España, SAU	Vodafone es	t	t	\N	\N	\N
-2746	214-06	0001-01-01	9999-12-31	es	Vodafone España, SAU	Vodafone es	t	t	\N	\N	\N
-2683	608-01	0001-01-01	9999-12-31	sn	Sonatel	Orange sn	t	t	\N	\N	\N
-2705	231-01	0001-01-01	9999-12-31	sk	Orange, GSM	Orange sk	t	t	\N	\N	\N
-2750	214-10	0001-01-01	9999-12-31	es	Operadora de Telecomunicaciones Opera SL	\N	t	t	\N	\N	\N
-2751	214-11	0001-01-01	9999-12-31	es	France Telecom España SA	\N	t	t	\N	\N	\N
-2752	214-12	0001-01-01	9999-12-31	es	Contacta Servicios Avanzados de Telecomunicaciones SL	\N	t	t	\N	\N	\N
-2753	214-13	0001-01-01	9999-12-31	es	Incotel Ingeniera y Consultaria SL	\N	t	t	\N	\N	\N
-2754	214-14	0001-01-01	9999-12-31	es	Incotel Servicioz Avanzados SL	\N	t	t	\N	\N	\N
-2755	214-15	0001-01-01	9999-12-31	es	BT España Compañia de Servicios Globales de Telecomunicaciones, SAU	BT	t	t	\N	\N	\N
-2756	214-16	0001-01-01	9999-12-31	es	Telecable de Asturias, SAU	TeleCable	t	t	\N	\N	\N
-2757	214-17	0001-01-01	9999-12-31	es	R Cable y Telecomunicaciones Galicia, SA	Móbil R	t	t	\N	\N	\N
-2758	214-18	0001-01-01	9999-12-31	es	Cableuropa, SAU	ONO	t	t	\N	\N	\N
-2759	214-19	0001-01-01	9999-12-31	es	E-Plus Móviles, SL	Simyo	t	t	\N	\N	\N
-2760	214-20	0001-01-01	9999-12-31	es	Fonyou Telecom, SL	Fonyou	t	t	\N	\N	\N
-2761	214-21	0001-01-01	9999-12-31	es	Jazz Telecom, SAU	Jazztel	t	t	\N	\N	\N
-2762	214-22	0001-01-01	9999-12-31	es	Best Spain Telecom, SL	DigiMobil	t	t	\N	\N	\N
-2763	214-24	0001-01-01	9999-12-31	es	Vizzavi España, SL	Eroski	t	t	\N	\N	\N
-2764	214-25	0001-01-01	9999-12-31	es	Lycamobile, SL	LycaMobile	t	t	\N	\N	\N
-2765	214-26	0001-01-01	9999-12-31	es	Lleida Networks Serveis Telemátics, SL	\N	t	t	\N	\N	\N
-2766	214-27	0001-01-01	9999-12-31	es	SCN Truphone SL	\N	t	t	\N	\N	\N
-2767	413-02	0001-01-01	9999-12-31	lk	MTN Network Ltd.	Dialog	t	t	\N	\N	\N
-2768	413-03	0001-01-01	9999-12-31	lk	Celtel Lanka Ltd.	Etisalat	t	t	\N	\N	\N
-2769	634-01	0001-01-01	9999-12-31	sd	SD Mobitel	Zain SD	t	t	\N	\N	\N
-2770	634-02	0001-01-01	9999-12-31	sd	Areeba-Sudan	MTN	t	t	\N	\N	\N
-2771	634-05	0001-01-01	9999-12-31	sd	Network of the World Ltd (NOW)	Vivacell (NOW)	t	t	\N	\N	\N
-2772	634-06	0001-01-01	9999-12-31	sd	Zain Sudan	\N	t	t	\N	\N	\N
-2773	634-99	0001-01-01	9999-12-31	sd	MTN Sudan	\N	t	t	\N	\N	\N
-2774	746-02	0001-01-01	9999-12-31	sr	Telesur	Telesur	t	t	\N	\N	\N
-2775	746-03	0001-01-01	9999-12-31	sr	Digicel	Digicel	t	t	\N	\N	\N
-2776	746-04	0001-01-01	9999-12-31	sr	Intelsur	Uniqa	t	t	\N	\N	\N
-2777	746-05	0001-01-01	9999-12-31	sr	Telesur (CDMA)	\N	t	t	\N	\N	\N
-2778	653-01	0001-01-01	9999-12-31	sz	SPTC	\N	t	t	\N	\N	\N
-2779	653-10	0001-01-01	9999-12-31	sz	Swazi MTN	Swazi MTN	t	t	\N	\N	\N
-2780	240-01	0001-01-01	9999-12-31	se	Telia Sonera Sverige AB	Telia	t	t	\N	\N	\N
-2782	240-03	0001-01-01	9999-12-31	se	AINMT Sverige AB	Netett Sverige AB	t	t	\N	\N	\N
-2783	240-04	0001-01-01	9999-12-31	se	3G Infrastructure Services AB	\N	t	t	\N	\N	\N
-2784	240-05	0001-01-01	9999-12-31	se	Svenska UMTS-Nät AB	Sweden 3G (Telia/Tele2)	t	t	\N	\N	\N
-2785	240-06	0001-01-01	9999-12-31	se	Telenor Sverige AB	Telenor	t	t	\N	\N	\N
-2786	240-07	0001-01-01	9999-12-31	se	Tele2 Sverige AB	Tele2	t	t	\N	\N	\N
-2787	240-08	0001-01-01	9999-12-31	se	Telenor Sverige AB	Telenor	t	t	\N	\N	\N
-2788	240-09	0001-01-01	9999-12-31	se	Djuice Mobile Sweden, filial till Telenor Mobile Sweden AS	Djuice Mobile Sweden	t	t	\N	\N	\N
-2789	240-10	0001-01-01	9999-12-31	se	Spring Mobil AB	Spring	t	t	\N	\N	\N
-2790	240-11	0001-01-01	9999-12-31	se	Linholmen Science Park AB	Lindholmen Science Park	t	t	\N	\N	\N
-2791	240-12	0001-01-01	9999-12-31	se	Barablu Mobile Scandinavia Ltd	Lycamobile	t	t	\N	\N	\N
-2792	240-13	0001-01-01	9999-12-31	se	Ventelo Sverige AB	Ventelo	t	t	\N	\N	\N
-2793	240-14	0001-01-01	9999-12-31	se	TDC Sverige AB	TDC	t	t	\N	\N	\N
-2794	240-15	0001-01-01	9999-12-31	se	Wireless Maingate Nordic AB	Wireless Maingate	t	t	\N	\N	\N
-2795	240-16	0001-01-01	9999-12-31	se	42IT AB	42 Telecom AB	t	t	\N	\N	\N
-2796	240-17	0001-01-01	9999-12-31	se	Götalandsnätet AB	Götalandsnätet AB	t	t	\N	\N	\N
-2797	240-18	0001-01-01	9999-12-31	se	Generic Mobile Systems Sweden AB	Generic Mobile Systems Sweden AB	t	t	\N	\N	\N
-2798	240-19	0001-01-01	9999-12-31	se	Mundio Mobile Sweden Ltd	Mudio Mobile	t	t	\N	\N	\N
-2799	240-20	0001-01-01	9999-12-31	se	iMEZ AB	Imez AB	t	t	\N	\N	\N
-2800	240-21	0001-01-01	9999-12-31	se	Banverket	\N	t	t	\N	\N	\N
-2801	240-22	0001-01-01	9999-12-31	se	EuTel AB	EuTel	t	t	\N	\N	\N
-2802	240-23	0001-01-01	9999-12-31	se	Infobip LTD	Infobip Ltd	t	t	\N	\N	\N
-2803	240-24	0001-01-01	9999-12-31	se	Net4Mobility HB	\N	t	t	\N	\N	\N
-2804	240-26	0001-01-01	9999-12-31	se	Beepsend A.B.	Beepsend	t	t	\N	\N	\N
-2805	240-27	0001-01-01	9999-12-31	se	MyIndian AB	MyIndian AB	t	t	\N	\N	\N
-2806	240-28	0001-01-01	9999-12-31	se	CoolTEL Aps A.B.	CoolTEL Aps	t	t	\N	\N	\N
-2807	240-29	0001-01-01	9999-12-31	se	Mercury International Carrier Services	Mercury International Carrier Services	t	t	\N	\N	\N
-2808	240-30	0001-01-01	9999-12-31	se	NextGen Mobile Ltd	NextGen Mobile Ltd	t	t	\N	\N	\N
-2809	240-31	0001-01-01	9999-12-31	se	Mobimax AB	\N	t	t	\N	\N	\N
-2810	240-32	0001-01-01	9999-12-31	se	Compatel Ltd.	CompaTel Ltd.	t	t	\N	\N	\N
-2811	240-33	0001-01-01	9999-12-31	se	Mobile Arts AB	\N	t	t	\N	\N	\N
-2812	240-34	0001-01-01	9999-12-31	se	Tigo Ltd	Tigo LTD	t	t	\N	\N	\N
-2813	240-35	0001-01-01	9999-12-31	se	42 Telecom LTD	\N	t	t	\N	\N	\N
-2814	240-36	0001-01-01	9999-12-31	se	Interactive Digital Media GmbH	IDM	t	t	\N	\N	\N
-2815	240-40	0001-01-01	9999-12-31	se	ReWiCom Scandinavia AB	\N	t	t	\N	\N	\N
-2816	228-01	0001-01-01	9999-12-31	ch	Swisscom Schweiz AG	Swisscom	t	t	\N	\N	\N
-2817	228-02	0001-01-01	9999-12-31	ch	Sunrise Communications AG	Sunrise	t	t	\N	\N	\N
-2819	228-05	0001-01-01	9999-12-31	ch	Comfone AG	Togewanet AG (Comfone)	t	t	\N	\N	\N
-2820	228-06	0001-01-01	9999-12-31	ch	SBB AG	SBB AG	t	t	\N	\N	\N
-2821	228-08	0001-01-01	9999-12-31	ch	Tele2 Telecommunications AG	Tele2	t	t	\N	\N	\N
-2822	228-12	0001-01-01	9999-12-31	ch	Sunrise Communications AG	Sunrise	t	t	\N	\N	\N
-2823	228-51	0001-01-01	9999-12-31	ch	Bebbicell AG	Bebbicell AG	t	t	\N	\N	\N
-2824	417-01	0001-01-01	9999-12-31	sy	Syriatel	Syriatel	t	t	\N	\N	\N
-2825	417-02	0001-01-01	9999-12-31	sy	Spacetel Syria	MTN	t	t	\N	\N	\N
-2826	417-09	0001-01-01	9999-12-31	sy	Syrian Telecom	\N	t	t	\N	\N	\N
-2827	436-01	0001-01-01	9999-12-31	tj	JC Somoncom	Tcell	t	t	\N	\N	\N
-2828	436-02	0001-01-01	9999-12-31	tj	CJSC Indigo Tajikistan	Tcell	t	t	\N	\N	\N
-2829	436-03	0001-01-01	9999-12-31	tj	TT mobile	MLT	t	t	\N	\N	\N
-2830	436-04	0001-01-01	9999-12-31	tj	Josa Babilon-T	Babilon-M	t	t	\N	\N	\N
-2831	436-05	0001-01-01	9999-12-31	tj	CTJTHSC Tajik-tel	Beeline	t	t	\N	\N	\N
-2832	640-02	0001-01-01	9999-12-31	tz	MIC (T) Ltd.	tiGO	t	t	\N	\N	\N
-2833	640-03	0001-01-01	9999-12-31	tz	Zantel	Zantel	t	t	\N	\N	\N
-2834	640-04	0001-01-01	9999-12-31	tz	Vodacom (T) Ltd.	Vodacom	t	t	\N	\N	\N
-2835	640-05	0001-01-01	9999-12-31	tz	Celtel (T) Ltd.	Airtel	t	t	\N	\N	\N
-2836	520-00	0001-01-01	9999-12-31	th	CAT CDMA	Hutch	t	t	\N	\N	\N
-2837	520-01	0001-01-01	9999-12-31	th	AIS GSM	AIS	t	t	\N	\N	\N
-2838	520-15	0001-01-01	9999-12-31	th	ACT Mobile	TOT 3G	t	t	\N	\N	\N
-2840	294-02	0001-01-01	9999-12-31	mk	Cosmofon	Cosmofon	t	t	\N	\N	\N
-2841	294-03	0001-01-01	9999-12-31	mk	Nov Operator	VIP Operator	t	t	\N	\N	\N
-2842	294-10	0001-01-01	9999-12-31	mk	WTI Macedonia	\N	t	t	\N	\N	\N
-2843	294-11	0001-01-01	9999-12-31	mk	MOBIK TELEKOMUNIKACII DOOEL- Skopje	\N	t	t	\N	\N	\N
-2844	514-01	0001-01-01	9999-12-31	tl	Telin Timor-Leste	\N	t	t	\N	\N	\N
-2845	514-02	0001-01-01	9999-12-31	tl	Timor Telecom	Timor Telecom	t	t	\N	\N	\N
-2846	514-03	0001-01-01	9999-12-31	tl	Viettel Timor-Leste	\N	t	t	\N	\N	\N
-2847	615-01	0001-01-01	9999-12-31	tg	Togo Telecom	Togo Cell	t	t	\N	\N	\N
-2848	539-01	0001-01-01	9999-12-31	to	Tonga Communications Corporation	Tonga Communications Corporation	t	t	\N	\N	\N
-2849	539-43	0001-01-01	9999-12-31	to	Digicel	Shoreline Communication	t	t	\N	\N	\N
-2850	539-88	0001-01-01	9999-12-31	to	Digicel (Tonga) Ltd	Digicel	t	t	\N	\N	\N
-2851	374-12	0001-01-01	9999-12-31	tt	TSTT Mobile	bMobile	t	t	\N	\N	\N
-2852	374-130	0001-01-01	9999-12-31	tt	Digicel Trinidad and Tobago Ltd.	\N	t	t	\N	\N	\N
-2853	374-140	0001-01-01	9999-12-31	tt	LaqTel Ltd.	LaqTel Ltd.	t	t	\N	\N	\N
-2854	605-02	0001-01-01	9999-12-31	tn	Tunisie Telecom	Tunicell	t	t	\N	\N	\N
-2855	605-03	0001-01-01	9999-12-31	tn	Orascom Telecom	Tunisiana	t	t	\N	\N	\N
-2856	286-01	0001-01-01	9999-12-31	tr	Turkcell	Turkcell	t	t	\N	\N	\N
-2858	286-03	0001-01-01	9999-12-31	tr	Aria	Avea	t	t	\N	\N	\N
-2859	286-04	0001-01-01	9999-12-31	tr	Aycell	Aycell	t	t	\N	\N	\N
-2860	438-01	0001-01-01	9999-12-31	tm	Barash Communication Technologies (BCTI)	MTS	t	t	\N	\N	\N
-2861	438-02	0001-01-01	9999-12-31	tm	TM-Cell	TM-Cell	t	t	\N	\N	\N
-2862	376-350	0001-01-01	9999-12-31	tc	Cable & Wireless (TCI) Ltd trading asLime	Lime (Cable & Wireless)	t	t	\N	\N	\N
-2863	376-352	0001-01-01	9999-12-31	tc	IslandCom Communications Ltd.	Islandcom	t	t	\N	\N	\N
-2864	376-360	0001-01-01	9999-12-31	tc	IslandCom Communication Ltd	\N	t	t	\N	\N	\N
-2865	553-01	0001-01-01	9999-12-31	tv	Tuvalu Telecommunications Corporation	\N	t	t	\N	\N	\N
-2866	641-01	0001-01-01	9999-12-31	ug	Celtel Uganda	Zain	t	t	\N	\N	\N
-2867	641-10	0001-01-01	9999-12-31	ug	MTN Uganda Ltd.	MTN	t	t	\N	\N	\N
-2868	641-11	0001-01-01	9999-12-31	ug	Uganda Telecom Ltd.	Uganda Telecom	t	t	\N	\N	\N
-2870	641-18	0001-01-01	9999-12-31	ug	Sure Telecom Uganda Limited	\N	t	t	\N	\N	\N
-2871	641-22	0001-01-01	9999-12-31	ug	Warid Telecom Uganda Ltd.	Warid Telecom	t	t	\N	\N	\N
-2872	641-30	0001-01-01	9999-12-31	ug	Anupam Global Soft Uganda Limited	\N	t	t	\N	\N	\N
-2873	641-33	0001-01-01	9999-12-31	ug	Smile Communications Uganda Limited	\N	t	t	\N	\N	\N
-2874	641-40	0001-01-01	9999-12-31	ug	Civil Aviation Authority (CAA)	\N	t	t	\N	\N	\N
-2875	641-44	0001-01-01	9999-12-31	ug	K2 Telecom Ltd	\N	t	t	\N	\N	\N
-2876	641-66	0001-01-01	9999-12-31	ug	i-Tel Ltd	\N	t	t	\N	\N	\N
-2877	255-01	0001-01-01	9999-12-31	ua	Ukrainian Mobile Communication, UMC	MTS	t	t	\N	\N	\N
-2878	255-02	0001-01-01	9999-12-31	ua	Ukranian Radio Systems, URS	Beeline	t	t	\N	\N	\N
-2879	255-03	0001-01-01	9999-12-31	ua	Kyivstar GSM	Kyivstar	t	t	\N	\N	\N
-2880	255-04	0001-01-01	9999-12-31	ua	International Telecommunications Ltd.	IT	t	t	\N	\N	\N
-2881	255-05	0001-01-01	9999-12-31	ua	Golden Telecom	Golden Telecom	t	t	\N	\N	\N
-2882	255-06	0001-01-01	9999-12-31	ua	Astelit	life:)	t	t	\N	\N	\N
-2883	255-07	0001-01-01	9999-12-31	ua	Ukrtelecom	Ukrtelecom	t	t	\N	\N	\N
-2884	255-21	0001-01-01	9999-12-31	ua	CJSC - Telesystems of Ukraine	PEOPLEnet	t	t	\N	\N	\N
-2885	424-02	0001-01-01	9999-12-31	ae	Etisalat	Etisalat	t	t	\N	\N	\N
-2886	234-00	0001-01-01	9999-12-31	gb	British Telecom	BT	t	t	\N	\N	\N
-2887	234-01	0001-01-01	9999-12-31	gb	Mapesbury Communications Ltd.	Vectone MObile	t	t	\N	\N	\N
-2888	234-02	0001-01-01	9999-12-31	gb	O2 UK Ltd.	O2	t	t	\N	\N	\N
-2889	234-03	0001-01-01	9999-12-31	gb	Jersey Airtel Ltd	Airtel-Vodafone	t	t	\N	\N	\N
-2890	234-04	0001-01-01	9999-12-31	gb	FMS Solutions Ltd	FMS Solutions Ltd	t	t	\N	\N	\N
-2891	234-05	0001-01-01	9999-12-31	gb	Colt Mobile Telecommunications Ltd	COLT Mobile Telecommunications Ltd	t	t	\N	\N	\N
-2892	234-06	0001-01-01	9999-12-31	gb	Internet Computer Bureau Ltd	Internet Computer Bureau Ltd	t	t	\N	\N	\N
-2893	234-07	0001-01-01	9999-12-31	gb	Cable & Wireless UK	Cable and Wireless Plc	t	t	\N	\N	\N
-2894	234-08	0001-01-01	9999-12-31	gb	OnePhone (UK) Ltd	OnePhone Ltd	t	t	\N	\N	\N
-2895	234-09	0001-01-01	9999-12-31	gb	Tismi BV	Tismi BV	t	t	\N	\N	\N
-2896	234-10	0001-01-01	9999-12-31	gb	O2 UK Ltd.	O2	t	t	\N	\N	\N
-2897	234-11	0001-01-01	9999-12-31	gb	O2 UK Ltd.	O2	t	t	\N	\N	\N
-2898	234-12	0001-01-01	9999-12-31	gb	Network Rail Infrastructure Ltd	Railtrack Plc (UK)	t	t	\N	\N	\N
-2899	234-13	0001-01-01	9999-12-31	gb	Network Rail Infrastructure Ltd	Railtrack Plc (UK)	t	t	\N	\N	\N
-2900	234-14	0001-01-01	9999-12-31	gb	Hay Systems Ltd	Hay Systems Ltd	t	t	\N	\N	\N
-2902	234-16	0001-01-01	9999-12-31	gb	Opal Telecom Ltd	Talk Talk	t	t	\N	\N	\N
-2903	234-17	0001-01-01	9999-12-31	gb	Flextel Ltd	Flextel Ltd	t	t	\N	\N	\N
-2904	234-18	0001-01-01	9999-12-31	gb	Cloud9	Cloud9	t	t	\N	\N	\N
-2905	234-19	0001-01-01	9999-12-31	gb	Teleware plc	Teleware	t	t	\N	\N	\N
-2907	234-21	0001-01-01	9999-12-31	gb	LogicStar Ltd	\N	t	t	\N	\N	\N
-2908	234-22	0001-01-01	9999-12-31	gb	Routo Telecommunications Ltd	RoutoMessaging	t	t	\N	\N	\N
-2909	234-23	0001-01-01	9999-12-31	gb	Vectone Network Ltd	\N	t	t	\N	\N	\N
-2910	234-24	0001-01-01	9999-12-31	gb	Stour Marine Ltd	Greenfone	t	t	\N	\N	\N
-2911	234-25	0001-01-01	9999-12-31	gb	Software Cellular Network Ltd	Truphone (UK)	t	t	\N	\N	\N
-2912	234-26	0001-01-01	9999-12-31	gb	Lycamobile UK Limited	\N	t	t	\N	\N	\N
-2913	234-27	0001-01-01	9999-12-31	gb	Teleena UK Limited	\N	t	t	\N	\N	\N
-2914	234-28	0001-01-01	9999-12-31	gb	Marathon Telecom Limited	\N	t	t	\N	\N	\N
-2915	234-29	0001-01-01	9999-12-31	gb	(aq) Limited T/A aql	\N	t	t	\N	\N	\N
-2916	234-30	0001-01-01	9999-12-31	gb	T-Mobile UK	T-mobile	t	t	\N	\N	\N
-2917	234-31	0001-01-01	9999-12-31	gb	T-Mobile UK	Virgin	t	t	\N	\N	\N
-2918	234-32	0001-01-01	9999-12-31	gb	T-Mobile UK	Virgin	t	t	\N	\N	\N
-2921	234-50	0001-01-01	9999-12-31	gb	Jersey Telecom	JT-Wave	t	t	\N	\N	\N
-2922	234-55	0001-01-01	9999-12-31	gb	Cable and Wireless Guensey Ltd	Cable and Wireless	t	t	\N	\N	\N
-2923	234-58	0001-01-01	9999-12-31	gb	Manx Telecom	Manx Telecom	t	t	\N	\N	\N
-2924	234-76	0001-01-01	9999-12-31	gb	British Telecom	BT	t	t	\N	\N	\N
-2857	286-02	0001-01-01	9999-12-31	tr	Telsim GSM	Vodafone tr	t	t	\N	\N	\N
-2869	641-14	0001-01-01	9999-12-31	ug	House of Integrated Technology and Systems Uganda Ltd (HiTs Telecom)	Orange ug	t	t	\N	\N	\N
-2925	234-78	0001-01-01	9999-12-31	gb	Airwave mmO2 Ltd	Airwave	t	t	\N	\N	\N
-2926	235-00	0001-01-01	9999-12-31	gb	Mundlo Mobile Limited	\N	t	t	\N	\N	\N
-2927	235-77	0001-01-01	9999-12-31	gb	British Telecom	\N	t	t	\N	\N	\N
-2928	235-91	0001-01-01	9999-12-31	gb	Vodafone Ltd	\N	t	t	\N	\N	\N
-2929	235-92	0001-01-01	9999-12-31	gb	Cable & Wireless UK	\N	t	t	\N	\N	\N
-2930	235-94	0001-01-01	9999-12-31	gb	Hutchison 3G UK Ltd.	\N	t	t	\N	\N	\N
-2931	235-95	0001-01-01	9999-12-31	gb	Network Rail Infrastructure Ltd	\N	t	t	\N	\N	\N
-2932	310-010	0001-01-01	9999-12-31	us	Verizon Wireless	\N	t	t	\N	\N	\N
-2933	310-012	0001-01-01	9999-12-31	us	Verizon Wireless	\N	t	t	\N	\N	\N
-2934	310-013	0001-01-01	9999-12-31	us	Verizon Wireless	\N	t	t	\N	\N	\N
-2935	310-016	0001-01-01	9999-12-31	us	Cricket Communications	\N	t	t	\N	\N	\N
-2936	310-017	0001-01-01	9999-12-31	us	North Sight Communications Inc	\N	t	t	\N	\N	\N
-2937	310-020	0001-01-01	9999-12-31	us	Union Telephone Company	\N	t	t	\N	\N	\N
-2938	310-030	0001-01-01	9999-12-31	us	Centennial Communications	\N	t	t	\N	\N	\N
-2939	310-035	0001-01-01	9999-12-31	us	ETEX Communications dba ETEX Wireless	\N	t	t	\N	\N	\N
-2940	310-040	0001-01-01	9999-12-31	us	MTA Communications dba MTA Wireless	\N	t	t	\N	\N	\N
-2941	310-050	0001-01-01	9999-12-31	us	Alaska Communications	\N	t	t	\N	\N	\N
-2942	310-060	0001-01-01	9999-12-31	us	Consolidated Telcom	\N	t	t	\N	\N	\N
-2943	310-070	0001-01-01	9999-12-31	us	AT&T	\N	t	t	\N	\N	\N
-2944	310-080	0001-01-01	9999-12-31	us	Corr Wireless Communications LLC	\N	t	t	\N	\N	\N
-2945	310-090	0001-01-01	9999-12-31	us	Cricket Communications	\N	t	t	\N	\N	\N
-2946	310-100	0001-01-01	9999-12-31	us	New Mexico RSA 4 East Ltd. Partnership	Plateau Wireless	t	t	\N	\N	\N
-2947	310-110	0001-01-01	9999-12-31	us	Pacific Telecom Inc	Verizon	t	t	\N	\N	\N
-2948	310-120	0001-01-01	9999-12-31	us	Sprintcom Inc	Sprint	t	t	\N	\N	\N
-2949	310-130	0001-01-01	9999-12-31	us	Carolina West Wireless	Carolina West Wireless	t	t	\N	\N	\N
-2950	310-140	0001-01-01	9999-12-31	us	GTA Wireless LLC	GTA Wireless LLC	t	t	\N	\N	\N
-2951	310-150	0001-01-01	9999-12-31	us	Cingular Wireless	AT&T	t	t	\N	\N	\N
-2953	310-170	0001-01-01	9999-12-31	us	Cingular Wireless	Cingular Wireless	t	t	\N	\N	\N
-2954	310-180	0001-01-01	9999-12-31	us	West Central Wireless	West Central	t	t	\N	\N	\N
-2955	310-190	0001-01-01	9999-12-31	us	Alaska Wireless Communications LLC	Dutch Harbor	t	t	\N	\N	\N
-2964	310-280	0001-01-01	9999-12-31	us	Contennial Puerto Rio License Corp.	Verizon	t	t	\N	\N	\N
-2965	310-290	0001-01-01	9999-12-31	us	Nep Cellcorp Inc.	Nep Cellcorp Inc.	t	t	\N	\N	\N
-2966	310-300	0001-01-01	9999-12-31	us	Blanca Telephone Company	iSmart Mobile	t	t	\N	\N	\N
-2968	310-320	0001-01-01	9999-12-31	us	Smith Bagley Inc, dba Cellular One	Cellular One	t	t	\N	\N	\N
-2969	310-330	0001-01-01	9999-12-31	us	AWCC	AN Subsidiary LLC	t	t	\N	\N	\N
-2970	310-340	0001-01-01	9999-12-31	us	High Plains Midwest LLC, dba Westlink Communications	Westlink	t	t	\N	\N	\N
-2971	310-350	0001-01-01	9999-12-31	us	Mohave Cellular L.P.	Mohave Cellular L.P.	t	t	\N	\N	\N
-2972	310-360	0001-01-01	9999-12-31	us	Cellular Network Partnership dba Pioneer Cellular	Cellular Network Partnership dba Pioneer Cellular	t	t	\N	\N	\N
-2973	310-370	0001-01-01	9999-12-31	us	Docomo Pacific Inc	Guamcell Cellular and Paging	t	t	\N	\N	\N
-2974	310-380	0001-01-01	9999-12-31	us	New Cingular Wireless PCS, LLC	New Cingular Wireless PCS, LLC	t	t	\N	\N	\N
-2975	310-390	0001-01-01	9999-12-31	us	TX-11 Acquistion LLC	Verizon	t	t	\N	\N	\N
-2976	310-400	0001-01-01	9999-12-31	us	Wave Runner LLC	i CAN_GSM	t	t	\N	\N	\N
-2977	310-410	0001-01-01	9999-12-31	us	Cingular Wireless	AT&T	t	t	\N	\N	\N
-2978	310-420	0001-01-01	9999-12-31	us	Cincinnati Bell Wireless LLC	Cincinnati Bell	t	t	\N	\N	\N
-2979	310-430	0001-01-01	9999-12-31	us	GCI Communications Corp	Alaska Digitel LLC	t	t	\N	\N	\N
-2980	310-440	0001-01-01	9999-12-31	us	Numerex Corp	Numerex Corp.	t	t	\N	\N	\N
-2981	310-450	0001-01-01	9999-12-31	us	North East Cellular Inc.	Viaero	t	t	\N	\N	\N
-2982	310-460	0001-01-01	9999-12-31	us	Newcore Wireless	Simmetry	t	t	\N	\N	\N
-2983	310-470	0001-01-01	9999-12-31	us	nTELOS Communications Inc	Omnipoint	t	t	\N	\N	\N
-2984	310-480	0001-01-01	9999-12-31	us	Choice Phone LLC	Verizon	t	t	\N	\N	\N
-2986	310-500	0001-01-01	9999-12-31	us	Public Service Cellular, Inc.	Alltel	t	t	\N	\N	\N
-2987	310-510	0001-01-01	9999-12-31	us	Nsighttel Wireless Inc	Airtel	t	t	\N	\N	\N
-2988	310-520	0001-01-01	9999-12-31	us	Transactions Network Services	VeriSign	t	t	\N	\N	\N
-2989	310-530	0001-01-01	9999-12-31	us	Iowa Wireless Services LLC	West Virginia Wireless	t	t	\N	\N	\N
-2990	310-540	0001-01-01	9999-12-31	us	Oklahoma Western Telephone Company	Oklahoma Western	t	t	\N	\N	\N
-2991	310-550	0001-01-01	9999-12-31	us	Wireless Solutions International	AT&T	t	t	\N	\N	\N
-2992	310-560	0001-01-01	9999-12-31	us	AT&T	AT&T	t	t	\N	\N	\N
-2993	310-570	0001-01-01	9999-12-31	us	MTPCS LLC	Cellular One	t	t	\N	\N	\N
-2994	310-580	0001-01-01	9999-12-31	us	Inland Cellular Telephone Company	Inland Cellular Telephone Company	t	t	\N	\N	\N
-2995	310-590	0001-01-01	9999-12-31	us	Verizon Wireless	Alltel	t	t	\N	\N	\N
-2996	310-600	0001-01-01	9999-12-31	us	New Cell Inc. dba Cellcom	New Cell Inc. dba Cellcom	t	t	\N	\N	\N
-2997	310-610	0001-01-01	9999-12-31	us	Elkhart Telephone Co. Inc. dba Epic Touch Co.	Epic Touch	t	t	\N	\N	\N
-2998	310-620	0001-01-01	9999-12-31	us	Nsighttel Wireless Inc	Coleman County Telecom	t	t	\N	\N	\N
-2999	310-640	0001-01-01	9999-12-31	us	Airadigm Communications	Airadigm	t	t	\N	\N	\N
-3000	310-650	0001-01-01	9999-12-31	us	Jasper Wireless Inc.	Jasper	t	t	\N	\N	\N
-3001	310-660	0001-01-01	9999-12-31	us	T-Mobile USA	MetroPCS	t	t	\N	\N	\N
-3002	310-670	0001-01-01	9999-12-31	us	AT&T Mobility Vanguard Services	Northstar	t	t	\N	\N	\N
-3003	310-680	0001-01-01	9999-12-31	us	AT&T	AT&T	t	t	\N	\N	\N
-3004	310-690	0001-01-01	9999-12-31	us	Keystone Wireless LLC	Conestoga	t	t	\N	\N	\N
-3005	310-700	0001-01-01	9999-12-31	us	Cross Valiant Cellular Partnership	Cross Valiant Cellular Partnership	t	t	\N	\N	\N
-3006	310-710	0001-01-01	9999-12-31	us	Arctic Slope Telephone Association Cooperative	Arctic Slopo Telephone Association Cooperative	t	t	\N	\N	\N
-3007	310-720	0001-01-01	9999-12-31	us	Wireless Solutions International Inc.	Wireless Solutions International Inc.	t	t	\N	\N	\N
-3008	310-730	0001-01-01	9999-12-31	us	US Cellular	SeaMobile	t	t	\N	\N	\N
-3009	310-740	0001-01-01	9999-12-31	us	Convey Communications Inc	Convey	t	t	\N	\N	\N
-3010	310-750	0001-01-01	9999-12-31	us	East Kentucky Network LLC dba Appalachian Wireless	East Kentucky Network LLC dba Appalachian Wireless	t	t	\N	\N	\N
-3011	310-760	0001-01-01	9999-12-31	us	Lynch 3G Communications Corporation	Panhandle	t	t	\N	\N	\N
-3012	310-770	0001-01-01	9999-12-31	us	Iowa Wireless Services LLC dba I Wireless	i wireless	t	t	\N	\N	\N
-3013	310-780	0001-01-01	9999-12-31	us	D.D. Inc	Connect Net Inc	t	t	\N	\N	\N
-3014	310-790	0001-01-01	9999-12-31	us	PinPoint Communications Inc.	PinPoint	t	t	\N	\N	\N
-3016	310-810	0001-01-01	9999-12-31	us	LCFR LLC	Brazos Cellular Communications Ltd.	t	t	\N	\N	\N
-3017	310-820	0001-01-01	9999-12-31	us	South Canaan Cellular Communications Co. LP	South Canaan Cellular Communications Co. LP	t	t	\N	\N	\N
-3018	310-830	0001-01-01	9999-12-31	us	Clearwire Corporation	Caprock	t	t	\N	\N	\N
-3019	310-840	0001-01-01	9999-12-31	us	Telecom North America Mobile Inc	telna Mobile	t	t	\N	\N	\N
-3020	310-850	0001-01-01	9999-12-31	us	Aeris Communications, Inc.	Aeris	t	t	\N	\N	\N
-3021	310-860	0001-01-01	9999-12-31	us	TX RSA 15B2, LP dba Five Star Wireless	TX RSA 15B2, LP dba Five Star Wireless	t	t	\N	\N	\N
-3022	310-870	0001-01-01	9999-12-31	us	Kaplan Telephone Company Inc.	PACE	t	t	\N	\N	\N
-3023	310-880	0001-01-01	9999-12-31	us	Advantage Cellular Systems, Inc.	Advantage	t	t	\N	\N	\N
-3024	310-890	0001-01-01	9999-12-31	us	Verizon Wireless	Verizon	t	t	\N	\N	\N
-3025	310-900	0001-01-01	9999-12-31	us	Cable & Communications Corporation dba Mid-Rivers Wireless	Mid-Rivers Wireless	t	t	\N	\N	\N
-3026	310-910	0001-01-01	9999-12-31	us	Verizon Wireless	Verizon	t	t	\N	\N	\N
-3027	310-920	0001-01-01	9999-12-31	us	James Valley Wireless LLC	Get Mobile	t	t	\N	\N	\N
-3028	310-930	0001-01-01	9999-12-31	us	Copper Valley Wireless	Copper Valley Wireless	t	t	\N	\N	\N
-3029	310-940	0001-01-01	9999-12-31	us	Iris Wireless LLC	Poka Lambro Telecommunications Ltd.	t	t	\N	\N	\N
-3030	310-950	0001-01-01	9999-12-31	us	Texas RSA 1 dba XIT Wireless	XIT Wireless	t	t	\N	\N	\N
-3031	310-960	0001-01-01	9999-12-31	us	UBET Wireless	Plateau Wireless	t	t	\N	\N	\N
-3032	310-970	0001-01-01	9999-12-31	us	Globalstar USA	Globalstar	t	t	\N	\N	\N
-3033	310-980	0001-01-01	9999-12-31	us	Texas RSA 7B3 dba Peoples Wireless Services	New Cingular Wireless PCS LLC	t	t	\N	\N	\N
-3034	310-990	0001-01-01	9999-12-31	us	Worldcall Interconnect	E.N.M.R. Telephone Cooperative	t	t	\N	\N	\N
-3035	311-000	0001-01-01	9999-12-31	us	Mid-Tex Cellular Ltd.	\N	t	t	\N	\N	\N
-3036	311-010	0001-01-01	9999-12-31	us	Chariton Valley Communications Corp., Inc.	\N	t	t	\N	\N	\N
-3037	311-020	0001-01-01	9999-12-31	us	Missouri RSA No. 5 Partnership	\N	t	t	\N	\N	\N
-3038	311-030	0001-01-01	9999-12-31	us	Indigo Wireless, Inc.	\N	t	t	\N	\N	\N
-3039	311-040	0001-01-01	9999-12-31	us	Commnet Wireless LLC	\N	t	t	\N	\N	\N
-3040	311-050	0001-01-01	9999-12-31	us	Thumb Cellular Limited Partnership	\N	t	t	\N	\N	\N
-3041	311-060	0001-01-01	9999-12-31	us	Space Data Corporation	\N	t	t	\N	\N	\N
-3042	311-070	0001-01-01	9999-12-31	us	Wisconsin RSA #7 Limited Partnership	\N	t	t	\N	\N	\N
-3043	311-080	0001-01-01	9999-12-31	us	Pine Telephone Company dba Pine Cellular	\N	t	t	\N	\N	\N
-3044	311-090	0001-01-01	9999-12-31	us	LongLines Wireless	\N	t	t	\N	\N	\N
-3045	311-100	0001-01-01	9999-12-31	us	Nex-Tech Wireless LLC	High Plains Wireless	t	t	\N	\N	\N
-3046	311-110	0001-01-01	9999-12-31	us	Verizon Wireless	High Plains Wireless	t	t	\N	\N	\N
-3047	311-120	0001-01-01	9999-12-31	us	Choice Phone LLC	\N	t	t	\N	\N	\N
-3048	311-130	0001-01-01	9999-12-31	us	Light Squared LP	Alltel	t	t	\N	\N	\N
-3049	311-140	0001-01-01	9999-12-31	us	Cross Telephone Company	Sprocket	t	t	\N	\N	\N
-3050	311-150	0001-01-01	9999-12-31	us	Wilkes Cellular Inc.	Wilkes Cellular	t	t	\N	\N	\N
-3051	311-160	0001-01-01	9999-12-31	us	Light Squared LP	\N	t	t	\N	\N	\N
-3052	311-170	0001-01-01	9999-12-31	us	PetroCom LLC	PetroCom	t	t	\N	\N	\N
-3053	311-180	0001-01-01	9999-12-31	us	Cingular Wireless, Licensee Pacific Telesis Mobile Services, LLC	\N	t	t	\N	\N	\N
-3054	311-190	0001-01-01	9999-12-31	us	Cellular Properties Inc.	\N	t	t	\N	\N	\N
-3055	311-200	0001-01-01	9999-12-31	us	ARINC	\N	t	t	\N	\N	\N
-3056	311-210	0001-01-01	9999-12-31	us	Emery Telecom-Wireless Inc	Farmers Cellular	t	t	\N	\N	\N
-3057	311-220	0001-01-01	9999-12-31	us	United States Cellular	\N	t	t	\N	\N	\N
-3058	311-230	0001-01-01	9999-12-31	us	Cellular South Inc	\N	t	t	\N	\N	\N
-3059	311-240	0001-01-01	9999-12-31	us	Cordova Wireless Communications Inc	\N	t	t	\N	\N	\N
-3060	311-250	0001-01-01	9999-12-31	us	Wave Runner LLC	\N	t	t	\N	\N	\N
-3061	311-260	0001-01-01	9999-12-31	us	Clearwire Corporation	Cellular One	t	t	\N	\N	\N
-3062	311-270	0001-01-01	9999-12-31	us	Verizon Wireless	Lamar Country Cellular	t	t	\N	\N	\N
-3063	311-271	0001-01-01	9999-12-31	us	Verizon Wireless	\N	t	t	\N	\N	\N
-3064	311-272	0001-01-01	9999-12-31	us	Verizon Wireless	\N	t	t	\N	\N	\N
-3065	311-273	0001-01-01	9999-12-31	us	Verizon Wireless	\N	t	t	\N	\N	\N
-3066	311-274	0001-01-01	9999-12-31	us	Verizon Wireless	\N	t	t	\N	\N	\N
-3067	311-275	0001-01-01	9999-12-31	us	Verizon Wireless	\N	t	t	\N	\N	\N
-3068	311-276	0001-01-01	9999-12-31	us	Verizon Wireless	\N	t	t	\N	\N	\N
-3069	311-277	0001-01-01	9999-12-31	us	Verizon Wireless	\N	t	t	\N	\N	\N
-3070	311-278	0001-01-01	9999-12-31	us	Verizon Wireless	\N	t	t	\N	\N	\N
-3071	311-279	0001-01-01	9999-12-31	us	Verizon Wireless	\N	t	t	\N	\N	\N
-3072	311-280	0001-01-01	9999-12-31	us	Verizon Wireless	\N	t	t	\N	\N	\N
-3073	311-281	0001-01-01	9999-12-31	us	Verizon Wireless	\N	t	t	\N	\N	\N
-3074	311-282	0001-01-01	9999-12-31	us	Verizon Wireless	\N	t	t	\N	\N	\N
-3075	311-283	0001-01-01	9999-12-31	us	Verizon Wireless	\N	t	t	\N	\N	\N
-3076	311-284	0001-01-01	9999-12-31	us	Verizon Wireless	\N	t	t	\N	\N	\N
-3077	311-285	0001-01-01	9999-12-31	us	Verizon Wireless	\N	t	t	\N	\N	\N
-3078	311-286	0001-01-01	9999-12-31	us	Verizon Wireless	\N	t	t	\N	\N	\N
-3079	311-287	0001-01-01	9999-12-31	us	Verizon Wireless	\N	t	t	\N	\N	\N
-3080	311-288	0001-01-01	9999-12-31	us	Verizon Wireless	\N	t	t	\N	\N	\N
-3081	311-289	0001-01-01	9999-12-31	us	Verizon Wireless	\N	t	t	\N	\N	\N
-3082	311-290	0001-01-01	9999-12-31	us	Pinpoint Wireless Inc.	NEP Wireless	t	t	\N	\N	\N
-3083	311-300	0001-01-01	9999-12-31	us	Nexus Communications Inc	\N	t	t	\N	\N	\N
-3084	311-310	0001-01-01	9999-12-31	us	Leaco Rural Telephone Company Inc	\N	t	t	\N	\N	\N
-3085	311-320	0001-01-01	9999-12-31	us	Commnet Wireless LLC	\N	t	t	\N	\N	\N
-3086	311-330	0001-01-01	9999-12-31	us	Bug Tussel Wireless LLC	Bug Tussel Wireless	t	t	\N	\N	\N
-3087	311-340	0001-01-01	9999-12-31	us	Illinois Valley Cellular	\N	t	t	\N	\N	\N
-3088	311-350	0001-01-01	9999-12-31	us	Sagebrush Cellular Inc dba Nemont	\N	t	t	\N	\N	\N
-3089	311-360	0001-01-01	9999-12-31	us	Stelera Wireless LLC	\N	t	t	\N	\N	\N
-3090	311-370	0001-01-01	9999-12-31	us	GCI Communications Corp.	GCI Wireless in Alaska	t	t	\N	\N	\N
-3091	311-380	0001-01-01	9999-12-31	us	New Dimension Wireless Ltd	\N	t	t	\N	\N	\N
-3092	311-390	0001-01-01	9999-12-31	us	Verizon Wireless	\N	t	t	\N	\N	\N
-3093	311-410	0001-01-01	9999-12-31	us	Iowa RSA No.2 Ltd Partnership	\N	t	t	\N	\N	\N
-3094	311-420	0001-01-01	9999-12-31	us	Northwest Missouri Cellular Limited Partnership	\N	t	t	\N	\N	\N
-3095	311-430	0001-01-01	9999-12-31	us	RSA 1 Limited Partnership dba Cellular 29 Plus	\N	t	t	\N	\N	\N
-3096	311-440	0001-01-01	9999-12-31	us	Bluegrass Cellular LLC	\N	t	t	\N	\N	\N
-3097	311-450	0001-01-01	9999-12-31	us	Panhandle Telecommunication Systems Inc.	\N	t	t	\N	\N	\N
-3098	311-460	0001-01-01	9999-12-31	us	Fisher Wireless Services Inc	\N	t	t	\N	\N	\N
-3099	311-470	0001-01-01	9999-12-31	us	Vitelcom Cellular Inc dba Innovative Wireless	\N	t	t	\N	\N	\N
-3100	311-480	0001-01-01	9999-12-31	us	Verizon Wireless	\N	t	t	\N	\N	\N
-3101	311-481	0001-01-01	9999-12-31	us	Verizon Wireless	\N	t	t	\N	\N	\N
-3102	311-482	0001-01-01	9999-12-31	us	Verizon Wireless	\N	t	t	\N	\N	\N
-3103	311-483	0001-01-01	9999-12-31	us	Verizon Wireless	\N	t	t	\N	\N	\N
-3104	311-484	0001-01-01	9999-12-31	us	Verizon Wireless	\N	t	t	\N	\N	\N
-3105	311-485	0001-01-01	9999-12-31	us	Verizon Wireless	\N	t	t	\N	\N	\N
-3106	311-486	0001-01-01	9999-12-31	us	Verizon Wireless	\N	t	t	\N	\N	\N
-3107	311-487	0001-01-01	9999-12-31	us	Verizon Wireless	\N	t	t	\N	\N	\N
-3108	311-488	0001-01-01	9999-12-31	us	Verizon Wireless	\N	t	t	\N	\N	\N
-3109	311-489	0001-01-01	9999-12-31	us	Verizon Wireless	\N	t	t	\N	\N	\N
-3110	311-490	0001-01-01	9999-12-31	us	Sprintcom Inc	\N	t	t	\N	\N	\N
-3111	311-500	0001-01-01	9999-12-31	us	Mosaic Telecom Inc	\N	t	t	\N	\N	\N
-3112	311-510	0001-01-01	9999-12-31	us	Light Squared LP	\N	t	t	\N	\N	\N
-3113	311-520	0001-01-01	9999-12-31	us	Light Squared LP	\N	t	t	\N	\N	\N
-3114	311-530	0001-01-01	9999-12-31	us	Newcore Wireless LLC	NewCore Wireless	t	t	\N	\N	\N
-3115	311-540	0001-01-01	9999-12-31	us	Poximiti Mobility Inc	\N	t	t	\N	\N	\N
-3116	311-550	0001-01-01	9999-12-31	us	Commnet Midwest LLC	\N	t	t	\N	\N	\N
-3117	311-560	0001-01-01	9999-12-31	us	OTZ Communications Inc	\N	t	t	\N	\N	\N
-3118	311-570	0001-01-01	9999-12-31	us	Bend Cable Communications LLC	\N	t	t	\N	\N	\N
-3119	311-580	0001-01-01	9999-12-31	us	United States Cellular	\N	t	t	\N	\N	\N
-3120	311-590	0001-01-01	9999-12-31	us	California RSA No3 Ltd Partnership dba Golden State Cellular	\N	t	t	\N	\N	\N
-3121	311-600	0001-01-01	9999-12-31	us	Cox TMI Wireless LLC	\N	t	t	\N	\N	\N
-3122	311-610	0001-01-01	9999-12-31	us	North Dakota Network Co.	\N	t	t	\N	\N	\N
-3123	311-620	0001-01-01	9999-12-31	us	Terrestar Networks Inc	\N	t	t	\N	\N	\N
-3124	311-630	0001-01-01	9999-12-31	us	Corr Wireless Communications	\N	t	t	\N	\N	\N
-3125	311-640	0001-01-01	9999-12-31	us	Standing Rock Telecommunications	\N	t	t	\N	\N	\N
-3126	311-650	0001-01-01	9999-12-31	us	United Wireless Inc	\N	t	t	\N	\N	\N
-3127	311-660	0001-01-01	9999-12-31	us	Metro PCS Wireless Inc	\N	t	t	\N	\N	\N
-3128	311-670	0001-01-01	9999-12-31	us	Pine Belt Cellular Inc dba Pine Belt Wireless	\N	t	t	\N	\N	\N
-3129	311-680	0001-01-01	9999-12-31	us	GreenFly LLC	\N	t	t	\N	\N	\N
-3130	311-690	0001-01-01	9999-12-31	us	TeleBeeper of New Mexico Inc	\N	t	t	\N	\N	\N
-3131	311-700	0001-01-01	9999-12-31	us	TotalSolutions Telecom LLC	\N	t	t	\N	\N	\N
-3132	311-710	0001-01-01	9999-12-31	us	Northeast Wireless Networks LLC	\N	t	t	\N	\N	\N
-3133	311-720	0001-01-01	9999-12-31	us	Maine PCS LLC	\N	t	t	\N	\N	\N
-3134	311-730	0001-01-01	9999-12-31	us	Proximiti Mobility Inc	\N	t	t	\N	\N	\N
-3135	311-740	0001-01-01	9999-12-31	us	Telalaska Cellular	\N	t	t	\N	\N	\N
-3136	311-750	0001-01-01	9999-12-31	us	NetAmerica Alliance LLC	\N	t	t	\N	\N	\N
-3137	311-760	0001-01-01	9999-12-31	us	Edigen Inc	\N	t	t	\N	\N	\N
-3138	311-770	0001-01-01	9999-12-31	us	Radio Mobile Access Inc	\N	t	t	\N	\N	\N
-3139	311-800	0001-01-01	9999-12-31	us	Bluegrass Cellular LLC	\N	t	t	\N	\N	\N
-3140	311-810	0001-01-01	9999-12-31	us	Blegrass Cellular LLC	\N	t	t	\N	\N	\N
-3141	311-820	0001-01-01	9999-12-31	us	Kineto Wireless Inc	\N	t	t	\N	\N	\N
-3142	311-830	0001-01-01	9999-12-31	us	Thumb Cellular LLC	\N	t	t	\N	\N	\N
-3143	311-840	0001-01-01	9999-12-31	us	Nsight Spectrum LLC	\N	t	t	\N	\N	\N
-3144	311-850	0001-01-01	9999-12-31	us	Nsight Spectrum LLC	\N	t	t	\N	\N	\N
-3145	311-860	0001-01-01	9999-12-31	us	Uintah Basin Electronic Telecommunications	\N	t	t	\N	\N	\N
-3146	311-870	0001-01-01	9999-12-31	us	Sprintcom Inc	\N	t	t	\N	\N	\N
-3147	311-880	0001-01-01	9999-12-31	us	Sprintcom Inc	\N	t	t	\N	\N	\N
-3148	311-890	0001-01-01	9999-12-31	us	Globecom Network Services Corporation	\N	t	t	\N	\N	\N
-3149	311-900	0001-01-01	9999-12-31	us	Gigsky inc	\N	t	t	\N	\N	\N
-3150	311-910	0001-01-01	9999-12-31	us	SI Wireless LLC	\N	t	t	\N	\N	\N
-3151	311-920	0001-01-01	9999-12-31	us	Missouri RSA No 5 Partnership dba Charlton Valley Wireless Services	\N	t	t	\N	\N	\N
-3152	311-940	0001-01-01	9999-12-31	us	Clearwire Corporation	\N	t	t	\N	\N	\N
-3153	311-950	0001-01-01	9999-12-31	us	Sunman Telecommunications corp.	\N	t	t	\N	\N	\N
-3154	311-960	0001-01-01	9999-12-31	us	Lycamobile USA Inc	\N	t	t	\N	\N	\N
-3155	311-970	0001-01-01	9999-12-31	us	Big River Broadband LLC	\N	t	t	\N	\N	\N
-3156	311-980	0001-01-01	9999-12-31	us	LigTel Communications	\N	t	t	\N	\N	\N
-3157	311-990	0001-01-01	9999-12-31	us	VTel Wireless	\N	t	t	\N	\N	\N
-3158	312-010	0001-01-01	9999-12-31	us	Charlton Valley Communication Corporation Inc	\N	t	t	\N	\N	\N
-3159	312-020	0001-01-01	9999-12-31	us	Infrastructure Networks LLC	\N	t	t	\N	\N	\N
-3160	312-030	0001-01-01	9999-12-31	us	Cross Wireless	\N	t	t	\N	\N	\N
-3161	312-040	0001-01-01	9999-12-31	us	Custer Telephone Cooperative Inc	\N	t	t	\N	\N	\N
-3162	312-050	0001-01-01	9999-12-31	us	Fuego Wireless LLC	\N	t	t	\N	\N	\N
-3163	312-060	0001-01-01	9999-12-31	us	CoverageCo	\N	t	t	\N	\N	\N
-3164	312-070	0001-01-01	9999-12-31	us	Adams Networks Inc	\N	t	t	\N	\N	\N
-3165	312-080	0001-01-01	9999-12-31	us	South Georgia Regional Information Technology Authority	\N	t	t	\N	\N	\N
-3166	312-090	0001-01-01	9999-12-31	us	Allied Wireless Communixcations Corporation	\N	t	t	\N	\N	\N
-3167	312-100	0001-01-01	9999-12-31	us	ClearSky Technologies Inc	\N	t	t	\N	\N	\N
-3168	312-110	0001-01-01	9999-12-31	us	Texas Energy Network LLC	\N	t	t	\N	\N	\N
-3169	312-120	0001-01-01	9999-12-31	us	East Kentucky Network LLC dba Appalachian Wireless	\N	t	t	\N	\N	\N
-3170	312-130	0001-01-01	9999-12-31	us	East Kentucky Network LLC dba Appalachian Wireless	\N	t	t	\N	\N	\N
-3171	312-140	0001-01-01	9999-12-31	us	Cleveland Unlimited Inc	\N	t	t	\N	\N	\N
-3172	312-150	0001-01-01	9999-12-31	us	Northwest Cell	\N	t	t	\N	\N	\N
-3173	312-160	0001-01-01	9999-12-31	us	RSA1 Limited Partnership dba Chat Mobility	\N	t	t	\N	\N	\N
-3174	312-170	0001-01-01	9999-12-31	us	Iowa RSA No 2 Limited Partnership	\N	t	t	\N	\N	\N
-3175	312-180	0001-01-01	9999-12-31	us	Keystone Wireless LLC	\N	t	t	\N	\N	\N
-3176	312-190	0001-01-01	9999-12-31	us	Sprint-Nextel Communications Inc	\N	t	t	\N	\N	\N
-3177	312-200	0001-01-01	9999-12-31	us	Voyager Mobility LLC	\N	t	t	\N	\N	\N
-3178	313-100	0001-01-01	9999-12-31	us	Assigned to Public Safety	\N	t	t	\N	\N	\N
-3179	316-010	0001-01-01	9999-12-31	us	Sprint-Nextel Communications Inc	\N	t	t	\N	\N	\N
-3180	316-011	0001-01-01	9999-12-31	us	Southern Communications Services Inc.	\N	t	t	\N	\N	\N
-3181	748-00	0001-01-01	9999-12-31	uy	Ancel - TDMA	Ancel	t	t	\N	\N	\N
-3182	748-01	0001-01-01	9999-12-31	uy	Ancel - GSM	Ancel	t	t	\N	\N	\N
-3183	748-03	0001-01-01	9999-12-31	uy	Ancel	Ancel	t	t	\N	\N	\N
-3184	748-07	0001-01-01	9999-12-31	uy	Movistar	Movistar	t	t	\N	\N	\N
-3185	748-10	0001-01-01	9999-12-31	uy	CTI Móvil	Claro	t	t	\N	\N	\N
-3186	434-01	0001-01-01	9999-12-31	uz	Buztel	Buztel	t	t	\N	\N	\N
-3187	434-02	0001-01-01	9999-12-31	uz	Uzmacom	Uzmacom	t	t	\N	\N	\N
-3188	434-04	0001-01-01	9999-12-31	uz	Daewoo Unitel	Beeline	t	t	\N	\N	\N
-3189	434-05	0001-01-01	9999-12-31	uz	Coscom	Ucell	t	t	\N	\N	\N
-3190	434-07	0001-01-01	9999-12-31	uz	Uzdunrobita	MTS	t	t	\N	\N	\N
-3191	541-01	0001-01-01	9999-12-31	vu	SMILE	Smile	t	t	\N	\N	\N
-3192	541-05	0001-01-01	9999-12-31	vu	Digicel Vanuatu	Digicel	t	t	\N	\N	\N
-3193	734-01	0001-01-01	9999-12-31	ve	Infonet	Digitel	t	t	\N	\N	\N
-3194	734-02	0001-01-01	9999-12-31	ve	Corporación Digitel	Digitel	t	t	\N	\N	\N
-3195	734-03	0001-01-01	9999-12-31	ve	Digicel	Digitel	t	t	\N	\N	\N
-3196	734-04	0001-01-01	9999-12-31	ve	Telcel, C.A.	Movistar	t	t	\N	\N	\N
-3197	734-06	0001-01-01	9999-12-31	ve	Telecomunicaciones Movilnet, C.A.	Movilnet	t	t	\N	\N	\N
-3198	452-01	0001-01-01	9999-12-31	vn	Mobifone	MobilFone	t	t	\N	\N	\N
-3199	452-02	0001-01-01	9999-12-31	vn	Vinaphone	Vinaphone	t	t	\N	\N	\N
-3200	452-03	0001-01-01	9999-12-31	vn	S Telecom (CDMA)	S-Fone	t	t	\N	\N	\N
-3201	452-04	0001-01-01	9999-12-31	vn	Viettel	Viettel	t	t	\N	\N	\N
-3202	452-06	0001-01-01	9999-12-31	vn	EVN Telecom	E-Mobile	t	t	\N	\N	\N
-3203	452-07	0001-01-01	9999-12-31	vn	Beeline VN/GTEL Mobile JSC	Beeline VN	t	t	\N	\N	\N
-3204	452-08	0001-01-01	9999-12-31	vn	EVN Telecom	\N	t	t	\N	\N	\N
-3205	421-01	0001-01-01	9999-12-31	ye	Yemen Mobile Phone Company	SabaFon	t	t	\N	\N	\N
-3206	421-02	0001-01-01	9999-12-31	ye	Spacetel Yemen	Spacetel Yemen	t	t	\N	\N	\N
-3207	645-01	0001-01-01	9999-12-31	zm	Celtel Zambia Ltd.	Zain	t	t	\N	\N	\N
-3208	645-02	0001-01-01	9999-12-31	zm	Telecel Zambia Ltd.	MTN	t	t	\N	\N	\N
-3209	645-03	0001-01-01	9999-12-31	zm	Zamtel	Zamtel	t	t	\N	\N	\N
-3210	648-01	0001-01-01	9999-12-31	zw	Net One	Net One	t	t	\N	\N	\N
-3211	648-03	0001-01-01	9999-12-31	zw	Telecel	Telecel	t	t	\N	\N	\N
-1856	219-01	0001-01-01	9999-12-31	hr	T-Mobile Hrvatska d.o.o./T-Mobile Croatia LLC	T-Mobile hr	t	t	\N	\N	\N
-3239	232-05	2013-01-03	9999-12-31	at	Yesss! (A1 TA)	Yesss! (A1 TA)	t	t	232-01	Yesss nach Merger mit Orange-Sim	\N
-3212	648-04	0001-01-01	9999-12-31	zw	Econet	Econet	t	t	\N	\N	\N
-1867	230-01	0001-01-01	9999-12-31	cz	T-Mobile Czech Republic a.s.	T-Mobile cz	t	t	\N	\N	\N
-3213	232-01	0001-01-01	9999-12-31	at	A1 Telekom Austria AG - Mobilnetz	A1 TA Mobil	t	t	\N	Primäre Kennung von A1 TA	\N
-3231	232-09	0001-01-01	9999-12-31	at	dummy	\N	t	f	\N	ehem. Kennung von Tele2-Mobil AT	3234
-1985	262-01	0001-01-01	9999-12-31	de	T-Mobile Deutschland GmbH	T-Mobile de	t	t	\N	\N	\N
-2062	216-30	0001-01-01	9999-12-31	hu	Magyar Telecom Plc	T-Mobile hu	t	t	\N	\N	\N
-3217	232-03	0001-01-01	9999-12-31	at	T-Mobile Austria GmbH	T-Mobile AT	t	t	\N	Primäre Kennung von T-Mobile	\N
-2511	297-02	0001-01-01	9999-12-31	me	Crnogorski Telekom	T-Mobile me	t	t	\N	\N	\N
-2604	260-02	0001-01-01	9999-12-31	pl	T-Mobile / PTC S.A.	T-Mobile pl	t	t	\N	\N	\N
-2706	231-02	0001-01-01	9999-12-31	sk	Eurotel, GSM & NMT	T-Mobile sk	t	t	\N	\N	\N
-2707	231-04	0001-01-01	9999-12-31	sk	Eurotel, UMTS	T-Mobile sk	t	t	\N	\N	\N
-2839	294-01	0001-01-01	9999-12-31	mk	T-Mobile	T-Mobile mk	t	t	\N	\N	\N
-2952	310-160	0001-01-01	9999-12-31	us	T-Mobile USA	T-Mobile us	t	t	\N	\N	\N
-2956	310-200	0001-01-01	9999-12-31	us	T-Mobile USA	T-Mobile us	t	t	\N	\N	\N
-2957	310-210	0001-01-01	9999-12-31	us	T-Mobile USA	T-Mobile us	t	t	\N	\N	\N
-2958	310-220	0001-01-01	9999-12-31	us	T-Mobile USA	T-Mobile us	t	t	\N	\N	\N
-2959	310-230	0001-01-01	9999-12-31	us	T-Mobile USA	T-Mobile us	t	t	\N	\N	\N
-2960	310-240	0001-01-01	9999-12-31	us	T-Mobile USA	T-Mobile us	t	t	\N	\N	\N
-2961	310-250	0001-01-01	9999-12-31	us	T-Mobile USA	T-Mobile us	t	t	\N	\N	\N
-2962	310-260	0001-01-01	9999-12-31	us	T-Mobile USA	T-Mobile us	t	t	\N	\N	\N
-2963	310-270	0001-01-01	9999-12-31	us	T-Mobile USA	T-Mobile us	t	t	\N	\N	\N
-3245	232-05	0001-01-01	2013-07-01	at	Orange AT	Orange AT	t	t	\N	Orange vor Sidestream-Merger	\N
-3227	232-07	0001-01-01	9999-12-31	at	T-Mobile Austria GmbH (tele.ring)	tele.ring (T-Mobile AT)	t	f	\N	ehem. ID tele.ring, nunmehr T-Mobile/Reseller	\N
-2967	310-310	0001-01-01	9999-12-31	us	T-Mobile USA	T-Mobile us	t	t	\N	\N	\N
-3223	232-04	0001-01-01	9999-12-31	at	dummy	\N	t	t	\N	Test-ID T-Mobile AT	3217
-2985	310-490	0001-01-01	9999-12-31	us	T-Mobile USA	T-Mobile us	t	t	\N	\N	\N
-3015	310-800	0001-01-01	9999-12-31	us	T-Mobile USA	T-Mobile us	t	t	\N	\N	\N
-1620	276-02	0001-01-01	9999-12-31	al	Vodafone Albania	Vodafone al	t	t	\N	\N	\N
-3237	232-91	0001-01-01	9999-12-31	at	OeBB Infrastruktur Bau AG	OeBB GSM-R AT	t	t	\N	kein GSM/UMTS-Netz, nur GSM-R	\N
-3235	232-12	2013-01-03	9999-12-31	at	Yesss! (A1 TA)	Yesss! (A1 TA)	t	f	\N	Yesss nach Merger/Weiterverkauf	\N
-3234	232-11	0001-01-01	9999-12-31	at	Bob (A1 TA)	Bob (A1 TA)	t	f	\N	\N	\N
-3226	232-06	0001-01-01	9999-12-31	at	dummy	\N	t	t	\N	Test-ID Hutchison	3224
-3215	232-02	0001-01-01	9999-12-31	at	dummy	\N	t	t	\N	Test-ID A1-TA	3213
-3236	232-15	0001-01-01	9999-12-31	at	Barablue Mobile Austria Ltd	Barablue	t	f	\N	MVNO	\N
-3224	232-05	2013-07-02	9999-12-31	at	Hutchison Drei Austria GmbH	Drei AT	t	t	\N	Primäre Kennung von Drei	\N
-3240	232-12	0001-01-01	2013-01-02	at	Yesss! (Orange)	Yesss! (Orange)	t	f	\N	Yesss vor Merger, eigene ID	\N
-1643	505-03	0001-01-01	9999-12-31	au	Vodafone Network Pty. Ltd.	Vodafone au	t	t	\N	\N	\N
-1904	602-02	0001-01-01	9999-12-31	eg	Vodafone	Vodafone eg	t	t	\N	\N	\N
-1921	288-02	0001-01-01	9999-12-31	fo	Kall GSM	Vodafone fo	t	t	\N	\N	\N
-1923	542-01	0001-01-01	9999-12-31	fj	Vodafone (Fiji) Ltd	Vodafone fj	t	t	\N	\N	\N
-1993	262-09	0001-01-01	9999-12-31	de	Vodafone D2 GmbH	Vodafone de	t	t	\N	\N	\N
-2003	620-02	0001-01-01	9999-12-31	gh	Ghana Telecom Mobile	Vodafone gh	t	t	\N	\N	\N
-2014	202-05	0001-01-01	9999-12-31	gr	Vodafone - Panafon	Vodafone gr	t	t	\N	\N	\N
-2065	274-02	0001-01-01	9999-12-31	is	Og fjarskipti hf (Vodafone Iceland)	Vodafone is	t	t	\N	\N	\N
-2066	274-03	0001-01-01	9999-12-31	is	Og fjarskipti hf (Vodafone Iceland)	Vodafone is	t	t	\N	\N	\N
-2070	404-01	0001-01-01	9999-12-31	in	Aircell Digilink India Ltd., Haryana	Vodafone in	t	t	\N	\N	\N
-2074	404-05	0001-01-01	9999-12-31	in	Fascel Ltd., Gujarat	Vodafone in	t	t	\N	\N	\N
-2079	404-11	0001-01-01	9999-12-31	in	Hutchison Essar Mobile Services Ltd, Delhi	Vodafone in	t	t	\N	\N	\N
-2081	404-13	0001-01-01	9999-12-31	in	Hutchison Essar South Ltd., Andhra Pradesh	Vodafone in	t	t	\N	\N	\N
-2083	404-15	0001-01-01	9999-12-31	in	Aircell Digilink India Ltd., UP (East)	Vodafone in	t	t	\N	\N	\N
-2088	404-20	0001-01-01	9999-12-31	in	Hutchison Essar Ltd, Mumbai	Vodafone in	t	t	\N	\N	\N
-2094	404-27	0001-01-01	9999-12-31	in	Hutchison Essar Cellular Ltd., Maharashtra	Vodafone in	t	t	\N	\N	\N
-2096	404-30	0001-01-01	9999-12-31	in	Hutchison Telecom East Ltd, Kolkata	Vodafone in	t	t	\N	\N	\N
-2107	404-43	0001-01-01	9999-12-31	in	Hutchison Essar Cellular Ltd., Tamil Nadu	Vodafone in	t	t	\N	\N	\N
-2109	404-46	0001-01-01	9999-12-31	in	Hutchison Essar Cellular Ltd., Kerala	Vodafone in	t	t	\N	\N	\N
-2122	404-60	0001-01-01	9999-12-31	in	Aircell Digilink India Ltd., Rajasthan	Vodafone in	t	t	\N	\N	\N
-2146	404-84	0001-01-01	9999-12-31	in	Hutchison Essar South Ltd., Chennai	Vodafone in	t	t	\N	\N	\N
-2148	404-86	0001-01-01	9999-12-31	in	Hutchison Essar South Ltd., Karnataka	Vodafone in	t	t	\N	\N	\N
-2150	404-88	0001-01-01	9999-12-31	in	Hutchison Essar South Ltd, Punjab	Vodafone in	t	t	\N	\N	\N
-2208	405-66	0001-01-01	9999-12-31	in	Hutchison Essar South Ltd, UP (West)	Vodafone in	t	t	\N	\N	\N
-2209	405-67	0001-01-01	9999-12-31	in	Hutchison Essar South Ltd, Orissa	Vodafone in	t	t	\N	\N	\N
-2216	405-750	0001-01-01	9999-12-31	in	Vodafone Essar Spacetel Ltd, J&K	Vodafone in	t	t	\N	\N	\N
-2217	405-751	0001-01-01	9999-12-31	in	Vodafone Essar Spacetel Ltd, Assam	Vodafone in	t	t	\N	\N	\N
-2218	405-752	0001-01-01	9999-12-31	in	Vodafone Essar Spacetel Ltd, Bihar	Vodafone in	t	t	\N	\N	\N
-2219	405-753	0001-01-01	9999-12-31	in	Vodafone Essar Spacetel Ltd, Orissa	Vodafone in	t	t	\N	\N	\N
-2220	405-754	0001-01-01	9999-12-31	in	Vodafone Essar Spacetel Ltd, Himachal Pradesh	Vodafone in	t	t	\N	\N	\N
-2221	405-755	0001-01-01	9999-12-31	in	Vodafone Essar Spacetel Ltd, North East	Vodafone in	t	t	\N	\N	\N
-2273	272-01	0001-01-01	9999-12-31	ie	Vodafone Ireland Plc	Vodafone ie	t	t	\N	\N	\N
-2296	222-10	0001-01-01	9999-12-31	it	Omnitel Pronto Italia (OPI)	Vodafone it	t	t	\N	\N	\N
-2491	278-01	0001-01-01	9999-12-31	mt	Vodafone Malta	Vodafone mt	t	t	\N	\N	\N
-2542	530-01	0001-01-01	9999-12-31	nz	Vodafone New Zealand GSM Network	Vodafone nz	t	t	\N	\N	\N
-2638	268-01	0001-01-01	9999-12-31	pt	Vodafone Telecel - Comunicaçôes Pessoais, S.A.	Vodafone pt	t	t	\N	\N	\N
-2901	234-15	0001-01-01	9999-12-31	gb	Vodafone Ltd	Vodafone gb	t	t	\N	\N	\N
-1713	652-02	0001-01-01	9999-12-31	bw	Orange Botswana (Pty) Ltd.	Orange bw	t	t	\N	\N	\N
-1765	624-02	0001-01-01	9999-12-31	cm	Orange Cameroun	Orange cm	t	t	\N	\N	\N
-2459	295-02	0001-01-01	9999-12-31	li	Orange (Liechtenstein) AG	Orange li	t	t	\N	\N	\N
-2467	270-99	0001-01-01	9999-12-31	lu	Voxmobile S.A.	Orange lu	t	t	\N	\N	\N
-2476	646-02	0001-01-01	9999-12-31	mg	Orange Madagascar, GSM	Orange mg	t	t	\N	\N	\N
-2708	231-05	0001-01-01	9999-12-31	sk	Orange, UMTS	Orange sk	t	t	\N	\N	\N
-2743	214-03	0001-01-01	9999-12-31	es	France Telecom España, SA	Orange es	t	t	\N	\N	\N
-2749	214-09	0001-01-01	9999-12-31	es	France Telecom España, SA	Orange es	t	t	\N	\N	\N
-2818	228-03	0001-01-01	9999-12-31	ch	Orange Communications SA	Orange ch	t	t	\N	\N	\N
-2919	234-33	0001-01-01	9999-12-31	gb	Orange	Orange gb	t	t	\N	\N	\N
-2920	234-34	0001-01-01	9999-12-31	gb	Orange	Orange gb	t	t	\N	\N	\N
-3232	232-10	0001-01-01	9999-12-31	at	dummy	\N	t	t	\N	Hutchison nach Sidestream-Merger	3224
-3251	232-16	0001-01-01	9999-12-31	at	dummy	\N	t	t	\N	Test-ID Hutchison	3224
-3254	232-17	0001-01-01	9999-12-31	at	Massresponse Service GmbH	Massresponse AT	t	f	\N	MVNO	\N
-2471	455-03	0001-01-01	9999-12-31	mo	Hutchison - Telefone(Macau) Limitada	3 mo	t	t	\N	\N	\N
-2473	455-05	0001-01-01	9999-12-31	mo	Hutchison - Telefone(Macau) Limitada	3 mo	t	t	\N	\N	\N
-2906	234-20	0001-01-01	9999-12-31	gb	Hutchison 3G UK Ltd.	3 UK	t	t	\N	\N	\N
-2781	240-02	0001-01-01	9999-12-31	se	H3G Access AB	3 SE	t	t	\N	\N	\N
-1885	238-06	0001-01-01	9999-12-31	dk	Hi3G	3 DK	t	t	\N	\N	\N
-3256	250-25	0001-01-01	9999-12-31	ru	Motiv RU	Motiv RU	t	t	\N	\N	\N
-3257	272-05	0001-01-01	9999-12-31	ie	Hutchison Three IE	3 IE	t	t	\N	\N	\N
-3258	274-11	0001-01-01	9999-12-31	is	Nova IS	Nova IS	t	t	\N	\N	\N
-3259	310-004	0001-01-01	9999-12-31	us	Verizon US	Verizon US	t	t	\N	\N	\N
-3260	310-026	0001-01-01	9999-12-31	us	T-Mobile US	T-Mobile US	t	t	\N	\N	\N
-3261	310-29	0001-01-01	9999-12-31	us	T-Mobile US	T-Mobile US	t	t	\N	incorrect, should be 310-290	\N
-3262	310-99	0001-01-01	9999-12-31	us	AT&T US	AT&T US	t	t	\N	incorrect, should be 310-990	\N
-3263	310-110	0001-01-01	9999-12-31	us	PTI Pacifica US	PTI Pacifica US	t	t	\N	\N	\N
-3265	401-77	0001-01-01	9999-12-31	kz	Tele2 KZ	Tle2 KZ	t	t	\N	\N	\N
-3266	405-09	0001-01-01	9999-12-31	in	Reliance Jammu & Kashmir IN	Reliance IN	t	t	\N	\N	\N
-3267	405-18	0001-01-01	9999-12-31	in	Reliance Punjab IN	Reliance IN	t	t	\N	\N	\N
-3268	405-51	0001-01-01	9999-12-31	in	AirTel West Bengal IN	AirTel IN	t	t	\N	\N	\N
-3269	405-848	0001-01-01	9999-12-31	in	IDEA Kolkata IN	IDEA IN	t	t	\N	\N	\N
-3270	405-932	0001-01-01	9999-12-31	in	Videocon Punjab IN	Videocon IN	t	t	\N	\N	\N
-3271	413-01	0001-01-01	9999-12-31	lk	Mobitel LK	Mobitel LK	t	t	\N	\N	\N
-3272	420-04	0001-01-01	9999-12-31	sa	Zain SA	Zain SA	t	t	\N	\N	\N
-3273	424-03	0001-01-01	9999-12-31	ae	Emirates Integrated - du	du AE	t	t	\N	\N	\N
-3274	450-05	0001-01-01	9999-12-31	kr	SKTelecom KR	SKTelecom KR	t	t	\N	\N	\N
-3275	450-08	0001-01-01	9999-12-31	kr	KT olleh KR	KT olleh KR	t	t	\N	\N	\N
-3276	454-13	0001-01-01	9999-12-31	hk	China Mobile HK	China Mobile HK	t	t	\N	\N	\N
-3277	466-89	0001-01-01	9999-12-31	tw	Vibo Telecom TW	Vibo Telecom TW	t	t	\N	\N	\N
-3278	466-92	0001-01-01	9999-12-31	tw	Changhwa Telecom TW	Changhua Telecom TW	t	t	\N	\N	\N
-3279	466-97	0001-01-01	9999-12-31	tw	Taiwan Mobile TW	Taiwan Mobile TW	t	t	\N	\N	\N
-3280	510-09	0001-01-01	9999-12-31	id	Smartfren ID	Smartfren ID	t	t	\N	\N	\N
-3281	510-89	0001-01-01	9999-12-31	id	3 ID	3 ID	t	t	\N	\N	\N
-3282	520-03	0001-01-01	9999-12-31	th	AIS TH	AIS TH	t	t	\N	\N	\N
-3283	520-04	0001-01-01	9999-12-31	th	truemove H TH	truemove H TH	t	t	\N	\N	\N
-3284	520-05	0001-01-01	9999-12-31	th	dtac 3G TH	dtac 3G TH	t	t	\N	\N	\N
-3285	520-18	0001-01-01	9999-12-31	th	dtac TH	dtac TH	t	t	\N	\N	\N
-3286	520-99	0001-01-01	9999-12-31	th	truemove TH	truemove TH	t	t	\N	\N	\N
-3287	630-03	0001-01-01	9999-12-31	dz	Ooredoo DZ	Ooredoo DZ	t	t	\N	\N	\N
-3288	634-07	0001-01-01	9999-12-31	sd	Sudani One SD	Sudani One SD	t	t	\N	\N	\N
-3289	744-05	0001-01-01	9999-12-31	py	Personal PY	Personal PY	t	t	\N	\N	\N
-3293	232-13	0001-01-01	9999-12-31	at	UPC Mobil AT	UPC Mobil AT	t	\N	\N	\N	\N
-\.
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1614, '412-01', '0001-01-01', '9999-12-31', 'af', 'AWCC', 'AWCC', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1615, '412-20', '0001-01-01', '9999-12-31', 'af', 'Roshan', 'Roshan', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1616, '412-30', '0001-01-01', '9999-12-31', 'af', 'New1', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1617, '412-40', '0001-01-01', '9999-12-31', 'af', 'Areeba Afghanistan', 'MTN', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1618, '412-88', '0001-01-01', '9999-12-31', 'af', 'Afghan Telecom', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1619, '276-01', '0001-01-01', '9999-12-31', 'al', 'Albanian Mobile Communications (AMC)', 'AMS', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1621, '276-03', '0001-01-01', '9999-12-31', 'al', 'Eagle Mobile', 'Eagle Mobile', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1622, '276-04', '0001-01-01', '9999-12-31', 'al', 'Mobile 4 AL', 'Plus Communication', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1623, '603-01', '0001-01-01', '9999-12-31', 'dz', 'Algérie Telecom', 'Mobilis', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1624, '603-02', '0001-01-01', '9999-12-31', 'dz', 'Orascom Telecom Algérie', 'Djezzy', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1625, '213-03', '0001-01-01', '9999-12-31', 'ad', 'Mobiland', 'Mobiland', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1626, '631-02', '0001-01-01', '9999-12-31', 'ao', 'Unitel', 'Unitel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1627, '631-04', '0001-01-01', '9999-12-31', 'ao', 'Movicel', 'Movicel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1628, '365-010', '0001-01-01', '9999-12-31', 'ai', 'Weblinks Limited', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1629, '365-840', '0001-01-01', '9999-12-31', 'ai', 'Cable and Wireless (Anguilla) Ltd trading as Lime', 'Cable & Wireless', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1630, '344-030', '0001-01-01', '9999-12-31', 'ag', 'APUA PCS', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1631, '344-920', '0001-01-01', '9999-12-31', 'ag', 'Cable & Wireless (Antigua) trading as Lime', 'Lime', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1632, '344-930', '0001-01-01', '9999-12-31', 'ag', 'AT&T Wireless (Antigua)', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1633, '722-010', '0001-01-01', '9999-12-31', 'ar', 'Compañia de Radiocomunicaciones Moviles S.A.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1634, '722-020', '0001-01-01', '9999-12-31', 'ar', 'Nextel Argentina srl', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1635, '722-070', '0001-01-01', '9999-12-31', 'ar', 'Telefónica Comunicaciones Personales S.A.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1636, '722-310', '0001-01-01', '9999-12-31', 'ar', 'CTI PCS S.A.', 'Claro', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1637, '722-320', '0001-01-01', '9999-12-31', 'ar', 'Compañia de Telefonos del Interior Norte S.A.', 'Claro', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1638, '722-330', '0001-01-01', '9999-12-31', 'ar', 'Compañia de Telefonos del Interior S.A.', 'Claro', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1639, '722-341', '0001-01-01', '9999-12-31', 'ar', 'Telecom Personal S.A.', 'Personal', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1640, '363-01', '0001-01-01', '9999-12-31', 'aw', 'Setar GSM', 'SETAR', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1641, '505-01', '0001-01-01', '9999-12-31', 'au', 'Telstra Corporation Ltd.', 'Telstra', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1642, '505-02', '0001-01-01', '9999-12-31', 'au', 'Optus Mobile Pty. Ltd.', 'Optus', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1644, '505-04', '0001-01-01', '9999-12-31', 'au', 'Department of Defence', 'Department of Defence', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1645, '505-05', '0001-01-01', '9999-12-31', 'au', 'The Ozitel Network Pty. Ltd.', 'Ozitel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1646, '505-06', '0001-01-01', '9999-12-31', 'au', 'Hutchison 3G Australia Pty. Ltd.', 'Hi3G', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1647, '505-07', '0001-01-01', '9999-12-31', 'au', 'Vodafone Network Pty. Ltd.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1648, '505-08', '0001-01-01', '9999-12-31', 'au', 'One.Tel GSM 1800 Pty. Ltd.', 'One.Tel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1649, '505-09', '0001-01-01', '9999-12-31', 'au', 'Airnet Commercial Australia Ltd.', 'Airnet', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1650, '505-10', '0001-01-01', '9999-12-31', 'au', 'Norfolk Telecom', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1651, '505-11', '0001-01-01', '9999-12-31', 'au', 'Telstra Corporation Ltd.', 'Telstra Corporation Ltd.', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1652, '505-12', '0001-01-01', '9999-12-31', 'au', 'Hutchison Telecommunications (Australia) Pty. Ltd.', 'Hi3G', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1653, '505-13', '0001-01-01', '9999-12-31', 'au', 'Railcorp', 'Railcorp', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1654, '505-14', '0001-01-01', '9999-12-31', 'au', 'AAPT Ltd.', 'AAPT', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1655, '505-15', '0001-01-01', '9999-12-31', 'au', '3GIS Pty Ltd. (Telstra & Hutchison 3G)', '3GIS', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1656, '505-16', '0001-01-01', '9999-12-31', 'au', 'Victorian Rail Track', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1657, '505-17', '0001-01-01', '9999-12-31', 'au', 'Vivid Wireless Pty Ltd', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1658, '505-18', '0001-01-01', '9999-12-31', 'au', 'Pactel International Pty Ltd', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1659, '505-19', '0001-01-01', '9999-12-31', 'au', 'Lycamobile Pty Ltd', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1660, '505-20', '0001-01-01', '9999-12-31', 'au', 'Ausgrid Corporation', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1661, '505-21', '0001-01-01', '9999-12-31', 'au', 'Queensland Rail Limited', 'SOUL', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1662, '505-22', '0001-01-01', '9999-12-31', 'au', 'iiNet Ltd', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1663, '505-23', '0001-01-01', '9999-12-31', 'au', 'Challenge Networks Pty Ltd', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1664, '505-24', '0001-01-01', '9999-12-31', 'au', 'Advanced Communications Technologies Pty. Ltd.', 'Advanced Communications Technologies Pty. Ltd.', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1665, '505-25', '0001-01-01', '9999-12-31', 'au', 'Pilbara Iron Company Services Pty Ltd', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1666, '505-26', '0001-01-01', '9999-12-31', 'au', 'Dialogue Communications Pty Ltd', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1667, '505-27', '0001-01-01', '9999-12-31', 'au', 'Nexium Telecommunications', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1668, '505-62', '0001-01-01', '9999-12-31', 'au', 'NBNCo Limited', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1669, '505-68', '0001-01-01', '9999-12-31', 'au', 'NBNCo Limited', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1670, '505-71', '0001-01-01', '9999-12-31', 'au', 'Telstra Corporation Ltd.', 'Telstra', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1671, '505-72', '0001-01-01', '9999-12-31', 'au', 'Telstra Corporation Ltd.', 'Telstra', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1672, '505-88', '0001-01-01', '9999-12-31', 'au', 'Localstar Holding Pty. Ltd.', 'Localstar Holding Pty. Ltd.', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1673, '505-90', '0001-01-01', '9999-12-31', 'au', 'Optus Ltd.', 'Optus', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1674, '505-99', '0001-01-01', '9999-12-31', 'au', 'One.Tel GSM 1800 Pty. Ltd.', 'One.Tel GSM 1800 Pty. Ltd.', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1675, '400-01', '0001-01-01', '9999-12-31', 'az', 'Azercell Limited Liability Joint Venture', 'Azercell', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1676, '400-02', '0001-01-01', '9999-12-31', 'az', 'Bakcell Limited Liabil;ity Company', 'Bakcell', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1677, '400-03', '0001-01-01', '9999-12-31', 'az', 'Catel JV', 'FONEX', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1678, '400-04', '0001-01-01', '9999-12-31', 'az', 'Azerphone LLC', 'Nar Mobile (Azerfon)', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1679, '426-01', '0001-01-01', '9999-12-31', 'bh', 'BATELCO', 'Batelco', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1680, '426-02', '0001-01-01', '9999-12-31', 'bh', 'Zain Bahrain', 'Zain BH', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1681, '426-03', '0001-01-01', '9999-12-31', 'bh', 'Civil Aviation Authority', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1682, '426-04', '0001-01-01', '9999-12-31', 'bh', 'STC Bahrain', 'Viva', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1683, '426-05', '0001-01-01', '9999-12-31', 'bh', 'Royal Court', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1684, '470-01', '0001-01-01', '9999-12-31', 'bd', 'GramenPhone', 'GramenPhone', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1685, '470-02', '0001-01-01', '9999-12-31', 'bd', 'Aktel', 'Robi', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1686, '470-03', '0001-01-01', '9999-12-31', 'bd', 'Mobile 2000', 'Banglalink', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1687, '342-600', '0001-01-01', '9999-12-31', 'bb', 'Cable & Wireless (Barbados) Ltd. trading as Lime', 'Lime (Cable & Wireless)', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1688, '342-820', '0001-01-01', '9999-12-31', 'bb', 'Sunbeach Communications', 'Sunbeach Communications', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1689, '257-01', '0001-01-01', '9999-12-31', 'by', 'MDC Velcom', 'Velcom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1690, '257-02', '0001-01-01', '9999-12-31', 'by', 'MTS', 'MTS', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1691, '257-03', '0001-01-01', '9999-12-31', 'by', 'BelCel Joint Venture (JV)', 'DIALLOG', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1692, '257-04', '0001-01-01', '9999-12-31', 'by', 'Closed joint-stock company "Belarusian telecommunication network"', 'life :)', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1693, '257-05', '0001-01-01', '9999-12-31', 'by', 'Republican Unitary Telecommunication Enterprise (RUE) Beltelecom (National Telecommunications Operat', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1694, '257-06', '0001-01-01', '9999-12-31', 'by', 'Yota Bel Foreign Limited Liability Company (FLLC)', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1695, '206-01', '0001-01-01', '9999-12-31', 'be', 'Proximus', 'Proximus', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1696, '206-10', '0001-01-01', '9999-12-31', 'be', 'Mobistar', 'Mobistar', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1697, '206-20', '0001-01-01', '9999-12-31', 'be', 'Base', 'Base', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1698, '702-67', '0001-01-01', '9999-12-31', 'bz', 'Belize Telecommunications Ltd., GSM 1900', 'DigiCell', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1699, '702-68', '0001-01-01', '9999-12-31', 'bz', 'International Telecommunications Ltd. (INTELCO)', 'IntelCo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1700, '616-01', '0001-01-01', '9999-12-31', 'bj', 'Libercom', 'Libercom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1701, '616-02', '0001-01-01', '9999-12-31', 'bj', 'Telecel', 'Moov', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1702, '616-03', '0001-01-01', '9999-12-31', 'bj', 'Spacetel Benin', 'MTN', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1703, '350-000', '0001-01-01', '9999-12-31', 'bm', 'Bermuda Digital Communications Ltd (CellOne)', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1704, '402-11', '0001-01-01', '9999-12-31', 'bt', 'Bhutan Telecom Ltd', 'B-Mobile', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1705, '402-17', '0001-01-01', '9999-12-31', 'bt', 'B-Mobile of Bhutan Telecom', 'B-Mobile of Bhutan Telecom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1706, '736-01', '0001-01-01', '9999-12-31', 'bo', 'Nuevatel S.A.', 'Nuevatel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1707, '736-02', '0001-01-01', '9999-12-31', 'bo', 'ENTEL S.A.', 'Entel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1708, '736-03', '0001-01-01', '9999-12-31', 'bo', 'Telecel S.A.', 'Tigo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1709, '218-03', '0001-01-01', '9999-12-31', 'ba', 'Eronet Mobile Communications Ltd.', 'HT-Eronet', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1710, '218-05', '0001-01-01', '9999-12-31', 'ba', 'MOBIS (Mobilina Srpske)', 'm:tel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1711, '218-90', '0001-01-01', '9999-12-31', 'ba', 'GSMBIH', 'BH Mobile', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1712, '652-01', '0001-01-01', '9999-12-31', 'bw', 'Mascom Wireless (Pty) Ltd.', 'Mascom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1714, '652-04', '0001-01-01', '9999-12-31', 'bw', 'Botswana Telecommunications Corporation (BTC)', 'BTC Mobile', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1715, '724-00', '0001-01-01', '9999-12-31', 'br', 'NEXTEL', 'Nextel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1716, '724-01', '0001-01-01', '9999-12-31', 'br', 'SISTEER DO BRASIL TELECOMUNICAÇÔES (MVNO)', 'CRT Cellular', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1717, '724-02', '0001-01-01', '9999-12-31', 'br', 'TIM REGIÂO I', 'TIM', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1718, '724-03', '0001-01-01', '9999-12-31', 'br', 'TIM REGIÂO III', 'TIM', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1719, '724-04', '0001-01-01', '9999-12-31', 'br', 'TIM REGIÂO III', 'TIM', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1720, '724-05', '0001-01-01', '9999-12-31', 'br', 'CLARO', 'Claro', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1721, '724-06', '0001-01-01', '9999-12-31', 'br', 'VIVO REGIÂO II', 'Vivo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1722, '724-10', '0001-01-01', '9999-12-31', 'br', 'VIVO REGIÂO III', 'Vivo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1723, '724-11', '0001-01-01', '9999-12-31', 'br', 'VIVO REGIÂO I', 'Vivo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1724, '724-15', '0001-01-01', '9999-12-31', 'br', 'SERCOMTEL', 'Sercomtel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1725, '724-16', '0001-01-01', '9999-12-31', 'br', 'BRT CELULAR', 'Oi', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1726, '724-18', '0001-01-01', '9999-12-31', 'br', 'DATORA (MVNO)', 'Norte Brasil Tel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1727, '724-23', '0001-01-01', '9999-12-31', 'br', 'TELEMIG CELULAR', 'Oi', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1728, '724-24', '0001-01-01', '9999-12-31', 'br', 'AMAZONIA CELULAR', 'Oi / Brasil Telecom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1729, '724-30', '0001-01-01', '9999-12-31', 'br', 'TNL PCS Oi', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1730, '724-31', '0001-01-01', '9999-12-31', 'br', 'TNL PCS Oi', 'Oi', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1731, '724-32', '0001-01-01', '9999-12-31', 'br', 'CTBC CELULAR R III', 'CTBC Celular', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1732, '724-33', '0001-01-01', '9999-12-31', 'br', 'CTBC CELULAR R II', 'CTBC Celular', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1733, '724-34', '0001-01-01', '9999-12-31', 'br', 'CTBC CELULAR R I', 'CTBC Celular', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1734, '724-35', '0001-01-01', '9999-12-31', 'br', 'TELCOM', 'Telebahia Cel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1735, '724-36', '0001-01-01', '9999-12-31', 'br', 'OPTIONS', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1736, '724-37', '0001-01-01', '9999-12-31', 'br', 'UNICEL', 'Aeiou', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1737, '724-38', '0001-01-01', '9999-12-31', 'br', 'CLARO', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1738, '724-39', '0001-01-01', '9999-12-31', 'br', 'NEXTEL (SMP)', 'Nextel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1739, '724-54', '0001-01-01', '9999-12-31', 'br', 'PORTO SEGURO TELECOMUNICAÇÔES (MVNO)', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1740, '724-99', '0001-01-01', '9999-12-31', 'br', 'LOCAL (STFC)', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1741, '348-170', '0001-01-01', '9999-12-31', 'vg', 'Cable & Wireless (BVI) Ltd trading as lime', 'Cabel & Wireless', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1742, '348-370', '0001-01-01', '9999-12-31', 'vg', 'BVI Cable TV Ltd', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1743, '348-570', '0001-01-01', '9999-12-31', 'vg', 'Caribbean Cellular Telephone Ltd.', 'CCT Boatphone', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1744, '348-770', '0001-01-01', '9999-12-31', 'vg', 'Digicel (BVI) Ltd', 'Digicel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1745, '528-11', '0001-01-01', '9999-12-31', 'bn', 'DST Com', 'DSTCom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1746, '284-01', '0001-01-01', '9999-12-31', 'bg', 'Mobiltel EAD', 'M-Tel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1747, '284-05', '0001-01-01', '9999-12-31', 'bg', 'Globul', 'GLOBUL', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1748, '613-02', '0001-01-01', '9999-12-31', 'bf', 'Celtel', 'Zain', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1749, '613-03', '0001-01-01', '9999-12-31', 'bf', 'Telecel', 'Telcel Faso', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1750, '642-01', '0001-01-01', '9999-12-31', 'bi', 'Econet', 'Spacetel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1751, '642-02', '0001-01-01', '9999-12-31', 'bi', 'Africell', 'Africell', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1752, '642-03', '0001-01-01', '9999-12-31', 'bi', 'ONAMOB', 'Onatel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1753, '642-07', '0001-01-01', '9999-12-31', 'bi', 'LACELL', 'Smart Mobile', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1754, '642-08', '0001-01-01', '9999-12-31', 'bi', 'HITS TELECOM', 'HiTs Telecom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1755, '642-82', '0001-01-01', '9999-12-31', 'bi', 'U.COM', 'U-COM Burundi', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1756, '456-01', '0001-01-01', '9999-12-31', 'kh', 'Mobitel (Cam GSM)', 'Mobitel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1757, '456-02', '0001-01-01', '9999-12-31', 'kh', 'Hello', 'Hello', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1758, '456-03', '0001-01-01', '9999-12-31', 'kh', 'S Telecom (CDMA)', 'S Telecom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1759, '456-04', '0001-01-01', '9999-12-31', 'kh', 'Cadcomms', 'QB', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1760, '456-05', '0001-01-01', '9999-12-31', 'kh', 'Starcell', 'Star-Cell', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1761, '456-06', '0001-01-01', '9999-12-31', 'kh', 'Smart', 'Smart Mobile', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1762, '456-08', '0001-01-01', '9999-12-31', 'kh', 'Viettel', 'Mefone', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1763, '456-18', '0001-01-01', '9999-12-31', 'kh', 'Mfone', 'Mfone', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1764, '624-01', '0001-01-01', '9999-12-31', 'cm', 'Mobile Telephone Networks Cameroon', 'MTN Cameroon', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1766, '302-220', '0001-01-01', '9999-12-31', 'ca', 'Telus Mobility', 'Telus', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1767, '302-221', '0001-01-01', '9999-12-31', 'ca', 'Telus Mobility', 'Telus', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1768, '302-222', '0001-01-01', '9999-12-31', 'ca', 'Telus Mobility', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1769, '302-250', '0001-01-01', '9999-12-31', 'ca', 'ALO Mobile Inc', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1770, '302-270', '0001-01-01', '9999-12-31', 'ca', 'Bragg Communications', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1771, '302-290', '0001-01-01', '9999-12-31', 'ca', 'Airtel Wireless', 'Aurtek Wurekess', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1772, '302-320', '0001-01-01', '9999-12-31', 'ca', 'Dave Wireless', 'Mobilicity', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1773, '302-340', '0001-01-01', '9999-12-31', 'ca', 'Execulink', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1774, '302-360', '0001-01-01', '9999-12-31', 'ca', 'Telus Mobility', 'MiKE', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1775, '302-370', '0001-01-01', '9999-12-31', 'ca', 'Microcell', 'Fido', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1776, '302-380', '0001-01-01', '9999-12-31', 'ca', 'Dryden Mobility', 'DMTS', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1777, '302-390', '0001-01-01', '9999-12-31', 'ca', 'Dryden Mobility', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1778, '302-490', '0001-01-01', '9999-12-31', 'ca', 'Globalive Wireless', 'WIND Mobile', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1779, '302-500', '0001-01-01', '9999-12-31', 'ca', 'Videotron Ltd', 'Videotron', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1780, '302-510', '0001-01-01', '9999-12-31', 'ca', 'Videotron Ltd', 'Videotron', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1781, '302-530', '0001-01-01', '9999-12-31', 'ca', 'Keewatinook Okimacinac', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1782, '302-560', '0001-01-01', '9999-12-31', 'ca', 'Lynx Mobility', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1783, '302-570', '0001-01-01', '9999-12-31', 'ca', 'Light Squared', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1784, '302-590', '0001-01-01', '9999-12-31', 'ca', 'Quadro Communication', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1785, '302-610', '0001-01-01', '9999-12-31', 'ca', 'Bell Mobility', 'Bell', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1786, '302-620', '0001-01-01', '9999-12-31', 'ca', 'Ice Wireless', 'ICE Wireless', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1787, '302-630', '0001-01-01', '9999-12-31', 'ca', 'Aliant Mobility', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1788, '302-640', '0001-01-01', '9999-12-31', 'ca', 'Bell Mobility', 'Bell', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1789, '302-656', '0001-01-01', '9999-12-31', 'ca', 'Tbay Mobility', 'TBay', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1790, '302-660', '0001-01-01', '9999-12-31', 'ca', 'MTS Mobility', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1791, '302-670', '0001-01-01', '9999-12-31', 'ca', 'CityTel Mobility', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1792, '302-680', '0001-01-01', '9999-12-31', 'ca', 'Sask Tel Mobility', 'SaskTel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1793, '302-690', '0001-01-01', '9999-12-31', 'ca', 'Bell Mobility', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1794, '302-710', '0001-01-01', '9999-12-31', 'ca', 'Globalstar', 'Globalstar', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1795, '302-720', '0001-01-01', '9999-12-31', 'ca', 'Rogers Wireless', 'Rogers Wireless', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1796, '302-730', '0001-01-01', '9999-12-31', 'ca', 'TerreStar Solutions', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1797, '302-740', '0001-01-01', '9999-12-31', 'ca', 'Shaw Telecom G.P.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1798, '302-760', '0001-01-01', '9999-12-31', 'ca', 'Public Mobile Inc', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1799, '302-770', '0001-01-01', '9999-12-31', 'ca', 'Rural Com', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1800, '302-780', '0001-01-01', '9999-12-31', 'ca', 'Sask Tel Mobility', 'SaskTel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1801, '302-860', '0001-01-01', '9999-12-31', 'ca', 'Telus Mobility', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1802, '302-880', '0001-01-01', '9999-12-31', 'ca', 'Telus/Bell shared', 'Bell / Telus / SaskTel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1803, '302-940', '0001-01-01', '9999-12-31', 'ca', 'Wightman Telecom', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1804, '302-990', '0001-01-01', '9999-12-31', 'ca', 'Test', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1805, '625-01', '0001-01-01', '9999-12-31', 'cv', 'Cabo Verde Telecom', 'CVMOVEL', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1806, '625-02', '0001-01-01', '9999-12-31', 'cv', 'T+Telecomunicaçôes', 'T+', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1807, '346-140', '0001-01-01', '9999-12-31', 'ky', 'Cable & Wireless (Cayman) trading as Lime', 'Cable & Wireless (Lime)', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1808, '623-01', '0001-01-01', '9999-12-31', 'cf', 'Centrafrique Telecom Plus (CTP)', 'MOOV', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1809, '623-02', '0001-01-01', '9999-12-31', 'cf', 'Telecel Centrafrique (TC)', 'TC', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1811, '622-01', '0001-01-01', '9999-12-31', 'td', 'Celtel', 'Zain', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1812, '622-02', '0001-01-01', '9999-12-31', 'td', 'Tchad Mobile', 'Tawali', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1813, '730-01', '0001-01-01', '9999-12-31', 'cl', 'Entel Telefónica Móvil', 'entel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1814, '730-02', '0001-01-01', '9999-12-31', 'cl', 'Telefónica Móvil', 'movistar', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1815, '730-03', '0001-01-01', '9999-12-31', 'cl', 'Smartcom', 'Claro', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1816, '730-04', '0001-01-01', '9999-12-31', 'cl', 'Centennial Cayman Corp. Chile S.A.', 'Nextel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1817, '730-05', '0001-01-01', '9999-12-31', 'cl', 'Multikom S.A.', 'VTR Móvil', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1818, '730-06', '0001-01-01', '9999-12-31', 'cl', 'Blue Two Chile SA', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1819, '730-07', '0001-01-01', '9999-12-31', 'cl', 'Telefónica Móviles Chile S.A.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1820, '730-08', '0001-01-01', '9999-12-31', 'cl', 'VTR Móvil S.A.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1821, '730-09', '0001-01-01', '9999-12-31', 'cl', 'Centennial Cayman Corp. Chile S.A.', 'Nextel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1822, '730-10', '0001-01-01', '9999-12-31', 'cl', 'Entel', 'entel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1823, '730-11', '0001-01-01', '9999-12-31', 'cl', 'Celupago S.A.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1824, '730-12', '0001-01-01', '9999-12-31', 'cl', 'Telestar Móvil S.A.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1825, '730-13', '0001-01-01', '9999-12-31', 'cl', 'TRIBE Mobile Chile SPA', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1826, '730-14', '0001-01-01', '9999-12-31', 'cl', 'Netline Telefónica Móvil Ltda', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1827, '460-00', '0001-01-01', '9999-12-31', 'cn', 'China Mobile', 'China Mobile', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1828, '460-01', '0001-01-01', '9999-12-31', 'cn', 'China Unicom', 'China Unicom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1829, '460-03', '0001-01-01', '9999-12-31', 'cn', 'China Unicom CDMA', 'China Unicom CDMA', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1830, '460-04', '0001-01-01', '9999-12-31', 'cn', 'China Satellite Global Star Network', 'China Satellite Global Star Network', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1831, '732-001', '0001-01-01', '9999-12-31', 'co', 'Colombia Telecomunicaciones S.A. - Telecom', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1832, '732-002', '0001-01-01', '9999-12-31', 'co', 'Edatel S.A.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1833, '732-020', '0001-01-01', '9999-12-31', 'co', 'Emtelsa', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1834, '732-099', '0001-01-01', '9999-12-31', 'co', 'Emcali', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1835, '732-101', '0001-01-01', '9999-12-31', 'co', 'Comcel S.A. Occel S.A./Celcaribe', 'Comcel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1836, '732-102', '0001-01-01', '9999-12-31', 'co', 'Bellsouth Colombia S.A.', 'Movistar', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1837, '732-103', '0001-01-01', '9999-12-31', 'co', 'Colombia Móvil S.A.', 'Tigo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1838, '732-111', '0001-01-01', '9999-12-31', 'co', 'Colombia Móvil S.A.', 'Tigo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1839, '732-123', '0001-01-01', '9999-12-31', 'co', 'Telefónica Móviles Colombia S.A.', 'Movistar', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1840, '732-130', '0001-01-01', '9999-12-31', 'co', 'Avantel', 'Avantel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1841, '654-01', '0001-01-01', '9999-12-31', 'km', 'HURI - SNPT', 'HURI - SNPT', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1842, '629-01', '0001-01-01', '9999-12-31', 'cg', 'Celtel', 'Zain', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1843, '629-10', '0001-01-01', '9999-12-31', 'cg', 'Libertis Telecom', 'Libertis Telecom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1844, '548-01', '0001-01-01', '9999-12-31', 'ck', 'Telecom Cook', 'Telecom Cook', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1845, '712-01', '0001-01-01', '9999-12-31', 'cr', 'Instituto Costarricense de Electricidad - ICE', 'ICE', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1846, '712-02', '0001-01-01', '9999-12-31', 'cr', 'Instituto Costarricense de Electricidad - ICE', 'ICE', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1847, '712-03', '0001-01-01', '9999-12-31', 'cr', 'CLARO CR Telecomunicaciones S.A.', 'ICE', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1848, '712-04', '0001-01-01', '9999-12-31', 'cr', 'Telefónica de Costa Rica TC, S.A.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1849, '712-20', '0001-01-01', '9999-12-31', 'cr', 'Virtualis', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1850, '612-02', '0001-01-01', '9999-12-31', 'ci', 'Atlantique Cellulaire', 'Moov', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1852, '612-04', '0001-01-01', '9999-12-31', 'ci', 'Comium Côte dIvoire', 'Koz', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1853, '612-05', '0001-01-01', '9999-12-31', 'ci', 'Loteny Telecom', 'MTN', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1854, '612-06', '0001-01-01', '9999-12-31', 'ci', 'Oricel Côte dIvoire', 'OriCel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1855, '612-07', '0001-01-01', '9999-12-31', 'ci', 'Aircomm Côte dIvoire', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1857, '219-02', '0001-01-01', '9999-12-31', 'hr', 'Tele2/Tele2 d.o.o.', 'Tele2', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1858, '219-10', '0001-01-01', '9999-12-31', 'hr', 'VIPnet/VIPnet d.o.o.', 'VIPnet', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1859, '368-01', '0001-01-01', '9999-12-31', 'cu', 'ETECSA', 'Cubacel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1860, '362-51', '0001-01-01', '9999-12-31', 'cw', 'TELCELL GSM', 'TelCell', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1861, '362-69', '0001-01-01', '9999-12-31', 'cw', 'CT GSM', 'Digicel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1862, '362-91', '0001-01-01', '9999-12-31', 'cw', 'SETEL GSM', 'UTS', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1863, '280-01', '0001-01-01', '9999-12-31', 'cy', 'CYTA', 'Cytamobile-Vodafone', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1864, '280-10', '0001-01-01', '9999-12-31', 'cy', 'Scancom (Cyprus) Ltd.', 'MTN', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1865, '280-20', '0001-01-01', '9999-12-31', 'cy', 'Primetel PLC', 'Primetel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1866, '280-22', '0001-01-01', '9999-12-31', 'cy', 'Lemontel Ltd', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1868, '230-02', '0001-01-01', '9999-12-31', 'cz', 'Telefónica O2 Czech Republic a.s.', 'O2', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1870, '230-04', '0001-01-01', '9999-12-31', 'cz', 'Mobilkom a.s.', 'U:fon', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1871, '230-05', '0001-01-01', '9999-12-31', 'cz', 'Travel Telekommunikation, s.r.o.', 'Travel Telecomunication s.r.o.', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1872, '230-08', '0001-01-01', '9999-12-31', 'cz', 'Compatel s.r.o', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1873, '230-98', '0001-01-01', '9999-12-31', 'cz', 'Sprava Zeleznicni Dopravni Cesty', 'SŽDC s.o.', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1874, '630-01', '0001-01-01', '9999-12-31', 'cd', 'Vodacom Congo RDC sprl', 'Vodacom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1875, '630-02', '0001-01-01', '9999-12-31', 'cd', 'AIRTEL sprl', 'Zain', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1876, '630-05', '0001-01-01', '9999-12-31', 'cd', 'Supercell Sprl', 'Supercell', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1877, '630-86', '0001-01-01', '9999-12-31', 'cd', 'Congo-Chine Telecom s.a.r.l.', 'CCT', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1878, '630-88', '0001-01-01', '9999-12-31', 'cd', 'YOZMA TIMETURNS sprl', 'Yozma Timeturns', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1879, '630-89', '0001-01-01', '9999-12-31', 'cd', 'OASIS sprl', 'SAIT Telecom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1880, '630-90', '0001-01-01', '9999-12-31', 'cd', 'Africell RDC', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1869, '230-03', '0001-01-01', '9999-12-31', 'cz', 'Vodafone Czech Republic a.s.', 'Vodafone cz', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1810, '623-03', '0001-01-01', '9999-12-31', 'cf', 'Celca (Socatel)', 'Orange cf', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1851, '612-03', '0001-01-01', '9999-12-31', 'ci', 'Orange Côte dIvoire', 'Orange ci', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1881, '238-01', '0001-01-01', '9999-12-31', 'dk', 'TDC Mobil', 'TDC', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1882, '238-02', '0001-01-01', '9999-12-31', 'dk', 'Sonofon', 'Telenor', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1883, '238-03', '0001-01-01', '9999-12-31', 'dk', 'MIGway A/S', 'End2End', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1884, '238-04', '0001-01-01', '9999-12-31', 'dk', 'NextGen Mobile Ltd T/A CardBoardFish', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1886, '238-07', '0001-01-01', '9999-12-31', 'dk', 'Barablu Mobile Ltd.', 'Mundio Mobile', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1887, '238-08', '0001-01-01', '9999-12-31', 'dk', 'Nordisk Mobiltelefon Danmark A/S', 'Nordisk Mobiltelefon', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1888, '238-10', '0001-01-01', '9999-12-31', 'dk', 'TDC Mobil', 'TDC', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1889, '238-12', '0001-01-01', '9999-12-31', 'dk', 'Lycamobile Denmark', 'Lyca', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1890, '238-20', '0001-01-01', '9999-12-31', 'dk', 'Telia', 'Telia', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1891, '238-28', '0001-01-01', '9999-12-31', 'dk', 'CoolTEL', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1892, '238-66', '0001-01-01', '9999-12-31', 'dk', 'TT-Netvaerket P/S', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1893, '238-77', '0001-01-01', '9999-12-31', 'dk', 'Tele2', 'Telenor', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1894, '638-01', '0001-01-01', '9999-12-31', 'dj', 'Evatis', 'Evatis', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1895, '366-110', '0001-01-01', '9999-12-31', 'dm', 'Cable & Wireless Dominica Ltd trading as Lime', 'Cable & Wireless Dominica Ltd.', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1897, '370-02', '0001-01-01', '9999-12-31', 'do', 'Verizon Dominicana S.A.', 'Claro', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1898, '370-03', '0001-01-01', '9999-12-31', 'do', 'Tricom S.A.', 'Tricom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1899, '370-04', '0001-01-01', '9999-12-31', 'do', 'CentennialDominicana', 'Viva', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1900, '740-00', '0001-01-01', '9999-12-31', 'ec', 'Otecel S.A. - Bellsouth', 'Moviestar', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1901, '740-01', '0001-01-01', '9999-12-31', 'ec', 'Porta GSM', 'Porta', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1902, '740-02', '0001-01-01', '9999-12-31', 'ec', 'Telecsa S.A.', 'Alegro', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1903, '602-01', '0001-01-01', '9999-12-31', 'eg', 'Mobinil', 'Mobinil', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1905, '602-03', '0001-01-01', '9999-12-31', 'eg', 'Etisalat', 'Etisalat', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1906, '706-01', '0001-01-01', '9999-12-31', 'sv', 'CTE Telecom Personal, S.A. de C.V.', 'CTW Telecom Personal', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1907, '706-02', '0001-01-01', '9999-12-31', 'sv', 'Digicel, S.A. de C.V.', 'Digicel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1908, '706-03', '0001-01-01', '9999-12-31', 'sv', 'Telemóvil El Salvador, S.A.', 'Tigo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1909, '627-01', '0001-01-01', '9999-12-31', 'gq', 'Guinea Ecuatorial de Telecomunicaciones Sociedad Anónima (GETESA)', 'Orange GQ', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1910, '248-01', '0001-01-01', '9999-12-31', 'ee', 'EMT GSM', 'EMT', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1911, '248-02', '0001-01-01', '9999-12-31', 'ee', 'RLE', 'Elisa', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1912, '248-03', '0001-01-01', '9999-12-31', 'ee', 'Tele2', 'Tele 2', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1913, '248-04', '0001-01-01', '9999-12-31', 'ee', 'OY Top Connect', 'OY Top Connect', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1914, '248-05', '0001-01-01', '9999-12-31', 'ee', 'AS Bravocom Mobiil', 'AS Bravocom Mobiil', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1915, '248-06', '0001-01-01', '9999-12-31', 'ee', 'ProGroup Holding OY', 'OY ViaTel (UMTS)', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1916, '248-07', '0001-01-01', '9999-12-31', 'ee', 'Televõrgu AS', 'Televõrgu AS', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1917, '248-71', '0001-01-01', '9999-12-31', 'ee', 'Siseministeerium (Ministry of Interior)', 'Siseministeerium (Ministry of Interior)', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1918, '636-01', '0001-01-01', '9999-12-31', 'et', 'ETH MTN', 'ETH MTN', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1919, '750-001', '0001-01-01', '9999-12-31', 'fk', 'Touch', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1920, '288-01', '0001-01-01', '9999-12-31', 'fo', 'Faroese Telecom - GSM', 'Faroese Telecom - GSM', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1922, '288-03', '0001-01-01', '9999-12-31', 'fo', 'Edge Mobile Sp/F', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1924, '542-02', '0001-01-01', '9999-12-31', 'fj', 'Digicel (Fiji) Ltd', 'Digicel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1925, '542-03', '0001-01-01', '9999-12-31', 'fj', 'Telecom Fiji Ltd (CDMA)', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1926, '244-03', '0001-01-01', '9999-12-31', 'fi', 'DNA Oy', 'DNA', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1927, '244-04', '0001-01-01', '9999-12-31', 'fi', 'DNA Oy', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1928, '244-05', '0001-01-01', '9999-12-31', 'fi', 'Elisa Oy', 'Elisa', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1929, '244-09', '0001-01-01', '9999-12-31', 'fi', 'Nokia Siemens Networks Oy', 'Finnet', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1930, '244-10', '0001-01-01', '9999-12-31', 'fi', 'TDC Oy FINLAND', 'TDC', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1931, '244-12', '0001-01-01', '9999-12-31', 'fi', 'DNA Oy', 'DNA', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1932, '244-13', '0001-01-01', '9999-12-31', 'fi', 'DNA Oy', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1933, '244-14', '0001-01-01', '9999-12-31', 'fi', 'Alands Mobilteleofn Ab', 'AMT', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1934, '244-16', '0001-01-01', '9999-12-31', 'fi', 'Oy Finland Tele2 AB', 'Oy Finland Tele2 AB', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1935, '244-21', '0001-01-01', '9999-12-31', 'fi', 'Saunalahti Group Oyj', 'Saunalahti', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1936, '244-29', '0001-01-01', '9999-12-31', 'fi', 'SCNL TRUPHONE', 'Scnl Truphone', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1937, '244-91', '0001-01-01', '9999-12-31', 'fi', 'TeliaSonera Finland Oyj', 'Sonera', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1940, '208-03', '0001-01-01', '9999-12-31', 'fr', 'MobiquiThings', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1941, '208-04', '0001-01-01', '9999-12-31', 'fr', 'Sisteer', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1942, '208-05', '0001-01-01', '9999-12-31', 'fr', 'Globalstar Europe', 'Globalstar Europe', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1943, '208-06', '0001-01-01', '9999-12-31', 'fr', 'Globalstar Europe', 'Globalstar Europe', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1944, '208-07', '0001-01-01', '9999-12-31', 'fr', 'Globalstar Europe', 'Globalstar Europe', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1945, '208-09', '0001-01-01', '9999-12-31', 'fr', 'SFR', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1946, '208-10', '0001-01-01', '9999-12-31', 'fr', 'S.F.R.', 'SFR', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1947, '208-11', '0001-01-01', '9999-12-31', 'fr', 'S.F.R.', 'SFR', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1948, '208-13', '0001-01-01', '9999-12-31', 'fr', 'SFR', 'SFR', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1949, '208-14', '0001-01-01', '9999-12-31', 'fr', 'RFF', 'Free Mobile', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1950, '208-15', '0001-01-01', '9999-12-31', 'fr', 'Free Mobile', 'Free Mobile', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1951, '208-20', '0001-01-01', '9999-12-31', 'fr', 'Bouygues Telecom', 'Bouygues', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1952, '208-21', '0001-01-01', '9999-12-31', 'fr', 'Bouygues Telecom', 'Bouygues', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1953, '208-22', '0001-01-01', '9999-12-31', 'fr', 'Transatel', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1954, '208-23', '0001-01-01', '9999-12-31', 'fr', 'Omer Telecom Ltd', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1955, '208-24', '0001-01-01', '9999-12-31', 'fr', 'Mobiqui Things', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1956, '208-25', '0001-01-01', '9999-12-31', 'fr', 'Lycamobile', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1957, '208-26', '0001-01-01', '9999-12-31', 'fr', 'NRJ Mobile', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1958, '208-27', '0001-01-01', '9999-12-31', 'fr', 'Afone', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1959, '208-28', '0001-01-01', '9999-12-31', 'fr', 'Astrium', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1960, '208-29', '0001-01-01', '9999-12-31', 'fr', 'Société International Mobile Communication', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1961, '208-30', '0001-01-01', '9999-12-31', 'fr', 'Symacom', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1962, '208-31', '0001-01-01', '9999-12-31', 'fr', 'Mundio Mobile', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1963, '208-88', '0001-01-01', '9999-12-31', 'fr', 'Bouygues Telecom', 'Bouygues', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1964, '208-89', '0001-01-01', '9999-12-31', 'fr', 'Omer Telecom Ltd', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1965, '208-90', '0001-01-01', '9999-12-31', 'fr', 'Images & Réseaux', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1966, '208-91', '0001-01-01', '9999-12-31', 'fr', 'Orange France', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1967, '340-11', '0001-01-01', '9999-12-31', 'gf', 'Guyane Téléphone Mobile', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1968, '547-10', '0001-01-01', '9999-12-31', 'pf', 'Mara Telecom', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1969, '547-15', '0001-01-01', '9999-12-31', 'pf', 'Pacific Mobile Telecom', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1970, '547-20', '0001-01-01', '9999-12-31', 'pf', 'Tikiphone', 'Tikiphone', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1971, '628-01', '0001-01-01', '9999-12-31', 'ga', 'LIBERTIS', 'Libertis', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1972, '628-02', '0001-01-01', '9999-12-31', 'ga', 'MOOV', 'Moov', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1973, '628-03', '0001-01-01', '9999-12-31', 'ga', 'CELTEL', 'Airtel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1896, '370-01', '0001-01-01', '9999-12-31', 'do', 'Orange Dominicana, S.A.', 'Orange do', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1938, '208-01', '0001-01-01', '9999-12-31', 'fr', 'Orange France', 'Orange fr', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1939, '208-02', '0001-01-01', '9999-12-31', 'fr', 'Orange France', 'Orange fr', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1974, '628-04', '0001-01-01', '9999-12-31', 'ga', 'USAN GABON', 'Azur', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1975, '628-05', '0001-01-01', '9999-12-31', 'ga', 'Réseau de l’Administration Gabonaise (RAG)', 'RAG', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1976, '607-01', '0001-01-01', '9999-12-31', 'gm', 'Gamcel', 'Gamcel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1977, '607-02', '0001-01-01', '9999-12-31', 'gm', 'Africell', 'Africell', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1978, '607-03', '0001-01-01', '9999-12-31', 'gm', 'Comium Services Ltd', 'Comium', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1979, '607-04', '0001-01-01', '9999-12-31', 'gm', 'Qcell', 'QCell', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1980, '282-01', '0001-01-01', '9999-12-31', 'ge', 'Geocell Ltd.', 'Geocell', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1981, '282-02', '0001-01-01', '9999-12-31', 'ge', 'Magti GSM Ltd.', 'MagtiCom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1982, '282-03', '0001-01-01', '9999-12-31', 'ge', 'Iberiatel Ltd.', 'Iberiatel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1983, '282-04', '0001-01-01', '9999-12-31', 'ge', 'Mobitel Ltd.', 'Beeline', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1984, '282-05', '0001-01-01', '9999-12-31', 'ge', 'Silknet JSC', 'SLINKNET', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1987, '262-03', '0001-01-01', '9999-12-31', 'de', 'E-Plus Mobilfunk GmbH & Co. KG', 'E-plus', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1988, '262-04', '0001-01-01', '9999-12-31', 'de', 'Vodafone D2 GmbH', 'Vodafone (Reserved)', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1989, '262-05', '0001-01-01', '9999-12-31', 'de', 'E-Plus Mobilfunk GmbH & Co. KG', 'E-Plus (Reserved)', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1990, '262-06', '0001-01-01', '9999-12-31', 'de', 'T-Mobile Deutschland GmbH', 'T-Mobile (Reserved)', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1991, '262-07', '0001-01-01', '9999-12-31', 'de', 'O2 (Germany) GmbH & Co. OHG', 'O2', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1992, '262-08', '0001-01-01', '9999-12-31', 'de', 'O2 (Germany) GmbH & Co. OHG', 'O2', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1994, '262-10', '0001-01-01', '9999-12-31', 'de', 'Arcor AG & Co.', 'Arcor AG & Co. (GSM-R)', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1995, '262-11', '0001-01-01', '9999-12-31', 'de', 'O2 (Germany) GmbH & Co. OHG', 'O2 (RESERVED)', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1996, '262-12', '0001-01-01', '9999-12-31', 'de', 'Dolphin Telecom (Deutschland) GmbH', 'Dolphin Telecom (Deutschland) GmbH', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1997, '262-13', '0001-01-01', '9999-12-31', 'de', 'Mobilcom Multimedia GmbH', 'Mobilcom Multimedia GmbH', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1998, '262-14', '0001-01-01', '9999-12-31', 'de', 'Group 3G UMTS GmbH (Quam)', 'Group 3G UMTS GmbH (Quam)', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1999, '262-15', '0001-01-01', '9999-12-31', 'de', 'Airdata AG', 'Airdata', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2000, '262-76', '0001-01-01', '9999-12-31', 'de', 'Siemens AG, ICMNPGUSTA', 'Siemens AG,', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2001, '262-77', '0001-01-01', '9999-12-31', 'de', 'E-Plus Mobilfunk GmbH & Co. KG', 'E-Plus', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2002, '620-01', '0001-01-01', '9999-12-31', 'gh', 'Spacefon', 'MTN', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2004, '620-03', '0001-01-01', '9999-12-31', 'gh', 'Mobitel', 'tiGO', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2005, '620-04', '0001-01-01', '9999-12-31', 'gh', 'Kasapa Telecom Ltd.', 'Expresso', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2006, '620-11', '0001-01-01', '9999-12-31', 'gh', 'Netafriques Dot Com Ltd', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2007, '266-01', '0001-01-01', '9999-12-31', 'gi', 'Gibtelecom GSM', 'GibTel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2008, '266-06', '0001-01-01', '9999-12-31', 'gi', 'CTS', 'CTS Mobile', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2009, '266-09', '0001-01-01', '9999-12-31', 'gi', 'Eazi Telecom Limited', 'Cloud9 Mobile Communications', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2010, '202-01', '0001-01-01', '9999-12-31', 'gr', 'Cosmote', 'Cosmote', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2011, '202-02', '0001-01-01', '9999-12-31', 'gr', 'Cosmote', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2012, '202-03', '0001-01-01', '9999-12-31', 'gr', 'OTE', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2013, '202-04', '0001-01-01', '9999-12-31', 'gr', 'EDISY', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2015, '202-06', '0001-01-01', '9999-12-31', 'gr', 'COSMOLINE', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2016, '202-07', '0001-01-01', '9999-12-31', 'gr', 'AMD TELECOM', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2017, '202-09', '0001-01-01', '9999-12-31', 'gr', 'WIND', 'Wind', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2018, '202-10', '0001-01-01', '9999-12-31', 'gr', 'WIND', 'Wind', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2019, '290-01', '0001-01-01', '9999-12-31', 'gl', 'Tele Greenland', 'Tele Greenland', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2020, '352-110', '0001-01-01', '9999-12-31', 'gd', 'Cable & Wireless Grenada ltd trading as lime', 'Cable & Wireless', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2022, '340-02', '0001-01-01', '9999-12-31', 'gp', 'Outremer Telecom', 'Outremer', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2023, '340-03', '0001-01-01', '9999-12-31', 'gp', 'Saint Martin et Saint Barthelemy Telcell Sarl', 'Telcell', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2024, '340-08', '0001-01-01', '9999-12-31', 'gp', 'Dauphin Telecom', 'MIO GSM', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2025, '340-10', '0001-01-01', '9999-12-31', 'gp', 'Guadeloupe Téléphone Mobile', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2026, '340-20', '0001-01-01', '9999-12-31', 'gp', 'Bouygues Telecom Caraïbe', 'Digicel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2027, '704-01', '0001-01-01', '9999-12-31', 'gt', 'Servicios de Comunicaciones Personales Inalámbricas, S.A. (SERCOM, S.A', 'Claro', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2028, '704-02', '0001-01-01', '9999-12-31', 'gt', 'Comunicaciones Celulares S.A.', 'Comcel / Tigo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2029, '704-03', '0001-01-01', '9999-12-31', 'gt', 'Telefónica Centroamérica Guatemala S.A.', 'Movistar', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2030, '611-01', '0001-01-01', '9999-12-31', 'gn', 'Orange Guinée', 'Orange S.A.', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2031, '611-02', '0001-01-01', '9999-12-31', 'gn', 'Sotelgui', 'Sotelgui', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2032, '611-05', '0001-01-01', '9999-12-31', 'gn', 'Cellcom Guinée SA', 'Cellcom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2033, '632-01', '0001-01-01', '9999-12-31', 'gw', 'Guinétel S.A.', 'Guinétel S.A.', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2034, '632-02', '0001-01-01', '9999-12-31', 'gw', 'Spacetel Guiné-Bissau S.A.', 'Spacetel Guiné-Bissau S.A.', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2035, '738-01', '0001-01-01', '9999-12-31', 'gy', 'Cel*Star (Guyana) Inc.', 'Digicel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2036, '372-01', '0001-01-01', '9999-12-31', 'ht', 'Comcel', 'Voila', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2037, '372-02', '0001-01-01', '9999-12-31', 'ht', 'Digicel', 'Digicel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2038, '372-03', '0001-01-01', '9999-12-31', 'ht', 'Rectel', 'NATCOM', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2039, '708-001', '0001-01-01', '9999-12-31', 'hn', 'Megatel', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2040, '708-002', '0001-01-01', '9999-12-31', 'hn', 'Celtel', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2041, '708-040', '0001-01-01', '9999-12-31', 'hn', 'Digicel Honduras', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2042, '454-00', '0001-01-01', '9999-12-31', 'hk', 'GSM900/HKCSL', '1O1O / One2Free', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2043, '454-01', '0001-01-01', '9999-12-31', 'hk', 'MVNO/CITIC', 'CITIC Telecom 1616', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2044, '454-02', '0001-01-01', '9999-12-31', 'hk', '3G Radio System/HKCSL3G', 'CSL', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2045, '454-03', '0001-01-01', '9999-12-31', 'hk', '3G Radio System/Hutchison 3G', '3 (3G)', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2046, '454-04', '0001-01-01', '9999-12-31', 'hk', 'GSM900/GSM1800/Hutchison', '3 (2G)', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2047, '454-05', '0001-01-01', '9999-12-31', 'hk', 'CDMA/Hutchison', '3 (CDMA)', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2048, '454-06', '0001-01-01', '9999-12-31', 'hk', 'GSM900/SmarTone', 'SmarTone-Vodafone', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2049, '454-07', '0001-01-01', '9999-12-31', 'hk', 'MVNO/China Unicom International Ltd.', 'China Unicom (Hong Kong) Ltd', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2050, '454-08', '0001-01-01', '9999-12-31', 'hk', 'MVNO/Trident', 'Trident Telecom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2051, '454-09', '0001-01-01', '9999-12-31', 'hk', 'MVNO/China Motion Telecom (HK) Ltd.', 'China Motion Telecom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2052, '454-10', '0001-01-01', '9999-12-31', 'hk', 'GSM1800New World PCS Ltd.', 'New World Mobility', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2053, '454-11', '0001-01-01', '9999-12-31', 'hk', 'MVNO/CHKTL', 'China-Hong Kong Telecom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2054, '454-12', '0001-01-01', '9999-12-31', 'hk', 'GSM1800/Peoples Telephone Company Ltd.', 'CMCC HK', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2055, '454-15', '0001-01-01', '9999-12-31', 'hk', '3G Radio System/SMT3G', '3G Radio System/SMT3G', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2056, '454-16', '0001-01-01', '9999-12-31', 'hk', 'GSM1800/Mandarin Communications Ltd.', 'PCCW Mobile', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2057, '454-18', '0001-01-01', '9999-12-31', 'hk', 'GSM7800/Hong Kong CSL Ltd.', 'CSL', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2058, '454-19', '0001-01-01', '9999-12-31', 'hk', '3G Radio System/Sunday3G', 'PCCW Mobile', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2059, '454-2X', '0001-01-01', '9999-12-31', 'hk', 'Public Mobile Networks/Reserved', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1986, '262-02', '0001-01-01', '9999-12-31', 'de', 'Vodafone D2 GmbH', 'Vodafone de', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2021, '340-01', '0001-01-01', '9999-12-31', 'gp', 'Orange Caraïbe Mobiles', 'Orange gp', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2060, '454-3X', '0001-01-01', '9999-12-31', 'hk', 'Public Mobile Networks/Reserved', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2061, '216-01', '0001-01-01', '9999-12-31', 'hu', 'Telenor Hungary Ltd', 'Telenor', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2064, '274-01', '0001-01-01', '9999-12-31', 'is', 'Iceland Telecom Ltd.', 'Siminn', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2067, '274-04', '0001-01-01', '9999-12-31', 'is', 'IMC Islande ehf', 'Viking', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2068, '274-07', '0001-01-01', '9999-12-31', 'is', 'IceCell ehf', 'IceCell', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2069, '404-00', '0001-01-01', '9999-12-31', 'in', 'Dishnet Wireless Ltd, Madhya Pradesh', 'Sistema Shyam', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2071, '404-02', '0001-01-01', '9999-12-31', 'in', 'Bharti Airtel Ltd., Punjab', 'Airtel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2072, '404-03', '0001-01-01', '9999-12-31', 'in', 'Bharti Airtel Ltd., H.P.', 'Airtel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2073, '404-04', '0001-01-01', '9999-12-31', 'in', 'Idea Cellular Ltd., Delhi', 'Idea', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2075, '404-06', '0001-01-01', '9999-12-31', 'in', 'Bharti Airtel Ltd., Karnataka', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2076, '404-07', '0001-01-01', '9999-12-31', 'in', 'Idea Cellular Ltd., Andhra Pradesh', 'Idea', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2077, '404-09', '0001-01-01', '9999-12-31', 'in', 'Reliance Telecom Ltd., Assam', 'Reliance Telecom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2078, '404-10', '0001-01-01', '9999-12-31', 'in', 'Bharti Airtel Ltd., Delhi', 'Airtel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2080, '404-12', '0001-01-01', '9999-12-31', 'in', 'Idea Mobile Communications Ltd., Haryana', 'Idea', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2082, '404-14', '0001-01-01', '9999-12-31', 'in', 'Spice Communications PVT Ltd., Punjab', 'Idea', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2084, '404-16', '0001-01-01', '9999-12-31', 'in', 'Bharti Airtel Ltd, North East', 'Airtel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2085, '404-17', '0001-01-01', '9999-12-31', 'in', 'Dishnet Wireless Ltd, West Bengal', 'Aircel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2086, '404-18', '0001-01-01', '9999-12-31', 'in', 'Reliance Telecom Ltd., H.P.', 'Reliance Telecom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2087, '404-19', '0001-01-01', '9999-12-31', 'in', 'Idea Mobile Communications Ltd., Kerala', 'Idea', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2089, '404-21', '0001-01-01', '9999-12-31', 'in', 'BPL Mobile Communications Ltd., Mumbai', 'LOOP', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2090, '404-22', '0001-01-01', '9999-12-31', 'in', 'Idea Cellular Ltd., Maharashtra', 'Idea', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2091, '404-23', '0001-01-01', '9999-12-31', 'in', 'Idea Cellular Ltd, Maharashtra', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2092, '404-24', '0001-01-01', '9999-12-31', 'in', 'Idea Cellular Ltd., Gujarat', 'Idea', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2093, '404-25', '0001-01-01', '9999-12-31', 'in', 'Dishnet Wireless Ltd, Bihar', 'Aircel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2095, '404-29', '0001-01-01', '9999-12-31', 'in', 'Dishnet Wireless Ltd, Assam', 'Aircel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2097, '404-31', '0001-01-01', '9999-12-31', 'in', 'Bharti Airtel Ltd., Kolkata', 'Airtel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2098, '404-33', '0001-01-01', '9999-12-31', 'in', 'Dishnet Wireless Ltd, North East', 'Aircel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2099, '404-34', '0001-01-01', '9999-12-31', 'in', 'BSNL, Haryana', 'BSNL', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2100, '404-35', '0001-01-01', '9999-12-31', 'in', 'Dishnet Wireless Ltd, Himachal Pradesh', 'Aircel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2101, '404-36', '0001-01-01', '9999-12-31', 'in', 'Reliance Telecom Ltd., Bihar', 'Reliance Telecom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2102, '404-37', '0001-01-01', '9999-12-31', 'in', 'Dishnet Wireless Ltd, J&K', 'Aircel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2103, '404-38', '0001-01-01', '9999-12-31', 'in', 'BSNL, Assam', 'BSNL', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2104, '404-40', '0001-01-01', '9999-12-31', 'in', 'Bharti Airtel Ltd., Chennai', 'Airtel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2105, '404-41', '0001-01-01', '9999-12-31', 'in', 'Aircell Cellular Ltd, Chennai', 'Aircel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2106, '404-42', '0001-01-01', '9999-12-31', 'in', 'Aircel Ltd., Tamil Nadu', 'Aircel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2108, '404-44', '0001-01-01', '9999-12-31', 'in', 'Spice Communications PVT Ltd., Karnataka', 'Idea', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2110, '404-48', '0001-01-01', '9999-12-31', 'in', 'Dishnet Wireless Ltd, UP (West)', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2111, '404-49', '0001-01-01', '9999-12-31', 'in', 'Bharti Airtel Ltd., Andra Pradesh', 'Airtel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2112, '404-50', '0001-01-01', '9999-12-31', 'in', 'Reliance Telecom Ltd., North East', 'Reliance Telecom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2113, '404-51', '0001-01-01', '9999-12-31', 'in', 'BSNL, H.P.', 'BSNL', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2114, '404-52', '0001-01-01', '9999-12-31', 'in', 'Reliance Telecom Ltd., Orissa', 'Reliance Telecom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2115, '404-53', '0001-01-01', '9999-12-31', 'in', 'BSNL, Punjab', 'BSNL', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2116, '404-54', '0001-01-01', '9999-12-31', 'in', 'BSNL, UP (West)', 'BSNL', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2117, '404-55', '0001-01-01', '9999-12-31', 'in', 'BSNL, UP (East)', 'BSNL', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2118, '404-56', '0001-01-01', '9999-12-31', 'in', 'Idea Mobile Communications Ltd., UP (West)', 'Idea', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2119, '404-57', '0001-01-01', '9999-12-31', 'in', 'BSNL, Gujarat', 'BSNL', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2120, '404-58', '0001-01-01', '9999-12-31', 'in', 'BSNL, Madhya Pradesh', 'BSNL', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2121, '404-59', '0001-01-01', '9999-12-31', 'in', 'BSNL, Rajasthan', 'BSNL', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2123, '404-61', '0001-01-01', '9999-12-31', 'in', 'Dishnet Wireless Ltd, Punjab', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2124, '404-62', '0001-01-01', '9999-12-31', 'in', 'BSNL, J&K', 'BSNL', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2125, '404-63', '0001-01-01', '9999-12-31', 'in', 'Dishnet Wireless Ltd, Haryana', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2126, '404-64', '0001-01-01', '9999-12-31', 'in', 'BSNL, Chennai', 'BSNL', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2127, '404-65', '0001-01-01', '9999-12-31', 'in', 'Dishnet Wireless Ltd, UP (East)', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2128, '404-66', '0001-01-01', '9999-12-31', 'in', 'BSNL, Maharashtra', 'BSNL', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2129, '404-67', '0001-01-01', '9999-12-31', 'in', 'Reliance Telecom Ltd., Madhya Pradesh', 'Reliance Telecom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2130, '404-68', '0001-01-01', '9999-12-31', 'in', 'MTNL, Delhi', 'Dolphin', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2131, '404-69', '0001-01-01', '9999-12-31', 'in', 'MTNL, Mumbai', 'Dolphin', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2132, '404-70', '0001-01-01', '9999-12-31', 'in', 'Bharti Hexacom Ltd, Rajasthan', 'Airtel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2133, '404-71', '0001-01-01', '9999-12-31', 'in', 'BSNL, Karnataka', 'BSNL', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2134, '404-72', '0001-01-01', '9999-12-31', 'in', 'BSNL, Kerala', 'BSNL', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2135, '404-73', '0001-01-01', '9999-12-31', 'in', 'BSNL, Andhra Pradesh', 'BSNL', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2136, '404-74', '0001-01-01', '9999-12-31', 'in', 'BSNL, West Bengal', 'BSNL', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2137, '404-75', '0001-01-01', '9999-12-31', 'in', 'BSNL, Bihar', 'BSNL', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2138, '404-76', '0001-01-01', '9999-12-31', 'in', 'BSNL, Orissa', 'BSNL', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2139, '404-77', '0001-01-01', '9999-12-31', 'in', 'BSNL, North East', 'BSNL', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2140, '404-78', '0001-01-01', '9999-12-31', 'in', 'BTA Cellcom Ltd., Madhya Pradesh', 'Idea', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2141, '404-79', '0001-01-01', '9999-12-31', 'in', 'BSNL, Andaman & Nicobar', 'BSNL', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2142, '404-80', '0001-01-01', '9999-12-31', 'in', 'BSNL, Tamil Nadu', 'BSNL', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2063, '216-70', '0001-01-01', '9999-12-31', 'hu', 'Vodafone', 'Vodafone hu', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2143, '404-81', '0001-01-01', '9999-12-31', 'in', 'BSNL, Kolkata', 'BSNL', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2144, '404-82', '0001-01-01', '9999-12-31', 'in', 'Idea Telecommunications Ltd, H.P.', 'Idea', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2145, '404-83', '0001-01-01', '9999-12-31', 'in', 'Reliable Internet Services Ltd., Kolkata', 'Reliance Telecom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2147, '404-85', '0001-01-01', '9999-12-31', 'in', 'Reliance Telecom Ltd., W.B. & A.N.', 'Reliance Telecom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2149, '404-87', '0001-01-01', '9999-12-31', 'in', 'Idea Telecommunications Ltd, Rajasthan', 'Idea', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2151, '404-89', '0001-01-01', '9999-12-31', 'in', 'Idea Telecommunications Ltd, UP (East)', 'Idea', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2152, '404-90', '0001-01-01', '9999-12-31', 'in', 'Bharti Airtel Ltd., Maharashtra', 'Airtel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2153, '404-91', '0001-01-01', '9999-12-31', 'in', 'Dishnet Wireless Ltd, Kolkata', 'Aircel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2154, '404-92', '0001-01-01', '9999-12-31', 'in', 'Bharti Airtel Ltd., Mumbai', 'Airtel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2155, '404-93', '0001-01-01', '9999-12-31', 'in', 'Bharti Airtel Ltd., Madhya Pradesh', 'Airtel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2156, '404-94', '0001-01-01', '9999-12-31', 'in', 'Bharti Airtel Ltd., Tamil Nadu', 'Airtel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2157, '404-95', '0001-01-01', '9999-12-31', 'in', 'Bharti Airtel Ltd., Kerala', 'Airtel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2158, '404-96', '0001-01-01', '9999-12-31', 'in', 'Bharti Airtel Ltd., Haryana', 'Airtel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2159, '404-97', '0001-01-01', '9999-12-31', 'in', 'Bharti Airtel Ltd., UP (West)', 'Airtel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2160, '404-98', '0001-01-01', '9999-12-31', 'in', 'Bharti Airtel Ltd., Gujarat', 'Airtel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2161, '404-99', '0001-01-01', '9999-12-31', 'in', 'Dishnet Wireless Ltd, Kerala', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2162, '405-000', '0001-01-01', '9999-12-31', 'in', 'Shyam Telelink Ltd, Rajasthan', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2163, '405-005', '0001-01-01', '9999-12-31', 'in', 'Reliance Communications Ltd/GSM, Delhi', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2164, '405-006', '0001-01-01', '9999-12-31', 'in', 'Reliance Communications Ltd/GSM, Gujarat', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2165, '405-007', '0001-01-01', '9999-12-31', 'in', 'Reliance Communications Ltd/GSM, Haryana', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2166, '405-009', '0001-01-01', '9999-12-31', 'in', 'Reliance Communications Ltd/GSM, J&K', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2167, '405-010', '0001-01-01', '9999-12-31', 'in', 'Reliance Communications Ltd,/GSM Karnataka', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2168, '405-011', '0001-01-01', '9999-12-31', 'in', 'Reliance Communications Ltd/GSM, Kerala', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2169, '405-012', '0001-01-01', '9999-12-31', 'in', 'Reliance Infocomm Ltd, Andhra Pradesh', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2170, '405-013', '0001-01-01', '9999-12-31', 'in', 'Reliance Communications Ltd/GSM, Maharashtra', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2171, '405-014', '0001-01-01', '9999-12-31', 'in', 'Reliance Communications Ltd/GSM, Madhya Pradesh', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2172, '405-018', '0001-01-01', '9999-12-31', 'in', 'Reliance Communications Ltd/GSM, Punjab', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2173, '405-020', '0001-01-01', '9999-12-31', 'in', 'Reliance Communications Ltd/GSM, Tamilnadu', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2174, '405-021', '0001-01-01', '9999-12-31', 'in', 'Reliance Communications Ltd/GSM, UP (East)', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2175, '405-022', '0001-01-01', '9999-12-31', 'in', 'Reliance Communications Ltd/GSM, UP (West)', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2176, '405-025', '0001-01-01', '9999-12-31', 'in', 'Tata Teleservices Ltd/GSM, Andhra Pradesh', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2177, '405-027', '0001-01-01', '9999-12-31', 'in', 'Tata Teleservices Ltd,/GSM Bihar', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2178, '405-029', '0001-01-01', '9999-12-31', 'in', 'Tata Teleservices Ltd/GSM, Delhi', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2179, '405-030', '0001-01-01', '9999-12-31', 'in', 'Tata Teleservices Ltd/GSM, Gujarat', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2180, '405-031', '0001-01-01', '9999-12-31', 'in', 'Tata Teleservices Ltd/GSM, Haryana', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2181, '405-032', '0001-01-01', '9999-12-31', 'in', 'Tata Teleservices Ltd/GSM, Himachal Pradesh', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2182, '405-033', '0001-01-01', '9999-12-31', 'in', 'Reliance Infocomm Ltd, Bihar', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2183, '405-034', '0001-01-01', '9999-12-31', 'in', 'Tata Teleservices Ltd/GSM, Kamataka', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2184, '405-035', '0001-01-01', '9999-12-31', 'in', 'Tata Teleservices Ltd/GSM, Kerala', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2185, '405-036', '0001-01-01', '9999-12-31', 'in', 'Tata Teleservices Ltd/GSM, Kolkata', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2186, '405-037', '0001-01-01', '9999-12-31', 'in', 'Tata Teleservices Ltd/GSM, Maharashtra', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2187, '405-038', '0001-01-01', '9999-12-31', 'in', 'Tata Teleservices Ltd/GSM, Madhya Pradesh', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2188, '405-039', '0001-01-01', '9999-12-31', 'in', 'Tata Teleservices Ltd/GSM, Mumbai', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2189, '405-040', '0001-01-01', '9999-12-31', 'in', 'Reliance Infocomm Ltd, Chennai', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2190, '405-041', '0001-01-01', '9999-12-31', 'in', 'Tata Teleservices Ltd/GSM, Orissa', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2191, '405-042', '0001-01-01', '9999-12-31', 'in', 'Tata Teleservices Ltd/GSM, Punjab', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2192, '405-043', '0001-01-01', '9999-12-31', 'in', 'Tata Teleservices Ltd/GSM, Rajasthan', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2193, '405-044', '0001-01-01', '9999-12-31', 'in', 'Tata Teleservices Ltd/GSM, Tamilnadu', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2194, '405-045', '0001-01-01', '9999-12-31', 'in', 'Tata Teleservices Ltd/GSM, UP (East)', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2195, '405-046', '0001-01-01', '9999-12-31', 'in', 'Tata Teleservices Ltd/GSM, UP (West)', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2196, '405-047', '0001-01-01', '9999-12-31', 'in', 'Tata Teleservices Ltd/GSM, West Bengal', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2197, '405-08', '0001-01-01', '9999-12-31', 'in', 'Reliance Infocomm Ltd, Himachal Pradesh', 'Reliance Telecom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2198, '405-12', '0001-01-01', '9999-12-31', 'in', 'Reliance Infocomm Ltd, Kolkata', 'Reliance Telecom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2199, '405-15', '0001-01-01', '9999-12-31', 'in', 'Reliance Infocomm Ltd, Mumbai', 'Reliance Telecom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2200, '405-17', '0001-01-01', '9999-12-31', 'in', 'Reliance Infocomm Ltd, Orissa', 'Reliance Telecom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2201, '405-23', '0001-01-01', '9999-12-31', 'in', 'Reliance Infocomm Ltd, West bengal', 'Reliance Telecom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2202, '405-28', '0001-01-01', '9999-12-31', 'in', 'Tata Teleservices Ltd, Chennai', 'TATA Teleservices', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2203, '405-52', '0001-01-01', '9999-12-31', 'in', 'Bharti Airtel Ltd, Bihar', 'Airtel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2204, '405-53', '0001-01-01', '9999-12-31', 'in', 'Bharti Airtel Ltd, Orissa', 'Airtel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2205, '405-54', '0001-01-01', '9999-12-31', 'in', 'Bharti Airtel Ltd, UP (East)', 'Airtel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2206, '405-55', '0001-01-01', '9999-12-31', 'in', 'Bharti Airtel Ltd, J&K', 'Airtel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2207, '405-56', '0001-01-01', '9999-12-31', 'in', 'Bharti Airtel Ltd, Assam', 'Airtel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2210, '405-68', '0001-01-01', '9999-12-31', 'in', 'Vodaphone/Hutchison, Madhya Pradesh', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2211, '405-70', '0001-01-01', '9999-12-31', 'in', 'Aditya Birla Telecom Ltd, Bihar', 'Idea', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2212, '405-71', '0001-01-01', '9999-12-31', 'in', 'Essar Spacetel Ltd, Himachal Pradesh', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2213, '405-72', '0001-01-01', '9999-12-31', 'in', 'Essar Spacetel Ltd, North East', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2214, '405-73', '0001-01-01', '9999-12-31', 'in', 'Essar Spacetel Ltd, Assam', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2215, '405-74', '0001-01-01', '9999-12-31', 'in', 'Essar Spacetel Ltd, J&K', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2222, '405-76', '0001-01-01', '9999-12-31', 'in', 'Essar Spacetel Ltd, Orissa', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2223, '405-77', '0001-01-01', '9999-12-31', 'in', 'Essar Spacetel Ltd, Maharashtra', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2224, '405-799', '0001-01-01', '9999-12-31', 'in', 'Idea Cellular Ltd, MUMBAI', 'Idea', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2225, '405-800', '0001-01-01', '9999-12-31', 'in', 'Aircell Ltd, Delhi', 'Aircel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2226, '405-801', '0001-01-01', '9999-12-31', 'in', 'Aircell Ltd, Andhra Pradesh', 'Aircel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2227, '405-802', '0001-01-01', '9999-12-31', 'in', 'Aircell Ltd, Gujarat', 'Aircel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2228, '405-803', '0001-01-01', '9999-12-31', 'in', 'Aircell Ltd, Kamataka', 'Aircel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2229, '405-804', '0001-01-01', '9999-12-31', 'in', 'Aircell Ltd, Maharashtra', 'Aircel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2230, '405-805', '0001-01-01', '9999-12-31', 'in', 'Aircell Ltd, Mumbai', 'Aircel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2231, '405-806', '0001-01-01', '9999-12-31', 'in', 'Aircell Ltd, Rajasthan', 'Aircel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2232, '405-807', '0001-01-01', '9999-12-31', 'in', 'Dishnet Wireless Ltd, Haryana', 'Aircel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2233, '405-808', '0001-01-01', '9999-12-31', 'in', 'Dishnet Wireless Ltd, Madhya Pradesh', 'Aircel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2234, '405-809', '0001-01-01', '9999-12-31', 'in', 'Dishnet Wireless Ltd, Kerala', 'Aircel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2235, '405-81', '0001-01-01', '9999-12-31', 'in', 'Aircell Ltd, Delhi', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2236, '405-82', '0001-01-01', '9999-12-31', 'in', 'Aircell Ltd, Andhra Pradesh', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2237, '405-83', '0001-01-01', '9999-12-31', 'in', 'Aircell Ltd, Gujarat', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2238, '405-84', '0001-01-01', '9999-12-31', 'in', 'Aircell Ltd, Maharashtra', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2239, '405-85', '0001-01-01', '9999-12-31', 'in', 'Aircell Ltd, Mumbai', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2240, '405-86', '0001-01-01', '9999-12-31', 'in', 'Aircell Ltd, Rajasthan', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2241, '510-00', '0001-01-01', '9999-12-31', 'id', 'PSN', 'PSN', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2242, '510-01', '0001-01-01', '9999-12-31', 'id', 'Satelindo', 'INDOSAT', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2243, '510-08', '0001-01-01', '9999-12-31', 'id', 'Natrindo (Lippo Telecom)', 'AXIS', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2244, '510-10', '0001-01-01', '9999-12-31', 'id', 'Telkomsel', 'Telkomsel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2245, '510-11', '0001-01-01', '9999-12-31', 'id', 'Excelcomindo', 'XL', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2246, '510-21', '0001-01-01', '9999-12-31', 'id', 'Indosat - M3', 'IM3', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2247, '510-28', '0001-01-01', '9999-12-31', 'id', 'Komselindo', 'Fren/Hepi', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2248, '432-11', '0001-01-01', '9999-12-31', 'ir', 'Telecommunication Company of Iran (TCI)', 'IR-MCI', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2249, '432-14', '0001-01-01', '9999-12-31', 'ir', 'Telecommunication Kish Co. (KIFZO)', 'TKC', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2250, '432-19', '0001-01-01', '9999-12-31', 'ir', 'Telecommunication Company of Iran (TCI) - Isfahan Celcom GSM', 'MTCE', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2251, '418-05', '0001-01-01', '9999-12-31', 'iq', 'Asia Cell', 'Asia Cell', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2252, '418-20', '0001-01-01', '9999-12-31', 'iq', 'Zain Iraq (previously Atheer)', 'Zain', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2253, '418-30', '0001-01-01', '9999-12-31', 'iq', 'Zain Iraq (previously Iraqna)', 'Zain', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2254, '418-40', '0001-01-01', '9999-12-31', 'iq', 'Korek Telecom', 'Korek', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2255, '418-47', '0001-01-01', '9999-12-31', 'iq', 'Iraq Central Cooperative Association for Communication and Transportat', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2256, '418-48', '0001-01-01', '9999-12-31', 'iq', 'ITC Fanoos', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2257, '418-49', '0001-01-01', '9999-12-31', 'iq', 'Iraqtel', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2258, '418-62', '0001-01-01', '9999-12-31', 'iq', 'Itisaluna', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2259, '418-70', '0001-01-01', '9999-12-31', 'iq', 'Kalimat', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2260, '418-80', '0001-01-01', '9999-12-31', 'iq', 'Iraqi Telecommunications & Post Company (ITPC)', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2261, '418-81', '0001-01-01', '9999-12-31', 'iq', 'ITPC (Al-Mazaya)', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2262, '418-83', '0001-01-01', '9999-12-31', 'iq', 'ITPC (Sader Al-Iraq)', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2263, '418-84', '0001-01-01', '9999-12-31', 'iq', 'ITPC (Eaamar Albasrah)', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2264, '418-85', '0001-01-01', '9999-12-31', 'iq', 'ITPC (Anwar Yagotat Alkhalee)', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2265, '418-86', '0001-01-01', '9999-12-31', 'iq', 'ITPC (Furatfone)', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2266, '418-87', '0001-01-01', '9999-12-31', 'iq', 'ITPC (Al-Seraj)', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2267, '418-88', '0001-01-01', '9999-12-31', 'iq', 'ITPC (High Link)', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2268, '418-89', '0001-01-01', '9999-12-31', 'iq', 'ITPC (Al-Shams)', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2269, '418-91', '0001-01-01', '9999-12-31', 'iq', 'ITPC (Belad Babel)', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2270, '418-92', '0001-01-01', '9999-12-31', 'iq', 'ITPC (Al Nakheel)', 'Omnnea', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2271, '418-93', '0001-01-01', '9999-12-31', 'iq', 'ITPC (Iraqcell)', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2272, '418-94', '0001-01-01', '9999-12-31', 'iq', 'ITPC (Shaly)', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2274, '272-02', '0001-01-01', '9999-12-31', 'ie', 'Telefonica Ltd', 'O2', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2275, '272-03', '0001-01-01', '9999-12-31', 'ie', 'Meteor Mobile Communications Ltd.', 'Meteor', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2276, '272-07', '0001-01-01', '9999-12-31', 'ie', 'Eircom', 'Eircom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2277, '272-09', '0001-01-01', '9999-12-31', 'ie', 'Clever Communications Ltd.', 'Clever Communications Ltd.', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2279, '425-02', '0001-01-01', '9999-12-31', 'il', 'Cellcom Israel Ltd.', 'Cellcom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2280, '425-03', '0001-01-01', '9999-12-31', 'il', 'Pelephone Communications Ltd.', 'Pelephone', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2281, '425-04', '0001-01-01', '9999-12-31', 'il', 'Globalsim Ltd', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2282, '425-06', '0001-01-01', '9999-12-31', 'il', 'Wataniya', 'Wataniya Palestine', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2283, '425-07', '0001-01-01', '9999-12-31', 'il', 'Mirs Ltd', 'Hot Mobile', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2284, '425-08', '0001-01-01', '9999-12-31', 'il', 'Golan Telecom Ltd', 'Golan Telecom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2285, '425-11', '0001-01-01', '9999-12-31', 'il', '365 Telecom (MVNO)', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2286, '425-12', '0001-01-01', '9999-12-31', 'il', 'Free Telecom (MVNO)', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2287, '425-13', '0001-01-01', '9999-12-31', 'il', 'Ituran Cellular Communications', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2288, '425-14', '0001-01-01', '9999-12-31', 'il', 'Alon Cellular Ltd.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2289, '425-15', '0001-01-01', '9999-12-31', 'il', 'Home Cellular (MVNO)', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2290, '425-16', '0001-01-01', '9999-12-31', 'il', 'Rami Levi (MVNO)', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2291, '425-17', '0001-01-01', '9999-12-31', 'il', 'Gale Phone (MVNO)', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2292, '425-18', '0001-01-01', '9999-12-31', 'il', 'Cellact Communications Ltd (MVNO)', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2293, '425-20', '0001-01-01', '9999-12-31', 'il', 'Bezeq Ltd', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2294, '222-01', '0001-01-01', '9999-12-31', 'it', 'Telecom Italia Mobile (TIM)', 'TIM', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2295, '222-02', '0001-01-01', '9999-12-31', 'it', 'Elsacom', 'Elsacom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2297, '222-77', '0001-01-01', '9999-12-31', 'it', 'IPSE 2000', 'IPSE 2000', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2298, '222-88', '0001-01-01', '9999-12-31', 'it', 'Wind', 'Wind', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2299, '222-98', '0001-01-01', '9999-12-31', 'it', 'Blu', 'Blu', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2300, '222-99', '0001-01-01', '9999-12-31', 'it', 'H3G', '3 Italia', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2301, '338-020', '0001-01-01', '9999-12-31', 'jm', 'Cable & Wireless Jamaica Ltd.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2302, '338-050', '0001-01-01', '9999-12-31', 'jm', 'Digicel (Jamaica) Ltd.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2303, '338-110', '0001-01-01', '9999-12-31', 'jm', 'Cable & Wireless Jamaica Ltd trading as Lime', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2304, '440-01', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Inc.', 'DoCoMo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2305, '440-02', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Kansai Inc.', 'DoCoMo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2306, '440-03', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Hokuriku Inc.', 'DoCoMo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2307, '440-04', '0001-01-01', '9999-12-31', 'jp', 'Vodafone', 'Softbank', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2308, '440-06', '0001-01-01', '9999-12-31', 'jp', 'Vodafone', 'Softbank', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2309, '440-07', '0001-01-01', '9999-12-31', 'jp', 'KDDI Corporation', 'KDDI', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2310, '440-08', '0001-01-01', '9999-12-31', 'jp', 'KDDI Corporation', 'KDDI', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2278, '425-01', '0001-01-01', '9999-12-31', 'il', 'Partner Communications Co. Ltd.', 'Orange il', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2311, '440-09', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Kansai Inc.', 'DoCoMo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2312, '440-10', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Kansai Inc.', 'DoCoMo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2313, '440-11', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Tokai Inc.', 'DoCoMo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2314, '440-12', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Inc.', 'DoCoMo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2315, '440-13', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Inc.', 'DoCoMo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2316, '440-14', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Tohoku Inc.', 'DoCoMo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2317, '440-15', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Inc.', 'DoCoMo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2318, '440-16', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Inc.', 'DoCoMo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2319, '440-17', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Inc.', 'DoCoMo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2320, '440-18', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Tokai Inc.', 'DoCoMo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2321, '440-19', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Hokkaido Inc.', 'DoCoMo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2322, '440-20', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Hokuriku Inc.', 'SoftBank', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2323, '440-21', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Inc.', 'DoCoMo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2324, '440-22', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Kansai Inc.', 'DoCoMo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2325, '440-23', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Tokai Inc.', 'DoCoMo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2326, '440-24', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Chugoku Inc.', 'DoCoMo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2327, '440-25', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Hokkaido Inc.', 'DoCoMo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2328, '440-26', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Kyushu Inc.', 'DoCoMo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2329, '440-27', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Tohoku Inc.', 'DoCoMo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2330, '440-28', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Shikoku Inc.', 'DoCoMo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2331, '440-29', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Inc.', 'DoCoMo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2332, '440-30', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Inc.', 'DoCoMo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2333, '440-31', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Kansai Inc.', 'DoCoMo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2334, '440-32', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Inc.', 'DoCoMo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2335, '440-33', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Tokai Inc.', 'DoCoMo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2336, '440-34', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Kyushu Inc.', 'DoCoMo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2337, '440-35', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Kansai Inc.', 'DoCoMo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2338, '440-36', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Inc.', 'DoCoMo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2339, '440-37', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Inc.', 'DoCoMo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2340, '440-38', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Inc.', 'DoCoMo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2341, '440-39', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Inc.', 'DoCoMo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2342, '440-40', '0001-01-01', '9999-12-31', 'jp', 'Vodafone', 'Softbank', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2343, '440-41', '0001-01-01', '9999-12-31', 'jp', 'Vodafone', 'Softbank', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2344, '440-42', '0001-01-01', '9999-12-31', 'jp', 'Vodafone', 'Softbank', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2345, '440-43', '0001-01-01', '9999-12-31', 'jp', 'Vodafone', 'Softbank', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2346, '440-44', '0001-01-01', '9999-12-31', 'jp', 'Vodafone', 'Softbank', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2347, '440-45', '0001-01-01', '9999-12-31', 'jp', 'Vodafone', 'Softbank', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2348, '440-46', '0001-01-01', '9999-12-31', 'jp', 'Vodafone', 'Softbank', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2349, '440-47', '0001-01-01', '9999-12-31', 'jp', 'Vodafone', 'Softbank', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2350, '440-48', '0001-01-01', '9999-12-31', 'jp', 'Vodafone', 'Softbank', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2351, '440-49', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Inc.', 'KDDI', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2352, '440-50', '0001-01-01', '9999-12-31', 'jp', 'KDDI Corporation', 'KDDI', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2353, '440-51', '0001-01-01', '9999-12-31', 'jp', 'KDDI Corporation', 'KDDI', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2354, '440-52', '0001-01-01', '9999-12-31', 'jp', 'KDDI Corporation', 'KDDI', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2355, '440-53', '0001-01-01', '9999-12-31', 'jp', 'KDDI Corporation', 'KDDI', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2356, '440-54', '0001-01-01', '9999-12-31', 'jp', 'KDDI Corporation', 'KDDI', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2357, '440-55', '0001-01-01', '9999-12-31', 'jp', 'KDDI Corporation', 'KDDI', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2358, '440-56', '0001-01-01', '9999-12-31', 'jp', 'KDDI Corporation', 'KDDI', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2359, '440-58', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Kansai Inc.', 'DoCoMo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2360, '440-60', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Kansai Inc.', 'DoCoMo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2361, '440-61', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Chugoku Inc.', 'DoCoMo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2362, '440-62', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Kyushu Inc.', 'DoCoMo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2363, '440-63', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Inc.', 'DoCoMo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2364, '440-64', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Inc.', 'Softbank', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2365, '440-65', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Shikoku Inc.', 'DoCoMo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2366, '440-66', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Inc.', 'DoCoMo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2367, '440-67', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Tohoku Inc.', 'DoCoMo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2368, '440-68', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Kyushu Inc.', 'DoCoMo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2369, '440-69', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Inc.', 'DoCoMo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2370, '440-70', '0001-01-01', '9999-12-31', 'jp', 'KDDI Corporation', 'Au', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2371, '440-71', '0001-01-01', '9999-12-31', 'jp', 'KDDI Corporation', 'KDDI', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2372, '440-72', '0001-01-01', '9999-12-31', 'jp', 'KDDI Corporation', 'KDDI', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2373, '440-73', '0001-01-01', '9999-12-31', 'jp', 'KDDI Corporation', 'KDDI', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2374, '440-74', '0001-01-01', '9999-12-31', 'jp', 'KDDI Corporation', 'KDDI', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2375, '440-75', '0001-01-01', '9999-12-31', 'jp', 'KDDI Corporation', 'KDDI', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2376, '440-76', '0001-01-01', '9999-12-31', 'jp', 'KDDI Corporation', 'KDDI', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2377, '440-77', '0001-01-01', '9999-12-31', 'jp', 'KDDI Corporation', 'KDDI', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2378, '440-78', '0001-01-01', '9999-12-31', 'jp', 'Okinawa Cellular Telephone', 'Okinawa', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2379, '440-79', '0001-01-01', '9999-12-31', 'jp', 'KDDI Corporation', 'KDDI', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2380, '440-80', '0001-01-01', '9999-12-31', 'jp', 'TU-KA Cellular Tokyo Inc.', 'TU-KA', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2381, '440-81', '0001-01-01', '9999-12-31', 'jp', 'TU-KA Cellular Tokyo Inc.', 'TU-KA', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2382, '440-82', '0001-01-01', '9999-12-31', 'jp', 'TU-KA Phone Kansai Inc.', 'TU-KA', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2383, '440-83', '0001-01-01', '9999-12-31', 'jp', 'TU-KA Cellular Tokai Inc.', 'TU-KA', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2384, '440-84', '0001-01-01', '9999-12-31', 'jp', 'TU-KA Phone Kansai Inc.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2385, '440-85', '0001-01-01', '9999-12-31', 'jp', 'TU-KA Cellular Tokai Inc.', 'TU-KA', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2386, '440-86', '0001-01-01', '9999-12-31', 'jp', 'TU-KA Cellular Tokyo Inc.', 'TU-KA', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2387, '440-87', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Chugoku Inc.', 'DoCoMo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2388, '440-88', '0001-01-01', '9999-12-31', 'jp', 'KDDI Corporation', 'KDDI', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2389, '440-89', '0001-01-01', '9999-12-31', 'jp', 'KDDI Corporation', 'KDDI', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2390, '440-90', '0001-01-01', '9999-12-31', 'jp', 'Vodafone', 'Softbank', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2391, '440-92', '0001-01-01', '9999-12-31', 'jp', 'Vodafone', 'Softbank', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2392, '440-93', '0001-01-01', '9999-12-31', 'jp', 'Vodafone', 'Softbank', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2393, '440-94', '0001-01-01', '9999-12-31', 'jp', 'Vodafone', 'Softbank', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2394, '440-95', '0001-01-01', '9999-12-31', 'jp', 'Vodafone', 'Softbank', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2395, '440-96', '0001-01-01', '9999-12-31', 'jp', 'Vodafone', 'Softbank', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2396, '440-97', '0001-01-01', '9999-12-31', 'jp', 'Vodafone', 'Softbank', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2397, '440-98', '0001-01-01', '9999-12-31', 'jp', 'Vodafone', 'Softbank', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2398, '440-99', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Inc.', 'DoCoMo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2399, '441-40', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Inc.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2400, '441-41', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Inc.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2401, '441-42', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Inc.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2402, '441-43', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Kansai Inc.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2403, '441-44', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Chugoku Inc.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2404, '441-45', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Shikoku Inc.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2405, '441-50', '0001-01-01', '9999-12-31', 'jp', 'TU-KA Cellular Tokyo Inc.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2406, '441-51', '0001-01-01', '9999-12-31', 'jp', 'TU-KA Phone Kansai Inc.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2407, '441-61', '0001-01-01', '9999-12-31', 'jp', 'Vodafone', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2408, '441-62', '0001-01-01', '9999-12-31', 'jp', 'Vodafone', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2409, '441-63', '0001-01-01', '9999-12-31', 'jp', 'Vodafone', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2410, '441-64', '0001-01-01', '9999-12-31', 'jp', 'Vodafone', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2411, '441-65', '0001-01-01', '9999-12-31', 'jp', 'Vodafone', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2412, '441-70', '0001-01-01', '9999-12-31', 'jp', 'KDDI Corporation', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2413, '441-90', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Inc.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2414, '441-91', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Inc.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2415, '441-92', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Inc.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2416, '441-93', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Hokkaido Inc.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2417, '441-94', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Tohoku Inc.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2418, '441-98', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Kyushu Inc.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2419, '441-99', '0001-01-01', '9999-12-31', 'jp', 'NTT DoCoMo Kyushu Inc.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2420, '416-01', '0001-01-01', '9999-12-31', 'jo', 'Fastlink', 'zain JO', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2421, '416-02', '0001-01-01', '9999-12-31', 'jo', 'Xpress', 'XPress Telecom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2422, '416-03', '0001-01-01', '9999-12-31', 'jo', 'Umniah', 'Umniah', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2424, '401-01', '0001-01-01', '9999-12-31', 'kz', 'Kar-Tel llc', 'Beeline', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2425, '401-02', '0001-01-01', '9999-12-31', 'kz', 'TSC Kazak Telecom', 'Kcell', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2426, '639-02', '0001-01-01', '9999-12-31', 'ke', 'Safaricom Ltd.', 'Safaricom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2427, '639-03', '0001-01-01', '9999-12-31', 'ke', 'Kencell Communications Ltd.', 'Zain', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2428, '450-02', '0001-01-01', '9999-12-31', 'kr', 'KT Freetel', 'KT', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2429, '450-03', '0001-01-01', '9999-12-31', 'kr', 'SK Telecom', 'Digital 017', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2430, '450-06', '0001-01-01', '9999-12-31', 'kr', 'LG UPLUS', 'LGT', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2431, '419-02', '0001-01-01', '9999-12-31', 'kw', 'Mobile Telecommunications Company', 'Zain', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2432, '419-03', '0001-01-01', '9999-12-31', 'kw', 'Wataniya Telecom', 'Wataniya', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2433, '419-04', '0001-01-01', '9999-12-31', 'kw', 'Viva', 'Viva', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2434, '437-01', '0001-01-01', '9999-12-31', 'kg', 'Bitel GSM', 'Bitel GSM', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2435, '457-01', '0001-01-01', '9999-12-31', 'la', 'Lao Telecommunications', 'LaoTel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2436, '457-02', '0001-01-01', '9999-12-31', 'la', 'ETL Mobile', 'ETL', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2437, '457-08', '0001-01-01', '9999-12-31', 'la', 'Millicom', 'Tigo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2438, '247-01', '0001-01-01', '9999-12-31', 'lv', 'Latvijas Mobilais Telefons SIA', 'LMT', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2439, '247-02', '0001-01-01', '9999-12-31', 'lv', 'Tele2', 'Tele2', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2440, '247-03', '0001-01-01', '9999-12-31', 'lv', 'Telekom Baltija', 'Triatel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2441, '247-04', '0001-01-01', '9999-12-31', 'lv', 'Beta Telecom', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2442, '247-05', '0001-01-01', '9999-12-31', 'lv', 'Bite Mobile', 'Bite', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2443, '247-06', '0001-01-01', '9999-12-31', 'lv', 'Rigatta', 'Rigatta', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2444, '247-07', '0001-01-01', '9999-12-31', 'lv', 'Master Telecom', 'Master Telecom (MTS)', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2445, '247-08', '0001-01-01', '9999-12-31', 'lv', 'IZZI', 'IZZI', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2446, '415-05', '0001-01-01', '9999-12-31', 'lb', 'Ogero Telecom', 'Ogero Mobile', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2447, '415-32', '0001-01-01', '9999-12-31', 'lb', 'Cellis', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2448, '415-33', '0001-01-01', '9999-12-31', 'lb', 'Cellis', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2449, '415-34', '0001-01-01', '9999-12-31', 'lb', 'Cellis', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2450, '415-35', '0001-01-01', '9999-12-31', 'lb', 'Cellis', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2451, '415-36', '0001-01-01', '9999-12-31', 'lb', 'Libancell', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2452, '415-37', '0001-01-01', '9999-12-31', 'lb', 'Libancell', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2453, '415-38', '0001-01-01', '9999-12-31', 'lb', 'Libancell', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2454, '415-39', '0001-01-01', '9999-12-31', 'lb', 'Libancell', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2455, '651-01', '0001-01-01', '9999-12-31', 'ls', 'Vodacom Lesotho (pty) Ltd.', 'Vodacom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2456, '651-02', '0001-01-01', '9999-12-31', 'ls', 'Econet Ezin-cel', 'Econet Ezin-cel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2457, '618-04', '0001-01-01', '9999-12-31', 'lr', 'Comium Liberia', 'Comium', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2458, '295-01', '0001-01-01', '9999-12-31', 'li', 'Swisscom Schweiz AG', 'Swisscom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2460, '295-05', '0001-01-01', '9999-12-31', 'li', 'Mobilkom (Liechtenstein) AG', 'FL1', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2461, '295-06', '0001-01-01', '9999-12-31', 'li', 'Cubic AG', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2462, '246-01', '0001-01-01', '9999-12-31', 'lt', 'Omnitel', 'Omnitel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2463, '246-02', '0001-01-01', '9999-12-31', 'lt', 'Bité GSM', 'Bite GSM', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2464, '246-03', '0001-01-01', '9999-12-31', 'lt', 'Tele2', 'Tele2', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2465, '270-01', '0001-01-01', '9999-12-31', 'lu', 'P&T Luxembourg', 'LuxGSM', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2466, '270-77', '0001-01-01', '9999-12-31', 'lu', 'Tango', 'Tango', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2468, '455-00', '0001-01-01', '9999-12-31', 'mo', 'SmarTone – Comunicações Mõveis, S.A.', 'SmarTone', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2469, '455-01', '0001-01-01', '9999-12-31', 'mo', 'Companhia de Telecomunicações de Macau S.A.R.L.', 'CTM', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2470, '455-02', '0001-01-01', '9999-12-31', 'mo', 'China Telecom (Macau) Limitada', 'China Telecom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2472, '455-04', '0001-01-01', '9999-12-31', 'mo', 'Companhia de Telecomunicações de Macau S.A.R.L.', 'CTM', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2474, '455-06', '0001-01-01', '9999-12-31', 'mo', 'SmarTone – Comunicações Mõveis, S.A.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2475, '646-01', '0001-01-01', '9999-12-31', 'mg', 'Celtel Madagascar (Zain), GSM', 'Zain', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2477, '646-04', '0001-01-01', '9999-12-31', 'mg', 'Telecom Malagasy Mobile, GSM', 'Telma', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2478, '650-01', '0001-01-01', '9999-12-31', 'mw', 'Telekom Network Ltd.', 'TNM', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2479, '650-10', '0001-01-01', '9999-12-31', 'mw', 'Celtel ltd.', 'Airtel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2480, '502-10', '0001-01-01', '9999-12-31', 'my', 'DIGI Telecommunications', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2481, '502-12', '0001-01-01', '9999-12-31', 'my', 'Malaysian Mobile Services Sdn Bhd', 'Maxis', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2482, '502-13', '0001-01-01', '9999-12-31', 'my', 'Celcom (Malaysia) Berhad', 'Celcom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2483, '502-14', '0001-01-01', '9999-12-31', 'my', 'Telekom Malaysia Berhad', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2484, '502-16', '0001-01-01', '9999-12-31', 'my', 'DIGI Telecommunications', 'DiGi', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2485, '502-17', '0001-01-01', '9999-12-31', 'my', 'Malaysian Mobile Services Sdn Bhd', 'Maxis', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2486, '502-18', '0001-01-01', '9999-12-31', 'my', 'U Mobile Sdn. Bhd.', 'U Mobile', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2487, '502-19', '0001-01-01', '9999-12-31', 'my', 'Celcom (Malaysia) Berhad', 'Celcom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2488, '502-20', '0001-01-01', '9999-12-31', 'my', 'Electcoms Wireless Sdn Bhd', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2489, '472-01', '0001-01-01', '9999-12-31', 'mv', 'DhiMobile', 'Dhiraagu', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2490, '610-01', '0001-01-01', '9999-12-31', 'ml', 'Malitel', 'Malitel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2492, '278-21', '0001-01-01', '9999-12-31', 'mt', 'go mobile', 'GO', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2493, '278-77', '0001-01-01', '9999-12-31', 'mt', '3G Telecommunications Ltd', 'Melita', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2494, '340-12', '0001-01-01', '9999-12-31', 'mq', 'Martinique Téléphone Mobile', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2423, '416-77', '0001-01-01', '9999-12-31', 'jo', 'Mobilecom', 'Orange jo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2495, '609-01', '0001-01-01', '9999-12-31', 'mr', 'Mattel S.A.', 'Mattel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2496, '609-02', '0001-01-01', '9999-12-31', 'mr', 'Chinguitel S.A.', 'Chinguitel S.A.', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2497, '609-10', '0001-01-01', '9999-12-31', 'mr', 'Mauritel Mobiles', 'Mauritel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2499, '617-02', '0001-01-01', '9999-12-31', 'mu', 'Mahanagar Telephone (Mauritius) Ltd.', 'MTML', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2500, '617-03', '0001-01-01', '9999-12-31', 'mu', 'Mahanagar Telephone (Mauritius) Ltd.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2501, '617-10', '0001-01-01', '9999-12-31', 'mu', 'Emtel', 'Emtel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2502, '334-020', '0001-01-01', '9999-12-31', 'mx', 'Telcel', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2503, '550-01', '0001-01-01', '9999-12-31', 'fm', 'FSM Telecom', 'FSM Telecom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2505, '259-02', '0001-01-01', '9999-12-31', 'md', 'Moldcell GSM', 'Moldcell', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2506, '259-04', '0001-01-01', '9999-12-31', 'md', 'Eventis Mobile GSM', 'Evntis', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2507, '259-05', '0001-01-01', '9999-12-31', 'md', 'J.S.C. Moldtelecom/3G UMTS (W-CDMA)', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2508, '259-99', '0001-01-01', '9999-12-31', 'md', 'J.S.C. Moldtelecom', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2509, '428-99', '0001-01-01', '9999-12-31', 'mn', 'Mobicom', 'MobiCom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2510, '297-01', '0001-01-01', '9999-12-31', 'me', 'Telenor Montenegro', 'Telenor', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2512, '297-03', '0001-01-01', '9999-12-31', 'me', 'Mtel Montenegro', 'm:tel CG', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2513, '354-860', '0001-01-01', '9999-12-31', 'ms', 'Cable & Wireless (West Indies) Ltd trading as Lime', 'Cable & Wireless West Indies (Montserrat)', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2514, '604-00', '0001-01-01', '9999-12-31', 'ma', 'Méditélécom (GSM)', 'Méditel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2515, '604-01', '0001-01-01', '9999-12-31', 'ma', 'Ittissalat Al Maghrid', 'IAM', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2516, '643-01', '0001-01-01', '9999-12-31', 'mz', 'T.D.M. GSM', 'mCel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2517, '643-03', '0001-01-01', '9999-12-31', 'mz', 'Movitel', 'Movitel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2518, '643-04', '0001-01-01', '9999-12-31', 'mz', 'VM Sarl', 'Vodacom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2519, '414-01', '0001-01-01', '9999-12-31', 'mm', 'Myanmar Post and Telecommunication', 'MPT', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2520, '649-01', '0001-01-01', '9999-12-31', 'na', 'Mobile Telecommunications Ltd.', 'MTC', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2521, '649-02', '0001-01-01', '9999-12-31', 'na', 'Telecom Namibia', 'Switch', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2522, '649-03', '0001-01-01', '9999-12-31', 'na', 'Powercom Pty Ltd (leo)', 'Leo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2523, '429-01', '0001-01-01', '9999-12-31', 'np', 'Nepal Telecommunications', 'Namaste / Nt Mobile', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2524, '204-02', '0001-01-01', '9999-12-31', 'nl', 'Tele2 (Netherlands) B.V.', 'Tele2', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2525, '204-03', '0001-01-01', '9999-12-31', 'nl', 'Blyk N.V.', 'Voiceworks B.V', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2527, '204-05', '0001-01-01', '9999-12-31', 'nl', 'Elephant Talk Comm. Premium Rate Serv. Neth. B.V.', 'Elephant Talk Communications', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2528, '204-06', '0001-01-01', '9999-12-31', 'nl', 'Barablu Mobile Benelux Ltd', 'Mundio Mobile', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2529, '204-07', '0001-01-01', '9999-12-31', 'nl', 'Teleena holding B.V.', 'Teleena', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2530, '204-08', '0001-01-01', '9999-12-31', 'nl', 'KPN Mobile The Netherlands B.V.', 'KPN', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2531, '204-10', '0001-01-01', '9999-12-31', 'nl', 'KPN B.V.', 'KPN', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2532, '204-12', '0001-01-01', '9999-12-31', 'nl', 'Telfort B.V.', 'Telfort', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2533, '204-14', '0001-01-01', '9999-12-31', 'nl', 'INMO B.V.', '6GMobile', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2534, '204-16', '0001-01-01', '9999-12-31', 'nl', 'T-Mobile Netherlands B.V.', 'T-mobile', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2535, '204-18', '0001-01-01', '9999-12-31', 'nl', 'Telfort B.V.', 'UPC', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2536, '204-20', '0001-01-01', '9999-12-31', 'nl', 'Orange Nederland N.V.', 'T-mobile', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2537, '204-21', '0001-01-01', '9999-12-31', 'nl', 'ProRail B.V.', 'ProRail B.V', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2538, '204-60', '0001-01-01', '9999-12-31', 'nl', 'KPN B.V.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2539, '204-69', '0001-01-01', '9999-12-31', 'nl', 'KPN Mobile The Netherlands B.V.', 'KPN', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2540, '546-01', '0001-01-01', '9999-12-31', 'nc', 'OPT Mobilis', 'Mobilis', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2541, '530-00', '0001-01-01', '9999-12-31', 'nz', 'Reserved for AMPS MIN based IMSIs', 'Telecom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2543, '530-02', '0001-01-01', '9999-12-31', 'nz', 'Teleom New Zealand CDMA Network', 'Telecom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2544, '530-03', '0001-01-01', '9999-12-31', 'nz', 'Woosh Wireless - CDMA Network', 'Woosh', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2545, '530-04', '0001-01-01', '9999-12-31', 'nz', 'TelstraClear - GSM Network', 'TelstraClear', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2629, '260-27', '0001-01-01', '9999-12-31', 'pl', 'Intertelcom / Intertelcom Sp. z o.o.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2546, '530-05', '0001-01-01', '9999-12-31', 'nz', 'Telecom New Zealand - UMTS Ntework', 'XT Mobile (Telecom)', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2547, '530-06', '0001-01-01', '9999-12-31', 'nz', 'FX Networks Ltd', 'Skinny', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2548, '530-07', '0001-01-01', '9999-12-31', 'nz', 'Bluereach Limited', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2549, '530-24', '0001-01-01', '9999-12-31', 'nz', 'NZ Communications - UMTS Network', '2degrees', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2550, '710-21', '0001-01-01', '9999-12-31', 'ni', 'Empresa Nicaragüense de Telecomunicaciones, S.A. (ENITEL)', 'Claro', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2551, '710-73', '0001-01-01', '9999-12-31', 'ni', 'Servicios de Comunicaciones, S.A. (SERCOM)', 'SERCOM', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2552, '614-01', '0001-01-01', '9999-12-31', 'ne', 'Sahel.Com', 'SahelCom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2553, '614-02', '0001-01-01', '9999-12-31', 'ne', 'Celtel', 'Zain', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2554, '614-03', '0001-01-01', '9999-12-31', 'ne', 'Telecel', 'Telecel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2555, '621-20', '0001-01-01', '9999-12-31', 'ng', 'Econet Wireless Nigeria Ltd.', 'Airtel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2556, '621-30', '0001-01-01', '9999-12-31', 'ng', 'MTN Nigeria Communications', 'MTN', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2557, '621-40', '0001-01-01', '9999-12-31', 'ng', 'MTEL', 'M-Tel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2558, '621-50', '0001-01-01', '9999-12-31', 'ng', 'Globacom', 'Glo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2559, '621-60', '0001-01-01', '9999-12-31', 'ng', 'EMTS', 'Etisalat', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2560, '555-01', '0001-01-01', '9999-12-31', 'nu', 'Telecom Niue', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2561, '242-01', '0001-01-01', '9999-12-31', 'no', 'Telenor Norge AS', 'Telenor', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2562, '242-02', '0001-01-01', '9999-12-31', 'no', 'NetCom AS', 'Netcom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2563, '242-03', '0001-01-01', '9999-12-31', 'no', 'Teletopia Gruppen AS', 'MTU', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2564, '242-04', '0001-01-01', '9999-12-31', 'no', 'Tele2 Norge AS', 'Tele2', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2565, '242-05', '0001-01-01', '9999-12-31', 'no', 'Network Norway AS', 'Network Norway', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2566, '242-06', '0001-01-01', '9999-12-31', 'no', 'ICE Norge AS', 'ICE', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2567, '242-07', '0001-01-01', '9999-12-31', 'no', 'Ventelo Bedrift AS', 'Ventelo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2568, '242-08', '0001-01-01', '9999-12-31', 'no', 'TDC AS', 'TDC', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2569, '242-09', '0001-01-01', '9999-12-31', 'no', 'Com4 AS', 'Com4', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2570, '242-10', '0001-01-01', '9999-12-31', 'no', 'Post-og teletilsynet', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2571, '242-11', '0001-01-01', '9999-12-31', 'no', 'Systemnet AS', 'Systemnet AS', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2572, '242-12', '0001-01-01', '9999-12-31', 'no', 'Telenor Norge AS', 'Telenor', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2573, '242-20', '0001-01-01', '9999-12-31', 'no', 'Jernbaneverket', 'Jernbaneverket', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2574, '242-21', '0001-01-01', '9999-12-31', 'no', 'Jernbaneverket', 'Jernbaneverket', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2575, '242-22', '0001-01-01', '9999-12-31', 'no', 'Network Norway AS', 'Network Norway', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2576, '242-23', '0001-01-01', '9999-12-31', 'no', 'Lycamobile Norway Ltd', 'Lyca Mobile Ltd', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2577, '242-24', '0001-01-01', '9999-12-31', 'no', 'Mobile Norway AS', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2578, '422-02', '0001-01-01', '9999-12-31', 'om', 'Oman Mobile Telecommunications Company (Oman Mobile)', 'Oman Mobile', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2579, '422-03', '0001-01-01', '9999-12-31', 'om', 'Oman Qatari Telecommunications Company (Nawras)', 'Nawras', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2580, '422-04', '0001-01-01', '9999-12-31', 'om', 'Oman Telecommunications Company (Omantel)', 'Oman Telecommunications Company (Omantel)', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2526, '204-04', '0001-01-01', '9999-12-31', 'nl', 'Vodafone Libertel N.V.', 'Vodafone nl', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2498, '617-01', '0001-01-01', '9999-12-31', 'mu', 'Cellplus', 'Orange mu', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2504, '259-01', '0001-01-01', '9999-12-31', 'md', 'Orange Moldova GSM', 'Orange md', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2581, '410-01', '0001-01-01', '9999-12-31', 'pk', 'Mobilink', 'Mobilink', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2582, '410-03', '0001-01-01', '9999-12-31', 'pk', 'PAK Telecom Mobile Ltd. (UFONE)', 'Ufone', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2583, '410-04', '0001-01-01', '9999-12-31', 'pk', 'CMPak', 'Zong', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2584, '410-06', '0001-01-01', '9999-12-31', 'pk', 'Telenor Pakistan', 'Telenor', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2585, '410-07', '0001-01-01', '9999-12-31', 'pk', 'Warid Telecom', 'Warid', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2586, '552-01', '0001-01-01', '9999-12-31', 'pw', 'Palau National Communications Corp. (a.k.a. PNCC)', 'PNCC', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2587, '714-01', '0001-01-01', '9999-12-31', 'pa', 'Cable & Wireless Panama S.A.', 'Cable & Wireless', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2588, '714-02', '0001-01-01', '9999-12-31', 'pa', 'BSC de Panama S.A.', 'movistar', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2589, '714-020', '0001-01-01', '9999-12-31', 'pa', 'Telefónica Móviles Panamá S.A.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2590, '714-03', '0001-01-01', '9999-12-31', 'pa', 'Claro Panamá, S.A.', 'Claro', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2591, '714-04', '0001-01-01', '9999-12-31', 'pa', 'Digicel (Panamá), S.A.', 'Digicel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2592, '537-01', '0001-01-01', '9999-12-31', 'pg', 'Bmobile', 'B-Mobile', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2593, '537-02', '0001-01-01', '9999-12-31', 'pg', 'Greencom', 'Greencom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2594, '537-03', '0001-01-01', '9999-12-31', 'pg', 'Digicel Ltd', 'Digicel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2595, '744-01', '0001-01-01', '9999-12-31', 'py', 'Hola Paraguay S.A.', 'VOX', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2596, '744-02', '0001-01-01', '9999-12-31', 'py', 'Hutchison Telecom S.A.', 'Claro', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2597, '744-03', '0001-01-01', '9999-12-31', 'py', 'Compañia Privada de Comunicaciones S.A.', 'Compañia Privada de Comunicaciones S.A.', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2598, '716-10', '0001-01-01', '9999-12-31', 'pe', 'TIM Peru', 'Claro', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2599, '515-01', '0001-01-01', '9999-12-31', 'ph', 'Islacom', 'Islacom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2600, '515-02', '0001-01-01', '9999-12-31', 'ph', 'Globe Telecom', 'Globe', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2601, '515-03', '0001-01-01', '9999-12-31', 'ph', 'Smart Communications', 'Smart', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2602, '515-05', '0001-01-01', '9999-12-31', 'ph', 'Digitel', 'Sun', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2603, '260-01', '0001-01-01', '9999-12-31', 'pl', 'Plus / Polkomtel S.A.', 'Plus (Polkomtel)', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2606, '260-04', '0001-01-01', '9999-12-31', 'pl', 'LTE / CenterNet S.A.', 'Tele 2 (Netia)', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2607, '260-05', '0001-01-01', '9999-12-31', 'pl', 'Orange(UMTS) / PTK Centertel Sp. z o.o.', 'Polska Telefonia Komórkowa Centertel Sp. z o.o.', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2608, '260-06', '0001-01-01', '9999-12-31', 'pl', 'Play / P4 Sp. z o.o.', 'Play (P4)', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2609, '260-07', '0001-01-01', '9999-12-31', 'pl', 'Netia / Netia S.A.', 'Netia (Using P4 Nw)', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2610, '260-08', '0001-01-01', '9999-12-31', 'pl', 'E-Telko / E-Telko Sp. z o.o.', 'E-Telko Sp. z o.o.', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2611, '260-09', '0001-01-01', '9999-12-31', 'pl', 'Lycamobile / Lycamobile Sp. z o.o.', 'Telekomunikacja Kolejowa (GSM-R)', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2612, '260-10', '0001-01-01', '9999-12-31', 'pl', 'Sferia / Sferia S.A.', 'Sferia (Using T-mobile)', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2613, '260-11', '0001-01-01', '9999-12-31', 'pl', 'Nordisk Polska / Nordisk Polska Sp. z o.o.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2614, '260-12', '0001-01-01', '9999-12-31', 'pl', 'Cyfrowy Polsat / Cyfrowy Polsat S.A.', 'Cyfrowy Polsat', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2615, '260-13', '0001-01-01', '9999-12-31', 'pl', 'Sferia / Sferia S.A.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2616, '260-14', '0001-01-01', '9999-12-31', 'pl', 'Sferia / Sferia S.A.', 'Sferia (Using T-mobile)', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2617, '260-15', '0001-01-01', '9999-12-31', 'pl', 'CenterNet / CenterNet S.A.', 'CenterNet (UMTS Data only)', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2618, '260-16', '0001-01-01', '9999-12-31', 'pl', 'Mobyland / Mobyland Sp. z o.o.', 'Mobyland (UMTS)', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2619, '260-17', '0001-01-01', '9999-12-31', 'pl', 'Aero 2 / Aero 2 Sp. z o.o.', 'Aero2 (UMTS)', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2620, '260-18', '0001-01-01', '9999-12-31', 'pl', 'AMD Telecom / AMD Telecom S.A.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2621, '260-19', '0001-01-01', '9999-12-31', 'pl', 'Teleena / Teleena Holding BV', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2622, '260-20', '0001-01-01', '9999-12-31', 'pl', 'Mobile.Net / Mobile.Net Sp. z o.o.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2623, '260-21', '0001-01-01', '9999-12-31', 'pl', 'Exteri / Exteri Sp. z o.o.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2624, '260-22', '0001-01-01', '9999-12-31', 'pl', 'Arcomm / Arcomm Sp. z o.o.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2625, '260-23', '0001-01-01', '9999-12-31', 'pl', 'Amicomm / Amicomm Sp. z o.o.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2626, '260-24', '0001-01-01', '9999-12-31', 'pl', 'WideNet / WideNet Sp. z o.o.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2627, '260-25', '0001-01-01', '9999-12-31', 'pl', 'BS&T / Best Solutions & Technology Sp. z o.o.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2628, '260-26', '0001-01-01', '9999-12-31', 'pl', 'ATE / ATE-Advanced Technology & Experience Sp. z o.o.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2630, '260-28', '0001-01-01', '9999-12-31', 'pl', 'PhoneNet / PhoneNet Sp. z o.o.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2631, '260-29', '0001-01-01', '9999-12-31', 'pl', 'Interfonica / Interfonica Sp. z o.o.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2632, '260-30', '0001-01-01', '9999-12-31', 'pl', 'GrandTel / GrandTel Sp. z o.o.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2633, '260-31', '0001-01-01', '9999-12-31', 'pl', 'Phone IT / Phone IT Sp. z o.o.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2634, '260-32', '0001-01-01', '9999-12-31', 'pl', 'Compatel Ltd / COMPATEL LIMITED', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2635, '260-33', '0001-01-01', '9999-12-31', 'pl', 'Truphone Poland / Truphone Poland Sp. Z o.o.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2636, '260-34', '0001-01-01', '9999-12-31', 'pl', 'T-Mobile / PTC S.A.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2637, '260-98', '0001-01-01', '9999-12-31', 'pl', 'Play (testowy) / P4 Sp. z o.o.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2639, '268-03', '0001-01-01', '9999-12-31', 'pt', 'Optimus - Telecomunicaçôes, S.A.', 'Optimus', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2640, '268-05', '0001-01-01', '9999-12-31', 'pt', 'Oniway - Inforcomunicaçôes, S.A.', 'Oniway - Inforcomunicaçôes, S.A.', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2641, '268-06', '0001-01-01', '9999-12-31', 'pt', 'TMN - Telecomunicaçôes Movéis Nacionais, S.A.', 'TMN', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2642, '427-01', '0001-01-01', '9999-12-31', 'qa', 'QATARNET', 'Qtel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2643, '226-01', '0001-01-01', '9999-12-31', 'ro', 'Vodafone', 'Vodafone Romania SA', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2644, '226-02', '0001-01-01', '9999-12-31', 'ro', 'Romtelecom', 'Romtelecom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2645, '226-03', '0001-01-01', '9999-12-31', 'ro', 'Cosmote', 'Cosmote (Zapp)', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2646, '226-04', '0001-01-01', '9999-12-31', 'ro', 'Cosmote', 'Cosmote (Zapp)', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2647, '226-05', '0001-01-01', '9999-12-31', 'ro', 'Digi.Mobil', 'Digi mobil', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2648, '226-06', '0001-01-01', '9999-12-31', 'ro', 'Cosmote', 'Cosmote', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2649, '226-10', '0001-01-01', '9999-12-31', 'ro', 'Orange', 'Orange Romania', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2650, '226-11', '0001-01-01', '9999-12-31', 'ro', 'Enigma-System', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2651, '250-01', '0001-01-01', '9999-12-31', 'ru', 'Mobile Telesystems', 'MTS', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2652, '250-02', '0001-01-01', '9999-12-31', 'ru', 'Megafon', 'MegaFon', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2653, '250-03', '0001-01-01', '9999-12-31', 'ru', 'Nizhegorodskaya Cellular Communications', 'NCC', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2654, '250-04', '0001-01-01', '9999-12-31', 'ru', 'Sibchallenge', 'Sibchallenge', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2655, '250-05', '0001-01-01', '9999-12-31', 'ru', 'Mobile Comms System', 'ETK', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2656, '250-07', '0001-01-01', '9999-12-31', 'ru', 'BM Telecom', 'SMARTS', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2657, '250-10', '0001-01-01', '9999-12-31', 'ru', 'Don Telecom', 'DTC', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2658, '250-11', '0001-01-01', '9999-12-31', 'ru', 'Orensot', 'Orensot', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2659, '250-12', '0001-01-01', '9999-12-31', 'ru', 'Baykal Westcom', 'Baykal', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2660, '250-13', '0001-01-01', '9999-12-31', 'ru', 'Kuban GSM', 'KUGSM', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2661, '250-16', '0001-01-01', '9999-12-31', 'ru', 'New Telephone Company', 'NTC', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2662, '250-17', '0001-01-01', '9999-12-31', 'ru', 'Ermak RMS', 'Utel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2663, '250-19', '0001-01-01', '9999-12-31', 'ru', 'Volgograd Mobile', 'Indigo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2664, '250-20', '0001-01-01', '9999-12-31', 'ru', 'ECC', 'Tele2', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2665, '250-28', '0001-01-01', '9999-12-31', 'ru', 'Extel', 'Beeline', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2605, '260-03', '0001-01-01', '9999-12-31', 'pl', 'Orange / PTK Centertel Sp. z o.o.', 'Orange pl', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2666, '250-39', '0001-01-01', '9999-12-31', 'ru', 'Uralsvyazinform', 'Utel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2667, '250-44', '0001-01-01', '9999-12-31', 'ru', 'Stuvtelesot', 'Stuvtelesot', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2668, '250-92', '0001-01-01', '9999-12-31', 'ru', 'Printelefone', 'MTS - Primtelefon', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2669, '250-93', '0001-01-01', '9999-12-31', 'ru', 'Telecom XXI', 'Telecom XXI', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2670, '250-99', '0001-01-01', '9999-12-31', 'ru', 'Beeline', 'Beeline', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2671, '635-10', '0001-01-01', '9999-12-31', 'rw', 'MTN Rwandacell', 'MTN', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2672, '635-14', '0001-01-01', '9999-12-31', 'rw', 'AIRTEL RWANDA Ltd', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2673, '356-110', '0001-01-01', '9999-12-31', 'kn', 'Cable & Wireless St Kitts & Nevis Ltd trading as Lime', 'LIME', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2674, '358-110', '0001-01-01', '9999-12-31', 'lc', 'Cable & Wireless (St Lucia) Ltd trading as Lime', 'Lime (Cable & Wireless)', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2675, '308-01', '0001-01-01', '9999-12-31', 'pm', 'St. Pierre-et-Miquelon Télécom', 'Ameris', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2676, '360-110', '0001-01-01', '9999-12-31', 'vc', 'Cable & Wireless St Vincent and the Grenadines Ltd trading as lime', 'Lime (Cable & Wireless)', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2677, '549-01', '0001-01-01', '9999-12-31', 'ws', 'Telecom Samoa Cellular Ltd.', 'Digicel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2678, '549-27', '0001-01-01', '9999-12-31', 'ws', 'GoMobile SamoaTel Ltd', 'SamoaTel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2679, '292-01', '0001-01-01', '9999-12-31', 'sm', 'Prima San Marino / San Marino Telecom', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2680, '626-01', '0001-01-01', '9999-12-31', 'st', 'Companhia Santomese de Telecomunicações', 'CSTmovel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2681, '420-01', '0001-01-01', '9999-12-31', 'sa', 'Saudi Telecom', 'Al Jawal', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2682, '420-03', '0001-01-01', '9999-12-31', 'sa', 'Etihad Etisalat Company (Mobily)', 'Mobily', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2684, '608-02', '0001-01-01', '9999-12-31', 'sn', 'Sentel GSM', 'Tigo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2685, '608-03', '0001-01-01', '9999-12-31', 'sn', 'Expresso Sénégal', 'Expresso', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2686, '220-01', '0001-01-01', '9999-12-31', 'rs', 'Telenor d.o.o.', 'Telenor', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2687, '220-03', '0001-01-01', '9999-12-31', 'rs', 'Telekom Srbija a.d.', 'mt:s', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2688, '220-05', '0001-01-01', '9999-12-31', 'rs', 'Vip mobile d.o.o.', 'VIP', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2689, '633-01', '0001-01-01', '9999-12-31', 'sc', 'Cable & Wireless (Seychelles) Ltd.', 'Cable & Wireless', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2690, '633-02', '0001-01-01', '9999-12-31', 'sc', 'Mediatech International Ltd.', 'Mediatech International', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2691, '633-10', '0001-01-01', '9999-12-31', 'sc', 'Telecom (Seychelles) Ltd.', 'Airtel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2692, '619-01', '0001-01-01', '9999-12-31', 'sl', 'Celtel', 'Airtel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2693, '619-02', '0001-01-01', '9999-12-31', 'sl', 'Millicom', 'Tigo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2694, '619-03', '0001-01-01', '9999-12-31', 'sl', 'Africell', 'Africell', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2695, '619-04', '0001-01-01', '9999-12-31', 'sl', 'Comium (Sierra Leone) Ltd.', 'Comium', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2696, '619-05', '0001-01-01', '9999-12-31', 'sl', 'Lintel (Sierra Leone) Ltd.', 'Africell', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2697, '619-25', '0001-01-01', '9999-12-31', 'sl', 'Mobitel', 'Mobitel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2698, '619-40', '0001-01-01', '9999-12-31', 'sl', 'Datatel (SL) Ltd GSM', 'Datatel (SL) Ltd GSM', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2699, '619-50', '0001-01-01', '9999-12-31', 'sl', 'Datatel (SL) Ltd CDMA', 'Dtatel (SL) Ltd CDMA', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2700, '525-01', '0001-01-01', '9999-12-31', 'sg', 'SingTel ST GSM900', 'SingTel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2701, '525-02', '0001-01-01', '9999-12-31', 'sg', 'SingTel ST GSM1800', 'SingTel-G18', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2702, '525-03', '0001-01-01', '9999-12-31', 'sg', 'MobileOne', 'M1', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2703, '525-05', '0001-01-01', '9999-12-31', 'sg', 'Starhub', 'StarHub', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2704, '525-12', '0001-01-01', '9999-12-31', 'sg', 'Digital Trunked Radio Network', 'Digital Trunked Radio Network', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2709, '293-40', '0001-01-01', '9999-12-31', 'si', 'SI Mobil', 'Si.mobil', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2710, '293-41', '0001-01-01', '9999-12-31', 'si', 'Mobitel', 'Mobitel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2711, '293-64', '0001-01-01', '9999-12-31', 'si', 'T-2 d.o.o.', 'T-2', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2712, '293-70', '0001-01-01', '9999-12-31', 'si', 'Tusmobil d.o.o.', 'Tušmobil', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2713, '540-02', '0001-01-01', '9999-12-31', 'sb', 'Bemobile (BMobile (SI) Ltd)', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2714, '637-30', '0001-01-01', '9999-12-31', 'so', 'Golis Telecommunications Company', 'Golis', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2715, '637-70', '0001-01-01', '9999-12-31', 'so', 'Onkod Telecom Ltd.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2716, '655-01', '0001-01-01', '9999-12-31', 'za', 'Vodacom (Pty) Ltd.', 'Vodacom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2717, '655-02', '0001-01-01', '9999-12-31', 'za', 'Telkom SA Ltd', 'Telkom Mobile / 8.ta', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2718, '655-04', '0001-01-01', '9999-12-31', 'za', 'Sasol (Pty) Ltd', 'Sasol (PTY) LTD', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2719, '655-06', '0001-01-01', '9999-12-31', 'za', 'Sentech (Pty) Ltd.', 'Sentech', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2720, '655-07', '0001-01-01', '9999-12-31', 'za', 'Cell C (Pty) Ltd.', 'Cell C & Virgin', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2721, '655-10', '0001-01-01', '9999-12-31', 'za', 'Mobile Telephone Networks (MTN) Pty Ltd', 'MTN', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2722, '655-11', '0001-01-01', '9999-12-31', 'za', 'SAPS Gauteng', 'SAPS Gauteng', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2723, '655-12', '0001-01-01', '9999-12-31', 'za', 'Mobile Telephone Networks (MTN) Pty Ltd', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2724, '655-13', '0001-01-01', '9999-12-31', 'za', 'Neotel Pty Ltd', 'Neotel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2725, '655-19', '0001-01-01', '9999-12-31', 'za', 'Wireless Business Solutions (iBurst)', 'iBurst', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2726, '655-21', '0001-01-01', '9999-12-31', 'za', 'Cape Town Metropolitan Council', 'Cape Town Metropolitan Council', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2727, '655-25', '0001-01-01', '9999-12-31', 'za', 'Wirels Connect', 'Wirels Connect', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2728, '655-27', '0001-01-01', '9999-12-31', 'za', 'A to Z Vaal Industrial Supplies Pty Ltd', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2729, '655-30', '0001-01-01', '9999-12-31', 'za', 'Bokamoso Consortium Pty Ltd', 'Bokamoso Consortium', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2730, '655-31', '0001-01-01', '9999-12-31', 'za', 'Karabo Telecoms (Pty) Ltd.', 'Karabo Telecoms (Pty) Ltd.', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2731, '655-32', '0001-01-01', '9999-12-31', 'za', 'Ilizwi Telecommunications Pty Ltd', 'Ilizwi Telecommunications', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2732, '655-33', '0001-01-01', '9999-12-31', 'za', 'Thinta Thinta Telecommunications Pty Ltd', 'Thinta Thinta Telecommunications', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2733, '655-34', '0001-01-01', '9999-12-31', 'za', 'Bokone Telecoms Pty Ltd', 'Bokone Telecoms', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2734, '655-35', '0001-01-01', '9999-12-31', 'za', 'Kingdom Communications Pty Ltd', 'Kingdom Communications', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2735, '655-36', '0001-01-01', '9999-12-31', 'za', 'Amatole Telecommunication Pty Ltd', 'Amatole Telecommunication Services', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2736, '655-41', '0001-01-01', '9999-12-31', 'za', 'South African Police Service', 'South African Police Service', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2737, '659-12', '0001-01-01', '9999-12-31', 'ss', 'Sudani/Sudatel', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2738, '659-91', '0001-01-01', '9999-12-31', 'ss', 'Zain-South Sudan', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2739, '659-92', '0001-01-01', '9999-12-31', 'ss', 'MTN-South Sudan', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2740, '659-95', '0001-01-01', '9999-12-31', 'ss', 'Vivacel/NOW', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2741, '659-97', '0001-01-01', '9999-12-31', 'ss', 'Gemtel', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2744, '214-04', '0001-01-01', '9999-12-31', 'es', 'Xfera Móviles, SA', 'Yoigo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2745, '214-05', '0001-01-01', '9999-12-31', 'es', 'Telefónica Móviles España, SAU', 'TME', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2747, '214-07', '0001-01-01', '9999-12-31', 'es', 'Telefónica Móviles España, SAU', 'movistar', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2748, '214-08', '0001-01-01', '9999-12-31', 'es', 'Euskaltel, SA', 'Euskaltel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2742, '214-01', '0001-01-01', '9999-12-31', 'es', 'Vodafone España, SAU', 'Vodafone es', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2746, '214-06', '0001-01-01', '9999-12-31', 'es', 'Vodafone España, SAU', 'Vodafone es', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2683, '608-01', '0001-01-01', '9999-12-31', 'sn', 'Sonatel', 'Orange sn', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2705, '231-01', '0001-01-01', '9999-12-31', 'sk', 'Orange, GSM', 'Orange sk', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2750, '214-10', '0001-01-01', '9999-12-31', 'es', 'Operadora de Telecomunicaciones Opera SL', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2751, '214-11', '0001-01-01', '9999-12-31', 'es', 'France Telecom España SA', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2752, '214-12', '0001-01-01', '9999-12-31', 'es', 'Contacta Servicios Avanzados de Telecomunicaciones SL', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2753, '214-13', '0001-01-01', '9999-12-31', 'es', 'Incotel Ingeniera y Consultaria SL', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2754, '214-14', '0001-01-01', '9999-12-31', 'es', 'Incotel Servicioz Avanzados SL', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2755, '214-15', '0001-01-01', '9999-12-31', 'es', 'BT España Compañia de Servicios Globales de Telecomunicaciones, SAU', 'BT', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2756, '214-16', '0001-01-01', '9999-12-31', 'es', 'Telecable de Asturias, SAU', 'TeleCable', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2757, '214-17', '0001-01-01', '9999-12-31', 'es', 'R Cable y Telecomunicaciones Galicia, SA', 'Móbil R', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2758, '214-18', '0001-01-01', '9999-12-31', 'es', 'Cableuropa, SAU', 'ONO', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2759, '214-19', '0001-01-01', '9999-12-31', 'es', 'E-Plus Móviles, SL', 'Simyo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2760, '214-20', '0001-01-01', '9999-12-31', 'es', 'Fonyou Telecom, SL', 'Fonyou', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2761, '214-21', '0001-01-01', '9999-12-31', 'es', 'Jazz Telecom, SAU', 'Jazztel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2762, '214-22', '0001-01-01', '9999-12-31', 'es', 'Best Spain Telecom, SL', 'DigiMobil', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2763, '214-24', '0001-01-01', '9999-12-31', 'es', 'Vizzavi España, SL', 'Eroski', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2764, '214-25', '0001-01-01', '9999-12-31', 'es', 'Lycamobile, SL', 'LycaMobile', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2765, '214-26', '0001-01-01', '9999-12-31', 'es', 'Lleida Networks Serveis Telemátics, SL', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2766, '214-27', '0001-01-01', '9999-12-31', 'es', 'SCN Truphone SL', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2767, '413-02', '0001-01-01', '9999-12-31', 'lk', 'MTN Network Ltd.', 'Dialog', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2768, '413-03', '0001-01-01', '9999-12-31', 'lk', 'Celtel Lanka Ltd.', 'Etisalat', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2769, '634-01', '0001-01-01', '9999-12-31', 'sd', 'SD Mobitel', 'Zain SD', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2770, '634-02', '0001-01-01', '9999-12-31', 'sd', 'Areeba-Sudan', 'MTN', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2771, '634-05', '0001-01-01', '9999-12-31', 'sd', 'Network of the World Ltd (NOW)', 'Vivacell (NOW)', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2772, '634-06', '0001-01-01', '9999-12-31', 'sd', 'Zain Sudan', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2773, '634-99', '0001-01-01', '9999-12-31', 'sd', 'MTN Sudan', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2774, '746-02', '0001-01-01', '9999-12-31', 'sr', 'Telesur', 'Telesur', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2775, '746-03', '0001-01-01', '9999-12-31', 'sr', 'Digicel', 'Digicel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2776, '746-04', '0001-01-01', '9999-12-31', 'sr', 'Intelsur', 'Uniqa', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2777, '746-05', '0001-01-01', '9999-12-31', 'sr', 'Telesur (CDMA)', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2778, '653-01', '0001-01-01', '9999-12-31', 'sz', 'SPTC', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2779, '653-10', '0001-01-01', '9999-12-31', 'sz', 'Swazi MTN', 'Swazi MTN', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2780, '240-01', '0001-01-01', '9999-12-31', 'se', 'Telia Sonera Sverige AB', 'Telia', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2782, '240-03', '0001-01-01', '9999-12-31', 'se', 'AINMT Sverige AB', 'Netett Sverige AB', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2783, '240-04', '0001-01-01', '9999-12-31', 'se', '3G Infrastructure Services AB', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2784, '240-05', '0001-01-01', '9999-12-31', 'se', 'Svenska UMTS-Nät AB', 'Sweden 3G (Telia/Tele2)', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2785, '240-06', '0001-01-01', '9999-12-31', 'se', 'Telenor Sverige AB', 'Telenor', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2786, '240-07', '0001-01-01', '9999-12-31', 'se', 'Tele2 Sverige AB', 'Tele2', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2787, '240-08', '0001-01-01', '9999-12-31', 'se', 'Telenor Sverige AB', 'Telenor', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2788, '240-09', '0001-01-01', '9999-12-31', 'se', 'Djuice Mobile Sweden, filial till Telenor Mobile Sweden AS', 'Djuice Mobile Sweden', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2789, '240-10', '0001-01-01', '9999-12-31', 'se', 'Spring Mobil AB', 'Spring', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2790, '240-11', '0001-01-01', '9999-12-31', 'se', 'Linholmen Science Park AB', 'Lindholmen Science Park', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2791, '240-12', '0001-01-01', '9999-12-31', 'se', 'Barablu Mobile Scandinavia Ltd', 'Lycamobile', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2792, '240-13', '0001-01-01', '9999-12-31', 'se', 'Ventelo Sverige AB', 'Ventelo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2793, '240-14', '0001-01-01', '9999-12-31', 'se', 'TDC Sverige AB', 'TDC', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2794, '240-15', '0001-01-01', '9999-12-31', 'se', 'Wireless Maingate Nordic AB', 'Wireless Maingate', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2795, '240-16', '0001-01-01', '9999-12-31', 'se', '42IT AB', '42 Telecom AB', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2796, '240-17', '0001-01-01', '9999-12-31', 'se', 'Götalandsnätet AB', 'Götalandsnätet AB', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2797, '240-18', '0001-01-01', '9999-12-31', 'se', 'Generic Mobile Systems Sweden AB', 'Generic Mobile Systems Sweden AB', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2798, '240-19', '0001-01-01', '9999-12-31', 'se', 'Mundio Mobile Sweden Ltd', 'Mudio Mobile', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2799, '240-20', '0001-01-01', '9999-12-31', 'se', 'iMEZ AB', 'Imez AB', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2800, '240-21', '0001-01-01', '9999-12-31', 'se', 'Banverket', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2801, '240-22', '0001-01-01', '9999-12-31', 'se', 'EuTel AB', 'EuTel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2802, '240-23', '0001-01-01', '9999-12-31', 'se', 'Infobip LTD', 'Infobip Ltd', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2803, '240-24', '0001-01-01', '9999-12-31', 'se', 'Net4Mobility HB', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2804, '240-26', '0001-01-01', '9999-12-31', 'se', 'Beepsend A.B.', 'Beepsend', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2805, '240-27', '0001-01-01', '9999-12-31', 'se', 'MyIndian AB', 'MyIndian AB', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2806, '240-28', '0001-01-01', '9999-12-31', 'se', 'CoolTEL Aps A.B.', 'CoolTEL Aps', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2807, '240-29', '0001-01-01', '9999-12-31', 'se', 'Mercury International Carrier Services', 'Mercury International Carrier Services', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2808, '240-30', '0001-01-01', '9999-12-31', 'se', 'NextGen Mobile Ltd', 'NextGen Mobile Ltd', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2809, '240-31', '0001-01-01', '9999-12-31', 'se', 'Mobimax AB', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2810, '240-32', '0001-01-01', '9999-12-31', 'se', 'Compatel Ltd.', 'CompaTel Ltd.', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2811, '240-33', '0001-01-01', '9999-12-31', 'se', 'Mobile Arts AB', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2812, '240-34', '0001-01-01', '9999-12-31', 'se', 'Tigo Ltd', 'Tigo LTD', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2813, '240-35', '0001-01-01', '9999-12-31', 'se', '42 Telecom LTD', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2814, '240-36', '0001-01-01', '9999-12-31', 'se', 'Interactive Digital Media GmbH', 'IDM', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2815, '240-40', '0001-01-01', '9999-12-31', 'se', 'ReWiCom Scandinavia AB', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2816, '228-01', '0001-01-01', '9999-12-31', 'ch', 'Swisscom Schweiz AG', 'Swisscom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2817, '228-02', '0001-01-01', '9999-12-31', 'ch', 'Sunrise Communications AG', 'Sunrise', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2819, '228-05', '0001-01-01', '9999-12-31', 'ch', 'Comfone AG', 'Togewanet AG (Comfone)', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2820, '228-06', '0001-01-01', '9999-12-31', 'ch', 'SBB AG', 'SBB AG', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2821, '228-08', '0001-01-01', '9999-12-31', 'ch', 'Tele2 Telecommunications AG', 'Tele2', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2822, '228-12', '0001-01-01', '9999-12-31', 'ch', 'Sunrise Communications AG', 'Sunrise', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2823, '228-51', '0001-01-01', '9999-12-31', 'ch', 'Bebbicell AG', 'Bebbicell AG', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2824, '417-01', '0001-01-01', '9999-12-31', 'sy', 'Syriatel', 'Syriatel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2825, '417-02', '0001-01-01', '9999-12-31', 'sy', 'Spacetel Syria', 'MTN', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2826, '417-09', '0001-01-01', '9999-12-31', 'sy', 'Syrian Telecom', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2827, '436-01', '0001-01-01', '9999-12-31', 'tj', 'JC Somoncom', 'Tcell', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2828, '436-02', '0001-01-01', '9999-12-31', 'tj', 'CJSC Indigo Tajikistan', 'Tcell', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2829, '436-03', '0001-01-01', '9999-12-31', 'tj', 'TT mobile', 'MLT', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2830, '436-04', '0001-01-01', '9999-12-31', 'tj', 'Josa Babilon-T', 'Babilon-M', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2831, '436-05', '0001-01-01', '9999-12-31', 'tj', 'CTJTHSC Tajik-tel', 'Beeline', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2832, '640-02', '0001-01-01', '9999-12-31', 'tz', 'MIC (T) Ltd.', 'tiGO', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2833, '640-03', '0001-01-01', '9999-12-31', 'tz', 'Zantel', 'Zantel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2834, '640-04', '0001-01-01', '9999-12-31', 'tz', 'Vodacom (T) Ltd.', 'Vodacom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2835, '640-05', '0001-01-01', '9999-12-31', 'tz', 'Celtel (T) Ltd.', 'Airtel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2836, '520-00', '0001-01-01', '9999-12-31', 'th', 'CAT CDMA', 'Hutch', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2837, '520-01', '0001-01-01', '9999-12-31', 'th', 'AIS GSM', 'AIS', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2838, '520-15', '0001-01-01', '9999-12-31', 'th', 'ACT Mobile', 'TOT 3G', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2840, '294-02', '0001-01-01', '9999-12-31', 'mk', 'Cosmofon', 'Cosmofon', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2841, '294-03', '0001-01-01', '9999-12-31', 'mk', 'Nov Operator', 'VIP Operator', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2842, '294-10', '0001-01-01', '9999-12-31', 'mk', 'WTI Macedonia', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2843, '294-11', '0001-01-01', '9999-12-31', 'mk', 'MOBIK TELEKOMUNIKACII DOOEL- Skopje', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2844, '514-01', '0001-01-01', '9999-12-31', 'tl', 'Telin Timor-Leste', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2845, '514-02', '0001-01-01', '9999-12-31', 'tl', 'Timor Telecom', 'Timor Telecom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2846, '514-03', '0001-01-01', '9999-12-31', 'tl', 'Viettel Timor-Leste', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2847, '615-01', '0001-01-01', '9999-12-31', 'tg', 'Togo Telecom', 'Togo Cell', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2848, '539-01', '0001-01-01', '9999-12-31', 'to', 'Tonga Communications Corporation', 'Tonga Communications Corporation', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2849, '539-43', '0001-01-01', '9999-12-31', 'to', 'Digicel', 'Shoreline Communication', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2850, '539-88', '0001-01-01', '9999-12-31', 'to', 'Digicel (Tonga) Ltd', 'Digicel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2851, '374-12', '0001-01-01', '9999-12-31', 'tt', 'TSTT Mobile', 'bMobile', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2852, '374-130', '0001-01-01', '9999-12-31', 'tt', 'Digicel Trinidad and Tobago Ltd.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2853, '374-140', '0001-01-01', '9999-12-31', 'tt', 'LaqTel Ltd.', 'LaqTel Ltd.', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2854, '605-02', '0001-01-01', '9999-12-31', 'tn', 'Tunisie Telecom', 'Tunicell', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2855, '605-03', '0001-01-01', '9999-12-31', 'tn', 'Orascom Telecom', 'Tunisiana', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2856, '286-01', '0001-01-01', '9999-12-31', 'tr', 'Turkcell', 'Turkcell', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2858, '286-03', '0001-01-01', '9999-12-31', 'tr', 'Aria', 'Avea', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2859, '286-04', '0001-01-01', '9999-12-31', 'tr', 'Aycell', 'Aycell', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2860, '438-01', '0001-01-01', '9999-12-31', 'tm', 'Barash Communication Technologies (BCTI)', 'MTS', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2861, '438-02', '0001-01-01', '9999-12-31', 'tm', 'TM-Cell', 'TM-Cell', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2862, '376-350', '0001-01-01', '9999-12-31', 'tc', 'Cable & Wireless (TCI) Ltd trading asLime', 'Lime (Cable & Wireless)', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2863, '376-352', '0001-01-01', '9999-12-31', 'tc', 'IslandCom Communications Ltd.', 'Islandcom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2864, '376-360', '0001-01-01', '9999-12-31', 'tc', 'IslandCom Communication Ltd', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2865, '553-01', '0001-01-01', '9999-12-31', 'tv', 'Tuvalu Telecommunications Corporation', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2866, '641-01', '0001-01-01', '9999-12-31', 'ug', 'Celtel Uganda', 'Zain', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2867, '641-10', '0001-01-01', '9999-12-31', 'ug', 'MTN Uganda Ltd.', 'MTN', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2868, '641-11', '0001-01-01', '9999-12-31', 'ug', 'Uganda Telecom Ltd.', 'Uganda Telecom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2870, '641-18', '0001-01-01', '9999-12-31', 'ug', 'Sure Telecom Uganda Limited', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2871, '641-22', '0001-01-01', '9999-12-31', 'ug', 'Warid Telecom Uganda Ltd.', 'Warid Telecom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2872, '641-30', '0001-01-01', '9999-12-31', 'ug', 'Anupam Global Soft Uganda Limited', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2873, '641-33', '0001-01-01', '9999-12-31', 'ug', 'Smile Communications Uganda Limited', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2874, '641-40', '0001-01-01', '9999-12-31', 'ug', 'Civil Aviation Authority (CAA)', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2875, '641-44', '0001-01-01', '9999-12-31', 'ug', 'K2 Telecom Ltd', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2876, '641-66', '0001-01-01', '9999-12-31', 'ug', 'i-Tel Ltd', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2877, '255-01', '0001-01-01', '9999-12-31', 'ua', 'Ukrainian Mobile Communication, UMC', 'MTS', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2878, '255-02', '0001-01-01', '9999-12-31', 'ua', 'Ukranian Radio Systems, URS', 'Beeline', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2879, '255-03', '0001-01-01', '9999-12-31', 'ua', 'Kyivstar GSM', 'Kyivstar', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2880, '255-04', '0001-01-01', '9999-12-31', 'ua', 'International Telecommunications Ltd.', 'IT', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2881, '255-05', '0001-01-01', '9999-12-31', 'ua', 'Golden Telecom', 'Golden Telecom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2882, '255-06', '0001-01-01', '9999-12-31', 'ua', 'Astelit', 'life:)', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2883, '255-07', '0001-01-01', '9999-12-31', 'ua', 'Ukrtelecom', 'Ukrtelecom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2884, '255-21', '0001-01-01', '9999-12-31', 'ua', 'CJSC - Telesystems of Ukraine', 'PEOPLEnet', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2885, '424-02', '0001-01-01', '9999-12-31', 'ae', 'Etisalat', 'Etisalat', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2886, '234-00', '0001-01-01', '9999-12-31', 'gb', 'British Telecom', 'BT', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2887, '234-01', '0001-01-01', '9999-12-31', 'gb', 'Mapesbury Communications Ltd.', 'Vectone MObile', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2888, '234-02', '0001-01-01', '9999-12-31', 'gb', 'O2 UK Ltd.', 'O2', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2889, '234-03', '0001-01-01', '9999-12-31', 'gb', 'Jersey Airtel Ltd', 'Airtel-Vodafone', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2890, '234-04', '0001-01-01', '9999-12-31', 'gb', 'FMS Solutions Ltd', 'FMS Solutions Ltd', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2891, '234-05', '0001-01-01', '9999-12-31', 'gb', 'Colt Mobile Telecommunications Ltd', 'COLT Mobile Telecommunications Ltd', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2892, '234-06', '0001-01-01', '9999-12-31', 'gb', 'Internet Computer Bureau Ltd', 'Internet Computer Bureau Ltd', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2893, '234-07', '0001-01-01', '9999-12-31', 'gb', 'Cable & Wireless UK', 'Cable and Wireless Plc', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2894, '234-08', '0001-01-01', '9999-12-31', 'gb', 'OnePhone (UK) Ltd', 'OnePhone Ltd', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2895, '234-09', '0001-01-01', '9999-12-31', 'gb', 'Tismi BV', 'Tismi BV', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2896, '234-10', '0001-01-01', '9999-12-31', 'gb', 'O2 UK Ltd.', 'O2', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2897, '234-11', '0001-01-01', '9999-12-31', 'gb', 'O2 UK Ltd.', 'O2', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2898, '234-12', '0001-01-01', '9999-12-31', 'gb', 'Network Rail Infrastructure Ltd', 'Railtrack Plc (UK)', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2899, '234-13', '0001-01-01', '9999-12-31', 'gb', 'Network Rail Infrastructure Ltd', 'Railtrack Plc (UK)', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2900, '234-14', '0001-01-01', '9999-12-31', 'gb', 'Hay Systems Ltd', 'Hay Systems Ltd', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2902, '234-16', '0001-01-01', '9999-12-31', 'gb', 'Opal Telecom Ltd', 'Talk Talk', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2903, '234-17', '0001-01-01', '9999-12-31', 'gb', 'Flextel Ltd', 'Flextel Ltd', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2904, '234-18', '0001-01-01', '9999-12-31', 'gb', 'Cloud9', 'Cloud9', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2905, '234-19', '0001-01-01', '9999-12-31', 'gb', 'Teleware plc', 'Teleware', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2907, '234-21', '0001-01-01', '9999-12-31', 'gb', 'LogicStar Ltd', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2908, '234-22', '0001-01-01', '9999-12-31', 'gb', 'Routo Telecommunications Ltd', 'RoutoMessaging', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2909, '234-23', '0001-01-01', '9999-12-31', 'gb', 'Vectone Network Ltd', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2910, '234-24', '0001-01-01', '9999-12-31', 'gb', 'Stour Marine Ltd', 'Greenfone', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2911, '234-25', '0001-01-01', '9999-12-31', 'gb', 'Software Cellular Network Ltd', 'Truphone (UK)', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2912, '234-26', '0001-01-01', '9999-12-31', 'gb', 'Lycamobile UK Limited', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2913, '234-27', '0001-01-01', '9999-12-31', 'gb', 'Teleena UK Limited', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2914, '234-28', '0001-01-01', '9999-12-31', 'gb', 'Marathon Telecom Limited', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2915, '234-29', '0001-01-01', '9999-12-31', 'gb', '(aq) Limited T/A aql', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2916, '234-30', '0001-01-01', '9999-12-31', 'gb', 'T-Mobile UK', 'T-mobile', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2917, '234-31', '0001-01-01', '9999-12-31', 'gb', 'T-Mobile UK', 'Virgin', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2918, '234-32', '0001-01-01', '9999-12-31', 'gb', 'T-Mobile UK', 'Virgin', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2921, '234-50', '0001-01-01', '9999-12-31', 'gb', 'Jersey Telecom', 'JT-Wave', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2922, '234-55', '0001-01-01', '9999-12-31', 'gb', 'Cable and Wireless Guensey Ltd', 'Cable and Wireless', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2923, '234-58', '0001-01-01', '9999-12-31', 'gb', 'Manx Telecom', 'Manx Telecom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2924, '234-76', '0001-01-01', '9999-12-31', 'gb', 'British Telecom', 'BT', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2857, '286-02', '0001-01-01', '9999-12-31', 'tr', 'Telsim GSM', 'Vodafone tr', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2869, '641-14', '0001-01-01', '9999-12-31', 'ug', 'House of Integrated Technology and Systems Uganda Ltd (HiTs Telecom)', 'Orange ug', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2925, '234-78', '0001-01-01', '9999-12-31', 'gb', 'Airwave mmO2 Ltd', 'Airwave', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2926, '235-00', '0001-01-01', '9999-12-31', 'gb', 'Mundlo Mobile Limited', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2927, '235-77', '0001-01-01', '9999-12-31', 'gb', 'British Telecom', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2928, '235-91', '0001-01-01', '9999-12-31', 'gb', 'Vodafone Ltd', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2929, '235-92', '0001-01-01', '9999-12-31', 'gb', 'Cable & Wireless UK', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2930, '235-94', '0001-01-01', '9999-12-31', 'gb', 'Hutchison 3G UK Ltd.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2931, '235-95', '0001-01-01', '9999-12-31', 'gb', 'Network Rail Infrastructure Ltd', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2932, '310-010', '0001-01-01', '9999-12-31', 'us', 'Verizon Wireless', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2933, '310-012', '0001-01-01', '9999-12-31', 'us', 'Verizon Wireless', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2934, '310-013', '0001-01-01', '9999-12-31', 'us', 'Verizon Wireless', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2935, '310-016', '0001-01-01', '9999-12-31', 'us', 'Cricket Communications', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2936, '310-017', '0001-01-01', '9999-12-31', 'us', 'North Sight Communications Inc', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2937, '310-020', '0001-01-01', '9999-12-31', 'us', 'Union Telephone Company', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2938, '310-030', '0001-01-01', '9999-12-31', 'us', 'Centennial Communications', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2939, '310-035', '0001-01-01', '9999-12-31', 'us', 'ETEX Communications dba ETEX Wireless', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2940, '310-040', '0001-01-01', '9999-12-31', 'us', 'MTA Communications dba MTA Wireless', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2941, '310-050', '0001-01-01', '9999-12-31', 'us', 'Alaska Communications', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2942, '310-060', '0001-01-01', '9999-12-31', 'us', 'Consolidated Telcom', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2943, '310-070', '0001-01-01', '9999-12-31', 'us', 'AT&T', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2944, '310-080', '0001-01-01', '9999-12-31', 'us', 'Corr Wireless Communications LLC', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2945, '310-090', '0001-01-01', '9999-12-31', 'us', 'Cricket Communications', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2946, '310-100', '0001-01-01', '9999-12-31', 'us', 'New Mexico RSA 4 East Ltd. Partnership', 'Plateau Wireless', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2947, '310-110', '0001-01-01', '9999-12-31', 'us', 'Pacific Telecom Inc', 'Verizon', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2948, '310-120', '0001-01-01', '9999-12-31', 'us', 'Sprintcom Inc', 'Sprint', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2949, '310-130', '0001-01-01', '9999-12-31', 'us', 'Carolina West Wireless', 'Carolina West Wireless', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2950, '310-140', '0001-01-01', '9999-12-31', 'us', 'GTA Wireless LLC', 'GTA Wireless LLC', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2951, '310-150', '0001-01-01', '9999-12-31', 'us', 'Cingular Wireless', 'AT&T', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2953, '310-170', '0001-01-01', '9999-12-31', 'us', 'Cingular Wireless', 'Cingular Wireless', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2954, '310-180', '0001-01-01', '9999-12-31', 'us', 'West Central Wireless', 'West Central', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2955, '310-190', '0001-01-01', '9999-12-31', 'us', 'Alaska Wireless Communications LLC', 'Dutch Harbor', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2964, '310-280', '0001-01-01', '9999-12-31', 'us', 'Contennial Puerto Rio License Corp.', 'Verizon', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2965, '310-290', '0001-01-01', '9999-12-31', 'us', 'Nep Cellcorp Inc.', 'Nep Cellcorp Inc.', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2966, '310-300', '0001-01-01', '9999-12-31', 'us', 'Blanca Telephone Company', 'iSmart Mobile', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2968, '310-320', '0001-01-01', '9999-12-31', 'us', 'Smith Bagley Inc, dba Cellular One', 'Cellular One', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2969, '310-330', '0001-01-01', '9999-12-31', 'us', 'AWCC', 'AN Subsidiary LLC', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2970, '310-340', '0001-01-01', '9999-12-31', 'us', 'High Plains Midwest LLC, dba Westlink Communications', 'Westlink', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2971, '310-350', '0001-01-01', '9999-12-31', 'us', 'Mohave Cellular L.P.', 'Mohave Cellular L.P.', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2972, '310-360', '0001-01-01', '9999-12-31', 'us', 'Cellular Network Partnership dba Pioneer Cellular', 'Cellular Network Partnership dba Pioneer Cellular', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2973, '310-370', '0001-01-01', '9999-12-31', 'us', 'Docomo Pacific Inc', 'Guamcell Cellular and Paging', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2974, '310-380', '0001-01-01', '9999-12-31', 'us', 'New Cingular Wireless PCS, LLC', 'New Cingular Wireless PCS, LLC', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2975, '310-390', '0001-01-01', '9999-12-31', 'us', 'TX-11 Acquistion LLC', 'Verizon', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2976, '310-400', '0001-01-01', '9999-12-31', 'us', 'Wave Runner LLC', 'i CAN_GSM', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2977, '310-410', '0001-01-01', '9999-12-31', 'us', 'Cingular Wireless', 'AT&T', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2978, '310-420', '0001-01-01', '9999-12-31', 'us', 'Cincinnati Bell Wireless LLC', 'Cincinnati Bell', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2979, '310-430', '0001-01-01', '9999-12-31', 'us', 'GCI Communications Corp', 'Alaska Digitel LLC', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2980, '310-440', '0001-01-01', '9999-12-31', 'us', 'Numerex Corp', 'Numerex Corp.', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2981, '310-450', '0001-01-01', '9999-12-31', 'us', 'North East Cellular Inc.', 'Viaero', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2982, '310-460', '0001-01-01', '9999-12-31', 'us', 'Newcore Wireless', 'Simmetry', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2983, '310-470', '0001-01-01', '9999-12-31', 'us', 'nTELOS Communications Inc', 'Omnipoint', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2984, '310-480', '0001-01-01', '9999-12-31', 'us', 'Choice Phone LLC', 'Verizon', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2986, '310-500', '0001-01-01', '9999-12-31', 'us', 'Public Service Cellular, Inc.', 'Alltel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2987, '310-510', '0001-01-01', '9999-12-31', 'us', 'Nsighttel Wireless Inc', 'Airtel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2988, '310-520', '0001-01-01', '9999-12-31', 'us', 'Transactions Network Services', 'VeriSign', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2989, '310-530', '0001-01-01', '9999-12-31', 'us', 'Iowa Wireless Services LLC', 'West Virginia Wireless', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2990, '310-540', '0001-01-01', '9999-12-31', 'us', 'Oklahoma Western Telephone Company', 'Oklahoma Western', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2991, '310-550', '0001-01-01', '9999-12-31', 'us', 'Wireless Solutions International', 'AT&T', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2992, '310-560', '0001-01-01', '9999-12-31', 'us', 'AT&T', 'AT&T', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2993, '310-570', '0001-01-01', '9999-12-31', 'us', 'MTPCS LLC', 'Cellular One', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2994, '310-580', '0001-01-01', '9999-12-31', 'us', 'Inland Cellular Telephone Company', 'Inland Cellular Telephone Company', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2995, '310-590', '0001-01-01', '9999-12-31', 'us', 'Verizon Wireless', 'Alltel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2996, '310-600', '0001-01-01', '9999-12-31', 'us', 'New Cell Inc. dba Cellcom', 'New Cell Inc. dba Cellcom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2997, '310-610', '0001-01-01', '9999-12-31', 'us', 'Elkhart Telephone Co. Inc. dba Epic Touch Co.', 'Epic Touch', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2998, '310-620', '0001-01-01', '9999-12-31', 'us', 'Nsighttel Wireless Inc', 'Coleman County Telecom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2999, '310-640', '0001-01-01', '9999-12-31', 'us', 'Airadigm Communications', 'Airadigm', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3000, '310-650', '0001-01-01', '9999-12-31', 'us', 'Jasper Wireless Inc.', 'Jasper', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3001, '310-660', '0001-01-01', '9999-12-31', 'us', 'T-Mobile USA', 'MetroPCS', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3002, '310-670', '0001-01-01', '9999-12-31', 'us', 'AT&T Mobility Vanguard Services', 'Northstar', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3003, '310-680', '0001-01-01', '9999-12-31', 'us', 'AT&T', 'AT&T', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3004, '310-690', '0001-01-01', '9999-12-31', 'us', 'Keystone Wireless LLC', 'Conestoga', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3005, '310-700', '0001-01-01', '9999-12-31', 'us', 'Cross Valiant Cellular Partnership', 'Cross Valiant Cellular Partnership', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3006, '310-710', '0001-01-01', '9999-12-31', 'us', 'Arctic Slope Telephone Association Cooperative', 'Arctic Slopo Telephone Association Cooperative', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3007, '310-720', '0001-01-01', '9999-12-31', 'us', 'Wireless Solutions International Inc.', 'Wireless Solutions International Inc.', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3008, '310-730', '0001-01-01', '9999-12-31', 'us', 'US Cellular', 'SeaMobile', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3009, '310-740', '0001-01-01', '9999-12-31', 'us', 'Convey Communications Inc', 'Convey', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3010, '310-750', '0001-01-01', '9999-12-31', 'us', 'East Kentucky Network LLC dba Appalachian Wireless', 'East Kentucky Network LLC dba Appalachian Wireless', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3011, '310-760', '0001-01-01', '9999-12-31', 'us', 'Lynch 3G Communications Corporation', 'Panhandle', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3012, '310-770', '0001-01-01', '9999-12-31', 'us', 'Iowa Wireless Services LLC dba I Wireless', 'i wireless', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3013, '310-780', '0001-01-01', '9999-12-31', 'us', 'D.D. Inc', 'Connect Net Inc', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3014, '310-790', '0001-01-01', '9999-12-31', 'us', 'PinPoint Communications Inc.', 'PinPoint', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3016, '310-810', '0001-01-01', '9999-12-31', 'us', 'LCFR LLC', 'Brazos Cellular Communications Ltd.', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3017, '310-820', '0001-01-01', '9999-12-31', 'us', 'South Canaan Cellular Communications Co. LP', 'South Canaan Cellular Communications Co. LP', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3018, '310-830', '0001-01-01', '9999-12-31', 'us', 'Clearwire Corporation', 'Caprock', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3019, '310-840', '0001-01-01', '9999-12-31', 'us', 'Telecom North America Mobile Inc', 'telna Mobile', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3020, '310-850', '0001-01-01', '9999-12-31', 'us', 'Aeris Communications, Inc.', 'Aeris', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3021, '310-860', '0001-01-01', '9999-12-31', 'us', 'TX RSA 15B2, LP dba Five Star Wireless', 'TX RSA 15B2, LP dba Five Star Wireless', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3022, '310-870', '0001-01-01', '9999-12-31', 'us', 'Kaplan Telephone Company Inc.', 'PACE', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3023, '310-880', '0001-01-01', '9999-12-31', 'us', 'Advantage Cellular Systems, Inc.', 'Advantage', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3024, '310-890', '0001-01-01', '9999-12-31', 'us', 'Verizon Wireless', 'Verizon', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3025, '310-900', '0001-01-01', '9999-12-31', 'us', 'Cable & Communications Corporation dba Mid-Rivers Wireless', 'Mid-Rivers Wireless', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3026, '310-910', '0001-01-01', '9999-12-31', 'us', 'Verizon Wireless', 'Verizon', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3027, '310-920', '0001-01-01', '9999-12-31', 'us', 'James Valley Wireless LLC', 'Get Mobile', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3028, '310-930', '0001-01-01', '9999-12-31', 'us', 'Copper Valley Wireless', 'Copper Valley Wireless', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3029, '310-940', '0001-01-01', '9999-12-31', 'us', 'Iris Wireless LLC', 'Poka Lambro Telecommunications Ltd.', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3030, '310-950', '0001-01-01', '9999-12-31', 'us', 'Texas RSA 1 dba XIT Wireless', 'XIT Wireless', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3031, '310-960', '0001-01-01', '9999-12-31', 'us', 'UBET Wireless', 'Plateau Wireless', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3032, '310-970', '0001-01-01', '9999-12-31', 'us', 'Globalstar USA', 'Globalstar', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3033, '310-980', '0001-01-01', '9999-12-31', 'us', 'Texas RSA 7B3 dba Peoples Wireless Services', 'New Cingular Wireless PCS LLC', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3034, '310-990', '0001-01-01', '9999-12-31', 'us', 'Worldcall Interconnect', 'E.N.M.R. Telephone Cooperative', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3035, '311-000', '0001-01-01', '9999-12-31', 'us', 'Mid-Tex Cellular Ltd.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3036, '311-010', '0001-01-01', '9999-12-31', 'us', 'Chariton Valley Communications Corp., Inc.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3037, '311-020', '0001-01-01', '9999-12-31', 'us', 'Missouri RSA No. 5 Partnership', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3038, '311-030', '0001-01-01', '9999-12-31', 'us', 'Indigo Wireless, Inc.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3039, '311-040', '0001-01-01', '9999-12-31', 'us', 'Commnet Wireless LLC', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3040, '311-050', '0001-01-01', '9999-12-31', 'us', 'Thumb Cellular Limited Partnership', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3041, '311-060', '0001-01-01', '9999-12-31', 'us', 'Space Data Corporation', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3042, '311-070', '0001-01-01', '9999-12-31', 'us', 'Wisconsin RSA #7 Limited Partnership', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3043, '311-080', '0001-01-01', '9999-12-31', 'us', 'Pine Telephone Company dba Pine Cellular', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3044, '311-090', '0001-01-01', '9999-12-31', 'us', 'LongLines Wireless', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3045, '311-100', '0001-01-01', '9999-12-31', 'us', 'Nex-Tech Wireless LLC', 'High Plains Wireless', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3046, '311-110', '0001-01-01', '9999-12-31', 'us', 'Verizon Wireless', 'High Plains Wireless', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3047, '311-120', '0001-01-01', '9999-12-31', 'us', 'Choice Phone LLC', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3048, '311-130', '0001-01-01', '9999-12-31', 'us', 'Light Squared LP', 'Alltel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3049, '311-140', '0001-01-01', '9999-12-31', 'us', 'Cross Telephone Company', 'Sprocket', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3050, '311-150', '0001-01-01', '9999-12-31', 'us', 'Wilkes Cellular Inc.', 'Wilkes Cellular', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3051, '311-160', '0001-01-01', '9999-12-31', 'us', 'Light Squared LP', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3052, '311-170', '0001-01-01', '9999-12-31', 'us', 'PetroCom LLC', 'PetroCom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3053, '311-180', '0001-01-01', '9999-12-31', 'us', 'Cingular Wireless, Licensee Pacific Telesis Mobile Services, LLC', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3054, '311-190', '0001-01-01', '9999-12-31', 'us', 'Cellular Properties Inc.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3055, '311-200', '0001-01-01', '9999-12-31', 'us', 'ARINC', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3056, '311-210', '0001-01-01', '9999-12-31', 'us', 'Emery Telecom-Wireless Inc', 'Farmers Cellular', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3057, '311-220', '0001-01-01', '9999-12-31', 'us', 'United States Cellular', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3058, '311-230', '0001-01-01', '9999-12-31', 'us', 'Cellular South Inc', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3059, '311-240', '0001-01-01', '9999-12-31', 'us', 'Cordova Wireless Communications Inc', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3060, '311-250', '0001-01-01', '9999-12-31', 'us', 'Wave Runner LLC', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3061, '311-260', '0001-01-01', '9999-12-31', 'us', 'Clearwire Corporation', 'Cellular One', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3062, '311-270', '0001-01-01', '9999-12-31', 'us', 'Verizon Wireless', 'Lamar Country Cellular', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3063, '311-271', '0001-01-01', '9999-12-31', 'us', 'Verizon Wireless', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3064, '311-272', '0001-01-01', '9999-12-31', 'us', 'Verizon Wireless', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3065, '311-273', '0001-01-01', '9999-12-31', 'us', 'Verizon Wireless', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3066, '311-274', '0001-01-01', '9999-12-31', 'us', 'Verizon Wireless', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3067, '311-275', '0001-01-01', '9999-12-31', 'us', 'Verizon Wireless', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3068, '311-276', '0001-01-01', '9999-12-31', 'us', 'Verizon Wireless', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3069, '311-277', '0001-01-01', '9999-12-31', 'us', 'Verizon Wireless', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3070, '311-278', '0001-01-01', '9999-12-31', 'us', 'Verizon Wireless', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3071, '311-279', '0001-01-01', '9999-12-31', 'us', 'Verizon Wireless', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3072, '311-280', '0001-01-01', '9999-12-31', 'us', 'Verizon Wireless', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3073, '311-281', '0001-01-01', '9999-12-31', 'us', 'Verizon Wireless', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3074, '311-282', '0001-01-01', '9999-12-31', 'us', 'Verizon Wireless', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3075, '311-283', '0001-01-01', '9999-12-31', 'us', 'Verizon Wireless', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3076, '311-284', '0001-01-01', '9999-12-31', 'us', 'Verizon Wireless', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3077, '311-285', '0001-01-01', '9999-12-31', 'us', 'Verizon Wireless', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3078, '311-286', '0001-01-01', '9999-12-31', 'us', 'Verizon Wireless', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3079, '311-287', '0001-01-01', '9999-12-31', 'us', 'Verizon Wireless', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3080, '311-288', '0001-01-01', '9999-12-31', 'us', 'Verizon Wireless', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3081, '311-289', '0001-01-01', '9999-12-31', 'us', 'Verizon Wireless', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3082, '311-290', '0001-01-01', '9999-12-31', 'us', 'Pinpoint Wireless Inc.', 'NEP Wireless', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3083, '311-300', '0001-01-01', '9999-12-31', 'us', 'Nexus Communications Inc', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3084, '311-310', '0001-01-01', '9999-12-31', 'us', 'Leaco Rural Telephone Company Inc', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3085, '311-320', '0001-01-01', '9999-12-31', 'us', 'Commnet Wireless LLC', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3086, '311-330', '0001-01-01', '9999-12-31', 'us', 'Bug Tussel Wireless LLC', 'Bug Tussel Wireless', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3087, '311-340', '0001-01-01', '9999-12-31', 'us', 'Illinois Valley Cellular', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3088, '311-350', '0001-01-01', '9999-12-31', 'us', 'Sagebrush Cellular Inc dba Nemont', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3089, '311-360', '0001-01-01', '9999-12-31', 'us', 'Stelera Wireless LLC', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3090, '311-370', '0001-01-01', '9999-12-31', 'us', 'GCI Communications Corp.', 'GCI Wireless in Alaska', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3091, '311-380', '0001-01-01', '9999-12-31', 'us', 'New Dimension Wireless Ltd', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3092, '311-390', '0001-01-01', '9999-12-31', 'us', 'Verizon Wireless', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3093, '311-410', '0001-01-01', '9999-12-31', 'us', 'Iowa RSA No.2 Ltd Partnership', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3094, '311-420', '0001-01-01', '9999-12-31', 'us', 'Northwest Missouri Cellular Limited Partnership', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3095, '311-430', '0001-01-01', '9999-12-31', 'us', 'RSA 1 Limited Partnership dba Cellular 29 Plus', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3096, '311-440', '0001-01-01', '9999-12-31', 'us', 'Bluegrass Cellular LLC', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3097, '311-450', '0001-01-01', '9999-12-31', 'us', 'Panhandle Telecommunication Systems Inc.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3098, '311-460', '0001-01-01', '9999-12-31', 'us', 'Fisher Wireless Services Inc', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3099, '311-470', '0001-01-01', '9999-12-31', 'us', 'Vitelcom Cellular Inc dba Innovative Wireless', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3100, '311-480', '0001-01-01', '9999-12-31', 'us', 'Verizon Wireless', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3101, '311-481', '0001-01-01', '9999-12-31', 'us', 'Verizon Wireless', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3102, '311-482', '0001-01-01', '9999-12-31', 'us', 'Verizon Wireless', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3103, '311-483', '0001-01-01', '9999-12-31', 'us', 'Verizon Wireless', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3104, '311-484', '0001-01-01', '9999-12-31', 'us', 'Verizon Wireless', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3105, '311-485', '0001-01-01', '9999-12-31', 'us', 'Verizon Wireless', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3106, '311-486', '0001-01-01', '9999-12-31', 'us', 'Verizon Wireless', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3107, '311-487', '0001-01-01', '9999-12-31', 'us', 'Verizon Wireless', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3108, '311-488', '0001-01-01', '9999-12-31', 'us', 'Verizon Wireless', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3109, '311-489', '0001-01-01', '9999-12-31', 'us', 'Verizon Wireless', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3110, '311-490', '0001-01-01', '9999-12-31', 'us', 'Sprintcom Inc', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3111, '311-500', '0001-01-01', '9999-12-31', 'us', 'Mosaic Telecom Inc', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3112, '311-510', '0001-01-01', '9999-12-31', 'us', 'Light Squared LP', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3113, '311-520', '0001-01-01', '9999-12-31', 'us', 'Light Squared LP', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3114, '311-530', '0001-01-01', '9999-12-31', 'us', 'Newcore Wireless LLC', 'NewCore Wireless', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3115, '311-540', '0001-01-01', '9999-12-31', 'us', 'Poximiti Mobility Inc', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3116, '311-550', '0001-01-01', '9999-12-31', 'us', 'Commnet Midwest LLC', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3117, '311-560', '0001-01-01', '9999-12-31', 'us', 'OTZ Communications Inc', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3118, '311-570', '0001-01-01', '9999-12-31', 'us', 'Bend Cable Communications LLC', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3119, '311-580', '0001-01-01', '9999-12-31', 'us', 'United States Cellular', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3120, '311-590', '0001-01-01', '9999-12-31', 'us', 'California RSA No3 Ltd Partnership dba Golden State Cellular', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3121, '311-600', '0001-01-01', '9999-12-31', 'us', 'Cox TMI Wireless LLC', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3122, '311-610', '0001-01-01', '9999-12-31', 'us', 'North Dakota Network Co.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3123, '311-620', '0001-01-01', '9999-12-31', 'us', 'Terrestar Networks Inc', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3124, '311-630', '0001-01-01', '9999-12-31', 'us', 'Corr Wireless Communications', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3125, '311-640', '0001-01-01', '9999-12-31', 'us', 'Standing Rock Telecommunications', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3126, '311-650', '0001-01-01', '9999-12-31', 'us', 'United Wireless Inc', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3127, '311-660', '0001-01-01', '9999-12-31', 'us', 'Metro PCS Wireless Inc', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3128, '311-670', '0001-01-01', '9999-12-31', 'us', 'Pine Belt Cellular Inc dba Pine Belt Wireless', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3129, '311-680', '0001-01-01', '9999-12-31', 'us', 'GreenFly LLC', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3130, '311-690', '0001-01-01', '9999-12-31', 'us', 'TeleBeeper of New Mexico Inc', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3131, '311-700', '0001-01-01', '9999-12-31', 'us', 'TotalSolutions Telecom LLC', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3132, '311-710', '0001-01-01', '9999-12-31', 'us', 'Northeast Wireless Networks LLC', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3133, '311-720', '0001-01-01', '9999-12-31', 'us', 'Maine PCS LLC', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3134, '311-730', '0001-01-01', '9999-12-31', 'us', 'Proximiti Mobility Inc', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3135, '311-740', '0001-01-01', '9999-12-31', 'us', 'Telalaska Cellular', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3136, '311-750', '0001-01-01', '9999-12-31', 'us', 'NetAmerica Alliance LLC', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3137, '311-760', '0001-01-01', '9999-12-31', 'us', 'Edigen Inc', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3138, '311-770', '0001-01-01', '9999-12-31', 'us', 'Radio Mobile Access Inc', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3139, '311-800', '0001-01-01', '9999-12-31', 'us', 'Bluegrass Cellular LLC', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3140, '311-810', '0001-01-01', '9999-12-31', 'us', 'Blegrass Cellular LLC', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3141, '311-820', '0001-01-01', '9999-12-31', 'us', 'Kineto Wireless Inc', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3142, '311-830', '0001-01-01', '9999-12-31', 'us', 'Thumb Cellular LLC', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3143, '311-840', '0001-01-01', '9999-12-31', 'us', 'Nsight Spectrum LLC', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3144, '311-850', '0001-01-01', '9999-12-31', 'us', 'Nsight Spectrum LLC', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3145, '311-860', '0001-01-01', '9999-12-31', 'us', 'Uintah Basin Electronic Telecommunications', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3146, '311-870', '0001-01-01', '9999-12-31', 'us', 'Sprintcom Inc', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3147, '311-880', '0001-01-01', '9999-12-31', 'us', 'Sprintcom Inc', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3148, '311-890', '0001-01-01', '9999-12-31', 'us', 'Globecom Network Services Corporation', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3149, '311-900', '0001-01-01', '9999-12-31', 'us', 'Gigsky inc', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3150, '311-910', '0001-01-01', '9999-12-31', 'us', 'SI Wireless LLC', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3151, '311-920', '0001-01-01', '9999-12-31', 'us', 'Missouri RSA No 5 Partnership dba Charlton Valley Wireless Services', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3152, '311-940', '0001-01-01', '9999-12-31', 'us', 'Clearwire Corporation', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3153, '311-950', '0001-01-01', '9999-12-31', 'us', 'Sunman Telecommunications corp.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3154, '311-960', '0001-01-01', '9999-12-31', 'us', 'Lycamobile USA Inc', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3155, '311-970', '0001-01-01', '9999-12-31', 'us', 'Big River Broadband LLC', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3156, '311-980', '0001-01-01', '9999-12-31', 'us', 'LigTel Communications', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3157, '311-990', '0001-01-01', '9999-12-31', 'us', 'VTel Wireless', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3158, '312-010', '0001-01-01', '9999-12-31', 'us', 'Charlton Valley Communication Corporation Inc', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3159, '312-020', '0001-01-01', '9999-12-31', 'us', 'Infrastructure Networks LLC', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3160, '312-030', '0001-01-01', '9999-12-31', 'us', 'Cross Wireless', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3161, '312-040', '0001-01-01', '9999-12-31', 'us', 'Custer Telephone Cooperative Inc', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3162, '312-050', '0001-01-01', '9999-12-31', 'us', 'Fuego Wireless LLC', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3163, '312-060', '0001-01-01', '9999-12-31', 'us', 'CoverageCo', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3164, '312-070', '0001-01-01', '9999-12-31', 'us', 'Adams Networks Inc', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3165, '312-080', '0001-01-01', '9999-12-31', 'us', 'South Georgia Regional Information Technology Authority', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3166, '312-090', '0001-01-01', '9999-12-31', 'us', 'Allied Wireless Communixcations Corporation', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3167, '312-100', '0001-01-01', '9999-12-31', 'us', 'ClearSky Technologies Inc', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3168, '312-110', '0001-01-01', '9999-12-31', 'us', 'Texas Energy Network LLC', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3169, '312-120', '0001-01-01', '9999-12-31', 'us', 'East Kentucky Network LLC dba Appalachian Wireless', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3170, '312-130', '0001-01-01', '9999-12-31', 'us', 'East Kentucky Network LLC dba Appalachian Wireless', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3171, '312-140', '0001-01-01', '9999-12-31', 'us', 'Cleveland Unlimited Inc', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3172, '312-150', '0001-01-01', '9999-12-31', 'us', 'Northwest Cell', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3173, '312-160', '0001-01-01', '9999-12-31', 'us', 'RSA1 Limited Partnership dba Chat Mobility', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3174, '312-170', '0001-01-01', '9999-12-31', 'us', 'Iowa RSA No 2 Limited Partnership', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3175, '312-180', '0001-01-01', '9999-12-31', 'us', 'Keystone Wireless LLC', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3176, '312-190', '0001-01-01', '9999-12-31', 'us', 'Sprint-Nextel Communications Inc', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3177, '312-200', '0001-01-01', '9999-12-31', 'us', 'Voyager Mobility LLC', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3178, '313-100', '0001-01-01', '9999-12-31', 'us', 'Assigned to Public Safety', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3179, '316-010', '0001-01-01', '9999-12-31', 'us', 'Sprint-Nextel Communications Inc', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3180, '316-011', '0001-01-01', '9999-12-31', 'us', 'Southern Communications Services Inc.', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3181, '748-00', '0001-01-01', '9999-12-31', 'uy', 'Ancel - TDMA', 'Ancel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3182, '748-01', '0001-01-01', '9999-12-31', 'uy', 'Ancel - GSM', 'Ancel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3183, '748-03', '0001-01-01', '9999-12-31', 'uy', 'Ancel', 'Ancel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3184, '748-07', '0001-01-01', '9999-12-31', 'uy', 'Movistar', 'Movistar', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3185, '748-10', '0001-01-01', '9999-12-31', 'uy', 'CTI Móvil', 'Claro', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3186, '434-01', '0001-01-01', '9999-12-31', 'uz', 'Buztel', 'Buztel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3187, '434-02', '0001-01-01', '9999-12-31', 'uz', 'Uzmacom', 'Uzmacom', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3188, '434-04', '0001-01-01', '9999-12-31', 'uz', 'Daewoo Unitel', 'Beeline', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3189, '434-05', '0001-01-01', '9999-12-31', 'uz', 'Coscom', 'Ucell', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3190, '434-07', '0001-01-01', '9999-12-31', 'uz', 'Uzdunrobita', 'MTS', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3191, '541-01', '0001-01-01', '9999-12-31', 'vu', 'SMILE', 'Smile', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3192, '541-05', '0001-01-01', '9999-12-31', 'vu', 'Digicel Vanuatu', 'Digicel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3193, '734-01', '0001-01-01', '9999-12-31', 've', 'Infonet', 'Digitel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3194, '734-02', '0001-01-01', '9999-12-31', 've', 'Corporación Digitel', 'Digitel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3195, '734-03', '0001-01-01', '9999-12-31', 've', 'Digicel', 'Digitel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3196, '734-04', '0001-01-01', '9999-12-31', 've', 'Telcel, C.A.', 'Movistar', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3197, '734-06', '0001-01-01', '9999-12-31', 've', 'Telecomunicaciones Movilnet, C.A.', 'Movilnet', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3198, '452-01', '0001-01-01', '9999-12-31', 'vn', 'Mobifone', 'MobilFone', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3199, '452-02', '0001-01-01', '9999-12-31', 'vn', 'Vinaphone', 'Vinaphone', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3200, '452-03', '0001-01-01', '9999-12-31', 'vn', 'S Telecom (CDMA)', 'S-Fone', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3201, '452-04', '0001-01-01', '9999-12-31', 'vn', 'Viettel', 'Viettel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3202, '452-06', '0001-01-01', '9999-12-31', 'vn', 'EVN Telecom', 'E-Mobile', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3203, '452-07', '0001-01-01', '9999-12-31', 'vn', 'Beeline VN/GTEL Mobile JSC', 'Beeline VN', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3204, '452-08', '0001-01-01', '9999-12-31', 'vn', 'EVN Telecom', NULL, true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3205, '421-01', '0001-01-01', '9999-12-31', 'ye', 'Yemen Mobile Phone Company', 'SabaFon', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3206, '421-02', '0001-01-01', '9999-12-31', 'ye', 'Spacetel Yemen', 'Spacetel Yemen', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3207, '645-01', '0001-01-01', '9999-12-31', 'zm', 'Celtel Zambia Ltd.', 'Zain', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3208, '645-02', '0001-01-01', '9999-12-31', 'zm', 'Telecel Zambia Ltd.', 'MTN', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3209, '645-03', '0001-01-01', '9999-12-31', 'zm', 'Zamtel', 'Zamtel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3210, '648-01', '0001-01-01', '9999-12-31', 'zw', 'Net One', 'Net One', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3211, '648-03', '0001-01-01', '9999-12-31', 'zw', 'Telecel', 'Telecel', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1856, '219-01', '0001-01-01', '9999-12-31', 'hr', 'T-Mobile Hrvatska d.o.o./T-Mobile Croatia LLC', 'T-Mobile hr', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3239, '232-05', '2013-01-03', '9999-12-31', 'at', 'Yesss! (A1 TA)', 'Yesss! (A1 TA)', true, true, '232-01', 'Yesss nach Merger mit Orange-Sim', NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3212, '648-04', '0001-01-01', '9999-12-31', 'zw', 'Econet', 'Econet', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1867, '230-01', '0001-01-01', '9999-12-31', 'cz', 'T-Mobile Czech Republic a.s.', 'T-Mobile cz', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3213, '232-01', '0001-01-01', '9999-12-31', 'at', 'A1 Telekom Austria AG - Mobilnetz', 'A1 TA Mobil', true, true, NULL, 'Primäre Kennung von A1 TA', NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3231, '232-09', '0001-01-01', '9999-12-31', 'at', 'dummy', NULL, true, false, NULL, 'ehem. Kennung von Tele2-Mobil AT', 3234);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1985, '262-01', '0001-01-01', '9999-12-31', 'de', 'T-Mobile Deutschland GmbH', 'T-Mobile de', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2062, '216-30', '0001-01-01', '9999-12-31', 'hu', 'Magyar Telecom Plc', 'T-Mobile hu', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3217, '232-03', '0001-01-01', '9999-12-31', 'at', 'T-Mobile Austria GmbH', 'T-Mobile AT', true, true, NULL, 'Primäre Kennung von T-Mobile', NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2511, '297-02', '0001-01-01', '9999-12-31', 'me', 'Crnogorski Telekom', 'T-Mobile me', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2604, '260-02', '0001-01-01', '9999-12-31', 'pl', 'T-Mobile / PTC S.A.', 'T-Mobile pl', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2706, '231-02', '0001-01-01', '9999-12-31', 'sk', 'Eurotel, GSM & NMT', 'T-Mobile sk', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2707, '231-04', '0001-01-01', '9999-12-31', 'sk', 'Eurotel, UMTS', 'T-Mobile sk', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2839, '294-01', '0001-01-01', '9999-12-31', 'mk', 'T-Mobile', 'T-Mobile mk', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2952, '310-160', '0001-01-01', '9999-12-31', 'us', 'T-Mobile USA', 'T-Mobile us', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2956, '310-200', '0001-01-01', '9999-12-31', 'us', 'T-Mobile USA', 'T-Mobile us', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2957, '310-210', '0001-01-01', '9999-12-31', 'us', 'T-Mobile USA', 'T-Mobile us', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2958, '310-220', '0001-01-01', '9999-12-31', 'us', 'T-Mobile USA', 'T-Mobile us', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2959, '310-230', '0001-01-01', '9999-12-31', 'us', 'T-Mobile USA', 'T-Mobile us', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2960, '310-240', '0001-01-01', '9999-12-31', 'us', 'T-Mobile USA', 'T-Mobile us', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2961, '310-250', '0001-01-01', '9999-12-31', 'us', 'T-Mobile USA', 'T-Mobile us', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2962, '310-260', '0001-01-01', '9999-12-31', 'us', 'T-Mobile USA', 'T-Mobile us', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2963, '310-270', '0001-01-01', '9999-12-31', 'us', 'T-Mobile USA', 'T-Mobile us', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3245, '232-05', '0001-01-01', '2013-07-01', 'at', 'Orange AT', 'Orange AT', true, true, NULL, 'Orange vor Sidestream-Merger', NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3227, '232-07', '0001-01-01', '9999-12-31', 'at', 'T-Mobile Austria GmbH (tele.ring)', 'tele.ring (T-Mobile AT)', true, false, NULL, 'ehem. ID tele.ring, nunmehr T-Mobile/Reseller', NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2967, '310-310', '0001-01-01', '9999-12-31', 'us', 'T-Mobile USA', 'T-Mobile us', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3223, '232-04', '0001-01-01', '9999-12-31', 'at', 'dummy', NULL, true, true, NULL, 'Test-ID T-Mobile AT', 3217);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2985, '310-490', '0001-01-01', '9999-12-31', 'us', 'T-Mobile USA', 'T-Mobile us', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3015, '310-800', '0001-01-01', '9999-12-31', 'us', 'T-Mobile USA', 'T-Mobile us', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1620, '276-02', '0001-01-01', '9999-12-31', 'al', 'Vodafone Albania', 'Vodafone al', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3237, '232-91', '0001-01-01', '9999-12-31', 'at', 'OeBB Infrastruktur Bau AG', 'OeBB GSM-R AT', true, true, NULL, 'kein GSM/UMTS-Netz, nur GSM-R', NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3235, '232-12', '2013-01-03', '9999-12-31', 'at', 'Yesss! (A1 TA)', 'Yesss! (A1 TA)', true, false, NULL, 'Yesss nach Merger/Weiterverkauf', NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3234, '232-11', '0001-01-01', '9999-12-31', 'at', 'Bob (A1 TA)', 'Bob (A1 TA)', true, false, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3226, '232-06', '0001-01-01', '9999-12-31', 'at', 'dummy', NULL, true, true, NULL, 'Test-ID Hutchison', 3224);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3215, '232-02', '0001-01-01', '9999-12-31', 'at', 'dummy', NULL, true, true, NULL, 'Test-ID A1-TA', 3213);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3236, '232-15', '0001-01-01', '9999-12-31', 'at', 'Barablue Mobile Austria Ltd', 'Barablue', true, false, NULL, 'MVNO', NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3224, '232-05', '2013-07-02', '9999-12-31', 'at', 'Hutchison Drei Austria GmbH', 'Drei AT', true, true, NULL, 'Primäre Kennung von Drei', NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3240, '232-12', '0001-01-01', '2013-01-02', 'at', 'Yesss! (Orange)', 'Yesss! (Orange)', true, false, NULL, 'Yesss vor Merger, eigene ID', NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1643, '505-03', '0001-01-01', '9999-12-31', 'au', 'Vodafone Network Pty. Ltd.', 'Vodafone au', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1904, '602-02', '0001-01-01', '9999-12-31', 'eg', 'Vodafone', 'Vodafone eg', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1921, '288-02', '0001-01-01', '9999-12-31', 'fo', 'Kall GSM', 'Vodafone fo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1923, '542-01', '0001-01-01', '9999-12-31', 'fj', 'Vodafone (Fiji) Ltd', 'Vodafone fj', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1993, '262-09', '0001-01-01', '9999-12-31', 'de', 'Vodafone D2 GmbH', 'Vodafone de', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2003, '620-02', '0001-01-01', '9999-12-31', 'gh', 'Ghana Telecom Mobile', 'Vodafone gh', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2014, '202-05', '0001-01-01', '9999-12-31', 'gr', 'Vodafone - Panafon', 'Vodafone gr', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2065, '274-02', '0001-01-01', '9999-12-31', 'is', 'Og fjarskipti hf (Vodafone Iceland)', 'Vodafone is', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2066, '274-03', '0001-01-01', '9999-12-31', 'is', 'Og fjarskipti hf (Vodafone Iceland)', 'Vodafone is', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2070, '404-01', '0001-01-01', '9999-12-31', 'in', 'Aircell Digilink India Ltd., Haryana', 'Vodafone in', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2074, '404-05', '0001-01-01', '9999-12-31', 'in', 'Fascel Ltd., Gujarat', 'Vodafone in', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2079, '404-11', '0001-01-01', '9999-12-31', 'in', 'Hutchison Essar Mobile Services Ltd, Delhi', 'Vodafone in', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2081, '404-13', '0001-01-01', '9999-12-31', 'in', 'Hutchison Essar South Ltd., Andhra Pradesh', 'Vodafone in', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2083, '404-15', '0001-01-01', '9999-12-31', 'in', 'Aircell Digilink India Ltd., UP (East)', 'Vodafone in', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2088, '404-20', '0001-01-01', '9999-12-31', 'in', 'Hutchison Essar Ltd, Mumbai', 'Vodafone in', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2094, '404-27', '0001-01-01', '9999-12-31', 'in', 'Hutchison Essar Cellular Ltd., Maharashtra', 'Vodafone in', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2096, '404-30', '0001-01-01', '9999-12-31', 'in', 'Hutchison Telecom East Ltd, Kolkata', 'Vodafone in', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2107, '404-43', '0001-01-01', '9999-12-31', 'in', 'Hutchison Essar Cellular Ltd., Tamil Nadu', 'Vodafone in', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2109, '404-46', '0001-01-01', '9999-12-31', 'in', 'Hutchison Essar Cellular Ltd., Kerala', 'Vodafone in', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2122, '404-60', '0001-01-01', '9999-12-31', 'in', 'Aircell Digilink India Ltd., Rajasthan', 'Vodafone in', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2146, '404-84', '0001-01-01', '9999-12-31', 'in', 'Hutchison Essar South Ltd., Chennai', 'Vodafone in', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2148, '404-86', '0001-01-01', '9999-12-31', 'in', 'Hutchison Essar South Ltd., Karnataka', 'Vodafone in', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2150, '404-88', '0001-01-01', '9999-12-31', 'in', 'Hutchison Essar South Ltd, Punjab', 'Vodafone in', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2208, '405-66', '0001-01-01', '9999-12-31', 'in', 'Hutchison Essar South Ltd, UP (West)', 'Vodafone in', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2209, '405-67', '0001-01-01', '9999-12-31', 'in', 'Hutchison Essar South Ltd, Orissa', 'Vodafone in', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2216, '405-750', '0001-01-01', '9999-12-31', 'in', 'Vodafone Essar Spacetel Ltd, J&K', 'Vodafone in', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2217, '405-751', '0001-01-01', '9999-12-31', 'in', 'Vodafone Essar Spacetel Ltd, Assam', 'Vodafone in', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2218, '405-752', '0001-01-01', '9999-12-31', 'in', 'Vodafone Essar Spacetel Ltd, Bihar', 'Vodafone in', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2219, '405-753', '0001-01-01', '9999-12-31', 'in', 'Vodafone Essar Spacetel Ltd, Orissa', 'Vodafone in', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2220, '405-754', '0001-01-01', '9999-12-31', 'in', 'Vodafone Essar Spacetel Ltd, Himachal Pradesh', 'Vodafone in', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2221, '405-755', '0001-01-01', '9999-12-31', 'in', 'Vodafone Essar Spacetel Ltd, North East', 'Vodafone in', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2273, '272-01', '0001-01-01', '9999-12-31', 'ie', 'Vodafone Ireland Plc', 'Vodafone ie', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2296, '222-10', '0001-01-01', '9999-12-31', 'it', 'Omnitel Pronto Italia (OPI)', 'Vodafone it', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2491, '278-01', '0001-01-01', '9999-12-31', 'mt', 'Vodafone Malta', 'Vodafone mt', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2542, '530-01', '0001-01-01', '9999-12-31', 'nz', 'Vodafone New Zealand GSM Network', 'Vodafone nz', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2638, '268-01', '0001-01-01', '9999-12-31', 'pt', 'Vodafone Telecel - Comunicaçôes Pessoais, S.A.', 'Vodafone pt', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2901, '234-15', '0001-01-01', '9999-12-31', 'gb', 'Vodafone Ltd', 'Vodafone gb', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1713, '652-02', '0001-01-01', '9999-12-31', 'bw', 'Orange Botswana (Pty) Ltd.', 'Orange bw', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1765, '624-02', '0001-01-01', '9999-12-31', 'cm', 'Orange Cameroun', 'Orange cm', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2459, '295-02', '0001-01-01', '9999-12-31', 'li', 'Orange (Liechtenstein) AG', 'Orange li', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2467, '270-99', '0001-01-01', '9999-12-31', 'lu', 'Voxmobile S.A.', 'Orange lu', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2476, '646-02', '0001-01-01', '9999-12-31', 'mg', 'Orange Madagascar, GSM', 'Orange mg', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2708, '231-05', '0001-01-01', '9999-12-31', 'sk', 'Orange, UMTS', 'Orange sk', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2743, '214-03', '0001-01-01', '9999-12-31', 'es', 'France Telecom España, SA', 'Orange es', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2749, '214-09', '0001-01-01', '9999-12-31', 'es', 'France Telecom España, SA', 'Orange es', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2818, '228-03', '0001-01-01', '9999-12-31', 'ch', 'Orange Communications SA', 'Orange ch', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2919, '234-33', '0001-01-01', '9999-12-31', 'gb', 'Orange', 'Orange gb', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2920, '234-34', '0001-01-01', '9999-12-31', 'gb', 'Orange', 'Orange gb', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3232, '232-10', '0001-01-01', '9999-12-31', 'at', 'dummy', NULL, true, true, NULL, 'Hutchison nach Sidestream-Merger', 3224);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3251, '232-16', '0001-01-01', '9999-12-31', 'at', 'dummy', NULL, true, true, NULL, 'Test-ID Hutchison', 3224);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3254, '232-17', '0001-01-01', '9999-12-31', 'at', 'Massresponse Service GmbH', 'Massresponse AT', true, false, NULL, 'MVNO', NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2471, '455-03', '0001-01-01', '9999-12-31', 'mo', 'Hutchison - Telefone(Macau) Limitada', '3 mo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2473, '455-05', '0001-01-01', '9999-12-31', 'mo', 'Hutchison - Telefone(Macau) Limitada', '3 mo', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2906, '234-20', '0001-01-01', '9999-12-31', 'gb', 'Hutchison 3G UK Ltd.', '3 UK', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (2781, '240-02', '0001-01-01', '9999-12-31', 'se', 'H3G Access AB', '3 SE', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (1885, '238-06', '0001-01-01', '9999-12-31', 'dk', 'Hi3G', '3 DK', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3256, '250-25', '0001-01-01', '9999-12-31', 'ru', 'Motiv RU', 'Motiv RU', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3257, '272-05', '0001-01-01', '9999-12-31', 'ie', 'Hutchison Three IE', '3 IE', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3258, '274-11', '0001-01-01', '9999-12-31', 'is', 'Nova IS', 'Nova IS', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3259, '310-004', '0001-01-01', '9999-12-31', 'us', 'Verizon US', 'Verizon US', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3260, '310-026', '0001-01-01', '9999-12-31', 'us', 'T-Mobile US', 'T-Mobile US', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3261, '310-29', '0001-01-01', '9999-12-31', 'us', 'T-Mobile US', 'T-Mobile US', true, true, NULL, 'incorrect, should be 310-290', NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3262, '310-99', '0001-01-01', '9999-12-31', 'us', 'AT&T US', 'AT&T US', true, true, NULL, 'incorrect, should be 310-990', NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3263, '310-110', '0001-01-01', '9999-12-31', 'us', 'PTI Pacifica US', 'PTI Pacifica US', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3265, '401-77', '0001-01-01', '9999-12-31', 'kz', 'Tele2 KZ', 'Tle2 KZ', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3266, '405-09', '0001-01-01', '9999-12-31', 'in', 'Reliance Jammu & Kashmir IN', 'Reliance IN', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3267, '405-18', '0001-01-01', '9999-12-31', 'in', 'Reliance Punjab IN', 'Reliance IN', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3268, '405-51', '0001-01-01', '9999-12-31', 'in', 'AirTel West Bengal IN', 'AirTel IN', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3269, '405-848', '0001-01-01', '9999-12-31', 'in', 'IDEA Kolkata IN', 'IDEA IN', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3270, '405-932', '0001-01-01', '9999-12-31', 'in', 'Videocon Punjab IN', 'Videocon IN', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3271, '413-01', '0001-01-01', '9999-12-31', 'lk', 'Mobitel LK', 'Mobitel LK', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3272, '420-04', '0001-01-01', '9999-12-31', 'sa', 'Zain SA', 'Zain SA', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3273, '424-03', '0001-01-01', '9999-12-31', 'ae', 'Emirates Integrated - du', 'du AE', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3274, '450-05', '0001-01-01', '9999-12-31', 'kr', 'SKTelecom KR', 'SKTelecom KR', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3275, '450-08', '0001-01-01', '9999-12-31', 'kr', 'KT olleh KR', 'KT olleh KR', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3276, '454-13', '0001-01-01', '9999-12-31', 'hk', 'China Mobile HK', 'China Mobile HK', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3277, '466-89', '0001-01-01', '9999-12-31', 'tw', 'Vibo Telecom TW', 'Vibo Telecom TW', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3278, '466-92', '0001-01-01', '9999-12-31', 'tw', 'Changhwa Telecom TW', 'Changhua Telecom TW', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3279, '466-97', '0001-01-01', '9999-12-31', 'tw', 'Taiwan Mobile TW', 'Taiwan Mobile TW', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3280, '510-09', '0001-01-01', '9999-12-31', 'id', 'Smartfren ID', 'Smartfren ID', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3281, '510-89', '0001-01-01', '9999-12-31', 'id', '3 ID', '3 ID', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3282, '520-03', '0001-01-01', '9999-12-31', 'th', 'AIS TH', 'AIS TH', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3283, '520-04', '0001-01-01', '9999-12-31', 'th', 'truemove H TH', 'truemove H TH', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3284, '520-05', '0001-01-01', '9999-12-31', 'th', 'dtac 3G TH', 'dtac 3G TH', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3285, '520-18', '0001-01-01', '9999-12-31', 'th', 'dtac TH', 'dtac TH', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3286, '520-99', '0001-01-01', '9999-12-31', 'th', 'truemove TH', 'truemove TH', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3287, '630-03', '0001-01-01', '9999-12-31', 'dz', 'Ooredoo DZ', 'Ooredoo DZ', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3288, '634-07', '0001-01-01', '9999-12-31', 'sd', 'Sudani One SD', 'Sudani One SD', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3289, '744-05', '0001-01-01', '9999-12-31', 'py', 'Personal PY', 'Personal PY', true, true, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2name (uid, mccmnc, valid_from, valid_to, country, name, shortname, use_for_sim, use_for_network, mcc_mnc_network_mapping, comment, mapped_uid) VALUES (3293, '232-13', '0001-01-01', '9999-12-31', 'at', 'UPC Mobil AT', 'UPC Mobil AT', true, NULL, NULL, NULL, NULL);
 
 
 --
 -- Name: mccmnc2name_uid_seq; Type: SEQUENCE SET; Schema: public; Owner: rmbt
 --
 
-SELECT pg_catalog.setval('mccmnc2name_uid_seq', 3293, true);
+SELECT pg_catalog.setval('public.mccmnc2name_uid_seq', 3293, true);
+
+
+--
+-- Name: mccmnc2name mccmnc2name_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.mccmnc2name
+    ADD CONSTRAINT mccmnc2name_pkey PRIMARY KEY (uid);
+
+
+--
+-- Name: mccmnc2name_mccmnc; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX mccmnc2name_mccmnc ON public.mccmnc2name USING btree (mccmnc);
+
+
+--
+-- Name: TABLE mccmnc2name; Type: ACL; Schema: public; Owner: rmbt
+--
+
+GRANT SELECT ON TABLE public.mccmnc2name TO rmbt_group_read_only;
+GRANT SELECT ON TABLE public.mccmnc2name TO rmbt_group_control;
+
+
+--
+-- PostgreSQL database dump complete
+--
+
+-- 2019-02-04_21-19-54 rmbt_init.sql table mccmnc2provider
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 10.6 (Debian 10.6-1.pgdg90+1)
+-- Dumped by pg_dump version 10.6 (Debian 10.6-1.pgdg90+1)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+SET row_security = off;
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+-- Name: mccmnc2provider; Type: TABLE; Schema: public; Owner: rmbt
+--
+
+CREATE TABLE public.mccmnc2provider (
+    uid integer NOT NULL,
+    mcc_mnc_sim character varying(10),
+    provider_id integer NOT NULL,
+    mcc_mnc_network character varying(10),
+    valid_from date,
+    valid_to date
+);
+
+
+ALTER TABLE public.mccmnc2provider OWNER TO rmbt;
+
+--
+-- Name: mccmnc2provider_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
+--
+
+CREATE SEQUENCE public.mccmnc2provider_uid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.mccmnc2provider_uid_seq OWNER TO rmbt;
+
+--
+-- Name: mccmnc2provider_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
+--
+
+ALTER SEQUENCE public.mccmnc2provider_uid_seq OWNED BY public.mccmnc2provider.uid;
+
+
+--
+-- Name: mccmnc2provider uid; Type: DEFAULT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.mccmnc2provider ALTER COLUMN uid SET DEFAULT nextval('public.mccmnc2provider_uid_seq'::regclass);
 
 
 --
 -- Data for Name: mccmnc2provider; Type: TABLE DATA; Schema: public; Owner: rmbt
 --
 
-COPY mccmnc2provider (uid, mcc_mnc_sim, provider_id, mcc_mnc_network, valid_from, valid_to) FROM stdin;
-1	232-01	1	\N	\N	\N
-2	232-02	1	\N	\N	\N
-3	232-03	2	\N	\N	\N
-6	232-07	2	\N	\N	\N
-7	232-09	1	\N	\N	\N
-9	232-11	1	\N	\N	\N
-32	232-21	50	\N	\N	\N
-14	232-05	1	232-01	\N	\N
-10	232-12	1	\N	2013-01-03	\N
-15	232-12	3	\N	\N	2013-01-02
-5	232-06	3	\N	\N	2013-07-01
-19	232-14	36	\N	2013-07-02	\N
-20	232-16	36	\N	2013-07-02	\N
-11	232-14	4	\N	\N	2013-07-01
-13	232-16	4	\N	\N	2013-07-01
-21	232-05	36	\N	2013-07-02	\N
-22	232-10	36	\N	2013-07-02	\N
-4	232-05	3	\N	\N	2013-07-01
-8	232-10	4	\N	\N	2013-07-01
-16	232-04	2	\N	\N	\N
-24	232-08	1	\N	\N	\N
-23	232-13	36	\N	\N	\N
-25	232-17	36	\N	\N	\N
-26	232-18	36	\N	\N	\N
-27	232-19	2	\N	\N	\N
-28	232-20	1	\N	\N	\N
-29	232-91	48	\N	\N	\N
-30	232-92	49	\N	\N	\N
-12	232-15	1	232-01	\N	\N
-31	232-15	2	232-03	\N	\N
-\.
+INSERT INTO public.mccmnc2provider (uid, mcc_mnc_sim, provider_id, mcc_mnc_network, valid_from, valid_to) VALUES (1, '232-01', 1, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2provider (uid, mcc_mnc_sim, provider_id, mcc_mnc_network, valid_from, valid_to) VALUES (2, '232-02', 1, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2provider (uid, mcc_mnc_sim, provider_id, mcc_mnc_network, valid_from, valid_to) VALUES (3, '232-03', 2, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2provider (uid, mcc_mnc_sim, provider_id, mcc_mnc_network, valid_from, valid_to) VALUES (6, '232-07', 2, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2provider (uid, mcc_mnc_sim, provider_id, mcc_mnc_network, valid_from, valid_to) VALUES (7, '232-09', 1, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2provider (uid, mcc_mnc_sim, provider_id, mcc_mnc_network, valid_from, valid_to) VALUES (9, '232-11', 1, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2provider (uid, mcc_mnc_sim, provider_id, mcc_mnc_network, valid_from, valid_to) VALUES (32, '232-21', 50, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2provider (uid, mcc_mnc_sim, provider_id, mcc_mnc_network, valid_from, valid_to) VALUES (14, '232-05', 1, '232-01', NULL, NULL);
+INSERT INTO public.mccmnc2provider (uid, mcc_mnc_sim, provider_id, mcc_mnc_network, valid_from, valid_to) VALUES (10, '232-12', 1, NULL, '2013-01-03', NULL);
+INSERT INTO public.mccmnc2provider (uid, mcc_mnc_sim, provider_id, mcc_mnc_network, valid_from, valid_to) VALUES (15, '232-12', 3, NULL, NULL, '2013-01-02');
+INSERT INTO public.mccmnc2provider (uid, mcc_mnc_sim, provider_id, mcc_mnc_network, valid_from, valid_to) VALUES (5, '232-06', 3, NULL, NULL, '2013-07-01');
+INSERT INTO public.mccmnc2provider (uid, mcc_mnc_sim, provider_id, mcc_mnc_network, valid_from, valid_to) VALUES (33, '232-22', 1, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2provider (uid, mcc_mnc_sim, provider_id, mcc_mnc_network, valid_from, valid_to) VALUES (19, '232-14', 36, NULL, '2013-07-02', NULL);
+INSERT INTO public.mccmnc2provider (uid, mcc_mnc_sim, provider_id, mcc_mnc_network, valid_from, valid_to) VALUES (20, '232-16', 36, NULL, '2013-07-02', NULL);
+INSERT INTO public.mccmnc2provider (uid, mcc_mnc_sim, provider_id, mcc_mnc_network, valid_from, valid_to) VALUES (11, '232-14', 4, NULL, NULL, '2013-07-01');
+INSERT INTO public.mccmnc2provider (uid, mcc_mnc_sim, provider_id, mcc_mnc_network, valid_from, valid_to) VALUES (13, '232-16', 4, NULL, NULL, '2013-07-01');
+INSERT INTO public.mccmnc2provider (uid, mcc_mnc_sim, provider_id, mcc_mnc_network, valid_from, valid_to) VALUES (21, '232-05', 36, NULL, '2013-07-02', NULL);
+INSERT INTO public.mccmnc2provider (uid, mcc_mnc_sim, provider_id, mcc_mnc_network, valid_from, valid_to) VALUES (22, '232-10', 36, NULL, '2013-07-02', NULL);
+INSERT INTO public.mccmnc2provider (uid, mcc_mnc_sim, provider_id, mcc_mnc_network, valid_from, valid_to) VALUES (4, '232-05', 3, NULL, NULL, '2013-07-01');
+INSERT INTO public.mccmnc2provider (uid, mcc_mnc_sim, provider_id, mcc_mnc_network, valid_from, valid_to) VALUES (8, '232-10', 4, NULL, NULL, '2013-07-01');
+INSERT INTO public.mccmnc2provider (uid, mcc_mnc_sim, provider_id, mcc_mnc_network, valid_from, valid_to) VALUES (16, '232-04', 2, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2provider (uid, mcc_mnc_sim, provider_id, mcc_mnc_network, valid_from, valid_to) VALUES (24, '232-08', 1, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2provider (uid, mcc_mnc_sim, provider_id, mcc_mnc_network, valid_from, valid_to) VALUES (25, '232-17', 36, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2provider (uid, mcc_mnc_sim, provider_id, mcc_mnc_network, valid_from, valid_to) VALUES (26, '232-18', 36, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2provider (uid, mcc_mnc_sim, provider_id, mcc_mnc_network, valid_from, valid_to) VALUES (28, '232-20', 1, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2provider (uid, mcc_mnc_sim, provider_id, mcc_mnc_network, valid_from, valid_to) VALUES (29, '232-91', 48, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2provider (uid, mcc_mnc_sim, provider_id, mcc_mnc_network, valid_from, valid_to) VALUES (30, '232-92', 49, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2provider (uid, mcc_mnc_sim, provider_id, mcc_mnc_network, valid_from, valid_to) VALUES (12, '232-15', 1, '232-01', NULL, NULL);
+INSERT INTO public.mccmnc2provider (uid, mcc_mnc_sim, provider_id, mcc_mnc_network, valid_from, valid_to) VALUES (31, '232-15', 2, '232-03', NULL, NULL);
+INSERT INTO public.mccmnc2provider (uid, mcc_mnc_sim, provider_id, mcc_mnc_network, valid_from, valid_to) VALUES (34, '232-23', 2, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2provider (uid, mcc_mnc_sim, provider_id, mcc_mnc_network, valid_from, valid_to) VALUES (27, '232-19', 36, NULL, NULL, NULL);
+INSERT INTO public.mccmnc2provider (uid, mcc_mnc_sim, provider_id, mcc_mnc_network, valid_from, valid_to) VALUES (23, '232-13', 36, NULL, NULL, '2018-10-01');
+INSERT INTO public.mccmnc2provider (uid, mcc_mnc_sim, provider_id, mcc_mnc_network, valid_from, valid_to) VALUES (36, '232-13', 2, NULL, '2018-10-01', NULL);
 
 
 --
 -- Name: mccmnc2provider_uid_seq; Type: SEQUENCE SET; Schema: public; Owner: rmbt
 --
 
-SELECT pg_catalog.setval('mccmnc2provider_uid_seq', 32, true);
+SELECT pg_catalog.setval('public.mccmnc2provider_uid_seq', 68, true);
+
+
+--
+-- Name: mccmnc2provider mccmnc2provider_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.mccmnc2provider
+    ADD CONSTRAINT mccmnc2provider_pkey PRIMARY KEY (uid);
+
+
+--
+-- Name: mccmnc2provider_mcc_mnc_idx; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX mccmnc2provider_mcc_mnc_idx ON public.mccmnc2provider USING btree (mcc_mnc_sim, mcc_mnc_network);
+
+
+--
+-- Name: mccmnc2provider_provider_id; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX mccmnc2provider_provider_id ON public.mccmnc2provider USING btree (provider_id);
+
+
+--
+-- Name: mccmnc2provider mccmnc2provider_provider_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.mccmnc2provider
+    ADD CONSTRAINT mccmnc2provider_provider_id_fkey FOREIGN KEY (provider_id) REFERENCES public.provider(uid);
+
+
+--
+-- Name: TABLE mccmnc2provider; Type: ACL; Schema: public; Owner: rmbt
+--
+
+GRANT SELECT ON TABLE public.mccmnc2provider TO rmbt_group_read_only;
+
+
+--
+-- PostgreSQL database dump complete
+--
+
+-- 2019-02-04_21-19-54 rmbt_init.sql table network_type
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 10.6 (Debian 10.6-1.pgdg90+1)
+-- Dumped by pg_dump version 10.6 (Debian 10.6-1.pgdg90+1)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+SET row_security = off;
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+-- Name: network_type; Type: TABLE; Schema: public; Owner: rmbt
+--
+
+CREATE TABLE public.network_type (
+    uid integer NOT NULL,
+    name character varying(200) NOT NULL,
+    group_name character varying NOT NULL,
+    aggregate character varying[],
+    type character varying NOT NULL,
+    technology_order integer DEFAULT 0 NOT NULL,
+    min_speed_download_kbps integer,
+    max_speed_download_kbps integer,
+    min_speed_upload_kbps integer,
+    max_speed_upload_kbps integer
+);
+
+
+ALTER TABLE public.network_type OWNER TO rmbt;
+
+--
+-- Name: network_type_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
+--
+
+CREATE SEQUENCE public.network_type_uid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.network_type_uid_seq OWNER TO rmbt;
+
+--
+-- Name: network_type_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
+--
+
+ALTER SEQUENCE public.network_type_uid_seq OWNED BY public.network_type.uid;
+
+
+--
+-- Name: network_type uid; Type: DEFAULT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.network_type ALTER COLUMN uid SET DEFAULT nextval('public.network_type_uid_seq'::regclass);
+
+
+--
+-- Data for Name: network_type; Type: TABLE DATA; Schema: public; Owner: rmbt
+--
+
+INSERT INTO public.network_type (uid, name, group_name, aggregate, type, technology_order, min_speed_download_kbps, max_speed_download_kbps, min_speed_upload_kbps, max_speed_upload_kbps) VALUES (101, '2G/3G', '2G/3G', '{2G,3G}', 'MOBILE', 0, 1, 35000, 1, 5760);
+INSERT INTO public.network_type (uid, name, group_name, aggregate, type, technology_order, min_speed_download_kbps, max_speed_download_kbps, min_speed_upload_kbps, max_speed_upload_kbps) VALUES (3, 'UMTS', '3G', NULL, 'MOBILE', 30000, 1, 35000, 1, 5760);
+INSERT INTO public.network_type (uid, name, group_name, aggregate, type, technology_order, min_speed_download_kbps, max_speed_download_kbps, min_speed_upload_kbps, max_speed_upload_kbps) VALUES (4, 'CDMA', '2G', NULL, 'MOBILE', 2000, 1, 35000, 1, 5760);
+INSERT INTO public.network_type (uid, name, group_name, aggregate, type, technology_order, min_speed_download_kbps, max_speed_download_kbps, min_speed_upload_kbps, max_speed_upload_kbps) VALUES (5, 'EVDO_0', '2G', NULL, 'MOBILE', 3000, 1, 35000, 1, 5760);
+INSERT INTO public.network_type (uid, name, group_name, aggregate, type, technology_order, min_speed_download_kbps, max_speed_download_kbps, min_speed_upload_kbps, max_speed_upload_kbps) VALUES (6, 'EVDO_A', '2G', NULL, 'MOBILE', 4000, 1, 35000, 1, 5760);
+INSERT INTO public.network_type (uid, name, group_name, aggregate, type, technology_order, min_speed_download_kbps, max_speed_download_kbps, min_speed_upload_kbps, max_speed_upload_kbps) VALUES (7, '1xRTT', '2G', NULL, 'MOBILE', 5000, 1, 35000, 1, 5760);
+INSERT INTO public.network_type (uid, name, group_name, aggregate, type, technology_order, min_speed_download_kbps, max_speed_download_kbps, min_speed_upload_kbps, max_speed_upload_kbps) VALUES (8, 'HSDPA', '3G', NULL, 'MOBILE', 31000, 1, 35000, 1, 5760);
+INSERT INTO public.network_type (uid, name, group_name, aggregate, type, technology_order, min_speed_download_kbps, max_speed_download_kbps, min_speed_upload_kbps, max_speed_upload_kbps) VALUES (9, 'HSUPA', '3G', NULL, 'MOBILE', 32000, 1, 35000, 1, 5760);
+INSERT INTO public.network_type (uid, name, group_name, aggregate, type, technology_order, min_speed_download_kbps, max_speed_download_kbps, min_speed_upload_kbps, max_speed_upload_kbps) VALUES (10, 'HSPA', '3G', NULL, 'MOBILE', 33000, 1, 35000, 1, 5760);
+INSERT INTO public.network_type (uid, name, group_name, aggregate, type, technology_order, min_speed_download_kbps, max_speed_download_kbps, min_speed_upload_kbps, max_speed_upload_kbps) VALUES (11, 'IDEN', '2G', NULL, 'MOBILE', 1000, 1, 35000, 1, 5760);
+INSERT INTO public.network_type (uid, name, group_name, aggregate, type, technology_order, min_speed_download_kbps, max_speed_download_kbps, min_speed_upload_kbps, max_speed_upload_kbps) VALUES (12, 'EVDO_B', '2G', NULL, 'MOBILE', 6000, 1, 35000, 1, 5760);
+INSERT INTO public.network_type (uid, name, group_name, aggregate, type, technology_order, min_speed_download_kbps, max_speed_download_kbps, min_speed_upload_kbps, max_speed_upload_kbps) VALUES (14, 'EHRPD', '2G', NULL, 'MOBILE', 7000, 1, 35000, 1, 5760);
+INSERT INTO public.network_type (uid, name, group_name, aggregate, type, technology_order, min_speed_download_kbps, max_speed_download_kbps, min_speed_upload_kbps, max_speed_upload_kbps) VALUES (15, 'HSPA+', '3G', NULL, 'MOBILE', 34000, 1, 35000, 1, 5760);
+INSERT INTO public.network_type (uid, name, group_name, aggregate, type, technology_order, min_speed_download_kbps, max_speed_download_kbps, min_speed_upload_kbps, max_speed_upload_kbps) VALUES (104, '2G/3G/4G', '2G/3G/4G', '{2G,3G,4G}', 'MOBILE', 0, 1, 1000000, 1, 100000);
+INSERT INTO public.network_type (uid, name, group_name, aggregate, type, technology_order, min_speed_download_kbps, max_speed_download_kbps, min_speed_upload_kbps, max_speed_upload_kbps) VALUES (102, '3G/4G', '3G/4G', '{3G,4G}', 'MOBILE', 0, 1, 1000000, 1, 100000);
+INSERT INTO public.network_type (uid, name, group_name, aggregate, type, technology_order, min_speed_download_kbps, max_speed_download_kbps, min_speed_upload_kbps, max_speed_upload_kbps) VALUES (1, 'GSM', '2G', NULL, 'MOBILE', 20000, 1, 300, 1, 300);
+INSERT INTO public.network_type (uid, name, group_name, aggregate, type, technology_order, min_speed_download_kbps, max_speed_download_kbps, min_speed_upload_kbps, max_speed_upload_kbps) VALUES (2, 'EDGE', '2G', NULL, 'MOBILE', 21000, 1, 300, 1, 300);
+INSERT INTO public.network_type (uid, name, group_name, aggregate, type, technology_order, min_speed_download_kbps, max_speed_download_kbps, min_speed_upload_kbps, max_speed_upload_kbps) VALUES (99, 'WLAN', 'WLAN', NULL, 'WLAN', 0, 1, 1000000, 1, 1000000);
+INSERT INTO public.network_type (uid, name, group_name, aggregate, type, technology_order, min_speed_download_kbps, max_speed_download_kbps, min_speed_upload_kbps, max_speed_upload_kbps) VALUES (97, 'CLI', 'CLI', NULL, 'CLI', 0, 1, 1000000, 1, 1000000);
+INSERT INTO public.network_type (uid, name, group_name, aggregate, type, technology_order, min_speed_download_kbps, max_speed_download_kbps, min_speed_upload_kbps, max_speed_upload_kbps) VALUES (107, 'Bluetooth', 'Bluetooth', NULL, 'LAN', 0, 1, 24000, 1, 24000);
+INSERT INTO public.network_type (uid, name, group_name, aggregate, type, technology_order, min_speed_download_kbps, max_speed_download_kbps, min_speed_upload_kbps, max_speed_upload_kbps) VALUES (103, '2G/4G', '2G/4G', '{2G,4G}', 'MOBILE', 0, 1, 1000000, 1, 100000);
+INSERT INTO public.network_type (uid, name, group_name, aggregate, type, technology_order, min_speed_download_kbps, max_speed_download_kbps, min_speed_upload_kbps, max_speed_upload_kbps) VALUES (105, 'CELLULAR_ANY', 'MOBILE', NULL, 'MOBILE', 0, 1, 1000000, 1, 100000);
+INSERT INTO public.network_type (uid, name, group_name, aggregate, type, technology_order, min_speed_download_kbps, max_speed_download_kbps, min_speed_upload_kbps, max_speed_upload_kbps) VALUES (0, 'CELLULAR UNKNOWN', 'MOBILE', NULL, 'MOBILE', 0, 1, 1000000, 1, 100000);
+INSERT INTO public.network_type (uid, name, group_name, aggregate, type, technology_order, min_speed_download_kbps, max_speed_download_kbps, min_speed_upload_kbps, max_speed_upload_kbps) VALUES (98, 'LAN', 'LAN', NULL, 'LAN', 0, 1, 10000000, 1, 10000000);
+INSERT INTO public.network_type (uid, name, group_name, aggregate, type, technology_order, min_speed_download_kbps, max_speed_download_kbps, min_speed_upload_kbps, max_speed_upload_kbps) VALUES (106, 'Ethernet', 'Ethernet', NULL, 'LAN', 0, 1, 10000000, 1, 10000000);
+INSERT INTO public.network_type (uid, name, group_name, aggregate, type, technology_order, min_speed_download_kbps, max_speed_download_kbps, min_speed_upload_kbps, max_speed_upload_kbps) VALUES (16, 'GSM', '2G', NULL, 'MOBILE', 20000, 1, 300, 1, 300);
+INSERT INTO public.network_type (uid, name, group_name, aggregate, type, technology_order, min_speed_download_kbps, max_speed_download_kbps, min_speed_upload_kbps, max_speed_upload_kbps) VALUES (17, 'TD SCDMA', '3G', NULL, 'MOBILE', 35000, 1, 35000, 1, 5760);
+INSERT INTO public.network_type (uid, name, group_name, aggregate, type, technology_order, min_speed_download_kbps, max_speed_download_kbps, min_speed_upload_kbps, max_speed_upload_kbps) VALUES (18, 'IWLAN', '4G', NULL, 'MOBILE', 42000, 1, 1000000, 1, 1000000);
+INSERT INTO public.network_type (uid, name, group_name, aggregate, type, technology_order, min_speed_download_kbps, max_speed_download_kbps, min_speed_upload_kbps, max_speed_upload_kbps) VALUES (13, 'LTE', '4G', NULL, 'MOBILE', 40000, 1, 1000000, 1, 300000);
+INSERT INTO public.network_type (uid, name, group_name, aggregate, type, technology_order, min_speed_download_kbps, max_speed_download_kbps, min_speed_upload_kbps, max_speed_upload_kbps) VALUES (19, 'LTE CA', '4G', NULL, 'MOBILE', 41000, 1, 1000000, 1, 300000);
+
+
+--
+-- Name: network_type_uid_seq; Type: SEQUENCE SET; Schema: public; Owner: rmbt
+--
+
+SELECT pg_catalog.setval('public.network_type_uid_seq', 16, true);
+
+
+--
+-- Name: network_type network_type_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.network_type
+    ADD CONSTRAINT network_type_pkey PRIMARY KEY (uid);
+
+
+--
+-- Name: network_type_group_name_idx; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX network_type_group_name_idx ON public.network_type USING btree (group_name);
+
+
+--
+-- Name: network_type_type_idx; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX network_type_type_idx ON public.network_type USING btree (type);
+
+
+--
+-- Name: TABLE network_type; Type: ACL; Schema: public; Owner: rmbt
+--
+
+GRANT SELECT ON TABLE public.network_type TO rmbt_group_read_only;
+
+
+--
+-- PostgreSQL database dump complete
+--
+
+-- 2019-02-04_21-19-54 rmbt_init.sql table provider
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 10.6 (Debian 10.6-1.pgdg90+1)
+-- Dumped by pg_dump version 10.6 (Debian 10.6-1.pgdg90+1)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+SET row_security = off;
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+-- Name: provider; Type: TABLE; Schema: public; Owner: rmbt
+--
+
+CREATE TABLE public.provider (
+    uid integer NOT NULL,
+    name character varying(200),
+    mcc_mnc character varying(10),
+    shortname character varying(100),
+    map_filter boolean NOT NULL
+);
+
+
+ALTER TABLE public.provider OWNER TO rmbt;
+
+--
+-- Name: provider_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
+--
+
+CREATE SEQUENCE public.provider_uid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.provider_uid_seq OWNER TO rmbt;
+
+--
+-- Name: provider_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
+--
+
+ALTER SEQUENCE public.provider_uid_seq OWNED BY public.provider.uid;
+
+
+--
+-- Name: provider uid; Type: DEFAULT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.provider ALTER COLUMN uid SET DEFAULT nextval('public.provider_uid_seq'::regclass);
+
+
+--
+-- Data for Name: provider; Type: TABLE DATA; Schema: public; Owner: rmbt
+--
+
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (3, 'Orange Austria Telecommunication GmbH (alt)', '232-05', 'Orange AT (alt)', false);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (4, 'Hutchison 3G Austria GmbH (alt)', '232-10', '3AT (alt)', false);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (7, 'tele.ring', '232-07', 'tele.ring', false);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (8, 'Bob', '232-11', 'Bob', false);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (9, 'YESSS! Telekommunikation GmbH', '232-12', 'Yesss!', false);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (12, 'Tele2 Telecommunication GmbH', NULL, 'Tele2', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (14, 'Colt Technology Services GmbH', NULL, 'Colt', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (16, 'LIWEST Kabelmedien GmbH', NULL, 'LIWEST', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (17, 'AT&T Global Network Services Austria GmbH', NULL, 'AT&T', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (18, 'Belgacom International Carrier Services S.A.', NULL, 'Belgacom', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (20, 'Verizon Austria GmbH', NULL, 'Verizon', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (21, 'BT Austria GmbH', NULL, 'BT Austria', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (22, 'WIEN ENERGIE GmbH', NULL, 'WIEN ENERGIE', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (23, 'ACOnet', NULL, 'ACOnet', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (24, 'next layer Telekommunikationsdienstleistungs-GmbH', NULL, 'next layer', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (27, 'ÖBB Telekom Service GmbH', NULL, 'ÖBB', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (28, 'KAPPER NETWORK-COMMUNICATIONS GmbH', NULL, 'Kapper', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (29, 'WVNET Information und Kommunikation GmbH', NULL, 'WVNET', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (30, 'Flughafen Wien AG', NULL, 'Flughafen Wien', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (31, 'Technische Universität Wien', NULL, 'TU Wien', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (32, 'Universität Wien', NULL, 'Uni Wien', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (33, 'Wirtschaftsuniversität Wien', NULL, 'WU Wien', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (34, 'Citycom Telekommunikation GmbH', NULL, 'Citycom', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (35, 'i3B - Internetbreitband GmbH', NULL, 'i3B', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (2, 'T-Mobile Austria GmbH', '232-03', 'T-Mobile AT', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (36, 'Hutchison Drei Austria GmbH', '232-10', 'Hutchison Drei', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (37, 'Gamsjäger Kabel-TV & ISP Betriebs GmbH', NULL, 'Gamsjäger', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (39, 'Lycamobile Austria Ltd', '232-08', 'Lycamobile', false);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (117, 'Plintron Austria Limited', '232-22', 'Plintron', false);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (10, 'Mundio Mobile (Austria) Limited', '232-15', 'Mundio', false);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (43, 'smartspace GmbH', '232-18', 'smartspace', false);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (46, 'MTEL Austrija GmbH', '232-20', 'MTEL', false);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (48, 'ÖBB - Infrastruktur AG - Mobilnetz', '232-91', 'ÖBB Mobilnetz', false);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (49, 'ArgoNET GmbH', '232-92', 'ArgoNET', false);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (6, 'kabelplus GmbH', NULL, 'kabelplus', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (15, 'Salzburg AG für Energie, Verkehr und Telekommunikation', NULL, 'Salzburg AG', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (50, 'Salzburg AG für Energie, Verkehr und Telekommunikation - Mobilnetz', '232-21', 'Salzburg AG Mobilnetz', false);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (51, 'Energie AG Oberösterreich Data GmbH', NULL, 'Energie AG', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (52, 'NETcompany - WLAN Internet Provider GmbH', NULL, 'NETcompany', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (42, 'MASS Response Service GmbH - Mobilnetz', '232-17', 'MASS Response Mobilnetz', false);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (118, 'MASS Response Service GmbH', NULL, 'MASS Response', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (119, 'Innsbrucker Kommunalbetriebe Aktiengesellschaft', NULL, 'IKB AG', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (120, 'Russmedia IT GmbH', NULL, 'Russmedia', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (25, 'A1 Telekom Austria AG - Festnetz', NULL, 'A1 TA Festnetz', false);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (121, 'COSYS DATA GmbH', NULL, 'COSYS DATA', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (122, 'Riepert Informationstechnologie OG', NULL, 'Riepert', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (123, 'IForce IT GmbH', NULL, 'IForce', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (124, 'Elektro Pühringer GmbH', NULL, 'Pühringer', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (128, 'Infotech EDV-Systeme GmbH', NULL, 'Infotech', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (129, 'AiNet Telekommunikations-Netzwerk Betriebs GmbH', NULL, 'AiNet', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (130, 'Peter Rauter GmbH', NULL, 'Rauter', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (135, 'mieX GmbH', NULL, 'mieX', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (136, 'T-Systems Austria GesmbH', NULL, 'T-Systems', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (137, 'BK-DAT Electronics e.U.', NULL, 'BK-DAT', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (142, 'Kabel TV Lampert GmbH & Co KG', NULL, 'Lampert', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (144, 'DIC-Online Wolf & Co. KG', NULL, 'DIC-Online', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (146, 'flashnet GmbH', NULL, 'flashnet', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (147, 'Stadtwerke Kapfenberg GmbH', NULL, 'SW Kapfenberg', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (131, 'ANEXIA Internetdienstleistungs GmbH', NULL, 'ANEXIA', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (139, 'Nessus GmbH', NULL, 'Nessus', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (148, 'Stadtwerke Hall in Tirol GmbH', NULL, 'SW Hall i.T.', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (145, 'Video-Broadcast GmbH', NULL, 'Video-Broadcast', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (126, 'JM-DATA Telekom GmbH', NULL, 'JM-DATA', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (127, 'myNET Internet Solutions', NULL, 'myNET', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (125, 'TIMEWARP IT Consulting GmbH', NULL, 'TIMEWARP', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (134, 'LinzNet Internet Service Provider GmbH', NULL, 'LinzNet', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (132, 'Stadtwerke Kufstein GmbH', NULL, 'SW Kufstein', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (133, 'NETPLANET GmbH', NULL, 'NETPLANET', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (143, 'MMC Kommunikationstechnologie GmbH', NULL, 'MMC', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (140, 'lagis Internet Serviceprovider GmbH', NULL, 'lagis', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (141, 'XINON GmbH', NULL, 'XINON', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (138, 'Stadtwerke Kitzbühel', NULL, 'SW Kitzbühel', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (1, 'A1 Telekom Austria AG', '232-01', 'A1 TA', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (149, 'MultiKom Austria Telekom GmbH', NULL, 'XLINK', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (5, 'UPC Austria', NULL, 'UPC AT', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (41, 'UPC Austria - Mobilnetz', '232-13', 'UPC Mobilnetz', false);
 
 
 --
 -- Name: provider_uid_seq; Type: SEQUENCE SET; Schema: public; Owner: rmbt
 --
 
-SELECT pg_catalog.setval('provider_uid_seq', 116, true);
+SELECT pg_catalog.setval('public.provider_uid_seq', 181, true);
+
+
+--
+-- Name: provider provider_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.provider
+    ADD CONSTRAINT provider_pkey PRIMARY KEY (uid);
+
+
+--
+-- Name: provider_mcc_mnc_idx; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX provider_mcc_mnc_idx ON public.provider USING btree (mcc_mnc);
+
+
+--
+-- Name: TABLE provider; Type: ACL; Schema: public; Owner: rmbt
+--
+
+GRANT SELECT ON TABLE public.provider TO rmbt_group_read_only;
+
+
+--
+-- PostgreSQL database dump complete
+--
+
+-- 2019-02-04_21-19-54 rmbt_init.sql table qos_test_desc
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 10.6 (Debian 10.6-1.pgdg90+1)
+-- Dumped by pg_dump version 10.6 (Debian 10.6-1.pgdg90+1)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+SET row_security = off;
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+-- Name: qos_test_desc; Type: TABLE; Schema: public; Owner: rmbt
+--
+
+CREATE TABLE public.qos_test_desc (
+    uid integer NOT NULL,
+    desc_key text,
+    value text,
+    lang text
+);
+
+
+ALTER TABLE public.qos_test_desc OWNER TO rmbt;
+
+--
+-- Name: qos_test_desc_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
+--
+
+CREATE SEQUENCE public.qos_test_desc_uid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.qos_test_desc_uid_seq OWNER TO rmbt;
+
+--
+-- Name: qos_test_desc_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
+--
+
+ALTER SEQUENCE public.qos_test_desc_uid_seq OWNED BY public.qos_test_desc.uid;
+
+
+--
+-- Name: qos_test_desc uid; Type: DEFAULT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.qos_test_desc ALTER COLUMN uid SET DEFAULT nextval('public.qos_test_desc_uid_seq'::regclass);
+
+
+--
+-- Data for Name: qos_test_desc; Type: TABLE DATA; Schema: public; Owner: rmbt
+--
+
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (61, 'timeout', 'Test konnte nicht beendet werden. Timeout überschritten!', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (16, 'tcp.failure', 'Der TCP-Test war nicht erfolgreich. Es konnte keine Verbindung aufgebaut werden.', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (17, 'udp.success', 'Der UDP-Test war erfolgreich. Alle Pakete sind angekommen.', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (15, 'tcp.success', 'Der TCP-Test war erfolgreich. Es konnte eine Verbindung aufgebaut werden.', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (18, 'udp.failure', 'Der UDP-Test war nicht erfolgreich. Pakete sind verloren gegangen.', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (84, 'website.error', 'There has been an error during the test.', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (85, 'website.error', 'Während des Tests ist ein Fehler aufgetreten.', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (24, 'dns.failure', 'DNS request failed (resolver: %PARAM dns_objective_resolver%)', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (2, 'http.failure', 'Der übertragene Inhalt entspricht nicht dem Original, er wurde modifiziert.', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (23, 'dns.success', 'DNS request successful (resolver: %PARAM dns_objective_resolver%)', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (30, 'udp.failure', 'The UDP test failed. Some packets have been lost.', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (8, 'website.short', 'Die Übertragung von %PARAM website_objective_url% dauerte weniger als %PARAM website_objective_timeout 1000000000 0 f% s.
+Dauer: %PARAM website_result_duration_ns 1000000000 1 f% s', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (7, 'website.long', 'Die Übertragung von %PARAM website_objective_url% dauerte mehr als %PARAM website_objective_timeout 1000000000 0 f% s.
+Dauer:  %PARAM website_result_duration_ns 1000000000 1 f% s.', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (26, 'website.short', 'Transfer of %PARAM website_objective_url% took less than %PARAM website_objective_timeout 1000000000 0 f% s.
+Duration: %PARAM website_result_duration_ns 1000000000 1 f% s', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (65, 'test.description', 'n/a', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (20, 'http.failure', 'The received content is not the same as the original one, hence looks like been modified.', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (54, 'tcp.out.testinfo', 'TCP Outgoing:
+Es wurde versucht, eine ausgehende Verbindung zum QoS-Testserver über den Port: %PARAM tcp_objective_out_port% aufzubauen.', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (55, 'tcp.out.testinfo', 'TCP outgoing:
+It has been attempted to establish an outgoing connection to the QoS test server on port: %PARAM tcp_objective_out_port%', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (25, 'website.long', 'Transfer of %PARAM website_objective_url% took more than %PARAM website_objective_timeout 1000000000 0 f% s.
+Duration: %PARAM website_result_duration_ns 1000000000 1 f% s', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (57, 'dns.testinfo', 'DNS request for the domain: %PARAM dns_objective_host%
+Requested record: %PARAM dns_objective_dns_record%
+
+Test result:
+DNS status: %PARAM dns_result_status%
+DNS entries: %PARAM dns_result_entries%
+Test duration: %PARAM duration_ns 1000000 0 f% ms', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (38, 'http.testinfo', 'Target: ''%PARAM http_objective_url%''
+Range: %PARAM http_objective_range%
+Duration: %PARAM duration_ns 1000000000 1 f% s
+Length: %PARAM http_result_length%
+Status code: %PARAM http_result_status%
+Hash: %PARAM http_result_hash%
+Header: 
+%PARAM http_result_header%', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (64, 'test.description', 'n/a', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (63, 'website.not_found', 'The test web site could not be reached.', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (44, 'dns.unknowndomain.success', 'A DNS request for a not existing domain: succeeded, no entries have been returned.', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (43, 'dns.unknowndomain.success', 'Eine DNS-Anfrage für eine nicht existierende Domain war erfolgreich, es wurden keine Einträge gefunden.', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (41, 'dns.unknowndomain.failure', 'Eine DNS-Anfrage für eine nicht existierende Domain hat ein unzulässiger Ergebnis geliefert: %PARAM dns_result_entries%.', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (56, 'dns.testinfo', 'DNS Anfrage für die Domain: %PARAM dns_objective_host%
+Abgefragter Typ:  %PARAM dns_objective_dns_record%-Record.
+
+Testergebnis: 
+DNS Status: %PARAM dns_result_status%
+DNS-Einträge: %PARAM dns_result_entries%
+Dauer: %PARAM duration_ns 1000000 0 f% ms', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (13, 'test.dns', 'DNS ist ein fundamentaler Internetdienst. Er wird zur Übersetzung von Domain-Namen auf IP-Adressen verwendet. Es wird - je nach Test - getestet, ob der Dienst verfügbar ist, ob die Antworten korrekt sind und wie schnell der Server antwortet.', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (33, 'test.udp', 'UDP is an important connectionless Internet protocol. It is used for real-time communications, e.g. for VoIP and video.', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (27, 'tcp.success', 'The test was successful. A connection could be established.', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (28, 'tcp.failure', 'The test was not successful. A connection could not be established.', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (42, 'dns.unknowndomain.failure', 'A DNS request for a not existing domain has returned an invalid result: %PARAM dns_result_entries%', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (29, 'udp.success', 'The UDP test was successful. All packets have been transferred successfully.', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (34, 'test.tcp', 'TCP is an important connection oriented Internet protocol. It is used for example for web pages or e-mail.', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (11, 'test.udp', 'UDP ist ein wichtiges verbindungsloses Internet-Protokoll, das für Echtzeitübertragungen (zB. VoIP, Video) verwendet wird.', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (12, 'test.tcp', 'TCP ist ein wichtiges verbindungsorientiertes Internetprotokoll. Es wird z.B. für die Übertragung von Webseiten und Mails verwendet.', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (35, 'test.dns', 'DNS is a fundamental Internet service. It is used to translate domain names to IP addresses. Depending on the test it is checked if the service is available, if the answers are correct and how fast the server responds.', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (9, 'test.http', 'Bei diesem Test wird ein Test-Webobjekt (z.B. Bild) heruntergeladen und überprüft, ob es beim Transport verändert wurde.', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (36, 'test.website', 'The website test downloads a reference web page (mobile Kepler page by ETSI). It is verified, if the page can be transferred and how long the download of the page takes.', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (79, 'test.desc.ntp', 'Port: %PARAM nontransproxy_objective_port%
+Request: %PARAM nontransproxy_objective_request%', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (66, 'test.desc.http', 'Ziel: %PARAM http_objective_url%', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (67, 'test.desc.http', 'Target: %PARAM http_objective_url%', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (70, 'test.desc.tcp.in', 'TCP Incoming, Port: %PARAM tcp_objective_in_port%', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (72, 'test.desc.tcp.out', 'TCP Outgoing, Port: %PARAM tcp_objective_out_port%', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (73, 'test.desc.tcp.out', 'TCP outgoing, port: %PARAM tcp_objective_out_port%', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (74, 'test.desc.udp.in', 'UDP Incoming, Port: %PARAM udp_objective_in_port%, Anzahl Pakete: %PARAM udp_objective_in_num_packets%', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (75, 'test.desc.udp.in', 'UDP incoming, port: %PARAM udp_objective_in_port%, number of packets: %PARAM udp_objective_in_num_packets%', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (76, 'test.desc.udp.out', 'UDP Outgoing, Port: %PARAM udp_objective_out_port%, Anzahl Pakete: %PARAM udp_objective_out_num_packets%', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (77, 'test.desc.udp.out', 'UDP outgoing, port: %PARAM udp_objective_out_port%, number of packets: %PARAM udp_objective_out_num_packets%', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (80, 'test.desc.website', 'Ziel: %PARAM website_objective_url%', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (81, 'test.desc.website', 'Target: %PARAM website_objective_url%', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (92, 'name.dns', 'DNS', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (93, 'name.dns', 'DNS', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (71, 'test.desc.tcp.in', 'TCP incoming, port: %PARAM tcp_objective_in_port%', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (98, 'test.timeout.exceeded', 'Test-Timeout überschritten. Der Test konnte nicht erfolgreich durchgeführt werden.', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (99, 'test.timeout.exceeded', 'Test timeout exceeded. The test could not be completed successfully.', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (62, 'website.not_found', 'Die Test-Webseite konnte nicht erreicht werden.', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (5, 'dns.success', 'DNS Abfrage erfolgreich (verwendeter DNS-Server: %PARAM dns_objective_resolver%)', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (6, 'dns.failure', 'DNS Abfrage fehlgeschlagen (verwendeter DNS-Server: %PARAM dns_objective_resolver%)', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (90, 'name.non_transparent_proxy', 'Transparente Verbindung', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (91, 'name.non_transparent_proxy', 'Transparent connection', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (78, 'test.desc.ntp', 'Port: %PARAM nontransproxy_objective_port%
+Anfrage: %PARAM nontransproxy_objective_request%', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (89, 'name.http_proxy', 'Unmodified content', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (40, 'dns.unknowndomain.info', 'A DNS request for a non-existent domain (%PARAM dns_objective_host%) has been run to check the response for the request of the domain''s DNS %PARAM dns_objective_dns_record% record.The correct answer would be ''NXDOMAIN'' (non-existend domain).DNS status: ''%PARAM dns_result_status%'';Duration:%PARAM duration_ns 1000000 0 f% ms', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (37, 'http.testinfo', 'Ziel: ''%PARAM http_objective_url%''
+Intervall: %PARAM http_objective_range%
+Dauer: %PARAM duration_ns 1000000000 1 f% s
+Länge: %PARAM http_result_length%
+Status Code: %PARAM http_result_status%
+Hash: %PARAM http_result_hash%
+Header: 
+%PARAM http_result_header%', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (59, 'website.testinfo', 'The transfer of %PARAM website_objective_url% took %PARAM duration_ns 1000000000 1 f% s.
+
+Transferred data downlink: %PARAM website_result_rx_bytes 1000 1 f% kB
+Transferred data uplink: %PARAM website_result_tx_bytes 1000 1 f% kB
+HTTP status code: %PARAM website_result_status%', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (69, 'test.desc.dns', 'Target: %PARAM dns_objective_host% 
+Entry: %PARAM dns_objective_dns_record%
+Resolver: %PARAM dns_objective_resolver%', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (97, 'name.udp', 'UDP ports', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (58, 'website.testinfo', 'Die Übertragung von %PARAM website_objective_url% dauerte %PARAM duration_ns 1000000000 1 f% s.
+
+Datenvolumen Downlink: %PARAM website_result_rx_bytes 1000 1 f% kB
+Datenvolumen Uplink: %PARAM website_result_tx_bytes 1000 1 f% kB
+HTTP Status code: %PARAM website_result_status%', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (88, 'name.http_proxy', 'Unveränderter Inhalt', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (68, 'test.desc.dns', 'Ziel: %PARAM dns_objective_host% 
+Eintrag: %PARAM dns_objective_dns_record%
+DNS-Auflöser: %PARAM dns_objective_resolver%', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (96, 'name.udp', 'UDP Ports', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (1, 'http.success', 'Der übertragene Inhalt entspricht exakt dem Original, er wurde nicht modifiziert.', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (31, 'test.http', 'This test downloads a test web ressource (e.g. image) and checks if it was modified during transport.', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (19, 'http.success', 'The received content is exactly the same as the original one, hence has not been modified.', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (82, 'website.200', 'The web page has been transferred successfully.', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (95, 'name.tcp', 'TCP ports', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (94, 'name.tcp', 'TCP Ports', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (83, 'website.200', 'Die Webseite wurde erfolgreich übertragen.', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (86, 'name.website', 'Webseite', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (60, 'timeout', 'Test could not be completed. Timeout exceeded!', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (39, 'dns.unknowndomain.info', 'Eine DNS Anfrage zu einer nicht existierende Domain (%PARAM dns_objective_host%) wurde ausgeführt, um zu überprüfen, ob ein  %PARAM dns_objective_dns_record% -Eintrag gefunden wird. Korrekt wäre die Antwort ''NXDOMAIN'' (Non-Existent Domain, nicht existierende Domain).DNS Status: ''%PARAM dns_result_status%'';Dauer: %PARAM duration_ns 1000000 0 f% ms', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (87, 'name.website', 'Web page', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (14, 'test.website', 'Beim Webseiten-Test wird eine Referenz-Webseite (mobile Kepler-Seite der ETSI) heruntergeladen. Es wird dabei überprüft, ob die Übertragung der Seite möglich ist, und wie lange die Übertragung der Seite dauert.', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (104, 'test.desc.tcp.out.21', 'Übertragung von Dateien (FTP, TCP-Port 21 ausgehend)', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (105, 'test.desc.tcp.out.21', 'File transfer protocol (FTP, TCP port 21 outgoing)', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (106, 'test.desc.tcp.out.22', 'Verschlüsselte Fernwartung und Dateiübertragung (SSH, TCP-Port 22 ausgehend)', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (50, 'ntp.testinfo', 'Eine Anfrage mit dem Inhalt: ''%PARAM nontransproxy_objective_request%'' wurde an den Testserver (Port: %PARAM nontransproxy_objective_port%) geschickt.
+Die Antwort war: ''%PARAM nontransproxy_result_response%''', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (107, 'test.desc.tcp.out.22', 'Secure logins and file transfers (SSH, TCP port 22 outgoing)', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (108, 'test.desc.tcp.out.25', 'E-Mail-Versand (SMTP, TCP-Port 25 ausgehend)', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (109, 'test.desc.tcp.out.25', 'E-mail transmission (SMTP, TCP port 25 outgoing)', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (110, 'test.desc.tcp.out.53', 'Namensauflösung von Rechnern und Diensten (DNS, TCP-Port 53 ausgehend)', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (111, 'test.desc.tcp.out.53', 'Name resolving for computers and services (DNS, TCP port 53 outgoing)', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (112, 'test.desc.tcp.out.80', 'Webseiten-Protokoll (HTTP, TCP-Port 80 ausgehend)', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (113, 'test.desc.tcp.out.80', 'Web site protocol (HTTP, TCP port 80 outgoing)', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (114, 'test.desc.tcp.out.110', 'E-Mail-Abruf (POP3, TCP-Port 110 ausgehend)', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (115, 'test.desc.tcp.out.110', 'E-mail retreival (POP3, TCP port 110 outgoing)', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (116, 'test.desc.tcp.out.143', 'E-Mail-Abruf und -Ablage (IMAP, TCP-Port 143 ausgehend)', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (117, 'test.desc.tcp.out.143', 'E-mail retrieval and storage (IMAP, TCP port 143 outgoing)', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (118, 'test.desc.tcp.out.465', 'Sicherer E-Mail-Versand (SMTPS, TCP-Port 465 ausgehend)', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (119, 'test.desc.tcp.out.465', 'Secure e-mail transmission (SMTPS, TCP-Port 465 ausgehend)', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (120, 'test.desc.tcp.out.554', 'Steuerung von Übertragung/Streaming audiovisueller Daten (RTSP, TCP-Port 554 ausgehend)', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (168, 'name.trace', 'Traceroute', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (53, 'tcp.in.testinfo', 'TCP Incoming:
+It has been attempted to establish an incoming connection on port: %PARAM tcp_objective_in_port%.', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (47, 'udp.in.testinfo', 'UDP Incoming:
+It has been attempted to receive packets from the QoS test server on port: %PARAM udp_objective_in_port% and send them back.
+Number of packets requested: %PARAM udp_objective_in_num_packets%, received by the client: %PARAM udp_result_in_num_packets%, came back to the server: %PARAM udp_result_in_response_num_packets%.
+Packet loss rate: %PARAM udp_result_in_packet_loss_rate%\%', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (121, 'test.desc.tcp.out.554', 'Control of streaming of audio and visual media (RTSP, TCP port 554 outgoing)', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (122, 'test.desc.tcp.out.585', 'Sicherer E-Mail-Abruf und -Ablage (IMAPS, TCP-Port 585 ausgehend)', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (123, 'test.desc.tcp.out.585', 'Secure e-mail retrieval and storage (IMAPS, TCP port 585 outgoing)', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (124, 'test.desc.tcp.out.587', 'E-Mail-Versand (SMTP, TCP-Port 587 ausgehend)', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (125, 'test.desc.tcp.out.587', 'E-mail transmission (SMTP, TCP port 587 outgoing)', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (126, 'test.desc.tcp.out.993', 'Sicherer E-Mail-Abruf und -Ablage (IMAPS, TCP-Port 993 ausgehend)', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (127, 'test.desc.tcp.out.993', 'Secure e-mail retrieval and storage (IMAPS, TCP port 993 outgoing)', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (128, 'test.desc.tcp.out.995', 'Sicherer E-Mail-Abruf (POP3S, TCP-Port 995 ausgehend)', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (129, 'test.desc.tcp.out.995', 'Secure e-mail retreival (POP3S, TCP port 995 outgoing)', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (130, 'test.desc.tcp.out.5060', 'Steuerung von Kommunikationssitzungen (SIP, TCP-Port 5060 ausgehend)', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (131, 'test.desc.tcp.out.5060', 'Control of communication sessions (SIP, TCP port 5060 outgoing)', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (132, 'test.desc.tcp.out.6881', 'Dateienaustausch zwischen Nutzern (BitTorrent, TCP-Port 6881 ausgehend)', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (133, 'test.desc.tcp.out.6881', 'Peer to peer file sharing (BitTorrent, TCP port 6881 outgoing)', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (134, 'test.desc.tcp.out.9001', 'Anonymisierung von Verbindungsdaten (TOR, TCP-Port 9001 ausgehend)', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (135, 'test.desc.tcp.out.9001', 'Online anonymity (TOR, TCP port 9001 outgoing)', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (136, 'test.desc.udp.out.53', 'Namensauflösung von Rechnern und Diensten (DNS, UDP-Port 53 ausgehend)', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (137, 'test.desc.udp.out.53', 'Name resolving for computers and services (DNS, UDP port 53 outgoing)', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (138, 'test.desc.udp.out.123', 'Zeit-Synchronisation (NTP, UDP-Port 123 ausgehend)', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (139, 'test.desc.udp.out.123', 'Time synchronisation (NTP, UDP port 123 outgoing)', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (140, 'test.desc.udp.out.500', 'Aufbau und Anwendung von sicheren Diensten (ISAKMP, UDP-Port 500 ausgehend)', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (141, 'test.desc.udp.out.500', 'Establishment and usage of secure services (ISAKMP, UDP port 500 outgoing)', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (142, 'test.desc.udp.out.554', 'Steuerung von Übertragung/Streaming audiovisueller Daten (RTSP, UDP-Port 554 ausgehend)', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (143, 'test.desc.udp.out.554', 'Control of streaming of audio and visual media (RTSP, UDP port 554 outgoing)', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (144, 'test.desc.udp.out.5004', 'Übertragung/Streaming audiovisueller Daten (RTP, UDP-Port 5004 ausgehend)', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (145, 'test.desc.udp.out.5004', 'Streaming of audio and visual media (RTP, UDP port 5004 outgoing)', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (146, 'test.desc.udp.out.5005', 'Dienstegüte für Übertragung/Streaming audiovisueller Daten (RTCP, UDP-Port 5005 ausgehend)', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (147, 'test.desc.udp.out.5005', 'Quality of service for streaming of audio and visual media (RTCP, UDP port 5005 outgoing)', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (148, 'test.desc.udp.out.5060', 'Steuerung von Kommunikationssitzungen (SIP, UDP-Port 5060 ausgehend)', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (149, 'test.desc.udp.out.5060', 'Control of communication sessions (SIP, UDP port 5060 outgoing)', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (150, 'test.desc.udp.out.7078', 'Sprache über Internet (VoIP, UDP-Port 7078 ausgehend)', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (151, 'test.desc.udp.out.7078', 'Voice over Internet (VoIP, UDP port 7078 outgoing)', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (152, 'test.desc.udp.out.7082', 'Sprache über Internet (VoIP, UDP-Port 7082 ausgehend)', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (153, 'test.desc.udp.out.7082', 'Voice over Internet (VoIP, UDP port 7082 outgoing)', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (154, 'test.desc.udp.out.27005', 'Online-Spiele (Steam gaming, UDP-Port 27005 ausgehend)', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (155, 'test.desc.udp.out.27005', 'Online gaming (Steam gaming, UDP port 27005 outgoing)', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (156, 'test.desc.udp.out.27015', 'Online-Spiele (Steam gaming, UDP-Port 27015 ausgehend)', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (157, 'test.desc.udp.out.27015', 'Online gaming (Steam gaming, UDP port 27015 outgoing)', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (49, 'udp.out.testinfo', 'UDP Outgoing:
+It has been attempted to send packets to the QoS test server on port: %PARAM udp_objective_out_port% and receive them back.
+Number of sent packets: %PARAM udp_objective_out_num_packets%, received by the server: %PARAM udp_result_out_num_packets%, came back to the client: %PARAM udp_result_out_response_num_packets%.
+Packet loss rate: %PARAM udp_result_out_packet_loss_rate%\%', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (3, 'ntp.success', 'The request to the test server was not modified.', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (48, 'udp.out.testinfo', 'UDP Outgoing:
+Es wurde versucht, Pakete zum QoS-Testserver über den Port: %PARAM udp_objective_out_port% zu senden und empfangen.
+Anzahl verschickter Pakete: %PARAM udp_objective_out_num_packets%, am Server angekommen: %PARAM udp_result_out_num_packets%, am Client zurückgekommen: %PARAM udp_result_out_response_num_packets%.
+Paketverlustrate: %PARAM udp_result_out_packet_loss_rate%\%', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (21, 'ntp.success', 'Die Anfrage an den QoS-Testserver wurde nicht verfälscht.', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (4, 'ntp.failure', 'Die Anfrage an den Testserver wurde verfälscht.', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (32, 'test.ntp', 'This test checks if a request is modified by a proxy or other middlebox.', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (10, 'test.ntp', 'Bei diesem Test wird überprüft, ob die Anfrage durch einen Proxy oder eine andere "Middlebox" verändert wird.', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (51, 'ntp.testinfo', 'A request with the content: ''%PARAM nontransproxy_objective_request%'' has been sent to the test server.
+The answer was: ''%PARAM nontransproxy_result_response%''', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (158, 'traceroute.failure', 'There has been an error during the traceroute test.', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (159, 'traceroute.failure', 'Während des Traceroute Tests ist ein Fehler aufgetreten.', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (160, 'traceroute.success', 'There has been no error during the traceroute test.', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (161, 'traceroute.success', 'Während des Traceroute Tests ist kein Fehler aufgetreten.', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (162, 'trace.testinfo', 'Traceroute test parameters:
+Host: %PARAM traceroute_objective_host%
+Max hops: %PARAM traceroute_objective_max_hops%
+
+Traceroute test results:
+Hops needed: %PARAM traceroute_result_hops%
+Traceroute result: %PARAM traceroute_result_status%
+
+Full route:
+%EVAL result=String(nn.parseTraceroute(traceroute_result_details))%', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (163, 'trace.testinfo', 'Traceroute Test Parameter:
+Host: %PARAM traceroute_objective_host%
+Max hops: %PARAM traceroute_objective_max_hops%
+
+Traceroute Ergebnis:
+Hops benötigt: %PARAM traceroute_result_hops%
+Testergebnis: %PARAM traceroute_result_status%
+
+Vollständige Route:
+%EVAL result=String(nn.parseTraceroute(traceroute_result_details))%', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (164, 'test.desc.trace', 'Traceroute target: %PARAM traceroute_objective_host%', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (165, 'test.desc.trace', 'Traceroute Ziel: %PARAM traceroute_objective_host%', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (166, 'test.trace', 'Traceroute is a tool for displaying the route across IP based networks.', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (167, 'test.trace', 'Traceroute ist ein Tool für die Ermittlung der Route in IP basierten Netzwerken.', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (169, 'name.trace', 'Traceroute', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (170, 'name.voip', 'Voice over IP', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (171, 'name.voip', 'Voice over IP', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (172, 'test.voip', 'VoIP (Voice over IP) is a technology for the delivery of voice across IP based networks.', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (174, 'voip.incoming.packet.failure', 'Incoming voice is missing. 
+All incoming voice packets have not arrived at the target location.', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (176, 'voip.outgoing.packet.failure', 'Incoming voice is missing. 
+All outgoing voice packets have not arrived at the target location.', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (183, 'voip.testinfo', '%$IF voip_result_status!=''OK''%
+There has been an error during the VoIP test. No results available.
+%$ENDIF voip_result_status!=''OK''%
+%$IF voip_result_status==''OK''%
+TEST PARAMETERS
+Sample rate: %PARAM voip_objective_sample_rate%, bits per sample: %PARAM voip_objective_bits_per_sample%
+Call duration: %PARAM voip_objective_call_duration 1000000 1 f% ms
+Packet interval: %PARAM voip_objective_delay 1000000 1 f% ms
+Payload type: %EVAL result=String(nn.getPayloadType(voip_objective_payload))%
+Target port: %PARAM voip_objective_out_port%
+
+TEST RESULTS
+
+Incoming voice stream:
+max. jitter: %PARAM voip_result_in_max_jitter 1000000 2 f% ms
+mean jitter: %PARAM voip_result_in_mean_jitter 1000000 2 f% ms
+max. delta: %PARAM voip_result_in_max_delta 1000000 2 f% ms
+packets sent: %EVAL result=String(parseInt(voip_objective_call_duration/voip_objective_delay));%
+packets received: %PARAM voip_result_in_num_packets%
+packet lost percentage: %EVAL var _sent= parseInt(voip_objective_call_duration/voip_objective_delay); result=(100 * ((_sent - voip_result_in_num_packets) / _sent)); %\%
+sequence errors: %PARAM voip_result_in_sequence_error%
+shortest / longest sequence: %PARAM voip_result_in_short_seq% / %PARAM voip_result_in_long_seq%
+
+Outgoing voice stream:
+max. jitter: %PARAM voip_result_out_max_jitter 1000000 2 f% ms
+mean jitter: %PARAM voip_result_out_mean_jitter 1000000 2 f% ms
+max. delta: %PARAM voip_result_out_max_delta 1000000 2 f% ms
+packets sent: %EVAL result=String(parseInt(voip_objective_call_duration/voip_objective_delay));%
+packets received: %PARAM voip_result_out_num_packets%
+packet lost percentage: %EVAL var _sent= parseInt(voip_objective_call_duration/voip_objective_delay); result=(100 * ((_sent - voip_result_out_num_packets) / _sent)); %\%
+sequence errors: %PARAM voip_result_out_sequence_error%
+shortest / longest sequence: %PARAM voip_result_out_short_seq% / %PARAM voip_result_out_long_seq%
+%$ENDIF voip_result_status==''OK''%', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (175, 'voip.incoming.packet.success', 'It is possible to receive voice packets.', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (220, 'name.dns', 'DNS', 'fr');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (187, 'voip.incoming.packet_loss.success', 'The incoming packet loss rate is lower than 5%!', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (221, 'name.non_transparent_proxy', 'Connexion transparente', 'fr');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (188, 'voip.outgoing.packet_loss.success', 'The outgoing packet loss rate is lower than 5%!', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (223, 'name.udp', 'Ports UDP', 'fr');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (224, 'name.tcp', 'Ports TCP', 'fr');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (225, 'name.website', 'Site Web', 'fr');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (226, 'name.trace', 'Traceroute', 'fr');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (173, 'test.voip', 'VoIP (Voice over IP) ist eine Technologie, die das Telefonieren über IP-basierte Netzwerke ermöglicht.', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (227, 'name.voip', 'Voix sur IP', 'fr');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (177, 'voip.outgoing.packet.success', 'It is possible to send voice packets to port %PARAM voip_objective_out_port%.', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (178, 'voip.jitter.incoming.failure', 'The incoming mean jitter is too high or empty because of missing outgoing voice packets.', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (179, 'voip.jitter.incoming.success', 'The incoming mean jitter is acceptable for a VoIP connection.', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (180, 'voip.jitter.outgoing.failure', 'The outgoing mean jitter is too high or empty because of missing outgoing voice packets.', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (181, 'voip.jitter.outgoing.success', 'The outgoing mean jitter is acceptable for a VoIP connection.', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (182, 'voip.timeout', 'The test took too much time and ran into a timeout.', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (184, 'test.desc.voip', 'Simulated VoIP call with a duration of %PARAM voip_objective_call_duration 1000000 1 f% ms.', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (222, 'name.http_proxy', 'Contenu non altéré', 'fr');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (52, 'tcp.in.testinfo', 'TCP Incoming:
+Es wurde versucht, eine eingehende Verbindung über den Port: %PARAM tcp_objective_in_port% aufzubauen.', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (46, 'udp.in.testinfo', 'UDP Incoming:
+Es wurde versucht, Pakete vom QoS-Testserver über den Port: %PARAM udp_objective_in_port% zu empfangen und senden.
+Anzahl angeforderter Pakete: %PARAM udp_objective_in_num_packets%, am Client erhalten: %PARAM udp_result_in_num_packets%, am Server zurückgekommen: %PARAM udp_result_in_response_num_packets%.
+Paketverlustrate: %PARAM udp_result_in_packet_loss_rate%\%', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (228, 'test.desc.tcp.in.443', 'Sicheres Webseiten-Protokoll (HTTPS, TCP-Port 443 eingehend)', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (185, 'voip.incoming.packet_loss.failure', 'The incoming packet loss rate is greater than 5%!', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (186, 'voip.outgoing.packet_loss.failure', 'The outgoing packet loss rate is greater than 5%!', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (230, 'test.desc.tcp.in.443', 'Secure web site protocol (HTTPS, TCP port 443 incoming)', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (231, 'test.desc.udp.in.5060', 'Steuerung von Kommunikationssitzungen (SIP, UDP-Port 5060 eingehend)', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (232, 'test.desc.udp.in.5060', 'Control of communication sessions (SIP, UDP port 5060 incoming)', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (233, 'test.desc.udp.in.12345', 'Platzhalter (TEST, UDP-Port 12345 eingehend)', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (234, 'test.desc.udp.in.12345', 'Dummy (TEST, UDP port 12345 incoming)', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (235, 'test.desc.udp.in.3389', 'Microsoft Terminal Server (RDP, UDP-Port 3389 eingehend)', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (236, 'test.desc.tcp.in.3389', 'Microsoft Terminal Server (RDP, TCP-Port 3389 eingehend)', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (237, 'test.desc.tcp.in.3389', 'Microsoft Terminal Server (RDP, TCP port 3389 incoming)', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (238, 'test.desc.udp.in.3389', 'Microsoft Terminal Server (RDP, UDP port 3389 incoming)', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (239, 'test.desc.tcp.in.8080', 'Webseiten-Protokoll (HTTP alternativ, TCP-Port 8080 eingehend)', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (240, 'test.desc.tcp.in.8080', 'Web site protocol (HTTP alternate, TCP port 8080 incoming)', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (241, 'test.desc.tcp.in.5061', 'Sichere Steuerung von Kommunikationssitzungen (SIP über TLS, TCP-Port 5061 eingehend)', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (242, 'test.desc.tcp.in.5061', 'Secure control of communication sessions (SIP over TLS, TCP port 5061 incoming)', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (243, 'test.desc.tcp.in.5004', 'Übertragung/Streaming audiovisueller Daten (RTP, TCP-Port 5004 eingehend)', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (244, 'test.desc.tcp.in.5004', 'Streaming of audio and visual media (RTP, TCP port 5004 incoming)', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (245, 'test.desc.tcp.in.5005', 'Quality of service for streaming of audio and visual media (RTCP, TCP port 5005 incoming)', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (246, 'test.desc.tcp.in.5005', 'Dienstegüte für Übertragung/Streaming audiovisueller Daten (RTCP, TCP-Port 5005 eingehend)', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (247, 'test.desc.udp.in.5004', 'Übertragung/Streaming audiovisueller Daten (RTP, UDP-Port 5004 eingehend)', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (248, 'test.desc.udp.in.5004', 'Streaming of audio and visual media (RTP, UDP port 5004 incoming)', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (249, 'test.desc.udp.in.5005', 'Dienstegüte für Übertragung/Streaming audiovisueller Daten (RTCP, UDP-Port 5005 eingehend)', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (250, 'test.desc.udp.in.5005', 'Quality of service for streaming of audio and visual media (RTCP, UDP port 5005 incoming)', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (22, 'ntp.failure', 'The request to the QoS test server has been manipulated.', 'en');
+
+
+--
+-- Name: qos_test_desc_uid_seq; Type: SEQUENCE SET; Schema: public; Owner: rmbt
+--
+
+SELECT pg_catalog.setval('public.qos_test_desc_uid_seq', 250, true);
+
+
+--
+-- Name: qos_test_desc qos_test_desc_desc_key_lang_key; Type: CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.qos_test_desc
+    ADD CONSTRAINT qos_test_desc_desc_key_lang_key UNIQUE (desc_key, lang);
+
+
+--
+-- Name: qos_test_desc qos_test_desc_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.qos_test_desc
+    ADD CONSTRAINT qos_test_desc_pkey PRIMARY KEY (uid);
+
+
+--
+-- Name: qos_test_desc_desc_key_idx; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX qos_test_desc_desc_key_idx ON public.qos_test_desc USING btree (desc_key);
+
+
+--
+-- Name: TABLE qos_test_desc; Type: ACL; Schema: public; Owner: rmbt
+--
+
+GRANT SELECT ON TABLE public.qos_test_desc TO rmbt_group_read_only;
+
+
+--
+-- PostgreSQL database dump complete
+--
+
+-- 2019-02-04_21-19-54 rmbt_init.sql table qos_test_objective
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 10.6 (Debian 10.6-1.pgdg90+1)
+-- Dumped by pg_dump version 10.6 (Debian 10.6-1.pgdg90+1)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+SET row_security = off;
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+-- Name: qos_test_objective; Type: TABLE; Schema: public; Owner: rmbt
+--
+
+CREATE TABLE public.qos_test_objective (
+    uid integer NOT NULL,
+    test public.qostest NOT NULL,
+    test_class integer,
+    test_server integer,
+    concurrency_group integer DEFAULT 0 NOT NULL,
+    test_desc text,
+    test_summary text,
+    param json DEFAULT '{}'::json NOT NULL,
+    results json
+);
+
+
+ALTER TABLE public.qos_test_objective OWNER TO rmbt;
+
+--
+-- Name: qos_test_objective_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
+--
+
+CREATE SEQUENCE public.qos_test_objective_uid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.qos_test_objective_uid_seq OWNER TO rmbt;
+
+--
+-- Name: qos_test_objective_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
+--
+
+ALTER SEQUENCE public.qos_test_objective_uid_seq OWNED BY public.qos_test_objective.uid;
+
+
+--
+-- Name: qos_test_objective uid; Type: DEFAULT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.qos_test_objective ALTER COLUMN uid SET DEFAULT nextval('public.qos_test_objective_uid_seq'::regclass);
+
+
+--
+-- Data for Name: qos_test_objective; Type: TABLE DATA; Schema: public; Owner: rmbt
+--
+
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (3, 'non_transparent_proxy', 1, 35, 300, 'ntp.testinfo', 'test.desc.ntp', '{"port": "80", "request": "GET ", "timeout": "5000000000"}', '[{"operator": "eq", "on_failure": "ntp.failure", "on_success": "ntp.success", "nontransproxy_result_response": "%PARAM nontransproxy_objective_request%"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (46, 'tcp', 1, 35, 200, 'tcp.out.testinfo', 'test.desc.tcp.out.993', '{"timeout": "5000000000", "out_port": "993"}', '[{"operator": "eq", "on_failure": "tcp.failure", "on_success": "tcp.success", "tcp_result_out": "OK"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (120, 'udp', 0, 35, 200, 'udp.out.testinfo', 'test.desc.udp.out.554', '{"timeout": "2000000000", "out_port": "554", "out_num_packets": "5"}', '[{"operator": "eq", "on_failure": "udp.failure", "on_success": "udp.success", "udp_result_out_response_num_packets": "%PARAM udp_objective_out_num_packets%"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (127, 'http_proxy', 0, 35, 402, 'http.testinfo', 'test.desc.http', '{"url": "http://webtest.nettest.at/qostest/ref45mb.bin", "conn_timeout": "5000000000", "download_timeout": "999000000000"}', NULL);
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (119, 'dns', 0, 35, 630, 'dns.testinfo', 'test.desc.dns', '{"host": "gmx.at", "record": "A", "timeout": "5000000000"}', '[{"operator": "ge", "on_failure": "dns.failure", "on_success": "dns.success", "dns_result_entries_found": "1"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (100, 'dns', 0, 35, 620, 'dns.testinfo', 'test.desc.dns', '{"host": "kurier.at", "record": "A", "timeout": "5000000000"}', '[{"operator": "ge", "on_failure": "dns.failure", "on_success": "dns.success", "dns_result_entries_found": "1"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (49, 'tcp', 1, 35, 200, 'tcp.out.testinfo', 'test.desc.tcp.out.6881', '{"timeout": "5000000000", "out_port": "6881"}', '[{"operator": "eq", "on_failure": "tcp.failure", "on_success": "tcp.success", "tcp_result_out": "OK"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (44, 'tcp', 1, 35, 200, 'tcp.out.testinfo', 'test.desc.tcp.out.585', '{"timeout": "5000000000", "out_port": "585"}', '[{"operator": "eq", "on_failure": "tcp.failure", "on_success": "tcp.success", "tcp_result_out": "OK"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (168, 'traceroute_masked', 0, 35, 100, 'trace.testinfo', 'test.desc.trace', '{"host":"www.google.com","timeout":"10000000000"}', '[{"operator":"eq","on_failure":"traceroute.failure","on_success":"traceroute.success","traceroute_result_status":"OK"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (50, 'tcp', 1, 35, 200, 'tcp.out.testinfo', 'test.desc.tcp.out.9001', '{"timeout": "5000000000", "out_port": "9001"}', '[{"operator": "eq", "on_failure": "tcp.failure", "on_success": "tcp.success", "tcp_result_out": "OK"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (169, 'traceroute_masked', 0, 35, 100, 'trace.testinfo', 'test.desc.trace', '{"host":"8.8.8.8","timeout":"10000000000"}', '[{"operator":"eq","on_failure":"traceroute.failure","on_success":"traceroute.success","traceroute_result_status":"OK"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (101, 'dns', 1, 35, 620, 'dns.testinfo', 'test.desc.dns', '{"host": "microsoft.com", "record": "A", "timeout": "5000000000"}', '[{"operator": "ge", "on_failure": "dns.failure", "on_success": "dns.success", "dns_result_entries_found": "1"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (171, 'dns', 1, 35, 610, 'dns.unknowndomain.info', 'test.desc.dns', '{"host": "ipv4test.nettest.at", "record": "AAAA", "timeout": "5000000000"}', '[{"operator": "eq", "on_failure": "dns.unknowndomain.failure", "on_success": "dns.unknowndomain.success", "dns_result_entries_found": "0"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (115, 'dns', 1, 35, 630, 'dns.testinfo', 'test.desc.dns', '{"host": "youtube.com", "record": "AAAA", "timeout": "5000000000"}', '[{"operator": "ge", "on_failure": "dns.failure", "on_success": "dns.success", "dns_result_entries_found": "1"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (87, 'dns', 1, 35, 600, 'dns.testinfo', 'test.desc.dns', '{"host": "facebook.com", "record": "A", "timeout": "5000000000"}', '[{"operator": "ge", "on_failure": "dns.failure", "on_success": "dns.success", "dns_result_entries_found": "1"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (167, 'voip', 0, 35, 100, 'voip.testinfo', 'test.desc.voip', '{"timeout": "8000000000", "out_port": "5060", "call_duration": "5000000000"}', '[
+  {
+    "evaluate": "%EVAL if (nn.coalesce(voip_result_out_mean_jitter, 50000000) < 50000000) result=true; else result=false;%",
+    "on_failure": "voip.jitter.outgoing.failure",
+    "on_success": "voip.jitter.outgoing.success"
+  },
+  {
+    "evaluate": "%EVAL if (nn.coalesce(voip_result_in_mean_jitter, 50000000) < 50000000) result=true; else result=false;%",
+    "on_failure": "voip.jitter.incoming.failure",
+    "on_success": "voip.jitter.incoming.success"
+  },
+  {
+  "evaluate": "%EVAL if (nn.coalesce(voip_result_out_num_packets, 0) > 0) result=true; else result=false;%",
+  "on_failure": "voip.outgoing.packet.failure",
+    "on_success": "voip.outgoing.packet.success"
+  },
+  {
+    "evaluate": "%EVAL if (nn.coalesce(voip_result_in_num_packets, 0) > 0) result=true; else result=false;%",
+    "on_failure": "voip.incoming.packet.failure",
+    "on_success": "voip.incoming.packet.success"
+  },
+  {
+    "evaluate": "%EVAL var _sent= parseInt(voip_objective_call_duration/voip_objective_delay); var _plr=parseInt(100 * ((_sent - voip_result_in_num_packets) / _sent)); if (_plr > 5) result=false; else result=true;%",
+    "on_failure": "voip.incoming.packet_loss.failure"
+  },
+  {
+    "evaluate": "%EVAL var _sent= parseInt(voip_objective_call_duration/voip_objective_delay); var _plr=parseInt(100 * ((_sent - voip_result_out_num_packets) / _sent)); if (_plr > 5) result=false; else result=true;%",
+    "on_failure": "voip.outgoing.packet_loss.failure"
+  }, 
+  {
+    "evaluate": "%EVAL if(voip_result_status==''TIMEOUT'') result={type: ''failure'', key: ''voip.timeout''}%"
+  }
+]
+');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (123, 'non_transparent_proxy', 1, 35, 300, 'ntp.testinfo', 'test.desc.ntp', '{"port": "%RANDOM 20000 55000%", "request": "GET ", "timeout": "5000000000"}', '[{"operator": "eq", "on_failure": "ntp.failure", "on_success": "ntp.success", "nontransproxy_result_response": "%PARAM nontransproxy_objective_request%"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (112, 'dns', 0, 35, 640, 'dns.testinfo', 'test.desc.dns', '{"host": "willhaben.at", "record": "A", "timeout": "5000000000"}', '[{"operator": "ge", "on_failure": "dns.failure", "on_success": "dns.success", "dns_result_entries_found": "1"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (82, 'dns', 1, 35, 610, 'dns.testinfo', 'test.desc.dns', '{"host": "derstandard.at", "record": "A", "timeout": "5000000000"}', '[{"operator": "ge", "on_failure": "dns.failure", "on_success": "dns.success", "dns_result_entries_found": "1"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (102, 'dns', 1, 35, 620, 'dns.testinfo', 'test.desc.dns', '{"host": "orf.at", "record": "A", "timeout": "5000000000"}', '[{"operator": "ge", "on_failure": "dns.failure", "on_success": "dns.success", "dns_result_entries_found": "1"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (104, 'dns', 1, 35, 630, 'dns.testinfo', 'test.desc.dns', '{"host": "rtr.at", "record": "A", "timeout": "5000000000"}', '[{"operator": "ge", "on_failure": "dns.failure", "on_success": "dns.success", "dns_result_entries_found": "1"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (114, 'dns', 1, 35, 630, 'dns.testinfo', 'test.desc.dns', '{"host": "youtube.com", "record": "A", "timeout": "5000000000"}', '[{"operator": "ge", "on_failure": "dns.failure", "on_success": "dns.success", "dns_result_entries_found": "1"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (94, 'dns', 0, 35, 620, 'dns.testinfo', 'test.desc.dns', '{"host": "google.de", "record": "A", "timeout": "5000000000"}', '[{"operator": "ge", "on_failure": "dns.failure", "on_success": "dns.success", "dns_result_entries_found": "1"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (9, 'tcp', 1, 35, 200, 'tcp.out.testinfo', 'test.desc.tcp.out.80', '{"timeout": "5000000000", "out_port": "80"}', '[{"operator": "eq", "on_failure": "tcp.failure", "on_success": "tcp.success", "tcp_result_out": "OK"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (162, 'tcp', 1, 35, 150, 'tcp.in.testinfo', 'test.desc.tcp.in.8080', '{"timeout": "5000000000", "in_port": "8080"}', '[{"operator": "eq", "on_failure": "tcp.failure", "on_success": "tcp.success", "tcp_result_in": "OK"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (170, 'traceroute_masked', 0, 35, 100, 'trace.testinfo', 'test.desc.trace', '{"host":"ipv4_1-mce0-c009.1.vie001.ix.nflxvideo.net","timeout":"10000000000"}', '[{"operator":"eq","on_failure":"traceroute.failure","on_success":"traceroute.success","traceroute_result_status":"OK"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (172, 'dns', 1, 35, 610, 'dns.unknowndomain.info', 'test.desc.dns', '{"host": "ipv4test.nettest.at", "record": "AAAA", "timeout": "5000000000", "resolver": "8.8.4.4"}', '[{"operator": "eq", "on_failure": "dns.unknowndomain.failure", "on_success": "dns.unknowndomain.success", "dns_result_entries_found": "0"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (86, 'dns', 1, 35, 600, 'dns.testinfo', 'test.desc.dns', '{"host": "ebay.de", "record": "A", "timeout": "5000000000"}', '[{"operator": "ge", "on_failure": "dns.failure", "on_success": "dns.success", "dns_result_entries_found": "1"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (33, 'dns', 1, 35, 610, 'dns.unknowndomain.info', 'test.desc.dns', '{"host": "%RANDOMURL www. 20 .com%", "record": "A", "timeout": "5000000000"}', '[{"operator": "eq", "on_failure": "dns.unknowndomain.failure", "on_success": "dns.unknowndomain.success", "dns_result_entries_found": "0"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (105, 'dns', 1, 35, 620, 'dns.testinfo', 'test.desc.dns', '{"host": "rtr.at", "record": "A", "timeout": "5000000000", "resolver": "8.8.8.8"}', '[{"operator": "ge", "on_failure": "dns.failure", "on_success": "dns.success", "dns_result_entries_found": "1"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (96, 'dns', 1, 35, 620, 'dns.testinfo', 'test.desc.dns', '{"host": "heise.de", "record": "A", "timeout": "5000000000"}', '[{"operator": "ge", "on_failure": "dns.failure", "on_success": "dns.success", "dns_result_entries_found": "1"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (125, 'http_proxy', 0, 35, 401, 'http.testinfo', 'test.desc.http', '{"url": "http://webtest.nettest.at/qostest/reference13.png", "conn_timeout": "5000000000", "download_timeout": "999000000000"}', NULL);
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (16, 'website', 1, 35, 500, 'website.testinfo', 'test.desc.website', '{"url": "http://webtest.nettest.at/kepler", "timeout": "10000000000"}', '[{"operator": "eq", "on_failure": "website.error", "on_success": "website.200", "website_result_status": "200"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (47, 'tcp', 1, 35, 200, 'tcp.out.testinfo', 'test.desc.tcp.out.995', '{"timeout": "5000000000", "out_port": "995"}', '[{"operator": "eq", "on_failure": "tcp.failure", "on_success": "tcp.success", "tcp_result_out": "OK"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (89, 'dns', 0, 35, 640, 'dns.testinfo', 'test.desc.dns', '{"host": "geizhals.at", "record": "A", "timeout": "5000000000"}', '[{"operator": "ge", "on_failure": "dns.failure", "on_success": "dns.success", "dns_result_entries_found": "1"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (45, 'tcp', 1, 35, 200, 'tcp.out.testinfo', 'test.desc.tcp.out.587', '{"timeout": "5000000000", "out_port": "587"}', '[{"operator": "eq", "on_failure": "tcp.failure", "on_success": "tcp.success", "tcp_result_out": "OK"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (27, 'http_proxy', 1, 35, 400, 'http.testinfo', 'test.desc.http', '{"url": "http://webtest.nettest.at/qostest/reference05.jpg", "conn_timeout": "5000000000", "download_timeout": "10000000000"}', '[{"operator": "eq", "on_failure": "http.failure", "on_success": "http.success", "http_result_hash": "ae9592475c364fa01909dab663417ab5"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (118, 'http_proxy', 1, 35, 400, 'http.testinfo', 'test.desc.http', '{"url": "http://webtest.nettest.at/qostest/reference01.jpg", "range": "bytes=1000000-1004999", "conn_timeout": "5000000000", "download_timeout": "10000000000"}', '[{"operator": "eq", "on_failure": "http.failure", "on_success": "http.success", "http_result_hash": "fc563e1e80b8cb964d712982fa2143c8"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (98, 'dns', 1, 35, 620, 'dns.testinfo', 'test.desc.dns', '{"host": "help.gv.at", "record": "A", "timeout": "5000000000"}', '[{"operator": "ge", "on_failure": "dns.failure", "on_success": "dns.success", "dns_result_entries_found": "1"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (173, 'dns', 1, 35, 610, 'dns.unknowndomain.info', 'test.desc.dns', '{"host": "ipv4test.nettest.at", "record": "AAAA", "timeout": "5000000000", "resolver": "81.16.157.19"}', '[{"operator": "eq", "on_failure": "dns.unknowndomain.failure", "on_success": "dns.unknowndomain.success", "dns_result_entries_found": "0"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (122, 'dns', 1, 35, 640, 'dns.testinfo', 'test.desc.dns', '{"host": "nic.at", "record": "MX", "timeout": "5000000000"}', '[{"operator": "ge", "on_failure": "dns.failure", "on_success": "dns.success", "dns_result_entries_found": "1"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (97, 'dns', 1, 35, 600, 'dns.testinfo', 'test.desc.dns', '{"host": "heise.de", "record": "AAAA", "timeout": "5000000000"}', '[{"operator": "ge", "on_failure": "dns.failure", "on_success": "dns.success", "dns_result_entries_found": "1"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (77, 'dns', 1, 35, 630, 'dns.unknowndomain.info', 'test.desc.dns', '{"host": "%RANDOMURL invalidname. 10 .com%", "record": "A", "timeout": "5000000000"}', '[{"operator": "eq", "on_failure": "dns.unknowndomain.failure", "on_success": "dns.unknowndomain.success", "dns_result_entries_found": "0"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (48, 'tcp', 1, 35, 200, 'tcp.out.testinfo', 'test.desc.tcp.out.5060', '{"timeout": "5000000000", "out_port": "5060"}', '[{"operator": "eq", "on_failure": "tcp.failure", "on_success": "tcp.success", "tcp_result_out": "OK"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (95, 'dns', 0, 35, 600, 'dns.testinfo', 'test.desc.dns', '{"host": "gxm.at", "record": "A", "timeout": "2000000000"}', '[{"operator": "ge", "on_failure": "dns.failure", "on_success": "dns.success", "dns_result_entries_found": "1"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (81, 'dns', 0, 35, 610, 'dns.testinfo', 'test.desc.dns', '{"host": "bankaustria.at", "record": "A", "timeout": "5000000000"}', '[{"operator": "ge", "on_failure": "dns.failure", "on_success": "dns.success", "dns_result_entries_found": "1"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (73, 'dns', 0, 35, 600, 'dns.testinfo', 'test.desc.dns', '{"host": "rtr.at", "record": "A", "timeout": "2000000000"}', '[{"operator": "ge", "on_failure": "dns.failure", "on_success": "dns.success", "dns_result_entries_found": "1"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (163, 'tcp', 1, 35, 150, 'tcp.in.testinfo', 'test.desc.tcp.in.5061', '{"timeout": "5000000000", "in_port": "5061"}', '[{"operator": "eq", "on_failure": "tcp.failure", "on_success": "tcp.success", "tcp_result_in": "OK"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (92, 'dns', 1, 35, 640, 'dns.testinfo', 'test.desc.dns', '{"host": "google.com", "record": "A", "timeout": "5000000000"}', '[{"operator": "ge", "on_failure": "dns.failure", "on_success": "dns.success", "dns_result_entries_found": "1"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (85, 'dns', 0, 35, 600, 'dns.testinfo', 'test.desc.dns', '{"host": "ebay.at", "record": "A", "timeout": "5000000000"}', '[{"operator": "ge", "on_failure": "dns.failure", "on_success": "dns.success", "dns_result_entries_found": "1"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (51, 'tcp', 1, 35, 200, 'tcp.out.testinfo', 'test.desc.tcp.out.554', '{"timeout": "5000000000", "out_port": "554"}', '[{"operator": "eq", "on_failure": "tcp.failure", "on_success": "tcp.success", "tcp_result_out": "OK"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (36, 'tcp', 1, 35, 200, 'tcp.out.testinfo', 'test.desc.tcp.out.21', '{"timeout": "5000000000", "out_port": "21"}', '[{"operator": "eq", "on_failure": "tcp.failure", "on_success": "tcp.success", "tcp_result_out": "OK"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (37, 'tcp', 1, 35, 200, 'tcp.out.testinfo', 'test.desc.tcp.out.22', '{"timeout": "5000000000", "out_port": "22"}', '[{"operator": "eq", "on_failure": "tcp.failure", "on_success": "tcp.success", "tcp_result_out": "OK"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (91, 'dns', 1, 35, 640, 'dns.testinfo', 'test.desc.dns', '{"host": "google.at", "record": "A", "timeout": "5000000000"}', '[{"operator": "ge", "on_failure": "dns.failure", "on_success": "dns.success", "dns_result_entries_found": "1"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (126, 'website', 0, 35, 501, 'website.testinfo', 'test.desc.website', '{"url": "http://webtest.nettest.at/qostest/reference13.png", "timeout": "999000000000"}', NULL);
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (130, 'traceroute', 0, 35, 10, 'trace.testinfo', 'test.desc.trace', '{"host": "8.8.8.8", "timeout": "35000000000"}', '[{"operator": "eq", "on_failure": "traceroute.failure", "on_success": "traceroute.success", "traceroute_result_status": "OK"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (83, 'dns', 0, 35, 610, 'dns.testinfo', 'test.desc.dns', '{"host": "dict.cc", "record": "A", "timeout": "5000000000"}', '[{"operator": "ge", "on_failure": "dns.failure", "on_success": "dns.success", "dns_result_entries_found": "1"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (84, 'dns', 0, 35, 620, 'dns.testinfo', 'test.desc.dns', '{"host": "diepresse.com", "record": "A", "timeout": "5000000000"}', '[{"operator": "ge", "on_failure": "dns.failure", "on_success": "dns.success", "dns_result_entries_found": "1"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (103, 'dns', 0, 35, 620, 'dns.testinfo', 'test.desc.dns', '{"host": "raiffeisen.at", "record": "A", "timeout": "5000000000"}', '[{"operator": "ge", "on_failure": "dns.failure", "on_success": "dns.success", "dns_result_entries_found": "1"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (4, 'non_transparent_proxy', 1, 35, 300, 'ntp.testinfo', 'test.desc.ntp', '{"port": "%RANDOM 20000 55000%", "request": "GET / HTTR/7.9", "timeout": "5000000000"}', '[{"operator": "eq", "on_failure": "ntp.failure", "on_success": "ntp.success", "nontransproxy_result_response": "%PARAM nontransproxy_objective_request%"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (128, 'non_transparent_proxy', 1, 35, 300, 'ntp.testinfo', 'test.desc.ntp', '{"port": "25", "request": "SMTP Transparent", "timeout": "5000000000"}', '[{"operator": "eq", "on_failure": "ntp.failure", "on_success": "ntp.success", "nontransproxy_result_response": "%PARAM nontransproxy_objective_request%"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (80, 'dns', 1, 35, 600, 'dns.testinfo', 'test.desc.dns', '{"host": "apple.com", "record": "A", "timeout": "5000000000"}', '[{"operator": "ge", "on_failure": "dns.failure", "on_success": "dns.success", "dns_result_entries_found": "1"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (76, 'dns', 1, 35, 630, 'dns.unknowndomain.info', 'test.desc.dns', '{"host": "%RANDOMURL www. 10 .darknet.netztest.at%", "record": "A", "timeout": "5000000000"}', '[{"operator": "eq", "on_failure": "dns.unknowndomain.failure", "on_success": "dns.unknowndomain.success", "dns_result_entries_found": "0"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (60, 'udp', 1, 35, 200, 'udp.out.testinfo', 'test.desc.udp.out.27005', '{"timeout": "5000000000", "out_port": "27005", "out_num_packets": "5"}', '[{"operator": "eq", "on_failure": "udp.failure", "on_success": "udp.success", "udp_result_out_response_num_packets": "%PARAM udp_objective_out_num_packets%"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (59, 'udp', 1, 35, 200, 'udp.out.testinfo', 'test.desc.udp.out.7082', '{"timeout": "5000000000", "out_port": "7082", "out_num_packets": "5"}', '[{"operator": "eq", "on_failure": "udp.failure", "on_success": "udp.success", "udp_result_out_response_num_packets": "%PARAM udp_objective_out_num_packets%"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (121, 'dns', 1, 35, 630, 'dns.unknowndomain.info', 'test.desc.dns', '{"host": "%RANDOMURL www. 10 .darknet.netztest.at%", "record": "A", "timeout": "5000000000", "resolver": "8.8.8.8"}', '[{"operator": "eq", "on_failure": "dns.unknowndomain.failure", "on_success": "dns.unknowndomain.success", "dns_result_entries_found": "0"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (106, 'dns', 0, 35, 600, 'dns.testinfo', 'test.desc.dns', '{"host": "sparkasse.at", "record": "A", "timeout": "5000000000"}', '[{"operator": "ge", "on_failure": "dns.failure", "on_success": "dns.success", "dns_result_entries_found": "1"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (39, 'tcp', 1, 35, 200, 'tcp.out.testinfo', 'test.desc.tcp.out.53', '{"timeout": "5000000000", "out_port": "53"}', '[{"operator": "eq", "on_failure": "tcp.failure", "on_success": "tcp.success", "tcp_result_out": "OK"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (107, 'dns', 0, 35, 600, 'dns.testinfo', 'test.desc.dns', '{"host": "spiegel.de", "record": "A", "timeout": "5000000000"}', '[{"operator": "ge", "on_failure": "dns.failure", "on_success": "dns.success", "dns_result_entries_found": "1"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (75, 'dns', 1, 35, 600, 'dns.unknowndomain.info', 'test.desc.dns', '{"host": "%RANDOMURL www. 10 .net%", "record": "A", "timeout": "5000000000"}', '[{"operator": "eq", "on_failure": "dns.unknowndomain.failure", "on_success": "dns.unknowndomain.success", "dns_result_entries_found": "0"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (113, 'dns', 0, 35, 610, 'dns.testinfo', 'test.desc.dns', '{"host": "yahoo.com", "record": "A", "timeout": "5000000000"}', '[{"operator": "ge", "on_failure": "dns.failure", "on_success": "dns.success", "dns_result_entries_found": "1"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (90, 'dns', 0, 35, 640, 'dns.testinfo', 'test.desc.dns', '{"host": "gmx.net", "record": "A", "timeout": "5000000000"}', '[{"operator": "ge", "on_failure": "dns.failure", "on_success": "dns.success", "dns_result_entries_found": "1"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (41, 'tcp', 1, 35, 200, 'tcp.out.testinfo', 'test.desc.tcp.out.143', '{"timeout": "5000000000", "out_port": "143"}', '[{"operator": "eq", "on_failure": "tcp.failure", "on_success": "tcp.success", "tcp_result_out": "OK"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (43, 'tcp', 1, 35, 200, 'tcp.out.testinfo', 'test.desc.tcp.out.465', '{"timeout": "5000000000", "out_port": "465"}', '[{"operator": "eq", "on_failure": "tcp.failure", "on_success": "tcp.success", "tcp_result_out": "OK"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (40, 'tcp', 1, 35, 200, 'tcp.out.testinfo', 'test.desc.tcp.out.110', '{"timeout": "5000000000", "out_port": "110"}', '[{"operator": "eq", "on_failure": "tcp.failure", "on_success": "tcp.success", "tcp_result_out": "OK"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (72, 'dns', 0, 35, 600, 'dns.testinfo', 'test.desc.dns', '{"host": "rtr.at", "record": "A", "timeout": "2000000000", "resolver": "8.8.8.8"}', '[{"operator": "ge", "on_failure": "dns.failure", "on_success": "dns.success", "dns_result_entries_found": "1"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (110, 'dns', 1, 35, 610, 'dns.testinfo', 'test.desc.dns', '{"host": "wikipedia.org", "record": "A", "timeout": "5000000000"}', '[{"operator": "ge", "on_failure": "dns.failure", "on_success": "dns.success", "dns_result_entries_found": "1"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (108, 'dns', 1, 35, 610, 'dns.unknowndomain.info', 'test.desc.dns', '{"host": "touch.darkspace.netztest.at", "record": "A", "timeout": "5000000000"}', '[{"operator": "eq", "on_failure": "dns.unknowndomain.failure", "on_success": "dns.unknowndomain.success", "dns_result_entries_found": "0"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (32, 'dns', 1, 35, 600, 'dns.unknowndomain.info', 'test.desc.dns', '{"host": "%RANDOMURL ftp. 10 .com%", "record": "A", "timeout": "5000000000"}', '[{"operator": "eq", "on_failure": "dns.unknowndomain.failure", "on_success": "dns.unknowndomain.success", "dns_result_entries_found": "0"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (111, 'dns', 1, 35, 640, 'dns.testinfo', 'test.desc.dns', '{"host": "wikipedia.org", "record": "AAAA", "timeout": "5000000000"}', '[{"operator": "ge", "on_failure": "dns.failure", "on_success": "dns.success", "dns_result_entries_found": "1"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (38, 'tcp', 1, 35, 200, 'tcp.out.testinfo', 'test.desc.tcp.out.25', '{"timeout": "5000000000", "out_port": "25"}', '[{"operator": "eq", "on_failure": "tcp.failure", "on_success": "tcp.success", "tcp_result_out": "OK"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (78, 'dns', 0, 35, 630, 'dns.testinfo', 'test.desc.dns', '{"host": "amazon.com", "record": "A", "timeout": "5000000000"}', '[{"operator": "ge", "on_failure": "dns.failure", "on_success": "dns.success", "dns_result_entries_found": "1"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (99, 'dns', 0, 35, 630, 'dns.testinfo', 'test.desc.dns', '{"host": "krone.at", "record": "A", "timeout": "5000000000"}', '[{"operator": "ge", "on_failure": "dns.failure", "on_success": "dns.success", "dns_result_entries_found": "1"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (79, 'dns', 1, 35, 610, 'dns.testinfo', 'test.desc.dns', '{"host": "amazon.de", "record": "A", "timeout": "5000000000"}', '[{"operator": "ge", "on_failure": "dns.failure", "on_success": "dns.success", "dns_result_entries_found": "1"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (109, 'dns', 1, 35, 610, 'dns.testinfo', 'test.desc.dns', '{"host": "twitter.com", "record": "A", "timeout": "5000000000"}', '[{"operator": "ge", "on_failure": "dns.failure", "on_success": "dns.success", "dns_result_entries_found": "1"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (88, 'dns', 1, 35, 640, 'dns.testinfo', 'test.desc.dns', '{"host": "facebook.com", "record": "AAAA", "timeout": "5000000000"}', '[{"operator": "ge", "on_failure": "dns.failure", "on_success": "dns.success", "dns_result_entries_found": "1"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (93, 'dns', 1, 35, 640, 'dns.testinfo', 'test.desc.dns', '{"host": "google.com", "record": "AAAA", "timeout": "5000000000"}', '[{"operator": "ge", "on_failure": "dns.failure", "on_success": "dns.success", "dns_result_entries_found": "1"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (124, 'non_transparent_proxy', 1, 35, 300, 'ntp.testinfo', 'test.desc.ntp', '{"port": "80", "request": "GET / HTTR/7.9", "timeout": "5000000000"}', '[{"operator": "eq", "on_failure": "ntp.failure", "on_success": "ntp.success", "nontransproxy_result_response": "%PARAM nontransproxy_objective_request%"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (56, 'udp', 1, 35, 200, 'udp.out.testinfo', 'test.desc.udp.out.5005', '{"timeout": "5000000000", "out_port": "5005", "out_num_packets": "5"}', '[{"operator": "eq", "on_failure": "udp.failure", "on_success": "udp.success", "udp_result_out_response_num_packets": "%PARAM udp_objective_out_num_packets%"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (166, 'traceroute_masked', 1, 35, 100, 'trace.testinfo', 'test.desc.trace', '{
+    "host": "traceroutev4.netztest.at",
+    "timeout": "35000000000"
+}', '[{"operator": "eq", "on_failure": "traceroute.failure", "on_success": "traceroute.success", "traceroute_result_status": "OK"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (174, 'dns', 1, 35, 620, 'dns.testinfo', 'test.desc.dns', '{"host": "rtr.at", "record": "A", "timeout": "5000000000", "resolver": "1.1.1.1"}', '[{"operator": "ge", "on_failure": "dns.failure", "on_success": "dns.success", "dns_result_entries_found": "1"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (165, 'udp', 1, 35, 150, 'udp.in.testinfo', 'test.desc.udp.in.5004', '{"timeout": "5000000000", "in_port": "5004", "in_num_packets": "5"}', '[{"operator": "eq", "on_failure": "udp.failure", "on_success": "udp.success", "udp_result_in_response_num_packets": "%PARAM udp_objective_in_num_packets%"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (129, 'voip', 1, 35, 100, 'voip.testinfo', 'test.desc.voip', '{"timeout": "6000000000", "out_port": "5060", "call_duration": "2000000000"}', '[
+  {
+    "evaluate": "%EVAL if (nn.coalesce(voip_result_out_mean_jitter, 50000000) < 50000000) result=true; else result=false;%",
+    "on_failure": "voip.jitter.outgoing.failure",
+    "on_success": "voip.jitter.outgoing.success"
+  },
+  {
+    "evaluate": "%EVAL if (nn.coalesce(voip_result_in_mean_jitter, 50000000) < 50000000) result=true; else result=false;%",
+    "on_failure": "voip.jitter.incoming.failure",
+    "on_success": "voip.jitter.incoming.success"
+  },
+  {
+  "evaluate": "%EVAL if (nn.coalesce(voip_result_out_num_packets, 0) > 0) result=true; else result=false;%",
+  "on_failure": "voip.outgoing.packet.failure",
+    "on_success": "voip.outgoing.packet.success"
+  },
+  {
+    "evaluate": "%EVAL if (nn.coalesce(voip_result_in_num_packets, 0) > 0) result=true; else result=false;%",
+    "on_failure": "voip.incoming.packet.failure",
+    "on_success": "voip.incoming.packet.success"
+  },
+  {
+    "evaluate": "%EVAL var _sent= parseInt(voip_objective_call_duration/voip_objective_delay); var _plr=parseInt(100 * ((_sent - voip_result_in_num_packets) / _sent)); if (_plr > 5) result=false; else result=true;%",
+    "on_failure": "voip.incoming.packet_loss.failure"
+  },
+  {
+    "evaluate": "%EVAL var _sent= parseInt(voip_objective_call_duration/voip_objective_delay); var _plr=parseInt(100 * ((_sent - voip_result_out_num_packets) / _sent)); if (_plr > 5) result=false; else result=true;%",
+    "on_failure": "voip.outgoing.packet_loss.failure"
+  }, 
+  {
+    "evaluate": "%EVAL if(voip_result_status==''TIMEOUT'') result={type: ''failure'', key: ''voip.timeout''}%"
+  }
+]
+');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (58, 'udp', 1, 35, 200, 'udp.out.testinfo', 'test.desc.udp.out.7078', '{"timeout": "5000000000", "out_port": "7078", "out_num_packets": "5"}', '[{"operator": "eq", "on_failure": "udp.failure", "on_success": "udp.success", "udp_result_out_response_num_packets": "%PARAM udp_objective_out_num_packets%"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (54, 'udp', 1, 35, 200, 'udp.out.testinfo', 'test.desc.udp.out.500', '{"timeout": "5000000000", "out_port": "500", "out_num_packets": "5"}', '[{"operator": "eq", "on_failure": "udp.failure", "on_success": "udp.success", "udp_result_out_response_num_packets": "%PARAM udp_objective_out_num_packets%"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (52, 'udp', 1, 35, 200, 'udp.out.testinfo', 'test.desc.udp.out.53', '{"timeout": "5000000000", "out_port": "53", "out_num_packets": "5"}', '[{"operator": "eq", "on_failure": "udp.failure", "on_success": "udp.success", "udp_result_out_response_num_packets": "%PARAM udp_objective_out_num_packets%"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (164, 'udp', 1, 35, 150, 'udp.in.testinfo', 'test.desc.udp.in.3389', '{"timeout": "5000000000", "in_port": "3389", "in_num_packets": "5"}', '[{"operator": "eq", "on_failure": "udp.failure", "on_success": "udp.success", "udp_result_in_response_num_packets": "%PARAM udp_objective_in_num_packets%"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (62, 'udp', 1, 35, 200, 'udp.out.testinfo', 'test.desc.udp.out.554', '{"timeout": "5000000000", "out_port": "554", "out_num_packets": "5"}', '[{"operator": "eq", "on_failure": "udp.failure", "on_success": "udp.success", "udp_result_out_response_num_packets": "%PARAM udp_objective_out_num_packets%"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (55, 'udp', 1, 35, 200, 'udp.out.testinfo', 'test.desc.udp.out.5004', '{"timeout": "5000000000", "out_port": "5004", "out_num_packets": "5"}', '[{"operator": "eq", "on_failure": "udp.failure", "on_success": "udp.success", "udp_result_out_response_num_packets": "%PARAM udp_objective_out_num_packets%"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (61, 'udp', 1, 35, 200, 'udp.out.testinfo', 'test.desc.udp.out.27015', '{"timeout": "5000000000", "out_port": "27015", "out_num_packets": "5"}', '[{"operator": "eq", "on_failure": "udp.failure", "on_success": "udp.success", "udp_result_out_response_num_packets": "%PARAM udp_objective_out_num_packets%"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (53, 'udp', 1, 35, 200, 'udp.out.testinfo', 'test.desc.udp.out.123', '{"timeout": "5000000000", "out_port": "123", "out_num_packets": "5"}', '[{"operator": "eq", "on_failure": "udp.failure", "on_success": "udp.success", "udp_result_out_response_num_packets": "%PARAM udp_objective_out_num_packets%"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (57, 'udp', 1, 35, 200, 'udp.out.testinfo', 'test.desc.udp.out.5060', '{"timeout": "5000000000", "out_port": "5060", "out_num_packets": "5"}', '[{"operator": "eq", "on_failure": "udp.failure", "on_success": "udp.success", "udp_result_out_response_num_packets": "%PARAM udp_objective_out_num_packets%"}]');
+
+
+--
+-- Name: qos_test_objective_uid_seq; Type: SEQUENCE SET; Schema: public; Owner: rmbt
+--
+
+SELECT pg_catalog.setval('public.qos_test_objective_uid_seq', 206, true);
+
+
+--
+-- Name: qos_test_objective qos_test_objective_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.qos_test_objective
+    ADD CONSTRAINT qos_test_objective_pkey PRIMARY KEY (uid);
+
+
+--
+-- Name: TABLE qos_test_objective; Type: ACL; Schema: public; Owner: rmbt
+--
+
+GRANT SELECT ON TABLE public.qos_test_objective TO rmbt_group_read_only;
+
+
+--
+-- PostgreSQL database dump complete
+--
+
+-- 2019-02-04_21-19-54 rmbt_init.sql table qos_test_type_desc
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 10.6 (Debian 10.6-1.pgdg90+1)
+-- Dumped by pg_dump version 10.6 (Debian 10.6-1.pgdg90+1)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+SET row_security = off;
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+-- Name: qos_test_type_desc; Type: TABLE; Schema: public; Owner: rmbt
+--
+
+CREATE TABLE public.qos_test_type_desc (
+    uid integer NOT NULL,
+    test public.qostest,
+    test_desc text,
+    test_name text
+);
+
+
+ALTER TABLE public.qos_test_type_desc OWNER TO rmbt;
+
+--
+-- Name: qos_test_type_desc_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
+--
+
+CREATE SEQUENCE public.qos_test_type_desc_uid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.qos_test_type_desc_uid_seq OWNER TO rmbt;
+
+--
+-- Name: qos_test_type_desc_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
+--
+
+ALTER SEQUENCE public.qos_test_type_desc_uid_seq OWNED BY public.qos_test_type_desc.uid;
+
+
+--
+-- Name: qos_test_type_desc uid; Type: DEFAULT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.qos_test_type_desc ALTER COLUMN uid SET DEFAULT nextval('public.qos_test_type_desc_uid_seq'::regclass);
+
+
+--
+-- Data for Name: qos_test_type_desc; Type: TABLE DATA; Schema: public; Owner: rmbt
+--
+
+INSERT INTO public.qos_test_type_desc (uid, test, test_desc, test_name) VALUES (1, 'website', 'test.website', 'name.website');
+INSERT INTO public.qos_test_type_desc (uid, test, test_desc, test_name) VALUES (2, 'http_proxy', 'test.http', 'name.http_proxy');
+INSERT INTO public.qos_test_type_desc (uid, test, test_desc, test_name) VALUES (3, 'non_transparent_proxy', 'test.ntp', 'name.non_transparent_proxy');
+INSERT INTO public.qos_test_type_desc (uid, test, test_desc, test_name) VALUES (4, 'dns', 'test.dns', 'name.dns');
+INSERT INTO public.qos_test_type_desc (uid, test, test_desc, test_name) VALUES (5, 'tcp', 'test.tcp', 'name.tcp');
+INSERT INTO public.qos_test_type_desc (uid, test, test_desc, test_name) VALUES (6, 'udp', 'test.udp', 'name.udp');
+INSERT INTO public.qos_test_type_desc (uid, test, test_desc, test_name) VALUES (7, 'voip', 'test.voip', 'name.voip');
+INSERT INTO public.qos_test_type_desc (uid, test, test_desc, test_name) VALUES (8, 'traceroute', 'test.trace', 'name.trace');
+INSERT INTO public.qos_test_type_desc (uid, test, test_desc, test_name) VALUES (40, 'traceroute_masked', 'test.trace', 'name.trace');
+
+
+--
+-- Name: qos_test_type_desc_uid_seq; Type: SEQUENCE SET; Schema: public; Owner: rmbt
+--
+
+SELECT pg_catalog.setval('public.qos_test_type_desc_uid_seq', 40, true);
+
+
+--
+-- Name: qos_test_type_desc qos_test_type_desc_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.qos_test_type_desc
+    ADD CONSTRAINT qos_test_type_desc_pkey PRIMARY KEY (uid);
+
+
+--
+-- Name: qos_test_type_desc qos_test_type_desc_test_key; Type: CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.qos_test_type_desc
+    ADD CONSTRAINT qos_test_type_desc_test_key UNIQUE (test);
+
+
+--
+-- Name: TABLE qos_test_type_desc; Type: ACL; Schema: public; Owner: rmbt
+--
+
+GRANT SELECT ON TABLE public.qos_test_type_desc TO rmbt_group_read_only;
+
+
+--
+-- PostgreSQL database dump complete
+--
+
+-- 2019-02-04_21-19-54 rmbt_init.sql template table device_map
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 10.6 (Debian 10.6-1.pgdg90+1)
+-- Dumped by pg_dump version 10.6 (Debian 10.6-1.pgdg90+1)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+SET row_security = off;
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+-- Name: device_map; Type: TABLE; Schema: public; Owner: rmbt
+--
+
+CREATE TABLE public.device_map (
+    uid integer NOT NULL,
+    codename character varying(200),
+    fullname character varying(200),
+    source character varying(200),
+    "timestamp" timestamp with time zone
+);
+
+
+ALTER TABLE public.device_map OWNER TO rmbt;
+
+--
+-- Name: android_device_map_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
+--
+
+CREATE SEQUENCE public.android_device_map_uid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.android_device_map_uid_seq OWNER TO rmbt;
+
+--
+-- Name: android_device_map_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
+--
+
+ALTER SEQUENCE public.android_device_map_uid_seq OWNED BY public.device_map.uid;
+
+
+--
+-- Name: device_map uid; Type: DEFAULT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.device_map ALTER COLUMN uid SET DEFAULT nextval('public.android_device_map_uid_seq'::regclass);
+
+
+--
+-- Data for Name: device_map; Type: TABLE DATA; Schema: public; Owner: rmbt
+--
+
+INSERT INTO public.device_map (codename, fullname) VALUES ('iPad3,6', 'iPad 4 EU');
+
+
+--
+-- Name: android_device_map_uid_seq; Type: SEQUENCE SET; Schema: public; Owner: rmbt
+--
+
+SELECT pg_catalog.setval('public.android_device_map_uid_seq', 6338, true);
+
+
+--
+-- Name: device_map android_device_map_codename_key; Type: CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.device_map
+    ADD CONSTRAINT android_device_map_codename_key UNIQUE (codename);
+
+
+--
+-- Name: device_map android_device_map_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.device_map
+    ADD CONSTRAINT android_device_map_pkey PRIMARY KEY (uid);
+
+
+--
+-- Name: device_map device_map_fullname_key; Type: CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.device_map
+    ADD CONSTRAINT device_map_fullname_key UNIQUE (fullname);
+
+
+--
+-- Name: TABLE device_map; Type: ACL; Schema: public; Owner: rmbt
+--
+
+GRANT SELECT ON TABLE public.device_map TO rmbt_group_read_only;
+
+
+--
+-- PostgreSQL database dump complete
+--
+
+-- 2019-02-04_21-19-54 rmbt_init.sql template table news
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 10.6 (Debian 10.6-1.pgdg90+1)
+-- Dumped by pg_dump version 10.6 (Debian 10.6-1.pgdg90+1)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+SET row_security = off;
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+-- Name: news; Type: TABLE; Schema: public; Owner: rmbt
+--
+
+CREATE TABLE public.news (
+    uid integer NOT NULL,
+    "time" timestamp with time zone NOT NULL,
+    title_en text,
+    title_de text,
+    text_en text,
+    text_de text,
+    active boolean DEFAULT false NOT NULL,
+    force boolean DEFAULT false NOT NULL,
+    plattform text,
+    max_software_version_code integer,
+    min_software_version_code integer,
+    uuid uuid
+);
+
+
+ALTER TABLE public.news OWNER TO rmbt;
+
+--
+-- Name: news_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
+--
+
+CREATE SEQUENCE public.news_uid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.news_uid_seq OWNER TO rmbt;
+
+--
+-- Name: news_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
+--
+
+ALTER SEQUENCE public.news_uid_seq OWNED BY public.news.uid;
+
+
+--
+-- Name: news uid; Type: DEFAULT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.news ALTER COLUMN uid SET DEFAULT nextval('public.news_uid_seq'::regclass);
+
+
+--
+-- Data for Name: news; Type: TABLE DATA; Schema: public; Owner: rmbt
+--
+
+INSERT INTO public.news ("time", title_en, title_de, text_en, text_de, active, force, plattform, max_software_version_code, min_software_version_code, uuid) VALUES ('2013-02-22 15:26:32.482416+00', 'New version', 'Neue Version', 'A newer version of the RTR-Nettest is available. Please download it in the Google Play store.', 'Es ist eine neuere Version des RTR-Netztests verfügbar. Bitte laden Sie diese in Google Play herunter.', true, true, 'Android', 59, 52, NULL);
+
+
+--
+-- Name: news_uid_seq; Type: SEQUENCE SET; Schema: public; Owner: rmbt
+--
+
+SELECT pg_catalog.setval('public.news_uid_seq', 72, true);
+
+
+--
+-- Name: news uid; Type: CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.news
+    ADD CONSTRAINT uid PRIMARY KEY (uid);
+
+
+--
+-- Name: news_time_idx; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX news_time_idx ON public.news USING btree ("time");
+
+
+--
+-- Name: TABLE news; Type: ACL; Schema: public; Owner: rmbt
+--
+
+GRANT SELECT ON TABLE public.news TO rmbt_group_read_only;
+
+
+--
+-- PostgreSQL database dump complete
+--
+
+-- 2019-02-04_21-19-54 rmbt_init.sql template table settings
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 10.6 (Debian 10.6-1.pgdg90+1)
+-- Dumped by pg_dump version 10.6 (Debian 10.6-1.pgdg90+1)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+SET row_security = off;
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+-- Name: settings; Type: TABLE; Schema: public; Owner: rmbt
+--
+
+CREATE TABLE public.settings (
+    uid integer NOT NULL,
+    key character varying NOT NULL,
+    lang character(2),
+    value character varying NOT NULL
+);
+
+
+ALTER TABLE public.settings OWNER TO rmbt;
+
+--
+-- Name: settings_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
+--
+
+CREATE SEQUENCE public.settings_uid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.settings_uid_seq OWNER TO rmbt;
+
+--
+-- Name: settings_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
+--
+
+ALTER SEQUENCE public.settings_uid_seq OWNED BY public.settings.uid;
+
+
+--
+-- Name: settings uid; Type: DEFAULT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.settings ALTER COLUMN uid SET DEFAULT nextval('public.settings_uid_seq'::regclass);
+
+
+--
+-- Data for Name: settings; Type: TABLE DATA; Schema: public; Owner: rmbt
+--
+
+INSERT INTO public.settings (uid, key, lang, value) VALUES ('url_open_data_prefix', NULL, 'https://www.example.com/en/Opentest?');
+INSERT INTO public.settings (uid, key, lang, value) VALUES ('url_open_data_prefix', 'de', 'https://www.example.com/de/Opentest?');
+INSERT INTO public.settings (uid, key, lang, value) VALUES ('rmbt_num_threads', NULL, '3');
+INSERT INTO public.settings (uid, key, lang, value) VALUES ('rmbt_duration', NULL, '7');
+INSERT INTO public.settings (uid, key, lang, value) VALUES ('geo_accuracy_limit_map', NULL, '2000');
+INSERT INTO public.settings (uid, key, lang, value) VALUES ('geo_accuracy_limit_detail', NULL, '10000');
+INSERT INTO public.settings (uid, key, lang, value) VALUES ('url_statistics', 'de', 'https://www.example.com/de/Statistik#noMMenu');
+INSERT INTO public.settings (uid, key, lang, value) VALUES ('system_UUID', NULL, 'ccc9107b-3d34-493f-8afc-6af8b6a66b6e');
+INSERT INTO public.settings (uid, key, lang, value) VALUES ('system_name', 'en', 'Open-RMBT');
+INSERT INTO public.settings (uid, key, lang, value) VALUES ('system_name', 'de', 'Open-RMBT');
+INSERT INTO public.settings (uid, key, lang, value) VALUES ('control_ipv4_only', NULL, 'c01v4.example.com');
+INSERT INTO public.settings (uid, key, lang, value) VALUES ('control_ipv6_only', NULL, 'c01v6.example.com');
+INSERT INTO public.settings (uid, key, lang, value) VALUES ('port_map_server', NULL, '443');
+INSERT INTO public.settings (uid, key, lang, value) VALUES ('ssl_map_server', NULL, 'TRUE');
+INSERT INTO public.settings (uid, key, lang, value) VALUES ('url_statistics', NULL, 'https://www.example.com/en/Statistik#noMMenu');
+INSERT INTO public.settings (uid, key, lang, value) VALUES ('url_ipv4_check', NULL, 'https://c01v4.example.com/RMBTControlServer/ip');
+INSERT INTO public.settings (uid, key, lang, value) VALUES ('url_ipv6_check', NULL, 'https://c01v6.example.com/RMBTControlServer/ip');
+INSERT INTO public.settings (uid, key, lang, value) VALUES ('url_map_server', NULL, 'https://map.example.com/RMBTMapServer');
+INSERT INTO public.settings (uid, key, lang, value) VALUES ('host_map_server', NULL, 'map.example.com');
+INSERT INTO public.settings (uid, key, lang, value) VALUES ('url_share', NULL, 'https://example.com/share/');
+
+
+--
+-- Name: settings_uid_seq; Type: SEQUENCE SET; Schema: public; Owner: rmbt
+--
+
+SELECT pg_catalog.setval('public.settings_uid_seq', 63, true);
+
+
+--
+-- Name: settings settings_key_lang_key; Type: CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.settings
+    ADD CONSTRAINT settings_key_lang_key UNIQUE (key, lang);
+
+
+--
+-- Name: settings settings_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.settings
+    ADD CONSTRAINT settings_pkey PRIMARY KEY (uid);
+
+
+--
+-- Name: settings_key_lang_idx; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX settings_key_lang_idx ON public.settings USING btree (key, lang);
+
+
+--
+-- Name: TABLE settings; Type: ACL; Schema: public; Owner: rmbt
+--
+
+GRANT SELECT ON TABLE public.settings TO rmbt_group_read_only;
+
+
+--
+-- PostgreSQL database dump complete
+--
+
+-- 2019-02-04_21-19-54 rmbt_init.sql template table test_server
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 10.6 (Debian 10.6-1.pgdg90+1)
+-- Dumped by pg_dump version 10.6 (Debian 10.6-1.pgdg90+1)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+SET row_security = off;
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+-- Name: test_server; Type: TABLE; Schema: public; Owner: rmbt
+--
+
+CREATE TABLE public.test_server (
+    uid integer NOT NULL,
+    name character varying(200),
+    web_address character varying(500),
+    port integer,
+    port_ssl integer,
+    city character varying,
+    country character varying,
+    geo_lat double precision,
+    geo_long double precision,
+    location public.geometry(Point,900913),
+    web_address_ipv4 character varying(200),
+    web_address_ipv6 character varying(200),
+    server_type character varying(10),
+    priority integer DEFAULT 0 NOT NULL,
+    weight integer DEFAULT 1 NOT NULL,
+    active boolean DEFAULT true NOT NULL,
+    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    key character varying,
+    selectable boolean DEFAULT false NOT NULL,
+    countries character varying[] DEFAULT '{dev}'::character varying[] NOT NULL,
+    node character varying,
+    CONSTRAINT enforce_dims_location CHECK ((public.st_ndims(location) = 2)),
+    CONSTRAINT enforce_geotype_location CHECK (((public.geometrytype(location) = 'POINT'::text) OR (location IS NULL))),
+    CONSTRAINT enforce_srid_location CHECK ((public.st_srid(location) = 900913))
+);
+
+
+ALTER TABLE public.test_server OWNER TO rmbt;
+
+--
+-- Name: test_server_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
+--
+
+CREATE SEQUENCE public.test_server_uid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.test_server_uid_seq OWNER TO rmbt;
+
+--
+-- Name: test_server_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
+--
+
+ALTER SEQUENCE public.test_server_uid_seq OWNED BY public.test_server.uid;
+
+
+--
+-- Name: test_server uid; Type: DEFAULT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.test_server ALTER COLUMN uid SET DEFAULT nextval('public.test_server_uid_seq'::regclass);
+
+
+--
+-- Data for Name: test_server; Type: TABLE DATA; Schema: public; Owner: rmbt
+--
+
+INSERT INTO public.test_server (name, web_address, port, port_ssl, city, country, geo_lat, geo_long, location, web_address_ipv4, web_address_ipv6, server_type, priority, weight, active, uuid, key, selectable, countries, node)  VALUES ('OpenRMBT Server', NULL, NULL, 443, 'Vienna', 'AT', 48.2697550000000035, 16.4109130000000007, '010100002031BF0D00DD5C867A26E03B41B6FC3597AA775741',  'server-v4.example.com', 'server-v6.example.com', 'RMBT', 1, 1, true, 'ccc9107b-3d34-493f-8afc-6af8b6a66b6e', '-change-me', true, '{any}', 'VIE');
+
+
+
+--
+-- Name: test_server_uid_seq; Type: SEQUENCE SET; Schema: public; Owner: rmbt
+--
+
+SELECT pg_catalog.setval('public.test_server_uid_seq', 86, true);
+
+
+--
+-- Name: test_server test_server_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.test_server
+    ADD CONSTRAINT test_server_pkey PRIMARY KEY (uid);
+
+
+--
+-- Name: test_server test_server_uuid_key; Type: CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.test_server
+    ADD CONSTRAINT test_server_uuid_key UNIQUE (uuid);
+
+
+--
+-- Name: TABLE test_server; Type: ACL; Schema: public; Owner: rmbt
+--
+
+GRANT SELECT ON TABLE public.test_server TO rmbt_group_read_only;
 
 
 --
