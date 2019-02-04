@@ -899,8 +899,7 @@
           "description" : "Network identification whereas the first three digits represent the country, the digits following the dash represent the mobile network provider within that country."
         },
         "network_country" : {
-          "type" : "integer",
-          "format" : "int64",
+          "type" : "string",
           "example" : "DE",
           "description" : "Country of the network in ISO 3166."
         },
