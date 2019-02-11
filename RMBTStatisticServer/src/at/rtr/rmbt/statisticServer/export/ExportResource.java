@@ -59,7 +59,7 @@ public class ExportResource extends ServerResource
 {
     private static final String FILENAME_CSV_HOURS = "netztest-opendata_hours-%HOURS%.csv";
     private static final String FILENAME_ZIP_HOURS = "netztest-opendata_hours-%HOURS%.zip";
-    private static final String FILENAME_XLSX_HOURS = "netztest-opendata_hours-%HOURS%.zip";
+    private static final String FILENAME_XLSX_HOURS = "netztest-opendata_hours-%HOURS%.xlsx";
     private static final String FILENAME_CSV = "netztest-opendata-%YEAR%-%MONTH%.csv";
     private static final String FILENAME_XLSX = "netztest-opendata-%YEAR%-%MONTH%.xlsx";
     private static final String FILENAME_ZIP = "netztest-opendata-%YEAR%-%MONTH%.zip";
