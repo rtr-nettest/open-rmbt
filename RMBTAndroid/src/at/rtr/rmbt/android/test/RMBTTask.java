@@ -352,7 +352,14 @@ public class RMBTTask
                 if (qosTest != null && !cancelled.get() && qosTest.getStatus().equals(QoSTestEnum.QOS_FINISHED)) {
                     if (ConfigHelper.isNDT(context)) {
                     	qosTest.setStatus(QoSTestEnum.NDT_RUNNING);
-                    	runNDT();
+
+                    	//do not execute ndt on foreign networks or with foreign sim cards
+                        String networkMccMnc  = fullInfo.getInfo("TELEPHONY_NETWORK_OPERATOR");
+                        String simMccMnc = fullInfo.getInfo("TELEPHONY_NETWORK_SIM_OPERATOR");
+                        if ((Strings.isNullOrEmpty(networkMccMnc) || networkMccMnc.startsWith("232")) &&
+                                (Strings.isNullOrEmpty(simMccMnc) || simMccMnc.startsWith("232"))) {
+                            runNDT();
+                        }
                     }
                     qosTest.setStatus(QoSTestEnum.STOP);
                 }
