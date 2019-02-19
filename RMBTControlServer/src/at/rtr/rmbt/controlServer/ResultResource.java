@@ -630,18 +630,19 @@ public class ResultResource extends ServerResource
                                         // set rssi value (typically GSM,UMTS, but also old LTE-phones)
                                         if (minSignalStrength != Integer.MAX_VALUE
                                                 && minSignalStrength != UNKNOWN
-                                                && minSignalStrength != 0) { // 0 dBm is out of range
+                                                && minSignalStrength < 0) { // 0 dBm is out of range
                                             ((IntField) test.getField("signal_strength")).setValue(minSignalStrength);
                                         }
                                         // set rsrp value (typically LTE)
                                         if (minLteRsrp != Integer.MAX_VALUE
                                                 && minLteRsrp != UNKNOWN
-                                                && minLteRsrp != 0) { // 0 dBm is out of range
+                                                && minLteRsrp < 0) { // 0 dBm is out of range
                                             ((IntField) test.getField("lte_rsrp")).setValue(minLteRsrp);
                                         }
                                         // set rsrq value (LTE)
                                         if (minLteRsrq != Integer.MAX_VALUE
-                                                && minLteRsrq != UNKNOWN) {
+                                                && minLteRsrq != UNKNOWN
+                                                && minLteRsrp < 0) {
                                             ((IntField) test.getField("lte_rsrq")).setValue(minLteRsrq);
                                         }
 

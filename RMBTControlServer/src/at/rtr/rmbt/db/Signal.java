@@ -153,7 +153,8 @@ public class Signal
             else
                 st.setInt(i++, network_type_id);
             
-            if (signal_strength == UNKNOWN)
+            if (signal_strength == UNKNOWN ||
+                    (signal_strength >= 0 || signal_strength < -140))
                 st.setNull(i++, Types.INTEGER);
             else
                 st.setInt(i++, signal_strength);
@@ -173,12 +174,13 @@ public class Signal
             else
                 st.setInt(i++, wifi_rssi);
             
-            if (lte_rsrp == UNKNOWN)
+            if (lte_rsrp == UNKNOWN ||
+                    (lte_rsrp >= 0 || lte_rsrp < -140 || (lte_rsrq != UNKNOWN && lte_rsrq == -1)))
                 st.setNull(i++, Types.INTEGER);
             else
                 st.setInt(i++, lte_rsrp);
             
-            if (lte_rsrq == UNKNOWN)
+            if (lte_rsrq == UNKNOWN || (Math.abs(lte_rsrq) > 19.5 || Math.abs(lte_rsrq) < 3.0) || (lte_rsrq > 0))
                 st.setNull(i++, Types.INTEGER);
             else
                 st.setInt(i++, lte_rsrq);
