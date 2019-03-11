@@ -143,5 +143,13 @@ public class LocationGraphDTO {
         public void setTime(Date time) {
             this.time = time;
         }
+
+        public void setBearing(Double bearing) {
+            this.bearing = bearing;
+        }
+
+        public void setSpeed(Double speed) {
+            this.speed = speed;
+        }
     }
 }
