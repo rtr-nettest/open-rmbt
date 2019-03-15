@@ -114,7 +114,7 @@ public class NioUdpMultiClientServer extends AbstractUdpServer<DatagramChannel> 
 								buffer.flip();
 								final byte[] data = new byte[buffer.remaining()];
 								buffer.get(data);
-								if (data == null || data.length == 0) {
+								if (data == null || data.length == 0 || data.length == 1) {
 									continue;
 								}
 								final DatagramPacket dp = new DatagramPacket(data, data.length, senderAddr);
