@@ -548,7 +548,8 @@ public class InformationCollector
             			ConfigHelper.getLoopModeMaxDelay(context),
             			ConfigHelper.getLoopModeMaxMovement(context),
             			ConfigHelper.getLoopModeMaxTests(context), 
-            			ConfigHelper.getLoopModeTestCounter(context))));
+            			ConfigHelper.getLoopModeTestCounter(context),
+                        ConfigHelper.getLoopModeTestOpportunisticSetting(context))));
             }
 
             if (ConfigHelper.isUserServerSelectionActivated(context))

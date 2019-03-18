@@ -203,7 +203,11 @@ public final class ConfigHelper
     public static int getLoopModeTestCounter(final Context context) {
     	return getInt(context, "loop_mode_test_counter", 0, false);
     }
-    
+
+    public static String getLoopModeTestOpportunisticSetting(final Context context) {
+        return getSharedPreferences(context).getString("loop_mode_opportunistic","no-restriction");
+    }
+
     public static boolean isNDT(final Context context)
     {
         return getSharedPreferences(context).getBoolean("ndt", false);

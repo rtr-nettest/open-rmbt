@@ -66,7 +66,16 @@
     
     <string name="preferences_loop_mode_wake_lock">Wiederholung WakeLock</string>
     <string name="preferences_loop_mode_wake_lock_sum">Workaround für manche Geräte: Lässt das Display aktiv um GPS aktiv zu halten.</string>
-    
+
+    <string name="preferences_loop_mode_opportunistic">Messung einschränken</string>
+    <string name="preferences_loop_mode_opportunistic_sum">Nur an manchen Orten messen</string>
+    <string-array name="preferences_loop_mode_opportunistic_list_labels">
+        <item>Keine Einschränkung</item>
+        <item>Nur messen, wenn wenige Tests in der Umgebung</item>
+        <item>Nur messen, wenn keine Tests in der Umgebung</item>
+    </string-array>
+
+
     <string name="preferences_ndt">NDT</string>
     <string name="preferences_ndt_sum">Erweiterten Test aktivieren</string>
     

@@ -70,6 +70,19 @@
     
     <string name="preferences_loop_mode_wake_lock">Loop WakeLock</string>
     <string name="preferences_loop_mode_wake_lock_sum">Workaround for some devices: Leaves the display on to keep GPS working</string>
+
+    <string name="preferences_loop_mode_opportunistic">Restrict measurements</string>
+    <string name="preferences_loop_mode_opportunistic_sum">Only measure at certain locations</string>
+    <string-array name="preferences_loop_mode_opportunistic_list">
+        <item>no-restriction</item>
+        <item>some</item>
+        <item>any</item>
+    </string-array>
+    <string-array name="preferences_loop_mode_opportunistic_list_labels">
+        <item>No restriction</item>
+        <item>Measure only if few tests in proximity</item>
+        <item>Measure only if no tests in proximity</item>
+    </string-array>
     
     <string name="preferences_ndt">NDT</string>
     <string name="preferences_ndt_sum">Activate extended test</string>

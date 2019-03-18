@@ -27,6 +27,9 @@ public class LoopModeSettings {
 	
 	@SerializedName("client_uuid")
 	protected String clientUuid;
+
+	@SerializedName("opportunistic")
+	private String opportunistic;
 	
 	@SerializedName("max_delay")
 	protected int maxDelay;
@@ -42,11 +45,12 @@ public class LoopModeSettings {
 
 	public LoopModeSettings() { }
 	
-	public LoopModeSettings(final int maxDelay, final int maxMovement, final int maxTests, final int testCounter) {
+	public LoopModeSettings(final int maxDelay, final int maxMovement, final int maxTests, final int testCounter, final String opportunistic) {
 		setMaxDelay(maxDelay);
 		setMaxMovement(maxMovement);
 		setMaxTests(maxTests);
 		setTestCounter(testCounter);
+		setOpportunistic(opportunistic);
 	}
 	
 	public int getMaxDelay() {
@@ -103,6 +107,14 @@ public class LoopModeSettings {
 
 	public void setUid(Long uid) {
 		this.uid = uid;
+	}
+
+	public String getOpportunistic() {
+		return opportunistic;
+	}
+
+	public void setOpportunistic(String opportunistic) {
+		this.opportunistic = opportunistic;
 	}
 
 	@Override

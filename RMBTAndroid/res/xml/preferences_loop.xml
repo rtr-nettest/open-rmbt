@@ -43,7 +43,15 @@
                 android:inputType="number"
                 android:defaultValue="@integer/default_loop_max_movement"
                 android:dialogTitle="@string/preferences_loop_mode_movement_title"
-                />            
+                />
+            <ListPreference
+                android:key="loop_mode_opportunistic"
+                android:title="@string/preferences_loop_mode_opportunistic"
+                android:summary="@string/preferences_loop_mode_opportunistic_sum"
+                android:defaultValue="no-restriction"
+                android:entries="@array/preferences_loop_mode_opportunistic_list_labels"
+                android:entryValues="@array/preferences_loop_mode_opportunistic_list"
+                />
         </PreferenceCategory>
 
 </PreferenceScreen>

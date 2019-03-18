@@ -192,6 +192,7 @@ public class RMBTPreferenceActivity extends PreferenceActivity
 			});
         }
 
+        final Preference loopModeOpportunisticPreference = findPreference("loop_mode_opportunistic");
         final Preference loopModePref = (Preference) findPreference("loop_mode");
         if (loopModePref != null) {
             CheckBoxPreference CheckBoxLoopMode = (CheckBoxPreference) findPreference("loop_mode");
@@ -199,9 +200,11 @@ public class RMBTPreferenceActivity extends PreferenceActivity
                 if (CheckBoxLoopMode.isChecked()) {
                     loopModeGroup.addPreference(loopModeMaxMovementPreference);
                     loopModeGroup.addPreference(loopModeMaxDelayPreference);
+                    loopModeGroup.addPreference(loopModeOpportunisticPreference);
                 } else {
                     loopModeGroup.removePreference(loopModeMaxMovementPreference);
                     loopModeGroup.removePreference(loopModeMaxDelayPreference);
+                    loopModeGroup.removePreference(loopModeOpportunisticPreference);
                 }
             }
 
@@ -217,9 +220,11 @@ public class RMBTPreferenceActivity extends PreferenceActivity
                             if (cbp.isChecked()) {
                                 loopModeGroup.addPreference(loopModeMaxMovementPreference);
                                 loopModeGroup.addPreference(loopModeMaxDelayPreference);
+                                loopModeGroup.addPreference(loopModeOpportunisticPreference);
                             } else {
                                 loopModeGroup.removePreference(loopModeMaxMovementPreference);
                                 loopModeGroup.removePreference(loopModeMaxDelayPreference);
+                                loopModeGroup.removePreference(loopModeOpportunisticPreference);
                             }
                         }
 
