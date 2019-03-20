@@ -29,6 +29,9 @@ import java.text.MessageFormat;
 import java.util.*;
 import java.util.logging.Logger;
 
+import at.rtr.rmbt.shared.db.opendata.QueryParser;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.restlet.data.Reference;
@@ -139,26 +142,7 @@ public class RegistrationResource extends ServerResource
                     }
                 }
                 
-                final String loopModeData = request.optString("loopmode_info", null);
-                LoopModeSettings loopModeSettings = null;
-           		final TestLoopModeDao loopModeTestDao = new TestLoopModeDao(conn);
-                if (loopModeData != null) {
-                	loopModeSettings = new Gson().fromJson(loopModeData, LoopModeSettings.class);
-                	loopModeSettings.setClientUuid(uuidString);
 
-                    //old clients expect a "text_counter"
-                    //android sends old JSON as String
-                    if (request.opt("loopmode_info") instanceof String) {
-                        JSONObject legacyObject = new JSONObject(request.getString("loopmode_info"));
-                        if (legacyObject.has("text_counter")) {
-                            loopModeSettings.setTestCounter(legacyObject.optInt("text_counter"));
-                        }
-                    }
-
-               		loopModeTestDao.save(loopModeSettings);
-               		if (1 == 2)
-               			throw new LoopModeRejectedException();
-                }
                 
                 int typeId = 0;
                 
@@ -236,6 +220,48 @@ public class RegistrationResource extends ServerResource
                             geobearing = (float) location.optDouble("bearing", 0);
                             geospeed = (float) location.optDouble("speed", 0);
                             geoprovider = location.optString("provider", "");
+                        }
+
+                        final String loopModeData = request.optString("loopmode_info", null);
+                        LoopModeSettings loopModeSettings = null;
+                        final TestLoopModeDao loopModeTestDao = new TestLoopModeDao(conn);
+                        if (loopModeData != null) {
+                            loopModeSettings = new Gson().fromJson(loopModeData, LoopModeSettings.class);
+                            loopModeSettings.setClientUuid(uuidString);
+
+                            //old clients expect a "text_counter"
+                            //android sends old JSON as String
+                            if (request.opt("loopmode_info") instanceof String) {
+                                JSONObject legacyObject = new JSONObject(request.getString("loopmode_info"));
+                                if (legacyObject.has("text_counter")) {
+                                    loopModeSettings.setTestCounter(legacyObject.optInt("text_counter"));
+                                }
+                            }
+
+                            loopModeTestDao.save(loopModeSettings);
+
+                            //if opportunistic -> check if a test should be conducted
+                            if (loopModeSettings.getOpportunistic() != null) {
+                                long maxTests = Long.MAX_VALUE;
+                                switch(loopModeSettings.getOpportunistic()) {
+                                    case ANY:
+                                        maxTests = Long.parseLong(getSetting("opportunistic_filter_tests_any"));
+                                        break;
+                                    case SOME:
+                                        maxTests = Long.parseLong(getSetting("opportunistic_filter_tests_some"));
+                                        break;
+                                    case NO_RESTRICTION:
+                                    default:
+                                        maxTests = Long.MAX_VALUE;
+                                }
+
+                                Long similarMeasurements = getSimilarMeasurements(geolat, geolong, asn);
+
+                                if (similarMeasurements != null &&
+                                        similarMeasurements > maxTests) {
+                                    throw new LoopModeRejectedException();
+                                }
+                            }
                         }
                         
                         Calendar timeWithZone = null;
@@ -699,6 +725,48 @@ public class RegistrationResource extends ServerResource
         }
         catch (SQLException e)
         {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * Get number of tests simiar to the given arguments
+     * @param geoLat
+     * @param geoLong
+     * @param asn
+     * @return Null on errors / count of measurements otherwise
+     */
+    private Long getSimilarMeasurements(double geoLat, double geoLong, Long asn) {
+        if (geoLat == 0 || geoLong == 0 || asn == null) {
+            return null;
+        }
+        QueryParser qp = new QueryParser();
+        Multimap<String, String> params = ArrayListMultimap.create();
+        params.put("radius",getSetting("opportunistic_filter_radius_m"));
+        params.put("asn",asn.toString());
+        params.put("lat",Double.toString(geoLat));
+        params.put("long",Double.toString(geoLong));
+
+        GregorianCalendar cal = new GregorianCalendar();
+        cal.add(Calendar.DAY_OF_YEAR, - Integer.parseInt(getSetting("opportunistic_filter_time_days")));
+        params.put("time",">" + cal.getTime().getTime());
+
+        final String sql = "SELECT count(*) cnt FROM test t "
+            + "WHERE (t.deleted = false) AND status = 'FINISHED' AND "  + qp.getWhereClause();
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            qp.fillInWhereClause(ps, 1);
+
+            ResultSet resultSet = ps.executeQuery();
+            resultSet.next();
+
+            long cnt  = resultSet.getLong("cnt");
+            resultSet.close();
+            ps.close();
+            return cnt;
+        }
+        catch(SQLException e) {
             e.printStackTrace();
             return null;
         }

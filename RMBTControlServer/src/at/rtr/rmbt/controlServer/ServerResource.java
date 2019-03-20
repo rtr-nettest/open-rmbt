@@ -194,7 +194,11 @@ public class ServerResource extends org.restlet.resource.ServerResource
         else
             return getRequest().getOriginalRef();
     }
-    
+
+    protected String getSetting(String key) {
+        return getSetting(key, "");
+    }
+
     protected String getSetting(String key, String lang)
     {
         if (conn == null)

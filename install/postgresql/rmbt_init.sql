@@ -2946,7 +2946,11 @@ INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (91, 'name.
 INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (78, 'test.desc.ntp', 'Port: %PARAM nontransproxy_objective_port%
 Anfrage: %PARAM nontransproxy_objective_request%', 'de');
 INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (89, 'name.http_proxy', 'Unmodified content', 'en');
-INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (40, 'dns.unknowndomain.info', 'A DNS request for a non-existent domain (%PARAM dns_objective_host%) has been run to check the response for the request of the domain''s DNS %PARAM dns_objective_dns_record% record.The correct answer would be ''NXDOMAIN'' (non-existend domain).DNS status: ''%PARAM dns_result_status%'';Duration:%PARAM duration_ns 1000000 0 f% ms', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (40, 'dns.unknowndomain.info', 'A DNS request for a non-existent domain (%PARAM dns_objective_host%) has been run to check the response for the request of the domain''s DNS %PARAM dns_objective_dns_record% record.
+The correct answer would be ''NXDOMAIN'' (non-existend domain).
+DNS status: ''%PARAM dns_result_status%'';
+Duration:%PARAM duration_ns 1000000 0 f% ms
+', 'en');
 INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (37, 'http.testinfo', 'Ziel: ''%PARAM http_objective_url%''
 Intervall: %PARAM http_objective_range%
 Dauer: %PARAM duration_ns 1000000000 1 f% s
@@ -2983,7 +2987,10 @@ INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (94, 'name.
 INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (83, 'website.200', 'Die Webseite wurde erfolgreich übertragen.', 'de');
 INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (86, 'name.website', 'Webseite', 'de');
 INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (60, 'timeout', 'Test could not be completed. Timeout exceeded!', 'en');
-INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (39, 'dns.unknowndomain.info', 'Eine DNS Anfrage zu einer nicht existierende Domain (%PARAM dns_objective_host%) wurde ausgeführt, um zu überprüfen, ob ein  %PARAM dns_objective_dns_record% -Eintrag gefunden wird. Korrekt wäre die Antwort ''NXDOMAIN'' (Non-Existent Domain, nicht existierende Domain).DNS Status: ''%PARAM dns_result_status%'';Dauer: %PARAM duration_ns 1000000 0 f% ms', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (39, 'dns.unknowndomain.info', 'Eine DNS Anfrage zu einer nicht existierende Domain (%PARAM dns_objective_host%) wurde ausgeführt, um zu überprüfen, ob ein  %PARAM dns_objective_dns_record% -Eintrag gefunden wird. Korrekt wäre die Antwort ''NXDOMAIN'' (Non-Existent Domain, nicht existierende Domain).
+DNS Status: ''%PARAM dns_result_status%'';
+Dauer: %PARAM duration_ns 1000000 0 f% ms
+', 'de');
 INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (87, 'name.website', 'Web page', 'en');
 INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (14, 'test.website', 'Beim Webseiten-Test wird eine Referenz-Webseite (mobile Kepler-Seite der ETSI) heruntergeladen. Es wird dabei überprüft, ob die Übertragung der Seite möglich ist, und wie lange die Übertragung der Seite dauert.', 'de');
 INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (104, 'test.desc.tcp.out.21', 'Übertragung von Dateien (FTP, TCP-Port 21 ausgehend)', 'de');
@@ -3925,7 +3932,10 @@ INSERT INTO public.settings (uid, key, lang, value) VALUES ('url_ipv6_check', NU
 INSERT INTO public.settings (uid, key, lang, value) VALUES ('url_map_server', NULL, 'https://map.example.com/RMBTMapServer');
 INSERT INTO public.settings (uid, key, lang, value) VALUES ('host_map_server', NULL, 'map.example.com');
 INSERT INTO public.settings (uid, key, lang, value) VALUES ('url_share', NULL, 'https://example.com/share/');
-
+INSERT INTO public.settings (uid, key, lang, value) VALUES ('opportunistic_filter_time_days', null, '90');
+INSERT INTO public.settings (uid, key, lang, value) VALUES ('opportunistic_filter_tests_some', null, '5');
+INSERT INTO public.settings (uid, key, lang, value) VALUES ('opportunistic_filter_tests_any', null, '1');
+INSERT INTO public.settings (uid, key, lang, value) VALUES ('opportunistic_filter_radius_m', null, '400');
 
 --
 -- Name: settings_uid_seq; Type: SEQUENCE SET; Schema: public; Owner: rmbt
