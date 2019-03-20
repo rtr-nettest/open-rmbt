@@ -20,6 +20,17 @@ import com.google.gson.annotations.SerializedName;
 
 public class LoopModeSettings {
 
+	public enum OpportunisticSetting {
+		@SerializedName("no-restriction")
+		NO_RESTRICTION,
+
+		@SerializedName("some")
+		SOME,
+
+		@SerializedName("any")
+		ANY
+	}
+
 	protected Long uid;
 	
 	@SerializedName("test_uuid")
@@ -29,7 +40,7 @@ public class LoopModeSettings {
 	protected String clientUuid;
 
 	@SerializedName("opportunistic")
-	private String opportunistic;
+	private OpportunisticSetting opportunistic;
 	
 	@SerializedName("max_delay")
 	protected int maxDelay;
@@ -45,12 +56,20 @@ public class LoopModeSettings {
 
 	public LoopModeSettings() { }
 	
-	public LoopModeSettings(final int maxDelay, final int maxMovement, final int maxTests, final int testCounter, final String opportunistic) {
+	public LoopModeSettings(final int maxDelay, final int maxMovement, final int maxTests, final int testCounter, final OpportunisticSetting opportunistic) {
 		setMaxDelay(maxDelay);
 		setMaxMovement(maxMovement);
 		setMaxTests(maxTests);
 		setTestCounter(testCounter);
 		setOpportunistic(opportunistic);
+	}
+
+	public LoopModeSettings(final int maxDelay, final int maxMovement, final int maxTests, final int testCounter, final String opportunistic) {
+		setMaxDelay(maxDelay);
+		setMaxMovement(maxMovement);
+		setMaxTests(maxTests);
+		setTestCounter(testCounter);
+		setOpportunistic(OpportunisticSetting.valueOf(opportunistic));
 	}
 	
 	public int getMaxDelay() {
@@ -109,11 +128,11 @@ public class LoopModeSettings {
 		this.uid = uid;
 	}
 
-	public String getOpportunistic() {
+	public OpportunisticSetting getOpportunistic() {
 		return opportunistic;
 	}
 
-	public void setOpportunistic(String opportunistic) {
+	public void setOpportunistic(OpportunisticSetting opportunistic) {
 		this.opportunistic = opportunistic;
 	}
 
