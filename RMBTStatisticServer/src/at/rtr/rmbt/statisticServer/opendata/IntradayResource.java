@@ -1,6 +1,7 @@
 package at.rtr.rmbt.statisticServer.opendata;
 
 import at.rtr.rmbt.shared.cache.CacheHelper;
+import at.rtr.rmbt.shared.db.opendata.QueryParser;
 import at.rtr.rmbt.statisticServer.ServerResource;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -13,7 +14,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
 
 public class IntradayResource extends ServerResource {
     private static final int CACHE_EXP = 3600;
@@ -50,7 +50,7 @@ public class IntradayResource extends ServerResource {
             }
         });
 
-        qp.parseQuery(parameters);
+        qp.parseQuery(formToMultimap(parameters));
 
         //try cache first
         String cacheKey = "opentest-hourly-" + "-" + qp.hashCode() + "-" + quantile;

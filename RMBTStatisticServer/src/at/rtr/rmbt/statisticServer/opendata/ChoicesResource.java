@@ -17,6 +17,7 @@
  */
 package at.rtr.rmbt.statisticServer.opendata;
 
+import at.rtr.rmbt.shared.db.opendata.QueryParser;
 import at.rtr.rmbt.statisticServer.ServerResource;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -50,7 +51,7 @@ public class ChoicesResource extends ServerResource {
     {
         QueryParser qp = new QueryParser();
         Form parameters = getRequest().getResourceRef().getQueryAsForm();
-        qp.parseQuery(parameters);
+        qp.parseQuery(formToMultimap(parameters));
         
         List<String> fields = Arrays.asList(new String[]{"country_geoip"});
  

@@ -17,6 +17,7 @@
 package at.rtr.rmbt.statisticServer.opendata;
 
 import at.rtr.rmbt.shared.cache.CacheHelper;
+import at.rtr.rmbt.shared.db.opendata.QueryParser;
 import at.rtr.rmbt.statisticServer.ServerResource;
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
@@ -94,7 +95,7 @@ public class HistogramResource extends ServerResource{
         }
 
         
-        qp.parseQuery(getParameters);
+        qp.parseQuery(formToMultimap(getParameters));
         
         //try cache first
         String cacheString = (String) cache.get("opentest-histogram-" + Objects.hash(measurements) + "-" + qp.hashCode());

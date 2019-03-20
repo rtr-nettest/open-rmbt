@@ -21,14 +21,18 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
 import javax.naming.NamingException;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import org.joda.time.DateTime;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.restlet.data.Form;
 import org.restlet.data.Reference;
 import org.restlet.engine.header.Header;
 import org.restlet.representation.Representation;
@@ -78,6 +82,14 @@ public class ServerResource extends org.restlet.resource.ServerResource
         if (prettyPrint)
             gb = gb.setPrettyPrinting();
         return gb.create();
+    }
+
+    public static Multimap<String, String> formToMultimap(Form form) {
+        Multimap<String, String> ret = ArrayListMultimap.create();
+        for (String attr : form.getNames()) {
+            ret.putAll(attr, Arrays.asList(form.getValuesArray(attr)));
+        }
+        return ret;
     }
 
     public void readCapabilities(final JSONObject request) throws JSONException {

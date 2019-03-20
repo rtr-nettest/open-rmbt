@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package at.rtr.rmbt.statisticServer.opendata;
+package at.rtr.rmbt.shared.db.opendata;
 
 import at.rtr.rmbt.shared.ResourceManager;
 import java.sql.PreparedStatement;
@@ -22,21 +22,11 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.ResourceBundle;
-import java.util.TimeZone;
-import java.util.UUID;
+import java.util.*;
+
+import com.google.common.collect.Multimap;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.restlet.data.Form;
 
 /**
  *
@@ -180,7 +170,7 @@ public class QueryParser {
         allowedFields.put("format", FieldType.OUTPUT_FORMAT);
     }
     
-    public List<String> parseQuery(Form getParameters) {
+    public List<String> parseQuery(Multimap<String, String> parameters) {
         //Values for the database
         searchValues.clear();
 
@@ -191,7 +181,7 @@ public class QueryParser {
         
         String sortBy="";
         String sortOrder = "";
-        for (String attr : getParameters.getNames()) {
+        for (String attr : parameters.keys()) {
             //check if attribute is allowed
             if (!allowedFields.containsKey(attr)) {
                 invalidElements.add(attr);
@@ -200,7 +190,7 @@ public class QueryParser {
 
             //check if value for the attribute is correct
             //first, check if the attribute is an array
-            String[] values = getParameters.getValuesArray(attr);            
+            Collection<String> values = parameters.get(attr);
             for (String value : values) {
                 boolean negate = false;
                 if (value.startsWith("!") && value.length()>0) {
@@ -304,7 +294,7 @@ public class QueryParser {
                         //and the attribute is only allowed, if sort_by is also given
                         if (value.isEmpty() || 
                                 (!value.toUpperCase().equals("ASC") && !value.toUpperCase().equals("DESC")) || 
-                                !getParameters.getNames().contains("sort_by")) {
+                                !parameters.get("sort_by").isEmpty()) {
                             invalidElements.add(attr);
                             continue;
                         }
