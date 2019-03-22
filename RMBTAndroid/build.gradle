@@ -22,10 +22,10 @@ dependencies {
 		exclude group: 'org.json', module: 'json'
     }
 	implementation group: 'junit', name: 'junit', version: '4.12'
-	implementation 'com.google.android.gms:play-services-maps:16.0.0'
+	implementation 'com.google.android.gms:play-services-maps:16.1.0'
 	implementation 'dnsjava:dnsjava:2.1.8'
 	implementation 'net.sf.jopt-simple:jopt-simple:5.0.4'
-	implementation 'com.fasterxml.jackson.core:jackson-databind:2.8.8.1'
+	implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.7'
 	// fix dex overflow
 	// see https://stackoverflow.com/questions/38714651/android-studio-dexindexoverflowexception-method-id-not-in
 	implementation 'com.android.support:multidex:1.0.3'
