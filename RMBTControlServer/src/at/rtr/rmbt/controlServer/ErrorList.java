@@ -114,6 +114,10 @@ public class ErrorList
     }
     
     public JSONArray getErrorFlags() {
-    	return new JSONArray(errorFlags);
+        JSONArray errorFlagsArray = new JSONArray();
+        for (ErrorStatus status :  errorFlags) {
+            errorFlagsArray.put(status);
+        }
+    	return errorFlagsArray;
     }
 }

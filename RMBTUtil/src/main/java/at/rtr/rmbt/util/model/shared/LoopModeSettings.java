@@ -69,7 +69,15 @@ public class LoopModeSettings {
 		setMaxMovement(maxMovement);
 		setMaxTests(maxTests);
 		setTestCounter(testCounter);
-		setOpportunistic(OpportunisticSetting.valueOf(opportunistic));
+		if (opportunistic.equals("no-restriction")) {
+			setOpportunistic(OpportunisticSetting.NO_RESTRICTION);
+		}
+		else if (opportunistic.equals("any")) {
+			setOpportunistic(OpportunisticSetting.ANY);
+		}
+		else if (opportunistic.equals("some")) {
+			setOpportunistic(OpportunisticSetting.SOME);
+		}
 	}
 	
 	public int getMaxDelay() {

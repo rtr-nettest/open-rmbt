@@ -751,6 +751,7 @@ public class RegistrationResource extends ServerResource
         GregorianCalendar cal = new GregorianCalendar();
         cal.add(Calendar.DAY_OF_YEAR, - Integer.parseInt(getSetting("opportunistic_filter_time_days")));
         params.put("time",">" + cal.getTime().getTime());
+        qp.parseQuery(params);
 
         final String sql = "SELECT count(*) cnt FROM test t "
             + "WHERE (t.deleted = false) AND status = 'FINISHED' AND "  + qp.getWhereClause();
