@@ -118,6 +118,8 @@ public class RMBTMainMenuFragment extends Fragment
     private TextView infoNetworkType;
     private TextView infoSignalStrength;
     private TextView infoSignalStrengthExtra;
+    private TextView infoTimingAdvance;
+    private TextView infoChannelNumber;
 	private TextView ipv4Label;
 	private TextView ipv6Label;
     private View ipv4Button;
@@ -315,7 +317,13 @@ public class RMBTMainMenuFragment extends Fragment
 		}
 
         infoSignalStrengthExtra = (TextView) view.findViewById(R.id.info_signal_strength_extra);
-        setViewVisibility(infoSignalStrengthExtra, View.INVISIBLE);
+        setViewVisibility(infoSignalStrengthExtra, View.GONE);
+
+		infoTimingAdvance = (TextView) view.findViewById(R.id.info_timing_advance);
+		setViewVisibility(infoTimingAdvance, View.GONE);
+
+		infoChannelNumber = (TextView) view.findViewById(R.id.info_channel_number);
+		setViewVisibility(infoChannelNumber, View.GONE);
 
         locationView = (ImageView) view.findViewById(R.id.location_image);
         setViewVisibility(locationView, View.INVISIBLE);
@@ -401,7 +409,9 @@ public class RMBTMainMenuFragment extends Fragment
         setViewVisibility(infoNetworkLabel, View.GONE);
         setViewVisibility(infoNetworkType, View.GONE);
         setViewVisibility(infoSignalStrength, View.GONE);
-        setViewVisibility(infoSignalStrengthExtra, View.INVISIBLE);
+        setViewVisibility(infoSignalStrengthExtra, View.GONE);
+        setViewVisibility(infoTimingAdvance,View.GONE);
+        setViewVisibility(infoChannelNumber,View.GONE);
         setViewVisibility(locationView, View.INVISIBLE);        
         
         if (informationCollector != null) {
@@ -484,29 +494,65 @@ public class RMBTMainMenuFragment extends Fragment
 						int signalType = informationCollector.getSignalType();
 						curSignal = signal;
 
-						if (signalType == InformationCollector.SINGAL_TYPE_RSRP) {
+                        //show channel number in expert mode
+                        Integer ChannelNumber = informationCollector.getChannelNumber();
+                        if (ChannelNumber != null &&
+                                ConfigHelper.isExpertModeEnabled(getActivity()) &&
+                                (lastNetworkType > 1  && lastNetworkType < 20)  // mobile only
+                        ) {
+                            if (infoChannelNumber.getVisibility() == View.GONE) {
+                                infoChannelNumber.setVisibility(View.VISIBLE);
+                            }
+                            infoChannelNumber.setText("Ch: "+ChannelNumber);
+                        } else {
+                            infoChannelNumber.setVisibility(View.GONE);
+                        }
+
+                        //show timing advance in expert mode
+                        Integer TimingAdvance = informationCollector.getTimingAdvance();
+
+                        if (TimingAdvance != null &&
+                                ConfigHelper.isExpertModeEnabled(getActivity()) &&
+                                lastNetworkType==13  // only if LTE is used
+                        ) {
+                            if (infoTimingAdvance.getVisibility() == View.GONE) {
+                                infoTimingAdvance.setVisibility(View.VISIBLE);
+                            }
+                            //timing advance relates to downlink/uplink path
+                            // 3GPP TS36.211, TS36.321, TS36.213
+                            // d1= c/(15000 * 2048) /2 = 4.89m (c = 3*10^8)
+                            // d = 16 x 4.89 = 78.12m
+                            int distance = TimingAdvance*78;
+                            infoTimingAdvance.setText("TA: "+TimingAdvance+" ("+distance+" m)");
+                        } else {
+                            infoTimingAdvance.setVisibility(View.GONE);
+                        }
+
+
+                        if (signalType == InformationCollector.SINGAL_TYPE_RSRP) {
 							infoSignalStrength.setText(getString(R.string.term_signal) + ": " + signal + " dBm");
 							infoCollector.setSignal(signal);
 							Integer signalRsrq = informationCollector.getSignalRsrq();
+
 							if (signalRsrq != null) {
-								if (infoSignalStrengthExtra.getVisibility() == View.INVISIBLE) {
+								if (infoSignalStrengthExtra.getVisibility() == View.GONE) {
 									infoSignalStrengthExtra.setVisibility(View.VISIBLE);
 								}
 
 								infoCollector.setSignalRsrq(signalRsrq);
 								infoSignalStrengthExtra.setText(getString(R.string.term_signal_quality) + ": " + signalRsrq + " dB");
 							} else {
-								infoSignalStrengthExtra.setVisibility(View.INVISIBLE);
+								infoSignalStrengthExtra.setVisibility(View.GONE);
 							}
 						} else {
 							infoCollector.setSignal(curSignal);
 							infoSignalStrength.setText(signalTerm + ": " + signal + " dBm");
-							infoSignalStrengthExtra.setVisibility(View.INVISIBLE);
+							infoSignalStrengthExtra.setVisibility(View.GONE);
 						}
 					} else {
 						curSignal = Integer.MIN_VALUE;
-						infoSignalStrength.setVisibility(View.INVISIBLE);
-						infoSignalStrengthExtra.setVisibility(View.INVISIBLE);
+						infoSignalStrength.setVisibility(View.GONE);
+						infoSignalStrengthExtra.setVisibility(View.GONE);
 					}
 
 				}
@@ -573,7 +619,9 @@ public class RMBTMainMenuFragment extends Fragment
 						infoNetwork.setVisibility(View.GONE);
 						setViewVisibility(infoNetworkLabel, View.GONE);
 						setViewVisibility(infoSignalStrength, View.GONE);
-						setViewVisibility(infoSignalStrengthExtra, View.INVISIBLE);
+						setViewVisibility(infoSignalStrengthExtra, View.GONE);
+						setViewVisibility(infoChannelNumber, View.GONE);
+						setViewVisibility(infoTimingAdvance, View.GONE);
 						if (antennaView != null && antennaView.getVisibility() != View.VISIBLE) {
 							refreshAntennaImage(curSignal);
 						}

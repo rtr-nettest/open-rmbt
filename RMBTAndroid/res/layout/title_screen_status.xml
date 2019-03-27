@@ -57,8 +57,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:orientation="horizontal"
-        android:baselineAligned="false" >
+        android:baselineAligned="false"
+        android:gravity="bottom"
+        android:orientation="horizontal">
 
         <LinearLayout
             android:layout_width="0dp"
@@ -66,15 +67,15 @@
             android:layout_weight="6"
             android:gravity="left"
             android:orientation="vertical"
-            android:paddingRight="10dp" >
+            android:paddingRight="10dp">
 
             <TextView
                 android:id="@+id/info_network_name_label"
                 style="@style/QoSTheme.TextView.Medium.White"
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
-                android:layout_marginBottom="3dp"
                 android:layout_marginTop="3dp"
+                android:layout_marginBottom="3dp"
                 android:layout_weight="6"
                 android:clickable="false"
                 android:ellipsize="end"
@@ -88,8 +89,8 @@
                 style="@style/QoSTheme.TextView.Medium.White"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="3dp"
                 android:layout_marginTop="3dp"
+                android:layout_marginBottom="3dp"
                 android:clickable="false"
                 android:ellipsize="end"
                 android:maxLines="1"
@@ -99,26 +100,54 @@
 
         </LinearLayout>
 
+
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="5"
             android:gravity="end"
             android:orientation="vertical"
-            android:paddingRight="0dp"
-            android:paddingLeft="0dp"
             android:paddingStart="0dp"
-            android:paddingEnd="0dp" >
+            android:paddingLeft="0dp"
+            android:paddingEnd="0dp"
+            android:paddingRight="0dp">
+
+            <TextView
+                android:id="@+id/info_channel_number"
+                style="@style/QoSTheme.TextView.Medium.White"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="3dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="3dp"
+                android:clickable="false"
+                android:paddingRight="5dp"
+                android:text="@string/title_screen_empty" />
+
+            <TextView
+                android:id="@+id/info_timing_advance"
+                style="@style/QoSTheme.TextView.Medium.White"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="3dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="3dp"
+                android:clickable="false"
+                android:paddingRight="5dp"
+                android:text="@string/title_screen_empty" />
+
 
             <TextView
                 android:id="@+id/info_signal_strength_extra"
                 style="@style/QoSTheme.TextView.Medium.White"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="3dp"
                 android:layout_marginLeft="15dp"
-                android:layout_marginRight="10dp"
                 android:layout_marginTop="3dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="3dp"
                 android:clickable="false"
                 android:paddingRight="5dp"
                 android:text="@string/title_screen_empty" />
@@ -128,10 +157,10 @@
                 style="@style/QoSTheme.TextView.Medium.White"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="3dp"
                 android:layout_marginLeft="15dp"
-                android:layout_marginRight="10dp"
                 android:layout_marginTop="3dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="3dp"
                 android:clickable="false"
                 android:paddingRight="5dp"
                 android:text="@string/title_screen_empty" />
