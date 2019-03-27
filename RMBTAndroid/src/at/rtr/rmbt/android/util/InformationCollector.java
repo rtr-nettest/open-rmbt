@@ -1320,7 +1320,33 @@ public class InformationCollector
             return null;
         return _signal;    	
     }
-    
+
+    /**
+     * Get timing advance
+     * @return
+     */
+    public Integer getTimingAdvance() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            if (lastActiveCell.get() != null) {
+                return lastActiveCell.get().getCs().getTimingAdvance();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns earfcn, uarfc, arfcn
+     * @return
+     */
+    public Integer getChannelNumber() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            if (lastActiveCell.get() != null) {
+                return lastActiveCell.get().getCi().getChannelNumber();
+            }
+        }
+        return null;
+    }
+
     public int getSignalType()
     {
         return signalType.get();
