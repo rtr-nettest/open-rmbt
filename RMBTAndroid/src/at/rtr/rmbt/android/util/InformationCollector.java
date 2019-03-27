@@ -1328,7 +1328,13 @@ public class InformationCollector
     public Integer getTimingAdvance() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             if (lastActiveCell.get() != null) {
-                return lastActiveCell.get().getCs().getTimingAdvance();
+                int timingAdvance=lastActiveCell.get().getCs().getTimingAdvance();
+                // plausibility check (some devices report -1 or 65535 etc)
+                if (timingAdvance < 1 ||
+                    timingAdvance > 2182) // valid range according to 3GPP TS 36.213
+                    return null;
+                else
+                    return timingAdvance;
             }
         }
         return null;
