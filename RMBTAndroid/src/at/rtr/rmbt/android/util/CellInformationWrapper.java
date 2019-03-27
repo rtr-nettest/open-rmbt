@@ -198,10 +198,15 @@ public class CellInformationWrapper {
 
         @JsonProperty("timing_advance")
         public Integer getTimingAdvance() {
-            if (objectsEquals(timingAdvance, Integer.MAX_VALUE)) {
+            if (timingAdvance == null || objectsEquals(timingAdvance, Integer.MAX_VALUE)) {
                 return null;
             }
-            return timingAdvance;
+            // plausibility check (some devices report -1 or 65535 etc)
+            if (timingAdvance < 1 ||
+                    timingAdvance > 2182) // valid range according to 3GPP TS 36.213
+                return null;
+            else
+                return timingAdvance;
         }
 
         public void setTimingAdvance(Integer timingAdvance) {
