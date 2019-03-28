@@ -515,8 +515,10 @@ public class RMBTMainMenuFragment extends Fragment
                             else if (lastNetworkType == TelephonyManager.NETWORK_TYPE_GSM) {
 								band = BandCalculationUtil.getBandFromArfcn(channelNumber);
 							}
-							infoChannelNumber.setText("Ch: "+channelNumber + "\n Band: " + band.getBand() + "\n" +
-                                    band.getFrequencyDL()+ " MHz");
+                            if (band != null) {
+                                infoChannelNumber.setText("Ch: "+channelNumber + "\n Band: " + band.getBand() + "\n" +
+                                        band.getFrequencyDL()+ " MHz");
+                            }
                         } else {
                             infoChannelNumber.setVisibility(View.GONE);
                         }
