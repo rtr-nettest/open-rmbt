@@ -782,7 +782,7 @@ public class RMBTMainMenuFragment extends Fragment
 				//no break; here!!
 				//if the network type or the network family changes, the same label TextView is used
 			case NETWORK_FAMILY:
-				if (infoNetworkType != null && infoNetworkType.getVisibility() == View.VISIBLE) {
+				if (!ConfigHelper.isExpertModeEnabled(getActivity()) && infoNetworkType != null && infoNetworkType.getVisibility() == View.VISIBLE) {
 					infoNetworkType.startAnimation(pulseAnimation);
 				}
 				break;
@@ -795,13 +795,15 @@ public class RMBTMainMenuFragment extends Fragment
 				if (infoNetwork != null && infoNetwork.getVisibility() == View.VISIBLE) {
 					if (newValue != null && !((String) newValue).trim().equals("()")) {
 						Log.d(DEBUG_TAG, "networkName: " + newValue);
-						infoNetwork.startAnimation(pulseAnimation);
+						if (!ConfigHelper.isExpertModeEnabled(getActivity())) {
+                            infoNetwork.startAnimation(pulseAnimation);
+                        }
 					}
 				}
 				break;
 			case SIGNAL_RSRQ:
 				if (infoSignalStrengthExtra != null && infoSignalStrengthExtra.getVisibility() == View.VISIBLE) {
-					if (oldValue != null && ((Integer)oldValue != 0)) {
+					if (!ConfigHelper.isExpertModeEnabled(getActivity()) && oldValue != null && ((Integer)oldValue != 0)) {
 						infoSignalStrengthExtra.startAnimation(pulseAnimation);
 					}
 				}
@@ -812,7 +814,7 @@ public class RMBTMainMenuFragment extends Fragment
 				}
 			
 				if (type.equals(InfoCollectorType.SIGNAL) && infoSignalStrength != null && infoSignalStrength.getVisibility() == View.VISIBLE) {
-					if (oldValue != null && ((Integer)oldValue != 0)) {
+					if (!ConfigHelper.isExpertModeEnabled(getActivity()) && oldValue != null && ((Integer)oldValue != 0)) {
 						infoSignalStrength.startAnimation(pulseAnimation);
 					}
 				}

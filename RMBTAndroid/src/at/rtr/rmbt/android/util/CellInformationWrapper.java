@@ -202,8 +202,8 @@ public class CellInformationWrapper {
                 return null;
             }
             // plausibility check (some devices report -1 or 65535 etc)
-            if (timingAdvance < 1 ||
-                    timingAdvance > 2182) // valid range according to 3GPP TS 36.213
+            if (timingAdvance < 0 ||
+                    timingAdvance > 2182) // validity range according to 3GPP TS 36.213
                 return null;
             else
                 return timingAdvance;
@@ -439,8 +439,8 @@ public class CellInformationWrapper {
             if (objectsEquals(channelNumber,Integer.MAX_VALUE)) {
                 return null;
             }
-            //#883: some devices return earfcn 0 for null
-            if (objectsEquals(channelNumber, 0) && technology == Technology.CONNECTION_4G) {
+            //#883: some devices return earfcn 0/uarfcn 0 for null
+            if (objectsEquals(channelNumber, 0)) {
                 return null;
             }
             return channelNumber;
