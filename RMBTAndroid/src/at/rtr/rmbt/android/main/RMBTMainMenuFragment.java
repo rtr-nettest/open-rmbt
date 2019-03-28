@@ -70,6 +70,7 @@ import at.rtr.rmbt.android.util.net.NetworkInfoCollector.CaptivePortalStatusEnum
 import at.rtr.rmbt.android.util.net.NetworkInfoCollector.OnNetworkInfoChangedListener;
 import at.rtr.rmbt.android.util.net.NetworkUtil;
 import at.rtr.rmbt.android.util.net.NetworkUtil.MinMax;
+import at.rtr.rmbt.util.BandCalculationUtil;
 
 /**
  * 
@@ -495,15 +496,27 @@ public class RMBTMainMenuFragment extends Fragment
 						curSignal = signal;
 
                         //show channel number in expert mode
-                        Integer ChannelNumber = informationCollector.getChannelNumber();
-                        if (ChannelNumber != null &&
+                        Integer channelNumber = informationCollector.getChannelNumber();
+                        if (channelNumber != null &&
                                 ConfigHelper.isExpertModeEnabled(getActivity()) &&
-                                (lastNetworkType > 1  && lastNetworkType < 20)  // mobile only
-                        ) {
+                                (lastNetworkType > 1  && lastNetworkType < 20)  ) {// mobile only
                             if (infoChannelNumber.getVisibility() == View.GONE) {
                                 infoChannelNumber.setVisibility(View.VISIBLE);
                             }
-                            infoChannelNumber.setText("Ch: "+ChannelNumber);
+
+                            BandCalculationUtil.FrequencyInformation<? extends BandCalculationUtil.Band> band = null;
+                            if (lastNetworkType == InformationCollector.NETWORK_TYPE_LTE_CA ||
+								lastNetworkType == TelephonyManager.NETWORK_TYPE_LTE) {
+                            	band = BandCalculationUtil.getBandFromEarfcn(channelNumber);
+							}
+                            else if (lastNetworkType == TelephonyManager.NETWORK_TYPE_UMTS) {
+								band = BandCalculationUtil.getBandFromUarfcn(channelNumber);
+							}
+                            else if (lastNetworkType == TelephonyManager.NETWORK_TYPE_GSM) {
+								band = BandCalculationUtil.getBandFromArfcn(channelNumber);
+							}
+							infoChannelNumber.setText("Ch: "+channelNumber + "\n Band: " + band.getBand() + "\n" +
+                                    band.getFrequencyDL()+ " MHz");
                         } else {
                             infoChannelNumber.setVisibility(View.GONE);
                         }
@@ -513,7 +526,8 @@ public class RMBTMainMenuFragment extends Fragment
 
                         if (TimingAdvance != null &&
                                 ConfigHelper.isExpertModeEnabled(getActivity()) &&
-                                lastNetworkType==13  // only if LTE is used
+								(lastNetworkType == InformationCollector.NETWORK_TYPE_LTE_CA  ||
+										lastNetworkType == TelephonyManager.NETWORK_TYPE_LTE )// only if LTE is used
                         ) {
                             if (infoTimingAdvance.getVisibility() == View.GONE) {
                                 infoTimingAdvance.setVisibility(View.VISIBLE);
