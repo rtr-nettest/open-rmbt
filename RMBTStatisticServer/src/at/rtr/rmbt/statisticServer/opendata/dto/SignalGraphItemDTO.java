@@ -13,12 +13,14 @@ public class SignalGraphItemDTO {
     private Integer lteRsrp;
     private Integer lteRsrq;
     private String catTechnology;
+    private Integer timingAdvance;
     private CellInfo2G cellInfo2G;
     private CellInfo3G cellInfo3G;
     private CellInfo4G cellInfo4G;
 
 
-    public SignalGraphItemDTO(long timeElapsed, String networkType, Integer signalStrength, Integer lteRsrp, Integer lteRsrq, String catTechnology, Integer locationId, Integer areaCode, Integer primaryScramblingCode, Integer channelNumber) {
+    public SignalGraphItemDTO(long timeElapsed, String networkType, Integer signalStrength, Integer lteRsrp, Integer lteRsrq, String catTechnology,
+                              Integer locationId, Integer areaCode, Integer primaryScramblingCode, Integer channelNumber, Integer timingAdvance) {
         this.timeElapsed = timeElapsed;
         this.networkType = networkType;
         locationId = (locationId == 0) ? null : locationId;
@@ -30,6 +32,7 @@ public class SignalGraphItemDTO {
         this.lteRsrp = lteRsrp;
         this.lteRsrq = lteRsrq;
         this.catTechnology = catTechnology;
+        this.timingAdvance = timingAdvance;
 
         switch (catTechnology) {
             case "2G":
@@ -135,6 +138,17 @@ public class SignalGraphItemDTO {
 
     public void setCatTechnology(String catTechnology) {
         this.catTechnology = catTechnology;
+    }
+
+
+    @JsonProperty("timing_advance")
+    @ApiModelProperty(value = "Timing advance value for LTE, as a value in range of 0..1282. Refer to 3GPP 36.213 Sec 4.2.3")
+    public Integer getTimingAdvance() {
+        return timingAdvance;
+    }
+
+    public void setTimingAdvance(Integer timingAdvance) {
+        this.timingAdvance = timingAdvance;
     }
 
     @JsonProperty("cell_info_2G")

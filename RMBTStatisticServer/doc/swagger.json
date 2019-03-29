@@ -1386,6 +1386,11 @@
           "example" : "3G",
           "description" : "Technology category of the network, e.g. “3G”, “4G”, “WLAN”."
         },
+        "timing_advance" : {
+          "type" : "integer",
+          "format" : "int32",
+          "description" : "Timing advance value for LTE, as a value in range of 0..1282. Refer to 3GPP 36.213 Sec 4.2.3"
+        },
         "cell_info_2G" : {
           "description" : "Additional information about the used 2G radio cell",
           "$ref" : "#/definitions/CellInfo2G"
