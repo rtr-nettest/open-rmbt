@@ -54,6 +54,13 @@ public class RadioSignal {
     }
 
     public Integer getTimingAdvance() {
+        //https://developer.android.com/reference/android/telephony/CellSignalStrengthLte.html#getTimingAdvance()
+        if (timingAdvance == null ||
+            timingAdvance < 0 ||
+            timingAdvance > 1282) {
+            return null;
+        }
+
         return timingAdvance;
     }
 
