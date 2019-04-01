@@ -1347,6 +1347,14 @@ public class InformationCollector
         return null;
     }
 
+    public CellInformationWrapper getLastActiveCell() {
+        final int network = lastNetworkType.get();
+        if (network == NETWORK_WIFI || network == NETWORK_BLUETOOTH || network == NETWORK_ETHERNET) {
+            return null;
+        }
+        return lastActiveCell.get();
+    }
+
     public int getSignalType()
     {
         return signalType.get();

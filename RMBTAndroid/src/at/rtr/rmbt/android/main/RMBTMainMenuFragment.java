@@ -57,11 +57,8 @@ import at.rtr.rmbt.android.main.titlepage.IpCheckRunnable;
 import at.rtr.rmbt.android.main.titlepage.IpCheckRunnable.OnIpCheckFinishedListener;
 import at.rtr.rmbt.android.main.titlepage.NetworkWatcherRunnable;
 import at.rtr.rmbt.android.main.titlepage.NetworkWatcherRunnable.OnActiveNetworkChangeListener;
+import at.rtr.rmbt.android.util.*;
 import at.rtr.rmbt.android.util.CheckIpTask.IpVersionType;
-import at.rtr.rmbt.android.util.ConfigHelper;
-import at.rtr.rmbt.android.util.Helperfunctions;
-import at.rtr.rmbt.android.util.InformationCollector;
-import at.rtr.rmbt.android.util.PermissionHelper;
 import at.rtr.rmbt.android.util.net.InterfaceTrafficGatherer;
 import at.rtr.rmbt.android.util.net.InterfaceTrafficGatherer.TrafficClassificationEnum;
 import at.rtr.rmbt.android.util.net.NetworkFamilyEnum;
@@ -494,6 +491,7 @@ public class RMBTMainMenuFragment extends Fragment
 							signal != null && signal > Integer.MIN_VALUE && signal < 0) {
 						int signalType = informationCollector.getSignalType();
 						curSignal = signal;
+						CellInformationWrapper ciw = informationCollector.getLastActiveCell();
 
                         //show channel number in expert mode
                         Integer channelNumber = informationCollector.getChannelNumber();
@@ -505,14 +503,13 @@ public class RMBTMainMenuFragment extends Fragment
                             }
 
                             BandCalculationUtil.FrequencyInformation<? extends BandCalculationUtil.Band> band = null;
-                            if (lastNetworkType == InformationCollector.NETWORK_TYPE_LTE_CA ||
-								lastNetworkType == TelephonyManager.NETWORK_TYPE_LTE) {
+                            if (ciw.getTechnology() == CellInformationWrapper.Technology.CONNECTION_4G) {
                             	band = BandCalculationUtil.getBandFromEarfcn(channelNumber);
 							}
-                            else if (lastNetworkType == TelephonyManager.NETWORK_TYPE_UMTS) {
+                            else if (ciw.getTechnology() == CellInformationWrapper.Technology.CONNECTION_3G) {
 								band = BandCalculationUtil.getBandFromUarfcn(channelNumber);
 							}
-                            else if (lastNetworkType == TelephonyManager.NETWORK_TYPE_GSM) {
+                            else if (ciw.getTechnology() == CellInformationWrapper.Technology.CONNECTION_2G) {
 								band = BandCalculationUtil.getBandFromArfcn(channelNumber);
 							}
                             if (band != null) {
@@ -539,7 +536,7 @@ public class RMBTMainMenuFragment extends Fragment
                             // d1= c/(15000 * 2048) /2 = 4.89m (c = 3*10^8)
                             // d = 16 x 4.89 = 78.12m
                             int distance = TimingAdvance*78;
-                            infoTimingAdvance.setText("TA: "+TimingAdvance+" ("+distance+" m)");
+                            infoTimingAdvance.setText("TA: "+TimingAdvance+" (~"+distance+" m)");
                         } else {
                             infoTimingAdvance.setVisibility(View.GONE);
                         }
