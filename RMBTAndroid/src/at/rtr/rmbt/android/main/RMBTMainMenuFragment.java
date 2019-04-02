@@ -118,6 +118,7 @@ public class RMBTMainMenuFragment extends Fragment
     private TextView infoSignalStrengthExtra;
     private TextView infoTimingAdvance;
     private TextView infoChannelNumber;
+    private TextView infoChannelName;
 	private TextView ipv4Label;
 	private TextView ipv6Label;
     private View ipv4Button;
@@ -323,6 +324,10 @@ public class RMBTMainMenuFragment extends Fragment
 		infoChannelNumber = (TextView) view.findViewById(R.id.info_channel_number);
 		setViewVisibility(infoChannelNumber, View.GONE);
 
+        infoChannelName = (TextView) view.findViewById(R.id.info_channel_name);
+        setViewVisibility(infoChannelName, View.GONE);
+
+
         locationView = (ImageView) view.findViewById(R.id.location_image);
         setViewVisibility(locationView, View.INVISIBLE);
 
@@ -410,6 +415,7 @@ public class RMBTMainMenuFragment extends Fragment
         setViewVisibility(infoSignalStrengthExtra, View.GONE);
         setViewVisibility(infoTimingAdvance,View.GONE);
         setViewVisibility(infoChannelNumber,View.GONE);
+        setViewVisibility(infoChannelName,View.GONE);
         setViewVisibility(locationView, View.INVISIBLE);        
         
         if (informationCollector != null) {
@@ -501,23 +507,34 @@ public class RMBTMainMenuFragment extends Fragment
                             if (infoChannelNumber.getVisibility() == View.GONE) {
                                 infoChannelNumber.setVisibility(View.VISIBLE);
                             }
-
+                            if (infoChannelName.getVisibility() == View.GONE) {
+                                infoChannelName.setVisibility(View.VISIBLE);
+                            }
+                            String channelAttribution = "Ch";
                             BandCalculationUtil.FrequencyInformation<? extends BandCalculationUtil.Band> band = null;
                             if (ciw.getTechnology() == CellInformationWrapper.Technology.CONNECTION_4G) {
                             	band = BandCalculationUtil.getBandFromEarfcn(channelNumber);
+                                channelAttribution = "EARFCN";
 							}
                             else if (ciw.getTechnology() == CellInformationWrapper.Technology.CONNECTION_3G) {
 								band = BandCalculationUtil.getBandFromUarfcn(channelNumber);
+                                channelAttribution = "UARFCN";
 							}
                             else if (ciw.getTechnology() == CellInformationWrapper.Technology.CONNECTION_2G) {
 								band = BandCalculationUtil.getBandFromArfcn(channelNumber);
+                                channelAttribution = "ARFCN";
 							}
                             if (band != null) {
-                                infoChannelNumber.setText("Ch: "+channelNumber + "\n Band: " + band.getBand() + "\n" +
-                                        band.getFrequencyDL()+ " MHz");
+                                if (infoChannelName.getVisibility() == View.GONE) {
+                                    infoChannelName.setVisibility(View.VISIBLE);
+                                }
+                                infoChannelNumber.setText(channelAttribution +
+                                        ": " + channelNumber);
+                                infoChannelName.setText("Band: " + band.getBand() + " (" + band.getInformalName() + ")");
                             }
                         } else {
                             infoChannelNumber.setVisibility(View.GONE);
+                            infoChannelName.setVisibility(View.GONE);
                         }
 
                         //show timing advance in expert mode
