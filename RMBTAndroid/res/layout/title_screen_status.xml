@@ -126,6 +126,19 @@
                 android:text="@string/title_screen_empty" />
 
             <TextView
+                android:id="@+id/info_channel_name"
+                style="@style/QoSTheme.TextView.Medium.White"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="3dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="3dp"
+                android:clickable="false"
+                android:paddingRight="5dp"
+                android:text="@string/title_screen_empty" />
+
+            <TextView
                 android:id="@+id/info_timing_advance"
                 style="@style/QoSTheme.TextView.Medium.White"
                 android:layout_width="wrap_content"
