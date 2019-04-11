@@ -3678,10 +3678,12 @@ CREATE TABLE public.test (
     land_cover integer,
     cell_location_id integer,
     cell_area_code integer,
+    settlement_type integer,
     CONSTRAINT enforce_dims_location CHECK ((public.st_ndims(location) = 2)),
     CONSTRAINT enforce_geotype_location CHECK (((public.geometrytype(location) = 'POINT'::text) OR (location IS NULL))),
     CONSTRAINT enforce_srid_location CHECK ((public.st_srid(location) = 900913)),
     CONSTRAINT test_speed_download_noneg CHECK ((speed_download >= 0)),
+	CONSTRAINT settlement_type_check CHECK ( settlement_type > 0 and settlement_type < 4),
     CONSTRAINT test_speed_upload_noneg CHECK ((speed_upload >= 0))
 );
 
