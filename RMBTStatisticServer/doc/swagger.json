@@ -1076,6 +1076,12 @@
           "example" : 7562,
           "description" : "WLAN link speed according to the Android API."
         },
+        "settlement_type" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : 1,
+          "description" : "Settlement type (Austrian \"Dauersiedlungsraum\")\n 1 = Area which can not be used for settlement, classification based on CORINE \n 2 = Area which can be used for settlement, classification based on CORINE \n3 = Settlement in 250m rasters with at least 6 inhabitants"
+        },
         "speed_curve" : {
           "description" : "Aggregated history of transferred data bytes during a test.",
           "$ref" : "#/definitions/OpenTestGraphDTO"
