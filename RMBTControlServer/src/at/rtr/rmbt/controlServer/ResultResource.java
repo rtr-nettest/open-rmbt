@@ -316,6 +316,7 @@ public class ResultResource extends ServerResource
                                                             clientTime).toString());
 
                                                     geoloc.setTime(tstamp, test.getField("timezone").toString());
+                                                    geoloc.setAccuracy((float) geoDataItem.optDouble("accuracy",Float.MAX_VALUE));
 
                                                     geoloc.storeLocation();
 
