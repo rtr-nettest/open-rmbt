@@ -327,7 +327,8 @@ public class ResultResource extends ServerResource
                                                     }
                                                     // Fallback: Store Last Geolocation as
                                                     // testlocation
-                                                    else if (i == geoData.length() - 1) {
+                                                    else if (firstAccuratePosition.get() == null &&
+                                                            i == geoData.length() - 1) {
                                                         firstAccuratePosition.set(geoDataItem);
                                                     }
 
