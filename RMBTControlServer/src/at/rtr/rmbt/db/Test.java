@@ -64,9 +64,7 @@ public class Test extends Table
             " ON t.mobile_provider_id=pMob.uid" +
             " LEFT JOIN device_map adm ON adm.codename=t.model" +
             " LEFT JOIN test_server pServ ON t.server_id=pServ.uid" +
-            " LEFT JOIN bev_vgd k ON t.kg_nr_bev = k.kg_nr::integer";
-    //        " LEFT JOIN oesterreich_bev_kg_lam_mitattribute_2017_10_02 k ON t.kg_nr_bev=k.kg_nr_int";
-    //        " CROSS JOIN get_bev_vgd_kg(t.kg_nr_bev) k";
+            " LEFT JOIN bev_vgd k ON t.kg_nr_bev = k.kg_nr_int";
     
     private final static ThreadLocal<Field[]> PER_THREAD_FIELDS = new ThreadLocal<Field[]>() {
         protected Field[] initialValue() {

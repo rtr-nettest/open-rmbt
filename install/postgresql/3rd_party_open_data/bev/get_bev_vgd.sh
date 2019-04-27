@@ -23,11 +23,12 @@ sed -i "s/oesterreich_bev_vgd_lam/bev_vgd/g" bev_vgd.sql
 psql rmbt < bev_vgd.sql
 sql=$(cat <<EOF
 BEGIN;
-ALTER TABLE bev_vgd OWNER TO rmbt;
-CREATE INDEX IF NOT EXISTS bev_vgd_gix ON bev_vgd USING gist (geom);
-GRANT SELECT ON TABLE statistik_austria_gem TO rmbt_group_read_only;
+ALTER TABLE bev_vgd ADD COLUMN kg_nr_int INTEGER CONSTRAINT bev_vgd_kg_nr_int UNIQUE;
+UPDATE bev_vgd SET kg_nr_int = kg_nr::INTEGER;
+CREATE INDEX IF NOT EXISTS bev_vgd_kg_nr_int_gix ON bev_vgd USING btree(kg_nr_int);
 CREATE INDEX IF NOT EXISTS bev_vgd_gkz_idx ON bev_vgd USING btree (gkz);
 CREATE INDEX IF NOT EXISTS bev_vgd_kg_nr_idx ON bev_vgd USING btree (kg_nr);
+ALTER TABLE bev_vgd OWNER TO rmbt;
 GRANT SELECT ON TABLE bev_vgd TO rmbt_group_read_only;
 COMMIT;
 
