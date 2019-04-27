@@ -52,7 +52,7 @@ public class ShapeTiles extends TileRestlet<ShapeTileParameters>
         final Geometry geometry;
         final Color color;
         
-        public GeometryColor(final Geometry geometry, final Color color)
+        GeometryColor(final Geometry geometry, final Color color)
         {
             this.geometry = geometry;
             this.color = color;
@@ -94,7 +94,7 @@ public class ShapeTiles extends TileRestlet<ShapeTileParameters>
                     + " ST_SnapToGrid(ST_Transform(ST_intersection(p.geom, box.box), 900913), ?,?,?,?) AS geom,"
                     + " count(\"%1$s\") count,"
                     + " quantile(\"%1$s\",?) val" 
-                    + " FROM box, oesterreich_bev_kg_lam_mitattribute_2017_10_02 p"
+                    + " FROM box, bev_vgd p"
                     + " JOIN v_test3 t ON t.kg_nr_bev=p.kg_nr_int"
                     + " WHERE" + " %2$s" 
                     + " AND p.geom && box.box"
@@ -198,8 +198,7 @@ public class ShapeTiles extends TileRestlet<ShapeTileParameters>
             }
             final ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ImageIO.write(img.bi, "png", baos);
-            final byte[] data = baos.toByteArray();
-            return data;
+            return baos.toByteArray();
         }
         catch (final Exception e)
         {
@@ -220,7 +219,6 @@ public class ShapeTiles extends TileRestlet<ShapeTileParameters>
             catch (final SQLException e)
             {
                 e.printStackTrace();
-                throw new IllegalStateException(e);
             }
         }
     }
