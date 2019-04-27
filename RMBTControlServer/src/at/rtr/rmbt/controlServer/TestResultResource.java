@@ -409,7 +409,7 @@ RESULT_SHARE_TEXT_PROVIDER_ADD = Operator: {0}\n
                         answer.put("testresult", resultList);
                     }
                     else
-                        errorList.addError("ERROR_REQUEST_NO_UUID");
+                        errorList.addError("ERROR_REQUEST_NO_RESULT");
                     
                 }
                 else
