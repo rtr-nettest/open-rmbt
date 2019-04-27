@@ -64,7 +64,9 @@ public class Test extends Table
             " ON t.mobile_provider_id=pMob.uid" +
             " LEFT JOIN device_map adm ON adm.codename=t.model" +
             " LEFT JOIN test_server pServ ON t.server_id=pServ.uid" +
-            " LEFT JOIN oesterreich_bev_kg_lam_mitattribute_2017_10_02 k ON t.kg_nr_bev=k.kg_nr_int";
+            " LEFT JOIN bev_vgd k ON t.kg_nr_bev = k.kg_nr::integer";
+    //        " LEFT JOIN oesterreich_bev_kg_lam_mitattribute_2017_10_02 k ON t.kg_nr_bev=k.kg_nr_int";
+    //        " CROSS JOIN get_bev_vgd_kg(t.kg_nr_bev) k";
     
     private final static ThreadLocal<Field[]> PER_THREAD_FIELDS = new ThreadLocal<Field[]>() {
         protected Field[] initialValue() {
@@ -187,7 +189,7 @@ public class Test extends Table
             new IntField("channel_number", null),
             new IntField("sim_count","telephony_sim_count")
             };
-        };
+        }
     };
     
     public Test(final Connection conn)
@@ -237,7 +239,9 @@ public class Test extends Table
         catch (final SQLException e)
         {
             setError("ERROR_DB_STORE_TEST_SQL");
-            Logger.getLogger(Test.class.getName()).log(Level.WARNING,"Failed: " + st.toString());
+            if (st != null) {
+                Logger.getLogger(Test.class.getName()).log(Level.WARNING,"Failed: " + st.toString());
+            }
             e.printStackTrace();
             
         }
