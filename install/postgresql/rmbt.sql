@@ -3705,6 +3705,7 @@ CREATE TABLE public.test_loopmode (
     uid integer NOT NULL,
     test_uuid uuid,
     client_uuid uuid,
+    loop_uuid uuid,
     max_movement integer,
     max_delay integer,
     max_tests integer,

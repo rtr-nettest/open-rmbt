@@ -146,6 +146,11 @@ public class RegistrationResource extends ServerResource
                 	loopModeSettings = new Gson().fromJson(loopModeData, LoopModeSettings.class);
                 	loopModeSettings.setClientUuid(uuidString);
 
+                	//if no loop mode uuid is set - generate one
+                    if (loopModeSettings.getLoopUuid() == null) {
+                        loopModeSettings.setLoopUuid("L" + UUID.randomUUID().toString());
+                    }
+
                     //old clients expect a "text_counter"
                     //android sends old JSON as String
                     if (request.opt("loopmode_info") instanceof String) {
@@ -528,6 +533,10 @@ public class RegistrationResource extends ServerResource
                                             
                                             answer.put("test_uuid", testUuid);
                                             answer.put("test_id", key);
+
+                                            if (loopModeSettings != null) {
+                                                answer.put("loop_uuid", loopModeSettings.getLoopUuid());
+                                            }
                                             
                                             final long now = System.currentTimeMillis();
                                             int wait = testSlot - (int) (now / 1000);
