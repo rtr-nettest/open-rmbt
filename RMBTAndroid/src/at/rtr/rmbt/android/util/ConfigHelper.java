@@ -173,7 +173,15 @@ public final class ConfigHelper
     public static void setLoopModeTestCounter(final Context context, final int value) {
     	getSharedPreferences(context).edit().putString("loop_mode_test_counter", Integer.toString(value)).apply();
     }
-    
+
+    public static String getLoopUuid(final Context context) {
+        return getSharedPreferences(context).getString("loop_uuid", null);
+    }
+
+    public static void setLoopUuid(final Context context, final String value) {
+        getSharedPreferences(context).edit().putString("loop_uuid", value).apply();
+    }
+
     public static void incLoopModeTestCounter(final Context context) {
     	setLoopModeTestCounter(context, getLoopModeTestCounter(context) + 1);
     }
