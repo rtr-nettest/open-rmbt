@@ -59,7 +59,7 @@ public class ControlServer extends Application
         
         router.attach("/resultQoS", QualityOfServiceResultResource.class);
         
-        // plz is submitted (optional additional resource for browser)
+        // geocoder/manual location information is submitted (optional additional resource for browser)
         router.attach("/resultUpdate", ResultUpdateResource.class);
         
         // ndt test results are submitted (optional, after /result)
@@ -70,8 +70,7 @@ public class ControlServer extends Application
         router.attach("/ip", IpResource.class);
         
         router.attach("/status", StatusResource.class);
-        
-        
+
         // send history list to client
         router.attach("/history", HistoryResource.class);
         
