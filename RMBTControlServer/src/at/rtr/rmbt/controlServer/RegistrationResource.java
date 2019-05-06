@@ -544,7 +544,7 @@ public class RegistrationResource extends ServerResource
                                                 wait = 0;
                                             
                                             answer.put("test_wait", wait);
-                                            
+                                            /* do not store location on test start
                                             if (geotime != 0 && geolat != 0 && geolong != 0)
                                             {
                                                 
@@ -569,6 +569,7 @@ public class RegistrationResource extends ServerResource
                                                 if (clientLocation.hasError())
                                                     errorList.addError(clientLocation.getError());
                                             }
+                                             */
                                         }
                                     }
                                     
