@@ -38,6 +38,7 @@ public class GeoLocation
     
     private long uid;
     private UUID open_test_uuid;
+    private UUID geo_location_uuid;
     private long test_id;
     private Timestamp time;
     private Float accuracy;
@@ -60,6 +61,7 @@ public class GeoLocation
     {
         reset();
         this.conn = conn;
+
     }
 
     
@@ -79,7 +81,7 @@ public class GeoLocation
         geo_long = null;
         time_ns = 0;
         mock_location = null;
-        
+        geo_location_uuid = UUID.randomUUID();
         timeZone = null;
         
         resetError();
@@ -100,15 +102,19 @@ public class GeoLocation
     public void storeLocation()
     {
         PreparedStatement st;
+        if (geo_location_uuid == null)
+            geo_location_uuid = UUID.randomUUID();
+
         try
         {
             QueryRunner qr = new QueryRunner();
-            String sql = "INSERT INTO geo_location(open_test_uuid, test_id, time, accuracy, altitude, bearing, speed, provider, geo_lat, geo_long, location, time_ns, mock_location) "
-                    + "VALUES(?,?,?,?,?,?,?,?,?,?, ST_TRANSFORM(ST_SetSRID(ST_Point(?, ?), 4326), 900913), ?,?)";
+            String sql = "INSERT INTO geo_location(geo_location_uuid,open_test_uuid, test_id, time, accuracy, altitude, bearing, speed, provider, geo_lat, geo_long, location, time_ns, mock_location) "
+                    + "VALUES(?,?,?,?,?,?,?,?,?,?,?, ST_TRANSFORM(ST_SetSRID(ST_Point(?, ?), 4326), 900913), ?,?)";
 
             //this will return some id
             MapListHandler results = new MapListHandler();
             List<Map<String, Object>> insert = qr.insert(conn, sql, results,
+                    geo_location_uuid,
                     open_test_uuid,
                     test_id,
                     time,
@@ -203,6 +209,11 @@ public class GeoLocation
     {
         return geo_long;
     }
+
+    public UUID getGeoLocationUuid()
+    {
+        return geo_location_uuid;
+    }
     
     public void setUid(final long uid)
     {
@@ -280,5 +291,9 @@ public class GeoLocation
 
     public void setMock_location(Boolean mock_location) {
         this.mock_location = mock_location;
+    }
+
+    public void setGeoLocationUuid(UUID geo_location_uuid) {
+        this.geo_location_uuid = geo_location_uuid;
     }
 }

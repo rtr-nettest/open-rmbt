@@ -117,12 +117,14 @@ public class ResultUpdateResource extends ServerResource
                         geoloc.setOpenTestUuid(openTestUUID);
                         // use start of test as time of location information (0 ns)
                         geoloc.setTime_ns(0);
+                        final UUID geoRefUuid = geoloc.getGeoLocationUuid();
                         geoloc.storeLocation();
 
                         ((DoubleField) test.getField("geo_lat")).setValue(geoLat);
                         ((DoubleField) test.getField("geo_long")).setValue(geoLong);
                         ((DoubleField) test.getField("geo_accuracy")).setValue(geoAccuracy);
                         test.getField("geo_provider").setString(provider);
+                        test.getField("geo_location_uuid").setString(geoRefUuid.toString());
                     }
                 }
 

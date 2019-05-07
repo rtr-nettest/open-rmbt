@@ -293,6 +293,8 @@ public class ResultResource extends ServerResource
                                         }
 
                                         final JSONArray geoData = request.optJSONArray("geoLocations");
+                                        // geo_location_uuid to be stored in test table ("reference location")
+                                        UUID geoRefUuid = null;
 
                                         if (geoData != null && !test.hasError()) {
                                             float minAccuracy = Float.MAX_VALUE;
@@ -320,15 +322,17 @@ public class ResultResource extends ServerResource
 
                                                     geoloc.storeLocation();
 
-                                                    // Store first accurate geolocation as testlocation
+                                                    // Find reference location
                                                     if (geoloc.getAccuracy() != null && geoloc.getAccuracy() < minAccuracy) {
                                                         minAccuracy = geoloc.getAccuracy();
+                                                        // store geo_location_uuid
+                                                        geoRefUuid = geoloc.getGeoLocationUuid();
                                                         firstAccuratePosition.set(geoDataItem);
                                                     }
-                                                    // Fallback: Store Last Geolocation as
-                                                    // testlocation
+                                                    // Fallback: store last geolocation as reference location
                                                     else if (firstAccuratePosition.get() == null &&
                                                             i == geoData.length() - 1) {
+                                                        geoRefUuid = geoloc.getGeoLocationUuid();
                                                         firstAccuratePosition.set(geoDataItem);
                                                     }
 
@@ -339,7 +343,13 @@ public class ResultResource extends ServerResource
                                                 }
                                             }
 
+                                            // Store reference location in test table
                                             if (firstAccuratePosition.get() != null) {
+                                                // set geo_location_uuid
+                                                if (geoRefUuid != null) {
+                                                    test.getField("geo_location_uuid").setString(geoRefUuid.toString());
+                                                }
+
                                                 JSONObject geoDataItem = firstAccuratePosition.get();
                                                 if (geoDataItem.has("geo_lat"))
                                                     test.getField("geo_lat").setField(geoDataItem);

@@ -166,6 +166,7 @@ public class Test extends Table
             new DoubleField("geo_accuracy", "accuracy"),
             new UUIDField("open_uuid", null),
             new UUIDField("open_test_uuid",null),
+            new UUIDField("geo_location_uuid",null),
             new LongField("test_if_bytes_download", "test_if_bytes_download"),
             new LongField("test_if_bytes_upload", "test_if_bytes_upload"),
             new LongField("testdl_if_bytes_download", "testdl_if_bytes_download"),
