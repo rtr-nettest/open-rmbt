@@ -127,6 +127,7 @@ public class QueryParser {
         allowedFields.put("open_uuid",FieldType.UUID);
         allowedFields.put("open_test_uuid",FieldType.UUID);
         allowedFields.put("client_uuid",FieldType.UUID);
+        allowedFields.put("loop_uuid",FieldType.UUID);
         allowedFields.put("test_uuid",FieldType.UUID);
         allowedFields.put("long",FieldType.DOUBLE);
         allowedFields.put("long[]",FieldType.DOUBLE);
@@ -622,6 +623,9 @@ public class QueryParser {
         else if (opendataField.equals("client_uuid")) {
             ret.add("c.uuid");
         }
+        else if (opendataField.equals("loop_uuid")) {
+            ret.add("l.loop_uuid");
+        }
         else if (opendataField.equals("lat")) {
             ret.add("t.geo_lat");
         }
@@ -756,6 +760,7 @@ public class QueryParser {
     
     public String getJoins() {
         return " LEFT JOIN network_type nt ON nt.uid=t.network_type" +
+                " LEFT JOIN test_loopmode l ON (l.test_uuid = t.uuid)" +
                 " LEFT JOIN device_map adm ON adm.codename=t.model" +
                 " LEFT JOIN test_server ts ON ts.uid=t.server_id" +
                 " LEFT JOIN provider prov ON provider_id = prov.uid " +

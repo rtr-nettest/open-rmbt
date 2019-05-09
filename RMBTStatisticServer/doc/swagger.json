@@ -163,6 +163,12 @@
           "required" : false,
           "type" : "string"
         }, {
+          "name" : "loop_uuid",
+          "in" : "query",
+          "description" : "The loop UUID of a single loop test",
+          "required" : false,
+          "type" : "string"
+        }, {
           "name" : "test_uuid",
           "in" : "query",
           "description" : "The private UUID of a test",
