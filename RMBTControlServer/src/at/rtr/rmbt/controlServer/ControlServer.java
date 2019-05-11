@@ -89,16 +89,6 @@ public class ControlServer extends Application
         // collection of UserAgent etc.for IE (via server)  
         router.attach("/requestDataCollector", RequestDataCollector.class);
 
-        /*
-        // obsolete endpoint, no longer in use, OpenTest resource now within RMBTStatisticServer
-        router.attach("/opentests/O{open_test_uuid}&sender={sender}", OpenTestResource.class);
-        router.attach("/opentests/O{open_test_uuid}", OpenTestResource.class);
-
-        // obsolete endpoint used by Android/iOS app, replaced by rewrite in reverse proxy
-        router.attach("/v2/opentests/O{open_test_uuid}&sender={sender}", at.rtr.rmbt.controlServer.v2.OpenTestResource.class);
-        router.attach("/v2/opentests/O{open_test_uuid}", at.rtr.rmbt.controlServer.v2.OpenTestResource.class);
-        */
-
         router.attach("/qos/O{open_test_uuid}", OpenTestQoSResource.class);
         router.attach("/qos/O{open_test_uuid}/{lang}", OpenTestQoSResource.class);
 

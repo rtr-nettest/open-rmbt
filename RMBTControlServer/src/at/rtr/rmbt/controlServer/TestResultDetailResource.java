@@ -49,6 +49,7 @@ import at.rtr.rmbt.db.fields.TimestampField;
 import at.rtr.rmbt.shared.Helperfunctions;
 import at.rtr.rmbt.shared.ResourceManager;
 import at.rtr.rmbt.shared.SignificantFormat;
+import at.rtr.rmbt.shared.GeoAnalytics;
 import at.rtr.rmbt.util.BandCalculationUtil;
 
 public class TestResultDetailResource extends ServerResource
@@ -707,20 +708,13 @@ public class TestResultDetailResource extends ServerResource
                 geoString.append(String.format(Locale.US, "+/- %.0f m", accuracy));
                 geoString.append(")");
                 json.put("location", geoString.toString());
-                
-                //also try getting the distance during the test
-                final Date clientDate = ((TimestampField) test.getField("client_time")).getDate();
-                final long clientTime = clientDate.getTime();
-                try {
-                	OpenTestResource.LocationGraph locGraph = new OpenTestResource.LocationGraph(test.getUid(), clientTime, conn);
-                	if ((locGraph.getTotalDistance() > 0) &&
-                	        locGraph.getTotalDistance() <= Double.parseDouble(settings.getString("RMBT_GEO_DISTANCE_DETAIL_LIMIT"))) {
-                		json.put("motion", Math.round(locGraph.getTotalDistance()) + " m");
-                	}
 
-                } catch (SQLException ex) {
-                	//cannot happen since the test uid has to exist in here
-                	ex.printStackTrace();
+                //get movement during test
+                UUID openTestUuid = test.getOpenTestUuid();
+                GeoAnalytics.TestDistance locGraph = new GeoAnalytics.TestDistance(openTestUuid, conn);
+                if ((locGraph != null) && (locGraph.getTotalDistance() > 0) &&
+                        locGraph.getTotalDistance() <= Double.parseDouble(settings.getString("RMBT_GEO_DISTANCE_DETAIL_LIMIT"))) {
+                    json.put("motion", Math.round(locGraph.getTotalDistance()) + " m");
                 }
             }
             
