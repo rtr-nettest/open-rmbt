@@ -71,7 +71,7 @@ public class PointTiles extends TileRestlet<PointTileParameters>
             final MapOption mo, final List<SQLFilter> filters, final float quantile)
     {
         
-        final UUID highlightUUID;
+         UUID highlightUUID;
         final byte[] baseTile;
         
         if (params.getGenericParameters() != null)
@@ -88,23 +88,53 @@ public class PointTiles extends TileRestlet<PointTileParameters>
             highlightUUID = null;
             baseTile = null;
         }
-        
+
+
+        highlightUUID = null;
         
         filters.add(MapServerOptions.getAccuracyMapFilter());
         
         final StringBuilder whereSQL = new StringBuilder(mo.sqlFilter);
         for (final SQLFilter sf : filters)
             whereSQL.append(" AND ").append(sf.where);
-        
-        final String sql = String.format("SELECT ST_X(t.location) x, ST_Y(t.location) y, \"%s\" val"
-                + " FROM v_test2 t"
-                + (highlightUUID == null ? "" : " JOIN client c ON (t.client_id=c.uid AND c.uuid=?)")
+
+/* Sample SQL
+        SELECT ST_X(t.location) x, ST_Y(t.location) y, "merged_signal" val
+        FROM v_test2 t
+        WHERE
+        merged_signal is not null AND network_type not in (0, 97, 98, 99) AND t.deleted = false AND t.implausible = false AND t.status = 'FINISHED' AND t.time > NOW() - CAST(? AS INTERVAL) AND t.geo_accuracy < 2000
+        AND location && ST_SetSRID(ST_MakeBox2D(ST_Point(?,?), ST_Point(?,?)), 900913) ORDER BY t.uid
+
+
+Without filter:
+    SELECT ST_X(t.location) x, ST_Y(t.location) y, "merged_signal" val FROM v_test2 t JOIN client c ON (t.client_id=c.uid AND c.uuid=?) WHERE  true  AND location && ST_SetSRID(ST_MakeBox2D(ST_Point(?,?), ST_Point(?,?)), 900913) ORDER BY t.uid
+o
+
+Whichout Highlight:
+SELECT ST_X(t.location) x, ST_Y(t.location) y, "merged_signal" val
+FROM v_test2 t JOIN client c ON (t.client_id=c.uid AND c.uuid=?)
+WHERE  true  AND location && ST_SetSRID(ST_MakeBox2D(ST_Point(?,?), ST_Point(?,?)), 900913) ORDER BY t.uid
+
+
+*/
+
+       // no filters, that thing will need different filters or additional columns to support filtering (e.g. time of test)
+       final String MewhereSQL = "true ";
+       // value column (hard coded)
+       final String MeValue = "last_signal_strength";
+
+
+        final String sql = String.format("SELECT ST_X(t.interpolated_location) x, ST_Y(t.interpolated_location) y, \"%s\" val"
+                + " FROM radio_signal_location t"
+                //+ (highlightUUID == null ? "" : " JOIN client c ON (t.client_id=c.uid AND c.uuid=?)")
                 + " WHERE "
                 + " %s"
-                + " AND location && ST_SetSRID(ST_MakeBox2D(ST_Point(?,?), ST_Point(?,?)), 900913)"
+                + " AND interpolated_location && ST_SetSRID(ST_MakeBox2D(ST_Point(?,?), ST_Point(?,?)), 900913)"
                 + " ORDER BY"
-                + " t.uid", mo.valueColumn, whereSQL);
-        
+                + " t.uid", MeValue, MewhereSQL);
+
+        System.out.println(sql);
+
         final double diameter = params.getPointDiameter();
         final double radius = diameter / 2d;
         final double triangleSide = diameter * 1.75;
@@ -127,12 +157,16 @@ public class PointTiles extends TileRestlet<PointTileParameters>
             PreparedStatement ps = con.prepareStatement(sql))
         {
             int i = 1;
-            
+
+            // is null
             if (highlightUUID != null)
                 ps.setObject(i++, highlightUUID);
-            
+
+            /*
             for (final SQLFilter sf : filters)
                 i = sf.fillParams(i, ps);
+
+             */
             
             final double margin = box.res * triangleSide;
             ps.setDouble(i++, box.x1 - margin);
@@ -140,7 +174,7 @@ public class PointTiles extends TileRestlet<PointTileParameters>
             ps.setDouble(i++, box.x2 + margin);
             ps.setDouble(i++, box.y2 + margin);
             
-//            System.out.println(ps);
+            System.out.println(ps);
             
             if (!ps.execute())
                 throw new IllegalArgumentException(ps.getWarnings());
