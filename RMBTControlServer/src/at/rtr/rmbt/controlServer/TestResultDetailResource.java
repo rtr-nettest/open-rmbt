@@ -710,11 +710,11 @@ public class TestResultDetailResource extends ServerResource
                 json.put("location", geoString.toString());
 
                 //get movement during test
-                UUID openTestUuid = test.getOpenTestUuid();
-                GeoAnalytics.TestDistance locGraph = new GeoAnalytics.TestDistance(openTestUuid, conn);
-                if ((locGraph != null) && (locGraph.getTotalDistance() > 0) &&
-                        locGraph.getTotalDistance() <= Double.parseDouble(settings.getString("RMBT_GEO_DISTANCE_DETAIL_LIMIT"))) {
-                    json.put("motion", Math.round(locGraph.getTotalDistance()) + " m");
+                UUID openTestUuid = UUID.fromString(test.getField("open_test_uuid").toString());
+                GeoAnalytics.TestDistance dist = new GeoAnalytics.TestDistance(openTestUuid, conn);
+                if ((dist != null) && (dist.getTotalDistance() > 0) &&
+                        dist.getTotalDistance() <= Double.parseDouble(settings.getString("RMBT_GEO_DISTANCE_DETAIL_LIMIT"))) {
+                    json.put("motion", Math.round(dist.getTotalDistance()) + " m");
                 }
             }
             
