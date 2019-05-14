@@ -45,11 +45,12 @@ public class LoopModeSettings {
 
 	public LoopModeSettings() { }
 	
-	public LoopModeSettings(final int maxDelay, final int maxMovement, final int maxTests, final int testCounter) {
+	public LoopModeSettings(final int maxDelay, final int maxMovement, final int maxTests, final int testCounter, final String loopUuid) {
 		setMaxDelay(maxDelay);
 		setMaxMovement(maxMovement);
 		setMaxTests(maxTests);
 		setTestCounter(testCounter);
+		setLoopUuid(loopUuid);
 	}
 	
 	public int getMaxDelay() {
