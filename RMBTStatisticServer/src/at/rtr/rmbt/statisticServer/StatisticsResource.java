@@ -323,7 +323,7 @@ public class StatisticsResource extends ServerResource
                         " - ?::INTERVAL " +
                         ((endDate != null) ? (" AND \"time\" <=  ?::TIMESTAMP WITH TIME ZONE ") : "") +
                         //" AND user_server_selection = ? " +
-                        ((province != -1) ? (" AND gkz/10000 = ? ") : "") +
+                        ((province != -1) ? (" AND gkz_bev/10000 = ? ") : "") +
                         ((accuracy > 0) ? " AND t.geo_accuracy < ?" : "") + 
                         ((ONLY_PINNED)?" AND t.pinned = true":"") +
                         (group? " GROUP BY p.uid" : "") +
@@ -358,7 +358,7 @@ public class StatisticsResource extends ServerResource
                             " - ?::INTERVAL " +
                             ((endDate != null) ? (" AND \"time\" <=  ?::TIMESTAMP WITH TIME ZONE ") : "") +
                             //" AND user_server_selection = ? " +
-                            ((province != -1) ? (" AND gkz/10000 = ? ") : "") +
+                            ((province != -1) ? (" AND gkz_bev/10000 = ? ") : "") +
                             ((accuracy > 0) ? " AND t.geo_accuracy < ?" : "") + 
                             ((ONLY_PINNED)?" AND t.pinned = true":"") +
                             ((group && (useMobileProvider))? " GROUP BY p.uid, p.mccmnc" : "") +
@@ -476,7 +476,7 @@ public class StatisticsResource extends ServerResource
                 " - ?::INTERVAL " +
                 ((endDate != null) ? (" AND \"time\" <=  ?::TIMESTAMP WITH TIME ZONE ") : "") +
                 //" AND user_server_selection = ? " +
-                ((province != -1) ? (" AND gkz/10000 = ? ") : "") +
+                ((province != -1) ? (" AND gkz_bev/10000 = ? ") : "") +
                 (useMobileProvider ? " AND t.mobile_provider_id IS NOT NULL" : "") +
                 ((accuracy > 0) ? " AND t.geo_accuracy < ?" : "") + 
                 ((ONLY_PINNED)?" AND t.pinned = true":"") +
@@ -500,7 +500,7 @@ public class StatisticsResource extends ServerResource
                     " - ?::INTERVAL" +
                     ((endDate != null) ? (" AND \"time\" <=  ?::TIMESTAMP WITH TIME ZONE ") : "") +
                     //" AND user_server_selection = ? " +
-                    ((province != -1) ? (" AND gkz/10000 = ? ") : "") +
+                    ((province != -1) ? (" AND gkz_bev/10000 = ? ") : "") +
                     " AND " + (useMobileProvider?"p.country = ? AND ((t.country_location IS NULL OR t.country_location = ?)  AND (NOT t.roaming_type = 2))":"t.country_geoip = ? ") +
                     ((accuracy > 0) ? " AND t.geo_accuracy < ?" : "") + 
                     ((ONLY_PINNED)?" AND t.pinned = true":"") +
