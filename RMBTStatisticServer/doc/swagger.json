@@ -409,18 +409,18 @@
           "example" : 1021,
           "description" : "16-bit GSM Absolute RF Channel Number"
         },
-        "frequency_dl" : {
-          "type" : "number",
-          "format" : "double",
-          "example" : 934.4,
-          "description" : "Frequency of the downlink in MHz",
-          "readOnly" : true
-        },
         "band" : {
           "type" : "integer",
           "format" : "int32",
           "example" : 1,
           "description" : "Band",
+          "readOnly" : true
+        },
+        "frequency_dl" : {
+          "type" : "number",
+          "format" : "double",
+          "example" : 934.4,
+          "description" : "Frequency of the downlink in MHz",
           "readOnly" : true
         }
       }
@@ -452,18 +452,18 @@
           "example" : 10687,
           "description" : "16-bit UMTS Absolute RF Channel Number"
         },
-        "frequency_dl" : {
-          "type" : "number",
-          "format" : "double",
-          "example" : 934.4,
-          "description" : "Frequency of the downlink in MHz",
-          "readOnly" : true
-        },
         "band" : {
           "type" : "integer",
           "format" : "int32",
           "example" : 1,
           "description" : "Band",
+          "readOnly" : true
+        },
+        "frequency_dl" : {
+          "type" : "number",
+          "format" : "double",
+          "example" : 934.4,
+          "description" : "Frequency of the downlink in MHz",
           "readOnly" : true
         }
       }
@@ -495,18 +495,18 @@
           "example" : 2850,
           "description" : "18-bit Absolute RF Channel Number"
         },
-        "frequency_dl" : {
-          "type" : "number",
-          "format" : "double",
-          "example" : 934.4,
-          "description" : "Frequency of the downlink in MHz",
-          "readOnly" : true
-        },
         "band" : {
           "type" : "integer",
           "format" : "int32",
           "example" : 1,
           "description" : "Band",
+          "readOnly" : true
+        },
+        "frequency_dl" : {
+          "type" : "number",
+          "format" : "double",
+          "example" : 934.4,
+          "description" : "Frequency of the downlink in MHz",
           "readOnly" : true
         }
       }
@@ -660,6 +660,12 @@
           "format" : "int32",
           "example" : 3,
           "description" : "Classification for the ping speed in a traffic-light system.\n\n0 = unknown, 1 = red, 2 = yellow, 3 = green."
+        },
+        "signal_classification" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : 3,
+          "description" : "Classification for the signal quality in a traffic-light system.\n\n0 = unknown, 1 = red, 2 = yellow, 3 = green."
         }
       }
     },
@@ -755,6 +761,18 @@
           "example" : 1,
           "description" : "Classification for the upload speed in a traffic-light system.\n\n0 = unknown, 1 = red, 2 = yellow, 3 = green."
         },
+        "ping_classification" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : 3,
+          "description" : "Classification for the ping speed in a traffic-light system.\n\n0 = unknown, 1 = red, 2 = yellow, 3 = green."
+        },
+        "signal_classification" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : 2,
+          "description" : "Classification for the signal strength in a traffic-light system."
+        },
         "distance" : {
           "type" : "number",
           "format" : "double",
@@ -763,12 +781,6 @@
         },
         "error" : {
           "type" : "string"
-        },
-        "ping_classification" : {
-          "type" : "integer",
-          "format" : "int32",
-          "example" : 3,
-          "description" : "Classification for the ping speed in a traffic-light system.\n\n0 = unknown, 1 = red, 2 = yellow, 3 = green."
         },
         "cat_technology" : {
           "type" : "string",
@@ -1070,12 +1082,6 @@
           "example" : 28708964,
           "description" : "Number identifying the location of a cell. E.g. the 28-bit Cell Identity (CI) in case of 4G, the 28-bit UMTS Cell Identity (CID) in case of UMTS or the 16-bit GSM Cell Identity (CID) in case of GSM."
         },
-        "signal_classification" : {
-          "type" : "integer",
-          "format" : "int32",
-          "example" : 2,
-          "description" : "Classification for the signal strength in a traffic-light system."
-        },
         "wifi_link_speed" : {
           "type" : "integer",
           "format" : "int64",
@@ -1087,6 +1093,45 @@
           "format" : "int32",
           "example" : 1,
           "description" : "Settlement type (Austrian \"Dauersiedlungsraum\")\n 1 = Area which can not be used for settlement, classification based on CORINE \n 2 = Area which can be used for settlement, classification based on CORINE \n3 = Settlement in 250m rasters with at least 6 inhabitants"
+        },
+        "link_id" : {
+          "type" : "integer",
+          "format" : "int64",
+          "example" : 461004537,
+          "description" : "Link ID (as defined by GIP) of the road/railway line."
+        },
+        "link_name" : {
+          "type" : "string",
+          "example" : "A14",
+          "description" : "Road/raiway line identifier."
+        },
+        "link_distance" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : 0,
+          "description" : "Distance from road/railway line."
+        },
+        "edge_id" : {
+          "type" : "integer",
+          "format" : "int64",
+          "example" : 15460011788,
+          "description" : "Edge ID (as defined by GIP) of the road/railway line."
+        },
+        "link_name1" : {
+          "type" : "string",
+          "example" : "Dr.-A.-Heinzle-Straße",
+          "description" : "Long name of the street/railway line."
+        },
+        "link_name2" : {
+          "type" : "string",
+          "example" : "L190 - Vorarlberger Straße",
+          "description" : "Additional name of the street/railway line."
+        },
+        "link_frc" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : 0,
+          "description" : "Functional road class (as defined by GIP)."
         },
         "speed_curve" : {
           "description" : "Aggregated history of transferred data bytes during a test.",
@@ -1265,6 +1310,12 @@
         },
         "radio_band" : {
           "$ref" : "#/definitions/OpenTestDetailsDTO/properties/radio_band"
+        },
+        "signal_classification" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : 3,
+          "description" : "Classification for the signal quality in a traffic-light system.\n\n0 = unknown, 1 = red, 2 = yellow, 3 = green."
         }
       }
     },
