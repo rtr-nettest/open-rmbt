@@ -409,18 +409,18 @@
           "example" : 1021,
           "description" : "16-bit GSM Absolute RF Channel Number"
         },
-        "band" : {
-          "type" : "integer",
-          "format" : "int32",
-          "example" : 1,
-          "description" : "Band",
-          "readOnly" : true
-        },
         "frequency_dl" : {
           "type" : "number",
           "format" : "double",
           "example" : 934.4,
           "description" : "Frequency of the downlink in MHz",
+          "readOnly" : true
+        },
+        "band" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : 1,
+          "description" : "Band",
           "readOnly" : true
         }
       }
@@ -452,18 +452,18 @@
           "example" : 10687,
           "description" : "16-bit UMTS Absolute RF Channel Number"
         },
-        "band" : {
-          "type" : "integer",
-          "format" : "int32",
-          "example" : 1,
-          "description" : "Band",
-          "readOnly" : true
-        },
         "frequency_dl" : {
           "type" : "number",
           "format" : "double",
           "example" : 934.4,
           "description" : "Frequency of the downlink in MHz",
+          "readOnly" : true
+        },
+        "band" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : 1,
+          "description" : "Band",
           "readOnly" : true
         }
       }
@@ -495,18 +495,18 @@
           "example" : 2850,
           "description" : "18-bit Absolute RF Channel Number"
         },
-        "band" : {
-          "type" : "integer",
-          "format" : "int32",
-          "example" : 1,
-          "description" : "Band",
-          "readOnly" : true
-        },
         "frequency_dl" : {
           "type" : "number",
           "format" : "double",
           "example" : 934.4,
           "description" : "Frequency of the downlink in MHz",
+          "readOnly" : true
+        },
+        "band" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : 1,
+          "description" : "Band",
           "readOnly" : true
         }
       }
@@ -1310,6 +1310,41 @@
         },
         "radio_band" : {
           "$ref" : "#/definitions/OpenTestDetailsDTO/properties/radio_band"
+        },
+        "settlement_type" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : 1,
+          "description" : "Settlement type (Austrian \"Dauersiedlungsraum\")\n 1 = Area which can not be used for settlement, classification based on CORINE \n 2 = Area which can be used for settlement, classification based on CORINE \n3 = Settlement in 250m rasters with at least 6 inhabitants"
+        },
+        "link_id" : {
+          "type" : "integer",
+          "format" : "int64",
+          "example" : 461004537,
+          "description" : "Link ID (as defined by GIP) of the road/railway line."
+        },
+        "link_name" : {
+          "type" : "string",
+          "example" : "A14",
+          "description" : "Road/raiway line identifier."
+        },
+        "link_distance" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : 0,
+          "description" : "Distance from road/railway line."
+        },
+        "edge_id" : {
+          "type" : "integer",
+          "format" : "int64",
+          "example" : 15460011788,
+          "description" : "Edge ID (as defined by GIP) of the road/railway line."
+        },
+        "link_frc" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : 0,
+          "description" : "Functional road class (as defined by GIP)."
         },
         "signal_classification" : {
           "type" : "integer",
