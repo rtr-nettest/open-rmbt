@@ -19,7 +19,6 @@ package at.rtr.rmbt.statisticServer.export;
 import at.rtr.rmbt.statisticServer.ServerResource;
 import at.rtr.rmbt.statisticServer.opendata.dao.OpenTestDAO;
 import at.rtr.rmbt.statisticServer.opendata.dto.OpenTestExportDTO;
-import at.rtr.rmbt.statisticServer.opendata.dto.OpenTestSearchDTO;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.SequenceWriter;
 import com.fasterxml.jackson.dataformat.csv.CsvGenerator;
@@ -30,9 +29,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.apache.commons.dbutils.BasicRowProcessor;
-import org.apache.commons.dbutils.GenerousBeanProcessor;
-import org.apache.commons.dbutils.handlers.BeanListHandler;
 import org.apache.commons.io.IOUtils;
 import org.restlet.data.Disposition;
 import org.restlet.data.MediaType;
@@ -45,13 +41,8 @@ import javax.ws.rs.Path;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -179,7 +170,7 @@ public class ExportResource extends ServerResource
         }
 
         OpenTestDAO openTestDAO = new OpenTestDAO(conn,settings,capabilities);
-        final List<OpenTestExportDTO> results = openTestDAO.getOpentestExport(hoursExport, dateExport, year, month, hours);
+        final List<OpenTestExportDTO> results = openTestDAO.getOpenTestExport(hoursExport, dateExport, year, month, hours);
         
         final OutputRepresentation result = new OutputRepresentation(xlsx ? MediaType.APPLICATION_MSOFFICE_XLSX : zip ? MediaType.APPLICATION_ZIP
                 : MediaType.TEXT_CSV)
