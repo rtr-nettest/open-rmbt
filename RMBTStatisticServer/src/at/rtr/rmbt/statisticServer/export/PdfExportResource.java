@@ -119,7 +119,7 @@ public class PdfExportResource extends ServerResource {
         try {
             Context context = Context
                     .newBuilder(data)
-                    .push(new ExtendedJavaBeanResolver())
+                    .push(new JacksonAwareSnakeCaseJavaBeanResolver())
                     .build();
             fullTemplate = template.apply(context);
             fullTemplate = fullTemplate.replace("<script type=\"text/x-handlebars\" id=\"template\">", "");
@@ -163,8 +163,8 @@ public class PdfExportResource extends ServerResource {
      *   (i) utilized Jackson @JsonProperty annotations
      *   (ii) translates JavaBeans with camelCase to snake_case for value lookup
      */
-    public static class ExtendedJavaBeanResolver extends JavaBeanValueResolver {
-        public ExtendedJavaBeanResolver() {
+    public static class JacksonAwareSnakeCaseJavaBeanResolver extends JavaBeanValueResolver {
+        public JacksonAwareSnakeCaseJavaBeanResolver() {
             super();
         }
 
