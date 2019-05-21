@@ -120,6 +120,7 @@ Installation
   * openjdk-8-jre (do not use a higher version)
   * libservlet3.1-java
   * geoip-database
+  * _Optional:_ For StatisticServer pdf export functionality, [Prince](https://www.princexml.com/) or [Weasyprint](https://weasyprint.org/)
 
 2. Edit `/etc/tomcat7/context.xml` (substitute parts with `[]`), add to `<Context>`:
 
