@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang='de'>
+<head>
+    <title>Ergebnis des RTR-Netztest</title>
+
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+    <meta charset="UTF-8">
+<!--    <link rel="stylesheet" href="basecss.css"/> -->
+    <style>
+        /*!
+ * Generated using the Bootstrap Customizer (https://getbootstrap.com/docs/3.4/customize/)
+ *//*!
+ * Bootstrap v3.4.1 (https://getbootstrap.com/)
+ * Copyright 2011-2019 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ *//*! normalize.css v3.0.3 | MIT License | github.com/necolas/normalize.css */html{font-family:sans-serif;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%}body{margin:0}article,aside,details,figcaption,figure,footer,header,hgroup,main,menu,nav,section,summary{display:block}audio,canvas,progress,video{display:inline-block;vertical-align:baseline}audio:not([controls]){display:none;height:0}[hidden],template{display:none}a{background-color:transparent}a:active,a:hover{outline:0}abbr[title]{border-bottom:none;text-decoration:underline;text-decoration:underline dotted}b,strong{font-weight:700}dfn{font-style:italic}h1{font-size:2em;margin:.67em 0}mark{background:#ff0;color:#000}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sup{top:-.5em}sub{bottom:-.25em}img{border:0}svg:not(:root){overflow:hidden}figure{margin:1em 40px}hr{-webkit-box-sizing:content-box;-moz-box-sizing:content-box;box-sizing:content-box;height:0}pre{overflow:auto}code,kbd,pre,samp{font-family:monospace,monospace;font-size:1em}button,input,optgroup,select,textarea{color:inherit;font:inherit;margin:0}button{overflow:visible}button,select{text-transform:none}button,html input[type=button],input[type=reset],input[type=submit]{-webkit-appearance:button;cursor:pointer}button[disabled],html input[disabled]{cursor:default}button::-moz-focus-inner,input::-moz-focus-inner{border:0;padding:0}input{line-height:normal}input[type=checkbox],input[type=radio]{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;padding:0}input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{height:auto}input[type=search]{-webkit-appearance:textfield;-webkit-box-sizing:content-box;-moz-box-sizing:content-box;box-sizing:content-box}input[type=search]::-webkit-search-cancel-button,input[type=search]::-webkit-search-decoration{-webkit-appearance:none}fieldset{border:1px solid silver;margin:0 2px;padding:.35em .625em .75em}legend{border:0;padding:0}textarea{overflow:auto}optgroup{font-weight:700}table{border-collapse:collapse;border-spacing:0}td,th{padding:0}*{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box}:after,:before{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box}html{font-size:10px;-webkit-tap-highlight-color:transparent}body{font-family:'Open Sans',sans-serif;font-size:12px;line-height:1.42857143;color:#333;background-color:#fff}button,input,select,textarea{font-family:inherit;font-size:inherit;line-height:inherit}a{color:#337ab7;text-decoration:none}a:focus,a:hover{color:#23527c;text-decoration:underline}a:focus{outline:5px auto -webkit-focus-ring-color;outline-offset:-2px}figure{margin:0}img{vertical-align:middle}.img-responsive{display:block;max-width:100%;height:auto}.img-rounded{border-radius:6px}.img-thumbnail{padding:4px;line-height:1.42857143;background-color:#fff;border:1px solid #ddd;border-radius:4px;-webkit-transition:all .2s ease-in-out;-o-transition:all .2s ease-in-out;transition:all .2s ease-in-out;display:inline-block;max-width:100%;height:auto}.img-circle{border-radius:50%}hr{margin-top:17px;margin-bottom:17px;border:0;border-top:1px solid #eee}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}.sr-only-focusable:active,.sr-only-focusable:focus{position:static;width:auto;height:auto;margin:0;overflow:visible;clip:auto}[role=button]{cursor:pointer}.h1,.h2,.h3,.h4,.h5,.h6,h1,h2,h3,h4,h5,h6{font-family:inherit;font-weight:500;line-height:1.1;color:inherit}.h1 .small,.h1 small,.h2 .small,.h2 small,.h3 .small,.h3 small,.h4 .small,.h4 small,.h5 .small,.h5 small,.h6 .small,.h6 small,h1 .small,h1 small,h2 .small,h2 small,h3 .small,h3 small,h4 .small,h4 small,h5 .small,h5 small,h6 .small,h6 small{font-weight:400;line-height:1;color:#777}.h1,.h2,.h3,h1,h2,h3{margin-top:17px;margin-bottom:8.5px}.h1 .small,.h1 small,.h2 .small,.h2 small,.h3 .small,.h3 small,h1 .small,h1 small,h2 .small,h2 small,h3 .small,h3 small{font-size:65%}.h4,.h5,.h6,h4,h5,h6{margin-top:8.5px;margin-bottom:8.5px}.h4 .small,.h4 small,.h5 .small,.h5 small,.h6 .small,.h6 small,h4 .small,h4 small,h5 .small,h5 small,h6 .small,h6 small{font-size:75%}.h1,h1{font-size:31px}.h2,h2{font-size:25px}.h3,h3{font-size:21px}.h4,h4{font-size:15px}.h5,h5{font-size:12px}.h6,h6{font-size:11px}p{margin:0 0 8.5px}.lead{margin-bottom:17px;font-size:13px;font-weight:300;line-height:1.4}@media (min-width:768px){.lead{font-size:18px}}.small,small{font-size:91%}.mark,mark{padding:.2em;background-color:#fcf8e3}.text-left{text-align:left}.text-right{text-align:right}.text-center{text-align:center}.text-justify{text-align:justify}.text-nowrap{white-space:nowrap}.text-lowercase{text-transform:lowercase}.text-uppercase{text-transform:uppercase}.text-capitalize{text-transform:capitalize}.text-muted{color:#777}.text-primary{color:#337ab7}a.text-primary:focus,a.text-primary:hover{color:#286090}.text-success{color:#3c763d}a.text-success:focus,a.text-success:hover{color:#2b542c}.text-info{color:#31708f}a.text-info:focus,a.text-info:hover{color:#245269}.text-warning{color:#8a6d3b}a.text-warning:focus,a.text-warning:hover{color:#66512c}.text-danger{color:#a94442}a.text-danger:focus,a.text-danger:hover{color:#843534}.bg-primary{color:#fff;background-color:#337ab7}a.bg-primary:focus,a.bg-primary:hover{background-color:#286090}.bg-success{background-color:#dff0d8}a.bg-success:focus,a.bg-success:hover{background-color:#c1e2b3}.bg-info{background-color:#d9edf7}a.bg-info:focus,a.bg-info:hover{background-color:#afd9ee}.bg-warning{background-color:#fcf8e3}a.bg-warning:focus,a.bg-warning:hover{background-color:#f7ecb5}.bg-danger{background-color:#f2dede}a.bg-danger:focus,a.bg-danger:hover{background-color:#e4b9b9}.page-header{padding-bottom:7.5px;margin:34px 0 17px;border-bottom:1px solid #eee}ol,ul{margin-top:0;margin-bottom:8.5px}ol ol,ol ul,ul ol,ul ul{margin-bottom:0}.list-unstyled{padding-left:0;list-style:none}.list-inline{padding-left:0;list-style:none;margin-left:-5px}.list-inline>li{display:inline-block;padding-right:5px;padding-left:5px}dl{margin-top:0;margin-bottom:17px}dd,dt{line-height:1.42857143}dt{font-weight:700}dd{margin-left:0}@media (min-width:768px){.dl-horizontal dt{float:left;width:160px;clear:left;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dl-horizontal dd{margin-left:180px}}abbr[data-original-title],abbr[title]{cursor:help}.initialism{font-size:90%;text-transform:uppercase}blockquote{padding:8.5px 17px;margin:0 0 17px;font-size:15px;border-left:5px solid #eee}blockquote ol:last-child,blockquote p:last-child,blockquote ul:last-child{margin-bottom:0}blockquote .small,blockquote footer,blockquote small{display:block;font-size:80%;line-height:1.42857143;color:#777}blockquote .small:before,blockquote footer:before,blockquote small:before{content:"\2014 \00A0"}.blockquote-reverse,blockquote.pull-right{padding-right:15px;padding-left:0;text-align:right;border-right:5px solid #eee;border-left:0}.blockquote-reverse .small:before,.blockquote-reverse footer:before,.blockquote-reverse small:before,blockquote.pull-right .small:before,blockquote.pull-right footer:before,blockquote.pull-right small:before{content:""}.blockquote-reverse .small:after,.blockquote-reverse footer:after,.blockquote-reverse small:after,blockquote.pull-right .small:after,blockquote.pull-right footer:after,blockquote.pull-right small:after{content:"\00A0 \2014"}address{margin-bottom:17px;font-style:normal;line-height:1.42857143}.container{padding-right:15px;padding-left:15px;margin-right:auto;margin-left:auto}@media (min-width:768px){.container{width:750px}}@media (min-width:992px){.container{width:970px}}@media (min-width:1200px){.container{width:1170px}}.container-fluid{padding-right:15px;padding-left:15px;margin-right:auto;margin-left:auto}.row{margin-right:-15px;margin-left:-15px}.row-no-gutters{margin-right:0;margin-left:0}.row-no-gutters [class*=col-]{padding-right:0;padding-left:0}.col-lg-1,.col-lg-10,.col-lg-11,.col-lg-12,.col-lg-2,.col-lg-3,.col-lg-4,.col-lg-5,.col-lg-6,.col-lg-7,.col-lg-8,.col-lg-9,.col-md-1,.col-md-10,.col-md-11,.col-md-12,.col-md-2,.col-md-3,.col-md-4,.col-md-5,.col-md-6,.col-md-7,.col-md-8,.col-md-9,.col-sm-1,.col-sm-10,.col-sm-11,.col-sm-12,.col-sm-2,.col-sm-3,.col-sm-4,.col-sm-5,.col-sm-6,.col-sm-7,.col-sm-8,.col-sm-9,.col-xs-1,.col-xs-10,.col-xs-11,.col-xs-12,.col-xs-2,.col-xs-3,.col-xs-4,.col-xs-5,.col-xs-6,.col-xs-7,.col-xs-8,.col-xs-9{position:relative;min-height:1px;padding-right:15px;padding-left:15px}.col-xs-1,.col-xs-10,.col-xs-11,.col-xs-12,.col-xs-2,.col-xs-3,.col-xs-4,.col-xs-5,.col-xs-6,.col-xs-7,.col-xs-8,.col-xs-9{float:left}.col-xs-12{width:100%}.col-xs-11{width:91.66666667%}.col-xs-10{width:83.33333333%}.col-xs-9{width:75%}.col-xs-8{width:66.66666667%}.col-xs-7{width:58.33333333%}.col-xs-6{width:50%}.col-xs-5{width:41.66666667%}.col-xs-4{width:33.33333333%}.col-xs-3{width:25%}.col-xs-2{width:16.66666667%}.col-xs-1{width:8.33333333%}.col-xs-pull-12{right:100%}.col-xs-pull-11{right:91.66666667%}.col-xs-pull-10{right:83.33333333%}.col-xs-pull-9{right:75%}.col-xs-pull-8{right:66.66666667%}.col-xs-pull-7{right:58.33333333%}.col-xs-pull-6{right:50%}.col-xs-pull-5{right:41.66666667%}.col-xs-pull-4{right:33.33333333%}.col-xs-pull-3{right:25%}.col-xs-pull-2{right:16.66666667%}.col-xs-pull-1{right:8.33333333%}.col-xs-pull-0{right:auto}.col-xs-push-12{left:100%}.col-xs-push-11{left:91.66666667%}.col-xs-push-10{left:83.33333333%}.col-xs-push-9{left:75%}.col-xs-push-8{left:66.66666667%}.col-xs-push-7{left:58.33333333%}.col-xs-push-6{left:50%}.col-xs-push-5{left:41.66666667%}.col-xs-push-4{left:33.33333333%}.col-xs-push-3{left:25%}.col-xs-push-2{left:16.66666667%}.col-xs-push-1{left:8.33333333%}.col-xs-push-0{left:auto}.col-xs-offset-12{margin-left:100%}.col-xs-offset-11{margin-left:91.66666667%}.col-xs-offset-10{margin-left:83.33333333%}.col-xs-offset-9{margin-left:75%}.col-xs-offset-8{margin-left:66.66666667%}.col-xs-offset-7{margin-left:58.33333333%}.col-xs-offset-6{margin-left:50%}.col-xs-offset-5{margin-left:41.66666667%}.col-xs-offset-4{margin-left:33.33333333%}.col-xs-offset-3{margin-left:25%}.col-xs-offset-2{margin-left:16.66666667%}.col-xs-offset-1{margin-left:8.33333333%}.col-xs-offset-0{margin-left:0}@media (min-width:768px){.col-sm-1,.col-sm-10,.col-sm-11,.col-sm-12,.col-sm-2,.col-sm-3,.col-sm-4,.col-sm-5,.col-sm-6,.col-sm-7,.col-sm-8,.col-sm-9{float:left}.col-sm-12{width:100%}.col-sm-11{width:91.66666667%}.col-sm-10{width:83.33333333%}.col-sm-9{width:75%}.col-sm-8{width:66.66666667%}.col-sm-7{width:58.33333333%}.col-sm-6{width:50%}.col-sm-5{width:41.66666667%}.col-sm-4{width:33.33333333%}.col-sm-3{width:25%}.col-sm-2{width:16.66666667%}.col-sm-1{width:8.33333333%}.col-sm-pull-12{right:100%}.col-sm-pull-11{right:91.66666667%}.col-sm-pull-10{right:83.33333333%}.col-sm-pull-9{right:75%}.col-sm-pull-8{right:66.66666667%}.col-sm-pull-7{right:58.33333333%}.col-sm-pull-6{right:50%}.col-sm-pull-5{right:41.66666667%}.col-sm-pull-4{right:33.33333333%}.col-sm-pull-3{right:25%}.col-sm-pull-2{right:16.66666667%}.col-sm-pull-1{right:8.33333333%}.col-sm-pull-0{right:auto}.col-sm-push-12{left:100%}.col-sm-push-11{left:91.66666667%}.col-sm-push-10{left:83.33333333%}.col-sm-push-9{left:75%}.col-sm-push-8{left:66.66666667%}.col-sm-push-7{left:58.33333333%}.col-sm-push-6{left:50%}.col-sm-push-5{left:41.66666667%}.col-sm-push-4{left:33.33333333%}.col-sm-push-3{left:25%}.col-sm-push-2{left:16.66666667%}.col-sm-push-1{left:8.33333333%}.col-sm-push-0{left:auto}.col-sm-offset-12{margin-left:100%}.col-sm-offset-11{margin-left:91.66666667%}.col-sm-offset-10{margin-left:83.33333333%}.col-sm-offset-9{margin-left:75%}.col-sm-offset-8{margin-left:66.66666667%}.col-sm-offset-7{margin-left:58.33333333%}.col-sm-offset-6{margin-left:50%}.col-sm-offset-5{margin-left:41.66666667%}.col-sm-offset-4{margin-left:33.33333333%}.col-sm-offset-3{margin-left:25%}.col-sm-offset-2{margin-left:16.66666667%}.col-sm-offset-1{margin-left:8.33333333%}.col-sm-offset-0{margin-left:0}}@media (min-width:992px){.col-md-1,.col-md-10,.col-md-11,.col-md-12,.col-md-2,.col-md-3,.col-md-4,.col-md-5,.col-md-6,.col-md-7,.col-md-8,.col-md-9{float:left}.col-md-12{width:100%}.col-md-11{width:91.66666667%}.col-md-10{width:83.33333333%}.col-md-9{width:75%}.col-md-8{width:66.66666667%}.col-md-7{width:58.33333333%}.col-md-6{width:50%}.col-md-5{width:41.66666667%}.col-md-4{width:33.33333333%}.col-md-3{width:25%}.col-md-2{width:16.66666667%}.col-md-1{width:8.33333333%}.col-md-pull-12{right:100%}.col-md-pull-11{right:91.66666667%}.col-md-pull-10{right:83.33333333%}.col-md-pull-9{right:75%}.col-md-pull-8{right:66.66666667%}.col-md-pull-7{right:58.33333333%}.col-md-pull-6{right:50%}.col-md-pull-5{right:41.66666667%}.col-md-pull-4{right:33.33333333%}.col-md-pull-3{right:25%}.col-md-pull-2{right:16.66666667%}.col-md-pull-1{right:8.33333333%}.col-md-pull-0{right:auto}.col-md-push-12{left:100%}.col-md-push-11{left:91.66666667%}.col-md-push-10{left:83.33333333%}.col-md-push-9{left:75%}.col-md-push-8{left:66.66666667%}.col-md-push-7{left:58.33333333%}.col-md-push-6{left:50%}.col-md-push-5{left:41.66666667%}.col-md-push-4{left:33.33333333%}.col-md-push-3{left:25%}.col-md-push-2{left:16.66666667%}.col-md-push-1{left:8.33333333%}.col-md-push-0{left:auto}.col-md-offset-12{margin-left:100%}.col-md-offset-11{margin-left:91.66666667%}.col-md-offset-10{margin-left:83.33333333%}.col-md-offset-9{margin-left:75%}.col-md-offset-8{margin-left:66.66666667%}.col-md-offset-7{margin-left:58.33333333%}.col-md-offset-6{margin-left:50%}.col-md-offset-5{margin-left:41.66666667%}.col-md-offset-4{margin-left:33.33333333%}.col-md-offset-3{margin-left:25%}.col-md-offset-2{margin-left:16.66666667%}.col-md-offset-1{margin-left:8.33333333%}.col-md-offset-0{margin-left:0}}@media (min-width:1200px){.col-lg-1,.col-lg-10,.col-lg-11,.col-lg-12,.col-lg-2,.col-lg-3,.col-lg-4,.col-lg-5,.col-lg-6,.col-lg-7,.col-lg-8,.col-lg-9{float:left}.col-lg-12{width:100%}.col-lg-11{width:91.66666667%}.col-lg-10{width:83.33333333%}.col-lg-9{width:75%}.col-lg-8{width:66.66666667%}.col-lg-7{width:58.33333333%}.col-lg-6{width:50%}.col-lg-5{width:41.66666667%}.col-lg-4{width:33.33333333%}.col-lg-3{width:25%}.col-lg-2{width:16.66666667%}.col-lg-1{width:8.33333333%}.col-lg-pull-12{right:100%}.col-lg-pull-11{right:91.66666667%}.col-lg-pull-10{right:83.33333333%}.col-lg-pull-9{right:75%}.col-lg-pull-8{right:66.66666667%}.col-lg-pull-7{right:58.33333333%}.col-lg-pull-6{right:50%}.col-lg-pull-5{right:41.66666667%}.col-lg-pull-4{right:33.33333333%}.col-lg-pull-3{right:25%}.col-lg-pull-2{right:16.66666667%}.col-lg-pull-1{right:8.33333333%}.col-lg-pull-0{right:auto}.col-lg-push-12{left:100%}.col-lg-push-11{left:91.66666667%}.col-lg-push-10{left:83.33333333%}.col-lg-push-9{left:75%}.col-lg-push-8{left:66.66666667%}.col-lg-push-7{left:58.33333333%}.col-lg-push-6{left:50%}.col-lg-push-5{left:41.66666667%}.col-lg-push-4{left:33.33333333%}.col-lg-push-3{left:25%}.col-lg-push-2{left:16.66666667%}.col-lg-push-1{left:8.33333333%}.col-lg-push-0{left:auto}.col-lg-offset-12{margin-left:100%}.col-lg-offset-11{margin-left:91.66666667%}.col-lg-offset-10{margin-left:83.33333333%}.col-lg-offset-9{margin-left:75%}.col-lg-offset-8{margin-left:66.66666667%}.col-lg-offset-7{margin-left:58.33333333%}.col-lg-offset-6{margin-left:50%}.col-lg-offset-5{margin-left:41.66666667%}.col-lg-offset-4{margin-left:33.33333333%}.col-lg-offset-3{margin-left:25%}.col-lg-offset-2{margin-left:16.66666667%}.col-lg-offset-1{margin-left:8.33333333%}.col-lg-offset-0{margin-left:0}}table{background-color:transparent}table col[class*=col-]{position:static;display:table-column;float:none}table td[class*=col-],table th[class*=col-]{position:static;display:table-cell;float:none}caption{padding-top:6px;padding-bottom:6px;color:#777;text-align:left}th{text-align:left}.table{width:100%;max-width:100%;margin-bottom:17px}.table>tbody>tr>td,.table>tbody>tr>th,.table>tfoot>tr>td,.table>tfoot>tr>th,.table>thead>tr>td,.table>thead>tr>th{padding:6px;line-height:1.42857143;vertical-align:top;border-top:1px solid #ddd}.table>thead>tr>th{vertical-align:bottom;border-bottom:2px solid #ddd}.table>caption+thead>tr:first-child>td,.table>caption+thead>tr:first-child>th,.table>colgroup+thead>tr:first-child>td,.table>colgroup+thead>tr:first-child>th,.table>thead:first-child>tr:first-child>td,.table>thead:first-child>tr:first-child>th{border-top:0}.table>tbody+tbody{border-top:2px solid #ddd}.table .table{background-color:#fff}.table-condensed>tbody>tr>td,.table-condensed>tbody>tr>th,.table-condensed>tfoot>tr>td,.table-condensed>tfoot>tr>th,.table-condensed>thead>tr>td,.table-condensed>thead>tr>th{padding:3px}.table-bordered{border:1px solid #ddd}.table-bordered>tbody>tr>td,.table-bordered>tbody>tr>th,.table-bordered>tfoot>tr>td,.table-bordered>tfoot>tr>th,.table-bordered>thead>tr>td,.table-bordered>thead>tr>th{border:1px solid #ddd}.table-bordered>thead>tr>td,.table-bordered>thead>tr>th{border-bottom-width:2px}.table-striped>tbody>tr:nth-of-type(odd){background-color:#f9f9f9}.table-hover>tbody>tr:hover{background-color:#f5f5f5}.table>tbody>tr.active>td,.table>tbody>tr.active>th,.table>tbody>tr>td.active,.table>tbody>tr>th.active,.table>tfoot>tr.active>td,.table>tfoot>tr.active>th,.table>tfoot>tr>td.active,.table>tfoot>tr>th.active,.table>thead>tr.active>td,.table>thead>tr.active>th,.table>thead>tr>td.active,.table>thead>tr>th.active{background-color:#f5f5f5}.table-hover>tbody>tr.active:hover>td,.table-hover>tbody>tr.active:hover>th,.table-hover>tbody>tr:hover>.active,.table-hover>tbody>tr>td.active:hover,.table-hover>tbody>tr>th.active:hover{background-color:#e8e8e8}.table>tbody>tr.success>td,.table>tbody>tr.success>th,.table>tbody>tr>td.success,.table>tbody>tr>th.success,.table>tfoot>tr.success>td,.table>tfoot>tr.success>th,.table>tfoot>tr>td.success,.table>tfoot>tr>th.success,.table>thead>tr.success>td,.table>thead>tr.success>th,.table>thead>tr>td.success,.table>thead>tr>th.success{background-color:#dff0d8}.table-hover>tbody>tr.success:hover>td,.table-hover>tbody>tr.success:hover>th,.table-hover>tbody>tr:hover>.success,.table-hover>tbody>tr>td.success:hover,.table-hover>tbody>tr>th.success:hover{background-color:#d0e9c6}.table>tbody>tr.info>td,.table>tbody>tr.info>th,.table>tbody>tr>td.info,.table>tbody>tr>th.info,.table>tfoot>tr.info>td,.table>tfoot>tr.info>th,.table>tfoot>tr>td.info,.table>tfoot>tr>th.info,.table>thead>tr.info>td,.table>thead>tr.info>th,.table>thead>tr>td.info,.table>thead>tr>th.info{background-color:#d9edf7}.table-hover>tbody>tr.info:hover>td,.table-hover>tbody>tr.info:hover>th,.table-hover>tbody>tr:hover>.info,.table-hover>tbody>tr>td.info:hover,.table-hover>tbody>tr>th.info:hover{background-color:#c4e3f3}.table>tbody>tr.warning>td,.table>tbody>tr.warning>th,.table>tbody>tr>td.warning,.table>tbody>tr>th.warning,.table>tfoot>tr.warning>td,.table>tfoot>tr.warning>th,.table>tfoot>tr>td.warning,.table>tfoot>tr>th.warning,.table>thead>tr.warning>td,.table>thead>tr.warning>th,.table>thead>tr>td.warning,.table>thead>tr>th.warning{background-color:#fcf8e3}.table-hover>tbody>tr.warning:hover>td,.table-hover>tbody>tr.warning:hover>th,.table-hover>tbody>tr:hover>.warning,.table-hover>tbody>tr>td.warning:hover,.table-hover>tbody>tr>th.warning:hover{background-color:#faf2cc}.table>tbody>tr.danger>td,.table>tbody>tr.danger>th,.table>tbody>tr>td.danger,.table>tbody>tr>th.danger,.table>tfoot>tr.danger>td,.table>tfoot>tr.danger>th,.table>tfoot>tr>td.danger,.table>tfoot>tr>th.danger,.table>thead>tr.danger>td,.table>thead>tr.danger>th,.table>thead>tr>td.danger,.table>thead>tr>th.danger{background-color:#f2dede}.table-hover>tbody>tr.danger:hover>td,.table-hover>tbody>tr.danger:hover>th,.table-hover>tbody>tr:hover>.danger,.table-hover>tbody>tr>td.danger:hover,.table-hover>tbody>tr>th.danger:hover{background-color:#ebcccc}.table-responsive{min-height:.01%;overflow-x:auto}@media screen and (max-width:767px){.table-responsive{width:100%;margin-bottom:12.75px;overflow-y:hidden;-ms-overflow-style:-ms-autohiding-scrollbar;border:1px solid #ddd}.table-responsive>.table{margin-bottom:0}.table-responsive>.table>tbody>tr>td,.table-responsive>.table>tbody>tr>th,.table-responsive>.table>tfoot>tr>td,.table-responsive>.table>tfoot>tr>th,.table-responsive>.table>thead>tr>td,.table-responsive>.table>thead>tr>th{white-space:nowrap}.table-responsive>.table-bordered{border:0}.table-responsive>.table-bordered>tbody>tr>td:first-child,.table-responsive>.table-bordered>tbody>tr>th:first-child,.table-responsive>.table-bordered>tfoot>tr>td:first-child,.table-responsive>.table-bordered>tfoot>tr>th:first-child,.table-responsive>.table-bordered>thead>tr>td:first-child,.table-responsive>.table-bordered>thead>tr>th:first-child{border-left:0}.table-responsive>.table-bordered>tbody>tr>td:last-child,.table-responsive>.table-bordered>tbody>tr>th:last-child,.table-responsive>.table-bordered>tfoot>tr>td:last-child,.table-responsive>.table-bordered>tfoot>tr>th:last-child,.table-responsive>.table-bordered>thead>tr>td:last-child,.table-responsive>.table-bordered>thead>tr>th:last-child{border-right:0}.table-responsive>.table-bordered>tbody>tr:last-child>td,.table-responsive>.table-bordered>tbody>tr:last-child>th,.table-responsive>.table-bordered>tfoot>tr:last-child>td,.table-responsive>.table-bordered>tfoot>tr:last-child>th{border-bottom:0}}.clearfix:after,.clearfix:before,.container-fluid:after,.container-fluid:before,.container:after,.container:before,.dl-horizontal dd:after,.dl-horizontal dd:before,.row:after,.row:before{display:table;content:" "}.clearfix:after,.container-fluid:after,.container:after,.dl-horizontal dd:after,.row:after{clear:both}.center-block{display:block;margin-right:auto;margin-left:auto}.pull-right{float:right!important}.pull-left{float:left!important}.hide{display:none!important}.show{display:block!important}.invisible{visibility:hidden}.text-hide{font:0/0 a;color:transparent;text-shadow:none;background-color:transparent;border:0}.hidden{display:none!important}.affix{position:fixed}
+    </style>
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+
+            @top-center {
+                content: "Ergebnisse des RTR-Netztests";
+                font-size: 12px;
+            }
+            @bottom-center {
+                content: counter(page)  "/" counter(pages);
+                font-size: 12px;
+            }
+
+        }
+
+        @page:first {
+            @top-center {
+                content: none;
+            }
+
+            @bottom-center {
+                content: none;
+            }
+        }
+
+        h1 {
+            font-weight: bold;
+        }
+
+        .toc, .title-page, .user-details, .single-test, .test-list {
+            page-break-after: always;
+
+        }
+
+        .title-page {
+            text-align: center;
+        }
+
+        .title-page .date {
+            margin-top: 15cm;
+        }
+
+        .title-page .rtr-logo-title {
+            width: 12cm;
+            margin-bottom: 3cm;
+            margin-top: 2cm;
+        }
+
+        .toc ul li {
+            border-top: 1px dashed grey;
+            line-height: 1.8;
+        }
+
+        .toc>ul>li:first-child {
+            border-top: none;
+        }
+
+        .toc ul li a::after {
+            float: right;
+            content: target-counter(attr(href), page);
+        }
+
+        .toc ul {
+            list-style: none;
+            padding-left:0cm;
+            margin-left:0cm;
+        }
+
+        .toc ul ul li {
+            padding-left:0.2cm;
+            margin-left:0cm;
+        }
+
+        .toc ul a {
+            color: black;
+        }
+
+        .user-details .detail {
+            page-break-inside: avoid;
+        }
+
+    </style>
+
+
+
+</head>
+<body>
+<script type="text/x-handlebars" id="template">
+    <div class="title-page">
+        <img class="rtr-logo-title" src="data:image/png;base64,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" />
+        <h1>Ergebnisse des RTR-Netztests
+        </h1>
+        <p class="date">Ausdruck erstellt am: {{date}}</p>
+    </div>
+    <div class="toc">
+        <h2>Inhaltsverzeichnis</h2>
+        <ul>
+            <li><a href="#test-list">1. Durchgeführte Messungen</a></li>
+            <li><a href="#test-details">2. Einzelergebnisse</a></li>
+            <ul>
+                {{#each tests}}
+                    <li>2.<a href="#{{open_test_uuid}}">{{add @index 1}}. {{time}}</a></li>
+                {{/each}}
+            </ul>
+        </ul>
+    </div>
+    <div class="test-list" id="test-list">
+        <h2>Durchgeführte Messungen</h2>
+        <p>Folgende Messungen wurden durchgeführt</p>
+
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Zeitpunkt</th>
+                <th>Open Test UUID</th>
+                <th>Download<br/>(Mbit/s)</th>
+                <th>Upload<br/>(Mbit/s)</th>
+                <th>Ping<br/>(ms)</th>
+            </tr>
+            </thead>
+            <tbody>
+            {{#each tests}}
+                <tr>
+                    <th scope="row">{{add @index 1}}</th>
+                    <td>{{time}}</td>
+                    <td>{{open_test_uuid}}</td>
+                    <td>{{toMbit download_kbit}}</td>
+                    <td>{{toMbit upload_kbit}}</td>
+                    <td>{{twoSignificantDigits ping_ms}}</td>
+                </tr>
+            {{/each}}
+            </tbody>
+        </table>
+
+        {{#if loop_uuid}}
+        <p>Alle Ergebnisse sind unter folgender URL abrufbar<br/>
+            <a href="https://www.netztest.at/de/Opentests?loop_uuid={{loop_uuid}}">https://www.netztest.at/de/Opentests?loop_uuid={{loop_uuid}}</a>
+        </p>
+        {{/if }}
+    </div>
+
+    <div class="test-details" id="test-details">
+        {{#each tests}}
+        <div class="single-test">
+            <h2 id="{{open_test_uuid}}" >Messung {{add @index 1}}</h2>
+            <h3>Testergebnis</h3>
+            <table class="table table-striped">
+                <colgroup>
+                    <col class="col-xs-3"/>
+                    <col class="col-xs-9"/>
+                </colgroup>
+                <tr>
+                    <td>Download</td>
+                    <td>{{toMbit download_kbit}} Mbit/s</td>
+                </tr>
+                <tr>
+                    <td>Upload</td>
+                    <td>{{toMbit upload_kbit}} Mbit/s</td>
+                </tr>
+                <tr>
+                    <td>Ping</td>
+                    <td>{{twoSignificantDigits ping_ms}} ms</td>
+                </tr>
+                <tr>
+                    <td>Testzeitpunkt</td>
+                    <td>{{time}}</td>
+                </tr>
+                <tr>
+                    <td>Open-Test-UUID</td>
+                    <td>{{open_test_uuid}}</td>
+                </tr>
+            </table>
+            <p>
+                Dieses Ergebnis kann hier im Detail abgerufen werden: <br/><a href="https://www.netztest.at/de/Opentest?O{{open_test_uuid}}">https://www.netztest.at/de/Opentest?O{{open_test_uuid}}</a>
+            </p>
+
+            <h3>Detailergebnis</h3>
+            <table class="table table-striped table-condensed">
+                <colgroup>
+                    <col class="col-xs-3"/>
+                    <col class="col-xs-9"/>
+                </colgroup>
+                <tr>
+                    <td>Netztyp</td>
+                    <td>{{network_type}}</td>
+                </tr>
+                <tr>
+                    <td>Verbindungstechnologie</td>
+                    <td>{{cat_technology}}</td>
+                </tr>
+                {{#if position}}
+                <tr>
+                    <td>position</td>
+                    <td>{{position}}</td>
+                </tr>
+                {{/if}}
+                {{#if provider_name}}
+                <tr>
+                    <td>Betreiber</td>
+                    <td>{{provider_name}}</td>
+                </tr>
+                {{/if}}
+                <tr>
+                    <td>IP (anonymisiert)</td>
+                    <td>{{ip_anonym}}</td>
+                </tr>
+                {{#if connection}}
+                <tr>
+                    <td>NAT-Status</td>
+                    <td>{{connection}}</td>
+                </tr>
+                {{/if}}
+                <tr>
+                    <td>AS-Nummer</td>
+                    <td>{{asn}}</td>
+                </tr>
+                {{#if public_ip_as_name}}
+                <tr>
+                    <td>Name des IP-Netzwerks</td>
+                    <td>{{public_ip_as_name}}</td>
+                </tr>
+                {{/if}}
+                {{#if country_asn}}
+                <tr>
+                    <td>Land des AS</td>
+                    <td>{{country_asn}}</td>
+                </tr>
+                {{/if}}
+                <tr>
+                    <td>Plattform</td>
+                    <td>{{platform}}</td>
+                </tr>
+                {{#if model}}
+                <tr>
+                    <td>Modell</td>
+                    <td>{{model}}</td>
+                </tr>
+                {{/if}}
+                {{#if model_native}}
+                <tr>
+                    <td>Modell (Original</td>
+                    <td>{{model_native}}</td>
+                </tr>
+                {{/if}}
+                {{#if time_dl_ms}}
+                <tr>
+                    <td>Rel. Startzeitpunkt Download</td>
+                    <td>{{time_dl_ms}}</td>
+                </tr>
+                {{/if}}
+                {{#if duration_download_ms}}
+                <tr>
+                    <td>Downloaddauer</td>
+                    <td>{{duration_download_ms}}</td>
+                </tr>
+                {{/if}}
+                {{#if bytes_download}}
+                <tr>
+                    <td>Datenmenge Download</td>
+                    <td>{{bytes_download}}</td>
+                </tr>
+                {{/if}}
+                {{#if time_ul_ms}}
+                <tr>
+                    <td>Rel. Startzeitpunkt Upload</td>
+                    <td>{{time_ul_ms}}</td>
+                </tr>
+                {{/if}}
+                {{#if duration_upload_ms}}
+                <tr>
+                    <td>Uploaddauer</td>
+                    <td>{{duration_upload_ms}}</td>
+                </tr>
+                {{/if}}
+                {{#if bytes_upload}}
+                <tr>
+                    <td>Datenmenge Upload</td>
+                    <td>{{bytes_upload}}</td>
+                </tr>
+                {{/if}}
+                {{#if server_name}}
+                <tr>
+                    <td>Name Testserver</td>
+                    <td>{{server_name}}</td>
+                </tr>
+                {{/if}}
+                {{#if client_version}}
+                <tr>
+                    <td>RMBT-Version</td>
+                    <td>{{client_version}}</td>
+                </tr>
+                {{/if}}
+                {{#if test_duration}}
+                <tr>
+                    <td>Testdauer</td>
+                    <td>{{test_duration}}</td>
+                </tr>
+                {{/if}}
+                {{#if num_threads_requested}}
+                <tr>
+                    <td>Anzahl angef. Verbindungen</td>
+                    <td>{{num_threads_requested}}</td>
+                </tr>
+                {{/if}}
+                {{#if num_threads}}
+                <tr>
+                    <td>Parallele Verbindungen DL</td>
+                    <td>{{num_threads}}</td>
+                </tr>
+                {{/if}}
+                {{#if num_threads_ul}}
+                <tr>
+                    <td>Parallele Verbindungen UL</td>
+                    <td>{{num_threads_ul}}</td>
+                </tr>
+                {{/if}}
+                <tr>
+                    <td>Open-Test-UUID</td>
+                    <td>{{open_test_uuid}}</td>
+                </tr>
+                <tr>
+                    <td>Open-User-UUID</td>
+                    <td>{{open_uuid}}</td>
+                </tr>
+            </table>
+
+            <!-- <h3>Messpunkte Download</h3>
+            <table class="table table-striped table-condensed">
+                <colgroup>
+                    <col class="col-xs-2"/>
+                    <col class="col-xs-5"/>
+                </colgroup>
+                <thead>
+                <tr>
+                    <th>Zeit</th>
+                    <th>Übertragene Datenmenge</th>
+                </tr>
+                </thead>
+                <tbody>
+                {{#each speed_curve.download}}
+                    <tr>
+                        <td>{{time_elapsed}}</td>
+                        <td>{{bytes_total}}</td>
+                    </tr>
+                {{/each}}
+                </tbody>
+            </table>
+
+
+            <h3>Messpunkte Upload</h3>
+            <table class="table table-striped table-condensed">
+                <colgroup>
+                    <col class="col-xs-2"/>
+                    <col class="col-xs-5"/>
+                </colgroup>
+                <thead>
+                <tr>
+                    <th>Zeit</th>
+                    <th>Übertragene Datenmenge</th>
+                </tr>
+                </thead>
+                <tbody>
+                {{#each speed_curve.upload}}
+                    <tr>
+                        <td>{{time_elapsed}}</td>
+                        <td>{{bytes_total}}</td>
+                    </tr>
+                {{/each}}
+                </tbody>
+            </table>
+
+
+
+            <h3>Messpunkte Ping</h3>
+            <table class="table table-striped table-condensed">
+                <colgroup>
+                    <col class="col-xs-2"/>
+                    <col class="col-xs-5"/>
+                </colgroup>
+                <thead>
+                <tr>
+                    <th>Zeit</th>
+                    <th>Ping</th>
+                </tr>
+                </thead>
+                <tbody>
+                {{#each speed_curve.ping}}
+                    <tr>
+                        <td>{{time_elapsed}}</td>
+                        <td>{{ping_ms}}</td>
+                    </tr>
+                {{/each}}
+                </tbody>
+            </table>-->
+
+
+
+
+        </div>
+        {{/each}}
+
+    </div>
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.6/handlebars.js"></script>
+<script>
+    //some demo tests
+    const loop_uuid = 'L33c1a04c-610e-4060-8ae7-7c812b7eb512';
+    let allData = [];
+
+    fetch('https://m-cloud.netztest.at/RMBTStatisticServer/opentests/search?loop_uuid=' + loop_uuid)
+            .then(response => {
+                return response.json()
+            })
+            .then(tests => {
+                return Promise.all(
+                        tests.results.map(test => {
+                                    return fetch('https://m-cloud.netztest.at/RMBTStatisticServer/opentests/' + test.open_test_uuid)
+                                            .then(response => {
+                                                return response.json();
+                                            })
+                                            .then(test => {
+                                                allData.push(test);
+                                            })
+                                }
+                        ))
+            })
+
+    .then(done => {
+        //fill model
+        let model = {
+            tests: allData,
+            loop_uuid: loop_uuid,
+            date: (new Date()).toLocaleString()
+        };
+
+        var template = Handlebars.compile(document.querySelector("#template").innerHTML);
+        var html = template(model);
+
+        window.setTimeout(function() {
+            document.getElementsByTagName("body")[0].innerHTML = html;
+        }, 0);
+    })
+
+
+
+
+    //https://stackoverflow.com/questions/26529338/handlebars-js-template-with-custom-helper-to-slice-data-array
+    Handlebars.registerHelper('slice', function (context, limit, offset, block) {
+        var ret = "";
+        var i = (offset < context.length) ? offset : 0;
+        var j = ((limit + offset) < context.length) ? (limit + offset) : context.length;
+
+        for (i, j; i < j; i++) {
+            ret += block.fn(context[i]);
+        }
+        return ret;
+    });
+
+    Handlebars.registerHelper('IfLE', function(list, size, options) {
+        if (list.length <= size) {
+            return options.fn(this);
+        }
+        else {
+            return options.inverse(this);
+        }
+    });
+
+    //https://stackoverflow.com/questions/8853396/logical-operator-in-a-handlebars-js-if-conditional
+    Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
+        if (v1 instanceof Array) {
+            v1 = v1.length;
+        }
+
+
+        switch (operator) {
+            case '==':
+                return (v1 == v2) ? options.fn(this) : options.inverse(this);
+            case '===':
+                return (v1 === v2) ? options.fn(this) : options.inverse(this);
+            case '!=':
+                return (v1 != v2) ? options.fn(this) : options.inverse(this);
+            case '!==':
+                return (v1 !== v2) ? options.fn(this) : options.inverse(this);
+            case '<':
+            case '&lt;':
+                return (v1 < v2) ? options.fn(this) : options.inverse(this);
+            case '<=':
+            case '&lt;=':
+                return (v1 <= v2) ? options.fn(this) : options.inverse(this);
+            case '>':
+            case '&gt;':
+                return (v1 > v2) ? options.fn(this) : options.inverse(this);
+            case '>=':
+            case '&gt;=':
+                return (v1 >= v2) ? options.fn(this) : options.inverse(this);
+            case '&&':
+                return (v1 && v2) ? options.fn(this) : options.inverse(this);
+            case '||':
+                return (v1 || v2) ? options.fn(this) : options.inverse(this);
+            default:
+                return options.inverse(this);
+        }
+    });
+
+    //https://stackoverflow.com/a/11924998
+    Handlebars.registerHelper('times', function(n, block) {
+        var accum = '';
+        for(var i = 0; i < n; ++i)
+            accum += block.fn(i);
+        return accum;
+    });
+
+    Handlebars.registerHelper("add",(number, increment) => {
+        var iNumber = parseInt(number);
+        var sum = iNumber + increment;
+        return sum;
+    });
+
+    Handlebars.registerHelper("toMbit",(number) => {
+        return (number/1000).toLocaleString('de-DE',{maximumSignificantDigits:2});;
+    });
+
+    Handlebars.registerHelper("twoSignificantDigits",(number) => {
+        return number.toLocaleString('de-DE',{maximumSignificantDigits:2});
+    });
+
+</script>
+</body>
+</html>
