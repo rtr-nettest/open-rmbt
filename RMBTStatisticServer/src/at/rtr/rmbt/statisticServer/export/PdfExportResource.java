@@ -19,6 +19,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.codec.binary.Base64;
 import org.restlet.data.*;
 import org.restlet.representation.EmptyRepresentation;
 import org.restlet.representation.FileRepresentation;
@@ -27,8 +28,12 @@ import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
 import org.restlet.resource.Post;
 
+import javax.imageio.ImageIO;
 import javax.ws.rs.GET;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
@@ -112,6 +117,21 @@ public class PdfExportResource extends ServerResource {
             OpenTestDTO result = testIterator.next();
             OpenTestDetailsDTO singleTest = dao.getSingleOpenTestDetails(result.getOpenTestUuid(), 0);
             testIterator.set(singleTest);
+        }
+
+        //add further parameters, i.e. logos
+        InputStream resourceAsStream = getClass().getResourceAsStream("logo.png");
+        if (resourceAsStream != null) {
+            try {
+                BufferedImage img2 = ImageIO.read(resourceAsStream);
+                ByteArrayOutputStream os = new ByteArrayOutputStream();
+                ImageIO.write(img2, "png", os);
+                os.flush();
+                String imageAsBase64 = Base64.encodeBase64String(os.toByteArray());
+                data.put("logo", imageAsBase64);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
 
