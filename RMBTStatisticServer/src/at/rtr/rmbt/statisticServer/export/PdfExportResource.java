@@ -86,7 +86,9 @@ public class PdfExportResource extends ServerResource {
         final List<String> invalidElements = qp.parseQuery(getParameters);
 
         //only accept open_test_uuid and loop_uuid as input parameters
-        if (qp.getWhereParams().size() == 1 && (!qp.getWhereParams().containsKey("open_test_uuid") &&  !qp.getWhereParams().containsKey("loop_uuid"))) {
+        if (qp.getWhereParams().size() == 1 && (!qp.getWhereParams().containsKey("open_test_uuid") &&
+                !qp.getWhereParams().containsKey("test_uuid") &&
+                !qp.getWhereParams().containsKey("loop_uuid"))) {
             System.out.println(qp.getWhereParams().keySet());
             setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
             return new StringRepresentation("submit open_test_uuid or loop_uuid");
