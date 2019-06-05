@@ -54,6 +54,7 @@ public class GeoAnalytics {
 					if (maxAccuracy > totalDistance)
 						totalDistance = 0;
 				}
+				ps.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

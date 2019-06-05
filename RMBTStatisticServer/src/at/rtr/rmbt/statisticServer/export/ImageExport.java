@@ -115,6 +115,7 @@ public class ImageExport extends ServerResource {
             ps.setObject(1, uuid, Types.OTHER);
             rs = ps.executeQuery();
             if (!rs.next()) {
+                ps.close();
                 setStatus(Status.CLIENT_ERROR_NOT_FOUND);
                 return new StringRepresentation("invalid uuid");
             }
@@ -150,6 +151,7 @@ public class ImageExport extends ServerResource {
 
 
             };
+            ps.close();
             return result;
 
         } catch (SQLException e) {
