@@ -532,6 +532,7 @@ public class RegistrationResource extends ServerResource
                                             answer.put("test_token", token);
                                             
                                             answer.put("test_uuid", testUuid);
+                                            answer.put("open_test_uuid", "O" + testOpenUuid);
                                             answer.put("test_id", key);
 
                                             if (loopModeSettings != null) {
