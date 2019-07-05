@@ -86,7 +86,7 @@ public class QueryParser {
     private final ResourceBundle settings = ResourceManager.getCfgBundle();
 
     //all fields for which the user can sort the result
-    private static final HashSet<String> openDataFieldsSortable = new HashSet<>(Arrays.asList(new String[]{"download_kbit","upload_kbit","time","signal_strength","ping_ms"}));
+    private static final HashSet<String> openDataFieldsSortable = new HashSet<>(Arrays.asList(new String[]{"download_kbit","upload_kbit","time","signal_strength","lte_rsrp","ping_ms"}));
     
     private final Map<String, List<SingleParameter>> whereParams = new HashMap<>();
     private final Map<String, SingleParameterTransformator> transformators = new HashMap<>();
@@ -124,6 +124,8 @@ public class QueryParser {
         allowedFields.put("platform[]", FieldType.STRING);
         allowedFields.put("signal_strength", FieldType.LONG);
         allowedFields.put("signal_strength[]", FieldType.LONG);
+        allowedFields.put("lte_rsrp", FieldType.LONG);
+        allowedFields.put("lte_rsrp[]", FieldType.LONG);
         allowedFields.put("open_uuid",FieldType.UUID);
         allowedFields.put("open_test_uuid",FieldType.UUID);
         allowedFields.put("client_uuid",FieldType.UUID);
@@ -380,8 +382,11 @@ public class QueryParser {
         }
         else if (sortBy.equals("signal_strength")) {
             sortBy= "t.signal_strength";
-        } 
-        
+        }
+        else if (sortBy.equals("lte_rsrp")) {
+            sortBy= "t.lte_rsrp";
+        }
+
         String ret = " ORDER BY " + sortBy + " " + sortOrder;
         return ret;
     }
@@ -670,6 +675,9 @@ public class QueryParser {
         }
         else if (opendataField.equals("gkz")) {
             ret.add("t.gkz_bev");
+        }
+        else if (opendataField.equals("lte_rsrp")) {
+            ret.add("t.lte_rsrp");
         }
          return ret;
     }
