@@ -89,7 +89,7 @@ public class ContextListener implements ServletContextListener
                     e.printStackTrace();
                 }
             }
-        }, 0, 24, TimeUnit.HOURS);
+        }, 1, 24, TimeUnit.HOURS);
 
         scheduler.scheduleAtFixedRate(new Runnable() {
             @Override
