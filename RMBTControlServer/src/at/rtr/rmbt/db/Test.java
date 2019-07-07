@@ -44,15 +44,22 @@ public class Test extends Table
             " pMob.shortname mobile_provider_name," +
             " pSim.shortname network_sim_operator_mcc_mnc_text," +
             " pPro.shortname provider_id_name," +
-            " t.land_cover land_cover," +
-            " t.kg_nr_bev kg_nr_bev," +
-            " t.gkz_bev gkz_bev," +
-            " t.gkz_sa gkz_sa," +
+            " tl.land_cover land_cover," +
+            " tl.kg_nr_bev kg_nr_bev," +
+            " tl.gkz_bev gkz_bev," +
+            " tl.gkz_sa gkz_sa," +
+            " tl.settlement_type settlement_type," +
+            " tl.link_id link_id," +
+            " tl.link_name link_name," +
+            " tl.link_distance link_distance," +
+            " tl.edge_id edge_id," +
+            " tl.frc link_frc," +
+            " ln.name1 link_name1," +
+            " ln.name2 link_name2," +
             " k.kg locality," +
             " k.pg community," +
             " k.pb district," +
             " k.bl province," +
-            " t.land_cover land_cover," +
             " COALESCE(adm.fullname, t.model) model_fullname," +
             " pServ.name server_name" +
             " FROM test t" +
@@ -64,7 +71,9 @@ public class Test extends Table
             " ON t.mobile_provider_id=pMob.uid" +
             " LEFT JOIN device_map adm ON adm.codename=t.model" +
             " LEFT JOIN test_server pServ ON t.server_id=pServ.uid" +
-            " LEFT JOIN bev_vgd k ON t.kg_nr_bev = k.kg_nr_int";
+            " LEFT JOIN bev_vgd k ON t.kg_nr_bev = k.kg_nr_int" +
+            " LEFT JOIN test_location tl ON t.open_test_uuid = tl.open_test_uuid" +
+            " LEFT JOIN linknet ln on tl.link_id = ln.link_id";
     
     private final static ThreadLocal<Field[]> PER_THREAD_FIELDS = new ThreadLocal<Field[]>() {
         protected Field[] initialValue() {
@@ -161,6 +170,14 @@ public class Test extends Table
             new StringField("community",null,true),
             new StringField("district",null,true),
             new StringField("province",null,true),
+            new IntField("settlement_type",null,true),
+            new IntField("link_id",null,true),
+            new StringField("link_name",null,true),
+            new IntField("link_distance",null,true),
+            new IntField("edge_id",null,true),
+            new IntField("link_frc",null,true),
+            new StringField("link_name1",null,true),
+            new StringField("link_name2",null,true),
             new StringField("provider_id_name", null, true),
             new StringField("geo_provider", "provider"),
             new DoubleField("geo_accuracy", "accuracy"),

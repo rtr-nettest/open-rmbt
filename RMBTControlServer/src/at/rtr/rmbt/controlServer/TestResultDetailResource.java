@@ -318,6 +318,56 @@ public class TestResultDetailResource extends ServerResource
                         {
                             addString(resultList, "land_cover", landCoverField.toString());
                         }
+
+                        final Field settlementTypeField = test.getField("settlement_type");
+                        if (!settlementTypeField.isNull())
+                        {
+                            addString(resultList, "settlement_type", settlementTypeField.toString());
+                        }
+
+                        final Field linkIdField = test.getField("link_id");
+                        if (!linkIdField.isNull())
+                        {
+                            addString(resultList, "link_id", linkIdField.toString());
+                        }
+
+                        final Field linkNameField = test.getField("link_name");
+                        if (!linkNameField.isNull())
+                        {
+                            addString(resultList, "link_name", linkNameField.toString());
+                        }
+
+                        final Field linkDistanceField = test.getField("link_distance");
+                        if (!linkDistanceField.isNull())
+                        {
+                            addString(resultList, "link_distance", linkDistanceField.toString());
+                        }
+
+                        final Field edgeIdField = test.getField("edge_id");
+                        if (!edgeIdField.isNull())
+                        {
+                            addString(resultList, "edge_id", edgeIdField.toString());
+                        }
+
+                        final Field linkFrcField = test.getField("link_frc");
+                        if (!linkFrcField.isNull())
+                        {
+                            addString(resultList, "link_frc", linkFrcField.toString());
+                        }
+
+                        final Field linkName1Field = test.getField("link_name1");
+                        if (!linkName1Field.isNull())
+                        {
+                            addString(resultList, "link_name1", linkName1Field.toString());
+                        }
+
+                        final Field linkName2Field = test.getField("link_name2");
+                        if (!linkName2Field.isNull())
+
+                        {
+                            addString(resultList, "link_name2", linkName2Field.toString());
+                        }
+
                         // public client ip (private)
                         addString(resultList, "client_public_ip", test.getField("client_public_ip"));
 
