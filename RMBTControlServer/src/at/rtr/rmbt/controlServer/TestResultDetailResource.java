@@ -316,7 +316,9 @@ public class TestResultDetailResource extends ServerResource
                         final Field landCoverField = test.getField("land_cover");
                         if (!landCoverField.isNull())
                         {
-                            addString(resultList, "land_cover", landCoverField.toString());
+                            addString(resultList, "land_cover",
+                                            String.format(Locale.ENGLISH, "%d (%s)", landCoverField.intValue(),
+                                                    labels.getString("value_corine_" + landCoverField.intValue())));
                         }
 
                         final Field settlementTypeField = test.getField("settlement_type");
