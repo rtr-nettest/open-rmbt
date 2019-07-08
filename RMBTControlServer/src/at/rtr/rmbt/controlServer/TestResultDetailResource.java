@@ -347,13 +347,6 @@ public class TestResultDetailResource extends ServerResource
                             }
                         }
 
-                        addString(
-                                resultList,
-                                "signal_rsrp",
-                                String.format(Locale.ENGLISH,"%d %s", lteRsrpField.intValue(),
-                                        labels.getString("RESULT_SIGNAL_UNIT")));
-
-
 
                         final Field linkIdField = test.getField("link_id");
                         if (!linkIdField.isNull())
