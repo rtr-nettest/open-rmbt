@@ -320,10 +320,38 @@ public class TestResultDetailResource extends ServerResource
                         }
 
                         final Field settlementTypeField = test.getField("settlement_type");
-                        if (!settlementTypeField.isNull())
-                        {
-                            addString(resultList, "settlement_type", settlementTypeField.toString());
+                        if (!settlementTypeField.isNull()) {
+                            switch (settlementTypeField.intValue()) {
+                                case 1:
+                                    // No settlement area
+                                    addString(resultList, "settlement_type",
+                                            String.format(Locale.ENGLISH, "%d (%s)", settlementTypeField.intValue(),
+                                                    labels.getString("value_no_settlement_area")));
+                                    break;
+                                case 2:
+                                    // Habitable area
+                                    addString(resultList, "settlement_type",
+                                            String.format(Locale.ENGLISH, "%d (%s)", settlementTypeField.intValue(),
+                                                    labels.getString("value_habitable_area")));
+                                    break;
+                                case 3:
+                                    // Settlement area
+                                    addString(resultList, "settlement_type",
+                                            String.format(Locale.ENGLISH, "%d (%s)", settlementTypeField.intValue(),
+                                                    labels.getString("value_settlement_area")));
+                                    break;
+                                default:
+                                    // invalid type
+                            }
                         }
+
+                        addString(
+                                resultList,
+                                "signal_rsrp",
+                                String.format(Locale.ENGLISH,"%d %s", lteRsrpField.intValue(),
+                                        labels.getString("RESULT_SIGNAL_UNIT")));
+
+
 
                         final Field linkIdField = test.getField("link_id");
                         if (!linkIdField.isNull())
