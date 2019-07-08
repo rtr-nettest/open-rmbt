@@ -632,10 +632,10 @@ public class QueryParser {
             ret.add("l.loop_uuid");
         }
         else if (opendataField.equals("lat")) {
-            ret.add("t.geo_lat");
+            ret.add("tl.geo_lat");
         }
         else if (opendataField.equals("long")) {
-            ret.add("t.geo_long");
+            ret.add("tl.geo_long");
         }
         else if (opendataField.equals("sim_mcc_mnc")) {
             ret.add("network_sim_operator");
@@ -647,7 +647,7 @@ public class QueryParser {
             ret.add("public_ip_asn");
         }
         else if (opendataField.equals("loc_accuracy")) {
-        	ret.add("t.geo_accuracy");
+        	ret.add("tl.geo_accuracy");
         }
         else if (opendataField.equals("ip_anonym")) {
         	ret.add("client_public_ip_anonymized");
@@ -674,7 +674,7 @@ public class QueryParser {
             ret.add("t.cell_location_id");
         }
         else if (opendataField.equals("gkz")) {
-            ret.add("t.gkz_bev");
+            ret.add("tl.gkz_bev");
         }
         else if (opendataField.equals("lte_rsrp")) {
             ret.add("t.lte_rsrp");
@@ -774,7 +774,8 @@ public class QueryParser {
                 " LEFT JOIN provider prov ON provider_id = prov.uid " +
                 " LEFT JOIN provider mprov ON mobile_provider_id = mprov.uid" +
                 " LEFT JOIN mccmnc2name msim ON mobile_sim_id = msim.uid " + //TODO: finalize migration to msim/mnwk
-                " LEFT JOIN client c ON client_id = c.uid ";
+                " LEFT JOIN client c ON client_id = c.uid " +
+                " LEFT JOIN test_location tl ON t.open_test_uuid = tl.open_test_uuid";
     }
     
     public static class SingleParameter {
