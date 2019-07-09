@@ -38,12 +38,33 @@ public class Test extends Table
 {
     
     // Interface for Table Test
-    
+
     private final static String SELECT = "SELECT" +
-            " t.*," +
+            " t.uid, t.uuid, t.client_id, t.client_version, t.client_name, t.client_language, t.client_ip_local," +
+            " t.client_ip_local_anonymized, t.client_ip_local_type, t.token, t.server_id, t.port, t.use_ssl, t.time," +
+            " t.client_time, t.speed_upload, t.speed_download, t.ping_shortest, t.ping_median, t.client_public_ip," +
+            " t.client_public_ip_anonymized, t.plattform, t.os_version, t.api_level, t.device, t.model, t.product," +
+            " t.phone_type, t.data_state, t.network_country, t.network_operator, t.network_operator_name," +
+            " t.network_sim_country, t.network_sim_operator, t.network_sim_operator_name, t.roaming_type," +
+            " t.wifi_ssid, t.wifi_bssid, t.wifi_network_id, t.duration, t.num_threads, t.status, t.timezone," +
+            " t.bytes_download, t.bytes_upload, t.nsec_download, t.nsec_upload, t.server_ip, t.source_ip,"+
+            " t.source_ip_anonymized, t.client_software_version, t.network_type," +
+            " t.signal_strength, t.lte_rsrp, t.lte_rsrq, t.software_revision, t.client_test_counter, t.nat_type," +
+            " t.client_previous_test_status, t.public_ip_asn, t.public_ip_rdns, t.public_ip_as_name, t.country_geoip," +
+            " t.country_location, t.country_asn, t.total_bytes_download, t.total_bytes_upload, t.wifi_link_speed," +
+            " t.network_is_roaming, t.provider_id, t.open_uuid, t.open_test_uuid, t.geo_location_uuid, " +
+             "t.test_if_bytes_download, t.test_if_bytes_upload, t.testdl_if_bytes_download,"+
+            " t.testdl_if_bytes_upload, t.testul_if_bytes_download, t.testul_if_bytes_upload , t.time_dl_ns," +
+            " t.time_ul_ns, t.num_threads_ul  , t.tag, t.hidden_code, t.user_server_selection, t.dual_sim," +
+            " t.android_permissions, t.dual_sim_detection_method, t.radio_band, t.cell_location_id," +
+            " t.cell_area_code, t.channel_number, t.sim_count," +
             " pMob.shortname mobile_provider_name," +
             " pSim.shortname network_sim_operator_mcc_mnc_text," +
             " pPro.shortname provider_id_name," +
+            " tl.geo_lat geo_lat," +
+            " tl.geo_long geo_long," +
+            " tl.geo_provider geo_provider," +
+            " tl.geo_accuracy," +
             " tl.land_cover land_cover," +
             " tl.kg_nr_bev kg_nr_bev," +
             " tl.gkz_bev gkz_bev," +
@@ -71,8 +92,8 @@ public class Test extends Table
             " ON t.mobile_provider_id=pMob.uid" +
             " LEFT JOIN device_map adm ON adm.codename=t.model" +
             " LEFT JOIN test_server pServ ON t.server_id=pServ.uid" +
-            " LEFT JOIN bev_vgd k ON t.kg_nr_bev = k.kg_nr_int" +
             " LEFT JOIN test_location tl ON t.open_test_uuid = tl.open_test_uuid" +
+            " LEFT JOIN bev_vgd k ON tl.kg_nr_bev = k.kg_nr_int" +
             " LEFT JOIN linknet ln on tl.link_id = ln.link_id";
     
     private final static ThreadLocal<Field[]> PER_THREAD_FIELDS = new ThreadLocal<Field[]>() {
