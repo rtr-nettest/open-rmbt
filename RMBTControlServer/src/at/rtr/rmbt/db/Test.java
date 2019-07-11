@@ -51,7 +51,7 @@ public class Test extends Table
             " t.source_ip_anonymized, t.client_software_version, t.network_type," +
             " t.signal_strength, t.lte_rsrp, t.lte_rsrq, t.software_revision, t.client_test_counter, t.nat_type," +
             " t.client_previous_test_status, t.public_ip_asn, t.public_ip_rdns, t.public_ip_as_name, t.country_geoip," +
-            " t.country_location, t.country_asn, t.total_bytes_download, t.total_bytes_upload, t.wifi_link_speed," +
+            " t.country_asn, t.total_bytes_download, t.total_bytes_upload, t.wifi_link_speed," +
             " t.network_is_roaming, t.provider_id, t.open_uuid, t.open_test_uuid, t.geo_location_uuid, " +
              "t.test_if_bytes_download, t.test_if_bytes_upload, t.testdl_if_bytes_download,"+
             " t.testdl_if_bytes_upload, t.testul_if_bytes_download, t.testul_if_bytes_upload , t.time_dl_ns," +
@@ -62,6 +62,7 @@ public class Test extends Table
             " pSim.shortname network_sim_operator_mcc_mnc_text," +
             " pPro.shortname provider_id_name," +
             " tl.geo_lat geo_lat," +
+            " tl.country_location," +
             " tl.geo_long geo_long," +
             " tl.geo_provider geo_provider," +
             " tl.geo_accuracy," +
