@@ -52,6 +52,8 @@ import at.rtr.rmbt.shared.SignificantFormat;
 import at.rtr.rmbt.shared.GeoAnalytics;
 import at.rtr.rmbt.util.BandCalculationUtil;
 
+import static java.lang.Math.round;
+
 public class TestResultDetailResource extends ServerResource
 {
 	
@@ -254,6 +256,23 @@ public class TestResultDetailResource extends ServerResource
                         	if (locationJson.has("location")) {
                         		addString(resultList, "location", locationJson.getString("location"));
                         	}
+                            final Field geoAltitudeField = test.getField("geo_altitude");
+                            if (!geoAltitudeField.isNull()) {
+                                addString(resultList,"geo_altitude",
+                                        String.format(Locale.ENGLISH, "%d %s", geoAltitudeField.intValue(),labels.getString("RESULT_METER_UNIT")));
+
+                            }
+                            final Field dhmLevelField = test.getField("dhm_level");
+                            if (!dhmLevelField.isNull()) {
+                                addString(resultList,"dhm_level",
+                                        String.format(Locale.ENGLISH, "%d %s", dhmLevelField.intValue(),labels.getString("RESULT_METER_UNIT")));
+                            }
+
+                            final Field geoSpeedField = test.getField("geo_speed");
+                            if (!geoSpeedField.isNull() && geoSpeedField.floatValue() > 0.1) {
+                                addString(resultList,"geo_speed",
+                                        String.format(Locale.ENGLISH, "%d %s", round(3.6*geoSpeedField.intValue()),labels.getString("RESULT_KILOMETER_PER_HOUR_UNIT")));
+                            }
                         	if (locationJson.has("country_location")) {
                         		addString(resultList, "country_location", locationJson.getString("country_location"));
                         	}
@@ -312,6 +331,7 @@ public class TestResultDetailResource extends ServerResource
                         {
                             addString(resultList, "gkz_sa", gkzSaField.toString());
                         }
+
 
                         final Field landCoverField = test.getField("land_cover");
                         if (!landCoverField.isNull())
@@ -466,7 +486,7 @@ public class TestResultDetailResource extends ServerResource
                             //lte frequency
                             String query = "SELECT DISTINCT channel_number, technology" +
                                     "  FROM radio_cell" +
-                                    "  WHERE open_test_uuid = ? AND active = true AND NOT technology = 'WLAN';";
+                                    "  WHERE open_test_uuid = ? AND active AND NOT technology = 'WLAN';";
                             try {
                                 PreparedStatement ps = conn.prepareStatement(query);
                                 //System.out.println(ps);
@@ -787,7 +807,7 @@ public class TestResultDetailResource extends ServerResource
                 GeoAnalytics.TestDistance dist = new GeoAnalytics.TestDistance(openTestUuid, conn);
                 if ((dist != null) && (dist.getTotalDistance() > 0) &&
                         dist.getTotalDistance() <= Double.parseDouble(settings.getString("RMBT_GEO_DISTANCE_DETAIL_LIMIT"))) {
-                    json.put("motion", Math.round(dist.getTotalDistance()) + " m");
+                    json.put("motion", round(dist.getTotalDistance()) + " m");
                 }
             }
             

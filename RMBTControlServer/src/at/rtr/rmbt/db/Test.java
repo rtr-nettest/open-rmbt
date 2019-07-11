@@ -76,6 +76,9 @@ public class Test extends Table
             " tl.link_distance link_distance," +
             " tl.edge_id edge_id," +
             " tl.frc link_frc," +
+            " tl.dhm_level," +
+            " gl.altitude geo_altitude," +
+            " gl.speed geo_speed," +
             " ln.name1 link_name1," +
             " ln.name2 link_name2," +
             " k.kg locality," +
@@ -95,7 +98,8 @@ public class Test extends Table
             " LEFT JOIN test_server pServ ON t.server_id=pServ.uid" +
             " LEFT JOIN test_location tl ON t.open_test_uuid = tl.open_test_uuid" +
             " LEFT JOIN bev_vgd k ON tl.kg_nr_bev = k.kg_nr_int" +
-            " LEFT JOIN linknet ln on tl.link_id = ln.link_id";
+            " LEFT JOIN linknet ln ON tl.link_id = ln.link_id" +
+            " LEFT JOIN geo_location gl ON tl.geo_location_uuid = gl.geo_location_uuid";
     
     private final static ThreadLocal<Field[]> PER_THREAD_FIELDS = new ThreadLocal<Field[]>() {
         protected Field[] initialValue() {
@@ -200,6 +204,9 @@ public class Test extends Table
             new IntField("link_frc",null,true),
             new StringField("link_name1",null,true),
             new StringField("link_name2",null,true),
+            new IntField("dhm_level",null,true),
+            new IntField("geo_altitude",null,true),
+            new IntField("geo_speed",null,true),
             new StringField("provider_id_name", null, true),
             new StringField("geo_provider", "provider"),
             new DoubleField("geo_accuracy", "accuracy"),

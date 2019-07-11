@@ -19,6 +19,8 @@
   "tags" : [ {
     "name" : "export"
   }, {
+    "name" : "exportpdf"
+  }, {
     "name" : "opentests"
   }, {
     "name" : "opentestssearch"
@@ -58,6 +60,35 @@
             "description" : "successful operation",
             "schema" : {
               "$ref" : "#/definitions/OpenTestExportDTO"
+            }
+          }
+        }
+      }
+    },
+    "/export/pdf" : {
+      "get" : {
+        "tags" : [ "exportpdf" ],
+        "summary" : "Export open data as PDF",
+        "description" : "",
+        "operationId" : "exportPdf",
+        "parameters" : [ {
+          "name" : "open_test_uuid",
+          "in" : "query",
+          "description" : "The UUID of the test.",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "loop_uuid",
+          "in" : "query",
+          "description" : "The loop UUID of a single loop test",
+          "required" : false,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/Representation"
             }
           }
         }
@@ -142,6 +173,12 @@
           "name" : "signal_strength",
           "in" : "query",
           "description" : "Signal strength (RSSI) in dBm.",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "lte_rsrp",
+          "in" : "query",
+          "description" : "LTE signal strength in dBm.",
           "required" : false,
           "type" : "string"
         }, {
@@ -296,7 +333,7 @@
         }, {
           "name" : "sort_by",
           "in" : "query",
-          "description" : "The field for which the data are sorted. Valid fields are: “download_kbit\", \"upload_kbit\", \"time\", \"signal_strength\" and \"ping_ms\"",
+          "description" : "The field for which the data are sorted. Valid fields are: “download_kbit\", \"upload_kbit\", \"time\", \"signal_strength\", \"lte_rsrp\" and \"ping_ms\"",
           "required" : false,
           "type" : "string",
           "x-example" : "download_kbit"
@@ -511,6 +548,92 @@
         }
       }
     },
+    "CharacterSet" : {
+      "type" : "object",
+      "properties" : {
+        "description" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string"
+        },
+        "parent" : {
+          "$ref" : "#/definitions/Metadata"
+        }
+      }
+    },
+    "Digest" : {
+      "type" : "object",
+      "properties" : {
+        "algorithm" : {
+          "type" : "string"
+        },
+        "value" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string",
+            "format" : "byte"
+          }
+        }
+      }
+    },
+    "Disposition" : {
+      "type" : "object",
+      "properties" : {
+        "parameters" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/Parameter"
+          }
+        },
+        "type" : {
+          "type" : "string"
+        },
+        "filename" : {
+          "type" : "string"
+        }
+      }
+    },
+    "Encoding" : {
+      "type" : "object",
+      "properties" : {
+        "description" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string"
+        },
+        "parent" : {
+          "$ref" : "#/definitions/Metadata"
+        }
+      }
+    },
+    "InputStream" : {
+      "type" : "object"
+    },
+    "Language" : {
+      "type" : "object",
+      "properties" : {
+        "description" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string"
+        },
+        "subTags" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "parent" : {
+          "$ref" : "#/definitions/Language"
+        },
+        "primaryTag" : {
+          "type" : "string"
+        }
+      }
+    },
     "LocationGraphItem" : {
       "type" : "object",
       "properties" : {
@@ -560,6 +683,49 @@
           "type" : "string",
           "example" : "gps",
           "description" : "Source for the geo location-data. Values: “gps”, “network”."
+        }
+      }
+    },
+    "MediaType" : {
+      "type" : "object",
+      "properties" : {
+        "description" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string"
+        },
+        "parameters" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/Parameter"
+          }
+        },
+        "parent" : {
+          "$ref" : "#/definitions/MediaType"
+        },
+        "concrete" : {
+          "type" : "boolean"
+        },
+        "subType" : {
+          "type" : "string"
+        },
+        "mainType" : {
+          "type" : "string"
+        }
+      }
+    },
+    "Metadata" : {
+      "type" : "object",
+      "properties" : {
+        "description" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string"
+        },
+        "parent" : {
+          "$ref" : "#/definitions/Metadata"
         }
       }
     },
@@ -1133,6 +1299,12 @@
           "example" : 0,
           "description" : "Functional road class (as defined by GIP)."
         },
+        "dhm_level" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : 789,
+          "description" : "See level based on digital height modell"
+        },
         "speed_curve" : {
           "description" : "Aggregated history of transferred data bytes during a test.",
           "$ref" : "#/definitions/OpenTestGraphDTO"
@@ -1346,6 +1518,12 @@
           "example" : 0,
           "description" : "Functional road class (as defined by GIP)."
         },
+        "dhm_level" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : 789,
+          "description" : "See level based on digital height modell"
+        },
         "signal_classification" : {
           "type" : "integer",
           "format" : "int32",
@@ -1430,6 +1608,23 @@
         }
       }
     },
+    "Parameter" : {
+      "type" : "object",
+      "properties" : {
+        "first" : {
+          "type" : "string"
+        },
+        "second" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string"
+        },
+        "value" : {
+          "type" : "string"
+        }
+      }
+    },
     "PingGraphItemDTO" : {
       "type" : "object",
       "properties" : {
@@ -1444,6 +1639,300 @@
           "format" : "int64",
           "example" : 55,
           "description" : "The time elapsed since the start of the test in milliseconds."
+        }
+      }
+    },
+    "Protocol" : {
+      "type" : "object",
+      "properties" : {
+        "confidential" : {
+          "type" : "boolean"
+        },
+        "defaultPort" : {
+          "type" : "integer",
+          "format" : "int32"
+        },
+        "description" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string"
+        },
+        "schemeName" : {
+          "type" : "string"
+        },
+        "technicalName" : {
+          "type" : "string"
+        },
+        "version" : {
+          "type" : "string"
+        }
+      }
+    },
+    "Range" : {
+      "type" : "object",
+      "properties" : {
+        "index" : {
+          "type" : "integer",
+          "format" : "int64"
+        },
+        "size" : {
+          "type" : "integer",
+          "format" : "int64"
+        }
+      }
+    },
+    "ReadableByteChannel" : {
+      "type" : "object",
+      "properties" : {
+        "open" : {
+          "type" : "boolean"
+        }
+      }
+    },
+    "Reader" : {
+      "type" : "object"
+    },
+    "Reference" : {
+      "type" : "object",
+      "properties" : {
+        "baseRef" : {
+          "$ref" : "#/definitions/Reference"
+        },
+        "absolute" : {
+          "type" : "boolean"
+        },
+        "path" : {
+          "type" : "string"
+        },
+        "opaque" : {
+          "type" : "boolean"
+        },
+        "scheme" : {
+          "type" : "string"
+        },
+        "authority" : {
+          "type" : "string"
+        },
+        "fragment" : {
+          "type" : "string"
+        },
+        "query" : {
+          "type" : "string"
+        },
+        "userInfo" : {
+          "type" : "string"
+        },
+        "extensions" : {
+          "type" : "string"
+        },
+        "schemeSpecificPart" : {
+          "type" : "string"
+        },
+        "identifier" : {
+          "type" : "string"
+        },
+        "segments" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "queryAsForm" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/Parameter"
+          }
+        },
+        "matrixAsForm" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/Parameter"
+          }
+        },
+        "matrix" : {
+          "type" : "string"
+        },
+        "targetRef" : {
+          "$ref" : "#/definitions/Reference"
+        },
+        "hostDomain" : {
+          "type" : "string"
+        },
+        "hostPort" : {
+          "type" : "integer",
+          "format" : "int32"
+        },
+        "lastSegment" : {
+          "type" : "string"
+        },
+        "hierarchical" : {
+          "type" : "boolean"
+        },
+        "relativePart" : {
+          "type" : "string"
+        },
+        "parentRef" : {
+          "$ref" : "#/definitions/Reference"
+        },
+        "remainingPart" : {
+          "type" : "string"
+        },
+        "relativeRef" : {
+          "$ref" : "#/definitions/Reference"
+        },
+        "relative" : {
+          "type" : "boolean"
+        },
+        "schemeProtocol" : {
+          "$ref" : "#/definitions/Protocol"
+        },
+        "hierarchicalPart" : {
+          "type" : "string"
+        },
+        "hostIdentifier" : {
+          "type" : "string"
+        },
+        "extensionsAsArray" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        }
+      }
+    },
+    "Representation" : {
+      "type" : "object",
+      "properties" : {
+        "characterSet" : {
+          "$ref" : "#/definitions/CharacterSet"
+        },
+        "encodings" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/Encoding"
+          }
+        },
+        "locationRef" : {
+          "$ref" : "#/definitions/Reference"
+        },
+        "languages" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/Language"
+          }
+        },
+        "mediaType" : {
+          "$ref" : "#/definitions/MediaType"
+        },
+        "modificationDate" : {
+          "type" : "string",
+          "format" : "date-time"
+        },
+        "tag" : {
+          "$ref" : "#/definitions/Tag"
+        },
+        "available" : {
+          "type" : "boolean"
+        },
+        "digest" : {
+          "$ref" : "#/definitions/Digest"
+        },
+        "disposition" : {
+          "$ref" : "#/definitions/Disposition"
+        },
+        "expirationDate" : {
+          "type" : "string",
+          "format" : "date-time"
+        },
+        "range" : {
+          "$ref" : "#/definitions/Range"
+        },
+        "size" : {
+          "type" : "integer",
+          "format" : "int64"
+        },
+        "empty" : {
+          "type" : "boolean"
+        },
+        "channel" : {
+          "$ref" : "#/definitions/ReadableByteChannel"
+        },
+        "transient" : {
+          "type" : "boolean"
+        },
+        "stream" : {
+          "$ref" : "#/definitions/InputStream"
+        },
+        "text" : {
+          "type" : "string"
+        },
+        "selectable" : {
+          "type" : "boolean"
+        },
+        "registration" : {
+          "$ref" : "#/definitions/SelectionRegistration"
+        },
+        "availableSize" : {
+          "type" : "integer",
+          "format" : "int64"
+        },
+        "reader" : {
+          "$ref" : "#/definitions/Reader"
+        }
+      }
+    },
+    "SelectableChannel" : {
+      "type" : "object",
+      "properties" : {
+        "open" : {
+          "type" : "boolean"
+        },
+        "registered" : {
+          "type" : "boolean"
+        },
+        "blocking" : {
+          "type" : "boolean"
+        }
+      }
+    },
+    "SelectionListener" : {
+      "type" : "object"
+    },
+    "SelectionRegistration" : {
+      "type" : "object",
+      "properties" : {
+        "canceling" : {
+          "type" : "boolean"
+        },
+        "interestOperations" : {
+          "type" : "integer",
+          "format" : "int32"
+        },
+        "selectionListener" : {
+          "$ref" : "#/definitions/SelectionListener"
+        },
+        "readyOperations" : {
+          "type" : "integer",
+          "format" : "int32"
+        },
+        "selectableChannel" : {
+          "$ref" : "#/definitions/SelectableChannel"
+        },
+        "wakeupListener" : {
+          "$ref" : "#/definitions/WakeupListener"
+        },
+        "connectable" : {
+          "type" : "boolean"
+        },
+        "readable" : {
+          "type" : "boolean"
+        },
+        "writable" : {
+          "type" : "boolean"
+        },
+        "interestReady" : {
+          "type" : "boolean"
         }
       }
     },
@@ -1536,6 +2025,20 @@
           "description" : "The time elapsed since the start of the test phase for this thread, in nanoseconds."
         }
       }
+    },
+    "Tag" : {
+      "type" : "object",
+      "properties" : {
+        "name" : {
+          "type" : "string"
+        },
+        "weak" : {
+          "type" : "boolean"
+        }
+      }
+    },
+    "WakeupListener" : {
+      "type" : "object"
     }
   }
 }
