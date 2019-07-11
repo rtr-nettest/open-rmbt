@@ -195,7 +195,7 @@ public class Test extends Table
             new IntField("link_id",null,true),
             new StringField("link_name",null,true),
             new IntField("link_distance",null,true),
-            new IntField("edge_id",null,true),
+            new LongField("edge_id",null,true),
             new IntField("link_frc",null,true),
             new StringField("link_name1",null,true),
             new StringField("link_name2",null,true),
@@ -295,9 +295,10 @@ public class Test extends Table
             
             if (rs.next())
                 setValuesFromResult(rs);
-            else
+            else {
                 setError("ERROR_DB_GET_TEST");
-            
+                Logger.getLogger(Test.class.getName()).log(Level.WARNING, "Load test failed: " + rs.toString());
+            }
             rs.close();
             st.close();
         }
