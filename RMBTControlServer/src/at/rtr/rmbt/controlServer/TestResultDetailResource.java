@@ -264,10 +264,10 @@ public class TestResultDetailResource extends ServerResource
                                         String.format(Locale.ENGLISH, "%d %s", round(geoAltitudeField.doubleValue()),labels.getString("RESULT_METER_UNIT")));
 
                             }
-                            final Field dhmLevelField = test.getField("dhm_level");
-                            if (!dhmLevelField.isNull()) {
-                                addString(resultList,"dhm_level",
-                                        String.format(Locale.ENGLISH, "%d %s", dhmLevelField.intValue(),labels.getString("RESULT_METER_UNIT")));
+                            final Field dtmLevelField = test.getField("dtm_level");
+                            if (!dtmLevelField.isNull()) {
+                                addString(resultList,"dtm_level",
+                                        String.format(Locale.ENGLISH, "%d %s", dtmLevelField.intValue(),labels.getString("RESULT_METER_UNIT")));
                             }
 
                             final Field geoSpeedField = test.getField("geo_speed");

@@ -704,13 +704,13 @@
         "parent" : {
           "$ref" : "#/definitions/MediaType"
         },
+        "mainType" : {
+          "type" : "string"
+        },
         "concrete" : {
           "type" : "boolean"
         },
         "subType" : {
-          "type" : "string"
-        },
-        "mainType" : {
           "type" : "string"
         }
       }
@@ -1299,11 +1299,11 @@
           "example" : 0,
           "description" : "Functional road class (as defined by GIP)."
         },
-        "dhm_level" : {
+        "dtm_level" : {
           "type" : "integer",
           "format" : "int32",
           "example" : 789,
-          "description" : "See level based on digital height modell"
+          "description" : "Altitude derived from digital terrain model"
         },
         "speed_curve" : {
           "description" : "Aggregated history of transferred data bytes during a test.",
@@ -1518,11 +1518,11 @@
           "example" : 0,
           "description" : "Functional road class (as defined by GIP)."
         },
-        "dhm_level" : {
+        "dtm_level" : {
           "type" : "integer",
           "format" : "int32",
           "example" : 789,
-          "description" : "See level based on digital height modell"
+          "description" : "Altitude derived from digital terrain model"
         },
         "signal_classification" : {
           "type" : "integer",
@@ -1756,39 +1756,33 @@
         "targetRef" : {
           "$ref" : "#/definitions/Reference"
         },
-        "hostDomain" : {
-          "type" : "string"
-        },
-        "hostPort" : {
-          "type" : "integer",
-          "format" : "int32"
-        },
         "lastSegment" : {
-          "type" : "string"
-        },
-        "hierarchical" : {
-          "type" : "boolean"
-        },
-        "relativePart" : {
           "type" : "string"
         },
         "parentRef" : {
           "$ref" : "#/definitions/Reference"
         },
-        "remainingPart" : {
+        "hostDomain" : {
           "type" : "string"
         },
         "relativeRef" : {
           "$ref" : "#/definitions/Reference"
         },
-        "relative" : {
+        "hostPort" : {
+          "type" : "integer",
+          "format" : "int32"
+        },
+        "relativePart" : {
+          "type" : "string"
+        },
+        "remainingPart" : {
+          "type" : "string"
+        },
+        "hierarchical" : {
           "type" : "boolean"
         },
-        "schemeProtocol" : {
-          "$ref" : "#/definitions/Protocol"
-        },
-        "hierarchicalPart" : {
-          "type" : "string"
+        "relative" : {
+          "type" : "boolean"
         },
         "hostIdentifier" : {
           "type" : "string"
@@ -1798,6 +1792,12 @@
           "items" : {
             "type" : "string"
           }
+        },
+        "hierarchicalPart" : {
+          "type" : "string"
+        },
+        "schemeProtocol" : {
+          "$ref" : "#/definitions/Protocol"
         }
       }
     },
@@ -1867,9 +1867,6 @@
         "text" : {
           "type" : "string"
         },
-        "selectable" : {
-          "type" : "boolean"
-        },
         "registration" : {
           "$ref" : "#/definitions/SelectionRegistration"
         },
@@ -1879,6 +1876,9 @@
         },
         "reader" : {
           "$ref" : "#/definitions/Reader"
+        },
+        "selectable" : {
+          "type" : "boolean"
         }
       }
     },
@@ -1922,13 +1922,13 @@
         "wakeupListener" : {
           "$ref" : "#/definitions/WakeupListener"
         },
-        "connectable" : {
-          "type" : "boolean"
-        },
         "readable" : {
           "type" : "boolean"
         },
         "writable" : {
+          "type" : "boolean"
+        },
+        "connectable" : {
           "type" : "boolean"
         },
         "interestReady" : {

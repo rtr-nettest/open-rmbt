@@ -76,7 +76,8 @@ public class Test extends Table
             " tl.link_distance link_distance," +
             " tl.edge_id edge_id," +
             " tl.frc link_frc," +
-            " tl.dhm_level," +
+            " tl.frc link_frc," +
+            " tl.dtm_level," +
             " gl.altitude geo_altitude," +
             " gl.speed geo_speed," +
             " ln.name1 link_name1," +
@@ -204,7 +205,7 @@ public class Test extends Table
             new IntField("link_frc",null,true),
             new StringField("link_name1",null,true),
             new StringField("link_name2",null,true),
-            new IntField("dhm_level",null,true),
+            new IntField("dtm_level",null,true),
             new DoubleField("geo_altitude",null,true),
             new DoubleField("geo_speed",null,true),
             new StringField("provider_id_name", null, true),
