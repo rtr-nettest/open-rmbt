@@ -257,9 +257,11 @@ public class TestResultDetailResource extends ServerResource
                         		addString(resultList, "location", locationJson.getString("location"));
                         	}
                             final Field geoAltitudeField = test.getField("geo_altitude");
-                            if (!geoAltitudeField.isNull()) {
+                            if (!geoAltitudeField.isNull()
+                                    // some clients report 0 when altitude is not available
+                                    && geoAltitudeField.doubleValue() != 0.0) {
                                 addString(resultList,"geo_altitude",
-                                        String.format(Locale.ENGLISH, "%d %s", geoAltitudeField.intValue(),labels.getString("RESULT_METER_UNIT")));
+                                        String.format(Locale.ENGLISH, "%d %s", round(geoAltitudeField.doubleValue()),labels.getString("RESULT_METER_UNIT")));
 
                             }
                             final Field dhmLevelField = test.getField("dhm_level");
@@ -269,16 +271,16 @@ public class TestResultDetailResource extends ServerResource
                             }
 
                             final Field geoSpeedField = test.getField("geo_speed");
-                            if (!geoSpeedField.isNull() && geoSpeedField.floatValue() > 0.1) {
+                            if (!geoSpeedField.isNull() && geoSpeedField.doubleValue() > 0.1) {
                                 addString(resultList,"geo_speed",
-                                        String.format(Locale.ENGLISH, "%d %s", round(3.6*geoSpeedField.intValue()),labels.getString("RESULT_KILOMETER_PER_HOUR_UNIT")));
+                                        String.format(Locale.ENGLISH, "%d %s", round(3.6*geoSpeedField.doubleValue()),labels.getString("RESULT_KILOMETER_PER_HOUR_UNIT")));
                             }
-                        	if (locationJson.has("country_location")) {
+                            if (locationJson.has("motion")) {
+                                addString(resultList, "motion", locationJson.getString("motion"));
+                            }
+                            if (locationJson.has("country_location")) {
                         		addString(resultList, "country_location", locationJson.getString("country_location"));
                         	}
-                        	if (locationJson.has("motion")) {
-                        		addString(resultList, "motion", locationJson.getString("motion"));
-                        	}                        	
                         }
 
                         // country derived from AS registry
