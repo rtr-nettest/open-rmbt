@@ -284,6 +284,12 @@
           "required" : false,
           "type" : "string"
         }, {
+          "name" : "link_name",
+          "in" : "query",
+          "description" : "Austrian road/raiway line identifier, e.g. 'A2'",
+          "required" : false,
+          "type" : "string"
+        }, {
           "name" : "public_ip_as_name",
           "in" : "query",
           "description" : "Name of the AS of the clients public IP.",

@@ -169,6 +169,8 @@ public class QueryParser {
         allowedFields.put("cell_area_code[]",FieldType.LONG);
         allowedFields.put("cell_location_id",FieldType.LONG);
         allowedFields.put("cell_location_id[]",FieldType.LONG);
+        allowedFields.put("link_name",FieldType.STRING);
+        allowedFields.put("link_name[]",FieldType.STRING);
 
         //allowedFields.put("ip_anonym", FieldType.STRING);
         //allowedFields.put("ip_anonym[]", FieldType.STRING);
@@ -678,6 +680,9 @@ public class QueryParser {
         }
         else if (opendataField.equals("lte_rsrp")) {
             ret.add("t.lte_rsrp");
+        }
+        else if (opendataField.equals("link_name")) {
+            ret.add("tl.link_name");
         }
          return ret;
     }
