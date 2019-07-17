@@ -320,25 +320,31 @@ public class ResultResource extends ServerResource
                                                     geoloc.setTime(tstamp, test.getField("timezone").toString());
                                                     geoloc.setAccuracy((float) geoDataItem.optDouble("accuracy",Float.MAX_VALUE));
 
-                                                    geoloc.storeLocation();
+                                                    final long timeNs = geoDataItem.optLong("time_ns");
 
-                                                    // Find reference location
-                                                    if (geoloc.getAccuracy() != null && geoloc.getAccuracy() < minAccuracy) {
-                                                        minAccuracy = geoloc.getAccuracy();
-                                                        // store geo_location_uuid
-                                                        geoRefUuid = geoloc.getGeoLocationUuid();
-                                                        firstAccuratePosition.set(geoDataItem);
-                                                    }
-                                                    // Fallback: store last geolocation as reference location
-                                                    else if (firstAccuratePosition.get() == null &&
-                                                            i == geoData.length() - 1) {
-                                                        geoRefUuid = geoloc.getGeoLocationUuid();
-                                                        firstAccuratePosition.set(geoDataItem);
-                                                    }
+                                                    // ignore all timestamps older than 20s
+                                                    if (timeNs > -20000000000L) {
 
-                                                    if (geoloc.hasError()) {
-                                                        errorList.addError(geoloc.getError());
-                                                        break;
+                                                        geoloc.storeLocation();
+
+                                                        // Find reference location
+                                                        if (geoloc.getAccuracy() != null && geoloc.getAccuracy() < minAccuracy) {
+                                                            minAccuracy = geoloc.getAccuracy();
+                                                            // store geo_location_uuid
+                                                            geoRefUuid = geoloc.getGeoLocationUuid();
+                                                            firstAccuratePosition.set(geoDataItem);
+                                                        }
+                                                        // Fallback: store last geolocation as reference location
+                                                        else if (firstAccuratePosition.get() == null &&
+                                                                i == geoData.length() - 1) {
+                                                            geoRefUuid = geoloc.getGeoLocationUuid();
+                                                            firstAccuratePosition.set(geoDataItem);
+                                                        }
+
+                                                        if (geoloc.hasError()) {
+                                                            errorList.addError(geoloc.getError());
+                                                            break;
+                                                        }
                                                     }
                                                 }
                                             }
