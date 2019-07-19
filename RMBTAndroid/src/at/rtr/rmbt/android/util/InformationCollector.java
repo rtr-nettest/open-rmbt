@@ -51,16 +51,7 @@ import org.json.JSONObject;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -96,7 +87,14 @@ public class InformationCollector
     public static final int SINGAL_TYPE_MOBILE = 1;
     public static final int SINGAL_TYPE_RSRP = 2;
     public static final int SINGAL_TYPE_WLAN = 3;
-    
+
+    /**
+     * Maximum age of a geolocation to be included into results
+     * Necessary as Android sometime returns old geolocations which should not be considered
+     * Default: 60 secs
+     */
+    private static final long LOCATION_MAX_AGE_ON_TEST_START_MS = 60 * 1000;
+
     /** Returned by getNetwork() if Wifi */
     public static final int NETWORK_WIFI = 99;
     
@@ -930,7 +928,7 @@ public class InformationCollector
     
     public JSONObject getResultValues(long startTimestampNs) throws JSONException
     {
-        
+        long startTimestamp = (new Date().getTime()) - (long) ((System.nanoTime() - startTimestampNs)/1e6);
         final JSONObject result = new JSONObject();
         
         final Enumeration<?> pList = fullInfo.propertyNames();
@@ -968,7 +966,14 @@ public class InformationCollector
             {
                 
                 final GeoLocationItem tmpItem = geoLocations.get(i);
-                
+
+                //if the first item is older than XX min, don't add
+                long l = startTimestamp - tmpItem.tstamp;
+                if ((startTimestamp - tmpItem.tstamp) > LOCATION_MAX_AGE_ON_TEST_START_MS) {
+                    Log.i(DEBUG_TAG, "Ignored GeoLocation old GeoLocation, diff: " + ((long) ((startTimestamp - tmpItem.tstamp) / 1e3)));
+                    continue;
+                }
+
                 final JSONObject jsonItem = new JSONObject();
                 
                 jsonItem.put("tstamp", tmpItem.tstamp);
