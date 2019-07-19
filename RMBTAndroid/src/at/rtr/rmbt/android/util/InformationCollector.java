@@ -91,6 +91,7 @@ public class InformationCollector
     /**
      * Maximum age of a geolocation to be included into results
      * Necessary as Android sometime returns old geolocations which should not be considered
+     * when newer GeoLocations are available
      * Default: 60 secs
      */
     private static final long LOCATION_MAX_AGE_ON_TEST_START_MS = 60 * 1000;
@@ -959,7 +960,20 @@ public class InformationCollector
         
         if (geoLocations.size() > 0)
         {
-            
+            //determine if filtering for old data can take place
+            //or if there are only "old" locations
+            //in which case, no filtering will take place as
+            //this indicates a non-moving user
+            int itemsToFilter = 0;
+            for (GeoLocationItem tmpItem : geoLocations) {
+                if ((startTimestamp - tmpItem.tstamp) > LOCATION_MAX_AGE_ON_TEST_START_MS) {
+                    Log.i(DEBUG_TAG, "Ignored GeoLocation old GeoLocation, diff: " + ((long) ((startTimestamp - tmpItem.tstamp) / 1e3)));
+                    tmpItem.includeInSubmission = false;
+                    itemsToFilter++;
+                }
+            }
+            boolean filterItems = itemsToFilter != 0 && itemsToFilter != geoLocations.size();
+
             final JSONArray itemList = new JSONArray();
             
             for (int i = 0; i < geoLocations.size(); i++)
@@ -967,10 +981,8 @@ public class InformationCollector
                 
                 final GeoLocationItem tmpItem = geoLocations.get(i);
 
-                //if the first item is older than XX min, don't add
-                long l = startTimestamp - tmpItem.tstamp;
-                if ((startTimestamp - tmpItem.tstamp) > LOCATION_MAX_AGE_ON_TEST_START_MS) {
-                    Log.i(DEBUG_TAG, "Ignored GeoLocation old GeoLocation, diff: " + ((long) ((startTimestamp - tmpItem.tstamp) / 1e3)));
+                //if the item is older than XX min, don't add
+                if (filterItems && !tmpItem.includeInSubmission) {
                     continue;
                 }
 
@@ -1788,6 +1800,7 @@ public class InformationCollector
         public final float speed;
         public final String provider;
         public final Boolean mock_location;
+        public boolean includeInSubmission = true;
         
         public GeoLocationItem(final long tstamp, final double geo_lat, final double geo_long, final float accuracy,
                 final double altitude, final float bearing, final float speed, final String provider, final Boolean mock_location)
