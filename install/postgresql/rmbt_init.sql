@@ -1,11 +1,11 @@
 -- 
--- 2019-02-04_21-19-54 rmbt_init.sql table as2provider
+-- 2019-07-26_07-16-52 rmbt_init.sql table as2provider
 --
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 10.6 (Debian 10.6-1.pgdg90+1)
--- Dumped by pg_dump version 10.6 (Debian 10.6-1.pgdg90+1)
+-- Dumped from database version 10.9 (Debian 10.9-1.pgdg90+1)
+-- Dumped by pg_dump version 10.9 (Debian 10.9-1.pgdg90+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -14,54 +14,9 @@ SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
+SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
-
-SET default_tablespace = '';
-
-SET default_with_oids = false;
-
---
--- Name: as2provider; Type: TABLE; Schema: public; Owner: rmbt
---
-
-CREATE TABLE public.as2provider (
-    uid integer NOT NULL,
-    asn bigint,
-    dns_part character varying(200),
-    provider_id integer
-);
-
-
-ALTER TABLE public.as2provider OWNER TO rmbt;
-
---
--- Name: as2provider_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
---
-
-CREATE SEQUENCE public.as2provider_uid_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.as2provider_uid_seq OWNER TO rmbt;
-
---
--- Name: as2provider_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
---
-
-ALTER SEQUENCE public.as2provider_uid_seq OWNED BY public.as2provider.uid;
-
-
---
--- Name: as2provider uid; Type: DEFAULT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.as2provider ALTER COLUMN uid SET DEFAULT nextval('public.as2provider_uid_seq'::regclass);
-
 
 --
 -- Data for Name: as2provider; Type: TABLE DATA; Schema: public; Owner: rmbt
@@ -140,46 +95,16 @@ SELECT pg_catalog.setval('public.as2provider_uid_seq', 150, true);
 
 
 --
--- Name: as2provider as2provider_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.as2provider
-    ADD CONSTRAINT as2provider_pkey PRIMARY KEY (uid);
-
-
---
--- Name: as2provider_provider_id_idx; Type: INDEX; Schema: public; Owner: rmbt
---
-
-CREATE INDEX as2provider_provider_id_idx ON public.as2provider USING btree (provider_id);
-
-
---
--- Name: as2provider as2provider_provider_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.as2provider
-    ADD CONSTRAINT as2provider_provider_id_fkey FOREIGN KEY (provider_id) REFERENCES public.provider(uid);
-
-
---
--- Name: TABLE as2provider; Type: ACL; Schema: public; Owner: rmbt
---
-
-GRANT SELECT ON TABLE public.as2provider TO rmbt_group_read_only;
-
-
---
 -- PostgreSQL database dump complete
 --
 
--- 2019-02-04_21-19-54 rmbt_init.sql table client_type
+-- 2019-07-26_07-16-52 rmbt_init.sql table client_type
 --
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 10.6 (Debian 10.6-1.pgdg90+1)
--- Dumped by pg_dump version 10.6 (Debian 10.6-1.pgdg90+1)
+-- Dumped from database version 10.9 (Debian 10.9-1.pgdg90+1)
+-- Dumped by pg_dump version 10.9 (Debian 10.9-1.pgdg90+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -188,52 +113,9 @@ SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
+SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
-
-SET default_tablespace = '';
-
-SET default_with_oids = false;
-
---
--- Name: client_type; Type: TABLE; Schema: public; Owner: rmbt
---
-
-CREATE TABLE public.client_type (
-    uid integer NOT NULL,
-    name character varying(200)
-);
-
-
-ALTER TABLE public.client_type OWNER TO rmbt;
-
---
--- Name: client_type_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
---
-
-CREATE SEQUENCE public.client_type_uid_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.client_type_uid_seq OWNER TO rmbt;
-
---
--- Name: client_type_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
---
-
-ALTER SEQUENCE public.client_type_uid_seq OWNED BY public.client_type.uid;
-
-
---
--- Name: client_type uid; Type: DEFAULT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.client_type ALTER COLUMN uid SET DEFAULT nextval('public.client_type_uid_seq'::regclass);
-
 
 --
 -- Data for Name: client_type; Type: TABLE DATA; Schema: public; Owner: rmbt
@@ -251,31 +133,16 @@ SELECT pg_catalog.setval('public.client_type_uid_seq', 2, true);
 
 
 --
--- Name: client_type client_type_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.client_type
-    ADD CONSTRAINT client_type_pkey PRIMARY KEY (uid);
-
-
---
--- Name: TABLE client_type; Type: ACL; Schema: public; Owner: rmbt
---
-
-GRANT SELECT ON TABLE public.client_type TO rmbt_group_read_only;
-
-
---
 -- PostgreSQL database dump complete
 --
 
--- 2019-02-04_21-19-54 rmbt_init.sql table mcc2country
+-- 2019-07-26_07-16-52 rmbt_init.sql table mcc2country
 --
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 10.6 (Debian 10.6-1.pgdg90+1)
--- Dumped by pg_dump version 10.6 (Debian 10.6-1.pgdg90+1)
+-- Dumped from database version 10.9 (Debian 10.9-1.pgdg90+1)
+-- Dumped by pg_dump version 10.9 (Debian 10.9-1.pgdg90+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -284,24 +151,9 @@ SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
+SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
-
-SET default_tablespace = '';
-
-SET default_with_oids = false;
-
---
--- Name: mcc2country; Type: TABLE; Schema: public; Owner: rmbt
---
-
-CREATE TABLE public.mcc2country (
-    mcc character varying(3) NOT NULL,
-    country character varying(2) NOT NULL
-);
-
-
-ALTER TABLE public.mcc2country OWNER TO rmbt;
 
 --
 -- Data for Name: mcc2country; Type: TABLE DATA; Schema: public; Owner: rmbt
@@ -521,38 +373,16 @@ INSERT INTO public.mcc2country (mcc, country) VALUES ('750', 'fk');
 
 
 --
--- Name: mcc2country mcc2country_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.mcc2country
-    ADD CONSTRAINT mcc2country_pkey PRIMARY KEY (mcc);
-
-
---
--- Name: mcc2country_mcc; Type: INDEX; Schema: public; Owner: rmbt
---
-
-CREATE INDEX mcc2country_mcc ON public.mcc2country USING btree (mcc);
-
-
---
--- Name: TABLE mcc2country; Type: ACL; Schema: public; Owner: rmbt
---
-
-GRANT SELECT ON TABLE public.mcc2country TO rmbt_group_read_only;
-
-
---
 -- PostgreSQL database dump complete
 --
 
--- 2019-02-04_21-19-54 rmbt_init.sql table mccmnc2name
+-- 2019-07-26_07-16-52 rmbt_init.sql table mccmnc2name
 --
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 10.6 (Debian 10.6-1.pgdg90+1)
--- Dumped by pg_dump version 10.6 (Debian 10.6-1.pgdg90+1)
+-- Dumped from database version 10.9 (Debian 10.9-1.pgdg90+1)
+-- Dumped by pg_dump version 10.9 (Debian 10.9-1.pgdg90+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -561,62 +391,9 @@ SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
+SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
-
-SET default_tablespace = '';
-
-SET default_with_oids = false;
-
---
--- Name: mccmnc2name; Type: TABLE; Schema: public; Owner: rmbt
---
-
-CREATE TABLE public.mccmnc2name (
-    uid integer NOT NULL,
-    mccmnc character varying(7) NOT NULL,
-    valid_from date DEFAULT '0001-01-01'::date,
-    valid_to date DEFAULT '9999-12-31'::date,
-    country character varying(2),
-    name character varying(200) NOT NULL,
-    shortname character varying(100),
-    use_for_sim boolean DEFAULT true,
-    use_for_network boolean DEFAULT true,
-    mcc_mnc_network_mapping character varying(10),
-    comment character varying(200),
-    mapped_uid integer
-);
-
-
-ALTER TABLE public.mccmnc2name OWNER TO rmbt;
-
---
--- Name: mccmnc2name_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
---
-
-CREATE SEQUENCE public.mccmnc2name_uid_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.mccmnc2name_uid_seq OWNER TO rmbt;
-
---
--- Name: mccmnc2name_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
---
-
-ALTER SEQUENCE public.mccmnc2name_uid_seq OWNED BY public.mccmnc2name.uid;
-
-
---
--- Name: mccmnc2name uid; Type: DEFAULT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.mccmnc2name ALTER COLUMN uid SET DEFAULT nextval('public.mccmnc2name_uid_seq'::regclass);
-
 
 --
 -- Data for Name: mccmnc2name; Type: TABLE DATA; Schema: public; Owner: rmbt
@@ -2283,39 +2060,16 @@ SELECT pg_catalog.setval('public.mccmnc2name_uid_seq', 3293, true);
 
 
 --
--- Name: mccmnc2name mccmnc2name_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.mccmnc2name
-    ADD CONSTRAINT mccmnc2name_pkey PRIMARY KEY (uid);
-
-
---
--- Name: mccmnc2name_mccmnc; Type: INDEX; Schema: public; Owner: rmbt
---
-
-CREATE INDEX mccmnc2name_mccmnc ON public.mccmnc2name USING btree (mccmnc);
-
-
---
--- Name: TABLE mccmnc2name; Type: ACL; Schema: public; Owner: rmbt
---
-
-GRANT SELECT ON TABLE public.mccmnc2name TO rmbt_group_read_only;
-GRANT SELECT ON TABLE public.mccmnc2name TO rmbt_group_control;
-
-
---
 -- PostgreSQL database dump complete
 --
 
--- 2019-02-04_21-19-54 rmbt_init.sql table mccmnc2provider
+-- 2019-07-26_07-16-52 rmbt_init.sql table mccmnc2provider
 --
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 10.6 (Debian 10.6-1.pgdg90+1)
--- Dumped by pg_dump version 10.6 (Debian 10.6-1.pgdg90+1)
+-- Dumped from database version 10.9 (Debian 10.9-1.pgdg90+1)
+-- Dumped by pg_dump version 10.9 (Debian 10.9-1.pgdg90+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -2324,56 +2078,9 @@ SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
+SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
-
-SET default_tablespace = '';
-
-SET default_with_oids = false;
-
---
--- Name: mccmnc2provider; Type: TABLE; Schema: public; Owner: rmbt
---
-
-CREATE TABLE public.mccmnc2provider (
-    uid integer NOT NULL,
-    mcc_mnc_sim character varying(10),
-    provider_id integer NOT NULL,
-    mcc_mnc_network character varying(10),
-    valid_from date,
-    valid_to date
-);
-
-
-ALTER TABLE public.mccmnc2provider OWNER TO rmbt;
-
---
--- Name: mccmnc2provider_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
---
-
-CREATE SEQUENCE public.mccmnc2provider_uid_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.mccmnc2provider_uid_seq OWNER TO rmbt;
-
---
--- Name: mccmnc2provider_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
---
-
-ALTER SEQUENCE public.mccmnc2provider_uid_seq OWNED BY public.mccmnc2provider.uid;
-
-
---
--- Name: mccmnc2provider uid; Type: DEFAULT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.mccmnc2provider ALTER COLUMN uid SET DEFAULT nextval('public.mccmnc2provider_uid_seq'::regclass);
-
 
 --
 -- Data for Name: mccmnc2provider; Type: TABLE DATA; Schema: public; Owner: rmbt
@@ -2412,63 +2119,27 @@ INSERT INTO public.mccmnc2provider (uid, mcc_mnc_sim, provider_id, mcc_mnc_netwo
 INSERT INTO public.mccmnc2provider (uid, mcc_mnc_sim, provider_id, mcc_mnc_network, valid_from, valid_to) VALUES (27, '232-19', 36, NULL, NULL, NULL);
 INSERT INTO public.mccmnc2provider (uid, mcc_mnc_sim, provider_id, mcc_mnc_network, valid_from, valid_to) VALUES (23, '232-13', 36, NULL, NULL, '2018-10-01');
 INSERT INTO public.mccmnc2provider (uid, mcc_mnc_sim, provider_id, mcc_mnc_network, valid_from, valid_to) VALUES (36, '232-13', 2, NULL, '2018-10-01', NULL);
+INSERT INTO public.mccmnc2provider (uid, mcc_mnc_sim, provider_id, mcc_mnc_network, valid_from, valid_to) VALUES (37, '232-24', 36, NULL, NULL, NULL);
 
 
 --
 -- Name: mccmnc2provider_uid_seq; Type: SEQUENCE SET; Schema: public; Owner: rmbt
 --
 
-SELECT pg_catalog.setval('public.mccmnc2provider_uid_seq', 68, true);
-
-
---
--- Name: mccmnc2provider mccmnc2provider_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.mccmnc2provider
-    ADD CONSTRAINT mccmnc2provider_pkey PRIMARY KEY (uid);
-
-
---
--- Name: mccmnc2provider_mcc_mnc_idx; Type: INDEX; Schema: public; Owner: rmbt
---
-
-CREATE INDEX mccmnc2provider_mcc_mnc_idx ON public.mccmnc2provider USING btree (mcc_mnc_sim, mcc_mnc_network);
-
-
---
--- Name: mccmnc2provider_provider_id; Type: INDEX; Schema: public; Owner: rmbt
---
-
-CREATE INDEX mccmnc2provider_provider_id ON public.mccmnc2provider USING btree (provider_id);
-
-
---
--- Name: mccmnc2provider mccmnc2provider_provider_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.mccmnc2provider
-    ADD CONSTRAINT mccmnc2provider_provider_id_fkey FOREIGN KEY (provider_id) REFERENCES public.provider(uid);
-
-
---
--- Name: TABLE mccmnc2provider; Type: ACL; Schema: public; Owner: rmbt
---
-
-GRANT SELECT ON TABLE public.mccmnc2provider TO rmbt_group_read_only;
+SELECT pg_catalog.setval('public.mccmnc2provider_uid_seq', 69, true);
 
 
 --
 -- PostgreSQL database dump complete
 --
 
--- 2019-02-04_21-19-54 rmbt_init.sql table network_type
+-- 2019-07-26_07-16-52 rmbt_init.sql table network_type
 --
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 10.6 (Debian 10.6-1.pgdg90+1)
--- Dumped by pg_dump version 10.6 (Debian 10.6-1.pgdg90+1)
+-- Dumped from database version 10.9 (Debian 10.9-1.pgdg90+1)
+-- Dumped by pg_dump version 10.9 (Debian 10.9-1.pgdg90+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -2477,60 +2148,9 @@ SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
+SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
-
-SET default_tablespace = '';
-
-SET default_with_oids = false;
-
---
--- Name: network_type; Type: TABLE; Schema: public; Owner: rmbt
---
-
-CREATE TABLE public.network_type (
-    uid integer NOT NULL,
-    name character varying(200) NOT NULL,
-    group_name character varying NOT NULL,
-    aggregate character varying[],
-    type character varying NOT NULL,
-    technology_order integer DEFAULT 0 NOT NULL,
-    min_speed_download_kbps integer,
-    max_speed_download_kbps integer,
-    min_speed_upload_kbps integer,
-    max_speed_upload_kbps integer
-);
-
-
-ALTER TABLE public.network_type OWNER TO rmbt;
-
---
--- Name: network_type_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
---
-
-CREATE SEQUENCE public.network_type_uid_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.network_type_uid_seq OWNER TO rmbt;
-
---
--- Name: network_type_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
---
-
-ALTER SEQUENCE public.network_type_uid_seq OWNED BY public.network_type.uid;
-
-
---
--- Name: network_type uid; Type: DEFAULT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.network_type ALTER COLUMN uid SET DEFAULT nextval('public.network_type_uid_seq'::regclass);
-
 
 --
 -- Data for Name: network_type; Type: TABLE DATA; Schema: public; Owner: rmbt
@@ -2576,45 +2196,16 @@ SELECT pg_catalog.setval('public.network_type_uid_seq', 16, true);
 
 
 --
--- Name: network_type network_type_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.network_type
-    ADD CONSTRAINT network_type_pkey PRIMARY KEY (uid);
-
-
---
--- Name: network_type_group_name_idx; Type: INDEX; Schema: public; Owner: rmbt
---
-
-CREATE INDEX network_type_group_name_idx ON public.network_type USING btree (group_name);
-
-
---
--- Name: network_type_type_idx; Type: INDEX; Schema: public; Owner: rmbt
---
-
-CREATE INDEX network_type_type_idx ON public.network_type USING btree (type);
-
-
---
--- Name: TABLE network_type; Type: ACL; Schema: public; Owner: rmbt
---
-
-GRANT SELECT ON TABLE public.network_type TO rmbt_group_read_only;
-
-
---
 -- PostgreSQL database dump complete
 --
 
--- 2019-02-04_21-19-54 rmbt_init.sql table provider
+-- 2019-07-26_07-16-52 rmbt_init.sql table provider
 --
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 10.6 (Debian 10.6-1.pgdg90+1)
--- Dumped by pg_dump version 10.6 (Debian 10.6-1.pgdg90+1)
+-- Dumped from database version 10.9 (Debian 10.9-1.pgdg90+1)
+-- Dumped by pg_dump version 10.9 (Debian 10.9-1.pgdg90+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -2623,55 +2214,9 @@ SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
+SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
-
-SET default_tablespace = '';
-
-SET default_with_oids = false;
-
---
--- Name: provider; Type: TABLE; Schema: public; Owner: rmbt
---
-
-CREATE TABLE public.provider (
-    uid integer NOT NULL,
-    name character varying(200),
-    mcc_mnc character varying(10),
-    shortname character varying(100),
-    map_filter boolean NOT NULL
-);
-
-
-ALTER TABLE public.provider OWNER TO rmbt;
-
---
--- Name: provider_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
---
-
-CREATE SEQUENCE public.provider_uid_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.provider_uid_seq OWNER TO rmbt;
-
---
--- Name: provider_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
---
-
-ALTER SEQUENCE public.provider_uid_seq OWNED BY public.provider.uid;
-
-
---
--- Name: provider uid; Type: DEFAULT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.provider ALTER COLUMN uid SET DEFAULT nextval('public.provider_uid_seq'::regclass);
-
 
 --
 -- Data for Name: provider; Type: TABLE DATA; Schema: public; Owner: rmbt
@@ -2763,38 +2308,16 @@ SELECT pg_catalog.setval('public.provider_uid_seq', 181, true);
 
 
 --
--- Name: provider provider_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.provider
-    ADD CONSTRAINT provider_pkey PRIMARY KEY (uid);
-
-
---
--- Name: provider_mcc_mnc_idx; Type: INDEX; Schema: public; Owner: rmbt
---
-
-CREATE INDEX provider_mcc_mnc_idx ON public.provider USING btree (mcc_mnc);
-
-
---
--- Name: TABLE provider; Type: ACL; Schema: public; Owner: rmbt
---
-
-GRANT SELECT ON TABLE public.provider TO rmbt_group_read_only;
-
-
---
 -- PostgreSQL database dump complete
 --
 
--- 2019-02-04_21-19-54 rmbt_init.sql table qos_test_desc
+-- 2019-07-26_07-16-52 rmbt_init.sql table qos_test_desc
 --
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 10.6 (Debian 10.6-1.pgdg90+1)
--- Dumped by pg_dump version 10.6 (Debian 10.6-1.pgdg90+1)
+-- Dumped from database version 10.9 (Debian 10.9-1.pgdg90+1)
+-- Dumped by pg_dump version 10.9 (Debian 10.9-1.pgdg90+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -2803,54 +2326,9 @@ SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
+SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
-
-SET default_tablespace = '';
-
-SET default_with_oids = false;
-
---
--- Name: qos_test_desc; Type: TABLE; Schema: public; Owner: rmbt
---
-
-CREATE TABLE public.qos_test_desc (
-    uid integer NOT NULL,
-    desc_key text,
-    value text,
-    lang text
-);
-
-
-ALTER TABLE public.qos_test_desc OWNER TO rmbt;
-
---
--- Name: qos_test_desc_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
---
-
-CREATE SEQUENCE public.qos_test_desc_uid_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.qos_test_desc_uid_seq OWNER TO rmbt;
-
---
--- Name: qos_test_desc_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
---
-
-ALTER SEQUENCE public.qos_test_desc_uid_seq OWNED BY public.qos_test_desc.uid;
-
-
---
--- Name: qos_test_desc uid; Type: DEFAULT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.qos_test_desc ALTER COLUMN uid SET DEFAULT nextval('public.qos_test_desc_uid_seq'::regclass);
-
 
 --
 -- Data for Name: qos_test_desc; Type: TABLE DATA; Schema: public; Owner: rmbt
@@ -3193,46 +2671,16 @@ SELECT pg_catalog.setval('public.qos_test_desc_uid_seq', 250, true);
 
 
 --
--- Name: qos_test_desc qos_test_desc_desc_key_lang_key; Type: CONSTRAINT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.qos_test_desc
-    ADD CONSTRAINT qos_test_desc_desc_key_lang_key UNIQUE (desc_key, lang);
-
-
---
--- Name: qos_test_desc qos_test_desc_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.qos_test_desc
-    ADD CONSTRAINT qos_test_desc_pkey PRIMARY KEY (uid);
-
-
---
--- Name: qos_test_desc_desc_key_idx; Type: INDEX; Schema: public; Owner: rmbt
---
-
-CREATE INDEX qos_test_desc_desc_key_idx ON public.qos_test_desc USING btree (desc_key);
-
-
---
--- Name: TABLE qos_test_desc; Type: ACL; Schema: public; Owner: rmbt
---
-
-GRANT SELECT ON TABLE public.qos_test_desc TO rmbt_group_read_only;
-
-
---
 -- PostgreSQL database dump complete
 --
 
--- 2019-02-04_21-19-54 rmbt_init.sql table qos_test_objective
+-- 2019-07-26_07-16-52 rmbt_init.sql table qos_test_objective
 --
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 10.6 (Debian 10.6-1.pgdg90+1)
--- Dumped by pg_dump version 10.6 (Debian 10.6-1.pgdg90+1)
+-- Dumped from database version 10.9 (Debian 10.9-1.pgdg90+1)
+-- Dumped by pg_dump version 10.9 (Debian 10.9-1.pgdg90+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -3241,59 +2689,9 @@ SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
+SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
-
-SET default_tablespace = '';
-
-SET default_with_oids = false;
-
---
--- Name: qos_test_objective; Type: TABLE; Schema: public; Owner: rmbt
---
-
-CREATE TABLE public.qos_test_objective (
-    uid integer NOT NULL,
-    test public.qostest NOT NULL,
-    test_class integer,
-    test_server integer,
-    concurrency_group integer DEFAULT 0 NOT NULL,
-    test_desc text,
-    test_summary text,
-    param json DEFAULT '{}'::json NOT NULL,
-    results json
-);
-
-
-ALTER TABLE public.qos_test_objective OWNER TO rmbt;
-
---
--- Name: qos_test_objective_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
---
-
-CREATE SEQUENCE public.qos_test_objective_uid_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.qos_test_objective_uid_seq OWNER TO rmbt;
-
---
--- Name: qos_test_objective_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
---
-
-ALTER SEQUENCE public.qos_test_objective_uid_seq OWNED BY public.qos_test_objective.uid;
-
-
---
--- Name: qos_test_objective uid; Type: DEFAULT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.qos_test_objective ALTER COLUMN uid SET DEFAULT nextval('public.qos_test_objective_uid_seq'::regclass);
-
 
 --
 -- Data for Name: qos_test_objective; Type: TABLE DATA; Schema: public; Owner: rmbt
@@ -3470,41 +2868,27 @@ INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concu
 INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (61, 'udp', 1, 35, 200, 'udp.out.testinfo', 'test.desc.udp.out.27015', '{"timeout": "5000000000", "out_port": "27015", "out_num_packets": "5"}', '[{"operator": "eq", "on_failure": "udp.failure", "on_success": "udp.success", "udp_result_out_response_num_packets": "%PARAM udp_objective_out_num_packets%"}]');
 INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (53, 'udp', 1, 35, 200, 'udp.out.testinfo', 'test.desc.udp.out.123', '{"timeout": "5000000000", "out_port": "123", "out_num_packets": "5"}', '[{"operator": "eq", "on_failure": "udp.failure", "on_success": "udp.success", "udp_result_out_response_num_packets": "%PARAM udp_objective_out_num_packets%"}]');
 INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (57, 'udp', 1, 35, 200, 'udp.out.testinfo', 'test.desc.udp.out.5060', '{"timeout": "5000000000", "out_port": "5060", "out_num_packets": "5"}', '[{"operator": "eq", "on_failure": "udp.failure", "on_success": "udp.success", "udp_result_out_response_num_packets": "%PARAM udp_objective_out_num_packets%"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (175, 'dns', 1, 35, 620, 'dns.testinfo', 'test.desc.dns', '{"host": "rtr.at", "record": "A", "timeout": "5000000000", "resolver": "9.9.9.9"}', '[{"operator": "ge", "on_failure": "dns.failure", "on_success": "dns.success", "dns_result_entries_found": "1"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
 
 
 --
 -- Name: qos_test_objective_uid_seq; Type: SEQUENCE SET; Schema: public; Owner: rmbt
 --
 
-SELECT pg_catalog.setval('public.qos_test_objective_uid_seq', 206, true);
-
-
---
--- Name: qos_test_objective qos_test_objective_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.qos_test_objective
-    ADD CONSTRAINT qos_test_objective_pkey PRIMARY KEY (uid);
-
-
---
--- Name: TABLE qos_test_objective; Type: ACL; Schema: public; Owner: rmbt
---
-
-GRANT SELECT ON TABLE public.qos_test_objective TO rmbt_group_read_only;
+SELECT pg_catalog.setval('public.qos_test_objective_uid_seq', 207, true);
 
 
 --
 -- PostgreSQL database dump complete
 --
 
--- 2019-02-04_21-19-54 rmbt_init.sql table qos_test_type_desc
+-- 2019-07-26_07-16-52 rmbt_init.sql table qos_test_type_desc
 --
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 10.6 (Debian 10.6-1.pgdg90+1)
--- Dumped by pg_dump version 10.6 (Debian 10.6-1.pgdg90+1)
+-- Dumped from database version 10.9 (Debian 10.9-1.pgdg90+1)
+-- Dumped by pg_dump version 10.9 (Debian 10.9-1.pgdg90+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -3513,54 +2897,9 @@ SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
+SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
-
-SET default_tablespace = '';
-
-SET default_with_oids = false;
-
---
--- Name: qos_test_type_desc; Type: TABLE; Schema: public; Owner: rmbt
---
-
-CREATE TABLE public.qos_test_type_desc (
-    uid integer NOT NULL,
-    test public.qostest,
-    test_desc text,
-    test_name text
-);
-
-
-ALTER TABLE public.qos_test_type_desc OWNER TO rmbt;
-
---
--- Name: qos_test_type_desc_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
---
-
-CREATE SEQUENCE public.qos_test_type_desc_uid_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.qos_test_type_desc_uid_seq OWNER TO rmbt;
-
---
--- Name: qos_test_type_desc_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
---
-
-ALTER SEQUENCE public.qos_test_type_desc_uid_seq OWNED BY public.qos_test_type_desc.uid;
-
-
---
--- Name: qos_test_type_desc uid; Type: DEFAULT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.qos_test_type_desc ALTER COLUMN uid SET DEFAULT nextval('public.qos_test_type_desc_uid_seq'::regclass);
-
 
 --
 -- Data for Name: qos_test_type_desc; Type: TABLE DATA; Schema: public; Owner: rmbt
@@ -3585,33 +2924,10 @@ SELECT pg_catalog.setval('public.qos_test_type_desc_uid_seq', 40, true);
 
 
 --
--- Name: qos_test_type_desc qos_test_type_desc_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.qos_test_type_desc
-    ADD CONSTRAINT qos_test_type_desc_pkey PRIMARY KEY (uid);
-
-
---
--- Name: qos_test_type_desc qos_test_type_desc_test_key; Type: CONSTRAINT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.qos_test_type_desc
-    ADD CONSTRAINT qos_test_type_desc_test_key UNIQUE (test);
-
-
---
--- Name: TABLE qos_test_type_desc; Type: ACL; Schema: public; Owner: rmbt
---
-
-GRANT SELECT ON TABLE public.qos_test_type_desc TO rmbt_group_read_only;
-
-
---
 -- PostgreSQL database dump complete
 --
 
--- 2019-02-04_21-19-54 rmbt_init.sql template table device_map
+-- 2019-07-26_07-16-52 rmbt_init.sql template table device_map
 --
 -- PostgreSQL database dump
 --
@@ -3725,7 +3041,7 @@ GRANT SELECT ON TABLE public.device_map TO rmbt_group_read_only;
 -- PostgreSQL database dump complete
 --
 
--- 2019-02-04_21-19-54 rmbt_init.sql template table news
+-- 2019-07-26_07-16-52 rmbt_init.sql template table news
 --
 -- PostgreSQL database dump
 --
@@ -3837,7 +3153,7 @@ GRANT SELECT ON TABLE public.news TO rmbt_group_read_only;
 -- PostgreSQL database dump complete
 --
 
--- 2019-02-04_21-19-54 rmbt_init.sql template table settings
+-- 2019-07-26_07-16-52 rmbt_init.sql template table settings
 --
 -- PostgreSQL database dump
 --
@@ -3968,7 +3284,7 @@ GRANT SELECT ON TABLE public.settings TO rmbt_group_read_only;
 -- PostgreSQL database dump complete
 --
 
--- 2019-02-04_21-19-54 rmbt_init.sql template table test_server
+-- 2019-07-26_07-16-52 rmbt_init.sql template table test_server
 --
 -- PostgreSQL database dump
 --

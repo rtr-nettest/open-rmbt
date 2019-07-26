@@ -1,10 +1,10 @@
--- 2019-02-04_19-55-36 rmbt.sql
+-- 2019-07-26_06-46-41 rmbt.sql
 --
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 10.6 (Debian 10.6-1.pgdg90+1)
--- Dumped by pg_dump version 10.6 (Debian 10.6-1.pgdg90+1)
+-- Dumped from database version 10.9 (Debian 10.9-1.pgdg90+1)
+-- Dumped by pg_dump version 10.9 (Debian 10.9-1.pgdg90+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -13,6 +13,7 @@ SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
+SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
@@ -536,6 +537,133 @@ $$;
 ALTER FUNCTION public.fix_geometry_columns() OWNER TO postgres;
 
 --
+-- Name: fix_location(integer, integer); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.fix_location(a integer, b integer) RETURNS integer
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    i     INTEGER := 0;
+    done  INTEGER := 0;
+    err   BOOLEAN;
+    uuid  UUID;
+    guuid UUID;
+BEGIN
+    raise notice 'v2';
+    FOR i IN a..b
+        LOOP
+            BEGIN
+                err := false;
+                raise notice 'count= %',i;
+
+                select into uuid open_test_uuid from fix_location where uid = i;
+                raise notice 'uuid= %',uuid::text;
+                select into guuid g.geo_location_uuid
+                from geo_location g
+                where open_test_uuid = uuid
+                  and time_ns > (-20000000000)
+                order by accuracy, time_ns asc
+                limit 1;
+                raise notice 'guuid= %',guuid::text;
+                delete from test_location where open_test_uuid=uuid;
+                if guuid is not null then
+
+                    INSERT INTO test_location (open_test_uuid, 
+                                               geo_long, 
+                                               geo_lat, 
+                                               location, 
+                                               geo_accuracy, 
+                                               geo_provider,
+                                               geo_location_uuid)
+                    select uuid,
+                           g.geo_long,
+                           g.geo_lat,
+                           g.location,
+                           g.accuracy,
+                           g.provider,
+                           guuid
+                    from geo_location g
+                    where g.geo_location_uuid = guuid
+                    limit 1;
+                END IF;
+            END;
+
+        END LOOP;
+    RETURN done;
+END;
+$$;
+
+
+ALTER FUNCTION public.fix_location(a integer, b integer) OWNER TO postgres;
+
+--
+-- Name: fix_location0(integer, integer); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.fix_location0(a integer, b integer) RETURNS integer
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    i     INTEGER := 0;
+    done  INTEGER := 0;
+    err   BOOLEAN;
+    uuid  UUID;
+    guuid UUID;
+BEGIN
+    raise notice 'v2';
+    FOR i IN a..b
+        LOOP
+            BEGIN
+                err := false;
+                raise notice 'count= %',i;
+
+                select into uuid open_test_uuid
+                from fix_location0
+                where uid = i
+                  and count_ns0 = 1;
+                if uuid is not null then
+                    raise notice 'uuid= %',uuid::text;
+                    select into guuid g.geo_location_uuid
+                    from geo_location g
+                    where open_test_uuid = uuid
+                      and time_ns > (-20000000000)
+                      and time_ns != 0.0
+                    limit 1;
+                    raise notice 'guuid= %',guuid::text;
+                    delete from test_location where open_test_uuid = uuid;
+                    if guuid is not null then
+
+                        INSERT INTO test_location (open_test_uuid,
+                                                   geo_long,
+                                                   geo_lat,
+                                                   location,
+                                                   geo_accuracy,
+                                                   geo_provider,
+                                                   geo_location_uuid)
+                        select uuid,
+                               g.geo_long,
+                               g.geo_lat,
+                               g.location,
+                               g.accuracy,
+                               g.provider,
+                               guuid
+                        from geo_location g
+                        where g.geo_location_uuid = guuid
+                        limit 1;
+                    END IF;
+                END IF;
+            END;
+
+        END LOOP;
+    RETURN done;
+END;
+$$;
+
+
+ALTER FUNCTION public.fix_location0(a integer, b integer) OWNER TO postgres;
+
+--
 -- Name: geomcollfromtext(text); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -633,6 +761,91 @@ CREATE FUNCTION public.geomfromwkb(bytea, integer) RETURNS public.geometry
 ALTER FUNCTION public.geomfromwkb(bytea, integer) OWNER TO postgres;
 
 --
+-- Name: get_bev_vgd(public.geometry); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.get_bev_vgd(location public.geometry) RETURNS TABLE(kg_nr character varying, kg_nr_bev integer, kg character varying, meridian character varying, gkz character varying, gkz_bev integer, pg character varying, bkz character varying, pb character varying, fa_nr character varying, fa character varying, gb_kz character varying, gb character varying, va_nr character varying, va character varying, bl_kz character varying, bl character varying, st_kz smallint, st character varying, fl double precision, geom public.geometry)
+    LANGUAGE plpgsql
+    AS $$
+
+BEGIN
+
+
+    BEGIN
+        RETURN QUERY
+            SELECT bev_vgd.kg_nr,
+                   bev_vgd.kg_nr::integer,
+                   bev_vgd.kg,
+                   bev_vgd.meridian,
+                   bev_vgd.gkz,
+                   bev_vgd.gkz::integer,
+                   bev_vgd.pg,
+                   bev_vgd.bkz,
+                   bev_vgd.pb,
+                   bev_vgd.fa_nr,
+                   bev_vgd.fa,
+                   bev_vgd.gb_kz,
+                   bev_vgd.gb,
+                   bev_vgd.va_nr,
+                   bev_vgd.va,
+                   bev_vgd.bl_kz,
+                   bev_vgd.bl,
+                   bev_vgd.st_kz,
+                   bev_vgd.st,
+                   bev_vgd.fl,
+                   bev_vgd.geom
+
+            FROM bev_vgd
+            WHERE within(st_transform(location, 31287), bev_vgd.geom)
+            LIMIT 1;
+
+    EXCEPTION
+        WHEN undefined_table THEN
+            -- just return NULL, but ignore missing database
+            RAISE NOTICE '%', SQLERRM;
+    END;
+
+END;
+
+
+$$;
+
+
+ALTER FUNCTION public.get_bev_vgd(location public.geometry) OWNER TO postgres;
+
+--
+-- Name: get_gkz_sa(public.geometry); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.get_gkz_sa(location public.geometry) RETURNS integer
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    gkz_sa INTEGER := NULL;
+BEGIN
+    IF (location IS NULL) THEN
+        RETURN NULL;
+    end if;
+    BEGIN
+        SELECT sa.id::INTEGER INTO gkz_sa
+        FROM statistik_austria_gem sa
+        WHERE within(st_transform(location, 31287), sa.geom)
+        LIMIT 1;
+
+    EXCEPTION
+        WHEN undefined_table THEN
+            -- just return NULL, but ignore missing database
+            RAISE NOTICE '%', SQLERRM;
+    END;
+    RETURN gkz_sa;
+END;
+
+$$;
+
+
+ALTER FUNCTION public.get_gkz_sa(location public.geometry) OWNER TO postgres;
+
+--
 -- Name: get_replication_delay(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -712,6 +925,254 @@ $$;
 
 
 ALTER FUNCTION public.hstore2json(hs public.hstore) OWNER TO postgres;
+
+--
+-- Name: interpolate_radio_signal_location(uuid); Type: FUNCTION; Schema: public; Owner: rmbt
+--
+
+CREATE FUNCTION public.interpolate_radio_signal_location(in_open_test_uuid uuid) RETURNS TABLE(out_last_signal_uuid uuid, out_last_radio_signal_uuid uuid, out_last_geo_location_uuid uuid, out_open_test_uuid uuid, out_interpolated_location public.geometry, out_time timestamp with time zone)
+    LANGUAGE plpgsql
+    AS $$
+-- USAGE:
+-- # for data migration:
+--   insert into radio_signal_location (last_signal_uuid, last_radio_signal_uuid, last_geo_location_uuid, open_test_uuid, interpolated_location, time) select (interpolate_radio_signal_location (open_test_uuid)).* from test where open_test_uuid = '0583309a-1c36-4048-90d1-a777be8ef4fd' order by uid asc;
+-- # with single open_test_uuid (e.g. in trigger or server code):
+--   insert into radio_signal_location (last_signal_uuid, last_radio_signal_uuid, last_geo_location_uuid, open_test_uuid, interpolated_location, time) select (interpolate_radio_signal_location ('0583309a-1c36-4048-90d1-a777be8ef4fd')).* ;
+-- # show only (e.g for debugging):
+--   select (interpolate_radio_signal_location ('0583309a-1c36-4048-90d1-a777be8ef4fd')).*;
+-- # generate test data:
+--   select * from (
+--   (select * from interpolate_radio_signal_location ('0583309a-1c36-4048-90d1-a777be8ef4fd') left join signal on signal_uuid=out_last_signal_uuid left join radio_signal on radio_signal_uuid = out_last_radio_signal_uuid left join geo_location on geo_location_uuid= out_last_geo_location_uuid)
+--   union
+--   (select * from interpolate_radio_signal_location ('d1fe403a-14b5-41a7-946a-251b1a5f49ce') left join signal on signal_uuid=out_last_signal_uuid left join radio_signal on radio_signal_uuid = out_last_radio_signal_uuid left join geo_location on geo_location_uuid= out_last_geo_location_uuid)
+--   ) as foo order by out_open_test_uuid, out_time;
+declare
+  signal_rows_found bool;
+  test_time timestamptz;
+  MAX_INACCURACY constant double precision := 2000.0;
+  MIN_TIME_NS constant bigint := -1*60*1000000000::bigint; -- -1 minute  in nanoseconds
+  MAX_TIME_NS constant bigint :=  2*60*1000000000::bigint; --  2 minutes in nanoseconds
+BEGIN
+  --raise notice '%',  in_open_test_uuid; --debug, can be commented out
+SELECT test.time INTO test_time FROM test WHERE open_test_uuid = in_open_test_uuid;
+if not found then
+  return; -- no timestamp found for this open_test_uuid, return nothing and exit
+end if;
+
+CREATE TEMP TABLE if not exists temp_radio_signal_location (
+  -- inputs:
+  signal_uuid uuid,
+  radio_signal_uuid uuid,
+  geo_location_uuid uuid,
+  open_test_uuid uuid,
+  time_ns bigint, -- this is also debug or auxillary output for. e.g. sorting purposes - equals to a coalesce of all time_ns from geo_location, signal and radio_signal tables
+  signal_strength int, -- a coalesce of 2G/3G/4G/WLAN signal strengths
+  location geometry,
+  -- intermediate internal results:
+  time_ns_a bigint,     --time of first interpolation point
+  location_a geometry,  --and its location
+  time_ns_b bigint,     --time of last interpolation point
+  location_b geometry,  --and its location
+  -- outputs:
+  last_signal_uuid uuid,       --last non-null signal_uuid
+  last_radio_signal_uuid uuid, --last non-null radio_signal_uuid
+  last_geo_location_uuid uuid, --last non-null geo_location_uuid
+  interpolated_location geometry, --points from geo_location and interpolated points for signal rows
+  last_signal_strength int,       --last non-null signal strength
+  "time" timestamptz,             --timestamp with accuracy of microseconds, equals to test.time + time_ns
+  -- internal:
+  uid bigserial
+  ) on commit drop;
+
+truncate table temp_radio_signal_location;
+
+insert into temp_radio_signal_location (/*signal_uuid=NULL, radio_signal_uuid=NULL,*/ geo_location_uuid, open_test_uuid, time_ns, location/*, signal_strength*/)
+  select geo_location_uuid, geo_location.open_test_uuid, time_ns, location
+  from geo_location
+  where geo_location.open_test_uuid = in_open_test_uuid
+    and location is not null and accuracy <= MAX_INACCURACY -- consider only data with good accuracy
+    AND time_ns BETWEEN MIN_TIME_NS AND MAX_TIME_NS;        -- consider only plausible time_ns values
+if not found then
+  return; -- no location data found for this open_test_uuid, return nothing and exit
+end if;
+
+insert into temp_radio_signal_location (signal_uuid, /*radio_signal_uuid=NULL, geo_location_uuid=NULL,*/ open_test_uuid, time_ns /*,location=NULL*/, signal_strength)
+  select signal_uuid, signal.open_test_uuid,time_ns, lte_rsrp -- temporary only 4G, should be coalesce - TODO tbd
+  from signal
+  where signal.open_test_uuid = in_open_test_uuid
+    AND time_ns BETWEEN MIN_TIME_NS AND MAX_TIME_NS;       -- consider only plausible time_ns values
+signal_rows_found := found;
+
+insert into temp_radio_signal_location (/*signal_uuid=NULL,*/ radio_signal_uuid, /*geo_location_uuid=NULL,*/ open_test_uuid, time_ns /*,location=NULL*/, signal_strength)
+  select radio_signal_uuid, radio_signal.open_test_uuid, time_ns, lte_rsrp -- temporary only 4G, should be coalesce - TODO tbd
+  from radio_signal
+  join radio_cell on radio_signal.cell_uuid = radio_cell.uuid and registered and active  --for active cells only and the active SIM in case of dual SIMs
+  where radio_signal.open_test_uuid = in_open_test_uuid
+    AND time_ns BETWEEN MIN_TIME_NS AND MAX_TIME_NS;        -- consider only plausible time_ns values
+if (not signal_rows_found and not /*radio_signal_rows_*/found) then -- or (signal_rows_found and /*radio_signal_rows_*/found) == additionally both signal and radio_signal found - would be more restrictive
+  return; -- no signal data found, return nothing and exit
+end if;
+
+-- do first the time ascending handling
+declare -- default values are NULL
+  cursor_asc cursor for select * from temp_radio_signal_location order by time_ns asc for update;
+  row record;
+  last_oldsig_uuid uuid;
+  last_sig_uuid uuid;
+  last_geo_uuid uuid;
+  last_time_ns_a bigint;
+  last_location_a geometry;
+  last_sig_strength int;
+begin
+for row in cursor_asc
+  LOOP
+    <<get_missing_values_asc>>
+    BEGIN
+      if row.signal_uuid is not null and row.signal_uuid is distinct from last_oldsig_uuid then
+        last_oldsig_uuid := row.signal_uuid;
+      end if;
+      if row.radio_signal_uuid is not null and row.radio_signal_uuid is distinct from last_sig_uuid then
+        last_sig_uuid := row.radio_signal_uuid;
+      end if;
+      if row.geo_location_uuid is not null and row.geo_location_uuid is distinct from last_geo_uuid then
+        last_geo_uuid := row.geo_location_uuid;
+      end if;
+      if row.time_ns is not null and row.time_ns is distinct from last_time_ns_a and row.geo_location_uuid is not null then
+        last_time_ns_a := row.time_ns;
+      end if;
+      if row.location is not null and row.location is distinct from last_location_a then
+        last_location_a := row.location;
+      end if;
+      if row.signal_strength is not null and row.signal_strength is distinct from last_sig_strength then
+        last_sig_strength := row.signal_strength;
+      end if;
+    END get_missing_values_asc;
+    <<populate_missing_values_asc>>
+    BEGIN
+      if last_oldsig_uuid is not null then -- assume last old signal
+          update temp_radio_signal_location set last_signal_uuid = last_oldsig_uuid where current of cursor_asc;
+        end if;
+      if last_sig_uuid is not null then -- assume last signal
+        update temp_radio_signal_location set last_radio_signal_uuid = last_sig_uuid where current of cursor_asc;
+      end if;
+      if last_geo_uuid is not null then -- assume last location
+        update temp_radio_signal_location set last_geo_location_uuid = last_geo_uuid where current of cursor_asc;
+      end if;
+      if last_time_ns_a is not null then -- fill last time_ns_a
+        update temp_radio_signal_location set time_ns_a = last_time_ns_a where current of cursor_asc;
+      end if;
+      if last_location_a is not null then -- assume last location
+        update temp_radio_signal_location set location_a = last_location_a where current of cursor_asc;
+      end if;
+      if last_sig_strength is not null then -- assume last signal_strength
+        update temp_radio_signal_location set last_signal_strength = last_sig_strength where current of cursor_asc;
+      end if;
+      update temp_radio_signal_location set time = test_time + ( (ROW.time_ns/1000.0) * INTERVAL '1 microsecond')  where current of cursor_asc;  -- timestamp has accuracy of microseconds
+    END populate_missing_values_asc;
+  END LOOP;
+end;
+
+-- secondly do the time descending handling
+declare -- default values are NULL
+  cursor_desc cursor for select * from temp_radio_signal_location order by time_ns desc for update;
+  row record;
+  last_time_ns_b bigint;
+  last_location_b geometry;
+  interpolated_line geometry;
+  interpolated_point geometry;
+  fraction double precision;
+begin
+for row in cursor_desc
+  LOOP
+    <<get_missing_values_desc>>
+    BEGIN
+      if row.time_ns is not null and row.time_ns is distinct from last_time_ns_b and row.geo_location_uuid is not null then
+        last_time_ns_b := row.time_ns;
+      end if;
+      if row.location is not null and row.location is distinct from last_location_b then
+        last_location_b := row.location;
+      end if;
+    END get_missing_values_desc;
+    <<populate_missing_values_desc>>
+    BEGIN
+      if last_time_ns_b is not null then -- fill next time_ns_b
+        update temp_radio_signal_location set time_ns_b = last_time_ns_b where current of cursor_desc;
+      end if;
+      if last_location_b is not null then -- assume next location
+        update temp_radio_signal_location set location_b = last_location_b where current of cursor_desc;
+      end if;
+    END populate_missing_values_desc;
+  END LOOP;
+end;
+
+-- do the interpolation
+declare -- default values are NULL
+  cursor_asc cursor for select * from temp_radio_signal_location order by time_ns asc for update;
+  row record;
+  interpolated_line geometry;
+  interpolated_point geometry;
+  fraction double precision;
+begin
+for row in cursor_asc
+  LOOP
+    <<populate_interpolated_values>>
+    BEGIN
+      if row.location_a is not null then
+          if row.location_b is not null then
+            interpolated_line := ST_makeline(row.location_a, row.location_b);
+            if row.time_ns_a <> row.time_ns_b then
+              fraction := (row.time_ns - row.time_ns_a)::double precision/(row.time_ns_b - row.time_ns_a)::double precision;
+            else
+              fraction := 0; -- it is one point only
+            end if;
+            interpolated_point := ST_lineinterpolatepoint(interpolated_line, fraction);
+            update temp_radio_signal_location set interpolated_location = interpolated_point /*, provider = 'interpolated'*/ where current of cursor_asc;
+          else --row.location_b is null, take the last row.location_a
+            update temp_radio_signal_location set interpolated_location = row.location_a /*, provider = 'last_position'*/ where current of cursor_asc;
+          end if;
+      end if;
+    END populate_interpolated_values;
+  END LOOP;
+end;
+return query select
+  last_signal_uuid,
+  last_radio_signal_uuid,
+  last_geo_location_uuid,
+  open_test_uuid,
+  interpolated_location,
+  "time"
+  --debug:
+  --,time_ns,
+  --last_signal_strength
+  --time_ns_a,
+  --location_a,
+  --time_ns_b,
+  --location_b
+  from temp_radio_signal_location
+  where
+    (((last_signal_uuid IS NOT NULL) AND (last_radio_signal_uuid IS NULL)) OR ((last_signal_uuid IS NULL) AND (last_radio_signal_uuid IS NOT NULL))) --only return rows with either signal or radio signal according to constraint xor_signals_not_null
+    and  (((last_geo_location_uuid IS NOT NULL) AND (interpolated_location IS NOT NULL))) -- and with location according to constraint location_not_null_for_uuid
+    AND "time" IS NOT NULL -- and with a timestamp
+  order by time_ns asc;
+
+-- do the approximate counting stuff
+-- it is optional and can be commented out
+/*<<do_the_counting>>
+declare
+  val bigint;
+begin
+  val := nextval('temp_radio_signal_location_uid_seq');
+  --if val > 1 then
+  --  perform setval('temp_radio_signal_location_uid_seq',val-1);
+  --end if;
+  raise notice 'nextval %', val;
+end do_the_counting;*/
+--DROP TABLE temp_radio_signal_location; --> leads to "out of shared memory" error and 100.000+ transaction locks
+END;
+$$;
+
+
+ALTER FUNCTION public.interpolate_radio_signal_location(in_open_test_uuid uuid) OWNER TO rmbt;
 
 --
 -- Name: jsonb_array_map(jsonb, text[]); Type: FUNCTION; Schema: public; Owner: rmbt
@@ -1747,297 +2208,568 @@ CREATE FUNCTION public.trigger_test() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 DECLARE
-    _tmp_uuid uuid;
-    _tmp_uid integer;
-    _tmp_time timestamp;
-    _tmp_network_group_name VARCHAR;
-    _mcc_sim VARCHAR;
-    _mcc_net VARCHAR;
+    _country_location      varchar;
+    _tmp_uuid              uuid;
+    _tmp_uid               integer;
+    _tmp_time              timestamp;
+    _mcc_sim               VARCHAR;
+    _mcc_net               VARCHAR;
+    -- limit for accurate location (differs from map where 2000m and 10000m are thresholds)
     _min_accuracy CONSTANT integer := 3000;
-    _tmp_location geometry;
-
-    v_old_data TEXT;
-    v_new_data TEXT;
+    _tmp_location          geometry;
 
 BEGIN
-
+    -- calc logarithmic speed downlink
     IF ((TG_OP = 'INSERT' OR NEW.speed_download IS DISTINCT FROM OLD.speed_download) AND NEW.speed_download > 0) THEN
-        NEW.speed_download_log=(log(NEW.speed_download::double precision/10))/4;
+        NEW.speed_download_log = (log(NEW.speed_download::double precision / 10)) / 4;
     END IF;
+    -- calc logarithmic speed uplink
     IF ((TG_OP = 'INSERT' OR NEW.speed_upload IS DISTINCT FROM OLD.speed_upload) AND NEW.speed_upload > 0) THEN
-        NEW.speed_upload_log=(log(NEW.speed_upload::double precision/10))/4;
+        NEW.speed_upload_log = (log(NEW.speed_upload::double precision / 10)) / 4;
     END IF;
+    -- calc logarithmic ping
+    -- ping_shortest is obsolete
     IF ((TG_OP = 'INSERT' OR NEW.ping_shortest IS DISTINCT FROM OLD.ping_shortest) AND NEW.ping_shortest > 0) THEN
-        NEW.ping_shortest_log=(log(NEW.ping_shortest::double precision/1000000))/3;
-        SELECT INTO NEW.ping_median floor(median(coalesce(value_server,value))) FROM ping WHERE NEW.uid = test_id;
-        NEW.ping_median_log=(log(NEW.ping_median::double precision/1000000))/3;
+        NEW.ping_shortest_log = (log(NEW.ping_shortest::double precision / 1000000)) / 3;
+        -- ping_median (from ping table)
+        SELECT INTO NEW.ping_median floor(median(coalesce(value_server, value))) FROM ping WHERE NEW.uid = test_id;
+        NEW.ping_median_log = (log(NEW.ping_median::double precision / 1000000)) / 3;
         IF (NEW.ping_median IS NULL) THEN
-             NEW.ping_median = NEW.ping_shortest;
+            NEW.ping_median = NEW.ping_shortest;
         END IF;
     END IF;
-
-    IF (TG_OP = 'INSERT' OR NEW.location IS DISTINCT FROM OLD.location) THEN
+    -- location information was migrated to test_location, obsolete
+    /*
+      IF (TG_OP = 'INSERT' OR NEW.location IS DISTINCT FROM OLD.location) THEN
+        -- ignore if location is not accurate
         IF (NEW.location IS NULL OR NEW.geo_accuracy > _min_accuracy) THEN
-            NEW.country_location = NULL;
-            NEW.gkz = NULL;
+
         ELSE
-            -- add Austrian Gemeinde Kennzeichen (community identifier)
-            SELECT INTO NEW.gkz gemeinde_i
-            FROM kategorisierte_gemeinden
-            WHERE NEW.location && the_geom AND Within(NEW.location, the_geom)
+
+
+            -- add dsr id (Austrian dauersiedlungsraum)
+            SELECT dsr.id::INTEGER INTO NEW.settlement_type
+            FROM dsr
+            WHERE within(st_transform(NEW.location, 31287), dsr.geom)
             LIMIT 1;
 
+            -- add Austrian streets and railway (FRC 1,2,3,4,20,21)
+            select q1.link_id,
+                   linknet_names.link_name,
+                   round(ST_DistanceSphere(q1.geom,
+                                           ST_Transform(NEW.location,
+                                                        4326))) link_distance,
+                   q1.frc,
+                   q1.edge_id
+            into NEW.link_id, NEW.link_name, NEW.link_distance, NEW.frc, NEW.edge_id
+            from (SELECT linknet.link_id,
+                         linknet.geom,
+                         linknet.frc,
+                         linknet.edge_id
+                  FROM linknet
+            -- optimize search by using boundary box on geometry
+            -- bbox=ST_Expand(geom,0.01);
+            WHERE ST_Transform(NEW.location, 4326) && linknet.bbox
+
+                  ORDER BY ST_Distance(linknet.geom,
+                                       ST_Transform(NEW.location,
+                                                    4326)) ASC
+                  LIMIT 1) as q1
+                     LEFT JOIN linknet_names ON q1.link_id = linknet_names.link_id
+             WHERE ST_DistanceSphere(q1.geom,
+                                   ST_Transform(NEW.location, 4326)) <=
+                  10.0
+            -- -- only if accuracy 10m or better
+             AND NEW.geo_accuracy < 10.0
+            -- -- only if GPS available
+            AND (NEW.geo_provider ='' OR -- iOS (up to now)
+                NEW.geo_provider IS NULL OR  -- iOS (planned)
+                 NEW.geo_provider='gps');
 
             -- add BEV gkz (community identifier) and kg_nr (settlement identifier)
-            SELECT bev.gkz::INTEGER, bev.kg_nr::INTEGER
-            INTO NEW.gkz_bev, NEW.kg_nr_bev
-            FROM oesterreich_bev_kg_lam_mitattribute_2017_10_02 bev
-            WHERE within(st_transform(NEW.location, 31287), bev.geom)
-            LIMIT 1;
+            BEGIN
+                SELECT bev.gkz::INTEGER,
+                       bev.kg_nr_int
+                       INTO NEW.gkz_bev, NEW.kg_nr_bev
+                FROM bev_vgd bev
+                WHERE st_transform(NEW.location, 31287) && bev.bbox
+                AND within(st_transform(NEW.location, 31287), bev.geom)
+                LIMIT 1;
+            EXCEPTION
+                WHEN undefined_table THEN
+                    -- just return NULL, but ignore missing database
+                    RAISE NOTICE '%', SQLERRM;
+            END;
 
             -- add SA gkz (community identifier)
-            SELECT sa.id::INTEGER
-            INTO NEW.gkz_sa
-            FROM statistik_austria_gem_20180101 sa
-            WHERE within(st_transform(NEW.location, 31287), sa.geom)
-            LIMIT 1;
+            BEGIN
+                SELECT sa.id::INTEGER INTO NEW.gkz_sa
+                FROM statistik_austria_gem sa
+                WHERE st_transform(NEW.location, 31287) && sa.bbox
+                AND
+                within(st_transform(NEW.location, 31287), sa.geom)
+                LIMIT 1;
+            EXCEPTION
+                WHEN undefined_table THEN
+                    -- just return NULL, but ignore missing database
+                    RAISE NOTICE '%', SQLERRM;
+            END;
 
             -- add land cover id
-            SELECT clc.code_12::INTEGER
-            INTO NEW.land_cover
+            SELECT clc.code_12::INTEGER INTO NEW.land_cover
             FROM clc12_all_oesterreich clc
-            WHERE within(st_transform(NEW.location, 3035), clc.geom)
+            -- use boundary box to increase performance
+            -- bbox=ST_EXPAND(geom,0.01)
+            WHERE st_transform(NEW.location, 3035) && clc.bbox
+              AND within(st_transform(NEW.location, 3035), clc.geom)
             LIMIT 1;
 
-
-            IF (NEW.gkz_bev IS NOT NULL) THEN -- #659: kategorisierte_gemeinden is more accurate/up-to-date for AT than ne_50_admin_0_countries or plz2001
+            -- add country code (country_location)
+            IF (NEW.gkz_bev IS NOT NULL) THEN -- #659(mod): Austrian communities are more accurate/up-to-date for AT than ne_50_admin_0_countries
                 NEW.country_location = 'AT';
             ELSE
                 SELECT INTO NEW.country_location iso_a2
                 FROM ne_10m_admin_0_countries
-                WHERE NEW.location && geom AND Within(NEW.location, geom) AND char_length(iso_a2)=2
-                AND iso_a2 IS DISTINCT FROM 'AT' -- #659: because ne_50_admin_0_countries is inaccurate, do not allow to return 'AT'
+                WHERE NEW.location && geom
+                  AND Within(NEW.location, geom)
+                  AND char_length(iso_a2) = 2
+                  AND iso_a2 IS DISTINCT FROM 'AT' -- #659: because ne_50_admin_0_countries is inaccurate, do not allow to return 'AT'
                 LIMIT 1;
             END IF;
+
+        END IF;
+
+    END IF;
+      
+    */
+
+    --  process location in table test_location
+
+    IF ((NEW.location IS NOT NULL) AND (NEW.geo_location_uuid IS NOT NULL)) THEN
+        UPDATE test_location
+        SET geo_location_uuid = NEW.geo_location_uuid,
+            location          = NEW.location,
+            geo_lat           = NEW.geo_lat,
+            geo_long          = NEW.geo_long,
+            geo_accuracy      = NEW.geo_accuracy,
+            geo_provider      = NEW.geo_provider
+        WHERE open_test_uuid  = NEW.open_test_uuid;
+        IF NOT FOUND THEN
+            INSERT INTO test_location (geo_location_uuid,open_test_uuid, location, geo_lat,
+                                       geo_long, geo_accuracy, geo_provider)
+            VALUES (NEW.geo_location_uuid,NEW.open_test_uuid, NEW.location, NEW.geo_lat,
+                    NEW.geo_long, NEW.geo_accuracy, NEW.geo_provider);
         END IF;
     END IF;
 
+    select into _country_location country_location from test_location tl where tl.open_test_uuid = NEW.open_test_uuid;
+
+    -- end of location post processing
+
+    -- set roaming_type /mobile_provider_id
     IF (TG_OP = 'INSERT'
         OR NEW.network_sim_operator IS DISTINCT FROM OLD.network_sim_operator
         OR NEW.network_operator IS DISTINCT FROM OLD.network_operator
         OR NEW.time IS DISTINCT FROM OLD.time
         ) THEN
 
-            IF (NEW.network_sim_operator IS NULL OR NEW.network_operator IS NULL) THEN
-                NEW.roaming_type = NULL;
+        IF (NEW.network_sim_operator IS NULL OR NEW.network_operator IS NULL) THEN
+            NEW.roaming_type = NULL;
+        ELSE
+            IF (NEW.network_sim_operator = NEW.network_operator) THEN
+                NEW.roaming_type = 0; -- no roaming
             ELSE
-                IF (NEW.network_sim_operator = NEW.network_operator) THEN
-                    NEW.roaming_type = 0; -- no roaming
+                _mcc_sim := split_part(NEW.network_sim_operator, '-', 1);
+                _mcc_net := split_part(NEW.network_operator, '-', 1);
+                -- TODO not correct for India - #1050 (old)
+                IF (_mcc_sim = _mcc_net) THEN
+                    NEW.roaming_type = 1; -- national roaming
                 ELSE
-                    _mcc_sim := split_part(NEW.network_sim_operator, '-', 1);
-                    _mcc_net := split_part(NEW.network_operator, '-', 1);
-                    IF (_mcc_sim = _mcc_net) THEN
-                        NEW.roaming_type = 1;  -- national roaming
-                    ELSE
-                        NEW.roaming_type = 2;  -- international roaming
-                    END IF;
+                    NEW.roaming_type = 2; -- international roaming
                 END IF;
             END IF;
-
-            IF ((NEW.roaming_type IS NULL AND NEW.country_location IS DISTINCT FROM 'AT') OR NEW.roaming_type IS NOT DISTINCT FROM 2) THEN -- not for foreign networks #659 bug correction
-                NEW.mobile_provider_id = NULL;
-            ELSE
-                SELECT INTO NEW.mobile_provider_id provider_id FROM mccmnc2provider
-                    WHERE mcc_mnc_sim = NEW.network_sim_operator
-                    AND (valid_from IS NULL OR valid_from <= NEW.time) AND (valid_to IS NULL OR valid_to >= NEW.time)
-                    AND (mcc_mnc_network IS NULL OR mcc_mnc_network = NEW.network_operator)
-                    ORDER BY mcc_mnc_network NULLS LAST
-                    LIMIT 1;
-            END IF;
-    END IF;
-
-     IF ((TG_OP = 'UPDATE' AND OLD.STATUS='STARTED' AND NEW.STATUS='FINISHED')
-          AND (NEW.time > (now() - INTERVAL '5 minutes'))) THEN -- update only new entries, skip old entries
-          IF (NEW.network_operator is not NULL) THEN
-            SELECT INTO NEW.mobile_network_id COALESCE(n.mapped_uid,n.uid)
-                FROM mccmnc2name n
-                WHERE NEW.network_operator=n.mccmnc
-                AND (n.valid_from is null OR n.valid_from <= NEW.time)
-                AND (n.valid_to is null or n.valid_to  >= NEW.time)
-                AND use_for_network=TRUE
-                ORDER BY n.uid NULLS LAST
-                LIMIT 1;
-          END IF;
-
-          IF (NEW.network_sim_operator is not NULL) THEN
-          SELECT INTO NEW.mobile_sim_id COALESCE(n.mapped_uid,n.uid)
-                FROM mccmnc2name n
-                WHERE NEW.network_sim_operator=n.mccmnc
-                AND (n.valid_from is null OR n.valid_from <= NEW.time)
-                AND (n.valid_to is null or n.valid_to  >= NEW.time)
-                AND (NEW.network_sim_operator=n.mcc_mnc_network_mapping OR n.mcc_mnc_network_mapping is NULL)
-                AND use_for_sim=TRUE
-                ORDER BY n.uid NULLS LAST
-                LIMIT 1;
-          END IF;
-
-     END IF;
-
-
-    IF ((TG_OP = 'UPDATE')  AND (NEW.time > (now() - INTERVAL '5 minutes')) AND NEW.network_type=97/*CLI*/ AND NEW.deleted=FALSE) THEN
-        NEW.deleted=TRUE;
-        NEW.comment='Exclude CLI per #211';
-    END IF;
-
-    IF ((TG_OP = 'UPDATE' AND OLD.STATUS='STARTED' AND NEW.STATUS='FINISHED')
-      AND (NEW.time > (now() - INTERVAL '5 minutes'))
-      AND NEW.model='SM-N9005'
-      AND NEW.geo_provider='network') THEN
-         NEW.geo_accuracy = 99999;
-    END IF;
-
-    IF ((TG_OP = 'UPDATE' AND OLD.STATUS='STARTED' AND NEW.STATUS='FINISHED')
-      AND (NEW.time > (now() - INTERVAL '5 minutes'))
-      AND NEW.geo_accuracy is not null
-      AND NEW.geo_accuracy <= 10000 ) THEN
-
-     SELECT INTO _tmp_uid uid FROM test
-        WHERE client_id=NEW.client_id
-        AND time < NEW.time -- #668 allow only past tests
-        AND (NEW.time - INTERVAL '24 hours' < time)
-        AND geo_accuracy is not null
-        AND geo_accuracy <= 10000
-        ORDER BY uid DESC LIMIT 1;
-
-      IF _tmp_uid is not null THEN
-        SELECT INTO NEW.dist_prev ST_Distance(ST_Transform(t.location,4326)::geography,ST_Transform(NEW.location,4326)::geography) -- #668 improve geo precision for the calculation of the distance (in meters) to a previous test
-        FROM test t WHERE uid=_tmp_uid;
-        IF NEW.dist_prev is not null THEN
-            SELECT INTO _tmp_time time FROM test t
-            WHERE uid=_tmp_uid;
-            NEW.speed_prev = NEW.dist_prev/GREATEST(0.000001, EXTRACT(EPOCH FROM (NEW.time - _tmp_time)))*3.6; -- #668 speed in km/h and don't allow division by zero
         END IF;
-      END IF;
+
+        -- set mobile_provider_id
+        -- do not set if outside Austria
+        IF ((NEW.roaming_type IS NULL AND _country_location IS DISTINCT FROM 'AT') OR
+            NEW.roaming_type IS NOT DISTINCT FROM 2) THEN -- not for foreign networks #659 
+            NEW.mobile_provider_id = NULL;
+        ELSE
+            SELECT INTO NEW.mobile_provider_id provider_id
+            FROM mccmnc2provider
+            WHERE mcc_mnc_sim = NEW.network_sim_operator
+              AND (valid_from IS NULL OR valid_from <= NEW.time)
+              AND (valid_to IS NULL OR valid_to >= NEW.time)
+              AND (mcc_mnc_network IS NULL OR mcc_mnc_network = NEW.network_operator)
+            ORDER BY mcc_mnc_network NULLS LAST
+            LIMIT 1;
+        END IF;
+    END IF;
+    -- end of network_sim_operator
+
+    -- set mobile_provider_id (again?)
+    IF ((TG_OP = 'UPDATE' AND OLD.STATUS = 'STARTED' AND NEW.STATUS = 'FINISHED')
+        AND (NEW.time > (now() - INTERVAL '5 minutes'))) THEN -- update only new entries, skip old entries
+        IF (NEW.network_operator is not NULL) THEN
+            SELECT INTO NEW.mobile_network_id COALESCE(n.mapped_uid, n.uid)
+            FROM mccmnc2name n
+            WHERE NEW.network_operator = n.mccmnc
+              AND (n.valid_from is null OR n.valid_from <= NEW.time)
+              AND (n.valid_to is null or n.valid_to >= NEW.time)
+              AND use_for_network = TRUE
+            ORDER BY n.uid NULLS LAST
+            LIMIT 1;
+        END IF;
+
+        -- set network_sim_operator
+        IF (NEW.network_sim_operator is not NULL) THEN
+            SELECT INTO NEW.mobile_sim_id COALESCE(n.mapped_uid, n.uid)
+            FROM mccmnc2name n
+            WHERE NEW.network_sim_operator = n.mccmnc
+              AND (n.valid_from is null OR n.valid_from <= NEW.time)
+              AND (n.valid_to is null or n.valid_to >= NEW.time)
+              AND (NEW.network_sim_operator = n.mcc_mnc_network_mapping OR n.mcc_mnc_network_mapping is NULL)
+              AND use_for_sim = TRUE
+            ORDER BY n.uid NULLS LAST
+            LIMIT 1;
+        END IF;
+
+    END IF;
+    -- end of mobile_provider_id (again?)
+
+    -- ignore automated tests from CLI
+    IF ((TG_OP = 'UPDATE') AND (NEW.time > (now() - INTERVAL '5 minutes')) AND NEW.network_type = 97/*CLI*/ AND
+        NEW.deleted = FALSE) THEN
+        NEW.deleted = TRUE;
+        NEW.comment = 'Exclude CLI per #211';
     END IF;
 
+    -- ignore location of Samsung Galaxy Note 3
+    -- TODO: should be done before post-processing of location, obsolete
+    IF ((TG_OP = 'UPDATE' AND OLD.STATUS = 'STARTED' AND NEW.STATUS = 'FINISHED')
+        AND (NEW.time > (now() - INTERVAL '5 minutes'))
+        AND NEW.model = 'SM-N9005'
+        AND NEW.geo_provider = 'network') THEN
+        NEW.geo_accuracy = 99999;
+    END IF;
+
+    -- plausibility check on distance from previous test
+    IF ((TG_OP = 'UPDATE' AND OLD.STATUS = 'STARTED' AND NEW.STATUS = 'FINISHED')
+        AND (NEW.time > (now() - INTERVAL '5 minutes'))
+        AND NEW.geo_accuracy is not null
+        AND NEW.geo_accuracy <= 10000) THEN
+
+        SELECT INTO _tmp_uid uid
+        FROM test
+        WHERE client_id = NEW.client_id
+          AND time < NEW.time -- #668 allow only past tests
+          AND (NEW.time - INTERVAL '24 hours' < time)
+          AND geo_accuracy is not null
+          AND geo_accuracy <= 10000
+        ORDER BY uid DESC
+        LIMIT 1;
+
+        IF _tmp_uid is not null THEN
+            SELECT INTO NEW.dist_prev ST_Distance(ST_Transform(t.location, 4326)::geography,
+                                                  ST_Transform(NEW.location, 4326)::geography) -- #668 improve geo precision for the calculation of the distance (in meters) to a previous test
+            FROM test t
+            WHERE uid = _tmp_uid;
+            IF NEW.dist_prev is not null THEN
+                SELECT INTO _tmp_time time
+                FROM test t
+                WHERE uid = _tmp_uid;
+                NEW.speed_prev = NEW.dist_prev / GREATEST(0.000001, EXTRACT(EPOCH FROM (NEW.time - _tmp_time))) *
+                                 3.6; -- #668 speed in km/h and don't allow division by zero
+            END IF;
+        END IF;
+    END IF;
+    -- end of plausibility check
+
+    -- set network_type
     IF ((NEW.network_type > 0) AND (NEW.time > (now() - INTERVAL '5 minutes'))) THEN
-       SELECT INTO NEW.network_group_name group_name FROM network_type
-          WHERE uid = NEW.network_type
-          LIMIT 1;
-       SELECT INTO NEW.network_group_type type FROM network_type
-          WHERE uid = NEW.network_type
-          LIMIT 1;
+        SELECT INTO NEW.network_group_name group_name
+        FROM network_type
+        WHERE uid = NEW.network_type
+        LIMIT 1;
+        SELECT INTO NEW.network_group_type type
+        FROM network_type
+        WHERE uid = NEW.network_type
+        LIMIT 1;
     END IF;
 
-    -- #759 Finalisation Loop Modus
-    IF (TG_OP = 'UPDATE' AND OLD.status='STARTED' AND NEW.status='FINISHED')
+    -- set open_uuid
+    -- #759 Finalisation loop mode
+    IF (TG_OP = 'UPDATE' AND OLD.status = 'STARTED' AND NEW.status = 'FINISHED')
         AND (NEW.time > (now() - INTERVAL '5 minutes')) -- update only new entries, skip old entries
     THEN
         _tmp_uuid = NULL;
         _tmp_location = NULL;
-        SELECT open_uuid, location INTO _tmp_uuid, _tmp_location FROM test   -- find the open_uuid and location
-        WHERE (NEW.client_id=client_id)             -- of the current client
-        AND (NEW.time > time)                       -- thereby skipping the current entry (was: OLD.uid != uid)
-        AND status = 'FINISHED'                     -- of successfull tests
-        AND (NEW.time - time) < '4 hours'::INTERVAL -- within last 4 hours
-        AND (NEW.time::DATE = time::DATE)           -- on the same day
-        AND (NEW.network_group_type IS NOT DISTINCT FROM network_group_type) -- of the same technology (i.e. MOBILE, WLAN, LAN, CLI, NULL) - was: network_group_name
-        AND (NEW.public_ip_asn IS NOT DISTINCT FROM public_ip_asn)           -- and of the same operator (including NULL)
-        ORDER BY time DESC LIMIT 1;                 -- get only the latest test
+        SELECT open_uuid, location INTO _tmp_uuid, _tmp_location
+        FROM test -- find the open_uuid and location
+        WHERE (NEW.client_id = client_id)                                      -- of the current client
+          AND (NEW.time > time)                                                -- thereby skipping the current entry (was: OLD.uid != uid)
+          AND status = 'FINISHED'                                              -- of successful tests
+          AND (NEW.time - time) < '4 hours'::INTERVAL                          -- within last 4 hours
+          AND (NEW.time::DATE = time::DATE)                                    -- on the same day
+          AND (NEW.network_group_type IS NOT DISTINCT FROM network_group_type) -- of the same technology (i.e. MOBILE, WLAN, LAN, CLI, NULL) - was: network_group_name
+          AND (NEW.public_ip_asn IS NOT DISTINCT FROM public_ip_asn)           -- and of the same operator (including NULL)
+        ORDER BY time DESC
+        LIMIT 1; -- get only the latest test
 
         IF
-            (_tmp_uuid IS NULL)                     -- previous query doesn't return any test
-             OR                                     -- OR
-            (NEW.location IS NOT NULL AND _tmp_location IS NOT NULL
-             AND ST_Distance(ST_Transform (NEW.location, 4326),
-                             ST_Transform (_tmp_location, 4326)::geography)
-                 >= 100)                            -- the distance to the last test >= 100m
+                (_tmp_uuid IS NULL) -- previous query doesn't return any test
+                OR -- OR
+                (NEW.location IS NOT NULL AND _tmp_location IS NOT NULL
+                    AND ST_Distance(ST_Transform(NEW.location, 4326),
+                                    ST_Transform(_tmp_location, 4326)::geography)
+                     >= 100) -- the distance to the last test >= 100m
         THEN
-            _tmp_uuid = uuid_generate_v4();         --generate new open_uuid
+            _tmp_uuid = uuid_generate_v4(); --generate new open_uuid
         END IF;
         NEW.open_uuid = _tmp_uuid;
     END IF;
+    --end of set open_uuid
 
-    IF (TG_OP = 'UPDATE' AND OLD.STATUS='STARTED' AND NEW.STATUS='FINISHED') THEN
+    -- plausibility check on movement during test
+    IF (TG_OP = 'UPDATE' AND OLD.STATUS = 'STARTED' AND NEW.STATUS = 'FINISHED') THEN
         NEW.timestamp = now();
 
-        SELECT INTO NEW.location_max_distance
-          round(ST_Distance( -- #668 improve geo precision for the calculation of the diagonal length (in meters) of the bounding box of one test
-           ST_SetSRID(ST_MakePoint(ST_XMin(ST_Extent(ST_Transform(location,4326))),ST_YMin(ST_Extent(ST_Transform(location,4326)))),4326)::geography,
-           ST_SetSRID(ST_MakePoint(ST_XMax(ST_Extent(ST_Transform(location,4326))),ST_YMax(ST_Extent(ST_Transform(location,4326)))),4326)::geography)
-          )
-          FROM geo_location
-          WHERE test_id=NEW.uid;
+        SELECT INTO NEW.location_max_distance round(
+                                                      ST_Distance( -- #668 improve geo precision for the calculation of the diagonal length (in meters) of the bounding box of one test
+                                                              ST_SetSRID(ST_MakePoint(
+                                                                                 ST_XMin(ST_Extent(ST_Transform(location, 4326))),
+                                                                                 ST_YMin(ST_Extent(ST_Transform(location, 4326)))),
+                                                                         4326)::geography,
+                                                              ST_SetSRID(ST_MakePoint(
+                                                                                 ST_XMax(ST_Extent(ST_Transform(location, 4326))),
+                                                                                 ST_YMax(ST_Extent(ST_Transform(location, 4326)))),
+                                                                         4326)::geography)
+                                                  )
+        FROM geo_location
+        WHERE test_id = NEW.uid;
     END IF;
 
+    -- plausibility check - Austrian networks outside Austria are not allowed #272
     IF ((NEW.time > (now() - INTERVAL '5 minutes')) -- update only new entries, skip old entries
-       AND (
-           (NEW.network_operator ILIKE '232%') -- test with Austrian mobile network operator
-           )
-       AND ST_Distance(
-             ST_Transform (NEW.location, 4326), -- location of the test
-             ST_Transform ((select geom from ne_10m_admin_0_countries where sovereignt ilike 'Austria'),4326)::geography -- Austria shape
-           ) > 35000 -- location is more than 35 km outside of the Austria shape
-    ) -- if
-    THEN NEW.status='UPDATE ERROR'; NEW.comment='Automatic update error due to invalid location per #272';
+        AND (
+            (NEW.network_operator ILIKE '232%') -- test with Austrian mobile network operator
+            )
+        AND ST_Distance(
+                    ST_Transform(NEW.location, 4326), -- location of the test
+                    ST_Transform((select geom from ne_10m_admin_0_countries where sovereignt ilike 'Austria'),
+                                 4326)::geography -- Austria shape
+                ) > 35000 -- location is more than 35 km outside of the Austria shape
+        ) -- if
+    THEN
+        NEW.status = 'UPDATE ERROR'; NEW.comment = 'Automatic update error due to invalid location per #272';
     END IF;
 
+    -- ignore provider_id if location outside Austria
     IF ((NEW.time > (now() - INTERVAL '5 minutes')) -- update only new entries, skip old entries
-       AND NEW.network_type in (97, 98, 99, 106, 107) -- CLI, LAN, WLAN, Ethernet, Bluetooth
-       AND (
-           (NEW.provider_id IS NOT NULL) -- Austrian operator
-           )
-       AND ST_Distance(
-             ST_Transform (NEW.location, 4326), -- location of the test
-             ST_Transform ((select geom from ne_10m_admin_0_countries where sovereignt ilike 'Austria'),4326)::geography -- Austria shape
-           ) > 3000 -- location is outside of the Austria shape with a tolerance of +3 km
-    ) -- if
-    THEN NEW.provider_id=NULL; NEW.comment=concat('No provider_id outside of Austria for e.g. VPNs, HotSpots, manual location/geocoder etc. per #664; ', NEW.comment, NULLIF(OLD.comment, NEW.comment));
+        AND NEW.network_type in (97, 98, 99, 106, 107) -- CLI, LAN, WLAN, Ethernet, Bluetooth
+        AND (
+            (NEW.provider_id IS NOT NULL) -- Austrian operator
+            )
+        AND ST_Distance(
+                    ST_Transform(NEW.location, 4326), -- location of the test
+                    ST_Transform((select geom from ne_10m_admin_0_countries where sovereignt ilike 'Austria'),
+                                 4326)::geography -- Austria shape
+                ) > 3000 -- location is outside of the Austria shape with a tolerance of +3 km
+        ) -- if
+    -- TODO Do we really need such a long comment within the database here?
+    THEN
+        NEW.provider_id = NULL;
+        NEW.comment = concat(
+                'No provider_id outside of Austria for e.g. VPNs, HotSpots, manual location/geocoder etc. per #664; ',
+                NEW.comment, NULLIF(OLD.comment, NEW.comment));
     END IF;
 
+    -- ignore tests with model name 'unknown'
+    -- TODO justified/relevant?
     IF ((NEW.time > (now() - INTERVAL '5 minutes')) -- update only new entries, skip old entries
-       AND (NEW.model='unknown') -- model is 'unknown'
-       )
-    THEN NEW.status='UPDATE ERROR'; NEW.comment='Automatic update error due to unknown model per #356';
+        AND (NEW.model = 'unknown') -- model is 'unknown'
+        )
+    THEN
+        NEW.status = 'UPDATE ERROR'; NEW.comment = 'Automatic update error due to unknown model per #356';
     END IF;
 
-    IF ((TG_OP = 'UPDATE' AND OLD.STATUS='STARTED' AND NEW.STATUS='FINISHED')
-       AND (NEW.time > (now() - INTERVAL '5 minutes'))) -- update only new entries, skip old entries
+    -- implement test pinning (tests excluded from statistics)
+    IF ((TG_OP = 'UPDATE' AND OLD.STATUS = 'STARTED' AND NEW.STATUS = 'FINISHED')
+        AND (NEW.time > (now() - INTERVAL '5 minutes'))) -- update only new entries, skip old entries
     THEN -- Returns the uid of a previous similar test, otherwise -1. Also IF similar_test_uid = -1 then pinned = TRUE ELSE pinned=FALSE. Column similar_test_uid has a default value NULL, meaning the evaluation for similar test(s) wasn't performed yet.
-       SELECT INTO NEW.similar_test_uid
-          uid FROM test
-          WHERE (similar_test_uid = -1 OR similar_test_uid IS NULL)       -- consider only unsimilar or not yet evaluated tests
-          AND NEW.open_uuid = open_uuid                                   -- with the same open_uuid
-          AND NEW.time > time AND (NEW.time - time) < '4 hours'::INTERVAL -- in the last 4 hours
-          AND NEW.public_ip_asn = public_ip_asn                           -- from the same network based on AS
-          AND NEW.network_type = network_type                             -- of the same network_type
+        SELECT INTO NEW.similar_test_uid uid
+        FROM test
+        WHERE (similar_test_uid = -1 OR similar_test_uid IS NULL) -- consider only unsimilar or not yet evaluated tests
+          AND NEW.open_uuid = open_uuid                           -- with the same open_uuid
+          AND NEW.time > time
+          AND (NEW.time - time) < '4 hours'::INTERVAL             -- in the last 4 hours
+          AND NEW.public_ip_asn = public_ip_asn                   -- from the same network based on AS
+          AND NEW.network_type = network_type                     -- of the same network_type
           AND CASE
-                WHEN (NEW.location IS NOT NULL AND NEW.geo_accuracy IS NOT NULL AND NEW.geo_accuracy < 2000
-                     AND  location IS NOT NULL AND     geo_accuracy IS NOT NULL AND     geo_accuracy < 2000)
-                THEN ST_Distance(
-                       ST_Transform (NEW.location, 4326),
-                       ST_Transform (location,4326)::geography
-                     ) < GREATEST (100, NEW.geo_accuracy)                 -- either within a radius of 100 m
-                ELSE TRUE                                                 -- or if no or inaccurate location, only other criteria count
-              END
-          ORDER BY time DESC                                              -- consider the last, most previous test
-          LIMIT 1;
-       IF NEW.similar_test_uid IS NULL -- no similar test found
-       then NEW.similar_test_uid = -1; -- indicate that we have searched for a similar test but nothing found
-            NEW.pinned = TRUE;         -- and set the pinned for the statistics
-       ELSE NEW.pinned = FALSE;        -- else in similar_test_uid the uid of a previous test is stored so the test shouldn't go into the statistics
-       END IF;
-    END IF;
+                  WHEN (NEW.location IS NOT NULL AND NEW.geo_accuracy IS NOT NULL AND NEW.geo_accuracy < 2000
+                      AND location IS NOT NULL AND geo_accuracy IS NOT NULL AND geo_accuracy < 2000)
+                      THEN ST_Distance(
+                                   ST_Transform(NEW.location, 4326),
+                                   ST_Transform(location, 4326)::geography
+                               ) < GREATEST(100, NEW.geo_accuracy) -- either within a radius of 100 m
+                  ELSE TRUE -- or if no or inaccurate location, only other criteria count
+            END
+        ORDER BY time DESC -- consider the last, most previous test
+        LIMIT 1;
+        IF NEW.similar_test_uid IS NULL -- no similar test found
+        then
+            NEW.similar_test_uid = -1; -- indicate that we have searched for a similar test but nothing found
+            NEW.pinned = TRUE; -- and set the pinned for the statistics
+        ELSE
+            NEW.pinned = FALSE; -- else in similar_test_uid the uid of a previous test is stored so the test shouldn't go into the statistics
+        END IF;
+    END IF; -- end test pinning
 
+    --populate radio_signal_location for location and signal interpolation
+    IF (TG_OP = 'UPDATE' AND OLD.STATUS = 'STARTED' AND NEW.STATUS = 'FINISHED') then
+       insert into radio_signal_location (last_signal_uuid, last_radio_signal_uuid, last_geo_location_uuid, open_test_uuid, interpolated_location, "time") select (interpolate_radio_signal_location (new.open_test_uuid)).* ; 
+    end if; --location and signal interpolation
+    
     RETURN NEW;
-
-
 
 END;
 $$;
 
 
 ALTER FUNCTION public.trigger_test() OWNER TO rmbt;
+
+--
+-- Name: trigger_test_location(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.trigger_test_location() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+
+    _min_accuracy CONSTANT integer := 2000;
+
+
+BEGIN
+
+    -- post process if location is updated
+    IF (TG_OP = 'INSERT' OR NEW.location IS DISTINCT FROM OLD.location) THEN
+        -- ignore if location is not accurate
+        IF (NEW.location IS NULL OR NEW.geo_accuracy > _min_accuracy) THEN
+
+        ELSE
+
+
+            -- add dsr id (Austrian dauersiedlungsraum)
+            SELECT dsr.id::INTEGER INTO NEW.settlement_type
+            FROM dsr
+            WHERE within(st_transform(NEW.location, 31287), dsr.geom)
+            LIMIT 1;
+
+            -- add Austrian streets and railway (FRC 1,2,3,4,20,21)
+            select q1.link_id,
+                   linknet_names.link_name,
+                   round(ST_DistanceSphere(q1.geom,
+                                           ST_Transform(NEW.location,
+                                                        4326))) link_distance,
+                   q1.frc,
+                   q1.edge_id
+            into NEW.link_id, NEW.link_name, NEW.link_distance, NEW.frc, NEW.edge_id
+            from (SELECT linknet.link_id,
+                         linknet.geom,
+                         linknet.frc,
+                         linknet.edge_id
+                  FROM linknet
+            -- optimize search by using boundary box on geometry
+            -- bbox=ST_Expand(geom,0.01);
+            WHERE ST_Transform(NEW.location, 4326) && linknet.bbox
+
+                  ORDER BY ST_Distance(linknet.geom,
+                                       ST_Transform(NEW.location,
+                                                    4326)) ASC
+                  LIMIT 1) as q1
+                     LEFT JOIN linknet_names ON q1.link_id = linknet_names.link_id
+             WHERE ST_DistanceSphere(q1.geom,
+                                   ST_Transform(NEW.location, 4326)) <=
+                  10.0
+            -- only if accuracy 10m or better
+             AND NEW.geo_accuracy < 10.0
+            -- only if GPS available
+            AND (NEW.geo_provider ='' OR -- iOS (up to now)
+                NEW.geo_provider IS NULL OR  -- iOS (planned)
+                 NEW.geo_provider='gps');
+
+            -- add BEV gkz (community identifier) and kg_nr (settlement identifier)
+            BEGIN
+                SELECT bev.gkz::INTEGER,
+                       bev.kg_nr_int
+                       INTO NEW.gkz_bev, NEW.kg_nr_bev
+                FROM bev_vgd bev
+                WHERE st_transform(NEW.location, 31287) && bev.bbox
+                AND within(st_transform(NEW.location, 31287), bev.geom)
+                LIMIT 1;
+            EXCEPTION
+                WHEN undefined_table THEN
+                    -- just return NULL, but ignore missing database
+                    RAISE NOTICE '%', SQLERRM;
+            END;
+
+            -- add SA gkz (community identifier)
+            BEGIN
+                SELECT sa.id::INTEGER INTO NEW.gkz_sa
+                FROM statistik_austria_gem sa
+                WHERE st_transform(NEW.location, 31287) && sa.bbox
+                AND
+                within(st_transform(NEW.location, 31287), sa.geom)
+                LIMIT 1;
+            EXCEPTION
+                WHEN undefined_table THEN
+                    -- just return NULL, but ignore missing database
+                    RAISE NOTICE '%', SQLERRM;
+            END;
+
+            -- add land cover id
+            SELECT clc.code_12::INTEGER INTO NEW.land_cover
+            FROM clc12_all_oesterreich clc
+            -- use boundary box to increase performance
+            -- bbox=ST_EXPAND(geom,0.01)
+            WHERE st_transform(NEW.location, 3035) && clc.bbox
+              AND within(st_transform(NEW.location, 3035), clc.geom)
+            LIMIT 1;
+
+            -- add country code (country_location)
+            IF (NEW.gkz_bev IS NOT NULL) THEN -- #659(mod): Austrian communities are more accurate/up-to-date for AT than ne_50_admin_0_countries
+                NEW.country_location = 'AT';
+            ELSE
+                SELECT INTO NEW.country_location iso_a2
+                FROM ne_10m_admin_0_countries
+                WHERE NEW.location && geom
+                  AND Within(NEW.location, geom)
+                  AND char_length(iso_a2) = 2
+                  AND iso_a2 IS DISTINCT FROM 'AT' -- #659: because ne_50_admin_0_countries is inaccurate, do not allow to return 'AT'
+                LIMIT 1;
+            END IF;
+
+            -- add altitude level from digital terrain model (DTM) #1203
+            SELECT INTO NEW.dtm_level ST_Value(rast, (ST_Transform(ST_SetSRID(ST_MakePoint(NEW.geo_long, NEW.geo_lat), 4326), 31287)))
+            FROM dhm
+            WHERE st_intersects(rast, (ST_Transform(ST_SetSRID(ST_MakePoint(NEW.geo_long, NEW.geo_lat), 4326), 31287)));
+
+
+        END IF;
+
+    END IF;
+    -- end of location post processing
+
+    RETURN NEW;
+
+
+END;
+$$;
+
+
+ALTER FUNCTION public.trigger_test_location() OWNER TO postgres;
 
 --
 -- Name: within(public.geometry, public.geometry); Type: FUNCTION; Schema: public; Owner: postgres
@@ -2203,6 +2935,60 @@ ALTER SEQUENCE public.as2provider_uid_seq OWNED BY public.as2provider.uid;
 
 
 --
+-- Name: bev_vgd; Type: TABLE; Schema: public; Owner: rmbt
+--
+
+CREATE TABLE public.bev_vgd (
+    gid integer NOT NULL,
+    kg_nr character varying(6),
+    kg character varying(50),
+    meridian character varying(3),
+    gkz character varying(6),
+    pg character varying(50),
+    bkz character varying(4),
+    pb character varying(50),
+    fa_nr character varying(3),
+    fa character varying(50),
+    gb_kz character varying(4),
+    gb character varying(50),
+    va_nr character varying(3),
+    va character varying(50),
+    bl_kz character varying(2),
+    bl character varying(50),
+    st_kz smallint,
+    st character varying(50),
+    fl double precision,
+    geom public.geometry(MultiPolygon,31287),
+    kg_nr_int integer,
+    bbox public.geometry
+);
+
+
+ALTER TABLE public.bev_vgd OWNER TO rmbt;
+
+--
+-- Name: bev_vgd_gid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
+--
+
+CREATE SEQUENCE public.bev_vgd_gid_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.bev_vgd_gid_seq OWNER TO rmbt;
+
+--
+-- Name: bev_vgd_gid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
+--
+
+ALTER SEQUENCE public.bev_vgd_gid_seq OWNED BY public.bev_vgd.gid;
+
+
+--
 -- Name: cell_location; Type: TABLE; Schema: public; Owner: rmbt
 --
 
@@ -2260,7 +3046,8 @@ CREATE TABLE public.clc12_all_oesterreich (
     area_ha numeric,
     shape_leng numeric,
     shape_area numeric,
-    geom public.geometry(MultiPolygonZM,3035)
+    geom public.geometry(MultiPolygonZM,3035),
+    bbox public.geometry
 );
 
 
@@ -2381,37 +3168,191 @@ ALTER SEQUENCE public.client_uid_seq OWNED BY public.client.uid;
 
 
 --
+-- Name: dhm; Type: TABLE; Schema: public; Owner: rmbt
+--
+
+CREATE TABLE public.dhm (
+    rid integer NOT NULL,
+    rast public.raster
+);
+
+
+ALTER TABLE public.dhm OWNER TO rmbt;
+
+--
+-- Name: dhm_rid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
+--
+
+CREATE SEQUENCE public.dhm_rid_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.dhm_rid_seq OWNER TO rmbt;
+
+--
+-- Name: dhm_rid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
+--
+
+ALTER SEQUENCE public.dhm_rid_seq OWNED BY public.dhm.rid;
+
+
+--
+-- Name: dsr; Type: TABLE; Schema: public; Owner: rmbt
+--
+
+CREATE TABLE public.dsr (
+    gid integer NOT NULL,
+    id numeric,
+    name character varying(40),
+    geom public.geometry(MultiPolygon,31287)
+);
+
+
+ALTER TABLE public.dsr OWNER TO rmbt;
+
+--
+-- Name: dsr_gid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
+--
+
+CREATE SEQUENCE public.dsr_gid_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.dsr_gid_seq OWNER TO rmbt;
+
+--
+-- Name: dsr_gid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
+--
+
+ALTER SEQUENCE public.dsr_gid_seq OWNED BY public.dsr.gid;
+
+
+--
+-- Name: fix_location; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.fix_location (
+    uid bigint NOT NULL,
+    open_test_uuid uuid NOT NULL,
+    geo_location_uuid uuid
+);
+
+
+ALTER TABLE public.fix_location OWNER TO postgres;
+
+--
+-- Name: fix_location0; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.fix_location0 (
+    uid bigint NOT NULL,
+    open_test_uuid uuid,
+    duration double precision,
+    count_ns0 integer
+);
+
+
+ALTER TABLE public.fix_location0 OWNER TO postgres;
+
+--
+-- Name: fix_location0_uid_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.fix_location0_uid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.fix_location0_uid_seq OWNER TO postgres;
+
+--
+-- Name: fix_location0_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.fix_location0_uid_seq OWNED BY public.fix_location0.uid;
+
+
+--
+-- Name: fix_location_uid_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.fix_location_uid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.fix_location_uid_seq OWNER TO postgres;
+
+--
+-- Name: fix_location_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.fix_location_uid_seq OWNED BY public.fix_location.uid;
+
+
+--
 -- Name: geo_location; Type: TABLE; Schema: public; Owner: rmbt
 --
 
 CREATE TABLE public.geo_location (
     uid bigint NOT NULL,
-    test_id bigint NOT NULL,
+    geo_location_uuid uuid DEFAULT public.uuid_generate_v4(),
+    open_test_uuid uuid NOT NULL,
+    test_id bigint,
+    time_ns bigint NOT NULL,
     "time" timestamp with time zone,
     accuracy double precision,
     altitude double precision,
     bearing double precision,
     speed double precision,
-    provider character varying(200),
+    provider character varying(20),
     geo_lat double precision,
     geo_long double precision,
-    location public.geometry,
-    time_ns bigint,
-    open_test_uuid uuid,
+    location public.geometry NOT NULL,
     mock_location boolean,
-    CONSTRAINT enforce_dims_location CHECK ((public.st_ndims(location) = 2)),
-    CONSTRAINT enforce_geotype_location CHECK (((public.geometrytype(location) = 'POINT'::text) OR (location IS NULL))),
-    CONSTRAINT enforce_srid_location CHECK ((public.st_srid(location) = 900913))
+    CONSTRAINT enforce_geotype_location CHECK ((public.geometrytype(location) = 'POINT'::text)),
+    CONSTRAINT enforce_srid_location CHECK ((public.st_srid(location) = 900913)),
+    CONSTRAINT geo_location_location_check CHECK ((public.st_ndims(location) = 2))
 );
 
 
 ALTER TABLE public.geo_location OWNER TO rmbt;
 
 --
--- Name: COLUMN geo_location.open_test_uuid; Type: COMMENT; Schema: public; Owner: rmbt
+-- Name: geo_location_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
 --
 
-COMMENT ON COLUMN public.geo_location.open_test_uuid IS 'open uuid of the test';
+CREATE SEQUENCE public.geo_location_uid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.geo_location_uid_seq OWNER TO rmbt;
+
+--
+-- Name: geo_location_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
+--
+
+ALTER SEQUENCE public.geo_location_uid_seq OWNED BY public.geo_location.uid;
 
 
 --
@@ -2443,69 +3384,66 @@ CREATE TABLE public.json_sender (
 ALTER TABLE public.json_sender OWNER TO rmbt;
 
 --
--- Name: kategorisierte_gemeinden; Type: TABLE; Schema: public; Owner: rmbt
+-- Name: link4net; Type: TABLE; Schema: public; Owner: rmbt
 --
 
-CREATE TABLE public.kategorisierte_gemeinden (
+CREATE TABLE public.link4net (
     gid integer NOT NULL,
-    objectid integer,
-    gemeinde_i integer,
-    gemeinde character varying(40),
-    bezirk_id smallint,
-    bezirk character varying(40),
-    land_id smallint,
-    land character varying(25),
-    staat character varying(2),
-    lage_int smallint,
-    lage character varying(12),
-    ew_gesamt integer,
-    shape_leng numeric,
-    shape_area numeric,
-    area integer,
-    area_dsr integer,
-    area_2100_ integer,
-    area_21001 integer,
-    area_dsr_2 integer,
-    area_dsr_3 integer,
-    pop_2100_i integer,
-    pop_2100_1 integer,
-    pop_dsr_21 integer,
-    pop_dsr_22 integer,
-    bs integer,
-    bs_2100_in integer,
-    bs_2100__1 integer,
-    area_fn_4m integer,
-    area_fn_8m integer,
-    area_fn_ta integer,
-    area_fn__1 integer,
-    area_fn__2 integer,
-    area_fn__3 integer,
-    pop_fn_4_m integer,
-    pop_fn_8mb integer,
-    pop_fn_4mb integer,
-    pop_fn_8_1 integer,
-    pop_fn_4_1 integer,
-    pop_fn_8_2 integer,
-    kategorie integer,
-    versorgung numeric,
-    kat_neu character varying(50),
-    fn_anteil_ numeric,
-    fn_anteil1 numeric,
-    anhang character varying(50),
-    the_geom public.geometry,
-    CONSTRAINT enforce_dims_the_geom CHECK ((public.st_ndims(the_geom) = 2)),
-    CONSTRAINT enforce_geotype_the_geom CHECK (((public.geometrytype(the_geom) = 'MULTIPOLYGON'::text) OR (the_geom IS NULL))),
-    CONSTRAINT enforce_srid_the_geom CHECK ((public.st_srid(the_geom) = 900913))
+    fid numeric,
+    link_id numeric,
+    name1 character varying(254),
+    name2 character varying(254),
+    from_node numeric,
+    to_node numeric,
+    speedcar_t bigint,
+    speedcar_b bigint,
+    speedtru_t bigint,
+    speedtru_b bigint,
+    vmax_car_t bigint,
+    vmax_car_b bigint,
+    vmax_tru_t bigint,
+    vmax_tru_b bigint,
+    access_tow bigint,
+    access_bkw bigint,
+    length numeric,
+    frc bigint,
+    cap_tow numeric,
+    cap_bkw numeric,
+    lanes_tow numeric,
+    lanes_bkw numeric,
+    formofway bigint,
+    brunnel bigint,
+    maxheight numeric,
+    maxwidth numeric,
+    maxpress numeric,
+    abuttercar bigint,
+    abuttertru bigint,
+    urban bigint,
+    width numeric,
+    int_level numeric,
+    toll bigint,
+    baustatus bigint,
+    subnet_id bigint,
+    oneway_car bigint,
+    oneway_bk bigint,
+    oneway_bus bigint,
+    edge_id numeric,
+    edgecat character varying(3),
+    regcode character varying(31),
+    sustainer character varying(19),
+    dbcon bigint,
+    geom public.geometry(MultiLineString,4326)
 );
 
 
-ALTER TABLE public.kategorisierte_gemeinden OWNER TO rmbt;
+ALTER TABLE public.link4net OWNER TO rmbt;
 
 --
--- Name: kategorisierte_gemeinden_gid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
+-- Name: link4net_gid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
 --
 
-CREATE SEQUENCE public.kategorisierte_gemeinden_gid_seq
+CREATE SEQUENCE public.link4net_gid_seq
+    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2513,20 +3451,76 @@ CREATE SEQUENCE public.kategorisierte_gemeinden_gid_seq
     CACHE 1;
 
 
-ALTER TABLE public.kategorisierte_gemeinden_gid_seq OWNER TO rmbt;
+ALTER TABLE public.link4net_gid_seq OWNER TO rmbt;
 
 --
--- Name: kategorisierte_gemeinden_gid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
+-- Name: link4net_gid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
 --
 
-ALTER SEQUENCE public.kategorisierte_gemeinden_gid_seq OWNED BY public.kategorisierte_gemeinden.gid;
+ALTER SEQUENCE public.link4net_gid_seq OWNED BY public.link4net.gid;
 
 
 --
--- Name: location_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
+-- Name: linknet; Type: TABLE; Schema: public; Owner: rmbt
 --
 
-CREATE SEQUENCE public.location_uid_seq
+CREATE TABLE public.linknet (
+    gid integer NOT NULL,
+    link_id bigint,
+    name1 character varying(254),
+    name2 character varying(254),
+    from_node bigint,
+    to_node bigint,
+    speedcar_t smallint,
+    speedcar_b smallint,
+    speedtru_t smallint,
+    speedtru_b smallint,
+    vmax_car_t smallint,
+    vmax_car_b smallint,
+    vmax_tru_t smallint,
+    vmax_tru_b smallint,
+    access_tow integer,
+    access_bkw integer,
+    length double precision,
+    frc smallint,
+    cap_tow bigint,
+    cap_bkw bigint,
+    lanes_tow double precision,
+    lanes_bkw double precision,
+    formofway smallint,
+    brunnel smallint,
+    maxheight double precision,
+    maxwidth double precision,
+    maxpress double precision,
+    abuttercar smallint,
+    abuttertru smallint,
+    urban integer,
+    width double precision,
+    int_level double precision,
+    toll smallint,
+    baustatus smallint,
+    subnet_id integer,
+    oneway_car smallint,
+    oneway_bk smallint,
+    oneway_bus smallint,
+    edge_id numeric,
+    edgecat character varying(3),
+    regcode character varying(31),
+    sustainer character varying(19),
+    dbcon smallint,
+    geom public.geometry(MultiLineString,4326),
+    bbox public.geometry
+);
+
+
+ALTER TABLE public.linknet OWNER TO rmbt;
+
+--
+-- Name: linknet_gid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
+--
+
+CREATE SEQUENCE public.linknet_gid_seq
+    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2534,20 +3528,32 @@ CREATE SEQUENCE public.location_uid_seq
     CACHE 1;
 
 
-ALTER TABLE public.location_uid_seq OWNER TO rmbt;
+ALTER TABLE public.linknet_gid_seq OWNER TO rmbt;
 
 --
--- Name: location_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
+-- Name: linknet_gid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
 --
 
-ALTER SEQUENCE public.location_uid_seq OWNED BY public.geo_location.uid;
+ALTER SEQUENCE public.linknet_gid_seq OWNED BY public.linknet.gid;
 
 
 --
--- Name: logged_actions; Type: TABLE; Schema: public; Owner: rmbt
+-- Name: linknet_names; Type: TABLE; Schema: public; Owner: rmbt
 --
 
-CREATE TABLE public.logged_actions (
+CREATE TABLE public.linknet_names (
+    link_id integer NOT NULL,
+    link_name character varying
+);
+
+
+ALTER TABLE public.linknet_names OWNER TO rmbt;
+
+--
+-- Name: logged_actions_obsolete; Type: TABLE; Schema: public; Owner: rmbt
+--
+
+CREATE TABLE public.logged_actions_obsolete (
     schema_name text NOT NULL,
     table_name text NOT NULL,
     user_name text,
@@ -2561,7 +3567,7 @@ CREATE TABLE public.logged_actions (
 WITH (fillfactor='100');
 
 
-ALTER TABLE public.logged_actions OWNER TO rmbt;
+ALTER TABLE public.logged_actions_obsolete OWNER TO rmbt;
 
 --
 -- Name: mcc2country; Type: TABLE; Schema: public; Owner: rmbt
@@ -2845,41 +3851,10 @@ ALTER SEQUENCE public.news_uid_seq OWNED BY public.news.uid;
 
 
 --
--- Name: oesterreich_bev_kg_lam_mitattribute_2017_10_02; Type: TABLE; Schema: public; Owner: rmbt
+-- Name: next_link_uid_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.oesterreich_bev_kg_lam_mitattribute_2017_10_02 (
-    gid integer NOT NULL,
-    kg_nr character varying(6),
-    kg character varying(50),
-    meridian character varying(3),
-    gkz character varying(6),
-    pg character varying(50),
-    bkz character varying(4),
-    pb character varying(50),
-    fa_nr character varying(3),
-    fa character varying(50),
-    gb_kz character varying(4),
-    gb character varying(50),
-    va_nr character varying(3),
-    va character varying(50),
-    bl_kz character varying(2),
-    bl character varying(50),
-    st_kz smallint,
-    st character varying(50),
-    fl double precision,
-    geom public.geometry(MultiPolygon,31287),
-    kg_nr_int integer
-);
-
-
-ALTER TABLE public.oesterreich_bev_kg_lam_mitattribute_2017_10_02 OWNER TO rmbt;
-
---
--- Name: oesterreich_bev_kg_lam_mitattribute_2017_10_02_gid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
---
-
-CREATE SEQUENCE public.oesterreich_bev_kg_lam_mitattribute_2017_10_02_gid_seq
+CREATE SEQUENCE public.next_link_uid_seq
     AS integer
     START WITH 1
     INCREMENT BY 1
@@ -2888,14 +3863,7 @@ CREATE SEQUENCE public.oesterreich_bev_kg_lam_mitattribute_2017_10_02_gid_seq
     CACHE 1;
 
 
-ALTER TABLE public.oesterreich_bev_kg_lam_mitattribute_2017_10_02_gid_seq OWNER TO rmbt;
-
---
--- Name: oesterreich_bev_kg_lam_mitattribute_2017_10_02_gid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
---
-
-ALTER SEQUENCE public.oesterreich_bev_kg_lam_mitattribute_2017_10_02_gid_seq OWNED BY public.oesterreich_bev_kg_lam_mitattribute_2017_10_02.gid;
-
+ALTER TABLE public.next_link_uid_seq OWNER TO postgres;
 
 --
 -- Name: oesterreich_bev_kg_lam_mitattribute_2017_10_02_old; Type: TABLE; Schema: public; Owner: rmbt
@@ -2927,58 +3895,6 @@ CREATE TABLE public.oesterreich_bev_kg_lam_mitattribute_2017_10_02_old (
 
 
 ALTER TABLE public.oesterreich_bev_kg_lam_mitattribute_2017_10_02_old OWNER TO rmbt;
-
---
--- Name: oesterreich_bev_vgd_lam; Type: TABLE; Schema: public; Owner: rmbt
---
-
-CREATE TABLE public.oesterreich_bev_vgd_lam (
-    gid integer NOT NULL,
-    kg_nr character varying(6),
-    kg character varying(50),
-    meridian character varying(3),
-    gkz character varying(6),
-    pg character varying(50),
-    bkz character varying(4),
-    pb character varying(50),
-    fa_nr character varying(3),
-    fa character varying(50),
-    gb_kz character varying(4),
-    gb character varying(50),
-    va_nr character varying(3),
-    va character varying(50),
-    bl_kz character varying(2),
-    bl character varying(50),
-    st_kz smallint,
-    st character varying(50),
-    fl double precision,
-    geom public.geometry(MultiPolygon,31287)
-);
-
-
-ALTER TABLE public.oesterreich_bev_vgd_lam OWNER TO rmbt;
-
---
--- Name: oesterreich_bev_vgd_lam_gid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
---
-
-CREATE SEQUENCE public.oesterreich_bev_vgd_lam_gid_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.oesterreich_bev_vgd_lam_gid_seq OWNER TO rmbt;
-
---
--- Name: oesterreich_bev_vgd_lam_gid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
---
-
-ALTER SEQUENCE public.oesterreich_bev_vgd_lam_gid_seq OWNED BY public.oesterreich_bev_vgd_lam.gid;
-
 
 --
 -- Name: ping; Type: TABLE; Schema: public; Owner: rmbt
@@ -3258,8 +4174,9 @@ ALTER SEQUENCE public.radio_cell_uid_seq OWNED BY public.radio_cell.uid;
 
 CREATE TABLE public.radio_signal (
     uid integer NOT NULL,
+    radio_signal_uuid uuid DEFAULT public.uuid_generate_v4(),
+    open_test_uuid uuid NOT NULL,
     cell_uuid uuid NOT NULL,
-    open_test_uuid uuid,
     time_ns bigint,
     time_ns_last bigint,
     "time" timestamp with time zone,
@@ -3278,10 +4195,58 @@ CREATE TABLE public.radio_signal (
 ALTER TABLE public.radio_signal OWNER TO rmbt;
 
 --
+-- Name: radio_signal_location; Type: TABLE; Schema: public; Owner: rmbt
+--
+
+CREATE TABLE public.radio_signal_location (
+    uid bigint NOT NULL,
+    last_signal_uuid uuid,
+    last_radio_signal_uuid uuid,
+    last_geo_location_uuid uuid NOT NULL,
+    open_test_uuid uuid NOT NULL,
+    interpolated_location public.geometry NOT NULL,
+    "time" timestamp with time zone NOT NULL,
+    CONSTRAINT location_not_null_for_uuid CHECK (((last_geo_location_uuid IS NOT NULL) AND (interpolated_location IS NOT NULL))),
+    CONSTRAINT xor_signals_not_null CHECK ((((last_signal_uuid IS NOT NULL) AND (last_radio_signal_uuid IS NULL)) OR ((last_signal_uuid IS NULL) AND (last_radio_signal_uuid IS NOT NULL))))
+);
+
+
+ALTER TABLE public.radio_signal_location OWNER TO rmbt;
+
+--
+-- Name: COLUMN radio_signal_location."time"; Type: COMMENT; Schema: public; Owner: rmbt
+--
+
+COMMENT ON COLUMN public.radio_signal_location."time" IS 'equals test.time + time_ns';
+
+
+--
+-- Name: radio_signal_location_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
+--
+
+CREATE SEQUENCE public.radio_signal_location_uid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.radio_signal_location_uid_seq OWNER TO rmbt;
+
+--
+-- Name: radio_signal_location_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
+--
+
+ALTER SEQUENCE public.radio_signal_location_uid_seq OWNED BY public.radio_signal_location.uid;
+
+
+--
 -- Name: radio_signal_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
 --
 
 CREATE SEQUENCE public.radio_signal_uid_seq
+    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -3296,6 +4261,46 @@ ALTER TABLE public.radio_signal_uid_seq OWNER TO rmbt;
 --
 
 ALTER SEQUENCE public.radio_signal_uid_seq OWNED BY public.radio_signal.uid;
+
+
+--
+-- Name: rtr_gemeinden_multiband; Type: TABLE; Schema: public; Owner: rmbt
+--
+
+CREATE TABLE public.rtr_gemeinden_multiband (
+    uid bigint NOT NULL,
+    gemeinde_i integer,
+    gemeinde character varying(40),
+    versorgung numeric,
+    anhang character varying(5),
+    the_geom public.geometry,
+    CONSTRAINT enforce_dims_the_geom CHECK ((public.st_ndims(the_geom) = 2)),
+    CONSTRAINT enforce_geotype_the_geom CHECK (((public.geometrytype(the_geom) = 'MULTIPOLYGON'::text) OR (the_geom IS NULL))),
+    CONSTRAINT enforce_srid_the_geom CHECK ((public.st_srid(the_geom) = 900913))
+);
+
+
+ALTER TABLE public.rtr_gemeinden_multiband OWNER TO rmbt;
+
+--
+-- Name: rtr_gemeinden_multiband_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
+--
+
+CREATE SEQUENCE public.rtr_gemeinden_multiband_uid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.rtr_gemeinden_multiband_uid_seq OWNER TO rmbt;
+
+--
+-- Name: rtr_gemeinden_multiband_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
+--
+
+ALTER SEQUENCE public.rtr_gemeinden_multiband_uid_seq OWNED BY public.rtr_gemeinden_multiband.uid;
 
 
 --
@@ -3339,30 +4344,24 @@ ALTER SEQUENCE public.settings_uid_seq OWNED BY public.settings.uid;
 
 CREATE TABLE public.signal (
     uid bigint NOT NULL,
+    signal_uuid uuid DEFAULT public.uuid_generate_v4(),
     test_id bigint,
+    open_test_uuid uuid NOT NULL,
     "time" timestamp with time zone,
+    time_ns bigint,
     signal_strength integer,
     network_type_id integer,
     wifi_link_speed integer,
     gsm_bit_error_rate integer,
     wifi_rssi integer,
-    time_ns bigint,
     lte_rsrp integer,
     lte_rsrq integer,
     lte_rssnr integer,
-    lte_cqi integer,
-    open_test_uuid uuid
+    lte_cqi integer
 );
 
 
 ALTER TABLE public.signal OWNER TO rmbt;
-
---
--- Name: COLUMN signal.open_test_uuid; Type: COMMENT; Schema: public; Owner: rmbt
---
-
-COMMENT ON COLUMN public.signal.open_test_uuid IS 'open uuid of the test';
-
 
 --
 -- Name: signal_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
@@ -3419,24 +4418,25 @@ COMMENT ON COLUMN public.speed.items IS 'speed items of the test';
 
 
 --
--- Name: statistik_austria_gem_20180101; Type: TABLE; Schema: public; Owner: rmbt
+-- Name: statistik_austria_gem; Type: TABLE; Schema: public; Owner: rmbt
 --
 
-CREATE TABLE public.statistik_austria_gem_20180101 (
+CREATE TABLE public.statistik_austria_gem (
     gid integer NOT NULL,
     id character varying(254),
     name character varying(254),
-    geom public.geometry(MultiPolygon,31287)
+    geom public.geometry(MultiPolygon,31287),
+    bbox public.geometry
 );
 
 
-ALTER TABLE public.statistik_austria_gem_20180101 OWNER TO rmbt;
+ALTER TABLE public.statistik_austria_gem OWNER TO rmbt;
 
 --
--- Name: statistik_austria_gem_20180101_gid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
+-- Name: statistik_austria_gem_gid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
 --
 
-CREATE SEQUENCE public.statistik_austria_gem_20180101_gid_seq
+CREATE SEQUENCE public.statistik_austria_gem_gid_seq
     AS integer
     START WITH 1
     INCREMENT BY 1
@@ -3445,13 +4445,13 @@ CREATE SEQUENCE public.statistik_austria_gem_20180101_gid_seq
     CACHE 1;
 
 
-ALTER TABLE public.statistik_austria_gem_20180101_gid_seq OWNER TO rmbt;
+ALTER TABLE public.statistik_austria_gem_gid_seq OWNER TO rmbt;
 
 --
--- Name: statistik_austria_gem_20180101_gid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
+-- Name: statistik_austria_gem_gid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
 --
 
-ALTER SEQUENCE public.statistik_austria_gem_20180101_gid_seq OWNED BY public.statistik_austria_gem_20180101.gid;
+ALTER SEQUENCE public.statistik_austria_gem_gid_seq OWNED BY public.statistik_austria_gem.gid;
 
 
 --
@@ -3661,7 +4661,7 @@ CREATE TABLE public.test (
     origin uuid,
     developer_code character varying(8),
     dual_sim boolean,
-    gkz integer,
+    gkz_obsolete integer,
     android_permissions json,
     dual_sim_detection_method character varying(50),
     pinned boolean DEFAULT true NOT NULL,
@@ -3672,18 +4672,23 @@ CREATE TABLE public.test (
     time_qos_ns bigint,
     test_nsec_qos bigint,
     channel_number integer,
-    gkz_bev integer,
-    gkz_sa integer,
+    gkz_bev_obsolete integer,
+    gkz_sa_obsolete integer,
     kg_nr_bev integer,
-    land_cover integer,
+    land_cover_obsolete integer,
     cell_location_id integer,
     cell_area_code integer,
-    settlement_type integer,
+    link_distance_obsolete integer,
+    link_id_obsolete integer,
+    settlement_type_obsolete integer,
+    link_name_obsolete character varying,
+    frc_obsolete smallint,
+    edge_id_obsolete numeric,
+    geo_location_uuid uuid,
     CONSTRAINT enforce_dims_location CHECK ((public.st_ndims(location) = 2)),
     CONSTRAINT enforce_geotype_location CHECK (((public.geometrytype(location) = 'POINT'::text) OR (location IS NULL))),
     CONSTRAINT enforce_srid_location CHECK ((public.st_srid(location) = 900913)),
     CONSTRAINT test_speed_download_noneg CHECK ((speed_download >= 0)),
-	CONSTRAINT settlement_type_check CHECK ( settlement_type > 0 and settlement_type < 4),
     CONSTRAINT test_speed_upload_noneg CHECK ((speed_upload >= 0))
 );
 
@@ -3698,6 +4703,61 @@ COMMENT ON COLUMN public.test.server_id IS 'id of test server used';
 
 
 --
+-- Name: test_location; Type: TABLE; Schema: public; Owner: rmbt
+--
+
+CREATE TABLE public.test_location (
+    uid bigint NOT NULL,
+    open_test_uuid uuid NOT NULL,
+    geo_location_uuid uuid NOT NULL,
+    location public.geometry NOT NULL,
+    geo_long double precision,
+    geo_lat double precision,
+    geo_accuracy double precision,
+    geo_provider character varying,
+    kg_nr_bev integer,
+    gkz_bev integer,
+    gkz_sa integer,
+    land_cover integer,
+    settlement_type integer,
+    link_id integer,
+    link_name character varying,
+    link_distance integer,
+    frc smallint,
+    edge_id numeric,
+    country_location character(2),
+    dtm_level integer,
+    CONSTRAINT enforce_dims_location2 CHECK ((public.st_ndims(location) = 2)),
+    CONSTRAINT enforce_geotype_location2 CHECK ((public.geometrytype(location) = 'POINT'::text)),
+    CONSTRAINT enforce_srid_location2 CHECK ((public.st_srid(location) = 900913)),
+    CONSTRAINT settlement_type_check2 CHECK (((settlement_type > 0) AND (settlement_type < 4)))
+);
+
+
+ALTER TABLE public.test_location OWNER TO rmbt;
+
+--
+-- Name: test_location_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
+--
+
+CREATE SEQUENCE public.test_location_uid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.test_location_uid_seq OWNER TO rmbt;
+
+--
+-- Name: test_location_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
+--
+
+ALTER SEQUENCE public.test_location_uid_seq OWNED BY public.test_location.uid;
+
+
+--
 -- Name: test_loopmode; Type: TABLE; Schema: public; Owner: rmbt
 --
 
@@ -3705,11 +4765,11 @@ CREATE TABLE public.test_loopmode (
     uid integer NOT NULL,
     test_uuid uuid,
     client_uuid uuid,
-    loop_uuid uuid,
     max_movement integer,
     max_delay integer,
     max_tests integer,
-    test_counter integer
+    test_counter integer,
+    loop_uuid uuid
 );
 
 
@@ -3750,7 +4810,8 @@ CREATE TABLE public.test_ndt (
     stat text,
     diag text,
     time_ns bigint,
-    time_end_ns bigint
+    time_end_ns bigint,
+    open_test_uuid uuid
 );
 
 
@@ -3852,6 +4913,21 @@ ALTER TABLE public.test_uid_seq OWNER TO rmbt;
 
 ALTER SEQUENCE public.test_uid_seq OWNED BY public.test.uid;
 
+
+--
+-- Name: tl2_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
+--
+
+CREATE SEQUENCE public.tl2_uid_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.tl2_uid_seq OWNER TO rmbt;
 
 --
 -- Name: v_dl_bandwidth_per_minute; Type: VIEW; Schema: public; Owner: rmbt
@@ -4015,7 +5091,7 @@ CREATE VIEW public.v_test AS
     test.client_ip_local_type,
     COALESCE((test.lte_rsrp + 10), test.signal_strength) AS merged_signal,
     test.developer_code,
-    test.gkz
+    test.gkz_obsolete AS gkz
    FROM public.test;
 
 
@@ -4137,7 +5213,7 @@ CREATE VIEW public.v_test2 AS
     test.client_ip_local_anonymized,
     test.client_ip_local_type,
     COALESCE((test.lte_rsrp + 10), test.signal_strength) AS merged_signal,
-    test.gkz,
+    test.gkz_obsolete AS gkz,
     test.user_server_selection
    FROM public.test;
 
@@ -4260,7 +5336,7 @@ CREATE VIEW public.v_test3 AS
     test.client_ip_local_anonymized,
     test.client_ip_local_type,
     COALESCE((test.lte_rsrp + 10), test.signal_strength) AS merged_signal,
-    test.gkz,
+    test.gkz_obsolete AS gkz,
     test.kg_nr_bev,
     test.user_server_selection
    FROM public.test;
@@ -4383,7 +5459,7 @@ CREATE VIEW public.vt AS
     test.origin,
     test.developer_code,
     test.dual_sim,
-    test.gkz,
+    test.gkz_obsolete AS gkz,
     test.android_permissions,
     test.dual_sim_detection_method,
     test.pinned,
@@ -4405,6 +5481,13 @@ COMMENT ON VIEW public.vt IS 'light weight columns from test (dj)';
 --
 
 ALTER TABLE ONLY public.as2provider ALTER COLUMN uid SET DEFAULT nextval('public.as2provider_uid_seq'::regclass);
+
+
+--
+-- Name: bev_vgd gid; Type: DEFAULT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.bev_vgd ALTER COLUMN gid SET DEFAULT nextval('public.bev_vgd_gid_seq'::regclass);
 
 
 --
@@ -4443,17 +5526,52 @@ ALTER TABLE ONLY public.device_map ALTER COLUMN uid SET DEFAULT nextval('public.
 
 
 --
+-- Name: dhm rid; Type: DEFAULT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.dhm ALTER COLUMN rid SET DEFAULT nextval('public.dhm_rid_seq'::regclass);
+
+
+--
+-- Name: dsr gid; Type: DEFAULT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.dsr ALTER COLUMN gid SET DEFAULT nextval('public.dsr_gid_seq'::regclass);
+
+
+--
+-- Name: fix_location uid; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.fix_location ALTER COLUMN uid SET DEFAULT nextval('public.fix_location_uid_seq'::regclass);
+
+
+--
+-- Name: fix_location0 uid; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.fix_location0 ALTER COLUMN uid SET DEFAULT nextval('public.fix_location0_uid_seq'::regclass);
+
+
+--
 -- Name: geo_location uid; Type: DEFAULT; Schema: public; Owner: rmbt
 --
 
-ALTER TABLE ONLY public.geo_location ALTER COLUMN uid SET DEFAULT nextval('public.location_uid_seq'::regclass);
+ALTER TABLE ONLY public.geo_location ALTER COLUMN uid SET DEFAULT nextval('public.geo_location_uid_seq'::regclass);
 
 
 --
--- Name: kategorisierte_gemeinden gid; Type: DEFAULT; Schema: public; Owner: rmbt
+-- Name: link4net gid; Type: DEFAULT; Schema: public; Owner: rmbt
 --
 
-ALTER TABLE ONLY public.kategorisierte_gemeinden ALTER COLUMN gid SET DEFAULT nextval('public.kategorisierte_gemeinden_gid_seq'::regclass);
+ALTER TABLE ONLY public.link4net ALTER COLUMN gid SET DEFAULT nextval('public.link4net_gid_seq'::regclass);
+
+
+--
+-- Name: linknet gid; Type: DEFAULT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.linknet ALTER COLUMN gid SET DEFAULT nextval('public.linknet_gid_seq'::regclass);
 
 
 --
@@ -4489,20 +5607,6 @@ ALTER TABLE ONLY public.network_type ALTER COLUMN uid SET DEFAULT nextval('publi
 --
 
 ALTER TABLE ONLY public.news ALTER COLUMN uid SET DEFAULT nextval('public.news_uid_seq'::regclass);
-
-
---
--- Name: oesterreich_bev_kg_lam_mitattribute_2017_10_02 gid; Type: DEFAULT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.oesterreich_bev_kg_lam_mitattribute_2017_10_02 ALTER COLUMN gid SET DEFAULT nextval('public.oesterreich_bev_kg_lam_mitattribute_2017_10_02_gid_seq'::regclass);
-
-
---
--- Name: oesterreich_bev_vgd_lam gid; Type: DEFAULT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.oesterreich_bev_vgd_lam ALTER COLUMN gid SET DEFAULT nextval('public.oesterreich_bev_vgd_lam_gid_seq'::regclass);
 
 
 --
@@ -4562,6 +5666,20 @@ ALTER TABLE ONLY public.radio_signal ALTER COLUMN uid SET DEFAULT nextval('publi
 
 
 --
+-- Name: radio_signal_location uid; Type: DEFAULT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.radio_signal_location ALTER COLUMN uid SET DEFAULT nextval('public.radio_signal_location_uid_seq'::regclass);
+
+
+--
+-- Name: rtr_gemeinden_multiband uid; Type: DEFAULT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.rtr_gemeinden_multiband ALTER COLUMN uid SET DEFAULT nextval('public.rtr_gemeinden_multiband_uid_seq'::regclass);
+
+
+--
 -- Name: settings uid; Type: DEFAULT; Schema: public; Owner: rmbt
 --
 
@@ -4576,10 +5694,10 @@ ALTER TABLE ONLY public.signal ALTER COLUMN uid SET DEFAULT nextval('public.sign
 
 
 --
--- Name: statistik_austria_gem_20180101 gid; Type: DEFAULT; Schema: public; Owner: rmbt
+-- Name: statistik_austria_gem gid; Type: DEFAULT; Schema: public; Owner: rmbt
 --
 
-ALTER TABLE ONLY public.statistik_austria_gem_20180101 ALTER COLUMN gid SET DEFAULT nextval('public.statistik_austria_gem_20180101_gid_seq'::regclass);
+ALTER TABLE ONLY public.statistik_austria_gem ALTER COLUMN gid SET DEFAULT nextval('public.statistik_austria_gem_gid_seq'::regclass);
 
 
 --
@@ -4601,6 +5719,13 @@ ALTER TABLE ONLY public.sync_group ALTER COLUMN uid SET DEFAULT nextval('public.
 --
 
 ALTER TABLE ONLY public.test ALTER COLUMN uid SET DEFAULT nextval('public.test_uid_seq'::regclass);
+
+
+--
+-- Name: test_location uid; Type: DEFAULT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.test_location ALTER COLUMN uid SET DEFAULT nextval('public.test_location_uid_seq'::regclass);
 
 
 --
@@ -4646,6 +5771,22 @@ ALTER TABLE ONLY public.device_map
 
 ALTER TABLE ONLY public.as2provider
     ADD CONSTRAINT as2provider_pkey PRIMARY KEY (uid);
+
+
+--
+-- Name: bev_vgd bev_vgd_kg_nr_int; Type: CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.bev_vgd
+    ADD CONSTRAINT bev_vgd_kg_nr_int UNIQUE (kg_nr_int);
+
+
+--
+-- Name: bev_vgd bev_vgd_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.bev_vgd
+    ADD CONSTRAINT bev_vgd_pkey PRIMARY KEY (gid);
 
 
 --
@@ -4705,6 +5846,46 @@ ALTER TABLE ONLY public.device_map
 
 
 --
+-- Name: dhm dhm_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.dhm
+    ADD CONSTRAINT dhm_pkey PRIMARY KEY (rid);
+
+
+--
+-- Name: dsr dsr_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.dsr
+    ADD CONSTRAINT dsr_pkey PRIMARY KEY (gid);
+
+
+--
+-- Name: fix_location0 fix_location0_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.fix_location0
+    ADD CONSTRAINT fix_location0_pkey PRIMARY KEY (uid);
+
+
+--
+-- Name: fix_location fix_location_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.fix_location
+    ADD CONSTRAINT fix_location_pkey PRIMARY KEY (uid);
+
+
+--
+-- Name: geo_location geo_location_geo_location_uuid_key; Type: CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.geo_location
+    ADD CONSTRAINT geo_location_geo_location_uuid_key UNIQUE (geo_location_uuid);
+
+
+--
 -- Name: json_sender json_sender_sender_id_key; Type: CONSTRAINT; Schema: public; Owner: rmbt
 --
 
@@ -4713,19 +5894,35 @@ ALTER TABLE ONLY public.json_sender
 
 
 --
--- Name: kategorisierte_gemeinden kategorisierte_gemeinden_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
+-- Name: link4net link4net_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
 --
 
-ALTER TABLE ONLY public.kategorisierte_gemeinden
-    ADD CONSTRAINT kategorisierte_gemeinden_pkey PRIMARY KEY (gid);
+ALTER TABLE ONLY public.link4net
+    ADD CONSTRAINT link4net_pkey PRIMARY KEY (gid);
 
 
 --
--- Name: geo_location location_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
+-- Name: linknet_names linknet_names_pk; Type: CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.linknet_names
+    ADD CONSTRAINT linknet_names_pk PRIMARY KEY (link_id);
+
+
+--
+-- Name: linknet linknet_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.linknet
+    ADD CONSTRAINT linknet_pkey PRIMARY KEY (gid);
+
+
+--
+-- Name: geo_location location_uid_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
 --
 
 ALTER TABLE ONLY public.geo_location
-    ADD CONSTRAINT location_pkey PRIMARY KEY (uid);
+    ADD CONSTRAINT location_uid_pkey PRIMARY KEY (uid);
 
 
 --
@@ -4766,22 +5963,6 @@ ALTER TABLE ONLY public.ne_10m_admin_0_countries
 
 ALTER TABLE ONLY public.network_type
     ADD CONSTRAINT network_type_pkey PRIMARY KEY (uid);
-
-
---
--- Name: oesterreich_bev_kg_lam_mitattribute_2017_10_02 oesterreich_bev_kg_lam_mitattribute_2017_10_02_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.oesterreich_bev_kg_lam_mitattribute_2017_10_02
-    ADD CONSTRAINT oesterreich_bev_kg_lam_mitattribute_2017_10_02_pkey PRIMARY KEY (gid);
-
-
---
--- Name: oesterreich_bev_vgd_lam oesterreich_bev_vgd_lam_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.oesterreich_bev_vgd_lam
-    ADD CONSTRAINT oesterreich_bev_vgd_lam_pkey PRIMARY KEY (gid);
 
 
 --
@@ -4857,11 +6038,43 @@ ALTER TABLE ONLY public.radio_cell
 
 
 --
+-- Name: radio_signal_location radio_signal_location_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.radio_signal_location
+    ADD CONSTRAINT radio_signal_location_pkey PRIMARY KEY (uid);
+
+
+--
 -- Name: radio_signal radio_signal_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
 --
 
 ALTER TABLE ONLY public.radio_signal
     ADD CONSTRAINT radio_signal_pkey PRIMARY KEY (uid);
+
+
+--
+-- Name: radio_signal radio_signal_signal_uuid_key; Type: CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.radio_signal
+    ADD CONSTRAINT radio_signal_signal_uuid_key UNIQUE (radio_signal_uuid);
+
+
+--
+-- Name: signal radio_signal_uid_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.signal
+    ADD CONSTRAINT radio_signal_uid_pkey PRIMARY KEY (uid);
+
+
+--
+-- Name: rtr_gemeinden_multiband rtr_gemeinden_multiband_uid_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.rtr_gemeinden_multiband
+    ADD CONSTRAINT rtr_gemeinden_multiband_uid_pkey PRIMARY KEY (uid);
 
 
 --
@@ -4881,11 +6094,19 @@ ALTER TABLE ONLY public.settings
 
 
 --
--- Name: signal signal_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
+-- Name: test settlement_type_check; Type: CHECK CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE public.test
+    ADD CONSTRAINT settlement_type_check CHECK (((settlement_type_obsolete > 0) AND (settlement_type_obsolete < 4))) NOT VALID;
+
+
+--
+-- Name: signal signal_signal_uuid_key; Type: CONSTRAINT; Schema: public; Owner: rmbt
 --
 
 ALTER TABLE ONLY public.signal
-    ADD CONSTRAINT signal_pkey PRIMARY KEY (uid);
+    ADD CONSTRAINT signal_signal_uuid_key UNIQUE (signal_uuid);
 
 
 --
@@ -4897,11 +6118,11 @@ ALTER TABLE ONLY public.speed
 
 
 --
--- Name: statistik_austria_gem_20180101 statistik_austria_gem_20180101_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
+-- Name: statistik_austria_gem statistik_austria_gem_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
 --
 
-ALTER TABLE ONLY public.statistik_austria_gem_20180101
-    ADD CONSTRAINT statistik_austria_gem_20180101_pkey PRIMARY KEY (gid);
+ALTER TABLE ONLY public.statistik_austria_gem
+    ADD CONSTRAINT statistik_austria_gem_pkey PRIMARY KEY (gid);
 
 
 --
@@ -4921,11 +6142,35 @@ ALTER TABLE ONLY public.sync_group
 
 
 --
+-- Name: test_location test_location_open_test_uuid_key; Type: CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.test_location
+    ADD CONSTRAINT test_location_open_test_uuid_key UNIQUE (open_test_uuid);
+
+
+--
+-- Name: test_location test_location_uid_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.test_location
+    ADD CONSTRAINT test_location_uid_pkey PRIMARY KEY (uid);
+
+
+--
 -- Name: test_loopmode test_loopmode_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
 --
 
 ALTER TABLE ONLY public.test_loopmode
     ADD CONSTRAINT test_loopmode_pkey PRIMARY KEY (uid);
+
+
+--
+-- Name: test_loopmode test_loopmode_test_uuid_fkey_unique; Type: CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.test_loopmode
+    ADD CONSTRAINT test_loopmode_test_uuid_fkey_unique UNIQUE (test_uuid);
 
 
 --
@@ -4942,6 +6187,14 @@ ALTER TABLE ONLY public.test_ndt
 
 ALTER TABLE ONLY public.test_ndt
     ADD CONSTRAINT test_ndt_test_id_unique UNIQUE (test_id);
+
+
+--
+-- Name: test test_open_test_uuid_unique; Type: CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.test
+    ADD CONSTRAINT test_open_test_uuid_unique UNIQUE (open_test_uuid);
 
 
 --
@@ -4985,10 +6238,61 @@ ALTER TABLE ONLY public.news
 
 
 --
+-- Name: radio_signal_location unique_radio_signal_and_geo; Type: CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.radio_signal_location
+    ADD CONSTRAINT unique_radio_signal_and_geo UNIQUE (last_radio_signal_uuid, last_geo_location_uuid);
+
+
+--
+-- Name: radio_signal_location unique_signal_and_geo; Type: CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.radio_signal_location
+    ADD CONSTRAINT unique_signal_and_geo UNIQUE (last_signal_uuid, last_geo_location_uuid);
+
+
+--
 -- Name: as2provider_provider_id_idx; Type: INDEX; Schema: public; Owner: rmbt
 --
 
 CREATE INDEX as2provider_provider_id_idx ON public.as2provider USING btree (provider_id);
+
+
+--
+-- Name: bev_vgd_bbox_gix; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX bev_vgd_bbox_gix ON public.bev_vgd USING gist (bbox);
+
+
+--
+-- Name: bev_vgd_gix; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX bev_vgd_gix ON public.bev_vgd USING gist (geom);
+
+
+--
+-- Name: bev_vgd_gkz_idx; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX bev_vgd_gkz_idx ON public.bev_vgd USING btree (gkz);
+
+
+--
+-- Name: bev_vgd_kg_nr_idx; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX bev_vgd_kg_nr_idx ON public.bev_vgd USING btree (kg_nr);
+
+
+--
+-- Name: bev_vgd_kg_nr_int_gix; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX bev_vgd_kg_nr_int_gix ON public.bev_vgd USING btree (kg_nr_int);
 
 
 --
@@ -5003,6 +6307,13 @@ CREATE INDEX cell_location_test_id_idx ON public.cell_location USING btree (test
 --
 
 CREATE INDEX cell_location_test_id_time_idx ON public.cell_location USING btree (test_id, "time");
+
+
+--
+-- Name: clc12_all_oesterreich_bbox_gix; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX clc12_all_oesterreich_bbox_gix ON public.clc12_all_oesterreich USING gist (bbox);
 
 
 --
@@ -5034,6 +6345,13 @@ CREATE INDEX client_sync_group_id_idx ON public.client USING btree (sync_group_i
 
 
 --
+-- Name: dhm_st_convexhull_idx; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX dhm_st_convexhull_idx ON public.dhm USING gist (public.st_convexhull(rast));
+
+
+--
 -- Name: download_idx; Type: INDEX; Schema: public; Owner: rmbt
 --
 
@@ -5055,10 +6373,10 @@ CREATE INDEX fki_qos_test_result_test_uid ON public.qos_test_result USING btree 
 
 
 --
--- Name: geo_location_location_idx; Type: INDEX; Schema: public; Owner: rmbt
+-- Name: geo_location_open_test_uuid_idx; Type: INDEX; Schema: public; Owner: rmbt
 --
 
-CREATE INDEX geo_location_location_idx ON public.geo_location USING gist (location);
+CREATE INDEX geo_location_open_test_uuid_idx ON public.geo_location USING btree (open_test_uuid);
 
 
 --
@@ -5090,38 +6408,45 @@ CREATE INDEX geo_location_test_id_time_idx ON public.geo_location USING btree (t
 
 
 --
--- Name: gkz_bev_idx; Type: INDEX; Schema: public; Owner: rmbt
+-- Name: link4net_gix; Type: INDEX; Schema: public; Owner: rmbt
 --
 
-CREATE INDEX gkz_bev_idx ON public.oesterreich_bev_kg_lam_mitattribute_2017_10_02 USING btree (gkz);
-
-
---
--- Name: kategorisierte_gemeinden_gemeinde_i; Type: INDEX; Schema: public; Owner: rmbt
---
-
-CREATE INDEX kategorisierte_gemeinden_gemeinde_i ON public.kategorisierte_gemeinden USING btree (gemeinde_i);
+CREATE INDEX link4net_gix ON public.link4net USING gist (geom);
 
 
 --
--- Name: kategorisierte_gemeinden_the_geom_gist; Type: INDEX; Schema: public; Owner: rmbt
+-- Name: link4net_link_id_idx; Type: INDEX; Schema: public; Owner: rmbt
 --
 
-CREATE INDEX kategorisierte_gemeinden_the_geom_gist ON public.kategorisierte_gemeinden USING gist (the_geom);
-
-
---
--- Name: kg_nr_bev_idx; Type: INDEX; Schema: public; Owner: rmbt
---
-
-CREATE INDEX kg_nr_bev_idx ON public.oesterreich_bev_kg_lam_mitattribute_2017_10_02 USING btree (kg_nr);
+CREATE INDEX link4net_link_id_idx ON public.link4net USING btree (link_id);
 
 
 --
--- Name: kg_nr_int_bev_idx; Type: INDEX; Schema: public; Owner: rmbt
+-- Name: linknet_bbox_gix; Type: INDEX; Schema: public; Owner: rmbt
 --
 
-CREATE INDEX kg_nr_int_bev_idx ON public.oesterreich_bev_kg_lam_mitattribute_2017_10_02 USING btree (kg_nr_int);
+CREATE INDEX linknet_bbox_gix ON public.linknet USING gist (bbox);
+
+
+--
+-- Name: linknet_gix; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX linknet_gix ON public.linknet USING gist (geom);
+
+
+--
+-- Name: linknet_names_link_id_uindex; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE UNIQUE INDEX linknet_names_link_id_uindex ON public.linknet_names USING btree (link_id);
+
+
+--
+-- Name: linknet_names_link_name_index; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX linknet_names_link_name_index ON public.linknet_names USING btree (link_name);
 
 
 --
@@ -5135,21 +6460,21 @@ CREATE INDEX location_idx ON public.test USING gist (location);
 -- Name: logged_actions_action_idx; Type: INDEX; Schema: public; Owner: rmbt
 --
 
-CREATE INDEX logged_actions_action_idx ON public.logged_actions USING btree (action);
+CREATE INDEX logged_actions_action_idx ON public.logged_actions_obsolete USING btree (action);
 
 
 --
 -- Name: logged_actions_action_tstamp_idx; Type: INDEX; Schema: public; Owner: rmbt
 --
 
-CREATE INDEX logged_actions_action_tstamp_idx ON public.logged_actions USING btree (action_tstamp);
+CREATE INDEX logged_actions_action_tstamp_idx ON public.logged_actions_obsolete USING btree (action_tstamp);
 
 
 --
 -- Name: logged_actions_schema_table_idx; Type: INDEX; Schema: public; Owner: rmbt
 --
 
-CREATE INDEX logged_actions_schema_table_idx ON public.logged_actions USING btree ((((schema_name || '.'::text) || table_name)));
+CREATE INDEX logged_actions_schema_table_idx ON public.logged_actions_obsolete USING btree ((((schema_name || '.'::text) || table_name)));
 
 
 --
@@ -5216,13 +6541,6 @@ CREATE INDEX news_time_idx ON public.news USING btree ("time");
 
 
 --
--- Name: oesterreich_bev_gix; Type: INDEX; Schema: public; Owner: rmbt
---
-
-CREATE INDEX oesterreich_bev_gix ON public.oesterreich_bev_kg_lam_mitattribute_2017_10_02 USING gist (geom);
-
-
---
 -- Name: open_test_uuid_cell_location_idx; Type: INDEX; Schema: public; Owner: rmbt
 --
 
@@ -5230,17 +6548,17 @@ CREATE INDEX open_test_uuid_cell_location_idx ON public.cell_location USING btre
 
 
 --
--- Name: open_test_uuid_geo_location_idx; Type: INDEX; Schema: public; Owner: rmbt
---
-
-CREATE INDEX open_test_uuid_geo_location_idx ON public.geo_location USING btree (open_test_uuid);
-
-
---
 -- Name: open_test_uuid_ping_idx; Type: INDEX; Schema: public; Owner: rmbt
 --
 
 CREATE INDEX open_test_uuid_ping_idx ON public.ping USING btree (open_test_uuid);
+
+
+--
+-- Name: open_test_uuid_signal2_idx; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX open_test_uuid_signal2_idx ON public.signal USING btree (open_test_uuid);
 
 
 --
@@ -5286,10 +6604,38 @@ CREATE UNIQUE INDEX radio_cell_uuid_idx ON public.radio_cell USING btree (uuid);
 
 
 --
+-- Name: radio_signal_location_interpolated_location_gix; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX radio_signal_location_interpolated_location_gix ON public.radio_signal_location USING gist (interpolated_location);
+
+
+--
+-- Name: radio_signal_location_open_test_uuid_idx; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX radio_signal_location_open_test_uuid_idx ON public.radio_signal_location USING hash (open_test_uuid);
+
+
+--
+-- Name: radio_signal_location_time_idx; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX radio_signal_location_time_idx ON public.radio_signal_location USING btree ("time");
+
+
+--
 -- Name: radio_signal_open_uuid_idx; Type: INDEX; Schema: public; Owner: rmbt
 --
 
 CREATE INDEX radio_signal_open_uuid_idx ON public.radio_signal USING btree (open_test_uuid);
+
+
+--
+-- Name: rtr_gemeinden_multiband_gix; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX rtr_gemeinden_multiband_gix ON public.rtr_gemeinden_multiband USING gist (the_geom);
 
 
 --
@@ -5300,17 +6646,17 @@ CREATE INDEX settings_key_lang_idx ON public.settings USING btree (key, lang);
 
 
 --
--- Name: signal_test_id_key; Type: INDEX; Schema: public; Owner: rmbt
+-- Name: statistik_austria_gem_bbox_gix; Type: INDEX; Schema: public; Owner: rmbt
 --
 
-CREATE INDEX signal_test_id_key ON public.signal USING btree (test_id);
+CREATE INDEX statistik_austria_gem_bbox_gix ON public.statistik_austria_gem USING gist (bbox);
 
 
 --
--- Name: statistik_austria_gix; Type: INDEX; Schema: public; Owner: rmbt
+-- Name: statistik_austria_gem_gix; Type: INDEX; Schema: public; Owner: rmbt
 --
 
-CREATE INDEX statistik_austria_gix ON public.statistik_austria_gem_20180101 USING gist (geom);
+CREATE INDEX statistik_austria_gem_gix ON public.statistik_austria_gem USING gist (geom);
 
 
 --
@@ -5352,21 +6698,21 @@ CREATE INDEX test_geo_accuracy_idx ON public.test USING btree (geo_accuracy);
 -- Name: test_gkz_bev_idx; Type: INDEX; Schema: public; Owner: rmbt
 --
 
-CREATE INDEX test_gkz_bev_idx ON public.test USING btree (gkz_bev);
+CREATE INDEX test_gkz_bev_idx ON public.test USING btree (gkz_bev_obsolete);
 
 
 --
 -- Name: test_gkz_idx; Type: INDEX; Schema: public; Owner: rmbt
 --
 
-CREATE INDEX test_gkz_idx ON public.test USING btree (gkz);
+CREATE INDEX test_gkz_idx ON public.test USING btree (gkz_obsolete);
 
 
 --
 -- Name: test_gkz_sa_idx; Type: INDEX; Schema: public; Owner: rmbt
 --
 
-CREATE INDEX test_gkz_sa_idx ON public.test USING btree (gkz_sa);
+CREATE INDEX test_gkz_sa_idx ON public.test USING btree (gkz_sa_obsolete);
 
 
 --
@@ -5387,7 +6733,70 @@ CREATE INDEX test_kg_nr_bev_idx ON public.test USING btree (kg_nr_bev);
 -- Name: test_land_cover_idx; Type: INDEX; Schema: public; Owner: rmbt
 --
 
-CREATE INDEX test_land_cover_idx ON public.test USING btree (land_cover);
+CREATE INDEX test_land_cover_idx ON public.test USING btree (land_cover_obsolete);
+
+
+--
+-- Name: test_location_geo_accuracy_idx; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX test_location_geo_accuracy_idx ON public.test_location USING btree (geo_accuracy);
+
+
+--
+-- Name: test_location_gkz_bev_idx; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX test_location_gkz_bev_idx ON public.test_location USING btree (gkz_bev);
+
+
+--
+-- Name: test_location_gkz_sa_idx; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX test_location_gkz_sa_idx ON public.test_location USING btree (gkz_sa);
+
+
+--
+-- Name: test_location_kg_nv_bev_idx; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX test_location_kg_nv_bev_idx ON public.test_location USING btree (kg_nr_bev);
+
+
+--
+-- Name: test_location_land_cover_idx; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX test_location_land_cover_idx ON public.test_location USING btree (land_cover);
+
+
+--
+-- Name: test_location_link_name_idx; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX test_location_link_name_idx ON public.test_location USING btree (link_name);
+
+
+--
+-- Name: test_location_location_gix; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX test_location_location_gix ON public.test_location USING gist (location);
+
+
+--
+-- Name: test_location_open_test_uuid_idx; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX test_location_open_test_uuid_idx ON public.test_location USING btree (open_test_uuid);
+
+
+--
+-- Name: test_location_settlement_type_idx; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX test_location_settlement_type_idx ON public.test_location USING btree (settlement_type);
 
 
 --
@@ -5552,6 +6961,13 @@ CREATE TRIGGER trigger_test BEFORE INSERT OR UPDATE ON public.test FOR EACH ROW 
 
 
 --
+-- Name: test_location trigger_test_location2; Type: TRIGGER; Schema: public; Owner: rmbt
+--
+
+CREATE TRIGGER trigger_test_location2 BEFORE INSERT OR UPDATE ON public.test_location FOR EACH ROW EXECUTE PROCEDURE public.trigger_test_location();
+
+
+--
 -- Name: as2provider as2provider_provider_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: rmbt
 --
 
@@ -5584,11 +7000,11 @@ ALTER TABLE ONLY public.client
 
 
 --
--- Name: geo_location location_test_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: rmbt
+-- Name: geo_location geo_location_open_test_uuid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: rmbt
 --
 
 ALTER TABLE ONLY public.geo_location
-    ADD CONSTRAINT location_test_id_fkey FOREIGN KEY (test_id) REFERENCES public.test(uid) ON DELETE CASCADE;
+    ADD CONSTRAINT geo_location_open_test_uuid_fkey FOREIGN KEY (open_test_uuid) REFERENCES public.test(open_test_uuid) ON DELETE CASCADE;
 
 
 --
@@ -5624,11 +7040,51 @@ ALTER TABLE ONLY public.qos_test_result
 
 
 --
--- Name: signal signal_test_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: rmbt
+-- Name: radio_signal_location radio_signal_location_open_test_uuid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.radio_signal_location
+    ADD CONSTRAINT radio_signal_location_open_test_uuid_fkey FOREIGN KEY (open_test_uuid) REFERENCES public.test(open_test_uuid) ON DELETE CASCADE;
+
+
+--
+-- Name: radio_signal_location radio_signal_location_radio_geo_location_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.radio_signal_location
+    ADD CONSTRAINT radio_signal_location_radio_geo_location_id_fkey FOREIGN KEY (last_geo_location_uuid) REFERENCES public.geo_location(geo_location_uuid) ON DELETE CASCADE;
+
+
+--
+-- Name: radio_signal_location radio_signal_location_radio_signal_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.radio_signal_location
+    ADD CONSTRAINT radio_signal_location_radio_signal_id_fkey FOREIGN KEY (last_radio_signal_uuid) REFERENCES public.radio_signal(radio_signal_uuid) ON DELETE CASCADE;
+
+
+--
+-- Name: radio_signal_location radio_signal_location_signal_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.radio_signal_location
+    ADD CONSTRAINT radio_signal_location_signal_id_fkey FOREIGN KEY (last_signal_uuid) REFERENCES public.signal(signal_uuid) ON DELETE CASCADE;
+
+
+--
+-- Name: radio_signal radio_signal_open_test_uuid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.radio_signal
+    ADD CONSTRAINT radio_signal_open_test_uuid_fkey FOREIGN KEY (open_test_uuid) REFERENCES public.test(open_test_uuid) ON DELETE CASCADE;
+
+
+--
+-- Name: signal signal_open_test_uuid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: rmbt
 --
 
 ALTER TABLE ONLY public.signal
-    ADD CONSTRAINT signal_test_id_fkey FOREIGN KEY (test_id) REFERENCES public.test(uid) ON DELETE CASCADE;
+    ADD CONSTRAINT signal_open_test_uuid_fkey FOREIGN KEY (open_test_uuid) REFERENCES public.test(open_test_uuid) ON DELETE CASCADE;
 
 
 --
@@ -5637,6 +7093,14 @@ ALTER TABLE ONLY public.signal
 
 ALTER TABLE ONLY public.test
     ADD CONSTRAINT test_client_id_fkey FOREIGN KEY (client_id) REFERENCES public.client(uid) ON DELETE CASCADE;
+
+
+--
+-- Name: test_location test_location_open_test_uuid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.test_location
+    ADD CONSTRAINT test_location_open_test_uuid_fkey FOREIGN KEY (open_test_uuid) REFERENCES public.test(open_test_uuid) ON DELETE CASCADE;
 
 
 --
@@ -5688,6 +7152,15 @@ ALTER TABLE ONLY public.test
 
 
 --
+-- Name: FUNCTION interpolate_radio_signal_location(in_open_test_uuid uuid); Type: ACL; Schema: public; Owner: rmbt
+--
+
+REVOKE ALL ON FUNCTION public.interpolate_radio_signal_location(in_open_test_uuid uuid) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.interpolate_radio_signal_location(in_open_test_uuid uuid) TO rmbt_group_control;
+GRANT ALL ON FUNCTION public.interpolate_radio_signal_location(in_open_test_uuid uuid) TO rmbt_group_read_only;
+
+
+--
 -- Name: TABLE device_map; Type: ACL; Schema: public; Owner: rmbt
 --
 
@@ -5699,6 +7172,13 @@ GRANT SELECT ON TABLE public.device_map TO rmbt_group_read_only;
 --
 
 GRANT SELECT ON TABLE public.as2provider TO rmbt_group_read_only;
+
+
+--
+-- Name: TABLE bev_vgd; Type: ACL; Schema: public; Owner: rmbt
+--
+
+GRANT SELECT ON TABLE public.bev_vgd TO rmbt_group_read_only;
 
 
 --
@@ -5753,11 +7233,34 @@ GRANT USAGE ON SEQUENCE public.client_uid_seq TO rmbt_group_control;
 
 
 --
+-- Name: TABLE dhm; Type: ACL; Schema: public; Owner: rmbt
+--
+
+GRANT SELECT ON TABLE public.dhm TO rmbt_group_read_only;
+GRANT ALL ON TABLE public.dhm TO rmbt_group_control;
+
+
+--
+-- Name: TABLE dsr; Type: ACL; Schema: public; Owner: rmbt
+--
+
+GRANT SELECT ON TABLE public.dsr TO rmbt_group_read_only;
+
+
+--
 -- Name: TABLE geo_location; Type: ACL; Schema: public; Owner: rmbt
 --
 
 GRANT SELECT ON TABLE public.geo_location TO rmbt_group_read_only;
-GRANT INSERT ON TABLE public.geo_location TO rmbt_group_control;
+GRANT ALL ON TABLE public.geo_location TO rmbt_group_control;
+
+
+--
+-- Name: SEQUENCE geo_location_uid_seq; Type: ACL; Schema: public; Owner: rmbt
+--
+
+GRANT SELECT,USAGE ON SEQUENCE public.geo_location_uid_seq TO rmbt_group_control;
+GRANT SELECT ON SEQUENCE public.geo_location_uid_seq TO rmbt_group_read_only;
 
 
 --
@@ -5768,24 +7271,31 @@ GRANT UPDATE ON TABLE public.json_sender TO rmbt_group_control;
 
 
 --
--- Name: TABLE kategorisierte_gemeinden; Type: ACL; Schema: public; Owner: rmbt
+-- Name: TABLE link4net; Type: ACL; Schema: public; Owner: rmbt
 --
 
-GRANT SELECT ON TABLE public.kategorisierte_gemeinden TO rmbt_group_read_only;
-
-
---
--- Name: SEQUENCE location_uid_seq; Type: ACL; Schema: public; Owner: rmbt
---
-
-GRANT USAGE ON SEQUENCE public.location_uid_seq TO rmbt_group_control;
+GRANT SELECT ON TABLE public.link4net TO rmbt_group_read_only;
 
 
 --
--- Name: TABLE logged_actions; Type: ACL; Schema: public; Owner: rmbt
+-- Name: TABLE linknet; Type: ACL; Schema: public; Owner: rmbt
 --
 
-GRANT INSERT ON TABLE public.logged_actions TO rmbt_group_control;
+GRANT SELECT ON TABLE public.linknet TO rmbt_group_read_only;
+
+
+--
+-- Name: TABLE linknet_names; Type: ACL; Schema: public; Owner: rmbt
+--
+
+GRANT SELECT ON TABLE public.linknet_names TO rmbt_group_read_only;
+
+
+--
+-- Name: TABLE logged_actions_obsolete; Type: ACL; Schema: public; Owner: rmbt
+--
+
+GRANT INSERT ON TABLE public.logged_actions_obsolete TO rmbt_group_control;
 
 
 --
@@ -5829,13 +7339,6 @@ GRANT SELECT ON TABLE public.network_type TO rmbt_group_read_only;
 --
 
 GRANT SELECT ON TABLE public.news TO rmbt_group_read_only;
-
-
---
--- Name: TABLE oesterreich_bev_kg_lam_mitattribute_2017_10_02; Type: ACL; Schema: public; Owner: rmbt
---
-
-GRANT SELECT ON TABLE public.oesterreich_bev_kg_lam_mitattribute_2017_10_02 TO rmbt_group_read_only;
 
 
 --
@@ -5916,14 +7419,29 @@ GRANT USAGE ON SEQUENCE public.radio_cell_uid_seq TO rmbt_group_control;
 --
 
 GRANT SELECT ON TABLE public.radio_signal TO rmbt_group_read_only;
-GRANT INSERT ON TABLE public.radio_signal TO rmbt_group_control;
+GRANT ALL ON TABLE public.radio_signal TO rmbt_group_control;
+
+
+--
+-- Name: TABLE radio_signal_location; Type: ACL; Schema: public; Owner: rmbt
+--
+
+GRANT SELECT ON TABLE public.radio_signal_location TO rmbt_group_read_only;
+GRANT ALL ON TABLE public.radio_signal_location TO rmbt_group_control;
+
+
+--
+-- Name: SEQUENCE radio_signal_location_uid_seq; Type: ACL; Schema: public; Owner: rmbt
+--
+
+GRANT ALL ON SEQUENCE public.radio_signal_location_uid_seq TO rmbt_group_control;
 
 
 --
 -- Name: SEQUENCE radio_signal_uid_seq; Type: ACL; Schema: public; Owner: rmbt
 --
 
-GRANT USAGE ON SEQUENCE public.radio_signal_uid_seq TO rmbt_group_control;
+GRANT SELECT,USAGE ON SEQUENCE public.radio_signal_uid_seq TO rmbt_group_control;
 
 
 --
@@ -5938,14 +7456,14 @@ GRANT SELECT ON TABLE public.settings TO rmbt_group_read_only;
 --
 
 GRANT SELECT ON TABLE public.signal TO rmbt_group_read_only;
-GRANT INSERT ON TABLE public.signal TO rmbt_group_control;
+GRANT ALL ON TABLE public.signal TO rmbt_group_control;
 
 
 --
 -- Name: SEQUENCE signal_uid_seq; Type: ACL; Schema: public; Owner: rmbt
 --
 
-GRANT USAGE ON SEQUENCE public.signal_uid_seq TO rmbt_group_control;
+GRANT SELECT,USAGE ON SEQUENCE public.signal_uid_seq TO rmbt_group_control;
 
 
 --
@@ -5957,10 +7475,10 @@ GRANT INSERT,UPDATE ON TABLE public.speed TO rmbt_group_control;
 
 
 --
--- Name: TABLE statistik_austria_gem_20180101; Type: ACL; Schema: public; Owner: rmbt
+-- Name: TABLE statistik_austria_gem; Type: ACL; Schema: public; Owner: rmbt
 --
 
-GRANT SELECT ON TABLE public.statistik_austria_gem_20180101 TO rmbt_group_read_only;
+GRANT SELECT ON TABLE public.statistik_austria_gem TO rmbt_group_read_only;
 
 
 --
@@ -5999,6 +7517,22 @@ GRANT USAGE ON SEQUENCE public.sync_group_uid_seq TO rmbt_group_control;
 
 GRANT SELECT ON TABLE public.test TO rmbt_group_read_only;
 GRANT INSERT,UPDATE ON TABLE public.test TO rmbt_group_control;
+
+
+--
+-- Name: TABLE test_location; Type: ACL; Schema: public; Owner: rmbt
+--
+
+GRANT SELECT ON TABLE public.test_location TO rmbt_group_read_only;
+GRANT ALL ON TABLE public.test_location TO rmbt_group_control;
+
+
+--
+-- Name: SEQUENCE test_location_uid_seq; Type: ACL; Schema: public; Owner: rmbt
+--
+
+GRANT SELECT,USAGE ON SEQUENCE public.test_location_uid_seq TO rmbt_group_control;
+GRANT SELECT ON SEQUENCE public.test_location_uid_seq TO rmbt_group_read_only;
 
 
 --
@@ -6043,6 +7577,13 @@ GRANT SELECT ON TABLE public.test_server TO rmbt_group_read_only;
 --
 
 GRANT USAGE ON SEQUENCE public.test_uid_seq TO rmbt_group_control;
+
+
+--
+-- Name: SEQUENCE tl2_uid_seq; Type: ACL; Schema: public; Owner: rmbt
+--
+
+GRANT ALL ON SEQUENCE public.tl2_uid_seq TO rmbt_group_control;
 
 
 --

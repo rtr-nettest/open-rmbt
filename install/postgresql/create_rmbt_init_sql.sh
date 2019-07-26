@@ -28,7 +28,7 @@ do
    # Update on progress
    echo "Dumping table $i..."
    echo "-- $DATE $OUTPUT table $i" > $i.sql
-   pg_dump rmbt --table=$i --column-inserts >> $i.sql
+   pg_dump rmbt --table=$i --column-inserts --data-only >> $i.sql
    cat $i.sql >> $OUTPUT
 done
 
