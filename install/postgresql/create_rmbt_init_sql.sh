@@ -12,8 +12,8 @@ export LANG=C
 DATE=`date '+%Y-%m-%d_%H-%M-%S'`
 OUTPUT=rmbt_init.sql
 # List of tables to be dumped
-declare -a TABLES=("as2provider" "client_type" "mcc2country" "mccmnc2name" "mccmnc2provider" "network_type" "provider" \
-  "qos_test_desc" "qos_test_objective" "qos_test_type_desc")
+declare -a TABLES=("provider" "as2provider" "client_type" "mcc2country" "mccmnc2name" "mccmnc2provider" "network_type"  \
+  "qos_test_desc" "qos_test_type_desc" "qos_test_objective")
 
 # Check if file exists
 test -r $OUTPUT                    && echo "$OUTPUT exists, aborting." &&  exit 0
