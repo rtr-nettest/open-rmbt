@@ -137,6 +137,11 @@ public class ContextListener implements ServletContextListener
                         {
                             e.printStackTrace();
                         }
+                        finally {
+                            ps1.close();
+                            ps2.close();
+                            ps3.close();
+                        }
                         Thread.sleep(10);
                     }
 
