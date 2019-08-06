@@ -630,7 +630,7 @@ public class ResultResource extends ServerResource
                                                 if (lteRsrp < minLteRsrp && lteRsrp != UNKNOWN)
                                                     minLteRsrp = lteRsrp;
 
-                                                if (lteRsrq < minLteRsrq && lteRsrq != UNKNOWN)
+                                                if (lteRsrq < minLteRsrq && lteRsrq != UNKNOWN && !(Math.abs(lteRsrq) > 19.5 || Math.abs(lteRsrq) < 3.0))
                                                     minLteRsrq = lteRsrq;
 
                                                 if (thisLinkSpeed != 0 && (minLinkSpeed == UNKNOWN || thisLinkSpeed < minLinkSpeed))
