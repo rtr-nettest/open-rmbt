@@ -633,6 +633,7 @@ public class InformationCollector
                         this.registeredCells.clear();
                         this.registeredCells.add(cellInformationWrapper);
                         this.cellInfos.add(cellInformationWrapper);
+                        this.lastActiveCell.set(cellInformationWrapper);
                     }
 //                    Log.i(DEBUG_TAG, "Signals1: " + signals.toString());
                 }
@@ -743,37 +744,6 @@ public class InformationCollector
                 else if (!isSuspectedDualSim()) {
                     fullInfo.setProperty("TELEPHONY_SIM_COUNT", Integer.toString(1));
                 }
-                /* //Android 5.1; API 22 (Lollipop MR 1)
-                else if (isSuspectedDualSim() && subscriptionManager != null && haveReadPhoneStatePerm
-                        && lastActiveCell != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-                    //maybe, just maybe, exactly one of the operators will
-                    //match with the currently active data connection mcc-mnc
-                    // -> then, this operator is the data operator
-                    SubscriptionInfo dataSubscription = null;
-                    for (SubscriptionInfo sub : subscriptionManager.getActiveSubscriptionInfoList()) {
-                        if (lastActiveCell.get().getCi().getMcc().equals(sub.getMcc()) &&
-                                lastActiveCell.get().getCi().getMnc().equals(sub.getMnc())) {
-                            if (dataSubscription == null) {
-                                dataSubscription = sub;
-                            }
-                            else {
-                                //only one operator should match, otherwise we don't know
-                                //what's going on
-                                dataSubscription = null;
-                            }
-                        }
-                    }
-
-                    if (dataSubscription != null) {
-                        fullInfo.setProperty("TELEPHONY_NETWORK_SIM_COUNTRY", String.valueOf(dataSubscription.getCountryIso()));
-                        simOperator = dataSubscription.getMcc() + "-" + String.format("%02d",dataSubscription.getMnc());
-                        fullInfo.setProperty("TELEPHONY_NETWORK_SIM_OPERATOR", String.valueOf(simOperator));
-                        fullInfo.setProperty("TELEPHONY_NETWORK_SIM_OPERATOR_NAME", String.valueOf(dataSubscription.getCarrierName()));
-                        fullInfo.setProperty("TELEPHONY_NETWORK_OPERATOR_NAME", String.valueOf(dataSubscription.getDisplayName()));
-
-                        dualSimHandled = true;
-                    }
-                } */
 
                 if (!dualSimHandled){
                     try {
@@ -1425,6 +1395,7 @@ public class InformationCollector
                             lastCellInfos.add(cellInformationWrapper);
                             registeredCells.clear();
                             registeredCells.add(cellInformationWrapper);
+                            lastActiveCell.set(cellInformationWrapper);
                             cellInformationWrapper.setActive(true);
 
                             if (collectInformation) {
