@@ -14,13 +14,18 @@ import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.context.JavaBeanValueResolver;
 import com.google.common.base.CaseFormat;
 import com.google.common.base.Charsets;
+import com.google.common.base.Strings;
 import com.google.common.io.Resources;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.restlet.data.*;
+import org.restlet.ext.fileupload.RestletFileUpload;
 import org.restlet.representation.EmptyRepresentation;
 import org.restlet.representation.FileRepresentation;
 import org.restlet.representation.Representation;
@@ -58,12 +63,39 @@ public class PdfExportResource extends ServerResource {
             @ApiImplicitParam(name = "open_test_uuid", value = "The UUID of the test.", dataType = "string", paramType = "query"),
             @ApiImplicitParam(name = "loop_uuid", value = "The loop UUID of a single loop test", dataType = "string", paramType = "query")
     })
-    public Representation request(final String entity) {
+    public Representation request(final Representation entity) throws IOException {
         addAllowOrigin();
         final Form getParameters;
         if (getRequest().getMethod().equals(Method.POST)) {
             // HTTP POST
-            getParameters = new Form(entity);
+
+            //handle multipart forms
+            if (MediaType.MULTIPART_FORM_DATA.equals(entity.getMediaType(), true)) {
+                getParameters = new Form();
+
+                // 1. Create a factory for disk-based file items
+                DiskFileItemFactory factory = new DiskFileItemFactory();
+                factory.setSizeThreshold(10 * 1024 * 1024);
+
+                // 2. Create a new file upload handler
+                RestletFileUpload upload = new RestletFileUpload(factory);
+                List<FileItem> items;
+
+                try {
+                    items = upload.parseRequest(getRequest());
+                    for (FileItem item : items) {
+                        if (item.isFormField() && item.getFieldName() != null && !Strings.isNullOrEmpty(item.getString("utf-8"))) {
+                            getParameters.set(item.getFieldName(), item.getString("utf-8"));
+                        }
+                    }
+                } catch (FileUploadException e) {
+                    e.printStackTrace();
+                }
+            }
+            else {
+                getParameters = new Form(entity);
+            }
+
         }
         else {
             // HTTP GET
@@ -86,9 +118,10 @@ public class PdfExportResource extends ServerResource {
         final List<String> invalidElements = qp.parseQuery(getParameters);
 
         //only accept open_test_uuid and loop_uuid as input parameters
-        if (qp.getWhereParams().size() == 1 && (!qp.getWhereParams().containsKey("open_test_uuid") &&
+        if (qp.getWhereParams().size() < 1 ||
+                (qp.getWhereParams().size() == 1 && (!qp.getWhereParams().containsKey("open_test_uuid") &&
                 !qp.getWhereParams().containsKey("test_uuid") &&
-                !qp.getWhereParams().containsKey("loop_uuid"))) {
+                !qp.getWhereParams().containsKey("loop_uuid")))) {
             System.out.println(qp.getWhereParams().keySet());
             setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
             return new StringRepresentation("submit open_test_uuid or loop_uuid");

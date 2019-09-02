@@ -59,6 +59,7 @@ dependencies {
     compile 'org.restlet.jse:org.restlet:2.1.7'
     compile 'org.restlet.jse:org.restlet.ext.json:2.1.7'
     compile 'org.restlet.jee:org.restlet.ext.servlet:2.1.7'
+    compile 'org.restlet.jee:org.restlet.ext.fileupload:2.1.7'
     compile 'org.json:json:20140107'
     compile 'commons-io:commons-io:2.4'
     compile 'org.apache.jcs:jcs:1.3'
