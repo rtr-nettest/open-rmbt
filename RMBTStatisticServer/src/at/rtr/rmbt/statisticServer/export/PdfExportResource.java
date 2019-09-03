@@ -1,6 +1,7 @@
 package at.rtr.rmbt.statisticServer.export;
 
 import at.rtr.rmbt.shared.ExtendedHandlebars;
+import at.rtr.rmbt.shared.cache.CacheHelper;
 import at.rtr.rmbt.statisticServer.ServerResource;
 import at.rtr.rmbt.statisticServer.opendata.QueryParser;
 import at.rtr.rmbt.statisticServer.opendata.dao.OpenTestDAO;
@@ -24,12 +25,11 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.json.JSONObject;
 import org.restlet.data.*;
 import org.restlet.ext.fileupload.RestletFileUpload;
-import org.restlet.representation.EmptyRepresentation;
-import org.restlet.representation.FileRepresentation;
-import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
+import org.restlet.ext.json.JsonRepresentation;
+import org.restlet.representation.*;
 import org.restlet.resource.Get;
 import org.restlet.resource.Post;
 
@@ -51,6 +51,9 @@ public class PdfExportResource extends ServerResource {
 
     public static final int MAX_RESULTS = 1000; //max results for pdf
 
+    private final CacheHelper cache = CacheHelper.getInstance();
+    private static final int CACHE_EXP = 600;
+
     @Post
     @Get
     @GET
@@ -65,6 +68,22 @@ public class PdfExportResource extends ServerResource {
     })
     public Representation request(final Representation entity) throws IOException {
         addAllowOrigin();
+
+        //allow only fetching files
+        if (getRequest().getAttributes().containsKey("filename")) {
+            String filename = getRequest().getAttributes().get("filename").toString();
+            byte[] o = (byte[]) cache.get("loop-" + filename);
+            if (o == null) {
+                setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+                return null;
+            }
+            ByteArrayRepresentation ret = new ByteArrayRepresentation(o, MediaType.APPLICATION_PDF);
+            Disposition disposition = new Disposition(Disposition.TYPE_ATTACHMENT);
+            disposition.setFilename(FILENAME_PDF);
+            ret.setDisposition(disposition);
+            return ret;
+        }
+
         final Form getParameters;
         if (getRequest().getMethod().equals(Method.POST)) {
             // HTTP POST
@@ -122,7 +141,6 @@ public class PdfExportResource extends ServerResource {
                 (qp.getWhereParams().size() == 1 && (!qp.getWhereParams().containsKey("open_test_uuid") &&
                 !qp.getWhereParams().containsKey("test_uuid") &&
                 !qp.getWhereParams().containsKey("loop_uuid")))) {
-            System.out.println(qp.getWhereParams().keySet());
             setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
             return new StringRepresentation("submit open_test_uuid or loop_uuid");
         }
@@ -200,11 +218,26 @@ public class PdfExportResource extends ServerResource {
             pdfConverter.convertHtml(htmlFile,pdfTarget);
             Logger.getLogger(PdfExportResource.class.getName()).fine("PDF generated: " + pdfTarget);
 
-            FileRepresentation ret = new FileRepresentation(pdfTarget.toFile(), MediaType.APPLICATION_PDF);
-            Disposition disposition = new Disposition(Disposition.TYPE_ATTACHMENT);
-            disposition.setFilename(FILENAME_PDF);
-            ret.setDisposition(disposition);
-            return ret;
+            //depending on Accepts-Header, return file or json with link to file
+            if (getClientInfo().getAcceptedMediaTypes().size() > 0 &&
+                    getClientInfo().getAcceptedMediaTypes().get(0).getMetadata() == MediaType.APPLICATION_JSON) {
+
+                String uuid = UUID.randomUUID().toString();
+                //put in cache for later collection
+                cache.set("loop-" + uuid, CACHE_EXP, Files.readAllBytes(pdfTarget));
+
+                JSONObject retJson = new JSONObject();
+                retJson.put("file", uuid + ".pdf");
+
+                return new JsonRepresentation(retJson.toString());
+            }
+            else {
+                FileRepresentation ret = new FileRepresentation(pdfTarget.toFile(), MediaType.APPLICATION_PDF);
+                Disposition disposition = new Disposition(Disposition.TYPE_ATTACHMENT);
+                disposition.setFilename(FILENAME_PDF);
+                ret.setDisposition(disposition);
+                return ret;
+            }
         } catch (IOException e) {
             e.printStackTrace();
             setStatus(Status.SERVER_ERROR_NOT_IMPLEMENTED);
