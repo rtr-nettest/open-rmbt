@@ -25,6 +25,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
 import org.restlet.data.*;
 import org.restlet.ext.fileupload.RestletFileUpload;
@@ -85,6 +86,7 @@ public class PdfExportResource extends ServerResource {
         }
 
         final Form getParameters;
+        final Map<String, List<String>> multivalueParams = new HashMap<>();
         if (getRequest().getMethod().equals(Method.POST)) {
             // HTTP POST
 
@@ -105,6 +107,24 @@ public class PdfExportResource extends ServerResource {
                     for (FileItem item : items) {
                         if (item.isFormField() && item.getFieldName() != null && !Strings.isNullOrEmpty(item.getString("utf-8"))) {
                             getParameters.set(item.getFieldName(), item.getString("utf-8"));
+                        }
+                        else if (!item.isFormField() && item.getFieldName() != null && item.getInputStream() != null && item.getSize() > 0){
+                            //it is really a file - parse it, add it as base64 input
+                            String contentType = item.getContentType();
+                            byte[] bytes = IOUtils.toByteArray(item.getInputStream());
+                            String base64Str = Base64.encodeBase64String(bytes);
+                            String dataUri = "data:" + contentType + ";base64," + base64Str;
+
+                            if (item.getFieldName().endsWith("[]")) {
+                                String fieldName = item.getFieldName().replaceAll("\\[\\]","");
+                                if (!multivalueParams.containsKey(fieldName)) {
+                                    multivalueParams.put(fieldName, new LinkedList<String>());
+                                }
+                                multivalueParams.get(fieldName).add(dataUri);
+                            }
+                            else {
+                                getParameters.set(item.getFieldName(), dataUri);
+                            }
                         }
                     }
                 } catch (FileUploadException e) {
@@ -152,10 +172,9 @@ public class PdfExportResource extends ServerResource {
         data.put("date",new SimpleDateFormat("d.M.yyyy H:mm:ss", Locale.GERMAN).format(new Date()));
         data.put("tests", searchResult.getResults());
 
-        //if the loop uuid is given - add this to the inputs
-        if (qp.getWhereParams().containsKey("loop_uuid")) {
-            data.put("loop_uuid",qp.getWhereParams().get("loop_uuid").get(0).getValue());
-        }
+        //add all params to the model
+        data.putAll(getParameters.getValuesMap());
+        data.putAll(multivalueParams);
 
         //if no measurements - don't generate the application
         if (searchResult.getResults() == null || searchResult.getResults().isEmpty()) {
