@@ -86,7 +86,7 @@ public class QueryParser {
     private final ResourceBundle settings = ResourceManager.getCfgBundle();
 
     //all fields for which the user can sort the result
-    private static final HashSet<String> openDataFieldsSortable = new HashSet<>(Arrays.asList(new String[]{"download_kbit","upload_kbit","time","signal_strength","ping_ms"}));
+    private static final HashSet<String> openDataFieldsSortable = new HashSet<>(Arrays.asList(new String[]{"download_kbit","upload_kbit","time","signal_strength","lte_rsrp","ping_ms"}));
     
     private final Map<String, List<SingleParameter>> whereParams = new HashMap<>();
     private final Map<String, SingleParameterTransformator> transformators = new HashMap<>();
@@ -124,9 +124,12 @@ public class QueryParser {
         allowedFields.put("platform[]", FieldType.STRING);
         allowedFields.put("signal_strength", FieldType.LONG);
         allowedFields.put("signal_strength[]", FieldType.LONG);
+        allowedFields.put("lte_rsrp", FieldType.LONG);
+        allowedFields.put("lte_rsrp[]", FieldType.LONG);
         allowedFields.put("open_uuid",FieldType.UUID);
         allowedFields.put("open_test_uuid",FieldType.UUID);
         allowedFields.put("client_uuid",FieldType.UUID);
+        allowedFields.put("loop_uuid",FieldType.UUID);
         allowedFields.put("test_uuid",FieldType.UUID);
         allowedFields.put("long",FieldType.DOUBLE);
         allowedFields.put("long[]",FieldType.DOUBLE);
@@ -166,6 +169,8 @@ public class QueryParser {
         allowedFields.put("cell_area_code[]",FieldType.LONG);
         allowedFields.put("cell_location_id",FieldType.LONG);
         allowedFields.put("cell_location_id[]",FieldType.LONG);
+        allowedFields.put("link_name",FieldType.STRING);
+        allowedFields.put("link_name[]",FieldType.STRING);
 
         //allowedFields.put("ip_anonym", FieldType.STRING);
         //allowedFields.put("ip_anonym[]", FieldType.STRING);
@@ -379,8 +384,11 @@ public class QueryParser {
         }
         else if (sortBy.equals("signal_strength")) {
             sortBy= "t.signal_strength";
-        } 
-        
+        }
+        else if (sortBy.equals("lte_rsrp")) {
+            sortBy= "t.lte_rsrp";
+        }
+
         String ret = " ORDER BY " + sortBy + " " + sortOrder;
         return ret;
     }
@@ -622,11 +630,14 @@ public class QueryParser {
         else if (opendataField.equals("client_uuid")) {
             ret.add("c.uuid");
         }
+        else if (opendataField.equals("loop_uuid")) {
+            ret.add("l.loop_uuid");
+        }
         else if (opendataField.equals("lat")) {
-            ret.add("t.geo_lat");
+            ret.add("tl.geo_lat");
         }
         else if (opendataField.equals("long")) {
-            ret.add("t.geo_long");
+            ret.add("tl.geo_long");
         }
         else if (opendataField.equals("sim_mcc_mnc")) {
             ret.add("network_sim_operator");
@@ -638,7 +649,7 @@ public class QueryParser {
             ret.add("public_ip_asn");
         }
         else if (opendataField.equals("loc_accuracy")) {
-        	ret.add("t.geo_accuracy");
+        	ret.add("tl.geo_accuracy");
         }
         else if (opendataField.equals("ip_anonym")) {
         	ret.add("client_public_ip_anonymized");
@@ -665,7 +676,13 @@ public class QueryParser {
             ret.add("t.cell_location_id");
         }
         else if (opendataField.equals("gkz")) {
-            ret.add("t.gkz_bev");
+            ret.add("tl.gkz_bev");
+        }
+        else if (opendataField.equals("lte_rsrp")) {
+            ret.add("t.lte_rsrp");
+        }
+        else if (opendataField.equals("link_name")) {
+            ret.add("tl.link_name");
         }
          return ret;
     }
@@ -756,12 +773,14 @@ public class QueryParser {
     
     public String getJoins() {
         return " LEFT JOIN network_type nt ON nt.uid=t.network_type" +
+                " LEFT JOIN test_loopmode l ON (l.test_uuid = t.uuid)" +
                 " LEFT JOIN device_map adm ON adm.codename=t.model" +
                 " LEFT JOIN test_server ts ON ts.uid=t.server_id" +
                 " LEFT JOIN provider prov ON provider_id = prov.uid " +
                 " LEFT JOIN provider mprov ON mobile_provider_id = mprov.uid" +
                 " LEFT JOIN mccmnc2name msim ON mobile_sim_id = msim.uid " + //TODO: finalize migration to msim/mnwk
-                " LEFT JOIN client c ON client_id = c.uid ";
+                " LEFT JOIN client c ON client_id = c.uid " +
+                " LEFT JOIN test_location tl ON t.open_test_uuid = tl.open_test_uuid";
     }
     
     public static class SingleParameter {

@@ -55,6 +55,7 @@ public class ControlServerConnection
     private String testToken = "";
     //private String testId = "";
     private String testUuid = "";
+    private String loopUuid = "";
     
     private long testTime = 0;
     
@@ -328,6 +329,7 @@ public class ControlServerConnection
                     clientUUID = response.optString("uuid", clientUUID);
                     
                     testToken = response.getString("test_token");
+                    loopUuid = response.optString("loop_uuid");
 
                     testUuid = response.getString("test_uuid");
                     
@@ -682,6 +684,14 @@ public class ControlServerConnection
     public String getServerName()
     {
         return serverName;
+    }
+
+    public String getLoopUuid()
+    {
+        if (loopUuid != null && !loopUuid.isEmpty()) {
+            return loopUuid;
+        }
+        return null;
     }
     
     public String getProvider()

@@ -57,20 +57,34 @@ public class ResultUpdateResource extends ServerResource
             try
             {
                 request = new JSONObject(entity);
+                //System.out.println(request.toString(4));
+                /*
+                Test result update from 192.168.1.2
+                {
+                    "test_uuid": "3d26f187-1777-48d0-89e4-2892c7d66926",
+                    "geo_lat": 48.20845270000001,
+                    "provider": "geocoder",
+                    "accuracy": 100,
+                    "uuid": "1db50fc4-1234-4931-8cda-3adf07912345",
+                    "geo_long": 16.373108099999968
+                }
+                 */
+
                 final UUID clientUUID = UUID.fromString(request.getString("uuid"));
                 final UUID testUUID = UUID.fromString(request.getString("test_uuid"));
                 final Boolean aborted = request.has("aborted") && request.getBoolean("aborted");
 
-                
+                final Test test = new Test(conn);
+                if (test.getTestByUuid(testUUID) < 0)
+                    throw new IllegalArgumentException("error while loading test");
+
+                final UUID openTestUUID = UUID.fromString(test.getField("open_test_uuid").toString());
+
                 final Client client = new Client(conn);
                 final long clientId = client.getClientByUuid(clientUUID);
                 if (clientId < 0)
                     throw new IllegalArgumentException("error while loading client");
-                
-                final Test test = new Test(conn);
-                if (test.getTestByUuid(testUUID) < 0)
-                    throw new IllegalArgumentException("error while loading test");
-                
+
                 if (test.getField("client_id").longValue() != clientId)
                     throw new IllegalArgumentException("client UUID does not match test");
 
@@ -100,12 +114,17 @@ public class ResultUpdateResource extends ServerResource
                         geoloc.setGeo_lat(geoLat);
                         geoloc.setGeo_long(geoLong);
                         geoloc.setProvider(provider);
+                        geoloc.setOpenTestUuid(openTestUUID);
+                        // use start of test as time of location information (0 ns)
+                        geoloc.setTime_ns(0);
+                        final UUID geoRefUuid = geoloc.getGeoLocationUuid();
                         geoloc.storeLocation();
 
                         ((DoubleField) test.getField("geo_lat")).setValue(geoLat);
                         ((DoubleField) test.getField("geo_long")).setValue(geoLong);
                         ((DoubleField) test.getField("geo_accuracy")).setValue(geoAccuracy);
                         test.getField("geo_provider").setString(provider);
+                        test.getField("geo_location_uuid").setString(geoRefUuid.toString());
                     }
                 }
 

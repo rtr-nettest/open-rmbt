@@ -25,6 +25,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.base.Strings;
 import com.google.gson.Gson;
 
 import at.rtr.rmbt.util.model.shared.LoopModeSettings;
@@ -111,7 +112,7 @@ public class TestLoopModeDao implements CrudPrimaryKeyDao<LoopModeSettings, Long
 		PreparedStatement ps = null;
 		
 		if (entity.getUid() == null) {
-			sql = "INSERT INTO test_loopmode (test_uuid, max_delay, max_movement, max_tests, test_counter, client_uuid) VALUES (?::uuid,?,?,?,?,?::uuid)";
+			sql = "INSERT INTO test_loopmode (test_uuid, max_delay, max_movement, max_tests, test_counter, client_uuid, loop_uuid) VALUES (?::uuid,?,?,?,?,?::uuid,?::uuid)";
 			ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 			ps.setObject(1, entity.getTestUuid());
 			ps.setInt(2, entity.getMaxDelay());
@@ -119,9 +120,11 @@ public class TestLoopModeDao implements CrudPrimaryKeyDao<LoopModeSettings, Long
 			ps.setInt(4, entity.getMaxTests());
 			ps.setInt(5, entity.getTestCounter());
 			ps.setObject(6, entity.getClientUuid());
+			//in loop uuid, replace "L" at the beginning
+			ps.setObject(7, (Strings.nullToEmpty(entity.getLoopUuid()).startsWith("L")) ? entity.getLoopUuid().substring(1) :  entity.getLoopUuid());
 		}
 		else {
-			sql = "UPDATE test_loopmode SET test_uuid = ?::uuid, max_delay = ?, max_movement = ?, max_tests = ?, test_counter = ?, client_uuid = ?::uuid WHERE uid = ?";
+			sql = "UPDATE test_loopmode SET test_uuid = ?::uuid, max_delay = ?, max_movement = ?, max_tests = ?, test_counter = ?, client_uuid = ?::uuid, loop_uuid = ?::uuid WHERE uid = ?";
 			ps = conn.prepareStatement(sql);
 			ps.setObject(1, entity.getTestUuid());
 			ps.setInt(2, entity.getMaxDelay());
@@ -129,7 +132,8 @@ public class TestLoopModeDao implements CrudPrimaryKeyDao<LoopModeSettings, Long
 			ps.setInt(4, entity.getMaxTests());
 			ps.setInt(5, entity.getTestCounter());
 			ps.setObject(6, entity.getClientUuid());
-			ps.setLong(7,  entity.getUid());
+			ps.setObject(7, (Strings.nullToEmpty(entity.getLoopUuid()).startsWith("L")) ? entity.getLoopUuid().substring(1) :  entity.getLoopUuid());
+			ps.setLong(8,  entity.getUid());
 		}
 
 		final int updateReturn = ps.executeUpdate();

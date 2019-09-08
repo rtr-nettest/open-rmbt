@@ -40,13 +40,17 @@ public class LoopModeSettings {
 	@SerializedName("test_counter")
 	protected int testCounter;
 
+	@SerializedName("loop_uuid")
+	private String loopUuid;
+
 	public LoopModeSettings() { }
 	
-	public LoopModeSettings(final int maxDelay, final int maxMovement, final int maxTests, final int testCounter) {
+	public LoopModeSettings(final int maxDelay, final int maxMovement, final int maxTests, final int testCounter, final String loopUuid) {
 		setMaxDelay(maxDelay);
 		setMaxMovement(maxMovement);
 		setMaxTests(maxTests);
 		setTestCounter(testCounter);
+		setLoopUuid(loopUuid);
 	}
 	
 	public int getMaxDelay() {
@@ -103,6 +107,14 @@ public class LoopModeSettings {
 
 	public void setUid(Long uid) {
 		this.uid = uid;
+	}
+
+	public String getLoopUuid() {
+		return loopUuid;
+	}
+
+	public void setLoopUuid(String loopUuid) {
+		this.loopUuid = loopUuid;
 	}
 
 	@Override

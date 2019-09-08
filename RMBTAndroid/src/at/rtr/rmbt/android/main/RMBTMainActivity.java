@@ -794,6 +794,7 @@ public class RMBTMainActivity extends FragmentActivity implements MapProperties,
     
     public void startLoopService() {
     	ConfigHelper.setLoopModeTestCounter(this, 0);
+    	ConfigHelper.setLoopUuid(this, null);
     	startService(new Intent(RMBTLoopService.ACTION_START, null, getApplicationContext(), RMBTLoopService.class));
     }
     

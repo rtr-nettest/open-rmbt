@@ -59,7 +59,7 @@ public class ControlServer extends Application
         
         router.attach("/resultQoS", QualityOfServiceResultResource.class);
         
-        // plz is submitted (optional additional resource for browser)
+        // geocoder/manual location information is submitted (optional additional resource for browser)
         router.attach("/resultUpdate", ResultUpdateResource.class);
         
         // ndt test results are submitted (optional, after /result)
@@ -70,8 +70,7 @@ public class ControlServer extends Application
         router.attach("/ip", IpResource.class);
         
         router.attach("/status", StatusResource.class);
-        
-        
+
         // send history list to client
         router.attach("/history", HistoryResource.class);
         
@@ -89,13 +88,7 @@ public class ControlServer extends Application
         router.attach("/settings", SettingsResource.class);
         // collection of UserAgent etc.for IE (via server)  
         router.attach("/requestDataCollector", RequestDataCollector.class);
-        
-        router.attach("/opentests/O{open_test_uuid}&sender={sender}", OpenTestResource.class);
-        router.attach("/opentests/O{open_test_uuid}", OpenTestResource.class);
 
-        router.attach("/v2/opentests/O{open_test_uuid}&sender={sender}", at.rtr.rmbt.controlServer.v2.OpenTestResource.class);
-        router.attach("/v2/opentests/O{open_test_uuid}", at.rtr.rmbt.controlServer.v2.OpenTestResource.class);
-        
         router.attach("/qos/O{open_test_uuid}", OpenTestQoSResource.class);
         router.attach("/qos/O{open_test_uuid}/{lang}", OpenTestQoSResource.class);
 

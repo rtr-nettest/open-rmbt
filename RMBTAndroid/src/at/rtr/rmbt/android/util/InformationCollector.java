@@ -51,16 +51,7 @@ import org.json.JSONObject;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -96,7 +87,15 @@ public class InformationCollector
     public static final int SINGAL_TYPE_MOBILE = 1;
     public static final int SINGAL_TYPE_RSRP = 2;
     public static final int SINGAL_TYPE_WLAN = 3;
-    
+
+    /**
+     * Maximum age of a geolocation to be included into results
+     * Necessary as Android sometime returns old geolocations which should not be considered
+     * when newer GeoLocations are available
+     * Default: 60 secs
+     */
+    private static final long LOCATION_MAX_AGE_ON_TEST_START_MS = 60 * 1000;
+
     /** Returned by getNetwork() if Wifi */
     public static final int NETWORK_WIFI = 99;
     
@@ -548,7 +547,8 @@ public class InformationCollector
             			ConfigHelper.getLoopModeMaxDelay(context),
             			ConfigHelper.getLoopModeMaxMovement(context),
             			ConfigHelper.getLoopModeMaxTests(context), 
-            			ConfigHelper.getLoopModeTestCounter(context))));
+            			ConfigHelper.getLoopModeTestCounter(context),
+                        ConfigHelper.getLoopUuid(context))));
             }
 
             if (ConfigHelper.isUserServerSelectionActivated(context))
@@ -633,6 +633,7 @@ public class InformationCollector
                         this.registeredCells.clear();
                         this.registeredCells.add(cellInformationWrapper);
                         this.cellInfos.add(cellInformationWrapper);
+                        this.lastActiveCell.set(cellInformationWrapper);
                     }
 //                    Log.i(DEBUG_TAG, "Signals1: " + signals.toString());
                 }
@@ -743,37 +744,6 @@ public class InformationCollector
                 else if (!isSuspectedDualSim()) {
                     fullInfo.setProperty("TELEPHONY_SIM_COUNT", Integer.toString(1));
                 }
-                /* //Android 5.1; API 22 (Lollipop MR 1)
-                else if (isSuspectedDualSim() && subscriptionManager != null && haveReadPhoneStatePerm
-                        && lastActiveCell != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-                    //maybe, just maybe, exactly one of the operators will
-                    //match with the currently active data connection mcc-mnc
-                    // -> then, this operator is the data operator
-                    SubscriptionInfo dataSubscription = null;
-                    for (SubscriptionInfo sub : subscriptionManager.getActiveSubscriptionInfoList()) {
-                        if (lastActiveCell.get().getCi().getMcc().equals(sub.getMcc()) &&
-                                lastActiveCell.get().getCi().getMnc().equals(sub.getMnc())) {
-                            if (dataSubscription == null) {
-                                dataSubscription = sub;
-                            }
-                            else {
-                                //only one operator should match, otherwise we don't know
-                                //what's going on
-                                dataSubscription = null;
-                            }
-                        }
-                    }
-
-                    if (dataSubscription != null) {
-                        fullInfo.setProperty("TELEPHONY_NETWORK_SIM_COUNTRY", String.valueOf(dataSubscription.getCountryIso()));
-                        simOperator = dataSubscription.getMcc() + "-" + String.format("%02d",dataSubscription.getMnc());
-                        fullInfo.setProperty("TELEPHONY_NETWORK_SIM_OPERATOR", String.valueOf(simOperator));
-                        fullInfo.setProperty("TELEPHONY_NETWORK_SIM_OPERATOR_NAME", String.valueOf(dataSubscription.getCarrierName()));
-                        fullInfo.setProperty("TELEPHONY_NETWORK_OPERATOR_NAME", String.valueOf(dataSubscription.getDisplayName()));
-
-                        dualSimHandled = true;
-                    }
-                } */
 
                 if (!dualSimHandled){
                     try {
@@ -929,7 +899,7 @@ public class InformationCollector
     
     public JSONObject getResultValues(long startTimestampNs) throws JSONException
     {
-        
+        long startTimestamp = (new Date().getTime()) - (long) ((System.nanoTime() - startTimestampNs)/1e6);
         final JSONObject result = new JSONObject();
         
         final Enumeration<?> pList = fullInfo.propertyNames();
@@ -960,14 +930,32 @@ public class InformationCollector
         
         if (geoLocations.size() > 0)
         {
-            
+            //determine if filtering for old data can take place
+            //or if there are only "old" locations
+            //in which case, no filtering will take place as
+            //this indicates a non-moving user
+            int itemsToFilter = 0;
+            for (GeoLocationItem tmpItem : geoLocations) {
+                if ((startTimestamp - tmpItem.tstamp) > LOCATION_MAX_AGE_ON_TEST_START_MS) {
+                    Log.i(DEBUG_TAG, "Ignored GeoLocation old GeoLocation, diff: " + ((long) ((startTimestamp - tmpItem.tstamp) / 1e3)));
+                    tmpItem.includeInSubmission = false;
+                    itemsToFilter++;
+                }
+            }
+            boolean filterItems = itemsToFilter != 0 && itemsToFilter != geoLocations.size();
+
             final JSONArray itemList = new JSONArray();
             
             for (int i = 0; i < geoLocations.size(); i++)
             {
                 
                 final GeoLocationItem tmpItem = geoLocations.get(i);
-                
+
+                //if the item is older than XX min, don't add
+                if (filterItems && !tmpItem.includeInSubmission) {
+                    continue;
+                }
+
                 final JSONObject jsonItem = new JSONObject();
                 
                 jsonItem.put("tstamp", tmpItem.tstamp);
@@ -1407,6 +1395,7 @@ public class InformationCollector
                             lastCellInfos.add(cellInformationWrapper);
                             registeredCells.clear();
                             registeredCells.add(cellInformationWrapper);
+                            lastActiveCell.set(cellInformationWrapper);
                             cellInformationWrapper.setActive(true);
 
                             if (collectInformation) {
@@ -1782,6 +1771,7 @@ public class InformationCollector
         public final float speed;
         public final String provider;
         public final Boolean mock_location;
+        public boolean includeInSubmission = true;
         
         public GeoLocationItem(final long tstamp, final double geo_lat, final double geo_long, final float accuracy,
                 final double altitude, final float bearing, final float speed, final String provider, final Boolean mock_location)

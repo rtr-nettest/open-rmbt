@@ -1,11 +1,11 @@
 -- 
--- 2019-02-04_21-19-54 rmbt_init.sql table as2provider
+-- 2019-07-26_10-14-05 rmbt_init.sql table provider
 --
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 10.6 (Debian 10.6-1.pgdg90+1)
--- Dumped by pg_dump version 10.6 (Debian 10.6-1.pgdg90+1)
+-- Dumped from database version 10.9 (Debian 10.9-1.pgdg90+1)
+-- Dumped by pg_dump version 10.9 (Debian 10.9-1.pgdg90+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -14,54 +14,121 @@ SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
+SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
-SET default_tablespace = '';
-
-SET default_with_oids = false;
-
 --
--- Name: as2provider; Type: TABLE; Schema: public; Owner: rmbt
+-- Data for Name: provider; Type: TABLE DATA; Schema: public; Owner: rmbt
 --
 
-CREATE TABLE public.as2provider (
-    uid integer NOT NULL,
-    asn bigint,
-    dns_part character varying(200),
-    provider_id integer
-);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (3, 'Orange Austria Telecommunication GmbH (alt)', '232-05', 'Orange AT (alt)', false);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (4, 'Hutchison 3G Austria GmbH (alt)', '232-10', '3AT (alt)', false);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (7, 'tele.ring', '232-07', 'tele.ring', false);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (8, 'Bob', '232-11', 'Bob', false);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (9, 'YESSS! Telekommunikation GmbH', '232-12', 'Yesss!', false);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (12, 'Tele2 Telecommunication GmbH', NULL, 'Tele2', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (14, 'Colt Technology Services GmbH', NULL, 'Colt', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (16, 'LIWEST Kabelmedien GmbH', NULL, 'LIWEST', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (17, 'AT&T Global Network Services Austria GmbH', NULL, 'AT&T', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (18, 'Belgacom International Carrier Services S.A.', NULL, 'Belgacom', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (20, 'Verizon Austria GmbH', NULL, 'Verizon', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (21, 'BT Austria GmbH', NULL, 'BT Austria', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (22, 'WIEN ENERGIE GmbH', NULL, 'WIEN ENERGIE', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (23, 'ACOnet', NULL, 'ACOnet', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (24, 'next layer Telekommunikationsdienstleistungs-GmbH', NULL, 'next layer', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (27, 'ÖBB Telekom Service GmbH', NULL, 'ÖBB', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (28, 'KAPPER NETWORK-COMMUNICATIONS GmbH', NULL, 'Kapper', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (29, 'WVNET Information und Kommunikation GmbH', NULL, 'WVNET', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (30, 'Flughafen Wien AG', NULL, 'Flughafen Wien', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (31, 'Technische Universität Wien', NULL, 'TU Wien', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (32, 'Universität Wien', NULL, 'Uni Wien', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (33, 'Wirtschaftsuniversität Wien', NULL, 'WU Wien', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (34, 'Citycom Telekommunikation GmbH', NULL, 'Citycom', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (35, 'i3B - Internetbreitband GmbH', NULL, 'i3B', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (2, 'T-Mobile Austria GmbH', '232-03', 'T-Mobile AT', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (36, 'Hutchison Drei Austria GmbH', '232-10', 'Hutchison Drei', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (37, 'Gamsjäger Kabel-TV & ISP Betriebs GmbH', NULL, 'Gamsjäger', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (39, 'Lycamobile Austria Ltd', '232-08', 'Lycamobile', false);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (117, 'Plintron Austria Limited', '232-22', 'Plintron', false);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (10, 'Mundio Mobile (Austria) Limited', '232-15', 'Mundio', false);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (43, 'smartspace GmbH', '232-18', 'smartspace', false);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (46, 'MTEL Austrija GmbH', '232-20', 'MTEL', false);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (48, 'ÖBB - Infrastruktur AG - Mobilnetz', '232-91', 'ÖBB Mobilnetz', false);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (49, 'ArgoNET GmbH', '232-92', 'ArgoNET', false);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (6, 'kabelplus GmbH', NULL, 'kabelplus', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (15, 'Salzburg AG für Energie, Verkehr und Telekommunikation', NULL, 'Salzburg AG', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (50, 'Salzburg AG für Energie, Verkehr und Telekommunikation - Mobilnetz', '232-21', 'Salzburg AG Mobilnetz', false);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (51, 'Energie AG Oberösterreich Data GmbH', NULL, 'Energie AG', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (52, 'NETcompany - WLAN Internet Provider GmbH', NULL, 'NETcompany', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (42, 'MASS Response Service GmbH - Mobilnetz', '232-17', 'MASS Response Mobilnetz', false);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (118, 'MASS Response Service GmbH', NULL, 'MASS Response', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (119, 'Innsbrucker Kommunalbetriebe Aktiengesellschaft', NULL, 'IKB AG', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (120, 'Russmedia IT GmbH', NULL, 'Russmedia', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (25, 'A1 Telekom Austria AG - Festnetz', NULL, 'A1 TA Festnetz', false);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (121, 'COSYS DATA GmbH', NULL, 'COSYS DATA', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (122, 'Riepert Informationstechnologie OG', NULL, 'Riepert', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (123, 'IForce IT GmbH', NULL, 'IForce', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (124, 'Elektro Pühringer GmbH', NULL, 'Pühringer', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (128, 'Infotech EDV-Systeme GmbH', NULL, 'Infotech', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (129, 'AiNet Telekommunikations-Netzwerk Betriebs GmbH', NULL, 'AiNet', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (130, 'Peter Rauter GmbH', NULL, 'Rauter', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (135, 'mieX GmbH', NULL, 'mieX', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (136, 'T-Systems Austria GesmbH', NULL, 'T-Systems', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (137, 'BK-DAT Electronics e.U.', NULL, 'BK-DAT', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (142, 'Kabel TV Lampert GmbH & Co KG', NULL, 'Lampert', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (144, 'DIC-Online Wolf & Co. KG', NULL, 'DIC-Online', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (146, 'flashnet GmbH', NULL, 'flashnet', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (147, 'Stadtwerke Kapfenberg GmbH', NULL, 'SW Kapfenberg', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (131, 'ANEXIA Internetdienstleistungs GmbH', NULL, 'ANEXIA', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (139, 'Nessus GmbH', NULL, 'Nessus', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (148, 'Stadtwerke Hall in Tirol GmbH', NULL, 'SW Hall i.T.', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (145, 'Video-Broadcast GmbH', NULL, 'Video-Broadcast', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (126, 'JM-DATA Telekom GmbH', NULL, 'JM-DATA', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (127, 'myNET Internet Solutions', NULL, 'myNET', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (125, 'TIMEWARP IT Consulting GmbH', NULL, 'TIMEWARP', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (134, 'LinzNet Internet Service Provider GmbH', NULL, 'LinzNet', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (132, 'Stadtwerke Kufstein GmbH', NULL, 'SW Kufstein', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (133, 'NETPLANET GmbH', NULL, 'NETPLANET', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (143, 'MMC Kommunikationstechnologie GmbH', NULL, 'MMC', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (140, 'lagis Internet Serviceprovider GmbH', NULL, 'lagis', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (141, 'XINON GmbH', NULL, 'XINON', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (138, 'Stadtwerke Kitzbühel', NULL, 'SW Kitzbühel', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (1, 'A1 Telekom Austria AG', '232-01', 'A1 TA', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (149, 'MultiKom Austria Telekom GmbH', NULL, 'XLINK', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (5, 'UPC Austria', NULL, 'UPC AT', true);
+INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (41, 'UPC Austria - Mobilnetz', '232-13', 'UPC Mobilnetz', false);
 
-
-ALTER TABLE public.as2provider OWNER TO rmbt;
 
 --
--- Name: as2provider_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
+-- Name: provider_uid_seq; Type: SEQUENCE SET; Schema: public; Owner: rmbt
 --
 
-CREATE SEQUENCE public.as2provider_uid_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.as2provider_uid_seq OWNER TO rmbt;
-
---
--- Name: as2provider_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
---
-
-ALTER SEQUENCE public.as2provider_uid_seq OWNED BY public.as2provider.uid;
+SELECT pg_catalog.setval('public.provider_uid_seq', 181, true);
 
 
 --
--- Name: as2provider uid; Type: DEFAULT; Schema: public; Owner: rmbt
+-- PostgreSQL database dump complete
 --
 
-ALTER TABLE ONLY public.as2provider ALTER COLUMN uid SET DEFAULT nextval('public.as2provider_uid_seq'::regclass);
+-- 2019-07-26_10-14-05 rmbt_init.sql table as2provider
+--
+-- PostgreSQL database dump
+--
 
+-- Dumped from database version 10.9 (Debian 10.9-1.pgdg90+1)
+-- Dumped by pg_dump version 10.9 (Debian 10.9-1.pgdg90+1)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
 
 --
 -- Data for Name: as2provider; Type: TABLE DATA; Schema: public; Owner: rmbt
@@ -140,46 +207,16 @@ SELECT pg_catalog.setval('public.as2provider_uid_seq', 150, true);
 
 
 --
--- Name: as2provider as2provider_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.as2provider
-    ADD CONSTRAINT as2provider_pkey PRIMARY KEY (uid);
-
-
---
--- Name: as2provider_provider_id_idx; Type: INDEX; Schema: public; Owner: rmbt
---
-
-CREATE INDEX as2provider_provider_id_idx ON public.as2provider USING btree (provider_id);
-
-
---
--- Name: as2provider as2provider_provider_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.as2provider
-    ADD CONSTRAINT as2provider_provider_id_fkey FOREIGN KEY (provider_id) REFERENCES public.provider(uid);
-
-
---
--- Name: TABLE as2provider; Type: ACL; Schema: public; Owner: rmbt
---
-
-GRANT SELECT ON TABLE public.as2provider TO rmbt_group_read_only;
-
-
---
 -- PostgreSQL database dump complete
 --
 
--- 2019-02-04_21-19-54 rmbt_init.sql table client_type
+-- 2019-07-26_10-14-05 rmbt_init.sql table client_type
 --
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 10.6 (Debian 10.6-1.pgdg90+1)
--- Dumped by pg_dump version 10.6 (Debian 10.6-1.pgdg90+1)
+-- Dumped from database version 10.9 (Debian 10.9-1.pgdg90+1)
+-- Dumped by pg_dump version 10.9 (Debian 10.9-1.pgdg90+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -188,52 +225,9 @@ SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
+SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
-
-SET default_tablespace = '';
-
-SET default_with_oids = false;
-
---
--- Name: client_type; Type: TABLE; Schema: public; Owner: rmbt
---
-
-CREATE TABLE public.client_type (
-    uid integer NOT NULL,
-    name character varying(200)
-);
-
-
-ALTER TABLE public.client_type OWNER TO rmbt;
-
---
--- Name: client_type_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
---
-
-CREATE SEQUENCE public.client_type_uid_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.client_type_uid_seq OWNER TO rmbt;
-
---
--- Name: client_type_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
---
-
-ALTER SEQUENCE public.client_type_uid_seq OWNED BY public.client_type.uid;
-
-
---
--- Name: client_type uid; Type: DEFAULT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.client_type ALTER COLUMN uid SET DEFAULT nextval('public.client_type_uid_seq'::regclass);
-
 
 --
 -- Data for Name: client_type; Type: TABLE DATA; Schema: public; Owner: rmbt
@@ -251,31 +245,16 @@ SELECT pg_catalog.setval('public.client_type_uid_seq', 2, true);
 
 
 --
--- Name: client_type client_type_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.client_type
-    ADD CONSTRAINT client_type_pkey PRIMARY KEY (uid);
-
-
---
--- Name: TABLE client_type; Type: ACL; Schema: public; Owner: rmbt
---
-
-GRANT SELECT ON TABLE public.client_type TO rmbt_group_read_only;
-
-
---
 -- PostgreSQL database dump complete
 --
 
--- 2019-02-04_21-19-54 rmbt_init.sql table mcc2country
+-- 2019-07-26_10-14-05 rmbt_init.sql table mcc2country
 --
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 10.6 (Debian 10.6-1.pgdg90+1)
--- Dumped by pg_dump version 10.6 (Debian 10.6-1.pgdg90+1)
+-- Dumped from database version 10.9 (Debian 10.9-1.pgdg90+1)
+-- Dumped by pg_dump version 10.9 (Debian 10.9-1.pgdg90+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -284,24 +263,9 @@ SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
+SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
-
-SET default_tablespace = '';
-
-SET default_with_oids = false;
-
---
--- Name: mcc2country; Type: TABLE; Schema: public; Owner: rmbt
---
-
-CREATE TABLE public.mcc2country (
-    mcc character varying(3) NOT NULL,
-    country character varying(2) NOT NULL
-);
-
-
-ALTER TABLE public.mcc2country OWNER TO rmbt;
 
 --
 -- Data for Name: mcc2country; Type: TABLE DATA; Schema: public; Owner: rmbt
@@ -521,38 +485,16 @@ INSERT INTO public.mcc2country (mcc, country) VALUES ('750', 'fk');
 
 
 --
--- Name: mcc2country mcc2country_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.mcc2country
-    ADD CONSTRAINT mcc2country_pkey PRIMARY KEY (mcc);
-
-
---
--- Name: mcc2country_mcc; Type: INDEX; Schema: public; Owner: rmbt
---
-
-CREATE INDEX mcc2country_mcc ON public.mcc2country USING btree (mcc);
-
-
---
--- Name: TABLE mcc2country; Type: ACL; Schema: public; Owner: rmbt
---
-
-GRANT SELECT ON TABLE public.mcc2country TO rmbt_group_read_only;
-
-
---
 -- PostgreSQL database dump complete
 --
 
--- 2019-02-04_21-19-54 rmbt_init.sql table mccmnc2name
+-- 2019-07-26_10-14-05 rmbt_init.sql table mccmnc2name
 --
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 10.6 (Debian 10.6-1.pgdg90+1)
--- Dumped by pg_dump version 10.6 (Debian 10.6-1.pgdg90+1)
+-- Dumped from database version 10.9 (Debian 10.9-1.pgdg90+1)
+-- Dumped by pg_dump version 10.9 (Debian 10.9-1.pgdg90+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -561,62 +503,9 @@ SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
+SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
-
-SET default_tablespace = '';
-
-SET default_with_oids = false;
-
---
--- Name: mccmnc2name; Type: TABLE; Schema: public; Owner: rmbt
---
-
-CREATE TABLE public.mccmnc2name (
-    uid integer NOT NULL,
-    mccmnc character varying(7) NOT NULL,
-    valid_from date DEFAULT '0001-01-01'::date,
-    valid_to date DEFAULT '9999-12-31'::date,
-    country character varying(2),
-    name character varying(200) NOT NULL,
-    shortname character varying(100),
-    use_for_sim boolean DEFAULT true,
-    use_for_network boolean DEFAULT true,
-    mcc_mnc_network_mapping character varying(10),
-    comment character varying(200),
-    mapped_uid integer
-);
-
-
-ALTER TABLE public.mccmnc2name OWNER TO rmbt;
-
---
--- Name: mccmnc2name_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
---
-
-CREATE SEQUENCE public.mccmnc2name_uid_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.mccmnc2name_uid_seq OWNER TO rmbt;
-
---
--- Name: mccmnc2name_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
---
-
-ALTER SEQUENCE public.mccmnc2name_uid_seq OWNED BY public.mccmnc2name.uid;
-
-
---
--- Name: mccmnc2name uid; Type: DEFAULT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.mccmnc2name ALTER COLUMN uid SET DEFAULT nextval('public.mccmnc2name_uid_seq'::regclass);
-
 
 --
 -- Data for Name: mccmnc2name; Type: TABLE DATA; Schema: public; Owner: rmbt
@@ -2283,39 +2172,16 @@ SELECT pg_catalog.setval('public.mccmnc2name_uid_seq', 3293, true);
 
 
 --
--- Name: mccmnc2name mccmnc2name_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.mccmnc2name
-    ADD CONSTRAINT mccmnc2name_pkey PRIMARY KEY (uid);
-
-
---
--- Name: mccmnc2name_mccmnc; Type: INDEX; Schema: public; Owner: rmbt
---
-
-CREATE INDEX mccmnc2name_mccmnc ON public.mccmnc2name USING btree (mccmnc);
-
-
---
--- Name: TABLE mccmnc2name; Type: ACL; Schema: public; Owner: rmbt
---
-
-GRANT SELECT ON TABLE public.mccmnc2name TO rmbt_group_read_only;
-GRANT SELECT ON TABLE public.mccmnc2name TO rmbt_group_control;
-
-
---
 -- PostgreSQL database dump complete
 --
 
--- 2019-02-04_21-19-54 rmbt_init.sql table mccmnc2provider
+-- 2019-07-26_10-14-05 rmbt_init.sql table mccmnc2provider
 --
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 10.6 (Debian 10.6-1.pgdg90+1)
--- Dumped by pg_dump version 10.6 (Debian 10.6-1.pgdg90+1)
+-- Dumped from database version 10.9 (Debian 10.9-1.pgdg90+1)
+-- Dumped by pg_dump version 10.9 (Debian 10.9-1.pgdg90+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -2324,56 +2190,9 @@ SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
+SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
-
-SET default_tablespace = '';
-
-SET default_with_oids = false;
-
---
--- Name: mccmnc2provider; Type: TABLE; Schema: public; Owner: rmbt
---
-
-CREATE TABLE public.mccmnc2provider (
-    uid integer NOT NULL,
-    mcc_mnc_sim character varying(10),
-    provider_id integer NOT NULL,
-    mcc_mnc_network character varying(10),
-    valid_from date,
-    valid_to date
-);
-
-
-ALTER TABLE public.mccmnc2provider OWNER TO rmbt;
-
---
--- Name: mccmnc2provider_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
---
-
-CREATE SEQUENCE public.mccmnc2provider_uid_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.mccmnc2provider_uid_seq OWNER TO rmbt;
-
---
--- Name: mccmnc2provider_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
---
-
-ALTER SEQUENCE public.mccmnc2provider_uid_seq OWNED BY public.mccmnc2provider.uid;
-
-
---
--- Name: mccmnc2provider uid; Type: DEFAULT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.mccmnc2provider ALTER COLUMN uid SET DEFAULT nextval('public.mccmnc2provider_uid_seq'::regclass);
-
 
 --
 -- Data for Name: mccmnc2provider; Type: TABLE DATA; Schema: public; Owner: rmbt
@@ -2412,63 +2231,27 @@ INSERT INTO public.mccmnc2provider (uid, mcc_mnc_sim, provider_id, mcc_mnc_netwo
 INSERT INTO public.mccmnc2provider (uid, mcc_mnc_sim, provider_id, mcc_mnc_network, valid_from, valid_to) VALUES (27, '232-19', 36, NULL, NULL, NULL);
 INSERT INTO public.mccmnc2provider (uid, mcc_mnc_sim, provider_id, mcc_mnc_network, valid_from, valid_to) VALUES (23, '232-13', 36, NULL, NULL, '2018-10-01');
 INSERT INTO public.mccmnc2provider (uid, mcc_mnc_sim, provider_id, mcc_mnc_network, valid_from, valid_to) VALUES (36, '232-13', 2, NULL, '2018-10-01', NULL);
+INSERT INTO public.mccmnc2provider (uid, mcc_mnc_sim, provider_id, mcc_mnc_network, valid_from, valid_to) VALUES (37, '232-24', 36, NULL, NULL, NULL);
 
 
 --
 -- Name: mccmnc2provider_uid_seq; Type: SEQUENCE SET; Schema: public; Owner: rmbt
 --
 
-SELECT pg_catalog.setval('public.mccmnc2provider_uid_seq', 68, true);
-
-
---
--- Name: mccmnc2provider mccmnc2provider_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.mccmnc2provider
-    ADD CONSTRAINT mccmnc2provider_pkey PRIMARY KEY (uid);
-
-
---
--- Name: mccmnc2provider_mcc_mnc_idx; Type: INDEX; Schema: public; Owner: rmbt
---
-
-CREATE INDEX mccmnc2provider_mcc_mnc_idx ON public.mccmnc2provider USING btree (mcc_mnc_sim, mcc_mnc_network);
-
-
---
--- Name: mccmnc2provider_provider_id; Type: INDEX; Schema: public; Owner: rmbt
---
-
-CREATE INDEX mccmnc2provider_provider_id ON public.mccmnc2provider USING btree (provider_id);
-
-
---
--- Name: mccmnc2provider mccmnc2provider_provider_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.mccmnc2provider
-    ADD CONSTRAINT mccmnc2provider_provider_id_fkey FOREIGN KEY (provider_id) REFERENCES public.provider(uid);
-
-
---
--- Name: TABLE mccmnc2provider; Type: ACL; Schema: public; Owner: rmbt
---
-
-GRANT SELECT ON TABLE public.mccmnc2provider TO rmbt_group_read_only;
+SELECT pg_catalog.setval('public.mccmnc2provider_uid_seq', 69, true);
 
 
 --
 -- PostgreSQL database dump complete
 --
 
--- 2019-02-04_21-19-54 rmbt_init.sql table network_type
+-- 2019-07-26_10-14-05 rmbt_init.sql table network_type
 --
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 10.6 (Debian 10.6-1.pgdg90+1)
--- Dumped by pg_dump version 10.6 (Debian 10.6-1.pgdg90+1)
+-- Dumped from database version 10.9 (Debian 10.9-1.pgdg90+1)
+-- Dumped by pg_dump version 10.9 (Debian 10.9-1.pgdg90+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -2477,60 +2260,9 @@ SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
+SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
-
-SET default_tablespace = '';
-
-SET default_with_oids = false;
-
---
--- Name: network_type; Type: TABLE; Schema: public; Owner: rmbt
---
-
-CREATE TABLE public.network_type (
-    uid integer NOT NULL,
-    name character varying(200) NOT NULL,
-    group_name character varying NOT NULL,
-    aggregate character varying[],
-    type character varying NOT NULL,
-    technology_order integer DEFAULT 0 NOT NULL,
-    min_speed_download_kbps integer,
-    max_speed_download_kbps integer,
-    min_speed_upload_kbps integer,
-    max_speed_upload_kbps integer
-);
-
-
-ALTER TABLE public.network_type OWNER TO rmbt;
-
---
--- Name: network_type_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
---
-
-CREATE SEQUENCE public.network_type_uid_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.network_type_uid_seq OWNER TO rmbt;
-
---
--- Name: network_type_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
---
-
-ALTER SEQUENCE public.network_type_uid_seq OWNED BY public.network_type.uid;
-
-
---
--- Name: network_type uid; Type: DEFAULT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.network_type ALTER COLUMN uid SET DEFAULT nextval('public.network_type_uid_seq'::regclass);
-
 
 --
 -- Data for Name: network_type; Type: TABLE DATA; Schema: public; Owner: rmbt
@@ -2576,45 +2308,16 @@ SELECT pg_catalog.setval('public.network_type_uid_seq', 16, true);
 
 
 --
--- Name: network_type network_type_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.network_type
-    ADD CONSTRAINT network_type_pkey PRIMARY KEY (uid);
-
-
---
--- Name: network_type_group_name_idx; Type: INDEX; Schema: public; Owner: rmbt
---
-
-CREATE INDEX network_type_group_name_idx ON public.network_type USING btree (group_name);
-
-
---
--- Name: network_type_type_idx; Type: INDEX; Schema: public; Owner: rmbt
---
-
-CREATE INDEX network_type_type_idx ON public.network_type USING btree (type);
-
-
---
--- Name: TABLE network_type; Type: ACL; Schema: public; Owner: rmbt
---
-
-GRANT SELECT ON TABLE public.network_type TO rmbt_group_read_only;
-
-
---
 -- PostgreSQL database dump complete
 --
 
--- 2019-02-04_21-19-54 rmbt_init.sql table provider
+-- 2019-07-26_10-14-05 rmbt_init.sql table qos_test_desc
 --
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 10.6 (Debian 10.6-1.pgdg90+1)
--- Dumped by pg_dump version 10.6 (Debian 10.6-1.pgdg90+1)
+-- Dumped from database version 10.9 (Debian 10.9-1.pgdg90+1)
+-- Dumped by pg_dump version 10.9 (Debian 10.9-1.pgdg90+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -2623,234 +2326,9 @@ SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
+SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
-
-SET default_tablespace = '';
-
-SET default_with_oids = false;
-
---
--- Name: provider; Type: TABLE; Schema: public; Owner: rmbt
---
-
-CREATE TABLE public.provider (
-    uid integer NOT NULL,
-    name character varying(200),
-    mcc_mnc character varying(10),
-    shortname character varying(100),
-    map_filter boolean NOT NULL
-);
-
-
-ALTER TABLE public.provider OWNER TO rmbt;
-
---
--- Name: provider_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
---
-
-CREATE SEQUENCE public.provider_uid_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.provider_uid_seq OWNER TO rmbt;
-
---
--- Name: provider_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
---
-
-ALTER SEQUENCE public.provider_uid_seq OWNED BY public.provider.uid;
-
-
---
--- Name: provider uid; Type: DEFAULT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.provider ALTER COLUMN uid SET DEFAULT nextval('public.provider_uid_seq'::regclass);
-
-
---
--- Data for Name: provider; Type: TABLE DATA; Schema: public; Owner: rmbt
---
-
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (3, 'Orange Austria Telecommunication GmbH (alt)', '232-05', 'Orange AT (alt)', false);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (4, 'Hutchison 3G Austria GmbH (alt)', '232-10', '3AT (alt)', false);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (7, 'tele.ring', '232-07', 'tele.ring', false);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (8, 'Bob', '232-11', 'Bob', false);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (9, 'YESSS! Telekommunikation GmbH', '232-12', 'Yesss!', false);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (12, 'Tele2 Telecommunication GmbH', NULL, 'Tele2', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (14, 'Colt Technology Services GmbH', NULL, 'Colt', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (16, 'LIWEST Kabelmedien GmbH', NULL, 'LIWEST', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (17, 'AT&T Global Network Services Austria GmbH', NULL, 'AT&T', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (18, 'Belgacom International Carrier Services S.A.', NULL, 'Belgacom', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (20, 'Verizon Austria GmbH', NULL, 'Verizon', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (21, 'BT Austria GmbH', NULL, 'BT Austria', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (22, 'WIEN ENERGIE GmbH', NULL, 'WIEN ENERGIE', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (23, 'ACOnet', NULL, 'ACOnet', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (24, 'next layer Telekommunikationsdienstleistungs-GmbH', NULL, 'next layer', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (27, 'ÖBB Telekom Service GmbH', NULL, 'ÖBB', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (28, 'KAPPER NETWORK-COMMUNICATIONS GmbH', NULL, 'Kapper', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (29, 'WVNET Information und Kommunikation GmbH', NULL, 'WVNET', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (30, 'Flughafen Wien AG', NULL, 'Flughafen Wien', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (31, 'Technische Universität Wien', NULL, 'TU Wien', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (32, 'Universität Wien', NULL, 'Uni Wien', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (33, 'Wirtschaftsuniversität Wien', NULL, 'WU Wien', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (34, 'Citycom Telekommunikation GmbH', NULL, 'Citycom', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (35, 'i3B - Internetbreitband GmbH', NULL, 'i3B', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (2, 'T-Mobile Austria GmbH', '232-03', 'T-Mobile AT', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (36, 'Hutchison Drei Austria GmbH', '232-10', 'Hutchison Drei', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (37, 'Gamsjäger Kabel-TV & ISP Betriebs GmbH', NULL, 'Gamsjäger', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (39, 'Lycamobile Austria Ltd', '232-08', 'Lycamobile', false);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (117, 'Plintron Austria Limited', '232-22', 'Plintron', false);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (10, 'Mundio Mobile (Austria) Limited', '232-15', 'Mundio', false);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (43, 'smartspace GmbH', '232-18', 'smartspace', false);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (46, 'MTEL Austrija GmbH', '232-20', 'MTEL', false);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (48, 'ÖBB - Infrastruktur AG - Mobilnetz', '232-91', 'ÖBB Mobilnetz', false);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (49, 'ArgoNET GmbH', '232-92', 'ArgoNET', false);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (6, 'kabelplus GmbH', NULL, 'kabelplus', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (15, 'Salzburg AG für Energie, Verkehr und Telekommunikation', NULL, 'Salzburg AG', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (50, 'Salzburg AG für Energie, Verkehr und Telekommunikation - Mobilnetz', '232-21', 'Salzburg AG Mobilnetz', false);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (51, 'Energie AG Oberösterreich Data GmbH', NULL, 'Energie AG', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (52, 'NETcompany - WLAN Internet Provider GmbH', NULL, 'NETcompany', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (42, 'MASS Response Service GmbH - Mobilnetz', '232-17', 'MASS Response Mobilnetz', false);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (118, 'MASS Response Service GmbH', NULL, 'MASS Response', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (119, 'Innsbrucker Kommunalbetriebe Aktiengesellschaft', NULL, 'IKB AG', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (120, 'Russmedia IT GmbH', NULL, 'Russmedia', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (25, 'A1 Telekom Austria AG - Festnetz', NULL, 'A1 TA Festnetz', false);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (121, 'COSYS DATA GmbH', NULL, 'COSYS DATA', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (122, 'Riepert Informationstechnologie OG', NULL, 'Riepert', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (123, 'IForce IT GmbH', NULL, 'IForce', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (124, 'Elektro Pühringer GmbH', NULL, 'Pühringer', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (128, 'Infotech EDV-Systeme GmbH', NULL, 'Infotech', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (129, 'AiNet Telekommunikations-Netzwerk Betriebs GmbH', NULL, 'AiNet', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (130, 'Peter Rauter GmbH', NULL, 'Rauter', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (135, 'mieX GmbH', NULL, 'mieX', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (136, 'T-Systems Austria GesmbH', NULL, 'T-Systems', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (137, 'BK-DAT Electronics e.U.', NULL, 'BK-DAT', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (142, 'Kabel TV Lampert GmbH & Co KG', NULL, 'Lampert', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (144, 'DIC-Online Wolf & Co. KG', NULL, 'DIC-Online', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (146, 'flashnet GmbH', NULL, 'flashnet', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (147, 'Stadtwerke Kapfenberg GmbH', NULL, 'SW Kapfenberg', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (131, 'ANEXIA Internetdienstleistungs GmbH', NULL, 'ANEXIA', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (139, 'Nessus GmbH', NULL, 'Nessus', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (148, 'Stadtwerke Hall in Tirol GmbH', NULL, 'SW Hall i.T.', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (145, 'Video-Broadcast GmbH', NULL, 'Video-Broadcast', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (126, 'JM-DATA Telekom GmbH', NULL, 'JM-DATA', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (127, 'myNET Internet Solutions', NULL, 'myNET', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (125, 'TIMEWARP IT Consulting GmbH', NULL, 'TIMEWARP', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (134, 'LinzNet Internet Service Provider GmbH', NULL, 'LinzNet', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (132, 'Stadtwerke Kufstein GmbH', NULL, 'SW Kufstein', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (133, 'NETPLANET GmbH', NULL, 'NETPLANET', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (143, 'MMC Kommunikationstechnologie GmbH', NULL, 'MMC', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (140, 'lagis Internet Serviceprovider GmbH', NULL, 'lagis', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (141, 'XINON GmbH', NULL, 'XINON', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (138, 'Stadtwerke Kitzbühel', NULL, 'SW Kitzbühel', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (1, 'A1 Telekom Austria AG', '232-01', 'A1 TA', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (149, 'MultiKom Austria Telekom GmbH', NULL, 'XLINK', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (5, 'UPC Austria', NULL, 'UPC AT', true);
-INSERT INTO public.provider (uid, name, mcc_mnc, shortname, map_filter) VALUES (41, 'UPC Austria - Mobilnetz', '232-13', 'UPC Mobilnetz', false);
-
-
---
--- Name: provider_uid_seq; Type: SEQUENCE SET; Schema: public; Owner: rmbt
---
-
-SELECT pg_catalog.setval('public.provider_uid_seq', 181, true);
-
-
---
--- Name: provider provider_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.provider
-    ADD CONSTRAINT provider_pkey PRIMARY KEY (uid);
-
-
---
--- Name: provider_mcc_mnc_idx; Type: INDEX; Schema: public; Owner: rmbt
---
-
-CREATE INDEX provider_mcc_mnc_idx ON public.provider USING btree (mcc_mnc);
-
-
---
--- Name: TABLE provider; Type: ACL; Schema: public; Owner: rmbt
---
-
-GRANT SELECT ON TABLE public.provider TO rmbt_group_read_only;
-
-
---
--- PostgreSQL database dump complete
---
-
--- 2019-02-04_21-19-54 rmbt_init.sql table qos_test_desc
---
--- PostgreSQL database dump
---
-
--- Dumped from database version 10.6 (Debian 10.6-1.pgdg90+1)
--- Dumped by pg_dump version 10.6 (Debian 10.6-1.pgdg90+1)
-
-SET statement_timeout = 0;
-SET lock_timeout = 0;
-SET idle_in_transaction_session_timeout = 0;
-SET client_encoding = 'UTF8';
-SET standard_conforming_strings = on;
-SELECT pg_catalog.set_config('search_path', '', false);
-SET check_function_bodies = false;
-SET client_min_messages = warning;
-SET row_security = off;
-
-SET default_tablespace = '';
-
-SET default_with_oids = false;
-
---
--- Name: qos_test_desc; Type: TABLE; Schema: public; Owner: rmbt
---
-
-CREATE TABLE public.qos_test_desc (
-    uid integer NOT NULL,
-    desc_key text,
-    value text,
-    lang text
-);
-
-
-ALTER TABLE public.qos_test_desc OWNER TO rmbt;
-
---
--- Name: qos_test_desc_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
---
-
-CREATE SEQUENCE public.qos_test_desc_uid_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.qos_test_desc_uid_seq OWNER TO rmbt;
-
---
--- Name: qos_test_desc_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
---
-
-ALTER SEQUENCE public.qos_test_desc_uid_seq OWNED BY public.qos_test_desc.uid;
-
-
---
--- Name: qos_test_desc uid; Type: DEFAULT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.qos_test_desc ALTER COLUMN uid SET DEFAULT nextval('public.qos_test_desc_uid_seq'::regclass);
-
 
 --
 -- Data for Name: qos_test_desc; Type: TABLE DATA; Schema: public; Owner: rmbt
@@ -3193,46 +2671,16 @@ SELECT pg_catalog.setval('public.qos_test_desc_uid_seq', 250, true);
 
 
 --
--- Name: qos_test_desc qos_test_desc_desc_key_lang_key; Type: CONSTRAINT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.qos_test_desc
-    ADD CONSTRAINT qos_test_desc_desc_key_lang_key UNIQUE (desc_key, lang);
-
-
---
--- Name: qos_test_desc qos_test_desc_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.qos_test_desc
-    ADD CONSTRAINT qos_test_desc_pkey PRIMARY KEY (uid);
-
-
---
--- Name: qos_test_desc_desc_key_idx; Type: INDEX; Schema: public; Owner: rmbt
---
-
-CREATE INDEX qos_test_desc_desc_key_idx ON public.qos_test_desc USING btree (desc_key);
-
-
---
--- Name: TABLE qos_test_desc; Type: ACL; Schema: public; Owner: rmbt
---
-
-GRANT SELECT ON TABLE public.qos_test_desc TO rmbt_group_read_only;
-
-
---
 -- PostgreSQL database dump complete
 --
 
--- 2019-02-04_21-19-54 rmbt_init.sql table qos_test_objective
+-- 2019-07-26_10-14-05 rmbt_init.sql table qos_test_type_desc
 --
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 10.6 (Debian 10.6-1.pgdg90+1)
--- Dumped by pg_dump version 10.6 (Debian 10.6-1.pgdg90+1)
+-- Dumped from database version 10.9 (Debian 10.9-1.pgdg90+1)
+-- Dumped by pg_dump version 10.9 (Debian 10.9-1.pgdg90+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -3241,59 +2689,54 @@ SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
+SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
-SET default_tablespace = '';
-
-SET default_with_oids = false;
-
 --
--- Name: qos_test_objective; Type: TABLE; Schema: public; Owner: rmbt
+-- Data for Name: qos_test_type_desc; Type: TABLE DATA; Schema: public; Owner: rmbt
 --
 
-CREATE TABLE public.qos_test_objective (
-    uid integer NOT NULL,
-    test public.qostest NOT NULL,
-    test_class integer,
-    test_server integer,
-    concurrency_group integer DEFAULT 0 NOT NULL,
-    test_desc text,
-    test_summary text,
-    param json DEFAULT '{}'::json NOT NULL,
-    results json
-);
-
-
-ALTER TABLE public.qos_test_objective OWNER TO rmbt;
-
---
--- Name: qos_test_objective_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
---
-
-CREATE SEQUENCE public.qos_test_objective_uid_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.qos_test_objective_uid_seq OWNER TO rmbt;
-
---
--- Name: qos_test_objective_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
---
-
-ALTER SEQUENCE public.qos_test_objective_uid_seq OWNED BY public.qos_test_objective.uid;
+INSERT INTO public.qos_test_type_desc (uid, test, test_desc, test_name) VALUES (1, 'website', 'test.website', 'name.website');
+INSERT INTO public.qos_test_type_desc (uid, test, test_desc, test_name) VALUES (2, 'http_proxy', 'test.http', 'name.http_proxy');
+INSERT INTO public.qos_test_type_desc (uid, test, test_desc, test_name) VALUES (3, 'non_transparent_proxy', 'test.ntp', 'name.non_transparent_proxy');
+INSERT INTO public.qos_test_type_desc (uid, test, test_desc, test_name) VALUES (4, 'dns', 'test.dns', 'name.dns');
+INSERT INTO public.qos_test_type_desc (uid, test, test_desc, test_name) VALUES (5, 'tcp', 'test.tcp', 'name.tcp');
+INSERT INTO public.qos_test_type_desc (uid, test, test_desc, test_name) VALUES (6, 'udp', 'test.udp', 'name.udp');
+INSERT INTO public.qos_test_type_desc (uid, test, test_desc, test_name) VALUES (7, 'voip', 'test.voip', 'name.voip');
+INSERT INTO public.qos_test_type_desc (uid, test, test_desc, test_name) VALUES (8, 'traceroute', 'test.trace', 'name.trace');
+INSERT INTO public.qos_test_type_desc (uid, test, test_desc, test_name) VALUES (40, 'traceroute_masked', 'test.trace', 'name.trace');
 
 
 --
--- Name: qos_test_objective uid; Type: DEFAULT; Schema: public; Owner: rmbt
+-- Name: qos_test_type_desc_uid_seq; Type: SEQUENCE SET; Schema: public; Owner: rmbt
 --
 
-ALTER TABLE ONLY public.qos_test_objective ALTER COLUMN uid SET DEFAULT nextval('public.qos_test_objective_uid_seq'::regclass);
+SELECT pg_catalog.setval('public.qos_test_type_desc_uid_seq', 40, true);
 
+
+--
+-- PostgreSQL database dump complete
+--
+
+-- 2019-07-26_10-14-05 rmbt_init.sql table qos_test_objective
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 10.9 (Debian 10.9-1.pgdg90+1)
+-- Dumped by pg_dump version 10.9 (Debian 10.9-1.pgdg90+1)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
 
 --
 -- Data for Name: qos_test_objective; Type: TABLE DATA; Schema: public; Owner: rmbt
@@ -3470,41 +2913,27 @@ INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concu
 INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (61, 'udp', 1, 35, 200, 'udp.out.testinfo', 'test.desc.udp.out.27015', '{"timeout": "5000000000", "out_port": "27015", "out_num_packets": "5"}', '[{"operator": "eq", "on_failure": "udp.failure", "on_success": "udp.success", "udp_result_out_response_num_packets": "%PARAM udp_objective_out_num_packets%"}]');
 INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (53, 'udp', 1, 35, 200, 'udp.out.testinfo', 'test.desc.udp.out.123', '{"timeout": "5000000000", "out_port": "123", "out_num_packets": "5"}', '[{"operator": "eq", "on_failure": "udp.failure", "on_success": "udp.success", "udp_result_out_response_num_packets": "%PARAM udp_objective_out_num_packets%"}]');
 INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (57, 'udp', 1, 35, 200, 'udp.out.testinfo', 'test.desc.udp.out.5060', '{"timeout": "5000000000", "out_port": "5060", "out_num_packets": "5"}', '[{"operator": "eq", "on_failure": "udp.failure", "on_success": "udp.success", "udp_result_out_response_num_packets": "%PARAM udp_objective_out_num_packets%"}]');
+INSERT INTO public.qos_test_objective (uid, test, test_class, test_server, concurrency_group, test_desc, test_summary, param, results) VALUES (175, 'dns', 1, 35, 620, 'dns.testinfo', 'test.desc.dns', '{"host": "rtr.at", "record": "A", "timeout": "5000000000", "resolver": "9.9.9.9"}', '[{"operator": "ge", "on_failure": "dns.failure", "on_success": "dns.success", "dns_result_entries_found": "1"},{"operator": "ne", "on_failure": "test.timeout.exceeded", "dns_result_info": "TIMEOUT"}]');
 
 
 --
 -- Name: qos_test_objective_uid_seq; Type: SEQUENCE SET; Schema: public; Owner: rmbt
 --
 
-SELECT pg_catalog.setval('public.qos_test_objective_uid_seq', 206, true);
-
-
---
--- Name: qos_test_objective qos_test_objective_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.qos_test_objective
-    ADD CONSTRAINT qos_test_objective_pkey PRIMARY KEY (uid);
-
-
---
--- Name: TABLE qos_test_objective; Type: ACL; Schema: public; Owner: rmbt
---
-
-GRANT SELECT ON TABLE public.qos_test_objective TO rmbt_group_read_only;
+SELECT pg_catalog.setval('public.qos_test_objective_uid_seq', 207, true);
 
 
 --
 -- PostgreSQL database dump complete
 --
 
--- 2019-02-04_21-19-54 rmbt_init.sql table qos_test_type_desc
+-- 2019-07-26_10-14-05 rmbt_init.sql template table device_map
 --
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 10.6 (Debian 10.6-1.pgdg90+1)
--- Dumped by pg_dump version 10.6 (Debian 10.6-1.pgdg90+1)
+-- Dumped from database version 10.9 (Debian 10.9-1.pgdg90+1)
+-- Dumped by pg_dump version 10.9 (Debian 10.9-1.pgdg90+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -3513,175 +2942,15 @@ SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
+SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
-
-SET default_tablespace = '';
-
-SET default_with_oids = false;
-
---
--- Name: qos_test_type_desc; Type: TABLE; Schema: public; Owner: rmbt
---
-
-CREATE TABLE public.qos_test_type_desc (
-    uid integer NOT NULL,
-    test public.qostest,
-    test_desc text,
-    test_name text
-);
-
-
-ALTER TABLE public.qos_test_type_desc OWNER TO rmbt;
-
---
--- Name: qos_test_type_desc_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
---
-
-CREATE SEQUENCE public.qos_test_type_desc_uid_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.qos_test_type_desc_uid_seq OWNER TO rmbt;
-
---
--- Name: qos_test_type_desc_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
---
-
-ALTER SEQUENCE public.qos_test_type_desc_uid_seq OWNED BY public.qos_test_type_desc.uid;
-
-
---
--- Name: qos_test_type_desc uid; Type: DEFAULT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.qos_test_type_desc ALTER COLUMN uid SET DEFAULT nextval('public.qos_test_type_desc_uid_seq'::regclass);
-
-
---
--- Data for Name: qos_test_type_desc; Type: TABLE DATA; Schema: public; Owner: rmbt
---
-
-INSERT INTO public.qos_test_type_desc (uid, test, test_desc, test_name) VALUES (1, 'website', 'test.website', 'name.website');
-INSERT INTO public.qos_test_type_desc (uid, test, test_desc, test_name) VALUES (2, 'http_proxy', 'test.http', 'name.http_proxy');
-INSERT INTO public.qos_test_type_desc (uid, test, test_desc, test_name) VALUES (3, 'non_transparent_proxy', 'test.ntp', 'name.non_transparent_proxy');
-INSERT INTO public.qos_test_type_desc (uid, test, test_desc, test_name) VALUES (4, 'dns', 'test.dns', 'name.dns');
-INSERT INTO public.qos_test_type_desc (uid, test, test_desc, test_name) VALUES (5, 'tcp', 'test.tcp', 'name.tcp');
-INSERT INTO public.qos_test_type_desc (uid, test, test_desc, test_name) VALUES (6, 'udp', 'test.udp', 'name.udp');
-INSERT INTO public.qos_test_type_desc (uid, test, test_desc, test_name) VALUES (7, 'voip', 'test.voip', 'name.voip');
-INSERT INTO public.qos_test_type_desc (uid, test, test_desc, test_name) VALUES (8, 'traceroute', 'test.trace', 'name.trace');
-INSERT INTO public.qos_test_type_desc (uid, test, test_desc, test_name) VALUES (40, 'traceroute_masked', 'test.trace', 'name.trace');
-
-
---
--- Name: qos_test_type_desc_uid_seq; Type: SEQUENCE SET; Schema: public; Owner: rmbt
---
-
-SELECT pg_catalog.setval('public.qos_test_type_desc_uid_seq', 40, true);
-
-
---
--- Name: qos_test_type_desc qos_test_type_desc_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.qos_test_type_desc
-    ADD CONSTRAINT qos_test_type_desc_pkey PRIMARY KEY (uid);
-
-
---
--- Name: qos_test_type_desc qos_test_type_desc_test_key; Type: CONSTRAINT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.qos_test_type_desc
-    ADD CONSTRAINT qos_test_type_desc_test_key UNIQUE (test);
-
-
---
--- Name: TABLE qos_test_type_desc; Type: ACL; Schema: public; Owner: rmbt
---
-
-GRANT SELECT ON TABLE public.qos_test_type_desc TO rmbt_group_read_only;
-
-
---
--- PostgreSQL database dump complete
---
-
--- 2019-02-04_21-19-54 rmbt_init.sql template table device_map
---
--- PostgreSQL database dump
---
-
--- Dumped from database version 10.6 (Debian 10.6-1.pgdg90+1)
--- Dumped by pg_dump version 10.6 (Debian 10.6-1.pgdg90+1)
-
-SET statement_timeout = 0;
-SET lock_timeout = 0;
-SET idle_in_transaction_session_timeout = 0;
-SET client_encoding = 'UTF8';
-SET standard_conforming_strings = on;
-SELECT pg_catalog.set_config('search_path', '', false);
-SET check_function_bodies = false;
-SET client_min_messages = warning;
-SET row_security = off;
-
-SET default_tablespace = '';
-
-SET default_with_oids = false;
-
---
--- Name: device_map; Type: TABLE; Schema: public; Owner: rmbt
---
-
-CREATE TABLE public.device_map (
-    uid integer NOT NULL,
-    codename character varying(200),
-    fullname character varying(200),
-    source character varying(200),
-    "timestamp" timestamp with time zone
-);
-
-
-ALTER TABLE public.device_map OWNER TO rmbt;
-
---
--- Name: android_device_map_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
---
-
-CREATE SEQUENCE public.android_device_map_uid_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.android_device_map_uid_seq OWNER TO rmbt;
-
---
--- Name: android_device_map_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
---
-
-ALTER SEQUENCE public.android_device_map_uid_seq OWNED BY public.device_map.uid;
-
-
---
--- Name: device_map uid; Type: DEFAULT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.device_map ALTER COLUMN uid SET DEFAULT nextval('public.android_device_map_uid_seq'::regclass);
-
 
 --
 -- Data for Name: device_map; Type: TABLE DATA; Schema: public; Owner: rmbt
 --
 
 INSERT INTO public.device_map (codename, fullname) VALUES ('iPad3,6', 'iPad 4 EU');
-
 
 --
 -- Name: android_device_map_uid_seq; Type: SEQUENCE SET; Schema: public; Owner: rmbt
@@ -3691,47 +2960,16 @@ SELECT pg_catalog.setval('public.android_device_map_uid_seq', 6338, true);
 
 
 --
--- Name: device_map android_device_map_codename_key; Type: CONSTRAINT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.device_map
-    ADD CONSTRAINT android_device_map_codename_key UNIQUE (codename);
-
-
---
--- Name: device_map android_device_map_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.device_map
-    ADD CONSTRAINT android_device_map_pkey PRIMARY KEY (uid);
-
-
---
--- Name: device_map device_map_fullname_key; Type: CONSTRAINT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.device_map
-    ADD CONSTRAINT device_map_fullname_key UNIQUE (fullname);
-
-
---
--- Name: TABLE device_map; Type: ACL; Schema: public; Owner: rmbt
---
-
-GRANT SELECT ON TABLE public.device_map TO rmbt_group_read_only;
-
-
---
 -- PostgreSQL database dump complete
 --
 
--- 2019-02-04_21-19-54 rmbt_init.sql template table news
+-- 2019-07-26_10-14-05 rmbt_init.sql template table news
 --
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 10.6 (Debian 10.6-1.pgdg90+1)
--- Dumped by pg_dump version 10.6 (Debian 10.6-1.pgdg90+1)
+-- Dumped from database version 10.9 (Debian 10.9-1.pgdg90+1)
+-- Dumped by pg_dump version 10.9 (Debian 10.9-1.pgdg90+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -3740,68 +2978,14 @@ SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
+SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
-
-SET default_tablespace = '';
-
-SET default_with_oids = false;
-
---
--- Name: news; Type: TABLE; Schema: public; Owner: rmbt
---
-
-CREATE TABLE public.news (
-    uid integer NOT NULL,
-    "time" timestamp with time zone NOT NULL,
-    title_en text,
-    title_de text,
-    text_en text,
-    text_de text,
-    active boolean DEFAULT false NOT NULL,
-    force boolean DEFAULT false NOT NULL,
-    plattform text,
-    max_software_version_code integer,
-    min_software_version_code integer,
-    uuid uuid
-);
-
-
-ALTER TABLE public.news OWNER TO rmbt;
-
---
--- Name: news_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
---
-
-CREATE SEQUENCE public.news_uid_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.news_uid_seq OWNER TO rmbt;
-
---
--- Name: news_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
---
-
-ALTER SEQUENCE public.news_uid_seq OWNED BY public.news.uid;
-
-
---
--- Name: news uid; Type: DEFAULT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.news ALTER COLUMN uid SET DEFAULT nextval('public.news_uid_seq'::regclass);
-
 
 --
 -- Data for Name: news; Type: TABLE DATA; Schema: public; Owner: rmbt
 --
 
-INSERT INTO public.news ("time", title_en, title_de, text_en, text_de, active, force, plattform, max_software_version_code, min_software_version_code, uuid) VALUES ('2013-02-22 15:26:32.482416+00', 'New version', 'Neue Version', 'A newer version of the RTR-Nettest is available. Please download it in the Google Play store.', 'Es ist eine neuere Version des RTR-Netztests verfügbar. Bitte laden Sie diese in Google Play herunter.', true, true, 'Android', 59, 52, NULL);
 
 
 --
@@ -3812,38 +2996,16 @@ SELECT pg_catalog.setval('public.news_uid_seq', 72, true);
 
 
 --
--- Name: news uid; Type: CONSTRAINT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.news
-    ADD CONSTRAINT uid PRIMARY KEY (uid);
-
-
---
--- Name: news_time_idx; Type: INDEX; Schema: public; Owner: rmbt
---
-
-CREATE INDEX news_time_idx ON public.news USING btree ("time");
-
-
---
--- Name: TABLE news; Type: ACL; Schema: public; Owner: rmbt
---
-
-GRANT SELECT ON TABLE public.news TO rmbt_group_read_only;
-
-
---
 -- PostgreSQL database dump complete
 --
 
--- 2019-02-04_21-19-54 rmbt_init.sql template table settings
+-- 2019-07-26_10-14-05 rmbt_init.sql template table settings
 --
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 10.6 (Debian 10.6-1.pgdg90+1)
--- Dumped by pg_dump version 10.6 (Debian 10.6-1.pgdg90+1)
+-- Dumped from database version 10.9 (Debian 10.9-1.pgdg90+1)
+-- Dumped by pg_dump version 10.9 (Debian 10.9-1.pgdg90+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -3852,80 +3014,34 @@ SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
+SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
-
-SET default_tablespace = '';
-
-SET default_with_oids = false;
-
---
--- Name: settings; Type: TABLE; Schema: public; Owner: rmbt
---
-
-CREATE TABLE public.settings (
-    uid integer NOT NULL,
-    key character varying NOT NULL,
-    lang character(2),
-    value character varying NOT NULL
-);
-
-
-ALTER TABLE public.settings OWNER TO rmbt;
-
---
--- Name: settings_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
---
-
-CREATE SEQUENCE public.settings_uid_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.settings_uid_seq OWNER TO rmbt;
-
---
--- Name: settings_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
---
-
-ALTER SEQUENCE public.settings_uid_seq OWNED BY public.settings.uid;
-
-
---
--- Name: settings uid; Type: DEFAULT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.settings ALTER COLUMN uid SET DEFAULT nextval('public.settings_uid_seq'::regclass);
-
 
 --
 -- Data for Name: settings; Type: TABLE DATA; Schema: public; Owner: rmbt
 --
 
-INSERT INTO public.settings (uid, key, lang, value) VALUES ('url_open_data_prefix', NULL, 'https://www.example.com/en/Opentest?');
-INSERT INTO public.settings (uid, key, lang, value) VALUES ('url_open_data_prefix', 'de', 'https://www.example.com/de/Opentest?');
-INSERT INTO public.settings (uid, key, lang, value) VALUES ('rmbt_num_threads', NULL, '3');
-INSERT INTO public.settings (uid, key, lang, value) VALUES ('rmbt_duration', NULL, '7');
-INSERT INTO public.settings (uid, key, lang, value) VALUES ('geo_accuracy_limit_map', NULL, '2000');
-INSERT INTO public.settings (uid, key, lang, value) VALUES ('geo_accuracy_limit_detail', NULL, '10000');
-INSERT INTO public.settings (uid, key, lang, value) VALUES ('url_statistics', 'de', 'https://www.example.com/de/Statistik#noMMenu');
-INSERT INTO public.settings (uid, key, lang, value) VALUES ('system_UUID', NULL, 'ccc9107b-3d34-493f-8afc-6af8b6a66b6e');
-INSERT INTO public.settings (uid, key, lang, value) VALUES ('system_name', 'en', 'Open-RMBT');
-INSERT INTO public.settings (uid, key, lang, value) VALUES ('system_name', 'de', 'Open-RMBT');
-INSERT INTO public.settings (uid, key, lang, value) VALUES ('control_ipv4_only', NULL, 'c01v4.example.com');
-INSERT INTO public.settings (uid, key, lang, value) VALUES ('control_ipv6_only', NULL, 'c01v6.example.com');
-INSERT INTO public.settings (uid, key, lang, value) VALUES ('port_map_server', NULL, '443');
-INSERT INTO public.settings (uid, key, lang, value) VALUES ('ssl_map_server', NULL, 'TRUE');
-INSERT INTO public.settings (uid, key, lang, value) VALUES ('url_statistics', NULL, 'https://www.example.com/en/Statistik#noMMenu');
-INSERT INTO public.settings (uid, key, lang, value) VALUES ('url_ipv4_check', NULL, 'https://c01v4.example.com/RMBTControlServer/ip');
-INSERT INTO public.settings (uid, key, lang, value) VALUES ('url_ipv6_check', NULL, 'https://c01v6.example.com/RMBTControlServer/ip');
-INSERT INTO public.settings (uid, key, lang, value) VALUES ('url_map_server', NULL, 'https://map.example.com/RMBTMapServer');
-INSERT INTO public.settings (uid, key, lang, value) VALUES ('host_map_server', NULL, 'map.example.com');
-INSERT INTO public.settings (uid, key, lang, value) VALUES ('url_share', NULL, 'https://example.com/share/');
-
+INSERT INTO public.settings (uid, key, lang, value) VALUES (3, 'url_open_data_prefix', NULL, 'https://www.example.at/en/Opentest?');
+INSERT INTO public.settings (uid, key, lang, value) VALUES (7, 'url_open_data_prefix', 'de', 'https://www.example.at/de/Opentest?');
+INSERT INTO public.settings (uid, key, lang, value) VALUES (10, 'rmbt_num_threads', NULL, '3');
+INSERT INTO public.settings (uid, key, lang, value) VALUES (11, 'rmbt_duration', NULL, '7');
+INSERT INTO public.settings (uid, key, lang, value) VALUES (12, 'geo_accuracy_limit_map', NULL, '2000');
+INSERT INTO public.settings (uid, key, lang, value) VALUES (13, 'geo_accuracy_limit_detail', NULL, '10000');
+INSERT INTO public.settings (uid, key, lang, value) VALUES (9, 'url_statistics', 'de', 'https://www.example.at/de/Statistik#noMMenu');
+INSERT INTO public.settings (uid, key, lang, value) VALUES (21, 'system_UUID', NULL, 'ccc9107b-3d34-493f-8afc-6af8b6a66b6e');
+INSERT INTO public.settings (uid, key, lang, value) VALUES (22, 'system_name', 'en', 'Open-RMBT');
+INSERT INTO public.settings (uid, key, lang, value) VALUES (23, 'system_name', 'de', 'Open-RMBT');
+INSERT INTO public.settings (uid, key, lang, value) VALUES (19, 'control_ipv4_only', NULL, 'c01v4.example.at');
+INSERT INTO public.settings (uid, key, lang, value) VALUES (20, 'control_ipv6_only', NULL, 'c01v6.example.at');
+INSERT INTO public.settings (uid, key, lang, value) VALUES (25, 'port_map_server', NULL, '443');
+INSERT INTO public.settings (uid, key, lang, value) VALUES (26, 'ssl_map_server', NULL, 'TRUE');
+INSERT INTO public.settings (uid, key, lang, value) VALUES (8, 'url_statistics', NULL, 'https://www.example.at/en/Statistik#noMMenu');
+INSERT INTO public.settings (uid, key, lang, value) VALUES (15, 'url_ipv4_check', NULL, 'https://c01v4.example.at/RMBTControlServer/ip');
+INSERT INTO public.settings (uid, key, lang, value) VALUES (17, 'url_ipv6_check', NULL, 'https://c01v6.example.at/RMBTControlServer/ip');
+INSERT INTO public.settings (uid, key, lang, value) VALUES (24, 'url_map_server', NULL, 'https://map.example.at/RMBTMapServer');
+INSERT INTO public.settings (uid, key, lang, value) VALUES (27, 'host_map_server', NULL, 'map.example.at');
+INSERT INTO public.settings (uid, key, lang, value) VALUES (31, 'url_share', NULL, 'https://example.at/share/');
 
 --
 -- Name: settings_uid_seq; Type: SEQUENCE SET; Schema: public; Owner: rmbt
@@ -3935,46 +3051,16 @@ SELECT pg_catalog.setval('public.settings_uid_seq', 63, true);
 
 
 --
--- Name: settings settings_key_lang_key; Type: CONSTRAINT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.settings
-    ADD CONSTRAINT settings_key_lang_key UNIQUE (key, lang);
-
-
---
--- Name: settings settings_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.settings
-    ADD CONSTRAINT settings_pkey PRIMARY KEY (uid);
-
-
---
--- Name: settings_key_lang_idx; Type: INDEX; Schema: public; Owner: rmbt
---
-
-CREATE INDEX settings_key_lang_idx ON public.settings USING btree (key, lang);
-
-
---
--- Name: TABLE settings; Type: ACL; Schema: public; Owner: rmbt
---
-
-GRANT SELECT ON TABLE public.settings TO rmbt_group_read_only;
-
-
---
 -- PostgreSQL database dump complete
 --
 
--- 2019-02-04_21-19-54 rmbt_init.sql template table test_server
+-- 2019-07-26_10-14-05 rmbt_init.sql template table test_server
 --
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 10.6 (Debian 10.6-1.pgdg90+1)
--- Dumped by pg_dump version 10.6 (Debian 10.6-1.pgdg90+1)
+-- Dumped from database version 10.9 (Debian 10.9-1.pgdg90+1)
+-- Dumped by pg_dump version 10.9 (Debian 10.9-1.pgdg90+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -3983,111 +3069,21 @@ SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
+SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
-
-SET default_tablespace = '';
-
-SET default_with_oids = false;
-
---
--- Name: test_server; Type: TABLE; Schema: public; Owner: rmbt
---
-
-CREATE TABLE public.test_server (
-    uid integer NOT NULL,
-    name character varying(200),
-    web_address character varying(500),
-    port integer,
-    port_ssl integer,
-    city character varying,
-    country character varying,
-    geo_lat double precision,
-    geo_long double precision,
-    location public.geometry(Point,900913),
-    web_address_ipv4 character varying(200),
-    web_address_ipv6 character varying(200),
-    server_type character varying(10),
-    priority integer DEFAULT 0 NOT NULL,
-    weight integer DEFAULT 1 NOT NULL,
-    active boolean DEFAULT true NOT NULL,
-    uuid uuid DEFAULT public.uuid_generate_v4() NOT NULL,
-    key character varying,
-    selectable boolean DEFAULT false NOT NULL,
-    countries character varying[] DEFAULT '{dev}'::character varying[] NOT NULL,
-    node character varying,
-    CONSTRAINT enforce_dims_location CHECK ((public.st_ndims(location) = 2)),
-    CONSTRAINT enforce_geotype_location CHECK (((public.geometrytype(location) = 'POINT'::text) OR (location IS NULL))),
-    CONSTRAINT enforce_srid_location CHECK ((public.st_srid(location) = 900913))
-);
-
-
-ALTER TABLE public.test_server OWNER TO rmbt;
-
---
--- Name: test_server_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
---
-
-CREATE SEQUENCE public.test_server_uid_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.test_server_uid_seq OWNER TO rmbt;
-
---
--- Name: test_server_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
---
-
-ALTER SEQUENCE public.test_server_uid_seq OWNED BY public.test_server.uid;
-
-
---
--- Name: test_server uid; Type: DEFAULT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.test_server ALTER COLUMN uid SET DEFAULT nextval('public.test_server_uid_seq'::regclass);
-
 
 --
 -- Data for Name: test_server; Type: TABLE DATA; Schema: public; Owner: rmbt
 --
 
-INSERT INTO public.test_server (name, web_address, port, port_ssl, city, country, geo_lat, geo_long, location, web_address_ipv4, web_address_ipv6, server_type, priority, weight, active, uuid, key, selectable, countries, node)  VALUES ('OpenRMBT Server', NULL, NULL, 443, 'Vienna', 'AT', 48.2697550000000035, 16.4109130000000007, '010100002031BF0D00DD5C867A26E03B41B6FC3597AA775741',  'server-v4.example.com', 'server-v6.example.com', 'RMBT', 1, 1, true, 'ccc9107b-3d34-493f-8afc-6af8b6a66b6e', '-change-me', true, '{any}', 'VIE');
-
-
+INSERT INTO public.test_server (name, web_address, port, port_ssl, city, country, geo_lat, geo_long, location, web_address_ipv4, web_address_ipv6, server_type, priority, weight, active, uuid, key, selectable, countries, node) VALUES ('OpenRMBT Server', NULL, NULL, 443, 'Vienna', 'AT', 48.2697550000000035, 16.4109130000000007,'010100002031BF0D00DD5C867A26E03B41B6FC3597AA775741', 'server-v4.example.com', 'server-v6.example.com', 'RMBT', 1, 1, true, 'ccc9107b-3d34-493f-8afc-6af8b6a66b6e', '-change-me', true, '{any}', 'VIE');
 
 --
 -- Name: test_server_uid_seq; Type: SEQUENCE SET; Schema: public; Owner: rmbt
 --
 
 SELECT pg_catalog.setval('public.test_server_uid_seq', 86, true);
-
-
---
--- Name: test_server test_server_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.test_server
-    ADD CONSTRAINT test_server_pkey PRIMARY KEY (uid);
-
-
---
--- Name: test_server test_server_uuid_key; Type: CONSTRAINT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.test_server
-    ADD CONSTRAINT test_server_uuid_key UNIQUE (uuid);
-
-
---
--- Name: TABLE test_server; Type: ACL; Schema: public; Owner: rmbt
---
-
-GRANT SELECT ON TABLE public.test_server TO rmbt_group_read_only;
 
 
 --

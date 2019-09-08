@@ -49,7 +49,10 @@ import at.rtr.rmbt.db.fields.TimestampField;
 import at.rtr.rmbt.shared.Helperfunctions;
 import at.rtr.rmbt.shared.ResourceManager;
 import at.rtr.rmbt.shared.SignificantFormat;
+import at.rtr.rmbt.shared.GeoAnalytics;
 import at.rtr.rmbt.util.BandCalculationUtil;
+
+import static java.lang.Math.round;
 
 public class TestResultDetailResource extends ServerResource
 {
@@ -253,12 +256,31 @@ public class TestResultDetailResource extends ServerResource
                         	if (locationJson.has("location")) {
                         		addString(resultList, "location", locationJson.getString("location"));
                         	}
-                        	if (locationJson.has("country_location")) {
+                            final Field geoAltitudeField = test.getField("geo_altitude");
+                            if (!geoAltitudeField.isNull()
+                                    // some clients report 0 when altitude is not available
+                                    && geoAltitudeField.doubleValue() != 0.0) {
+                                addString(resultList,"geo_altitude",
+                                        String.format(Locale.ENGLISH, "%d %s", round(geoAltitudeField.doubleValue()),labels.getString("RESULT_METER_UNIT")));
+
+                            }
+                            final Field dtmLevelField = test.getField("dtm_level");
+                            if (!dtmLevelField.isNull()) {
+                                addString(resultList,"dtm_level",
+                                        String.format(Locale.ENGLISH, "%d %s", dtmLevelField.intValue(),labels.getString("RESULT_METER_UNIT")));
+                            }
+
+                            final Field geoSpeedField = test.getField("geo_speed");
+                            if (!geoSpeedField.isNull() && geoSpeedField.doubleValue() > 0.1) {
+                                addString(resultList,"geo_speed",
+                                        String.format(Locale.ENGLISH, "%d %s", round(3.6*geoSpeedField.doubleValue()),labels.getString("RESULT_KILOMETER_PER_HOUR_UNIT")));
+                            }
+                            if (locationJson.has("motion")) {
+                                addString(resultList, "motion", locationJson.getString("motion"));
+                            }
+                            if (locationJson.has("country_location")) {
                         		addString(resultList, "country_location", locationJson.getString("country_location"));
                         	}
-                        	if (locationJson.has("motion")) {
-                        		addString(resultList, "motion", locationJson.getString("motion"));
-                        	}                        	
                         }
 
                         // country derived from AS registry
@@ -312,11 +334,85 @@ public class TestResultDetailResource extends ServerResource
                             addString(resultList, "gkz_sa", gkzSaField.toString());
                         }
 
+
                         final Field landCoverField = test.getField("land_cover");
                         if (!landCoverField.isNull())
                         {
-                            addString(resultList, "land_cover", landCoverField.toString());
+                            addString(resultList, "land_cover",
+                                            String.format(Locale.ENGLISH, "%d (%s)", landCoverField.intValue(),
+                                                    labels.getString("value_corine_" + landCoverField.intValue())));
                         }
+
+                        final Field settlementTypeField = test.getField("settlement_type");
+                        if (!settlementTypeField.isNull()) {
+                            switch (settlementTypeField.intValue()) {
+                                case 1:
+                                    // No settlement area
+                                    addString(resultList, "settlement_type",
+                                            String.format(Locale.ENGLISH, "%d (%s)", settlementTypeField.intValue(),
+                                                    labels.getString("value_no_settlement_area")));
+                                    break;
+                                case 2:
+                                    // Habitable area
+                                    addString(resultList, "settlement_type",
+                                            String.format(Locale.ENGLISH, "%d (%s)", settlementTypeField.intValue(),
+                                                    labels.getString("value_habitable_area")));
+                                    break;
+                                case 3:
+                                    // Settlement area
+                                    addString(resultList, "settlement_type",
+                                            String.format(Locale.ENGLISH, "%d (%s)", settlementTypeField.intValue(),
+                                                    labels.getString("value_settlement_area")));
+                                    break;
+                                default:
+                                    // invalid type
+                            }
+                        }
+
+
+                        final Field linkIdField = test.getField("link_id");
+                        if (!linkIdField.isNull())
+                        {
+                            addString(resultList, "link_id", linkIdField.toString());
+                        }
+
+                        final Field linkNameField = test.getField("link_name");
+                        if (!linkNameField.isNull())
+                        {
+                            addString(resultList, "link_name", linkNameField.toString());
+                        }
+
+                        final Field linkDistanceField = test.getField("link_distance");
+                        if (!linkDistanceField.isNull())
+                        {
+                            addString(resultList, "link_distance", linkDistanceField.toString());
+                        }
+
+                        final Field edgeIdField = test.getField("edge_id");
+                        if (!edgeIdField.isNull())
+                        {
+                            addString(resultList, "edge_id", edgeIdField.toString());
+                        }
+
+                        final Field linkFrcField = test.getField("link_frc");
+                        if (!linkFrcField.isNull())
+                        {
+                            addString(resultList, "link_frc", linkFrcField.toString());
+                        }
+
+                        final Field linkName1Field = test.getField("link_name1");
+                        if (!linkName1Field.isNull())
+                        {
+                            addString(resultList, "link_name1", linkName1Field.toString());
+                        }
+
+                        final Field linkName2Field = test.getField("link_name2");
+                        if (!linkName2Field.isNull())
+
+                        {
+                            addString(resultList, "link_name2", linkName2Field.toString());
+                        }
+
                         // public client ip (private)
                         addString(resultList, "client_public_ip", test.getField("client_public_ip"));
 
@@ -392,7 +488,7 @@ public class TestResultDetailResource extends ServerResource
                             //lte frequency
                             String query = "SELECT DISTINCT channel_number, technology" +
                                     "  FROM radio_cell" +
-                                    "  WHERE open_test_uuid = ? AND active = true AND NOT technology = 'WLAN';";
+                                    "  WHERE open_test_uuid = ? AND active AND NOT technology = 'WLAN';";
                             try {
                                 PreparedStatement ps = conn.prepareStatement(query);
                                 //System.out.println(ps);
@@ -707,20 +803,13 @@ public class TestResultDetailResource extends ServerResource
                 geoString.append(String.format(Locale.US, "+/- %.0f m", accuracy));
                 geoString.append(")");
                 json.put("location", geoString.toString());
-                
-                //also try getting the distance during the test
-                final Date clientDate = ((TimestampField) test.getField("client_time")).getDate();
-                final long clientTime = clientDate.getTime();
-                try {
-                	OpenTestResource.LocationGraph locGraph = new OpenTestResource.LocationGraph(test.getUid(), clientTime, conn);
-                	if ((locGraph.getTotalDistance() > 0) &&
-                	        locGraph.getTotalDistance() <= Double.parseDouble(settings.getString("RMBT_GEO_DISTANCE_DETAIL_LIMIT"))) {
-                		json.put("motion", Math.round(locGraph.getTotalDistance()) + " m");
-                	}
 
-                } catch (SQLException ex) {
-                	//cannot happen since the test uid has to exist in here
-                	ex.printStackTrace();
+                //get movement during test
+                UUID openTestUuid = UUID.fromString(test.getField("open_test_uuid").toString());
+                GeoAnalytics.TestDistance dist = new GeoAnalytics.TestDistance(openTestUuid, conn);
+                if ((dist != null) && (dist.getTotalDistance() > 0) &&
+                        dist.getTotalDistance() <= Double.parseDouble(settings.getString("RMBT_GEO_DISTANCE_DETAIL_LIMIT"))) {
+                    json.put("motion", round(dist.getTotalDistance()) + " m");
                 }
             }
             

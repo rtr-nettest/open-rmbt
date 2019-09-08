@@ -30,6 +30,7 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.location.Location;
+import android.net.wifi.WifiInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -532,6 +533,17 @@ public class RMBTMainMenuFragment extends Fragment
                                         ": " + channelNumber);
                                 infoChannelName.setText("Band: " + band.getBand() + " (" + band.getInformalName() + ")");
                             }
+
+                        } else if (channelNumber != null &&
+                                ConfigHelper.isExpertModeEnabled(getActivity()) &&
+                                lastNetworkType == InformationCollector.NETWORK_WIFI) {
+                            //show frequency (saved in channel number) for WiFi
+                            if (infoChannelNumber.getVisibility() == View.GONE) {
+                                infoChannelNumber.setVisibility(View.VISIBLE);
+                            }
+                            infoChannelName.setVisibility(View.GONE);
+                            infoChannelNumber.setText(channelNumber + " " + WifiInfo.FREQUENCY_UNITS);
+
                         } else {
                             infoChannelNumber.setVisibility(View.GONE);
                             infoChannelName.setVisibility(View.GONE);

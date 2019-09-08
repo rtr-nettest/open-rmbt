@@ -246,6 +246,7 @@ public class RMBTTask
                     {
                    		fullInfo.setUUID(controlConnection.getClientUUID());
                    		fullInfo.setTestServerName(controlConnection.getServerName());
+                        ConfigHelper.setLoopUuid(context, controlConnection.getLoopUuid());
                     }
                 }
             }

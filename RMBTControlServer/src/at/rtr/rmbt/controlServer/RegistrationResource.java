@@ -146,6 +146,11 @@ public class RegistrationResource extends ServerResource
                 	loopModeSettings = new Gson().fromJson(loopModeData, LoopModeSettings.class);
                 	loopModeSettings.setClientUuid(uuidString);
 
+                	//if no loop mode uuid is set - generate one
+                    if (loopModeSettings.getLoopUuid() == null) {
+                        loopModeSettings.setLoopUuid("L" + UUID.randomUUID().toString());
+                    }
+
                     //old clients expect a "text_counter"
                     //android sends old JSON as String
                     if (request.opt("loopmode_info") instanceof String) {
@@ -527,7 +532,12 @@ public class RegistrationResource extends ServerResource
                                             answer.put("test_token", token);
                                             
                                             answer.put("test_uuid", testUuid);
+                                            answer.put("open_test_uuid", "O" + testOpenUuid);
                                             answer.put("test_id", key);
+
+                                            if (loopModeSettings != null) {
+                                                answer.put("loop_uuid", loopModeSettings.getLoopUuid());
+                                            }
                                             
                                             final long now = System.currentTimeMillis();
                                             int wait = testSlot - (int) (now / 1000);
@@ -535,7 +545,7 @@ public class RegistrationResource extends ServerResource
                                                 wait = 0;
                                             
                                             answer.put("test_wait", wait);
-                                            
+                                            /* do not store location on test start
                                             if (geotime != 0 && geolat != 0 && geolong != 0)
                                             {
                                                 
@@ -560,6 +570,7 @@ public class RegistrationResource extends ServerResource
                                                 if (clientLocation.hasError())
                                                     errorList.addError(clientLocation.getError());
                                             }
+                                             */
                                         }
                                     }
                                     

@@ -106,7 +106,7 @@ public class ImageExport extends ServerResource {
                 + " WHERE "
                 + " t.deleted = false AND t.implausible = false"
                 + " AND status = 'FINISHED'"
-                + " AND open_test_uuid = ?";
+                + " AND t.open_test_uuid = ?";
 
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -115,6 +115,7 @@ public class ImageExport extends ServerResource {
             ps.setObject(1, uuid, Types.OTHER);
             rs = ps.executeQuery();
             if (!rs.next()) {
+                ps.close();
                 setStatus(Status.CLIENT_ERROR_NOT_FOUND);
                 return new StringRepresentation("invalid uuid");
             }
@@ -150,6 +151,7 @@ public class ImageExport extends ServerResource {
 
 
             };
+            ps.close();
             return result;
 
         } catch (SQLException e) {
