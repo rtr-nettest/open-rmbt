@@ -138,13 +138,13 @@ public class ContextListener implements ServletContextListener
                             e.printStackTrace();
                         }
                         finally {
-                            ps1.close();
                             ps2.close();
                             ps3.close();
                         }
                         Thread.sleep(10);
                     }
 
+                    ps1.close();
                     System.out.println("Looking up missing ASN infos completed");
                 }
                 catch (SQLException | InterruptedException | UnknownHostException | NamingException e)
