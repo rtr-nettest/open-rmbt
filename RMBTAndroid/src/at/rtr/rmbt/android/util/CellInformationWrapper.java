@@ -17,6 +17,7 @@ package at.rtr.rmbt.android.util;
 
 import android.net.wifi.WifiInfo;
 import android.os.Build;
+import android.os.SystemClock;
 import android.support.annotation.RequiresApi;
 import android.telephony.CellIdentityCdma;
 import android.telephony.CellIdentityGsm;
@@ -108,7 +109,7 @@ public class CellInformationWrapper {
 
     public CellInformationWrapper(WifiInfo wifiInfo) {
         setTechnology(Technology.CONNECTION_WLAN);
-        this.setTimeStamp(System.nanoTime());
+        this.setTimeStamp(SystemClock.elapsedRealtimeNanos());
         setRegistered(true);
 
         this.ci = new CellIdentity(wifiInfo);
@@ -661,8 +662,8 @@ public class CellInformationWrapper {
         return startTimestampNs;
     }
 
-    public void setStartTimestampNs(Long startTimestampNs) {
-        this.startTimestampNs = startTimestampNs;
+    public void setStartTimestampNs(Long startTimestampNsSinceBoot) {
+        this.startTimestampNs = startTimestampNsSinceBoot;
     }
 
     @JsonProperty("time_ns_last")

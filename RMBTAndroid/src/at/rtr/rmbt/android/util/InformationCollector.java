@@ -998,10 +998,14 @@ public class InformationCollector
         //new CellInformationWrapper API
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             if (cellInfos.size() > 0 && useNewApi) {
+                //adjust time keeping, as signals are relative to system book
+                //but everything else is relative to System.nanoTime()
+                long startTimestampNsSinceBoot = startTimestampNs + (SystemClock.elapsedRealtimeNanos() - System.nanoTime());
+
                 //remove invalid entries, set test start time
                 for (Iterator<CellInformationWrapper> iterator = cellInfos.iterator(); iterator.hasNext();) {
                     CellInformationWrapper ciw = iterator.next();
-                    ciw.setStartTimestampNs(startTimestampNs);
+                    ciw.setStartTimestampNs(startTimestampNsSinceBoot);
                     if (ciw.getTechnology() != CellInformationWrapper.Technology.CONNECTION_WLAN &&
                         ciw.getCi().isEmpty()) {
                         iterator.remove();
