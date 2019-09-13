@@ -532,6 +532,8 @@ public class RMBTMainMenuFragment extends Fragment
                                 infoChannelNumber.setText(channelAttribution +
                                         ": " + channelNumber);
                                 infoChannelName.setText("Band: " + band.getBand() + " (" + band.getInformalName() + ")");
+                            } else {
+                                infoChannelNumber.setVisibility(View.GONE);
                             }
 
                         } else if (channelNumber != null &&
