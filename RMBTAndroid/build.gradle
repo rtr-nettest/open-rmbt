@@ -97,7 +97,7 @@ android {
         applicationId "at.alladin.rmbt.android"
 		manifestPlaceholders = [googleMapsApiKey:appSecretProperties['googleMapsApiKey']]
         minSdkVersion 15
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode 30602
         versionName "3.6.2"
         buildConfigField "long", "BUILD_TIMESTAMP", System.currentTimeMillis() + "L"
