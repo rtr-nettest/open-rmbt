@@ -215,6 +215,119 @@ public class BandCalculationUtil {
         add(new GSMBand(2, 1850.2, 1909.8, 1930.2, 1989.8, 512, 810, 0, "GSM 1900"));
     }};
 
+    private static HashMap<Integer, WifiBand> wifiBands = new HashMap<Integer, WifiBand>() {{
+        put(2412, new WifiBand(2412, 1, "2.4 GHz"));
+        put(2417, new WifiBand(2417, 2, "2.4 GHz"));
+        put(2422, new WifiBand(2422, 3, "2.4 GHz"));
+        put(2427, new WifiBand(2427, 4, "2.4 GHz"));
+        put(2432, new WifiBand(2432, 5, "2.4 GHz"));
+        put(2437, new WifiBand(2437, 6, "2.4 GHz"));
+        put(2442, new WifiBand(2442, 7, "2.4 GHz"));
+        put(2447, new WifiBand(2447, 8, "2.4 GHz"));
+        put(2452, new WifiBand(2452, 9, "2.4 GHz"));
+        put(2457, new WifiBand(2457, 10, "2.4 GHz"));
+        put(2462, new WifiBand(2462, 11, "2.4 GHz"));
+        put(2467, new WifiBand(2467, 12, "2.4 GHz"));
+        put(2472, new WifiBand(2472, 13, "2.4 GHz"));
+        put(2484, new WifiBand(2484, 14, "2.4 GHz"));
+        put(5160, new WifiBand(5160, 32, "5 GHz"));
+        put(5170, new WifiBand(5170, 34, "5 GHz"));
+        put(5180, new WifiBand(5180, 36, "5 GHz"));
+        put(5190, new WifiBand(5190, 38, "5 GHz"));
+        put(5200, new WifiBand(5200, 40, "5 GHz"));
+        put(5210, new WifiBand(5210, 42, "5 GHz"));
+        put(5220, new WifiBand(5220, 44, "5 GHz"));
+        put(5230, new WifiBand(5230, 46, "5 GHz"));
+        put(5240, new WifiBand(5240, 48, "5 GHz"));
+        put(5250, new WifiBand(5250, 50, "5 GHz"));
+        put(5260, new WifiBand(5260, 52, "5 GHz"));
+        put(5270, new WifiBand(5270, 54, "5 GHz"));
+        put(5280, new WifiBand(5280, 56, "5 GHz"));
+        put(5290, new WifiBand(5290, 58, "5 GHz"));
+        put(5300, new WifiBand(5300, 60, "5 GHz"));
+        put(5310, new WifiBand(5310, 62, "5 GHz"));
+        put(5320, new WifiBand(5320, 64, "5 GHz"));
+        put(5340, new WifiBand(5340, 68, "5 GHz"));
+        put(5480, new WifiBand(5480, 96, "5 GHz"));
+        put(5500, new WifiBand(5500, 100, "5 GHz"));
+        put(5510, new WifiBand(5510, 102, "5 GHz"));
+        put(5520, new WifiBand(5520, 104, "5 GHz"));
+        put(5530, new WifiBand(5530, 106, "5 GHz"));
+        put(5540, new WifiBand(5540, 108, "5 GHz"));
+        put(5550, new WifiBand(5550, 110, "5 GHz"));
+        put(5560, new WifiBand(5560, 112, "5 GHz"));
+        put(5570, new WifiBand(5570, 114, "5 GHz"));
+        put(5580, new WifiBand(5580, 116, "5 GHz"));
+        put(5590, new WifiBand(5590, 118, "5 GHz"));
+        put(5600, new WifiBand(5600, 120, "5 GHz"));
+        put(5610, new WifiBand(5610, 122, "5 GHz"));
+        put(5620, new WifiBand(5620, 124, "5 GHz"));
+        put(5630, new WifiBand(5630, 126, "5 GHz"));
+        put(5640, new WifiBand(5640, 128, "5 GHz"));
+        put(5660, new WifiBand(5660, 132, "5 GHz"));
+        put(5670, new WifiBand(5670, 134, "5 GHz"));
+        put(5680, new WifiBand(5680, 136, "5 GHz"));
+        put(5690, new WifiBand(5690, 138, "5 GHz"));
+        put(5700, new WifiBand(5700, 140, "5 GHz"));
+        put(5710, new WifiBand(5710, 142, "5 GHz"));
+        put(5720, new WifiBand(5720, 144, "5 GHz"));
+        put(5745, new WifiBand(5745, 149, "5 GHz"));
+        put(5755, new WifiBand(5755, 151, "5 GHz"));
+        put(5765, new WifiBand(5765, 153, "5 GHz"));
+        put(5775, new WifiBand(5775, 155, "5 GHz"));
+        put(5785, new WifiBand(5785, 157, "5 GHz"));
+        put(5795, new WifiBand(5795, 159, "5 GHz"));
+        put(5805, new WifiBand(5805, 161, "5 GHz"));
+        put(5825, new WifiBand(5825, 165, "5 GHz"));
+        put(5845, new WifiBand(5845, 169, "5 GHz"));
+        put(5865, new WifiBand(5865, 173, "5 GHz"));
+        put(4915, new WifiBand(4915, 183, "5 GHz"));
+        put(4920, new WifiBand(4920, 184, "5 GHz"));
+        put(4925, new WifiBand(4925, 185, "5 GHz"));
+        put(4935, new WifiBand(4935, 187, "5 GHz"));
+        put(4940, new WifiBand(4940, 188, "5 GHz"));
+        put(4945, new WifiBand(4945, 189, "5 GHz"));
+        put(4960, new WifiBand(4960, 192, "5 GHz"));
+        put(4980, new WifiBand(4980, 196, "5 GHz"));
+        put(58320, new WifiBand(58320, 1, "60 GHz"));
+        put(60480, new WifiBand(60480, 2, "60 GHz"));
+        put(62640, new WifiBand(62640, 3, "60 GHz"));
+        put(64800, new WifiBand(64800, 4, "60 GHz"));
+        put(66960, new WifiBand(66960, 5, "60 GHz"));
+        put(69120, new WifiBand(69120, 6, "60 GHz"));
+    }};
+
+    public static class WifiBand {
+        private String informal_name; //e.g. 2.4 GHz; 5 GHz; 60 GHz
+        private int channel_number;
+        private int frequency;
+
+        public WifiBand(int frequency,  int channelNumber, String informalName) {
+            this.frequency = frequency;
+            this.channel_number = channelNumber;
+            this.informal_name = informalName;
+        }
+
+        public String getInformalName() {
+            return informal_name;
+        }
+
+        public int getChannelNumber() {
+            return channel_number;
+        }
+
+        public int getFrequency() {
+            return frequency;
+        }
+    }
+
+    public static WifiBand getBandFromWifiFrequency(int frequency) {
+        if (wifiBands.containsKey(frequency)) {
+            return wifiBands.get(frequency);
+        }
+        return null;
+    }
+
     public static abstract class Band {
         private int band;
 

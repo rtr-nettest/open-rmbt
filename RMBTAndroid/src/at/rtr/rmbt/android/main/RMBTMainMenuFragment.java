@@ -542,9 +542,19 @@ public class RMBTMainMenuFragment extends Fragment
                             //show frequency (saved in channel number) for WiFi
                             if (infoChannelNumber.getVisibility() == View.GONE) {
                                 infoChannelNumber.setVisibility(View.VISIBLE);
+                                infoChannelName.setVisibility(View.VISIBLE);
                             }
-                            infoChannelName.setVisibility(View.GONE);
-                            infoChannelNumber.setText(channelNumber + " " + WifiInfo.FREQUENCY_UNITS);
+                            BandCalculationUtil.WifiBand wifiBand = BandCalculationUtil.getBandFromWifiFrequency(channelNumber);
+                            if (wifiBand != null) {
+                                infoChannelName.setText("Band: " + wifiBand.getInformalName());
+                                infoChannelNumber.setText("Ch: " + wifiBand.getChannelNumber() +
+                                        " (" + wifiBand.getFrequency() + " " + WifiInfo.FREQUENCY_UNITS + ")");
+                            }
+                            else {
+                                infoChannelName.setVisibility(View.GONE);
+                                infoChannelNumber.setVisibility(View.GONE);
+                            }
+
 
                         } else {
                             infoChannelNumber.setVisibility(View.GONE);
