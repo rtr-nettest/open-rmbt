@@ -597,6 +597,9 @@ public class RMBTMainMenuFragment extends Fragment
 						curSignal = Integer.MIN_VALUE;
 						infoSignalStrength.setVisibility(View.GONE);
 						infoSignalStrengthExtra.setVisibility(View.GONE);
+                        infoChannelNumber.setVisibility(View.GONE);
+                        infoChannelName.setVisibility(View.GONE);
+                        infoTimingAdvance.setVisibility(View.GONE);
 					}
 
 				}
