@@ -204,6 +204,19 @@ public class ExtendedHandlebars extends Handlebars {
             }
         });
 
+        /**
+         * Helper {{nl2br text}}
+         * Replaces newlines with html line breaks
+         */
+        this.registerHelper("nl2br", new Helper<Object>() {
+            @Override
+            public Object apply(Object text, Options block) throws IOException {
+                String sText = (text == null) ? "" : text.toString();
+                sText = Handlebars.Utils.escapeExpression(sText).toString();
+                sText = sText.trim().replaceAll("(\\r\\n|\\n\\r|\\r|\\n)", "<br/>");
+                return new Handlebars.SafeString(sText);
+            }
+        });
     }
 
 }
