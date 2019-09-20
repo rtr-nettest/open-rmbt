@@ -65,6 +65,7 @@ public class StatisticServer extends Application
         router.attach("/export/netztest-opendata_hours-{hours}.{format}", ExportResource.class);
         router.attach("/export/netztest-opendata_hours-{hours}.", ExportResource.class, Template.MODE_STARTS_WITH);
         router.attach("/export/netztest-opendata.{format}", ExportResource.class, Template.MODE_STARTS_WITH);
+        router.attach("/export/pdf/{filename}.pdf", PdfExportResource.class);
         router.attach("/export/pdf", PdfExportResource.class);
         router.attach("/export", ExportResource.class, Template.MODE_STARTS_WITH);
 

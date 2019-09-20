@@ -50,7 +50,6 @@ import java.util.logging.Logger;
 @Api(value="/export/pdf")
 public class PdfExportResource extends ServerResource {
     public static final String FILENAME_PDF = "testergebnis.pdf";
-    public static final String tempDir = System.getProperty("java.io.tmpdir");
 
     public static final int MAX_RESULTS = 1000; //max results for pdf
 
