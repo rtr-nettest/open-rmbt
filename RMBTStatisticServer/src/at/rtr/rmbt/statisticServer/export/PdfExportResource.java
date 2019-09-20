@@ -38,6 +38,7 @@ import javax.imageio.ImageIO;
 import javax.ws.rs.GET;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -49,11 +50,10 @@ import java.util.logging.Logger;
 @Api(value="/export/pdf")
 public class PdfExportResource extends ServerResource {
     public static final String FILENAME_PDF = "testergebnis.pdf";
+    public static final String tempDir = System.getProperty("java.io.tmpdir");
 
     public static final int MAX_RESULTS = 1000; //max results for pdf
 
-    private final CacheHelper cache = CacheHelper.getInstance();
-    private static final int CACHE_EXP = 600;
 
     @Post
     @Get
@@ -70,15 +70,17 @@ public class PdfExportResource extends ServerResource {
     public Representation request(final Representation entity) throws IOException {
         addAllowOrigin();
 
+        String tempPath = settings.getString("PDF_TEMP_PATH");
         //allow only fetching files
         if (getRequest().getAttributes().containsKey("filename")) {
             String filename = getRequest().getAttributes().get("filename").toString();
-            byte[] o = (byte[]) cache.get("loop-" + filename);
-            if (o == null) {
+            File retFile = new File(tempPath + filename + ".pdf");
+
+            if (!retFile.exists()) {
                 setStatus(Status.CLIENT_ERROR_NOT_FOUND);
                 return null;
             }
-            ByteArrayRepresentation ret = new ByteArrayRepresentation(o, MediaType.APPLICATION_PDF);
+            ByteArrayRepresentation ret = new ByteArrayRepresentation(Files.readAllBytes(retFile.toPath()), MediaType.APPLICATION_PDF);
             Disposition disposition = new Disposition(Disposition.TYPE_ATTACHMENT);
             disposition.setFilename(FILENAME_PDF);
             ret.setDisposition(disposition);
@@ -216,12 +218,14 @@ public class PdfExportResource extends ServerResource {
             fullTemplate = template.apply(context);
             fullTemplate = fullTemplate.replace("<script type=\"text/x-handlebars\" id=\"template\">", "");
 
+            String uuid = UUID.randomUUID().toString();
             //create temp file
-            Path htmlFile = Files.createTempFile("nt", ".pdf.html");
+            Path htmlFile = Files.createTempFile("nt" + uuid, ".pdf.html");
             Files.write(htmlFile, fullTemplate.getBytes("utf-8"));
             Logger.getLogger(PdfExportResource.class.getName()).fine("Generating PDF from: " + htmlFile);
 
-            Path pdfTarget = Files.createTempFile(htmlFile.getFileName().toString(),".pdf");
+            Path pdfTarget = new File(tempPath + uuid + ".pdf").toPath();
+
             PdfConverter pdfConverter;
             switch (settings.getString("PDF_CONVERTER")) {
                 case "weasyprint":
@@ -235,15 +239,11 @@ public class PdfExportResource extends ServerResource {
             }
 
             pdfConverter.convertHtml(htmlFile,pdfTarget);
-            Logger.getLogger(PdfExportResource.class.getName()).fine("PDF generated: " + pdfTarget);
+            Logger.getLogger(PdfExportResource.class.getName()).info("PDF generated: " + pdfTarget);
 
             //depending on Accepts-Header, return file or json with link to file
             if (getClientInfo().getAcceptedMediaTypes().size() > 0 &&
                     getClientInfo().getAcceptedMediaTypes().get(0).getMetadata() == MediaType.APPLICATION_JSON) {
-
-                String uuid = UUID.randomUUID().toString();
-                //put in cache for later collection
-                cache.set("loop-" + uuid, CACHE_EXP, Files.readAllBytes(pdfTarget));
 
                 JSONObject retJson = new JSONObject();
                 retJson.put("file", uuid + ".pdf");
