@@ -957,7 +957,7 @@
         "cat_technology" : {
           "type" : "string",
           "example" : "4G",
-          "description" : "Technology category of the network, e.g. “3G”, “4G”, “WLAN”."
+          "description" : "Technology category of the network, e.g. “3G”, “4G”, “5G”, “WLAN”."
         },
         "network_type" : {
           "type" : "string",
@@ -1977,7 +1977,7 @@
         "cat_technology" : {
           "type" : "string",
           "example" : "3G",
-          "description" : "Technology category of the network, e.g. “3G”, “4G”, “WLAN”."
+          "description" : "Technology category of the network, e.g. “3G”, “4G”, “5G”, “WLAN”."
         },
         "timing_advance" : {
           "type" : "integer",
