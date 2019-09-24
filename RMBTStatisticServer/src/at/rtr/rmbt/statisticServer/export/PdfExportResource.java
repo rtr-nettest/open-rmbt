@@ -1,6 +1,7 @@
 package at.rtr.rmbt.statisticServer.export;
 
 import at.rtr.rmbt.shared.ExtendedHandlebars;
+import at.rtr.rmbt.shared.ResourceManager;
 import at.rtr.rmbt.shared.cache.CacheHelper;
 import at.rtr.rmbt.statisticServer.ServerResource;
 import at.rtr.rmbt.statisticServer.opendata.QueryParser;
@@ -49,8 +50,6 @@ import java.util.logging.Logger;
 
 @Api(value="/export/pdf")
 public class PdfExportResource extends ServerResource {
-    public static final String FILENAME_PDF = "testergebnis.pdf";
-
     public static final int MAX_RESULTS = 1000; //max results for pdf
 
 
@@ -69,6 +68,17 @@ public class PdfExportResource extends ServerResource {
     public Representation request(final Representation entity) throws IOException {
         addAllowOrigin();
 
+        //load locale, if possible
+        if (getRequest().getAttributes().containsKey("lang")) {
+            String lang = getRequest().getAttributes().get("lang").toString();
+            final List<String> langs = Arrays.asList(settings.getString("RMBT_SUPPORTED_LANGUAGES").split(",\\s*"));
+
+            if (langs.contains(lang)) {
+                labels = ResourceManager.getSysMsgBundle(new Locale(lang));
+            }
+        }
+        final String pdfFilename = labels.getString("RESULT_PDF_FILENAME");
+
         String tempPath = settings.getString("PDF_TEMP_PATH");
         //allow only fetching files
         if (getRequest().getAttributes().containsKey("filename")) {
@@ -81,7 +91,7 @@ public class PdfExportResource extends ServerResource {
             }
             ByteArrayRepresentation ret = new ByteArrayRepresentation(Files.readAllBytes(retFile.toPath()), MediaType.APPLICATION_PDF);
             Disposition disposition = new Disposition(Disposition.TYPE_ATTACHMENT);
-            disposition.setFilename(FILENAME_PDF);
+            disposition.setFilename(pdfFilename);
             ret.setDisposition(disposition);
             return ret;
         }
@@ -207,6 +217,17 @@ public class PdfExportResource extends ServerResource {
             }
         }
 
+        //add translation files
+        if (labels != null) {
+            Map<String, String> labelsMap = new HashMap<>();
+            Set<String> keys = labels.keySet();
+            for (String key : keys) {
+                if (key.startsWith("key_")) {
+                    labelsMap.put(key.substring(4), labels.getString(key));
+                }
+            }
+            data.put("Lang",labelsMap);
+        }
 
         String fullTemplate;
         try {
@@ -252,7 +273,7 @@ public class PdfExportResource extends ServerResource {
             else {
                 FileRepresentation ret = new FileRepresentation(pdfTarget.toFile(), MediaType.APPLICATION_PDF);
                 Disposition disposition = new Disposition(Disposition.TYPE_ATTACHMENT);
-                disposition.setFilename(FILENAME_PDF);
+                disposition.setFilename(pdfFilename);
                 ret.setDisposition(disposition);
                 return ret;
             }
