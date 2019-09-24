@@ -2,7 +2,6 @@ package at.rtr.rmbt.statisticServer.export;
 
 import at.rtr.rmbt.shared.ExtendedHandlebars;
 import at.rtr.rmbt.shared.ResourceManager;
-import at.rtr.rmbt.shared.cache.CacheHelper;
 import at.rtr.rmbt.statisticServer.ServerResource;
 import at.rtr.rmbt.statisticServer.opendata.QueryParser;
 import at.rtr.rmbt.statisticServer.opendata.dao.OpenTestDAO;
@@ -69,7 +68,7 @@ public class PdfExportResource extends ServerResource {
         addAllowOrigin();
 
         //load locale, if possible
-        String language = "en";
+        String language = settings.getString("RMBT_DEFAULT_LANGUAGE");
         if (getRequest().getAttributes().containsKey("lang")) {
             language = getRequest().getAttributes().get("lang").toString();
             final List<String> langs = Arrays.asList(settings.getString("RMBT_SUPPORTED_LANGUAGES").split(",\\s*"));
