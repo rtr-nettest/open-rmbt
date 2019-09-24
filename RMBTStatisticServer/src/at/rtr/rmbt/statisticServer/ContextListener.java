@@ -16,10 +16,14 @@
  ******************************************************************************/
 package at.rtr.rmbt.statisticServer;
 
+import at.rtr.rmbt.shared.ResourceManager;
 import com.google.common.collect.TreeMultimap;
 
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -52,6 +56,16 @@ public class ContextListener implements ServletContextListener
     public void contextInitialized(ServletContextEvent sce)
     {
         System.out.println("RMBTStatisticServer - " + RevisionHelper.getVerboseRevision());
+
+        //once: create tmp dirs, if not exist
+        String tempPath = ResourceManager.getCfgBundle().getString("PDF_TEMP_PATH");
+        try {
+            if (tempPath != null && !tempPath.isEmpty()) {
+                Files.createDirectories(new File(tempPath).toPath());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         //re-generate the most widely used statistics
         scheduler.scheduleWithFixedDelay(new Runnable()
