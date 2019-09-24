@@ -69,12 +69,13 @@ public class PdfExportResource extends ServerResource {
         addAllowOrigin();
 
         //load locale, if possible
+        String language = "en";
         if (getRequest().getAttributes().containsKey("lang")) {
-            String lang = getRequest().getAttributes().get("lang").toString();
+            language = getRequest().getAttributes().get("lang").toString();
             final List<String> langs = Arrays.asList(settings.getString("RMBT_SUPPORTED_LANGUAGES").split(",\\s*"));
 
-            if (langs.contains(lang)) {
-                labels = ResourceManager.getSysMsgBundle(new Locale(lang));
+            if (langs.contains(language)) {
+                labels = ResourceManager.getSysMsgBundle(new Locale(language));
             }
         }
         final String pdfFilename = labels.getString("RESULT_PDF_FILENAME");
@@ -226,7 +227,8 @@ public class PdfExportResource extends ServerResource {
                     labelsMap.put(key.substring(4), labels.getString(key));
                 }
             }
-            data.put("Lang",labelsMap);
+            labelsMap.put("lang", language);
+            data.put("Lang", labelsMap);
         }
 
         String fullTemplate;

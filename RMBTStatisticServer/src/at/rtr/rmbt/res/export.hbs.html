@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang='de'>
 <head>
-    <title>Ergebnis des RTR-Netztest</title>
+    <title>{{ Lang.results_test }}</title>
 
     <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
     <meta charset="UTF-8">
@@ -97,6 +97,9 @@
             page-break-inside: avoid;
         }
 
+        a {
+            font-variant-ligatures: none;
+        }
     </style>
 
 
@@ -106,15 +109,15 @@
 <script type="text/x-handlebars" id="template">
     <div class="title-page">
         <img class="rtr-logo-title" src="data:image/png;base64,{{logo}}" />
-        <h1>Ergebnisse des RTR-Netztests
+        <h1>{{ Lang.results_test }}
         </h1>
-        <p class="date">Ausdruck erstellt am: {{date}}</p>
+        <p class="date">{{ Lang.generated_at }}: {{date}}</p>
     </div>
     <div class="toc">
-        <h2>Inhaltsverzeichnis</h2>
+        <h2>{{ Lang.table_of_contents }}</h2>
         <ul>
-            <li><a href="#test-list">1. Durchgeführte Messungen</a></li>
-            <li><a href="#test-details">2. Einzelergebnisse</a></li>
+            <li><a href="#test-list">1. {{ Lang.conducted_measurements }}</a></li>
+            <li><a href="#test-details">2. {{ Lang.single_measurement_results }}</a></li>
             <ul>
                 {{#each tests}}
                     <li>2.<a href="#{{open_test_uuid}}">{{add @index 1}}. {{time}}</a></li>
@@ -123,18 +126,18 @@
         </ul>
     </div>
     <div class="test-list" id="test-list">
-        <h2>Durchgeführte Messungen</h2>
-        <p>Folgende Messungen wurden durchgeführt</p>
+        <h2>{{ Lang.conducted_measurements }}</h2>
+        <p>{{ Lang.conducted_measurements_desc }}</p>
 
         <table class="table table-striped">
             <thead>
             <tr>
                 <th>#</th>
-                <th>Zeitpunkt</th>
-                <th>Open Test UUID</th>
-                <th>Download<br/>(Mbit/s)</th>
-                <th>Upload<br/>(Mbit/s)</th>
-                <th>Ping<br/>(ms)</th>
+                <th>{{ Lang.time }}</th>
+                <th>{{ Lang.open_test_uuid }}</th>
+                <th class="text-right">{{ Lang.download }}<br/>({{ Lang.mbps }})</th>
+                <th class="text-right">{{ Lang.upload }}<br/>({{ Lang.mbps }})</th>
+                <th class="text-right">{{ Lang.ping }}<br/>({{ Lang.ms }})</th>
             </tr>
             </thead>
             <tbody>
@@ -143,17 +146,17 @@
                     <th scope="row">{{add @index 1}}</th>
                     <td>{{time}}</td>
                     <td>{{open_test_uuid}}</td>
-                    <td>{{toMbit download_kbit}}</td>
-                    <td>{{toMbit upload_kbit}}</td>
-                    <td>{{twoSignificantDigits ping_ms}}</td>
+                    <td class="text-right">{{toMbit download_kbit}}</td>
+                    <td class="text-right">{{toMbit upload_kbit}}</td>
+                    <td class="text-right">{{twoSignificantDigits ping_ms}}</td>
                 </tr>
             {{/each}}
             </tbody>
         </table>
 
         {{#if loop_uuid}}
-        <p>Alle Ergebnisse sind unter folgender URL abrufbar<br/>
-            <a href="https://www.netztest.at/de/Opentests?loop_uuid={{loop_uuid}}">https://www.netztest.at/de/Opentests?loop_uuid={{loop_uuid}}</a>
+        <p>{{ Lang.results_url }}:r<br/>
+            <a href="https://www.netztest.at/{{ Lang.lang }}/Opentests?loop_uuid={{loop_uuid}}">https://www.netztest.at/{{ Lang.lang }}Opentests?loop_uuid={{loop_uuid}}</a>
         </p>
         {{/if }}
     </div>
@@ -161,184 +164,184 @@
     <div class="test-details" id="test-details">
         {{#each tests}}
         <div class="single-test">
-            <h2 id="{{open_test_uuid}}" >Messung {{add @index 1}}</h2>
-            <h3>Testergebnis</h3>
+            <h2 id="{{open_test_uuid}}" >{{ Lang.measurement }} {{add @index 1}}</h2>
+            <h3>{{ Lang.result }}</h3>
             <table class="table table-striped">
                 <colgroup>
                     <col class="col-xs-3"/>
                     <col class="col-xs-9"/>
                 </colgroup>
                 <tr>
-                    <td>Download</td>
-                    <td>{{toMbit download_kbit}} Mbit/s</td>
+                    <td>{{ Lang.download }}</td>
+                    <td>{{toMbit download_kbit}} {{ Lang.mbps }}</td>
                 </tr>
                 <tr>
-                    <td>Upload</td>
-                    <td>{{toMbit upload_kbit}} Mbit/s</td>
+                    <td>{{ Lang.upload }}</td>
+                    <td>{{toMbit upload_kbit}} {{ Lang.mbps }}</td>
                 </tr>
                 <tr>
-                    <td>Ping</td>
-                    <td>{{twoSignificantDigits ping_ms}} ms</td>
+                    <td>{{ Lang.ping }}</td>
+                    <td>{{twoSignificantDigits ping_ms}} {{ Lang.ms }}</td>
                 </tr>
                 <tr>
-                    <td>Testzeitpunkt</td>
+                    <td>{{ Lang.time }}</td>
                     <td>{{time}}</td>
                 </tr>
                 <tr>
-                    <td>Open-Test-UUID</td>
+                    <td>{{ Lang.open_test_uuid }}</td>
                     <td>{{open_test_uuid}}</td>
                 </tr>
             </table>
             <p>
-                Dieses Ergebnis kann hier im Detail abgerufen werden: <br/><a href="https://www.netztest.at/de/Opentest?O{{open_test_uuid}}">https://www.netztest.at/de/Opentest?O{{open_test_uuid}}</a>
+                {{ Lang.result_detail_link }}: <br/><a href="https://www.netztest.at/{{ Lang.lang }}/Opentest?O{{open_test_uuid}}">https://www.netztest.at/{{ Lang.lang }}/Opentest?O{{open_test_uuid}}</a>
             </p>
 
-            <h3>Detailergebnis</h3>
+            <h3>{{ Lang.detailed_result }}</h3>
             <table class="table table-striped table-condensed">
                 <colgroup>
                     <col class="col-xs-3"/>
                     <col class="col-xs-9"/>
                 </colgroup>
                 <tr>
-                    <td>Netztyp</td>
+                    <td>{{ Lang.network_type }}</td>
                     <td>{{network_type}}</td>
                 </tr>
                 <tr>
-                    <td>Verbindungstechnologie</td>
+                    <td>{{ Lang.cat_technology }}</td>
                     <td>{{cat_technology}}</td>
                 </tr>
                 {{#if position}}
                 <tr>
-                    <td>position</td>
+                    <td>{{ Lang.location }}</td>
                     <td>{{position}}</td>
                 </tr>
                 {{/if}}
                 {{#if provider_name}}
                 <tr>
-                    <td>Betreiber</td>
+                    <td>{{ Lang.provider_name }}</td>
                     <td>{{provider_name}}</td>
                 </tr>
                 {{/if}}
                 <tr>
-                    <td>IP (anonymisiert)</td>
+                    <td>{{ Lang.ip_anonym }}</td>
                     <td>{{ip_anonym}}</td>
                 </tr>
                 {{#if connection}}
                 <tr>
-                    <td>NAT-Status</td>
+                    <td>{{ Lang.nat_type }}</td>
                     <td>{{connection}}</td>
                 </tr>
                 {{/if}}
                 <tr>
-                    <td>AS-Nummer</td>
+                    <td>{{ Lang.asn }}</td>
                     <td>{{asn}}</td>
                 </tr>
                 {{#if public_ip_as_name}}
                 <tr>
-                    <td>Name des IP-Netzwerks</td>
+                    <td>{{ Lang.public_ip_as_name }}</td>
                     <td>{{public_ip_as_name}}</td>
                 </tr>
                 {{/if}}
                 {{#if country_asn}}
                 <tr>
-                    <td>Land des AS</td>
+                    <td>{{ Lang.country_asn }}</td>
                     <td>{{country_asn}}</td>
                 </tr>
                 {{/if}}
                 <tr>
-                    <td>Plattform</td>
+                    <td>{{ Lang.platform }}</td>
                     <td>{{platform}}</td>
                 </tr>
                 {{#if model}}
                 <tr>
-                    <td>Modell</td>
+                    <td>{{ Lang.model }}</td>
                     <td>{{model}}</td>
                 </tr>
                 {{/if}}
                 {{#if model_native}}
                 <tr>
-                    <td>Modell (Original</td>
+                    <td>{{ Lang.model_native }}</td>
                     <td>{{model_native}}</td>
                 </tr>
                 {{/if}}
                 {{#if time_dl_ms}}
                 <tr>
-                    <td>Rel. Startzeitpunkt Download</td>
+                    <td>{{ Lang.time_dl_ms }}</td>
                     <td>{{time_dl_ms}}</td>
                 </tr>
                 {{/if}}
                 {{#if duration_download_ms}}
                 <tr>
-                    <td>Downloaddauer</td>
+                    <td>{{ Lang.duration_download_ms }}</td>
                     <td>{{duration_download_ms}}</td>
                 </tr>
                 {{/if}}
                 {{#if bytes_download}}
                 <tr>
-                    <td>Datenmenge Download</td>
+                    <td>{{ Lang.bytes_download }}</td>
                     <td>{{bytes_download}}</td>
                 </tr>
                 {{/if}}
                 {{#if time_ul_ms}}
                 <tr>
-                    <td>Rel. Startzeitpunkt Upload</td>
+                    <td>{{ Lang.time_ul_ms }}</td>
                     <td>{{time_ul_ms}}</td>
                 </tr>
                 {{/if}}
                 {{#if duration_upload_ms}}
                 <tr>
-                    <td>Uploaddauer</td>
+                    <td>{{ Lang.duration_upload_ms }}</td>
                     <td>{{duration_upload_ms}}</td>
                 </tr>
                 {{/if}}
                 {{#if bytes_upload}}
                 <tr>
-                    <td>Datenmenge Upload</td>
+                    <td>{{ Lang.bytes_upload }}</td>
                     <td>{{bytes_upload}}</td>
                 </tr>
                 {{/if}}
                 {{#if server_name}}
                 <tr>
-                    <td>Name Testserver</td>
+                    <td>{{ Lang.server_name }}</td>
                     <td>{{server_name}}</td>
                 </tr>
                 {{/if}}
                 {{#if client_version}}
                 <tr>
-                    <td>RMBT-Version</td>
+                    <td>{{ Lang.client_version }}</td>
                     <td>{{client_version}}</td>
                 </tr>
                 {{/if}}
                 {{#if test_duration}}
                 <tr>
-                    <td>Testdauer</td>
+                    <td>{{ Lang.duration }}</td>
                     <td>{{test_duration}}</td>
                 </tr>
                 {{/if}}
                 {{#if num_threads_requested}}
                 <tr>
-                    <td>Anzahl angef. Verbindungen</td>
+                    <td>{{ Lang.num_threads_requested }}</td>
                     <td>{{num_threads_requested}}</td>
                 </tr>
                 {{/if}}
                 {{#if num_threads}}
                 <tr>
-                    <td>Parallele Verbindungen DL</td>
+                    <td>{{ Lang.num_threads }}</td>
                     <td>{{num_threads}}</td>
                 </tr>
                 {{/if}}
                 {{#if num_threads_ul}}
                 <tr>
-                    <td>Parallele Verbindungen UL</td>
+                    <td>{{ Lang.num_threads_ul }}</td>
                     <td>{{num_threads_ul}}</td>
                 </tr>
                 {{/if}}
                 <tr>
-                    <td>Open-Test-UUID</td>
+                    <td>{{ Lang.open_test_uuid }}</td>
                     <td>{{open_test_uuid}}</td>
                 </tr>
                 <tr>
-                    <td>Open-User-UUID</td>
+                    <td>{{ Lang.open_uuid }}</td>
                     <td>{{open_uuid}}</td>
                 </tr>
             </table>
