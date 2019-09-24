@@ -327,22 +327,20 @@ public class QueryParser {
             
         }
 
-        if (invalidElements.size() == 0) {
-            //special treatment for radius (Since lat/long are removed from the list in the process)
-            if (whereParams.containsKey("radius")) {
-                whereClause += this.formatWhereClause(whereParams.get("radius").get(0),searchValues);
-                whereParams.remove("radius");
-            }
 
-            //now, build the where clause
-            for (List<SingleParameter> params : whereParams.values()) {
-                for (SingleParameter param : params) {
-                    whereClause += this.formatWhereClause(param, searchValues);
-                }
-            }
-
+        //special treatment for radius (Since lat/long are removed from the list in the process)
+        if (whereParams.containsKey("radius")) {
+            whereClause += this.formatWhereClause(whereParams.get("radius").get(0),searchValues);
+            whereParams.remove("radius");
         }
-        
+
+        //now, build the where clause
+        for (List<SingleParameter> params : whereParams.values()) {
+            for (SingleParameter param : params) {
+                whereClause += this.formatWhereClause(param, searchValues);
+            }
+        }
+
         //add defaults
         whereClause += formatWhereClauseDefaults();
         
