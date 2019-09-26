@@ -111,7 +111,7 @@
         <img class="rtr-logo-title" src="data:image/png;base64,{{logo}}" />
         <h1>{{ Lang.results_test }}
         </h1>
-        <p class="date">{{ Lang.generated_at }}: {{date}}</p>
+        <p class="date">{{ Lang.generated_at }}: {{date}} ({{ Lang.utc }})</p>
     </div>
     <div class="toc">
         <h2>{{ Lang.table_of_contents }}</h2>
@@ -133,7 +133,7 @@
             <thead>
             <tr>
                 <th>#</th>
-                <th>{{ Lang.time }}</th>
+                <th>{{ Lang.time_utc }}</th>
                 <th>{{ Lang.open_test_uuid }}</th>
                 <th class="text-right">{{ Lang.download }}<br/>({{ Lang.mbps }})</th>
                 <th class="text-right">{{ Lang.upload }}<br/>({{ Lang.mbps }})</th>
@@ -184,7 +184,7 @@
                     <td>{{twoSignificantDigits ping_ms}} {{ Lang.ms }}</td>
                 </tr>
                 <tr>
-                    <td>{{ Lang.time }}</td>
+                    <td>{{ Lang.time_utc }}</td>
                     <td>{{time}}</td>
                 </tr>
                 <tr>

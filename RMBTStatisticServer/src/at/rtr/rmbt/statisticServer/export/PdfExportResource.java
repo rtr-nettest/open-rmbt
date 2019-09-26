@@ -156,7 +156,14 @@ public class PdfExportResource extends ServerResource {
         Handlebars handlebars = new ExtendedHandlebars();
         Template template = null;
         try {
-            String html = Resources.toString(getClass().getClassLoader().getResource("at/rtr/rmbt/res/export.hbs.html"), Charsets.UTF_8);
+            String html;
+            if (getParameters.size() > 1 && !Strings.isNullOrEmpty(getParameters.getFirstValue("first"))) {
+                //use different template for certified measurement protocol
+                html = Resources.toString(getClass().getClassLoader().getResource("at/rtr/rmbt/res/export_zert.hbs.html"), Charsets.UTF_8);
+            }
+            else {
+                html = Resources.toString(getClass().getClassLoader().getResource("at/rtr/rmbt/res/export.hbs.html"), Charsets.UTF_8);
+            }
             template = handlebars.compileInline(html);
         } catch (IOException e) {
             e.printStackTrace();
@@ -180,7 +187,9 @@ public class PdfExportResource extends ServerResource {
         OpenTestSearchDTO searchResult = dao.getOpenTestSearchResults(qp, 0, MAX_RESULTS, new HashSet<String>());
 
         Map<String, Object> data = new HashMap<>();
-        data.put("date",new SimpleDateFormat("d.M.yyyy H:mm:ss", Locale.GERMAN).format(new Date()));
+        SimpleDateFormat sdf = new SimpleDateFormat("d.M.yyyy H:mm:ss", Locale.GERMAN);
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        data.put("date",sdf.format(new Date()));
         data.put("tests", searchResult.getResults());
 
         //add all params to the model
