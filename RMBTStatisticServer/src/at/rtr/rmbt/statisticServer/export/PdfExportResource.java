@@ -156,7 +156,7 @@ public class PdfExportResource extends ServerResource {
         Handlebars handlebars = new ExtendedHandlebars();
         Template template = null;
         try {
-            String html = Resources.toString(getClass().getClassLoader().getResource("at/rtr/rmbt/res/export_de.hbs.html"), Charsets.UTF_8);
+            String html = Resources.toString(getClass().getClassLoader().getResource("at/rtr/rmbt/res/export.hbs.html"), Charsets.UTF_8);
             template = handlebars.compileInline(html);
         } catch (IOException e) {
             e.printStackTrace();
