@@ -77,12 +77,24 @@ public class PdfExportResource extends ServerResource {
                 labels = ResourceManager.getSysMsgBundle(new Locale(language));
             }
         }
-        final String pdfFilename = labels.getString("RESULT_PDF_FILENAME");
 
         String tempPath = settings.getString("PDF_TEMP_PATH");
         //allow only fetching files
         if (getRequest().getAttributes().containsKey("filename")) {
             String filename = getRequest().getAttributes().get("filename").toString();
+
+            char discriminatorLetter = filename.charAt(0);
+            filename = filename.substring(1);
+
+            //keep date, if any
+            String[] filenameParts = filename.split("-");
+            String filenameDatePart = "";
+            if (filenameParts[filenameParts.length - 1].length() == 14) {
+                //subtract from filename date part + "minus"
+                filename = filename.substring(0, filename.length() - 15);
+                filenameDatePart = "-" + filenameParts[filenameParts.length - 1];
+            }
+
             File retFile = new File(tempPath + filename + ".pdf");
 
             if (!retFile.exists()) {
@@ -91,7 +103,17 @@ public class PdfExportResource extends ServerResource {
             }
             ByteArrayRepresentation ret = new ByteArrayRepresentation(Files.readAllBytes(retFile.toPath()), MediaType.APPLICATION_PDF);
             Disposition disposition = new Disposition(Disposition.TYPE_ATTACHMENT);
-            disposition.setFilename(pdfFilename);
+
+            //different filenames for certified measurement vs loop mode pdf
+            String pdfFilename;
+            if (discriminatorLetter == 'C') {
+                pdfFilename = labels.getString("RESULT_PDF_FILENAME_CERTIFIED");
+            }
+            else {
+                pdfFilename = labels.getString("RESULT_PDF_FILENAME");
+            }
+            disposition.setFilename(pdfFilename + filenameDatePart + ".pdf");
+
             ret.setDisposition(disposition);
             return ret;
         }
@@ -155,18 +177,25 @@ public class PdfExportResource extends ServerResource {
         //load template
         Handlebars handlebars = new ExtendedHandlebars();
         Template template = null;
+        boolean certifiedMeasurement;
+        String pdfFilename = labels.getString("RESULT_PDF_FILENAME");
         try {
             String html;
             if (getParameters.size() > 1 && !Strings.isNullOrEmpty(getParameters.getFirstValue("first"))) {
                 //use different template for certified measurement protocol
                 html = Resources.toString(getClass().getClassLoader().getResource("at/rtr/rmbt/res/export_zert.hbs.html"), Charsets.UTF_8);
+                pdfFilename = labels.getString("RESULT_PDF_FILENAME_CERTIFIED");
+                certifiedMeasurement = true;
             }
             else {
                 html = Resources.toString(getClass().getClassLoader().getResource("at/rtr/rmbt/res/export.hbs.html"), Charsets.UTF_8);
+                pdfFilename = labels.getString("RESULT_PDF_FILENAME");
+                certifiedMeasurement = false;
             }
             template = handlebars.compileInline(html);
         } catch (IOException e) {
             e.printStackTrace();
+            certifiedMeasurement = false;
         }
 
         final QueryParser qp = new QueryParser();
@@ -187,9 +216,17 @@ public class PdfExportResource extends ServerResource {
         OpenTestSearchDTO searchResult = dao.getOpenTestSearchResults(qp, 0, MAX_RESULTS, new HashSet<String>());
 
         Map<String, Object> data = new HashMap<>();
+
+        //date handling
+        Date generationDate = new Date();
         SimpleDateFormat sdf = new SimpleDateFormat("d.M.yyyy H:mm:ss", Locale.GERMAN);
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-        data.put("date",sdf.format(new Date()));
+        sdf.setTimeZone(TimeZone.getTimeZone("Europe/Vienna"));
+        SimpleDateFormat filenameDateFormat = new SimpleDateFormat("yyyyMMddHHmmss", Locale.GERMAN);
+        filenameDateFormat.setTimeZone(TimeZone.getTimeZone("Europe/Vienna"));
+        String filenameDatePart = filenameDateFormat.format(generationDate);
+        data.put("date", sdf.format(generationDate));
+
+        //make tests accessible to handlebars
         data.put("tests", searchResult.getResults());
 
         //add all params to the model
@@ -276,14 +313,14 @@ public class PdfExportResource extends ServerResource {
                     getClientInfo().getAcceptedMediaTypes().get(0).getMetadata() == MediaType.APPLICATION_JSON) {
 
                 JSONObject retJson = new JSONObject();
-                retJson.put("file", uuid + ".pdf");
+                retJson.put("file", (certifiedMeasurement ? "C" : "L") + uuid + "-" + filenameDatePart + ".pdf");
 
                 return new JsonRepresentation(retJson.toString());
             }
             else {
                 FileRepresentation ret = new FileRepresentation(pdfTarget.toFile(), MediaType.APPLICATION_PDF);
                 Disposition disposition = new Disposition(Disposition.TYPE_ATTACHMENT);
-                disposition.setFilename(pdfFilename);
+                disposition.setFilename(pdfFilename + "-" + filenameDatePart + ".pdf");
                 ret.setDisposition(disposition);
                 return ret;
             }
