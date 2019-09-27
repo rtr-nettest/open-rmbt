@@ -69,6 +69,7 @@ public class PdfExportResource extends ServerResource {
 
         //load locale, if possible
         String language = settings.getString("RMBT_DEFAULT_LANGUAGE");
+        ResourceBundle labels = this.labels;
         if (getRequest().getAttributes().containsKey("lang")) {
             language = getRequest().getAttributes().get("lang").toString();
             final List<String> langs = Arrays.asList(settings.getString("RMBT_SUPPORTED_LANGUAGES").split(",\\s*"));
@@ -227,7 +228,9 @@ public class PdfExportResource extends ServerResource {
         data.put("date", sdf.format(generationDate));
 
         //make tests accessible to handlebars
-        data.put("tests", searchResult.getResults());
+        List<OpenTestDTO> testResults = searchResult.getResults();
+        Collections.reverse(testResults);
+        data.put("tests", testResults);
 
         //add all params to the model
         data.putAll(getParameters.getValuesMap());
@@ -241,7 +244,7 @@ public class PdfExportResource extends ServerResource {
 
         //get details for single results - set more detailled info
         Logger.getLogger(PdfExportResource.class.getName()).fine("Gathering extended test results");
-        ListIterator<OpenTestDTO> testIterator = searchResult.getResults().listIterator();
+        ListIterator<OpenTestDTO> testIterator = testResults.listIterator();
         while (testIterator.hasNext()) {
             OpenTestDTO result = testIterator.next();
             OpenTestDetailsDTO singleTest = dao.getSingleOpenTestDetails(result.getOpenTestUuid(), 0);
