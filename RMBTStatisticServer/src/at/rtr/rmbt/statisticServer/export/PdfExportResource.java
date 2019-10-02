@@ -45,6 +45,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Api(value="/export/pdf")
@@ -310,6 +311,13 @@ public class PdfExportResource extends ServerResource {
 
             pdfConverter.convertHtml(htmlFile,pdfTarget);
             Logger.getLogger(PdfExportResource.class.getName()).info("PDF generated: " + pdfTarget);
+
+            //delete html file, as not longer needed
+            boolean deleted = htmlFile.toFile().delete();
+            if (!deleted) {
+                Logger.getLogger(PdfExportResource.class.getName()).log(Level.WARNING, "HTML file could not be deleted");
+            }
+
 
             //depending on Accepts-Header, return file or json with link to file
             if (getClientInfo().getAcceptedMediaTypes().size() > 0 &&
