@@ -260,10 +260,10 @@ public class InfoResource extends ServerResource
     ///////////////////////////////////////
     
     private final static String[] OPTION_TECHNOLOGY_TITLE = new String[] {
-    	"ANY", "3G_4G", "2G", "3G", "4G"};
+    	"ANY", "3G_4G_5G", "4G_5G", "3G_4G", "2G", "3G", "4G", "5G"};
 
     private final static String[] OPTION_TECHNOLOGY_VALUE = new String[] {
-    	 "", "34", "2", "3", "4"};
+    	 "", "345", "45", "34", "2", "3", "4", "5"};
     
     private ServerOption getTechnology() throws JSONException
     {
