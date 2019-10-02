@@ -163,8 +163,14 @@ public class StatisticsResource extends ServerResource
                     where = "nt.group_name = '4G'";
                     signalColumn = "lte_rsrp";
                 }
+                else if ("5G".equalsIgnoreCase(networkTypeGroup))
+                {
+                    where = "nt.group_name = '5G'";
+                    signalColumn = "lte_rsrp";
+                }
                 else if ("mixed".equalsIgnoreCase(networkTypeGroup))
-                    where = "nt.group_name IN ('2G/3G','2G/4G','3G/4G','2G/3G/4G')";
+                    where = "nt.group_name IN ('2G/3G','2G/4G','3G/4G','2G/3G/4G'," +
+                            "'2G/5G', '3G/5G', '4G/5G', '2G/3G/5G', '2G/4G/5G', '3G/4G/5G')";
                 else
                     where = "1=0";
             }
