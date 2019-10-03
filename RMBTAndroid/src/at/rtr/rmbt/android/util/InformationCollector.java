@@ -1445,6 +1445,15 @@ public class InformationCollector
                 wCells.add(new CellInformationWrapper(cellInfo));
             }
 
+            //filter to cells where info is present (i.e. not in TDSCMA)
+            Iterator<CellInformationWrapper> iter = wCells.iterator();
+            while (iter.hasNext()) {
+                CellInformationWrapper ciw = iter.next();
+                if (ciw == null || ciw.getCi() == null || ciw.getCs() == null) {
+                    iter.remove();
+                }
+            }
+
             for (CellInformationWrapper ciw : wCells) {
                 if (ciw.isRegistered()) {
                     registeredCells.add(ciw);
