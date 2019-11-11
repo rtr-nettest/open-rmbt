@@ -267,37 +267,37 @@
                 {{#if time_dl_ms}}
                 <tr>
                     <td>{{ Lang.time_dl_ms }}</td>
-                    <td>{{time_dl_ms}}</td>
+                    <td>{{roundNumber time_dl_ms 0}} ms</td>
                 </tr>
                 {{/if}}
                 {{#if duration_download_ms}}
                 <tr>
                     <td>{{ Lang.duration_download_ms }}</td>
-                    <td>{{duration_download_ms}}</td>
+                    <td>{{roundNumber duration_download_ms 0}} ms</td>
                 </tr>
                 {{/if}}
                 {{#if bytes_download}}
                 <tr>
                     <td>{{ Lang.bytes_download }}</td>
-                    <td>{{bytes_download}}</td>
+                    <td>{{bytes_download}} Bytes</td>
                 </tr>
                 {{/if}}
                 {{#if time_ul_ms}}
                 <tr>
                     <td>{{ Lang.time_ul_ms }}</td>
-                    <td>{{time_ul_ms}}</td>
+                    <td>{{roundNumber time_ul_ms 0}} ms</td>
                 </tr>
                 {{/if}}
                 {{#if duration_upload_ms}}
                 <tr>
                     <td>{{ Lang.duration_upload_ms }}</td>
-                    <td>{{duration_upload_ms}}</td>
+                    <td>{{roundNumber duration_upload_ms 0}} ms</td>
                 </tr>
                 {{/if}}
                 {{#if bytes_upload}}
                 <tr>
                     <td>{{ Lang.bytes_upload }}</td>
-                    <td>{{bytes_upload}}</td>
+                    <td>{{bytes_upload}} Bytes</td>
                 </tr>
                 {{/if}}
                 {{#if server_name}}

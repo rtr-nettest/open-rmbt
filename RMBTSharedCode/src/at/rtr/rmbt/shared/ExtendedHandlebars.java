@@ -5,6 +5,7 @@ import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Options;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.Collection;
 import java.util.List;
@@ -201,6 +202,24 @@ public class ExtendedHandlebars extends Handlebars {
                 NumberFormat nf = new SignificantFormat(2);
                 String f = nf.format(Double.parseDouble(number.toString()));
                 return f;
+            }
+        });
+
+        /**
+         * Helper {{roundNumber number decimalPlaces}}
+         * Rounds a number to d decimals
+         */
+        this.registerHelper("roundNumber", new Helper<Object>() {
+            @Override
+            public Object apply(Object number, Options block) throws IOException {
+                if (number == null) {
+                    return null;
+                }
+                int decimals = Integer.parseInt(block.param(0).toString());
+
+                BigDecimal bd = new BigDecimal(number.toString());
+                bd = bd.setScale(decimals, BigDecimal.ROUND_HALF_UP);
+                return bd.toPlainString();
             }
         });
 
