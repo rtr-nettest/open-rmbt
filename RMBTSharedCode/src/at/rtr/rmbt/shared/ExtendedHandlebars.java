@@ -193,6 +193,18 @@ public class ExtendedHandlebars extends Handlebars {
             }
         });
 
+        this.registerHelper("toMB", new Helper<Object>() {
+            @Override
+            public Object apply(Object number, Options block) throws IOException {
+                if (number == null) {
+                    return null;
+                }
+                NumberFormat nf = new SignificantFormat(2);
+                String f = nf.format(Double.parseDouble(number.toString()) / 1000d / 1000d);
+                return f;
+            }
+        });
+
         this.registerHelper("twoSignificantDigits", new Helper<Object>() {
             @Override
             public Object apply(Object number, Options block) throws IOException {
