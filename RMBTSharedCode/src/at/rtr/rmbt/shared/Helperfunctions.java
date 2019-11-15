@@ -133,15 +133,11 @@ public abstract class Helperfunctions
         temp = java.lang.Math.abs(geoLat);
         latd = (int) temp;
         latm = (temp - latd) * 60.0;
-        if (geoLat < 0)
-            latd = -latd;
 
         // longitude
         temp = java.lang.Math.abs(geoLong);
         lond = (int) temp;
         lonm = (temp - lond) * 60.0;
-        if (geoLong < 0)
-            lond = -lond;
 
         final String dirLat;
         if (geoLat >= 0)
@@ -154,7 +150,7 @@ public abstract class Helperfunctions
         else
             dirLon = "W";
 
-        return String.format("%s %02d°%02.3f'  %s %02d°%02.3f'", dirLat, latd, latm, dirLon, lond, lonm);
+        return String.format("%s %2d°%02.3f'  %s %2d°%02.3f'", dirLat, latd, latm, dirLon, lond, lonm);
     }
 
     public static String getNetworkTypeName(final int type)
