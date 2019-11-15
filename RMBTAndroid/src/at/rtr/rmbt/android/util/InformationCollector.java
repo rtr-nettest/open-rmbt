@@ -899,7 +899,12 @@ public class InformationCollector
     
     public JSONObject getResultValues(long startTimestampNs) throws JSONException
     {
-        long startTimestamp = (new Date().getTime()) - (long) ((System.nanoTime() - startTimestampNs)/1e6);
+        //startTimestampNs is System.nanotime() (ControlServerConnection)
+        //millis since boot
+        long startTimestampNsSinceBoot = (long) (SystemClock.elapsedRealtime()*1e6) - (System.nanoTime() - startTimestampNs);
+        long startTimestampMsSinceBoot = (long) (startTimestampNsSinceBoot / 1e6);
+        long startTimestampDateMs = System.currentTimeMillis() - (SystemClock.elapsedRealtime() - startTimestampMsSinceBoot);
+
         final JSONObject result = new JSONObject();
         
         final Enumeration<?> pList = fullInfo.propertyNames();
@@ -936,8 +941,8 @@ public class InformationCollector
             //this indicates a non-moving user
             int itemsToFilter = 0;
             for (GeoLocationItem tmpItem : geoLocations) {
-                if ((startTimestamp - tmpItem.tstamp) > LOCATION_MAX_AGE_ON_TEST_START_MS) {
-                    Log.i(DEBUG_TAG, "Ignored GeoLocation old GeoLocation, diff: " + ((long) ((startTimestamp - tmpItem.tstamp) / 1e3)));
+                if ((startTimestampDateMs - tmpItem.tstamp) > LOCATION_MAX_AGE_ON_TEST_START_MS) {
+                    Log.i(DEBUG_TAG, "Ignored GeoLocation old GeoLocation, diff: " + ((long) ((startTimestampDateMs - tmpItem.tstamp) / 1e3)));
                     tmpItem.includeInSubmission = false;
                     itemsToFilter++;
                 }
@@ -998,14 +1003,14 @@ public class InformationCollector
         //new CellInformationWrapper API
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             if (cellInfos.size() > 0 && useNewApi) {
-                //adjust time keeping, as signals are relative to system book
+                //adjust time keeping, as signals are relative to system boot
                 //but everything else is relative to System.nanoTime()
-                long startTimestampNsSinceBoot = startTimestampNs + (SystemClock.elapsedRealtimeNanos() - System.nanoTime());
 
                 //remove invalid entries, set test start time
                 for (Iterator<CellInformationWrapper> iterator = cellInfos.iterator(); iterator.hasNext();) {
                     CellInformationWrapper ciw = iterator.next();
-                    ciw.setStartTimestampNs(startTimestampNsSinceBoot);
+                    ciw.setStartTimestampNsSinceBoot(startTimestampNsSinceBoot);
+                    ciw.setStartTimestampNsNanotime(startTimestampNs);
                     if (ciw.getTechnology() != CellInformationWrapper.Technology.CONNECTION_WLAN &&
                         ciw.getCi().isEmpty()) {
                         iterator.remove();
@@ -1785,7 +1790,7 @@ public class InformationCollector
         public final String provider;
         public final Boolean mock_location;
         public boolean includeInSubmission = true;
-        
+
         public GeoLocationItem(final long tstamp, final double geo_lat, final double geo_long, final float accuracy,
                 final double altitude, final float bearing, final float speed, final String provider, final Boolean mock_location)
         {

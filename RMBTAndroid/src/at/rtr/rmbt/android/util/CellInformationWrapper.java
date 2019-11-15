@@ -77,7 +77,8 @@ public class CellInformationWrapper {
     private Boolean active;
     private long timeStamp;
     //start timestamp of the test, set in InformationCollector
-    private Long startTimestampNs;
+    private Long startTimestampNsSinceBoot;
+    private Long startTimestampNsNanotime;
     private Long timeLast;
 
 
@@ -379,7 +380,7 @@ public class CellInformationWrapper {
         private Integer mnc;
         private Integer mcc;
         private Integer locationId;
-        private Integer areaCode;
+        private Long areaCode;
         private Integer scramblingCode;
         private String cellUuid = UUID.randomUUID().toString();
 
@@ -501,7 +502,7 @@ public class CellInformationWrapper {
         }
 
         @JsonProperty("area_code")
-        public Integer getAreaCode() {
+        public Long getAreaCode() {
             if (objectsEquals(areaCode, Integer.MAX_VALUE) ||
                     objectsEquals(areaCode, -1)) {
                 return null;
@@ -509,7 +510,7 @@ public class CellInformationWrapper {
             return areaCode;
         }
 
-        public void setAreaCode(int areaCode) {
+        public void setAreaCode(long areaCode) {
             this.areaCode = areaCode;
         }
 
@@ -658,18 +659,28 @@ public class CellInformationWrapper {
     }
 
     @JsonIgnore
-    public Long getStartTimestampNs() {
-        return startTimestampNs;
+    public Long getStartTimestampNsSinceBoot() {
+        return startTimestampNsSinceBoot;
     }
 
-    public void setStartTimestampNs(Long startTimestampNsSinceBoot) {
-        this.startTimestampNs = startTimestampNsSinceBoot;
+    public void setStartTimestampNsSinceBoot(Long startTimestampNsSinceBoot) {
+        this.startTimestampNsSinceBoot = startTimestampNsSinceBoot;
+    }
+
+    @JsonIgnore
+    public Long getStartTimestampNsNanotime() {
+        return startTimestampNsNanotime;
+    }
+
+    public void setStartTimestampNsNanotime(Long startTimestampNsNanotime) {
+        this.startTimestampNsNanotime = startTimestampNsNanotime;
     }
 
     @JsonProperty("time_ns_last")
     public Long getTimeStampLast() {
-        if (startTimestampNs != null && this.timeLast != null) {
-            return this.timeLast - startTimestampNs;
+        //always based on nanotime
+        if (startTimestampNsNanotime != null && this.timeLast != null) {
+            return this.timeLast - startTimestampNsNanotime;
         }
         return null;
     }
@@ -686,8 +697,23 @@ public class CellInformationWrapper {
      */
     @JsonProperty("time_ns")
     public Long getTimeStampNs() {
-        if (startTimestampNs != null) {
-            return this.timeStamp - startTimestampNs;
+        //in theory, timestamps for cells should always return
+        //nano since boot (https://developer.android.com/reference/android/telephony/CellInfo.html#getTimeStamp())
+        //however, in practice, some seem to return a nano timestamp based on System.nanoTime() in some cases
+
+        if (startTimestampNsNanotime != null && startTimestampNsSinceBoot != null) {
+            long diffBasedOnNanotime = this.timeStamp - startTimestampNsNanotime;
+            long diffBasedOnNsSinceBoot = this.timeStamp - startTimestampNsSinceBoot;
+            if (Math.abs(diffBasedOnNanotime) < Math.abs(diffBasedOnNsSinceBoot)) {
+                return diffBasedOnNanotime;
+            }
+            else {
+                return diffBasedOnNsSinceBoot;
+            }
+        }
+
+        if (startTimestampNsSinceBoot != null) {
+            return this.timeStamp - startTimestampNsSinceBoot;
         }
         return null;
     }
