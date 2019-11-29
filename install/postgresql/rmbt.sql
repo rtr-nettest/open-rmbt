@@ -5467,7 +5467,7 @@ CREATE VIEW public.vt AS
    FROM public.test;
 
 
-ALTER TABLE public.vt OWNER TO dj;
+ALTER TABLE public.vt OWNER TO rmbt;
 
 --
 -- Name: VIEW vt; Type: COMMENT; Schema: public; Owner: dj
@@ -7597,7 +7597,7 @@ GRANT SELECT ON TABLE public.v_dl_bandwidth_per_minute TO rmbt_group_read_only;
 -- Name: TABLE v_get_replication_delay; Type: ACL; Schema: public; Owner: postgres
 --
 
-GRANT SELECT ON TABLE public.v_get_replication_delay TO nagios;
+--GRANT SELECT ON TABLE public.v_get_replication_delay TO nagios;
 
 
 --
