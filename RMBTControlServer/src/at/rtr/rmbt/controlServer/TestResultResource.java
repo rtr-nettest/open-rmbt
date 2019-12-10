@@ -16,31 +16,22 @@
  ******************************************************************************/
 package at.rtr.rmbt.controlServer;
 
-import java.text.DateFormat;
-import java.text.Format;
-import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.TimeZone;
-import java.util.UUID;
-
+import at.rtr.rmbt.db.Client;
+import at.rtr.rmbt.db.Test;
+import at.rtr.rmbt.db.fields.Field;
+import at.rtr.rmbt.db.fields.TimestampField;
+import at.rtr.rmbt.db.fields.UUIDField;
+import at.rtr.rmbt.shared.*;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.restlet.resource.Get;
 import org.restlet.resource.Post;
 
-import at.rtr.rmbt.db.Client;
-import at.rtr.rmbt.db.Test;
-import at.rtr.rmbt.db.fields.Field;
-import at.rtr.rmbt.db.fields.TimestampField;
-import at.rtr.rmbt.db.fields.UUIDField;
-import at.rtr.rmbt.shared.Classification;
-import at.rtr.rmbt.shared.Helperfunctions;
-import at.rtr.rmbt.shared.ResourceManager;
-import at.rtr.rmbt.shared.SignificantFormat;
+import java.text.DateFormat;
+import java.text.Format;
+import java.text.MessageFormat;
+import java.util.*;
 
 public class TestResultResource extends ServerResource
 {
@@ -217,7 +208,12 @@ public class TestResultResource extends ServerResource
                         } //dualSim
 
                         jsonItem.put("measurement", jsonItemList);
-                        
+
+
+                        //QoE classification
+                        List<QoEClassification.Classification> qoe = QoEClassification.classify(fieldPing.longValue(), fieldDown.longValue(), fieldUp.longValue());
+                        jsonItem.put("qoe_classification", new JSONArray(qoe));
+
                         jsonItemList = new JSONArray();                        
                         
                         singleItem = new JSONObject();
