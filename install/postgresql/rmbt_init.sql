@@ -3085,7 +3085,7 @@ SET row_security = off;
 --
 
 INSERT INTO public.test_server (name, web_address, port, port_ssl, city, country, geo_lat, geo_long, location, web_address_ipv4, web_address_ipv6, server_type, priority, weight, active, uuid, key, selectable, countries, node) VALUES ('OpenRMBT Server', NULL, NULL, 443, 'Vienna', 'AT', 48.2697550000000035, 16.4109130000000007,'010100002031BF0D00DD5C867A26E03B41B6FC3597AA775741', 'server-v4.example.com', 'server-v6.example.com', 'RMBT', 1, 1, true, 'ccc9107b-3d34-493f-8afc-6af8b6a66b6e', '-change-me', true, '{any}', 'VIE');
-INSERT INTO public.test_server (uid,"name",port_ssl,city,country,geo_lat,geo_long,"location",web_address_ipv4,web_address_ipv6,server_type,priority,weight,active,uuid,"key",selectable,countries,node) VALUES (35,'QOS Server',443,'Vienna','AT',48.2697550000000035,16.4109130000000007,'010100002031BF0D00DD5C867A26E03B41B6FC3597AA775741','qos-v4.example.com','qos-v6.example.com','QoS',0,1,true,'27ba66e8-d6fc-4fca-890a-19e3b4aed6bf','-change-me',true,'{any}','VIE')
+INSERT INTO public.test_server (uid,"name",port_ssl,city,country,geo_lat,geo_long,"location",web_address_ipv4,web_address_ipv6,server_type,priority,weight,active,uuid,"key",selectable,countries,node) VALUES (35,'QOS Server',443,'Vienna','AT',48.2697550000000035,16.4109130000000007,'010100002031BF0D00DD5C867A26E03B41B6FC3597AA775741','qos-v4.example.com','qos-v6.example.com','QoS',0,1,true,'27ba66e8-d6fc-4fca-890a-19e3b4aed6bf','-change-me',true,'{any}','VIE');
 
 --
 -- Name: test_server_uid_seq; Type: SEQUENCE SET; Schema: public; Owner: rmbt
