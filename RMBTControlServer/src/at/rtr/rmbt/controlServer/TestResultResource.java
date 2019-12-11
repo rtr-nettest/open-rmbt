@@ -22,6 +22,8 @@ import at.rtr.rmbt.db.fields.Field;
 import at.rtr.rmbt.db.fields.TimestampField;
 import at.rtr.rmbt.db.fields.UUIDField;
 import at.rtr.rmbt.shared.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -210,9 +212,15 @@ public class TestResultResource extends ServerResource
                         jsonItem.put("measurement", jsonItemList);
 
 
-                        //QoE classification
-                        List<QoEClassification.Classification> qoe = QoEClassification.classify(fieldPing.longValue(), fieldDown.longValue(), fieldUp.longValue());
-                        jsonItem.put("qoe_classification", new JSONArray(qoe));
+                        try {
+                            //QoE classification
+                            List<QoEClassification.Classification> qoe = QoEClassification.classify(fieldPing.longValue(), fieldDown.longValue(), fieldUp.longValue());
+                            ObjectMapper om = new ObjectMapper();
+                            String qoeAsString = om.writer().writeValueAsString(qoe);
+                            jsonItem.put("qoe_classification", new JSONArray(qoeAsString));
+                        } catch (JsonProcessingException e) {
+                            e.printStackTrace();
+                        }
 
                         jsonItemList = new JSONArray();                        
                         
