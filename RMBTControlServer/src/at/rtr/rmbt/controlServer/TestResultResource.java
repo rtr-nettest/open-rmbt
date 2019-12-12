@@ -116,7 +116,7 @@ public class TestResultResource extends ServerResource
                         dateFormat.setTimeZone(tz);
                         final String timeString = dateFormat.format(date);
                         jsonItem.put("time_string", timeString);
-                        
+
                         final Field fieldDown = test.getField("speed_download");
                         JSONObject singleItem = new JSONObject();
                         singleItem.put("title", labels.getString("RESULT_DOWNLOAD"));
@@ -139,6 +139,14 @@ public class TestResultResource extends ServerResource
                                 Classification.classify(Classification.THRESHOLD_UPLOAD, fieldUp.intValue(), capabilities.getClassificationCapability().getCount()));
                         
                         jsonItemList.put(singleItem);
+
+                        JSONObject measurementResult = new JSONObject();
+                        {
+                            measurementResult.put("download_kbit", fieldUp.longValue());
+                            measurementResult.put("download_classification", Classification.classify(Classification.THRESHOLD_DOWNLOAD, fieldDown.intValue(), capabilities.getClassificationCapability().getCount()));
+                            measurementResult.put("upload_kbit", fieldUp.longValue());
+                            measurementResult.put("upload_classification", Classification.classify(Classification.THRESHOLD_UPLOAD, fieldUp.intValue(), capabilities.getClassificationCapability().getCount()));
+                        }
                         
                         final Field fieldPing = test.getField("ping_median");
                         String pingString = "";
@@ -153,6 +161,8 @@ public class TestResultResource extends ServerResource
                         			Classification.classify(Classification.THRESHOLD_PING, fieldPing.longValue(), capabilities.getClassificationCapability().getCount()));
 
                         	jsonItemList.put(singleItem);
+                            measurementResult.put("ping_ms", fieldPing.doubleValue() / 1000000d);
+                            measurementResult.put("ping_classification", Classification.classify(Classification.THRESHOLD_PING, fieldPing.longValue(), capabilities.getClassificationCapability().getCount()));
                         }
 
                         
@@ -194,6 +204,9 @@ public class TestResultResource extends ServerResource
                         			signalString = signalValue + " " + labels.getString("RESULT_SIGNAL_UNIT");
                         			singleItem.put("value", signalString);
                         			singleItem.put("classification", Classification.classify(threshold, signalValue, capabilities.getClassificationCapability().getCount()));
+
+                                    measurementResult.put("signal_strength", signalField.intValue());
+                                    measurementResult.put("signal_classification", Classification.classify(threshold, signalValue, capabilities.getClassificationCapability().getCount()));
                         		}
                         		else  { // use RSRP value else (RSRP value has priority if both are available (e.g. 3G/4G-test))
                         			final int signalValue = lteRsrpField.intValue();
@@ -203,13 +216,20 @@ public class TestResultResource extends ServerResource
                         			signalString = signalValue + " " + labels.getString("RESULT_SIGNAL_UNIT");
                         			singleItem.put("value", signalString);
                         			singleItem.put("classification", Classification.classify(threshold, signalValue, capabilities.getClassificationCapability().getCount()));
+                                    measurementResult.put("lte_rsrp", lteRsrpField.intValue());
+                                    measurementResult.put("signal_classification", Classification.classify(threshold, signalValue, capabilities.getClassificationCapability().getCount()));
 
                         		}	
                         		jsonItemList.put(singleItem);
                         	}
+                        	else {
+                                measurementResult.put("lte_rsrp", JSONObject.NULL);
+                                measurementResult.put("signal_classification", JSONObject.NULL);
+                            }
                         } //dualSim
 
                         jsonItem.put("measurement", jsonItemList);
+                        jsonItem.put("measurement_result", measurementResult);
 
 
                         try {
