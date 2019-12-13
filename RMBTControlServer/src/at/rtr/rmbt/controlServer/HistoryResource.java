@@ -246,7 +246,9 @@ public class HistoryResource extends ServerResource
                                 jsonItem.put("ping_shortest", format.format(ping / 1000000d));
                                 jsonItem.put("model", rs.getString("model"));
                                 jsonItem.put("network_type", rs.getString("network_type_group_name"));
-                                jsonItem.put("loop_uuid", rs.getObject("loop_uuid"));
+                                if (rs.getObject("loop_uuid") != null) {
+                                    jsonItem.put("loop_uuid", "L" + rs.getObject("loop_uuid"));
+                                }
                                 
                                 
                                 //for appscape-iPhone-Version: also add classification to the response
