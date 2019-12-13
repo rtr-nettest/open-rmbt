@@ -175,11 +175,12 @@ public class HistoryResource extends ServerResource
                                             .format(
 
                                             		"SELECT DISTINCT"
-                                                    + " t.uuid, time, timezone, speed_upload, speed_download, ping_median, network_type, nt.group_name network_type_group_name,"
+                                                    + " t.uuid, time, timezone, speed_upload, speed_download, ping_median, network_type, nt.group_name network_type_group_name, l.loop_uuid loop_uuid,"
                                                     + " COALESCE(adm.fullname, t.model) model"
                                                     + " FROM test t"
                                                     + " LEFT JOIN device_map adm ON adm.codename=t.model"
                                                     + " LEFT JOIN network_type nt ON t.network_type=nt.uid"
+                                                    + " LEFT JOIN test_loopmode l ON (l.test_uuid = t.uuid)"
                                                     + " WHERE t.deleted = false AND t.implausible = false AND t.status = 'FINISHED'"
                                                     + " AND client_id = ?"
                                                     + " %s %s" + " ORDER BY time DESC" + " %s", deviceRequest,
@@ -190,11 +191,12 @@ public class HistoryResource extends ServerResource
                                         .prepareStatement(String
                                                 .format(
                                                 		"SELECT DISTINCT"
-                                                        + " t.uuid, time, timezone, speed_upload, speed_download, ping_median, network_type, nt.group_name network_type_group_name,"
+                                                        + " t.uuid, time, timezone, speed_upload, speed_download, ping_median, network_type, nt.group_name network_type_group_name, l.loop_uuid loop_uuid,"
                                                         + " COALESCE(adm.fullname, t.model) model"
                                                         + " FROM test t"
                                                         + " LEFT JOIN device_map adm ON adm.codename=t.model"
                                                         + " LEFT JOIN network_type nt ON t.network_type=nt.uid"
+                                                        + " LEFT JOIN test_loopmode l ON (l.test_uuid = t.uuid)"
                                                         + " WHERE t.deleted = false AND t.implausible = false AND t.status = 'FINISHED'"
                                                         + " AND (t.client_id IN (SELECT ? UNION SELECT uid FROM client WHERE sync_group_id = ? ))"
                                                         + " %s %s" + " ORDER BY time DESC" + " %s", deviceRequest,
@@ -244,7 +246,7 @@ public class HistoryResource extends ServerResource
                                 jsonItem.put("ping_shortest", format.format(ping / 1000000d));
                                 jsonItem.put("model", rs.getString("model"));
                                 jsonItem.put("network_type", rs.getString("network_type_group_name"));
-                                
+                                jsonItem.put("loop_uuid", rs.getObject("loop_uuid"));
                                 
                                 
                                 //for appscape-iPhone-Version: also add classification to the response
