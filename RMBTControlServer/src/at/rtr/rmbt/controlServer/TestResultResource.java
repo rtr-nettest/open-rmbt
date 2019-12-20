@@ -142,7 +142,7 @@ public class TestResultResource extends ServerResource
 
                         JSONObject measurementResult = new JSONObject();
                         {
-                            measurementResult.put("download_kbit", fieldUp.longValue());
+                            measurementResult.put("download_kbit", fieldDown.longValue());
                             measurementResult.put("download_classification", Classification.classify(Classification.THRESHOLD_DOWNLOAD, fieldDown.intValue(), capabilities.getClassificationCapability().getCount()));
                             measurementResult.put("upload_kbit", fieldUp.longValue());
                             measurementResult.put("upload_classification", Classification.classify(Classification.THRESHOLD_UPLOAD, fieldUp.intValue(), capabilities.getClassificationCapability().getCount()));
