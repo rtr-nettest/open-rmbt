@@ -242,16 +242,21 @@ public class TestResultResource extends ServerResource
                             e.printStackTrace();
                         }
 
-                        jsonItemList = new JSONArray();                        
+                        jsonItemList = new JSONArray();
+                        JSONObject networkInfo = new JSONObject();
                         
                         singleItem = new JSONObject();
                         singleItem.put("title", labels.getString("RESULT_NETWORK_TYPE"));
                         final String networkTypeString = Helperfunctions.getNetworkTypeName(networkType);
                         
-                        if (!useSignal)
-                           singleItem.put("value", labels.getString("RESULT_DUAL_SIM"));
-                        else
-                        	singleItem.put("value", networkTypeString);
+                        if (!useSignal) {
+                            singleItem.put("value", labels.getString("RESULT_DUAL_SIM"));
+                            networkInfo.put("network_type_label", labels.getString("RESULT_DUAL_SIM"));
+                        }
+                        else {
+                            singleItem.put("value", networkTypeString);
+                            networkInfo.put("network_type_label", Helperfunctions.getNetworkTypeName(networkType));
+                        }
 
                         jsonItemList.put(singleItem);
                         
@@ -264,6 +269,7 @@ public class TestResultResource extends ServerResource
                                 singleItem.put("title", labels.getString("RESULT_OPERATOR_NAME"));
                                 singleItem.put("value", providerNameField.toString());
                                 jsonItemList.put(singleItem);
+                                networkInfo.put("provider_name", providerNameField.toString());
                             }
                             if (networkType == 99)  // mobile wifi
                             {
@@ -274,6 +280,7 @@ public class TestResultResource extends ServerResource
                                     singleItem.put("title", labels.getString("RESULT_WIFI_SSID"));
                                     singleItem.put("value", ssid.toString());
                                     jsonItemList.put(singleItem);
+                                    networkInfo.put("wifi_ssid", ssid.toString());
                                 }
                                 
                             }
@@ -290,6 +297,7 @@ public class TestResultResource extends ServerResource
                             		singleItem.put("title", labels.getString("RESULT_OPERATOR_NAME"));
                             		singleItem.put("value", operatorNameField.toString());
                             		jsonItemList.put(singleItem);
+                                    networkInfo.put("provider_name", operatorNameField.toString());
                             	}
 
                             	final Field roamingTypeField = test.getField("roaming_type");
@@ -300,13 +308,14 @@ public class TestResultResource extends ServerResource
                             		singleItem.put("title", labels.getString("RESULT_ROAMING"));
                             		singleItem.put("value", Helperfunctions.getRoamingType(labels, roamingTypeField.intValue()));
                             		jsonItemList.put(singleItem);
+                                    networkInfo.put("roaming_type_label", Helperfunctions.getRoamingType(labels, roamingTypeField.intValue()));
                             	}
                             }
                             
                         }
                         
                         jsonItem.put("net", jsonItemList);
-                        
+                        jsonItem.put("network_info", networkInfo);
                         
                         final Field latField = test.getField("geo_lat");
                         final Field longField = test.getField("geo_long");
