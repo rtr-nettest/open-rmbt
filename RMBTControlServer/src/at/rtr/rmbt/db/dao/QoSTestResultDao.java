@@ -156,7 +156,7 @@ public class QoSTestResultDao implements CrudPrimaryKeyDao<QoSTestResult, Long> 
 			sql = "INSERT INTO qos_test_result (test_uid, result, qos_test_uid, success_count, failure_count) VALUES (?,?::json,?,?,?)";
 			ps = conn.prepareStatement(sql);
 			ps.setLong(1, result.getTestUid());
-			ps.setObject(2, result.getResults().replaceAll("\\u0000",""));
+			ps.setObject(2, result.getResults().replaceAll("\\\\\\\\u0000",""));
 			ps.setLong(3, result.getQoSTestObjectiveId());
 			ps.setInt(4, result.getSuccessCounter());
 			ps.setInt(5, result.getFailureCounter());
