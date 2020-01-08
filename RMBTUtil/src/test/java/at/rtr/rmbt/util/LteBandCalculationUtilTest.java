@@ -9,7 +9,7 @@ import static org.junit.Assert.*;
  */
 public class LteBandCalculationUtilTest {
     @Test
-    public void getBandFromEarfcn() throws Exception {
+    public void testGetBandFromEarfcn() throws Exception {
         BandCalculationUtil.FrequencyInformation band = BandCalculationUtil.getBandFromEarfcn(2850);
         assertEquals(7, band.getBand());
         assertEquals(2630.0, band.getFrequencyDL(), 0);
