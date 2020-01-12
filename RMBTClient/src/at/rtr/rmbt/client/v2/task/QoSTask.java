@@ -18,8 +18,8 @@ package at.rtr.rmbt.client.v2.task;
 
 import java.util.concurrent.Callable;
 
+import at.rtr.rmbt.shared.qos.QosMeasurementType;
 import at.rtr.rmbt.client.v2.task.result.QoSTestResult;
-import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum;
 
 /**
  * 
@@ -63,16 +63,21 @@ public interface QoSTask extends Callable<QoSTestResult>, Comparable<QoSTask> {
 	 * @return
 	 */
 	public String getTestServerAddr();
-	
+
 	/**
 	 * 
 	 * @return
 	 */
-	public QoSTestResultEnum getTestType();
+	public QosMeasurementType getTestType();
 	
 	/**
 	 * 
 	 * @return
 	 */
 	public boolean needsQoSControlConnection();
+
+	/**
+	 * kill the QoSTask, if the task needs specific cleanup
+	 */
+	public void interrupt();
 }

@@ -28,11 +28,9 @@ import org.json.JSONObject;
  *
  */
 public class QoSResultCollector {
-	private List<QoSTestResult> results;
-	
-	public QoSResultCollector() {
-		results = new ArrayList<QoSTestResult>();
-	}
+	private List<QoSTestResult> results = new ArrayList<>();
+
+	private String testToken;
 
 	/**
 	 * 
@@ -40,6 +38,14 @@ public class QoSResultCollector {
 	 */
 	public List<QoSTestResult> getResults() {
 		return results;
+	}
+
+	public String getTestToken() {
+		return testToken;
+	}
+
+	public void setTestToken(String testToken) {
+		this.testToken = testToken;
 	}
 
 	/**

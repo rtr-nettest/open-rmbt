@@ -38,6 +38,7 @@ import java.util.logging.Logger;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
+import com.google.common.io.BaseEncoding;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -76,6 +77,10 @@ public abstract class Helperfunctions
             System.out.println("Unexpected error while creating hash: " + e.getMessage());
             return "";
         }
+    }
+
+    public static String calculateHMAC(final String secret, final String data) {
+        return calculateHMAC(secret.getBytes(), data);
     }
 
     /**

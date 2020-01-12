@@ -38,9 +38,10 @@ public interface StreamSender<T> {
 		 * is called before sending data
 		 * @param dataOut output stream for the packet's payload
 		 * @param packetNumber the current packet number
+		 * @param receivedPayload
 		 * @throws IOException
 		 */
-		boolean onSend(final DataOutputStream dataOut, final int packetNumber) throws IOException;
+		boolean onSend(final DataOutputStream dataOut, final int packetNumber, byte[] receivedPayload) throws IOException;
 		
 		/**
 		 * is called after a datagram packet has been received

@@ -7,7 +7,7 @@
  * You may obtain a copy of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -49,8 +49,8 @@ public class InfoResource extends ServerResource {
 			
 			final JSONArray serverArray = new JSONArray();
 			
-			synchronized(TestServer.udpServerMap) {
-				Iterator<Entry<Integer, List<AbstractUdpServer<?>>>> i = TestServer.udpServerMap.entrySet().iterator();
+			synchronized(TestServer.getInstance().udpServerMap) {
+				Iterator<Entry<Integer, List<AbstractUdpServer<?>>>> i = TestServer.getInstance().udpServerMap.entrySet().iterator();
 				while (i.hasNext()) {
 					Entry<Integer, List<AbstractUdpServer<?>>> e = i.next();
 					JSONObject udpObject = new JSONObject();
@@ -87,8 +87,8 @@ public class InfoResource extends ServerResource {
 			
 			final JSONArray serverArray = new JSONArray();
 			
-			synchronized(TestServer.tcpServerMap) {
-				Iterator<Entry<Integer, List<TcpMultiClientServer>>> i = TestServer.tcpServerMap.entrySet().iterator();
+			synchronized(TestServer.getInstance().tcpServerMap) {
+				Iterator<Entry<Integer, List<TcpMultiClientServer>>> i = TestServer.getInstance().tcpServerMap.entrySet().iterator();
 				while (i.hasNext()) {
 					Entry<Integer, List<TcpMultiClientServer>> e = i.next();
 					

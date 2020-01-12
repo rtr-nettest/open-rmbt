@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2015 alladin-IT GmbH
+ * Copyright 2013-2019 alladin-IT GmbH
  * Copyright 2013-2015 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,8 +33,12 @@ public class TestSettings {
 	private TrafficService trafficService;
 	private WebsiteTestService websiteTestService;
 	private Class<? extends TracerouteService> tracerouteServiceClazz;
+	private Class<? extends MkitService> mkitServiceClazz;
 	private final List<TestProgressListener> testProgressListenerList = new ArrayList<TestProgressListener>();
-	private List<InetAddress> defaultDnsResolvers = new ArrayList<>();
+	/**
+	 * Provides the option to provide custom dns servers to be used
+	 */
+	private List<InetAddress> dnsServerAddressList;
 	
 	public TestSettings() { }
 	
@@ -42,55 +46,6 @@ public class TestSettings {
 		this.startTimeNs = startTimeNs;
 	}
 
-	public File getCacheFolder() {
-		return cacheFolder;
-	}
-
-	public void setCacheFolder(File cacheFolder) {
-		this.cacheFolder = cacheFolder;
-	}
-
-	public TrafficService getTrafficService() {
-		return trafficService;
-	}
-
-	public void setTrafficService(TrafficService trafficService) {
-		this.trafficService = trafficService;
-	}
-
-	public WebsiteTestService getWebsiteTestService() {
-		return websiteTestService;
-	}
-
-	public void setWebsiteTestService(WebsiteTestService websiteTestService) {
-		this.websiteTestService = websiteTestService;
-	}
-
-	/**
-	TracerouteServicehe {@link TracerouteService} implementation for traceroute functionalitTracerouteServiceeturn
-	 */
-	public Class<? extends TracerouteService> getTracerouteServiceClazz() {
-		return tracerouteServiceClazz;
-	}
-
-	/**
-	 * set the {@link TracerouteService} implementation for traceroute functionality
-	 * @TracerouteServicengTool
-	 */
-	public void setTracerouteServiceClazz(Class<? extends TracerouteService> tracerouteServiceClazz) {
-		this.tracerouteServiceClazz = tracerouteServiceClazz;
-	}
-
-	public List<TestProgressListener> getTestProgressListener() {
-		return testProgressListenerList;
-	}
-	
-	public void addTestProgressListener(TestProgressListener listener) {
-		if (!testProgressListenerList.contains(listener)) {
-			testProgressListenerList.add(listener);
-		}
-	}
-	
 	public void dispatchTestProgressEvent(TestProgressEvent event, AbstractQoSTask test) {
 		dispatchTestProgressEvent(event, test, null);
 	}
@@ -130,6 +85,11 @@ public class TestSettings {
 		return startTimeNs;
 	}
 
+	/**
+	 * sets the absolute starting point of the qos test.<br>
+	 * is called during the qualityOfServiceTest.run() to store the actual start of the qos measurements
+	 * @param startTimeNs
+	 */
 	public void setStartTimeNs(long startTimeNs) {
 		this.startTimeNs = startTimeNs;
 	}
@@ -150,6 +110,71 @@ public class TestSettings {
 		this.useSsl = useSsl;
 	}
 
+	public List<InetAddress> getDnsServerAddressList() {
+		return dnsServerAddressList;
+	}
+
+	public void setDnsServerAddressList(List<InetAddress> dnsServerAddressList) {
+		this.dnsServerAddressList = dnsServerAddressList;
+	}
+
+	public File getCacheFolder() {
+		return cacheFolder;
+	}
+
+	public void setCacheFolder(File cacheFolder) {
+		this.cacheFolder = cacheFolder;
+	}
+
+	public TrafficService getTrafficService() {
+		return trafficService;
+	}
+
+	public void setTrafficService(TrafficService trafficService) {
+		this.trafficService = trafficService;
+	}
+
+	public WebsiteTestService getWebsiteTestService() {
+		return websiteTestService;
+	}
+
+	public void setWebsiteTestService(WebsiteTestService websiteTestService) {
+		this.websiteTestService = websiteTestService;
+	}
+
+	/**
+	 TracerouteServicehe {@link TracerouteService} implementation for traceroute functionalitTracerouteServiceeturn
+	 */
+	public Class<? extends TracerouteService> getTracerouteServiceClazz() {
+		return tracerouteServiceClazz;
+	}
+
+	/**
+	 * set the {@link TracerouteService} implementation for traceroute functionality
+	 * @TracerouteServicengTool
+	 */
+	public void setTracerouteServiceClazz(Class<? extends TracerouteService> tracerouteServiceClazz) {
+		this.tracerouteServiceClazz = tracerouteServiceClazz;
+	}
+
+	public Class<? extends MkitService> getMkitServiceClazz() {
+		return mkitServiceClazz;
+	}
+
+	public void setMkitServiceClazz(Class<? extends MkitService> mkitServiceClazz) {
+		this.mkitServiceClazz = mkitServiceClazz;
+	}
+
+	public List<TestProgressListener> getTestProgressListener() {
+		return testProgressListenerList;
+	}
+
+	public void addTestProgressListener(TestProgressListener listener) {
+		if (!testProgressListenerList.contains(listener)) {
+			testProgressListenerList.add(listener);
+		}
+	}
+
 	@Override
 	public String toString() {
 		return "TestSettings [useSsl=" + useSsl + ", startTimeNs="
@@ -158,13 +183,5 @@ public class TestSettings {
 				+ ", websiteTestService=" + websiteTestService
 				+ ", testProgressListenerList=" + testProgressListenerList
 				+ "]";
-	}
-
-	public List<InetAddress> getDefaultDnsResolvers() {
-		return defaultDnsResolvers;
-	}
-
-	public void setDefaultDnsResolvers(List<InetAddress> defaultDnsResolvers) {
-		this.defaultDnsResolvers = defaultDnsResolvers;
 	}
 }

@@ -93,7 +93,7 @@ public class TcpMultiClientServer extends AbstractTcpServer {
 	public synchronized void prepare() throws Exception {
 		TestServerConsole.log("Preparing TCP socket on port " + port + " for TCP/NTP test.", 2, TestServerServiceEnum.TCP_SERVICE);
 				
-		if (TestServer.serverPreferences.isIpCheck()) {
+		if (TestServer.getInstance().serverPreferences.isIpCheck()) {
 			if (CLOSE_CONNECTION_IF_NO_CLIENTS_LEFT) {
 				currentConnections.addAndGet(1);
 				TestServerConsole.log("Socket on port " + port + " still opened. Candidate count has been increased by 1 (current count: " 
@@ -108,7 +108,7 @@ public class TcpMultiClientServer extends AbstractTcpServer {
 		refreshTtl(TTL);
 
 		if (serverSocket == null) {
-			serverSocket = TestServer.createServerSocket(getPort(), false, getInetAddr());
+			serverSocket = TestServer.getInstance().createServerSocket(getPort(), false, getInetAddr());
 			TestServerConsole.log(getName() + " has been (re)opened.", 2, TestServerServiceEnum.TCP_SERVICE);
 		}
 
@@ -118,7 +118,7 @@ public class TcpMultiClientServer extends AbstractTcpServer {
 		
 		//start thread if not running
 		if (!isThreadRunning) {
-			TestServer.getCommonThreadPool().submit(this);
+			TestServer.getInstance().getCommonThreadPool().submit(this);
 		}
 	}
 	
@@ -128,7 +128,7 @@ public class TcpMultiClientServer extends AbstractTcpServer {
 	 */
 	@Override
 	public synchronized boolean close() throws IOException {
-		if (TestServer.serverPreferences.isIpCheck()) {
+		if (TestServer.getInstance().serverPreferences.isIpCheck()) {
 			if (CLOSE_CONNECTION_IF_NO_CLIENTS_LEFT) {
 				final long connectionsLeft = currentConnections.addAndGet(-1);
 				if (this.serverSocket != null && !this.serverSocket.isClosed() && connectionsLeft <= 0) {
@@ -157,7 +157,7 @@ public class TcpMultiClientServer extends AbstractTcpServer {
 	 */
 	@Override
 	public synchronized boolean isAlive() {
-		if (TestServer.serverPreferences.isIpCheck()) {
+		if (TestServer.getInstance().serverPreferences.isIpCheck()) {
 			if (CLOSE_CONNECTION_IF_NO_CLIENTS_LEFT) {
 				final long connectionsLeft = currentConnections.get();
 				return (this.serverSocket != null && !this.serverSocket.isClosed() && connectionsLeft > 0);
@@ -180,7 +180,7 @@ public class TcpMultiClientServer extends AbstractTcpServer {
 	protected void execute() throws Exception {
 		Socket clientSocket = serverSocket.accept();
 		TcpClientHandler tcpClientHandler = new TcpClientHandler(clientSocket, this);
-		TestServer.getCommonThreadPool().execute(tcpClientHandler);
+		TestServer.getInstance().getCommonThreadPool().execute(tcpClientHandler);
 	}
 	
 	

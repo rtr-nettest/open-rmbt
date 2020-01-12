@@ -33,10 +33,12 @@ public class VoipTestCandidate extends UdpTestCandidate {
 	
 	private final long initialSequenceNumber;
 	private final int sampleRate;
+	private final long buffer;
 	
-	public VoipTestCandidate(long initialSequenceNumber, int sampleRate) {
+	public VoipTestCandidate(long initialSequenceNumber, int sampleRate, long buffer) {
 		this.sampleRate = sampleRate;
 		this.initialSequenceNumber = initialSequenceNumber;
+		this.buffer = buffer;
 	}
 	
 	public void addRtpControlData(RtpPacket rtpPacket, long recTimestampNs) {
@@ -53,6 +55,10 @@ public class VoipTestCandidate extends UdpTestCandidate {
 	
 	public int getSampleRate() {
 		return sampleRate;
+	}
+
+	public long getBuffer() {
+		return buffer;
 	}
 
 	@Override

@@ -16,7 +16,6 @@
  *******************************************************************************/
 package at.rtr.rmbt.qos.testserver.plugin.rest;
 
-import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -44,15 +43,20 @@ import at.rtr.rmbt.qos.testserver.util.TestServerConsole;
 public class RestService extends ServiceSetting {
 	public static final String PARAM_REST = "server.service.rest";
 	public static final String PARAM_REST_PORT = "server.service.rest.port";
+	public static final String PARAM_REST_IP = "server.service.rest.ip";
 	public static final String PARAM_REST_SSL = "server.service.rest.ssl";
 	public final static String QOS_KEY_FILE_ABSOLUTE = "src/at/rtr/rmbt/qos/testserver/" + TestServer.QOS_KEY_FILE;
 	
+	public final static String DEFAULT_REST_SERVICE_IP = "127.0.0.1";
+
 	AtomicBoolean isRunning = new AtomicBoolean(false);
 	
 	int port = 0;
 	
 	boolean isSsl = false;
 	
+	String ip;
+
 	final ServerPreferences serverPreferences;
 	
 	public RestService(Properties prop, ServerPreferences serverPreferences) {
@@ -75,10 +79,10 @@ public class RestService extends ServiceSetting {
 					TestServerConsole.log("Could not start RestService. Parameter missing: 'server.service.rest.port'", 1, TestServerServiceEnum.TEST_SERVER);
 				}
 				 
-			    Component component = new Component();  
+			    Component component = new Component();
 
-			    Server s = component.getServers().add(isSsl ? Protocol.HTTPS : Protocol.HTTP, InetAddress.getLocalHost().getHostAddress(), port);
-			    
+                Server s = component.getServers().add(isSsl ? Protocol.HTTPS : Protocol.HTTP, ip, port);
+
 			    if (isSsl) {
 				    Series<Parameter> parameters = s.getContext().getParameters();				    
 				    parameters.add("keystorePath", QOS_KEY_FILE_ABSOLUTE);
@@ -123,12 +127,14 @@ public class RestService extends ServiceSetting {
    		if (param!=null) {
    			port = Integer.parseInt(param);
    		}
+
+   		param = properties.getProperty(PARAM_REST_IP);
+  		ip = param != null ? param : DEFAULT_REST_SERVICE_IP;
 	}
 
 	@Override
 	public String toString() {
-		return "RestService [isRunning=" + isRunning + ", port=" + port
-				+ ", isSsl=" + isSsl + "]";
+		return "RestService [isRunning=" + isRunning + ", port=" + port + ", isSsl=" + isSsl + ", ip=" + ip + "]";
 	}
 	
 	/**

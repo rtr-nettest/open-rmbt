@@ -223,6 +223,11 @@
  * 		<li><i>set verbose [0/1/2]</i> - set a new verbose level</li>
  * 		<li><i>exit</i> - switch back to debug mode</li>
  * </ul>
+ * 
+ * <h2>Appendix</h2>
+ * <h3>TLS Key Generation</h3>
+ * keytool -genkey -keyalg RSA -alias qos-server -keystore qosserver.jks -storepass [ENTER_YOUR_STORE_PW_HERE] -keypass [ENTER_YOUR_ALIAS_PW_HERE]
  *
+ * 
  */
 package at.rtr.rmbt.qos.testserver;

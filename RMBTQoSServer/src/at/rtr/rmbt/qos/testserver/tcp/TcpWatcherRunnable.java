@@ -61,9 +61,9 @@ public class TcpWatcherRunnable extends IntervalJob<String> {
 	 */
 	@Override
 	public String execute() throws Exception {
-		if (TestServer.tcpServerMap != null) {
-			synchronized (TestServer.tcpServerMap) {
-				Iterator<List<TcpMultiClientServer>> tcpListIterator = TestServer.tcpServerMap.values().iterator();
+		if (TestServer.getInstance().tcpServerMap != null) {
+			synchronized (TestServer.getInstance().tcpServerMap) {
+				Iterator<List<TcpMultiClientServer>> tcpListIterator = TestServer.getInstance().tcpServerMap.values().iterator();
 				while(tcpListIterator.hasNext()) {
 					List<TcpMultiClientServer> tcpServerList = tcpListIterator.next();
 					Iterator<TcpMultiClientServer> iterator = tcpServerList.iterator();
@@ -71,7 +71,7 @@ public class TcpWatcherRunnable extends IntervalJob<String> {
 					while (iterator.hasNext()) {
 						TcpMultiClientServer tcpServer = iterator.next();
 						
-						if (!TestServer.serverPreferences.isIpCheck()) {
+						if (!TestServer.getInstance().serverPreferences.isIpCheck()) {
 							//if ip checking is disabled and the ttl has been reached: close tcp socket
 							if (System.currentTimeMillis() >= tcpServer.getTtlTimestamp().get()) {
 								if (tcpServer.close()) {

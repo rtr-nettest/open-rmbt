@@ -1,5 +1,6 @@
 /*******************************************************************************
  * Copyright 2016 Specure GmbH
+ * Copyright 2019 alladin-IT GmbH
  * Copyright 2016 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,11 +19,19 @@ package at.rtr.rmbt.qos.testserver.servers;
 
 import java.net.InetAddress;
 import java.net.ServerSocket;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.concurrent.atomic.AtomicLong;
 
+import at.rtr.rmbt.qos.testserver.ServerPreferences;
+import at.rtr.rmbt.qos.testserver.ServerPreferences.TcpCompetence;
 import at.rtr.rmbt.qos.testserver.ServerPreferences.TestServerServiceEnum;
+import at.rtr.rmbt.qos.testserver.TestServer;
 import at.rtr.rmbt.qos.testserver.entity.Observable;
 import at.rtr.rmbt.qos.testserver.entity.TestCandidate;
+import at.rtr.rmbt.qos.testserver.tcp.competences.BasicCompetence;
+import at.rtr.rmbt.qos.testserver.tcp.competences.Competence;
+import at.rtr.rmbt.qos.testserver.tcp.competences.sip.SipCompetence;
 
 public abstract class AbstractTcpServer extends AbstractServer<ServerSocket, TestCandidate> implements Observable {
 
@@ -32,7 +41,31 @@ public abstract class AbstractTcpServer extends AbstractServer<ServerSocket, Tes
 	 */
 	protected final AtomicLong currentConnections = new AtomicLong(0); 
 	
+	/**
+	 * the competences this server holds
+	 */
+	private final Deque<Competence> competences = new ArrayDeque<>();
+	
 	public AbstractTcpServer(InetAddress addr, int port) {
 		super(ServerSocket.class, TestCandidate.class, addr, port, "TcpServer", TestServerServiceEnum.TCP_SERVICE);
+		registerCompetence(new BasicCompetence());
+		
+		final ServerPreferences sp = TestServer.getInstance().serverPreferences;
+		if (sp != null && sp.getTcpCompetenceMap() != null) {
+			final TcpCompetence tcpCompetence = sp.getTcpCompetenceMap().get(port);
+			if (tcpCompetence != null) {
+				if (tcpCompetence.hasSipCompetence()) {
+					registerCompetence(new SipCompetence());
+				}
+			}
+		}
+	}
+	
+	public void registerCompetence(final Competence competence) {
+		this.competences.addFirst(competence);
+	}
+
+	public Deque<Competence> getCompetences() {
+		return competences;
 	}
 }

@@ -73,6 +73,7 @@ public class QoSControlConnection extends AbstractRMBTTest implements Runnable {
 		sendMessage(command + " +ID" + qosTask.getId() + "\n");
 	}
 
+	@Override
 	public void run() {
 		try {
 			while (isRunning.get()) {
@@ -119,6 +120,10 @@ public class QoSControlConnection extends AbstractRMBTTest implements Runnable {
 		try {
 			controlSocket = connect(null, InetAddress.getByName(params.getHost()), params.getPort(), 
 				AbstractQoSTask.QOS_SERVER_PROTOCOL_VERSION, "ACCEPT", params.isEncryption(), AbstractQoSTask.CONTROL_CONNECTION_TIMEOUT);
+		    if (controlSocket == null) {
+		        isRunning.set(false);
+		        couldNotConnect.set(true);
+            }
 		}
 		catch (Exception e) {
 			isRunning.set(false);

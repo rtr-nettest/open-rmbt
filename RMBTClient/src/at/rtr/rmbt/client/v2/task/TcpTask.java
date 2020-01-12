@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2015 alladin-IT GmbH
+ * Copyright 2013-2019 alladin-IT GmbH
  * Copyright 2013-2015 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,16 +16,15 @@
  ******************************************************************************/
 package at.rtr.rmbt.client.v2.task;
 
-import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import at.rtr.rmbt.shared.qos.QosMeasurementType;
 import at.rtr.rmbt.client.QualityOfServiceTest;
 import at.rtr.rmbt.client.v2.task.result.QoSTestResult;
-import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum;
 
 
 public class TcpTask extends AbstractQoSTask {
@@ -79,7 +78,7 @@ public class TcpTask extends AbstractQoSTask {
 	 * 
 	 */
 	public QoSTestResult call() throws Exception {
-		final QoSTestResult result = initQoSTestResult(QoSTestResultEnum.TCP);
+		final QoSTestResult result = initQoSTestResult(QosMeasurementType.TCP);
 		try {
 			onStart(result);
 			
@@ -129,15 +128,12 @@ public class TcpTask extends AbstractQoSTask {
 				    			}
 				    			finally {
 					    			latch.countDown();
-				    				if (socketOut != null && !socketOut.isClosed()) {
-				    					try {
-											socketOut.close();
-										} catch (IOException e) {
-											e.printStackTrace();
-										}
-				    				}
 				    			}
-				    		}
+				    		} else {
+				    			// we don't need to await the timeout on wrong response (and it shouldn't be a timeout)
+								result.getResultMap().put(RESULT_OUT, "ERROR");
+								latch.countDown();
+							}
 						}
 					};	    				
 		    		
@@ -148,9 +144,7 @@ public class TcpTask extends AbstractQoSTask {
 		    	}
 				
 		    	if (this.testPortIn != null) {
-		    		ServerSocket serverSocket = null;
-		    		try {
-						serverSocket = new ServerSocket(testPortIn);
+		    		try (ServerSocket serverSocket = new ServerSocket(testPortIn)) {
 						sendCommand("TCPTEST IN " + testPortIn, null);
 
 						serverSocket.setSoTimeout((int)(timeout/1000000));
@@ -162,11 +156,12 @@ public class TcpTask extends AbstractQoSTask {
 						socketIn.close();
 						result.getResultMap().put(RESULT_IN, "OK");	    				    			
 		    		}
-		    		finally {
-		    			if (serverSocket != null) {
-		    				serverSocket.close();
-		    			}
-		    		}
+					catch (SocketTimeoutException e) {
+						result.getResultMap().put(RESULT_IN, "TIMEOUT");
+					}
+					catch (Exception e) {
+						result.getResultMap().put(RESULT_IN, "ERROR");
+					}
 		    	}
 				
 			}
@@ -206,8 +201,8 @@ public class TcpTask extends AbstractQoSTask {
 	 * (non-Javadoc)
 	 * @see at.alladin.rmbt.client.v2.task.QoSTask#getTestType()
 	 */
-	public QoSTestResultEnum getTestType() {
-		return QoSTestResultEnum.TCP;
+	public QosMeasurementType getTestType() {
+		return QosMeasurementType.TCP;
 	}
 
 	/*

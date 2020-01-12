@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2015 alladin-IT GmbH
+ * Copyright 2019 alladin-IT GmbH
  * Copyright 2015 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -88,15 +88,12 @@ public class NioUdpStreamSender implements StreamSender<DatagramChannel> {
 	    		channel.configureBlocking(false);
 	    		if (settings.incomingPort != null) {
 	    			channel.socket().bind(new InetSocketAddress(settings.incomingPort));
-	    			if (callback != null) {
-	    				callback.onBind(channel.socket().getLocalPort());
-	    			}
 	    		}
 	    		else {
-		    		channel.socket().bind(null);
+		    		channel.socket().bind(new InetSocketAddress(0));
 	    		}
-	    		
-    			if (callback != null) {
+
+				if (callback != null) {
     				callback.onBind(channel.socket().getLocalPort());
     			}
 	    	}
@@ -123,14 +120,7 @@ public class NioUdpStreamSender implements StreamSender<DatagramChannel> {
 		    		isRunning.set(false);
 		            throw new TimeoutException("Exceeded timeout of " + timeoutMs + "ms");
 		    	}
-	
-		    	//calculate correct packet delay
-		    	long currentDelay = System.currentTimeMillis() - lastSendTimestamp;
-		    	currentDelay = currentDelay > delayMs ? 0 : delayMs - currentDelay;
-		    	if (currentDelay > 0) {
-		    		Thread.sleep(currentDelay);
-		    	}
-		    	
+			    	
 		    	selector.select(1000);
 		    	Set<SelectionKey> readyKeys = selector.selectedKeys();
 		    	if (!readyKeys.isEmpty()) {
@@ -149,22 +139,27 @@ public class NioUdpStreamSender implements StreamSender<DatagramChannel> {
 							packetsRcv++;
 						}
 						if (key.isWritable() && (packetsSent < settings.packets) && key.isValid()) {
-							byteOut.reset();
-							buffer.clear();
-					    	try {
-					    		if (callback != null) {
-					    			if (callback.onSend(dataOut, packetsSent)) {
-								    	final byte[] data = byteOut.toByteArray();
-								    	buffer.put(data);
-								    	buffer.flip();
-								    	channel.send(buffer, targetAddress);
-										packetsSent++;
-								    	lastSendTimestamp = System.currentTimeMillis();
-					    			}
-					    		}
-					    	} catch (IOException e) {
-					    		e.printStackTrace();
-					    		return null;
+					    	//calculate correct packet delay
+					    	long currentDelay = System.currentTimeMillis() - lastSendTimestamp;
+					    	currentDelay = currentDelay > delayMs ? 0 : delayMs - currentDelay;
+					    	if (currentDelay <= 0) {
+								byteOut.reset();
+								buffer.clear();
+						    	try {
+						    		if (callback != null) {
+						    			if (callback.onSend(dataOut, packetsSent, null)) {
+									    	final byte[] data = byteOut.toByteArray();
+									    	buffer.put(data);
+									    	buffer.flip();
+									    	channel.send(buffer, targetAddress);
+											packetsSent++;
+									    	lastSendTimestamp = System.currentTimeMillis();
+						    			}
+						    		}
+						    	} catch (IOException e) {
+						    		e.printStackTrace();
+						    		return null;
+						    	}
 					    	}
 						}
 			    	}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2015 alladin-IT GmbH
+ * Copyright 2013-2019 alladin-IT GmbH
  * Copyright 2013-2015 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,9 +19,9 @@ package at.rtr.rmbt.client.v2.task;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import at.rtr.rmbt.shared.qos.QosMeasurementType;
 import at.rtr.rmbt.client.QualityOfServiceTest;
 import at.rtr.rmbt.client.v2.task.result.QoSTestResult;
-import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum;
 import at.rtr.rmbt.client.v2.task.service.WebsiteTestService;
 import at.rtr.rmbt.client.v2.task.service.WebsiteTestService.RenderingListener;
 
@@ -42,6 +42,10 @@ public class WebsiteTask extends AbstractQoSTask {
 	
 	public final static String PARAM_URL = "url";
 	
+	public final static String PARAM_CLEAR_CACHE = "clear_cache"; // TODO: implement
+	
+	public final static String PARAM_USER_AGENT = "user_agent"; // TODO: implement
+	
 	public final static String PARAM_TIMEOUT = "timeout";
 	
 	public final static String RESULT_URL = "website_objective_url";
@@ -51,12 +55,18 @@ public class WebsiteTask extends AbstractQoSTask {
 	public final static String RESULT_DURATION = "website_result_duration";
 	
 	public final static String RESULT_STATUS = "website_result_status";
+
+	public final static String RESULT_ERROR_MESSAGE = "website_result_error_message";
 	
 	public final static String RESULT_INFO = "website_result_info";
 	
 	public final static String RESULT_RX_BYTES = "website_result_rx_bytes";
 	
 	public final static String RESULT_TX_BYTES = "website_result_tx_bytes";
+
+	public final static String RESULT_HTTP_RESPONSE_TIME_NS = "website_result_first_http_response_time_ns";
+
+	public final static String RESULT_REQUESTED_RESOURCE_COUNT = "website_result_request_count";
 
 	
 	/**
@@ -73,7 +83,7 @@ public class WebsiteTask extends AbstractQoSTask {
 		this.url = value != null ? value : null;
 
 		value = (String) taskDesc.getParams().get(PARAM_TIMEOUT);
-		this.timeout = value != null ? Long.valueOf(value) : DEFAULT_TIMEOUT;
+		this.timeout = value != null ? new Long(value) : DEFAULT_TIMEOUT;
 	}
 
 	/*
@@ -81,7 +91,7 @@ public class WebsiteTask extends AbstractQoSTask {
 	 * @see java.util.concurrent.Callable#call()
 	 */
 	public QoSTestResult call() throws Exception {
-		final QoSTestResult result = initQoSTestResult(QoSTestResultEnum.WEBSITE);
+		final QoSTestResult result = initQoSTestResult(QosMeasurementType.WEBSITE);
 		try {
 			onStart(result);
 			
@@ -100,6 +110,13 @@ public class WebsiteTask extends AbstractQoSTask {
 					result.getResultMap().put(RESULT_DURATION, test.getDownloadDuration());
 					result.getResultMap().put(RESULT_RX_BYTES, test.getRxBytes());
 					result.getResultMap().put(RESULT_TX_BYTES, test.getTxBytes());
+					if (test.getHttpResponseTime() > 0) {
+						result.getResultMap().put(RESULT_HTTP_RESPONSE_TIME_NS, test.getHttpResponseTime());
+					}
+					result.getResultMap().put(RESULT_REQUESTED_RESOURCE_COUNT, test.getResourceCount());
+					if (test.hasError()) {
+						result.getResultMap().put(RESULT_ERROR_MESSAGE, test.getErrorMessage());
+					}
 					latch.countDown();
 					return true;
 				}
@@ -112,6 +129,13 @@ public class WebsiteTask extends AbstractQoSTask {
 					result.getResultMap().put(RESULT_DURATION, test.getDownloadDuration());
 					result.getResultMap().put(RESULT_RX_BYTES, test.getRxBytes());
 					result.getResultMap().put(RESULT_TX_BYTES, test.getTxBytes());
+					if (test.getHttpResponseTime() > 0) {
+						result.getResultMap().put(RESULT_HTTP_RESPONSE_TIME_NS, test.getHttpResponseTime());
+					}
+					result.getResultMap().put(RESULT_REQUESTED_RESOURCE_COUNT, test.getResourceCount());
+					if (test.hasError()) {
+						result.getResultMap().put(RESULT_ERROR_MESSAGE, test.getErrorMessage());
+					}
 					latch.countDown();
 				}
 					
@@ -127,6 +151,13 @@ public class WebsiteTask extends AbstractQoSTask {
 					result.getResultMap().put(RESULT_DURATION, test.getDownloadDuration());
 					result.getResultMap().put(RESULT_RX_BYTES, test.getRxBytes());
 					result.getResultMap().put(RESULT_TX_BYTES, test.getTxBytes());
+					if (test.getHttpResponseTime() > 0) {
+						result.getResultMap().put(RESULT_HTTP_RESPONSE_TIME_NS, test.getHttpResponseTime());
+					}
+					result.getResultMap().put(RESULT_REQUESTED_RESOURCE_COUNT, test.getResourceCount());
+					if (test.hasError()) {
+						result.getResultMap().put(RESULT_ERROR_MESSAGE, test.getErrorMessage());
+					}
 					latch.countDown();
 					return true;
 				}
@@ -151,7 +182,7 @@ public class WebsiteTask extends AbstractQoSTask {
 
 	/*
 	 * (non-Javadoc)
-	 * @see at.rtr.rmbt.client.v2.task.AbstractQoSTask#initTask()
+	 * @see at.alladin.rmbt.client.v2.task.AbstractQoSTask#initTask()
 	 */
 	@Override
 	public void initTask() {
@@ -163,8 +194,8 @@ public class WebsiteTask extends AbstractQoSTask {
 	 * (non-Javadoc)
 	 * @see at.alladin.rmbt.client.v2.task.QoSTask#getTestType()
 	 */
-	public QoSTestResultEnum getTestType() {
-		return QoSTestResultEnum.WEBSITE;
+	public QosMeasurementType getTestType() {
+		return QosMeasurementType.WEBSITE;
 	}
 
 	/*

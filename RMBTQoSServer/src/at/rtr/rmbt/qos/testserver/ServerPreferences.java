@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2015 alladin-IT GmbH
+ * Copyright 2013-2019 alladin-IT GmbH
  * Copyright 2013-2015 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,6 +19,7 @@ package at.rtr.rmbt.qos.testserver;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Comparator;
@@ -71,6 +72,19 @@ public class ServerPreferences {
 		}	
 	}
 	
+	public class TcpCompetence {
+		boolean hasSipCompetence;
+		
+		public boolean hasSipCompetence() {
+			return hasSipCompetence;
+		}
+
+		public TcpCompetence setHasSipCompetence(boolean hasSipCompetence) {
+			this.hasSipCompetence = hasSipCompetence;
+			return this;
+		}
+	}
+	
 	public final static int TEST_SERVER_ID = 0;
 	public final static int TCP_SERVICE_ID = 1;
 	public final static int UDP_SERVICE_ID = 2;
@@ -108,6 +122,7 @@ public class ServerPreferences {
 	public static final String PARAM_SERVER_UDP_SERVICE_LOG_FILE = "server.log.udp";
 	public static final String PARAM_SERVER_TCP_SERVICE_LOG_FILE = "server.log.tcp";
 	public static final String PARAM_SERVER_TCP_IP_CHECK = "server.ip.check";
+	public static final String PARAM_SERVER_TCP_COMPETENCE_SIP = "server.tcp.competence.sip";
 	public static final String PARAM_SERVER_IP = "server.ip";
 	
 	public static final String REGEX_PORT_LIST = "([0-9]+)[,]?";
@@ -121,8 +136,9 @@ public class ServerPreferences {
 		public int compare(UdpPort o1, UdpPort o2) {
 			return Integer.compare(o1.port, o2.port);
 		}
-		
 	});
+	
+	private final Map<Integer, TcpCompetence> tcpCompetenceMap = new HashMap<>();
 	
 	private int maxThreads = 100;
 	private boolean useSsl = false;
@@ -159,12 +175,29 @@ public class ServerPreferences {
 	
 	/**
 	 * 
+	 * @param is
+	 * @throws TestServerException
+	 */
+	public ServerPreferences(final InputStream is) throws TestServerException {
+		loadFromConfigFile(is);
+		setUdpPortSet();
+	    checkConstraints();
+	}
+	
+	/**
+	 * 
 	 * @param args
 	 * @throws TestServerException
 	 * @throws UnknownHostException 
 	 */
 	public ServerPreferences(String[] args) throws TestServerException {
-		loadFromConfigFile("config.properties");
+		if (args == null || args.length < 0) {
+			loadFromConfigFile("config.properties");
+			setUdpPortSet();
+		    checkConstraints();
+			return;
+		}
+		
 		try {
 		    for (int i = 0; i < args.length; i++) {
 		    	String arg = args[i].toUpperCase();
@@ -233,18 +266,41 @@ public class ServerPreferences {
 			}
 		}
 	}
-	
+
 	/**
 	 * 
 	 * @param fileName
 	 * @throws TestServerException
 	 */
 	private void loadFromConfigFile(String fileName) throws TestServerException {
+		final InputStream is;
+		try {
+			if (new File(fileName).exists()) {
+				is = new FileInputStream(fileName);
+			}
+			else {
+				is = getClass().getResourceAsStream(fileName.startsWith("/") ? fileName : "/" + fileName);
+			}
+		}
+		catch (final IOException ex) {
+	   		ex.printStackTrace();
+			throw new TestServerException("TEST SERVER EXCEPTION", ex);	
+		}
+
+		loadFromConfigFile(is);
+	}
+
+	/**
+	 * 
+	 * @param is
+	 * @throws TestServerException
+	 */
+	private void loadFromConfigFile(final InputStream is) throws TestServerException {
 		Properties prop = new Properties();
 	   	try {
-	   		prop.load(new FileInputStream(fileName));
+	   		prop.load(is);
 	   		
-	   		String param = prop.getProperty(PARAM_SERVER_PORT);
+			String param = prop.getProperty(PARAM_SERVER_PORT);
 	   		if (param!=null) {
 		   		serverPort = Integer.parseInt(param.trim());	   			
 	   		}
@@ -349,6 +405,21 @@ public class ServerPreferences {
 	   			Matcher m = p.matcher(param);
    				while (m.find()) {
    					udpPortSet.add(new UdpPort(false, Integer.valueOf(m.group(1))));
+   				}
+	   		}
+
+	   		param = prop.getProperty(PARAM_SERVER_TCP_COMPETENCE_SIP);
+	   		if (param!=null) {
+	   			Pattern p = Pattern.compile(REGEX_PORT_LIST);
+	   			Matcher m = p.matcher(param);
+   				while (m.find()) {
+   					final Integer port = Integer.valueOf(m.group(1));
+   					TcpCompetence tcpCompetence = tcpCompetenceMap.get(port);
+   					if (tcpCompetence == null) {
+   						tcpCompetence = new TcpCompetence();
+   						tcpCompetenceMap.put(port, tcpCompetence);
+   					}
+   					tcpCompetence.setHasSipCompetence(true);
    				}
 	   		}
 
@@ -670,6 +741,10 @@ public class ServerPreferences {
 
 	public void setLoggingPattern(String loggingPattern) {
 		this.loggingPattern = loggingPattern;
+	}
+
+	public Map<Integer, TcpCompetence> getTcpCompetenceMap() {
+		return tcpCompetenceMap;
 	}
 
 	@Override

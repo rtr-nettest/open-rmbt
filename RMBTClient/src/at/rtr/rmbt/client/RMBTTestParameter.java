@@ -23,16 +23,16 @@ public class RMBTTestParameter
     
     // immutable! (accessed by multiple threads!)
     
-    private final String host;
-    private final int port;
-    private final boolean encryption;
-    private final String token;
-    private final int pretestDuration = 2;
-    private final int duration;
-    private final int numThreads;
-    private final int numPings;
-    private final long startTime;
-    private final String serverType;
+    private String host;
+    private int port;
+    private boolean encryption;
+    private String token;
+    private int pretestDuration = 2;
+    private int duration;
+    private int numThreads;
+    private int numPings;
+    private long startTime;
+    private String serverType;
 
     //RMBT
     public RMBTTestParameter(final String host, final int port, final boolean encryption, final String token,
@@ -48,6 +48,24 @@ public class RMBTTestParameter
         this.numPings = numPings;
         this.startTime = startTime;
         this.serverType = serverType;
+    }
+
+    //nntool new constructors
+    public RMBTTestParameter() { }
+
+    public RMBTTestParameter(final String host, final int port, final boolean encryption, final String token,
+                         final int duration, final int numThreads, final int numPings, final long startTime)
+    {
+        super();
+        this.host = host;
+        this.port = port;
+        this.encryption = encryption;
+        this.token = token;
+        this.duration = duration;
+        this.numThreads = numThreads;
+        this.numPings = numPings;
+        this.startTime = startTime;
+        this.serverType = Config.SERVER_TYPE_QOS;
     }
 
     //QoS

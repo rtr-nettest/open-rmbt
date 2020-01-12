@@ -18,6 +18,7 @@ package at.rtr.rmbt.util.tools;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 import org.json.JSONObject;
@@ -39,7 +40,8 @@ public interface TracerouteService extends Callable<List<HopDetail>> {
 	}
 	
 	public interface HopDetail {
-		public JSONObject toJson(Boolean masked);
+		public JSONObject toJson();
+		public Map<String, Object> toMap();
 	}
 	
 	public String getHost();

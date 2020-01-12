@@ -16,6 +16,7 @@
  ******************************************************************************/
 package at.rtr.rmbt.qos.testserver.udp;
 
+import java.util.HashMap;
 import java.util.TreeSet;
 
 import at.rtr.rmbt.qos.testserver.entity.TestCandidate;
@@ -25,6 +26,7 @@ public class UdpTestCandidate extends TestCandidate {
 	
 	private TreeSet<Integer> packetsReceived;
 	private TreeSet<Integer> packetDuplicates;
+	private HashMap<Integer, Long> rttMap = new HashMap<>();
 	private int numPackets;
 	private int remotePort;
 	private boolean error;
@@ -169,14 +171,38 @@ public class UdpTestCandidate extends TestCandidate {
 		this.onUdpPacketReceivedCallback = onUdpPacketReceivedCallback;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
+	public HashMap<Integer, Long> getRttMap() {
+		return rttMap;
+	}
+
+	/**
+	 *
+	 * @param rttMap
+	 */
+	public void setRttMap(HashMap<Integer, Long> rttMap) {
+		this.rttMap = rttMap;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
-		return "ClientUdpData [packetsReceived=" + packetsReceived
-				+ ", numPackets=" + numPackets + ", remotePort=" + remotePort
-				+ ", error=" + error + ", errorMsg=" + errorMsg + "]";
+		return "UdpTestCandidate{" +
+				"packetsReceived=" + packetsReceived +
+				", packetDuplicates=" + packetDuplicates +
+				", rttMap=" + rttMap +
+				", numPackets=" + numPackets +
+				", remotePort=" + remotePort +
+				", error=" + error +
+				", errorMsg='" + errorMsg + '\'' +
+				", onUdpTestCompleteCallback=" + onUdpTestCompleteCallback +
+				", onUdpPacketReceivedCallback=" + onUdpPacketReceivedCallback +
+				"} " + super.toString();
 	}
 }

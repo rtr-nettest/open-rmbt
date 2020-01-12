@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
+// based on: https://raw.githubusercontent.com/alladin-IT/open-rmbt/master/RMBTClient/src/at/alladin/rmbt/client/v2/task/service/TrafficService.java
 package at.rtr.rmbt.client.v2.task.service;
 
 /**
@@ -35,12 +36,6 @@ public interface TrafficService {
 	public long getTotalTxBytes();
 	
 	public long getTotalRxBytes();
-	
-	public long getCurrentTxBytes();
-	
-	public long getCurrentRxBytes();
-	
-	public void update();
 	
 	public void stop();
 }

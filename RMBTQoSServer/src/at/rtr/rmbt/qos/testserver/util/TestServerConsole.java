@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2016 alladin-IT GmbH
+ * Copyright 2013-2019 alladin-IT GmbH
  * Copyright 2013-2016 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,8 +33,9 @@ import org.json.JSONObject;
 
 import at.rtr.rmbt.qos.testserver.ClientHandler;
 import at.rtr.rmbt.qos.testserver.ServerPreferences.TestServerServiceEnum;
-import at.rtr.rmbt.qos.testserver.servers.AbstractUdpServer;
 import at.rtr.rmbt.qos.testserver.TestServer;
+import at.rtr.rmbt.qos.testserver.TestServerImpl;
+import at.rtr.rmbt.qos.testserver.servers.AbstractUdpServer;
 import at.rtr.rmbt.qos.testserver.service.ServiceManager.FutureService;
 import at.rtr.rmbt.qos.testserver.tcp.TcpMultiClientServer;
 import at.rtr.rmbt.qos.testserver.udp.UdpTestCandidate;
@@ -121,9 +122,13 @@ public class TestServerConsole extends PrintStream {
 	final Thread keyListener;
 	
 	public boolean isCommandLine;
+	
+	private final TestServerImpl testServerImpl;
 
-	public TestServerConsole() {
+	public TestServerConsole(final TestServerImpl testServerImpl) {
 		super(System.out, true);
+		this.testServerImpl = testServerImpl;
+		
 	    keyListener = new Thread(new Runnable() {
 			
 			@Override
@@ -153,8 +158,8 @@ public class TestServerConsole extends PrintStream {
 										case SUBCOMMAND_SHOW_CLIENTS:
 											printLine();
 											printlnCommand("\n");
-											printlnCommand("\nActive clients: " + TestServer.clientHandlerSet.size() + "\n");
-											for (ClientHandler client : TestServer.clientHandlerSet) {
+											printlnCommand("\nActive clients: " + TestServer.getInstance().clientHandlerSet.size() + "\n");
+											for (ClientHandler client : TestServer.getInstance().clientHandlerSet) {
 												printlnCommand(" - " + client.getName());
 												printlnCommand("\t UdpIncomingResults: ");
 												for (Entry<Integer, UdpTestCandidate> udpIn : client.getClientUdpInDataMap().entrySet()) {
@@ -170,24 +175,24 @@ public class TestServerConsole extends PrintStream {
 										case SUBCOMMAND_SHOW_INFO:
 											printLine();
 											printlnCommand("\n" + TestServer.TEST_SERVER_VERSION_NAME);
-											printlnCommand("\nCurrent server settings: " + TestServer.serverPreferences.toString());
+											printlnCommand("\nCurrent server settings: " + TestServer.getInstance().serverPreferences.toString());
 											printlnCommand("\nQoSTestServer is listening on the following addresses:");
-											for (ServerSocket ss : TestServer.serverSocketList) {
+											for (ServerSocket ss : TestServer.getInstance().serverSocketList) {
 												printlnCommand("\t- " + ss.toString());
 											}
 											printLine();
 										break;
 										case SUBCOMMAND_SHOW_OPENED_TCP_PORTS:
 											boolean showTcp = true;
-											if (TestServer.tcpServerMap.size() > 500) {
+											if (TestServer.getInstance().tcpServerMap.size() > 500) {
 												showTcp = (commands.length > 2 && commands[2].equals(SUBCOMMAND_FORCE));
 											}
 
-											printlnCommand("\nFound " + TestServer.tcpServerMap.values().size() + " active TCP sockets.");
+											printlnCommand("\nFound " + TestServer.getInstance().tcpServerMap.values().size() + " active TCP sockets.");
 											
 											if (showTcp) {
 												printlnCommand("\n\nList of all TCP sockets:\n");
-												for (Entry<Integer, List<TcpMultiClientServer>> e : TestServer.tcpServerMap.entrySet()) {
+												for (Entry<Integer, List<TcpMultiClientServer>> e : TestServer.getInstance().tcpServerMap.entrySet()) {
 													for (TcpMultiClientServer i : e.getValue()) {
 														printlnCommand("Port " + e.getKey() + " -> " + i.toString());	
 													}
@@ -205,7 +210,7 @@ public class TestServerConsole extends PrintStream {
 											if (commands.length > 2) {
 												if ("data".equals(commands[2])) {
 													printlnCommand("\nMultiClient UDP Server containing ClientData:");
-													for (List<AbstractUdpServer<?>> udpServerList : TestServer.udpServerMap.values()) {
+													for (List<AbstractUdpServer<?>> udpServerList : TestServer.getInstance().udpServerMap.values()) {
 														for (AbstractUdpServer<?> udpServer : udpServerList) {
 															if (!udpServer.getIncomingMap().isEmpty()) {
 																printlnCommand("\nUDP Server Info: " + udpServer.toString());
@@ -215,7 +220,7 @@ public class TestServerConsole extends PrintStream {
 												}
 												else if ("nodata".equals(commands[2])) {
 													printlnCommand("\nMultiClient UDP Server wihtout ClientData:");
-													for (List<AbstractUdpServer<?>> udpServerList : TestServer.udpServerMap.values()) {
+													for (List<AbstractUdpServer<?>> udpServerList : TestServer.getInstance().udpServerMap.values()) {
 														for (AbstractUdpServer<?> udpServer : udpServerList) {
 															if (udpServer.getIncomingMap().isEmpty()) {
 																printlnCommand("\nUDP Server Info: " + udpServer.toString());
@@ -225,7 +230,7 @@ public class TestServerConsole extends PrintStream {
 												}
 												else {
 													try {
-														List<AbstractUdpServer<?>> udpServerList = TestServer.udpServerMap.get(Integer.valueOf(commands[2]));
+														List<AbstractUdpServer<?>> udpServerList = TestServer.getInstance().udpServerMap.get(Integer.valueOf(commands[2]));
 														for (AbstractUdpServer<?> udpServer : udpServerList) {
 															printlnCommand("\nMultiClient UDP Server Info:\n" + udpServer.toString());
 														}
@@ -236,7 +241,7 @@ public class TestServerConsole extends PrintStream {
 												}
 											}
 											else {
-												printlnCommand("\nActive UDP ports: " + TestServer.serverPreferences.getUdpPortSet());	
+												printlnCommand("\nActive UDP ports: " + TestServer.getInstance().serverPreferences.getUdpPortSet());	
 											}
 											break;
 										default:
@@ -259,7 +264,7 @@ public class TestServerConsole extends PrintStream {
 												verboseLevel = verboseLevel < 0 ? 0 : (verboseLevel > 2 ? 2 : verboseLevel);
 												
 												printlnCommand("\nSetting verbose level to: " + verboseLevel);
-												TestServer.serverPreferences.setVerboseLevel(verboseLevel);
+												TestServer.getInstance().serverPreferences.setVerboseLevel(verboseLevel);
 											}
 											else {
 												printlnCommand("\nVerbose level missing!");
@@ -270,13 +275,13 @@ public class TestServerConsole extends PrintStream {
 											printCommand("\nSET what? Available options: [verbose].");	
 										}
 									}
-									printlnCommand("\nCurrent server settings: " + TestServer.serverPreferences.toString());
+									printlnCommand("\nCurrent server settings: " + TestServer.getInstance().serverPreferences.toString());
 									break;
 									
 								case COMMAND_SHUTDOWN:
 									isCommandLine = false;
 									printLine();
-									TestServer.shutdown();
+									TestServer.getInstance().shutdown();
 									System.exit(0);
 									break;
 								case COMMAND_HELP:
@@ -284,9 +289,9 @@ public class TestServerConsole extends PrintStream {
 									break;
 									
 								case DEBUG_COMMAND_LIST_SERVICES:
-									synchronized (TestServer.serviceManager.getServiceMap()) {
-										Iterator<Entry<String, FutureService>> entries = TestServer.serviceManager.getServiceMap().entrySet().iterator();
-										printlnCommand("\n" + TestServer.serviceManager.getServiceMap().size() + " services found:\n");
+									synchronized (TestServer.getInstance().serviceManager.getServiceMap()) {
+										Iterator<Entry<String, FutureService>> entries = TestServer.getInstance().serviceManager.getServiceMap().entrySet().iterator();
+										printlnCommand("\n" + TestServer.getInstance().serviceManager.getServiceMap().size() + " services found:\n");
 										int i = 0;
 										while (entries.hasNext()) {
 											Entry<String, FutureService> e = entries.next();
@@ -339,7 +344,7 @@ public class TestServerConsole extends PrintStream {
 	}
 	
 	public void start() {
-		if (TestServer.serverPreferences.isCommandConsoleEnabled()) {
+		if (testServerImpl.serverPreferences.isCommandConsoleEnabled()) {
 			log("Command Console enabled. Starting KeyListener\n", 1, TestServerServiceEnum.TEST_SERVER);
 			keyListener.start();
 		}

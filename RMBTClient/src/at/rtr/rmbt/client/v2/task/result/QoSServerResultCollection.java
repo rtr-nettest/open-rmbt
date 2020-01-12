@@ -21,13 +21,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map.Entry;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import at.rtr.rmbt.shared.qos.QosMeasurementType;
 import at.rtr.rmbt.client.v2.task.result.QoSServerResult.DetailType;
 
 /**
@@ -48,8 +48,8 @@ public class QoSServerResultCollection implements Serializable {
 		private int testCounter;
 		private int failedTestsCounter; 
 		
-		private HashMap<QoSTestResultEnum, QoSResultStats> resultCounter = 
-				new HashMap<QoSTestResultEnum, QoSServerResultCollection.QoSResultStats>();
+		private HashMap<QosMeasurementType, QoSResultStats> resultCounter = 
+				new HashMap<QosMeasurementType, QoSServerResultCollection.QoSResultStats>();
 		
 		public QoSResultStats(int successCounter, int failureCounter) {
 			this.successCounter = successCounter;
@@ -60,7 +60,7 @@ public class QoSServerResultCollection implements Serializable {
 			return getSuccessCounter(null);
 		}
 
-		public int getSuccessCounter(QoSTestResultEnum key) {
+		public int getSuccessCounter(QosMeasurementType key) {
 			if (key != null) {
 				QoSResultStats stats = resultCounter.get(key);
 				return (stats != null ? stats.getSuccessCounter() : 0);
@@ -73,8 +73,8 @@ public class QoSServerResultCollection implements Serializable {
 		public int getFailureCounter() {
 			return getFailureCounter(null);
 		}
-		
-		public int getFailureCounter(QoSTestResultEnum key) {
+
+		public int getFailureCounter(QosMeasurementType key) {
 			if (key != null) {
 				QoSResultStats stats = resultCounter.get(key);
 				return (stats != null ? stats.getFailureCounter() : 0);
@@ -87,8 +87,8 @@ public class QoSServerResultCollection implements Serializable {
 		public int getFailedTestsCounter() {
 			return getFailedTestsCounter(null);
 		}
-		
-		public int getFailedTestsCounter(QoSTestResultEnum key) {
+
+		public int getFailedTestsCounter(QosMeasurementType key) {
 			if (key != null) {
 				QoSResultStats stats = resultCounter.get(key);
 				return (stats != null ? stats.getFailedTestsCounter() : 0);
@@ -101,8 +101,8 @@ public class QoSServerResultCollection implements Serializable {
 		public int getTestCounter() {
 			return getTestCounter(null);
 		}
-		
-		public int getTestCounter(QoSTestResultEnum key) {
+
+		public int getTestCounter(QosMeasurementType key) {
 			if (key != null) {
 				QoSResultStats stats = resultCounter.get(key);
 				return (stats != null ? stats.getTestCounter() : 0);
@@ -115,21 +115,21 @@ public class QoSServerResultCollection implements Serializable {
 		public void incSuccessCounter(int counter) {
 			this.successCounter += counter;
 		}
-		
+
 		public void incFailureCounter(int counter) {
 			this.failureCounter += counter;
 		}
-		
+
 		public void incTestCounter(int counter) {
 			this.testCounter += counter;
 		}
-		
+
 		public void incFailedTestsCounter(int counter) {
 			this.failedTestsCounter += counter;
 		}
-		
+
 		/**
-		 * 
+		 *
 		 * @return the amount of all successes and failures (>= tests)
 		 */
 		public int getTestResultsCounter() {
@@ -137,11 +137,11 @@ public class QoSServerResultCollection implements Serializable {
 		}
 
 		/**
-		 * 
+		 *
 		 * @param key
 		 * @return the amount of all successes and failures for a specific test type (>= tests)
 		 */
-		public int getTestResultsCounter(QoSTestResultEnum key) {
+		public int getTestResultsCounter(QosMeasurementType key) {
 			if (key != null) {
 				QoSResultStats stats = resultCounter.get(key);
 				return (stats != null ? stats.getSuccessCounter() + stats.getFailureCounter() : 0);
@@ -150,12 +150,12 @@ public class QoSServerResultCollection implements Serializable {
 				return successCounter + failureCounter;
 			}
 		}
-		
+
 		public int getPercentageForTestResults() {
 			return getPercentageForTestResults(null);
 		}
-		
-		public int getPercentageForTestResults(QoSTestResultEnum key) {
+
+		public int getPercentageForTestResults(QosMeasurementType key) {
 			if (key != null) {
 				QoSResultStats stats = resultCounter.get(key);
 				return (stats != null ? (int) (((float)stats.getSuccessCounter() / (float)stats.getTestResultsCounter()) * 100f) : 0);
@@ -168,8 +168,8 @@ public class QoSServerResultCollection implements Serializable {
 		public int getPercentageForTests() {
 			return getPercentageForTests(null);
 		}
-		
-		public int getPercentageForTests(QoSTestResultEnum key) {
+
+		public int getPercentageForTests(QosMeasurementType key) {
 			if (key != null) {
 				QoSResultStats stats = resultCounter.get(key);
 				return (stats != null ? (int) (((float)(stats.getTestCounter() - stats.getFailedTestsCounter()) / (float)stats.getTestCounter()) * 100f) : 0);
@@ -179,11 +179,11 @@ public class QoSServerResultCollection implements Serializable {
 			}
 		}
 
-		public void setCategoryCounter(QoSTestResultEnum key, int successCounter, int failureCounter) {
+		public void setCategoryCounter(QosMeasurementType key, int successCounter, int failureCounter) {
 			this.resultCounter.put(key, new QoSResultStats(successCounter, failureCounter));
 		}
 		
-		public void addCategoryCounter(QoSTestResultEnum key, int successCounter, int failureCounter) {
+		public void addCategoryCounter(QosMeasurementType key, int successCounter, int failureCounter) {
 			QoSResultStats stat = resultCounter.get(key);
 			if (stat == null) {
 				stat = new QoSResultStats(successCounter, failureCounter);
@@ -200,7 +200,7 @@ public class QoSServerResultCollection implements Serializable {
 			this.incTestCounter(1);
 		}
 		
-		public HashMap<QoSTestResultEnum, QoSResultStats> get() {
+		public HashMap<QosMeasurementType, QoSResultStats> get() {
 			return resultCounter;
 		}
 	}
@@ -221,11 +221,11 @@ public class QoSServerResultCollection implements Serializable {
 	
 	private QoSResultStats qosStats;
 	
-	private HashMap<QoSTestResultEnum, List<QoSServerResult>> resultMap = new HashMap<QoSTestResultEnum, List<QoSServerResult>>();
+	private HashMap<QosMeasurementType, List<QoSServerResult>> resultMap = new HashMap<>();
 	
-	private HashMap<QoSTestResultEnum, List<QoSServerResultDesc>> descMap =	new HashMap<QoSTestResultEnum, List<QoSServerResultDesc>>();
+	private HashMap<QosMeasurementType, List<QoSServerResultDesc>> descMap =	new HashMap<>();
 	
-	private HashMap<QoSTestResultEnum, QoSServerResultTestDesc> testDescMap = new HashMap<QoSTestResultEnum, QoSServerResultTestDesc>();
+	private HashMap<QosMeasurementType, QoSServerResultTestDesc> testDescMap = new HashMap<>();
 	
 	public QoSServerResultCollection(JSONArray json) throws JSONException {
 		this.testResultArray = json;
@@ -266,7 +266,7 @@ public class QoSServerResultCollection implements Serializable {
             for (int i = 0; i < testResultTestDesc.length(); i++) {
             	try {
 	            	JSONObject desc = testResultTestDesc.getJSONObject(i);
-	            	QoSTestResultEnum type = QoSTestResultEnum.valueOf(desc.optString("test_type").toUpperCase(Locale.US));
+					QosMeasurementType type = QosMeasurementType.valueOf(desc.optString("test_type"));
 	            	String testDesc = desc.optString("desc");
 	            	String testName = desc.optString("name");
 	            	QoSServerResultTestDesc test = new QoSServerResultTestDesc(type, testDesc, testName);
@@ -308,9 +308,9 @@ public class QoSServerResultCollection implements Serializable {
 	 * sorts the result map by specific criteria
 	 */
 	private void sortResultMap() {
-		HashMap<QoSTestResultEnum, List<QoSServerResult>> sortedResultMap = new HashMap<QoSTestResultEnum, List<QoSServerResult>>();
+		HashMap<QosMeasurementType, List<QoSServerResult>> sortedResultMap = new HashMap<>();
 		
-		for (Entry<QoSTestResultEnum, List<QoSServerResult>> e : resultMap.entrySet()) {
+		for (Entry<QosMeasurementType, List<QoSServerResult>> e : resultMap.entrySet()) {
 			List<QoSServerResult> sortedList = new ArrayList<QoSServerResult>();
 			Iterator<QoSServerResult> iterator = e.getValue().iterator();
 			while (iterator.hasNext()) {
@@ -344,16 +344,16 @@ public class QoSServerResultCollection implements Serializable {
 		this.testResultDesc = testResultDesc;
 	}
 
-	public HashMap<QoSTestResultEnum, List<QoSServerResult>> getResultMap() {
+	public HashMap<QosMeasurementType, List<QoSServerResult>> getResultMap() {
 		return resultMap;
 	}
 
 	public void setResultMap(
-			HashMap<QoSTestResultEnum, List<QoSServerResult>> resultMap) {
+			HashMap<QosMeasurementType, List<QoSServerResult>> resultMap) {
 		this.resultMap = resultMap;
 	}
 
-	public HashMap<QoSTestResultEnum, List<QoSServerResultDesc>> getDescMap() {
+	public HashMap<QosMeasurementType, List<QoSServerResultDesc>> getDescMap() {
 		return descMap;
 	}
 	
@@ -362,14 +362,14 @@ public class QoSServerResultCollection implements Serializable {
 	 * @param detailType
 	 * @return
 	 */
-	public HashMap<QoSTestResultEnum, List<QoSServerResultDesc>> getDescMap(DetailType detailType) {
-		Iterator<QoSTestResultEnum> keys = descMap.keySet().iterator();
+	public HashMap<QosMeasurementType, List<QoSServerResultDesc>> getDescMap(DetailType detailType) {
+		Iterator<QosMeasurementType> keys = descMap.keySet().iterator();
 		
-		HashMap<QoSTestResultEnum, List<QoSServerResultDesc>> map = 
-				new HashMap<QoSTestResultEnum, List<QoSServerResultDesc>>();
+		HashMap<QosMeasurementType, List<QoSServerResultDesc>> map =
+				new HashMap<>();
 		
 		while (keys.hasNext()) {
-			QoSTestResultEnum key = keys.next();
+			QosMeasurementType key = keys.next();
 			List<QoSServerResultDesc> descList = new ArrayList<QoSServerResultDesc>();
 			
 			for (QoSServerResultDesc desc : descMap.get(key)) {
@@ -391,14 +391,14 @@ public class QoSServerResultCollection implements Serializable {
 	 * @param detailType
 	 * @return
 	 */
-	public HashMap<QoSTestResultEnum, List<QoSServerResult>> getResultMap(DetailType detailType) {
-		Iterator<QoSTestResultEnum> keys = resultMap.keySet().iterator();
+	public HashMap<QosMeasurementType, List<QoSServerResult>> getResultMap(DetailType detailType) {
+		Iterator<QosMeasurementType> keys = resultMap.keySet().iterator();
 		
-		HashMap<QoSTestResultEnum, List<QoSServerResult>> map = 
-				new HashMap<QoSTestResultEnum, List<QoSServerResult>>();
+		HashMap<QosMeasurementType, List<QoSServerResult>> map =
+				new HashMap<>();
 		
 		while (keys.hasNext()) {
-			QoSTestResultEnum key = keys.next();
+			QosMeasurementType key = keys.next();
 			List<QoSServerResult> resultList = new ArrayList<QoSServerResult>();
 			
 			for (QoSServerResult res : resultMap.get(key)) {
@@ -423,13 +423,13 @@ public class QoSServerResultCollection implements Serializable {
 	 * @param detailType
 	 * @return
 	 */
-	public List<QoSTestResultEnum> getDescTypeList(DetailType detailType) {
-		Iterator<QoSTestResultEnum> keys = descMap.keySet().iterator();
+	public List<QosMeasurementType> getDescTypeList(DetailType detailType) {
+		Iterator<QosMeasurementType> keys = descMap.keySet().iterator();
 		
-		List<QoSTestResultEnum> typeList = new ArrayList<QoSTestResultEnum>();
+		List<QosMeasurementType> typeList = new ArrayList<>();
 		
 		while (keys.hasNext()) {
-			QoSTestResultEnum key = keys.next();
+			QosMeasurementType key = keys.next();
 			
 			for (QoSServerResultDesc desc : descMap.get(key)) {
 				if (detailType.equals(desc.getStatus())) {
@@ -443,7 +443,7 @@ public class QoSServerResultCollection implements Serializable {
 	}
 
 	public void setDescMap(
-			HashMap<QoSTestResultEnum, List<QoSServerResultDesc>> descMap) {
+			HashMap<QosMeasurementType, List<QoSServerResultDesc>> descMap) {
 		this.descMap = descMap;
 	}
 
@@ -463,12 +463,12 @@ public class QoSServerResultCollection implements Serializable {
 		this.testResultTestDesc = testResultTestDesc;
 	}
 
-	public HashMap<QoSTestResultEnum, QoSServerResultTestDesc> getTestDescMap() {
+	public HashMap<QosMeasurementType, QoSServerResultTestDesc> getTestDescMap() {
 		return testDescMap;
 	}
 
 	public void setTestDescMap(
-			HashMap<QoSTestResultEnum, QoSServerResultTestDesc> testDescMap) {
+			HashMap<QosMeasurementType, QoSServerResultTestDesc> testDescMap) {
 		this.testDescMap = testDescMap;
 	}
 
@@ -480,7 +480,7 @@ public class QoSServerResultCollection implements Serializable {
 		if (this.qosStats == null) {
 			this.qosStats = new QoSResultStats(0, 0);
 			
-			for(Entry<QoSTestResultEnum, List<QoSServerResult>> entry : resultMap.entrySet()) {
+			for(Entry<QosMeasurementType, List<QoSServerResult>> entry : resultMap.entrySet()) {
 				for (QoSServerResult result : entry.getValue()) {
 					qosStats.addCategoryCounter(result.getTestType(), result.getSuccessCount(), result.getFailureCount());
 				}

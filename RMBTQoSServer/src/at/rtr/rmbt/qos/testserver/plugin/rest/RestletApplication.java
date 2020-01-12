@@ -37,7 +37,7 @@ public class RestletApplication extends Application {
         Router router = new Router(getContext());
         router.attach("/", StatusResource.class);
         router.attach("/info/{type}", InfoResource.class);
-        router.attach("/info/", InfoResource.class);
+        router.attach("/info", InfoResource.class);
         router.attachDefault(ErrorHandlerResource.class);
         return router;
 	}

@@ -18,6 +18,8 @@ package at.rtr.rmbt.client.v2.task.result;
 
 import java.io.Serializable;
 
+import at.rtr.rmbt.shared.qos.QosMeasurementType;
+
 /**
  * 
  * @author lb
@@ -30,20 +32,20 @@ public class QoSServerResultTestDesc implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private QoSTestResultEnum resultType;
+	private QosMeasurementType resultType;
 	private String description;
 	private String name;
 	
-	public QoSServerResultTestDesc(QoSTestResultEnum type, String description, String name) {
+	public QoSServerResultTestDesc(QosMeasurementType type, String description, String name) {
 		this.resultType = type;
 		this.description = description;
 		this.name = name;
 	}
 
-	public QoSTestResultEnum getResultType() {
+	public QosMeasurementType getResultType() {
 		return resultType;
 	}
-	public void setResultType(QoSTestResultEnum resultType) {
+	public void setResultType(QosMeasurementType resultType) {
 		this.resultType = resultType;
 	}
 	public String getDescription() {

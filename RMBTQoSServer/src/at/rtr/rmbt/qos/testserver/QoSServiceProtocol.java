@@ -74,7 +74,12 @@ public class QoSServiceProtocol {
 	 * 
 	 */
 	public final static String CMD_NON_TRANSPARENT_PROXY_TEXT = "NTPTEST";
-	
+
+	/**
+	 * 
+	 */
+	public final static String CMD_SIP_TEST = "SIPTEST";
+
 	/**
 	 * 
 	 */

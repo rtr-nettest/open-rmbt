@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2016 alladin-IT GmbH
+ * Copyright 2013-2019 alladin-IT GmbH
  * Copyright 2013-2016 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,13 +20,15 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import at.rtr.rmbt.qos.testserver.ServerPreferences.TestServerServiceEnum;
-import at.rtr.rmbt.qos.testserver.servers.AbstractUdpServer;
 import at.rtr.rmbt.qos.testserver.TestServer;
+import at.rtr.rmbt.qos.testserver.servers.AbstractUdpServer;
 import at.rtr.rmbt.qos.testserver.util.TestServerConsole;
 import at.rtr.rmbt.util.net.rtp.RealtimeTransportProtocol.RtpVersion;
 import at.rtr.rmbt.util.net.rtp.RtpUtil;
@@ -64,7 +66,7 @@ public class UdpMultiClientServer extends AbstractUdpServer<DatagramSocket> impl
 		super(DatagramSocket.class);
 		TestServerConsole.log("Initializing " + TAG + " on " + address + ":" + port, 1, TestServerServiceEnum.TEST_SERVER);
 		//this.socket = new DatagramSocket(port, TestServer.serverPreferences.getInetAddrBindTo());
-		this.socket = TestServer.createDatagramSocket(port, address);
+		this.socket = TestServer.getInstance().createDatagramSocket(port, address);
 		this.port = port;
 		this.isRunning = new AtomicBoolean(false);
 		this.address = address;
@@ -105,15 +107,16 @@ public class UdpMultiClientServer extends AbstractUdpServer<DatagramSocket> impl
 			
 				final byte[] data = dp.getData();
 				
-				final RtpVersion rtpVersion = RtpUtil.getVersion(data[0]);
+				final RtpVersion rtpVersion = 
+						(data != null && data.length > 0) ? RtpUtil.getVersion(data[0]) : RtpVersion.UNKNOWN;
 				
 				String clientUuid = null;
 				
-				if (!RtpVersion.VER2.equals(rtpVersion)) {
+				if (!RtpVersion.VER2.equals(rtpVersion) && data.length > 1) {
 					//Non RTP packet:
 					final int packetNumber = data[1];
 					
-					String timeStamp = null;
+					Long timeStamp = null;
 					
 					try {
 						char[] uuid = new char[36];
@@ -123,13 +126,17 @@ public class UdpMultiClientServer extends AbstractUdpServer<DatagramSocket> impl
 						}
 						clientUuid = String.valueOf(uuid);
 						
-						char[] ts = new char[dp.getLength() - 38];
+						// timestamp
+						ByteBuffer byteBuffer = ByteBuffer.allocateDirect(dp.getLength() - 38);
+					    byteBuffer.order(ByteOrder.BIG_ENDIAN);
+						
 						for (int i = 38; i < dp.getLength(); i++) {
-							ts[i - 38] = (char) data[i];
+							byteBuffer.put(data[i]);
 						}
 						
-						timeStamp = String.valueOf(ts);
-	
+						byteBuffer.flip();
+					    timeStamp = byteBuffer.getLong();
+						
 					}
 					catch (Exception e) {
 						TestServerConsole.error(getName(), e, 1, TestServerServiceEnum.UDP_SERVICE);
@@ -139,7 +146,7 @@ public class UdpMultiClientServer extends AbstractUdpServer<DatagramSocket> impl
 							+ " (on local port :" + socket.getLocalPort() + ") , #" + packetNumber + " TimeStamp: " + timeStamp + ", containing: " + clientUuid, 1, TestServerServiceEnum.UDP_SERVICE);
 					
 				}
-				else {
+				else if (data.length > 1) {
 					//RtpPacket received:
 					clientUuid = "VOIP_" + RtpUtil.getSsrc(data);
 				}
@@ -171,7 +178,7 @@ public class UdpMultiClientServer extends AbstractUdpServer<DatagramSocket> impl
 								}
 							};
 							
-							TestServer.getCommonThreadPool().submit(onReceiveRunnable);
+							TestServer.getInstance().getCommonThreadPool().submit(onReceiveRunnable);
 						}						
 					}
 				}

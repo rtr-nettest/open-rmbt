@@ -1,19 +1,20 @@
 /*******************************************************************************
- * Copyright 2013-2015 alladin-IT GmbH
+ * Copyright 2013-2019 alladin-IT GmbH
  * Copyright 2013-2015 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
+
 package at.rtr.rmbt.client.v2.task;
 
 import java.io.BufferedInputStream;
@@ -25,10 +26,10 @@ import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.Locale;
 
+import at.rtr.rmbt.shared.qos.QosMeasurementType;
 import at.rtr.rmbt.client.AbstractRMBTTest;
 import at.rtr.rmbt.client.QualityOfServiceTest;
 import at.rtr.rmbt.client.v2.task.result.QoSTestResult;
-import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum;
 import at.rtr.rmbt.client.v2.task.service.TestProgressListener.TestProgressEvent;
 
 /**
@@ -42,65 +43,67 @@ public abstract class AbstractQoSTask extends AbstractRMBTTest implements QoSTas
 	 * timeout to establish a control connection for a test
 	 */
 	public final static int CONTROL_CONNECTION_TIMEOUT = 10000;
-	
+
 	public final static String QOS_SERVER_PROTOCOL_VERSION = "QoSSP0.1";
-	
+
 	public final static String PARAM_QOS_TEST_OBJECTIVE_ID = "qos_test_uid";
-	
+
 	public final static String PARAM_QOS_TEST_OBJECTIVE_PORT = "server_port";
-	
+
 	public final static String PARAM_QOS_TEST_OBJECTIVE_ADDRESS = "server_addr";
-	
+
 	public final static String PARAM_QOS_CONCURRENCY_GROUP = "concurrency_group";
-	
+
 	public final static String PARAM_QOS_RESULT_START_TIME = "start_time_ns";
-	
+
 	public final static String PARAM_QOS_RESULT_END_TIME = "end_time_ns";
-	
+
 	public final static String PARAM_QOS_RESULT_DURATION_NS = "duration_ns";
-		
+
 	/**
-	 * 
+	 *
 	 */
 	private final int priority;
-	
+
 	private final int serverPort;
-	
+
 	private final int concurrencyGroup;
-	
+
 	private final String serverAddress;
-	
+
 	private final long qoSTestObjectiveUid;
-	
+
 	private long testStartTimestampNs;
-	
+
 	private long testEndTimestampNs;
-	
+
 	private boolean hasFinished = false;
-	
+
 	private boolean hasStarted = false;
-	
+
 	/**
-	 * 
+	 *
 	 */
 	protected final TaskDesc taskDesc;
-	
+
 	protected final QualityOfServiceTest qoSTest;
-	
+
 	protected final int id;
-	
+
 	protected QoSControlConnection controlConnection;
-	
+
+	protected QoSTestProgressListener listener;
+
 	/**
-	 * this constructor set the priority to max 
+	 * this constructor set the priority to max
 	 * @param taskDesc
 	 */
 	public AbstractQoSTask(QualityOfServiceTest nnTest, TaskDesc taskDesc, int threadId, int id) {
 		this(nnTest, taskDesc, threadId, id, Integer.MAX_VALUE);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param taskDesc
 	 * @param priority the higher the value, the higher the priority
 	 */
@@ -110,23 +113,48 @@ public abstract class AbstractQoSTask extends AbstractRMBTTest implements QoSTas
 		this.taskDesc = taskDesc;
 		this.priority = priority;
 		this.id = id;
-		
-		String value = (String) taskDesc.getParams().get(PARAM_QOS_TEST_OBJECTIVE_ID);
-		this.qoSTestObjectiveUid = value != null ? Long.valueOf(value) : null;
 
-		value = (String) taskDesc.getParams().get(PARAM_QOS_TEST_OBJECTIVE_PORT);
-		this.serverPort = value != null ? Integer.valueOf(value) : null;
+		//test objective uid
+		Object objVal = taskDesc.getParams().get(PARAM_QOS_TEST_OBJECTIVE_ID);
+		String value = objVal != null ? String.valueOf(objVal) : null;
+		this.qoSTestObjectiveUid = value != null ? Long.valueOf(value) : 0L;
 
-		value = (String) taskDesc.getParams().get(PARAM_QOS_CONCURRENCY_GROUP);
-		this.concurrencyGroup = value != null ? Integer.valueOf(value) : 0;
+		//server port
+		objVal = taskDesc.getParams().get(PARAM_QOS_TEST_OBJECTIVE_PORT);
+		value = objVal != null ? String.valueOf(objVal) : null;
+		int parsedServerPort = 0;
+		try {
+			parsedServerPort = value != null ? Integer.valueOf(value) : 0;
+		}
+		catch (final Exception e) {
+			//e.printStackTrace();
+		}
+		finally {
+			this.serverPort = parsedServerPort;
+		}
 
-		value = (String) taskDesc.getParams().get(PARAM_QOS_TEST_OBJECTIVE_ADDRESS);
+		//concurrency group
+		objVal = taskDesc.getParams().get(PARAM_QOS_CONCURRENCY_GROUP);
+		value = objVal != null ? String.valueOf(objVal) : null;
+		int parsedConcurrencyGroup = 0;
+		try {
+			parsedConcurrencyGroup = value != null ? Integer.valueOf(value) : 0;
+		}
+		catch (final Exception e) {
+			e.printStackTrace();
+		}
+		finally {
+			this.concurrencyGroup = parsedConcurrencyGroup;
+		}
+
+		//server address
+		value = String.valueOf(taskDesc.getParams().get(PARAM_QOS_TEST_OBJECTIVE_ADDRESS));
 		this.serverAddress = value;
 
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public abstract void initTask();
 
@@ -137,7 +165,7 @@ public abstract class AbstractQoSTask extends AbstractRMBTTest implements QoSTas
 	public int getPriority() {
 		return priority;
 	}
-	
+
 	/*
 	 * (non-Javadoc)
 	 * @see at.alladin.rmbt.client.v2.task.QoSTask#getTestServerPort()
@@ -145,7 +173,7 @@ public abstract class AbstractQoSTask extends AbstractRMBTTest implements QoSTas
 	public int getTestServerPort() {
 		return serverPort;
 	}
-	
+
 	/*
 	 * (non-Javadoc)
 	 * @see at.alladin.rmbt.client.v2.task.QoSTask#getTestServerAddr()
@@ -153,7 +181,7 @@ public abstract class AbstractQoSTask extends AbstractRMBTTest implements QoSTas
 	public String getTestServerAddr() {
 		return serverAddress;
 	}
-	
+
 	/*
 	 * (non-Javadoc)
 	 * @see at.alladin.rmbt.client.v2.task.QoSTask#getQoSObjectiveTestId()
@@ -161,7 +189,7 @@ public abstract class AbstractQoSTask extends AbstractRMBTTest implements QoSTas
 	public long getQoSObjectiveTestId() {
 		return qoSTestObjectiveUid;
 	}
-	
+
 	/*
 	 * (non-Javadoc)
 	 * @see at.alladin.rmbt.client.v2.task.QoSTask#getConcurrencyGroup()
@@ -177,7 +205,7 @@ public abstract class AbstractQoSTask extends AbstractRMBTTest implements QoSTas
 	public TaskDesc getTaskDesc() {
 		return taskDesc;
 	}
-	
+
 	/*
 	 * (non-Javadoc)
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
@@ -185,56 +213,91 @@ public abstract class AbstractQoSTask extends AbstractRMBTTest implements QoSTas
 	public int compareTo(QoSTask o) {
 		return (Integer.valueOf(priority).compareTo(Integer.valueOf(o.getPriority())));
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param socket
 	 * @param message
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public void sendMessage(Socket socket, String message) throws IOException {
 		FilterOutputStream fos = new FilterOutputStream(socket.getOutputStream());
 
 		String send;
-        send = String.format(Locale.US, message);        	
+        send = String.format(Locale.US,message);
 
 		fos.write(send.getBytes("US-ASCII"));
         fos.flush();
 	}
-	
+
+	BufferedReader socketBr = null;
+
+	protected void resetSocketBufferedReader(final Socket socket) throws IOException {
+		FilterInputStream fis = new BufferedInputStream(socket.getInputStream());
+		socketBr = new BufferedReader(new InputStreamReader(fis, "US-ASCII"), 4096);
+	}
+
+	private synchronized void openSocketBufferedReader(final Socket socket) throws IOException {
+		if (socketBr == null) {
+			FilterInputStream fis = new BufferedInputStream(socket.getInputStream());
+			socketBr = new BufferedReader(new InputStreamReader(fis, "US-ASCII"), 4096);
+		}
+	}
+
 	/**
-	 * 
+	 *
 	 * @param socket
 	 * @return
 	 * @throws IOException
 	 */
 	public String readLine(Socket socket) throws IOException {
-		FilterInputStream fis = new BufferedInputStream(socket.getInputStream());
-        BufferedReader r = new BufferedReader(new InputStreamReader(fis, "US-ASCII"), 4096);
-        return r.readLine();
+		openSocketBufferedReader(socket);
+        return socketBr.readLine();
 	}
-	
+
 	/**
-	 * 
+	 *
+	 * @param socket
+	 * @return
+	 * @throws IOException
+	 */
+	public String readMultiLine(final Socket socket) throws IOException {
+		openSocketBufferedReader(socket);
+		final StringBuilder sb = new StringBuilder();
+		String line = null;
+		int newLineCounter = 0;
+		while ((line = socketBr.readLine()) != null) {
+			line += "\n";
+			System.out.println("GOT LINE: " + line);
+			sb.append(line);
+			if ("\n".equals(line)) { /*second new line or command started with new line; both will terminate reading from socket */
+				break;
+			}
+		}
+		return sb.toString();
+	}
+
+	/**
+	 *
 	 * @param testType
 	 * @return
 	 */
-	public QoSTestResult initQoSTestResult(QoSTestResultEnum testType) {
+	public QoSTestResult initQoSTestResult(QosMeasurementType testType) {
 		QoSTestResult nnResult = new QoSTestResult(testType, this);
 		nnResult.getResultMap().put(PARAM_QOS_TEST_OBJECTIVE_ID, qoSTestObjectiveUid);
 		return nnResult;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	public QualityOfServiceTest getQoSTest() {
 		return qoSTest;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 */
 	public void onStart(QoSTestResult result) {
 		this.testStartTimestampNs = (System.nanoTime() - getQoSTest().getTestSettings().getStartTimeNs());
@@ -242,9 +305,9 @@ public abstract class AbstractQoSTask extends AbstractRMBTTest implements QoSTas
 		result.getResultMap().put(PARAM_QOS_RESULT_START_TIME, this.testStartTimestampNs);
 		getQoSTest().getTestSettings().dispatchTestProgressEvent(TestProgressEvent.ON_START, this);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 */
 	public void onEnd(QoSTestResult result) {
 		this.testEndTimestampNs = (System.nanoTime() - getQoSTest().getTestSettings().getStartTimeNs());
@@ -253,41 +316,41 @@ public abstract class AbstractQoSTask extends AbstractRMBTTest implements QoSTas
 		this.hasFinished = true;
 		getQoSTest().getTestSettings().dispatchTestProgressEvent(TestProgressEvent.ON_END, this);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	public long getTestStartTimestampNs() {
 		return this.testStartTimestampNs;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	public long getTestEndTimestampNs() {
 		return this.testEndTimestampNs;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	public boolean hasFinished() {
 		return this.hasFinished;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	public boolean hasStarted() {
-		return this.hasStarted; 
+		return this.hasStarted;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param timeStampNs
 	 * @return
 	 */
@@ -296,7 +359,7 @@ public abstract class AbstractQoSTask extends AbstractRMBTTest implements QoSTas
 	}
 
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	public QoSControlConnection getControlConnection() {
@@ -304,40 +367,52 @@ public abstract class AbstractQoSTask extends AbstractRMBTTest implements QoSTas
 	}
 
 	/**
-	 * 
+	 *
 	 * @param controlConnection
 	 */
 	public void setControlConnection(QoSControlConnection controlConnection) {
 		this.controlConnection = controlConnection;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	public int getId() {
 		return id;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	public boolean hasConnectionError() {
 		if (needsQoSControlConnection()) {
 			return (getControlConnection() == null || getControlConnection().couldNotConnect.get());
 		}
-		
+
 		return false;
 	}
 
 	/**
-	 * 
+	 *
 	 * @param command
-	 * @param listener
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public void sendCommand(String command, ControlConnectionResponseCallback callback) throws IOException {
 		controlConnection.sendTaskCommand(this, command, callback);
+	}
+
+	@Override
+	public void interrupt() {
+
+	}
+
+	public void setQoSTestProgressListener(final QoSTestProgressListener listener) {
+		this.listener = listener;
+	}
+
+	public interface QoSTestProgressListener {
+		void onProgress(final float currentTestProgress, final QosMeasurementType type);
 	}
 }

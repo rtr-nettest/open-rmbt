@@ -18,17 +18,15 @@ package at.rtr.rmbt.client.v2.task;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import at.rtr.rmbt.client.QualityOfServiceTest;
 import at.rtr.rmbt.client.RMBTClient;
+import at.rtr.rmbt.shared.qos.QosMeasurementType;
+import at.rtr.rmbt.client.QualityOfServiceTest;
 import at.rtr.rmbt.client.v2.task.result.QoSTestResult;
-import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum;
 import at.rtr.rmbt.util.tools.TracerouteService;
 import at.rtr.rmbt.util.tools.TracerouteService.HopDetail;
 
@@ -48,8 +46,6 @@ public class TracerouteTask extends AbstractQoSTask {
 	private final long timeout;
 	
 	private final int maxHops;
-	
-	private final boolean masked;
 	
 	public final static String PARAM_HOST = "host";
 	
@@ -73,7 +69,7 @@ public class TracerouteTask extends AbstractQoSTask {
 	 * 
 	 * @param taskDesc
 	 */
-	public TracerouteTask(QualityOfServiceTest nnTest, TaskDesc taskDesc, int threadId, boolean masked) {
+	public TracerouteTask(QualityOfServiceTest nnTest, TaskDesc taskDesc, int threadId) {
 		super(nnTest, taskDesc, threadId, threadId);
 		this.host = (String)taskDesc.getParams().get(PARAM_HOST);
 		
@@ -82,22 +78,13 @@ public class TracerouteTask extends AbstractQoSTask {
 		
 		value = (String) taskDesc.getParams().get(PARAM_MAX_HOPS);
 		this.maxHops = value != null ? Integer.valueOf(value) : DEFAULT_MAX_HOPS;
-		this.masked = masked;
 	}
 
 	/**
 	 * 
 	 */
 	public QoSTestResult call() throws Exception {
-		
-		final QoSTestResultEnum qostestresult;
-		
-		if (masked)
-			qostestresult = QoSTestResultEnum.TRACEROUTE_MASKED;
-		else 
-			qostestresult = QoSTestResultEnum.TRACEROUTE;
-		
-  		final QoSTestResult testResult = initQoSTestResult(qostestresult);
+  		final QoSTestResult testResult = initQoSTestResult(QosMeasurementType.TRACEROUTE);
 
   		testResult.getResultMap().put(RESULT_HOST, host);
   		testResult.getResultMap().put(RESULT_TIMEOUT, timeout);
@@ -130,14 +117,11 @@ public class TracerouteTask extends AbstractQoSTask {
 	  		}
 	  		finally {
 	  			if (pingDetailList != null) {
-		  			JSONArray resultArray = new JSONArray();
+		  			List<Map<String, Object>> resultArray = new ArrayList<>();
 		  			for (final HopDetail p : pingDetailList) {
-		  				JSONObject json = p.toJson(this.masked);
-		  				if (json != null) {
-		  					resultArray.put(json);
-		  				}
+		  				resultArray.add(p.toMap());
 		  			}
-		  			
+
 		  			testResult.getResultMap().put(RESULT_DETAILS, resultArray);
 	  			}
 	  		}
@@ -165,11 +149,8 @@ public class TracerouteTask extends AbstractQoSTask {
 	 * (non-Javadoc)
 	 * @see at.alladin.rmbt.client.v2.task.QoSTask#getTestType()
 	 */
-	public QoSTestResultEnum getTestType() {
-		if (masked)
-			return QoSTestResultEnum.TRACEROUTE_MASKED;
-		else
-	        return QoSTestResultEnum.TRACEROUTE;
+	public QosMeasurementType getTestType() {
+		return QosMeasurementType.TRACEROUTE;
 	}
 
 	/*

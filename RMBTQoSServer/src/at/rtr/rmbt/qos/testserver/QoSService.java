@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.net.ssl.SSLContext;
 
@@ -43,6 +44,8 @@ public class QoSService implements Runnable {
 	
 	private final String name;
 	
+	private AtomicBoolean isRunning = new AtomicBoolean(true);
+	
 	/**
 	 * 
 	 * @param executor
@@ -63,14 +66,16 @@ public class QoSService implements Runnable {
 	public void run() {
 		TestServerConsole.log("QoSService started on: " + socket + ". Awaiting connections...", -1, TestServerServiceEnum.TEST_SERVER);
 		try {
-			while (true) {
+			while (isRunning.get()) {
 				try {
 					if (Thread.interrupted() || socket.isClosed()) {
 						throw new InterruptedException();
 					}
 	
-					Socket client = socket.accept();					
-					executor.execute(new ClientHandler(socket, client));
+					Socket client = getSocket();
+					if (client != null) {
+						executor.execute(new ClientHandler(socket, client));
+					}
 				}
 				catch (Exception e) {
 					if (e instanceof InterruptedException) {
@@ -96,5 +101,22 @@ public class QoSService implements Runnable {
 				}
 			}
 		}
+	}
+
+	/**
+	 * use this methods for mocking Sockets 
+	 * @return
+	 * @throws IOException
+	 */
+	protected Socket getSocket() throws IOException {
+		return socket.accept();
+	}
+	
+	public synchronized boolean isRunning() {
+		return isRunning.get();
+	}
+	
+	public synchronized void stop() {
+		isRunning.set(false);
 	}
 }

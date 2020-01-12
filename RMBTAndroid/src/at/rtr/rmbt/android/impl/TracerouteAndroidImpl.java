@@ -22,7 +22,9 @@ import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
@@ -158,6 +160,26 @@ public class TracerouteAndroidImpl implements TracerouteService {
 				e.printStackTrace();
 				return null;
 			}
+		}
+
+		public JSONObject toJson() {
+			JSONObject json = new JSONObject();
+			try {
+				json.put("host", fromIp);
+				json.put("time", time);
+				return json;
+			} catch (JSONException e) {
+				e.printStackTrace();
+				return null;
+			}
+		}
+
+		public Map<String, Object> toMap() {
+			Map<String, Object> result = new HashMap<>();
+			result.put("host", fromIp);
+			result.put("time", time);
+
+			return result;
 		}
 	}
 	

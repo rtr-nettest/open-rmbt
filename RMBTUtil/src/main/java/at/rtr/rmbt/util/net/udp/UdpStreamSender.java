@@ -13,7 +13,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *******************************************************************************/
+ ******************************************************************************/
+// based on: https://raw.githubusercontent.com/alladin-IT/open-rmbt/master/RMBTUtil/src/main/java/at/alladin/rmbt/util/net/udp/UdpStreamSender.java
 package at.rtr.rmbt.util.net.udp;
 
 import java.io.ByteArrayOutputStream;
@@ -83,6 +84,8 @@ public class UdpStreamSender implements StreamSender<DatagramSocket> {
 	            throw new TimeoutException();	    		
 	    	}
 
+	    	byteOut.reset();
+	    	
 	    	//calculate correct packet delay
 	    	long currentDelay = System.currentTimeMillis() - lastSendTimestamp;
 	    	currentDelay = currentDelay > delayMs ? 0 : delayMs - currentDelay;
@@ -90,13 +93,11 @@ public class UdpStreamSender implements StreamSender<DatagramSocket> {
 	    		Thread.sleep(currentDelay);
 	    	}
 	    	
-	    	byteOut.reset();
-	    	
 	    	try {
 
-	    		if (callback != null && callback.onSend(dataOut, packetsSent)) {
-    		    	data = byteOut.toByteArray();
-    		    	
+	    		if (callback != null && callback.onSend(dataOut, packetsSent, null)) {
+					data = byteOut.toByteArray();
+
     		    	DatagramPacket packet = null;
     		    	if (!settings.socket.isConnected()) {
     				    packet = new DatagramPacket(data, data.length, settings.targetHost, settings.targetPort);		    		

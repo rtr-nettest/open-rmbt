@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2016 alladin-IT GmbH
+ * Copyright 2013-2019 alladin-IT GmbH
  * Copyright 2013-2016 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,9 +31,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import at.rtr.rmbt.shared.qos.QosMeasurementType;
 import at.rtr.rmbt.client.QualityOfServiceTest;
 import at.rtr.rmbt.client.v2.task.result.QoSTestResult;
-import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum;
 import at.rtr.rmbt.util.net.rtp.RealtimeTransportProtocol.PayloadType;
 import at.rtr.rmbt.util.net.rtp.RealtimeTransportProtocol.RtpException;
 import at.rtr.rmbt.util.net.rtp.RtpPacket;
@@ -64,13 +64,13 @@ import at.rtr.rmbt.util.net.udp.StreamSender.UdpStreamCallback;
  */
 public class VoipTask extends AbstractQoSTask {
 	
-	private final static Pattern VOIP_RECEIVE_RESPONSE_PATTERN = Pattern.compile("VOIPRESULT (-?[\\d]*) (-?[\\d]*) (-?[\\d]*) (-?[\\d]*) (-?[\\d]*) (-?[\\d]*) (-?[\\d]*) (-?[\\d]*)");
+	private final static Pattern VOIP_RECEIVE_RESPONSE_PATTERN = Pattern.compile("VOIPRESULT (-?[\\d]*) (-?[\\d]*) (-?[\\d]*) (-?[\\d]*) (-?[\\d]*) (-?[\\d]*) (-?[\\d]*) (-?[\\d]*) (-?[\\d]*) (-?[\\d]*)");
 	
 	private final static Pattern VOIP_OK_PATTERN = Pattern.compile("OK ([\\d]*)");
 	
 	private final Integer outgoingPort;
 	
-	private final Integer incomingPort;
+	private Integer incomingPort;
 	
 	private final long callDuration;
 	
@@ -83,6 +83,8 @@ public class VoipTask extends AbstractQoSTask {
 	private final int bitsPerSample;
 	
 	private final PayloadType payloadType;
+
+	private final long buffer;
 	
 	private final static long DEFAULT_TIMEOUT = 3000000000L; //3s
 	
@@ -95,6 +97,8 @@ public class VoipTask extends AbstractQoSTask {
 	private final static int DEFAULT_BITS_PER_SAMPLE = 8; //8 bits per sample
 	
 	private final static PayloadType DEFAULT_PAYLOAD_TYPE = PayloadType.PCMA;
+
+	private final static long DEFAULT_BUFFER = 100 * 1000 * 1000; //100 ms buffer
 	
 	public final static String PARAM_BITS_PER_SAMLE = "bits_per_sample";
 	
@@ -111,8 +115,12 @@ public class VoipTask extends AbstractQoSTask {
 	public final static String PARAM_DELAY = "delay";
 	
 	public final static String PARAM_PAYLOAD = "payload";
+
+	public final static String PARAM_BUFFER = "buffer";
 	
 	public final static String RESULT_PAYLOAD = "voip_objective_payload";
+
+	public final static String RESULT_BUFFER = "voip_objective_buffer";
 	
 	public final static String RESULT_IN_PORT = "voip_objective_in_port";
 	
@@ -131,7 +139,7 @@ public class VoipTask extends AbstractQoSTask {
 	public final static String RESULT_STATUS = "voip_result_status";
 	
 	public final static String RESULT_VOIP_PREFIX = "voip_result";
-	
+
 	public final static String RESULT_INCOMING_PREFIX = "_in_";
 	
 	public final static String RESULT_OUTGOING_PREFIX = "_out_";
@@ -151,6 +159,10 @@ public class VoipTask extends AbstractQoSTask {
 	public final static String RESULT_NUM_PACKETS = "num_packets";
 	
 	public final static String RESULT_SEQUENCE_ERRORS = "sequence_error";
+
+	public final static String RESULT_NUMBER_OF_STALLS = "stalls";
+
+	public final static String RESULT_AVG_STALL_TIME = "avg_stall_time";
 	
 	/**
 	 * 
@@ -181,6 +193,9 @@ public class VoipTask extends AbstractQoSTask {
 		
 		value = (String) taskDesc.getParams().get(PARAM_PAYLOAD);
 		this.payloadType = value != null ? PayloadType.getByCodecValue(Integer.valueOf(value), DEFAULT_PAYLOAD_TYPE) : DEFAULT_PAYLOAD_TYPE;
+
+		value = (String) taskDesc.getParams().get(PARAM_BUFFER);
+		this.buffer = value != null ? Integer.valueOf(value) : DEFAULT_BUFFER;
 	}
 
 	/**
@@ -188,7 +203,7 @@ public class VoipTask extends AbstractQoSTask {
 	 */
 	public QoSTestResult call() throws Exception {
 		final AtomicInteger ssrc = new AtomicInteger(-1);
-		final QoSTestResult result = initQoSTestResult(QoSTestResultEnum.VOIP);
+		final QoSTestResult result = initQoSTestResult(QosMeasurementType.VOIP);
 		
 		result.getResultMap().put(RESULT_BITS_PER_SAMPLE, bitsPerSample);
 		result.getResultMap().put(RESULT_CALL_DURATION, callDuration);
@@ -197,6 +212,7 @@ public class VoipTask extends AbstractQoSTask {
 		result.getResultMap().put(RESULT_OUT_PORT, outgoingPort);
 		result.getResultMap().put(RESULT_SAMPLE_RATE, sampleRate);
 		result.getResultMap().put(RESULT_PAYLOAD, payloadType.getValue());
+		result.getResultMap().put(RESULT_BUFFER, buffer);
 		result.getResultMap().put(RESULT_STATUS, "OK");
 		
 		try {
@@ -220,7 +236,7 @@ public class VoipTask extends AbstractQoSTask {
 								
 								final UdpStreamCallback receiveCallback = new UdpStreamCallback() {
 									
-									public boolean onSend(DataOutputStream dataOut, int packetNumber)
+									public boolean onSend(DataOutputStream dataOut, int packetNumber, byte[] receivedPayload)
 											throws IOException {
 										//nothing to do here
 										return true;
@@ -240,12 +256,13 @@ public class VoipTask extends AbstractQoSTask {
 									public void onBind(Integer port)
 											throws IOException {
 										result.getResultMap().put(RESULT_IN_PORT, port);
+										incomingPort = port;
 									}
 								};
 								
 								RtpUtil.runVoipStream(null, true, InetAddress.getByName(getTestServerAddr()), outgoingPort, incomingPort, sampleRate, bitsPerSample, 
-										payloadType, initialSequenceNumber, ssrc.get(), 
-										TimeUnit.MILLISECONDS.convert(callDuration, TimeUnit.NANOSECONDS), 
+										payloadType, initialSequenceNumber, ssrc.get(),
+										TimeUnit.MILLISECONDS.convert(callDuration, TimeUnit.NANOSECONDS),
 										TimeUnit.MILLISECONDS.convert(delay, TimeUnit.NANOSECONDS), 
 										TimeUnit.MILLISECONDS.convert(timeout, TimeUnit.NANOSECONDS), true, receiveCallback);
 							} 
@@ -277,7 +294,7 @@ public class VoipTask extends AbstractQoSTask {
 			};
 			
 	    	/*
-	    	 * syntax: VOIPTEST 0 1 2 3 4 5 6 7 
+	    	 * syntax: VOIPTEST 0 1 2 3 4 5 6 7 8
 	    	 * 	0 = outgoing port (server port)
 	    	 * 	1 = incoming port (client port) 
 	    	 *  2 = sample rate (in Hz)
@@ -286,11 +303,12 @@ public class VoipTask extends AbstractQoSTask {
 	    	 * 	5 = call duration (test duration) in ms 
 	    	 * 	6 = starting sequence number (see rfc3550, rtp header: sequence number)
 	    	 *  7 = payload type
+	    	 * 	8 = buffer (ns)
 	    	 */			
-			sendCommand("VOIPTEST " + outgoingPort + " " + (incomingPort == null ? outgoingPort : incomingPort) + " " + sampleRate + " " + bitsPerSample + " " 
+			sendCommand("VOIPTEST " + outgoingPort + " " + incomingPort + " " + sampleRate + " " + bitsPerSample + " " 
 					+ TimeUnit.MILLISECONDS.convert(delay, TimeUnit.NANOSECONDS) + " " 
 					+ TimeUnit.MILLISECONDS.convert(callDuration, TimeUnit.NANOSECONDS) + " " 
-					+ initialSequenceNumber + " " + payloadType.getValue(), callback);
+					+ initialSequenceNumber + " " + payloadType.getValue() + " " + buffer, callback);
 			
 			//wait for countdownlatch or timeout:
 			latch.await(timeout, TimeUnit.NANOSECONDS);
@@ -320,6 +338,8 @@ public class VoipTask extends AbstractQoSTask {
 							result.getResultMap().put(prefix + RESULT_SEQUENCE_ERRORS, Long.parseLong(m.group(6)));
 							result.getResultMap().put(prefix + RESULT_SHORT_SEQUENTIAL, Long.parseLong(m.group(7)));
 							result.getResultMap().put(prefix + RESULT_LONG_SEQUENTIAL, Long.parseLong(m.group(8)));
+							result.getResultMap().put(prefix + RESULT_NUMBER_OF_STALLS, Long.parseLong(m.group(9)));
+							result.getResultMap().put(prefix + RESULT_AVG_STALL_TIME, Long.parseLong(m.group(10)));
 						}
 						resultLatch.countDown();
 					}
@@ -334,7 +354,8 @@ public class VoipTask extends AbstractQoSTask {
 				resultLatch.await(CONTROL_CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS);
 			}
 
-			final RtpQoSResult rtpResults = rtpControlDataList.size() > 0 ? RtpUtil.calculateQoS(rtpControlDataList, initialSequenceNumber, sampleRate) : null;
+			final RtpQoSResult rtpResults = rtpControlDataList.size() > 0 ?
+					RtpUtil.calculateQoS(rtpControlDataList, initialSequenceNumber, sampleRate, buffer) : null;
 			
 			final String prefix = RESULT_VOIP_PREFIX + RESULT_INCOMING_PREFIX;
 			if (rtpResults != null) {
@@ -346,6 +367,8 @@ public class VoipTask extends AbstractQoSTask {
 				result.getResultMap().put(prefix + RESULT_SEQUENCE_ERRORS, rtpResults.getOutOfOrder());
 				result.getResultMap().put(prefix + RESULT_SHORT_SEQUENTIAL, rtpResults.getMinSequential());
 				result.getResultMap().put(prefix + RESULT_LONG_SEQUENTIAL, rtpResults.getMaxSequencial());
+				result.getResultMap().put(prefix + RESULT_AVG_STALL_TIME, rtpResults.getAvgStallTime());
+				result.getResultMap().put(prefix + RESULT_NUMBER_OF_STALLS, rtpResults.getNumberOfStalls());
 			}
 			else {
 				result.getResultMap().put(prefix + RESULT_MAX_JITTER, null);
@@ -356,6 +379,8 @@ public class VoipTask extends AbstractQoSTask {
 				result.getResultMap().put(prefix + RESULT_SEQUENCE_ERRORS, null);
 				result.getResultMap().put(prefix + RESULT_SHORT_SEQUENTIAL, null);
 				result.getResultMap().put(prefix + RESULT_LONG_SEQUENTIAL, null);
+				result.getResultMap().put(prefix + RESULT_AVG_STALL_TIME, null);
+				result.getResultMap().put(prefix + RESULT_NUMBER_OF_STALLS, null);
 			}
 			
 	        return result;			
@@ -371,7 +396,7 @@ public class VoipTask extends AbstractQoSTask {
 	
 	/*
 	 * (non-Javadoc)
-	 * @see at.rtr.rmbt.client.v2.task.AbstractRmbtTask#initTask()
+	 * @see at.alladin.rmbt.client.v2.task.AbstractRmbtTask#initTask()
 	 */
 	@Override
 	public void initTask() {
@@ -380,15 +405,15 @@ public class VoipTask extends AbstractQoSTask {
 	
 	/*
 	 * (non-Javadoc)
-	 * @see at.rtr.rmbt.client.v2.task.QoSTask#getTestType()
+	 * @see at.alladin.rmbt.client.v2.task.QoSTask#getTestType()
 	 */
-	public QoSTestResultEnum getTestType() {
-		return QoSTestResultEnum.VOIP;
+	public QosMeasurementType getTestType() {
+		return QosMeasurementType.VOIP;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * @see at.rtr.rmbt.client.v2.task.QoSTask#needsQoSControlConnection()
+	 * @see at.alladin.rmbt.client.v2.task.QoSTask#needsQoSControlConnection()
 	 */
 	public boolean needsQoSControlConnection() {
 		return true;

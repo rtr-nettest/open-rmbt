@@ -1,5 +1,6 @@
 /*******************************************************************************
  * Copyright 2016 Specure GmbH
+ * Copyright 2019 alladin-IT GmbH
  * Copyright 2016 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,7 +30,7 @@ import org.apache.log4j.PatternLayout;
 import org.apache.log4j.net.SyslogAppender;
 
 import at.rtr.rmbt.qos.testserver.ServerPreferences.TestServerServiceEnum;
-import at.rtr.rmbt.qos.testserver.TestServer;
+import at.rtr.rmbt.qos.testserver.TestServerImpl;
 
 /**
  * Logging  service for the test server
@@ -41,40 +42,54 @@ public class LoggingService {
 	/**
 	 * all available loggers
 	 */
-	public final static Map<TestServerServiceEnum, Logger> LOGGER_MAP;
+	public final static Map<TestServerServiceEnum, Logger> LOGGER_MAP = new HashMap<>();
 	
 	/**
 	 * tells if any logging [syslog, file, console] has been enabled
 	 */
-	public final static boolean IS_LOGGING_AVAILABLE;
+	public static boolean IS_LOGGING_AVAILABLE = false;
 
-	static {
-		////////////////////////////////////////
-		//	initialize all loggers
-		////////////////////////////////////////
-
+	/**
+	 * 
+	 * @param testServerImpl
+	 * @return
+	 */
+	public static boolean isLoggingAvailable(final TestServerImpl testServerImpl) {
+		return (testServerImpl.serverPreferences != null 
+				&& (testServerImpl.serverPreferences.isConsoleLog() || testServerImpl.serverPreferences.isLoggingEnabled() || testServerImpl.serverPreferences.isSyslogEnabled()));
+	}
+	
+	/**
+	 * 
+	 * @param testServerImpl
+	 */
+	public static synchronized void init(final TestServerImpl testServerImpl) {
+		IS_LOGGING_AVAILABLE = isLoggingAvailable(testServerImpl);
 		
-		//syslog appender:
-		if (TestServer.serverPreferences != null && TestServer.serverPreferences.isSyslogEnabled()) {
+		LogManager.getRootLogger().removeAllAppenders();
+		
+		if (testServerImpl.serverPreferences != null 
+				&& testServerImpl.serverPreferences.isSyslogEnabled()) {
 			LogManager.getRootLogger().addAppender(new SyslogAppender(
-					new PatternLayout(TestServer.serverPreferences.getSyslogPattern()), 
-					TestServer.serverPreferences.getSyslogHost(), 
+					new PatternLayout(testServerImpl.serverPreferences.getSyslogPattern()), 
+					testServerImpl.serverPreferences.getSyslogHost(), 
 					SyslogAppender.LOG_LOCAL0));
 		}
 	
-		LOGGER_MAP = new HashMap<>();
+		LOGGER_MAP.clear();
 		LOGGER_MAP.put(TestServerServiceEnum.RUNTIME_GUARD_SERVICE, Logger.getLogger("QOS.DEBUG"));
 		LOGGER_MAP.put(TestServerServiceEnum.TCP_SERVICE, Logger.getLogger("QOS.TCP"));
 		LOGGER_MAP.put(TestServerServiceEnum.UDP_SERVICE, Logger.getLogger("QOS.UDP"));
 		LOGGER_MAP.put(TestServerServiceEnum.TEST_SERVER, Logger.getLogger("QOS.SERVER"));
 		
 		//file logging appender:
-		if (TestServer.serverPreferences != null && TestServer.serverPreferences.isLoggingEnabled()) {
-			for (final Entry<TestServerServiceEnum, String> e : TestServer.serverPreferences.getLogFileMap().entrySet()) {
+		if (testServerImpl.serverPreferences != null 
+				&& testServerImpl.serverPreferences.isLoggingEnabled()) {
+			for (final Entry<TestServerServiceEnum, String> e : testServerImpl.serverPreferences.getLogFileMap().entrySet()) {
 				final Logger l = LOGGER_MAP.get(e.getKey());
 				try {
 					l.addAppender(new DailyRollingFileAppender(
-							new PatternLayout(TestServer.serverPreferences.getLoggingPattern()), e.getValue(), "_yyyy-MM-dd-a"));
+							new PatternLayout(testServerImpl.serverPreferences.getLoggingPattern()), e.getValue(), "_yyyy-MM-dd-a"));
 				} catch (IOException ex) {
 					ex.printStackTrace();
 				}
@@ -82,15 +97,12 @@ public class LoggingService {
 		}
 		
 		//console appender:
-		if (TestServer.serverPreferences != null && TestServer.serverPreferences.isConsoleLog()) {
+		if (testServerImpl.serverPreferences != null 
+				&& testServerImpl.serverPreferences.isConsoleLog()) {
 			LogManager.getRootLogger().addAppender(new ConsoleAppender(new PatternLayout("%d{ISO8601} - %m%n")));
 		}
-		
-		IS_LOGGING_AVAILABLE = (TestServer.serverPreferences != null 
-				&& (TestServer.serverPreferences.isConsoleLog() || TestServer.serverPreferences.isLoggingEnabled() || TestServer.serverPreferences.isSyslogEnabled()));		
 	}
 	
-
 	/**
 	 * fatal level logging
 	 * @param t

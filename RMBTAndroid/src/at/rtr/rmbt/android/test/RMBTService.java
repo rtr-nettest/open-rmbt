@@ -55,9 +55,9 @@ import at.rtr.rmbt.client.helper.IntermediateResult;
 import at.rtr.rmbt.client.helper.NdtStatus;
 import at.rtr.rmbt.client.helper.TestStatus;
 import at.rtr.rmbt.client.v2.task.QoSTestEnum;
-import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum;
 import at.rtr.rmbt.client.v2.task.service.TestMeasurement;
 import at.rtr.rmbt.client.v2.task.service.TrafficService;
+import at.rtr.rmbt.shared.qos.QosMeasurementType;
 import at.rtr.rmbt.util.model.shared.exception.ErrorStatus;
 
 public class RMBTService extends Service implements EndTaskListener
@@ -497,7 +497,7 @@ public class RMBTService extends Service implements EndTaskListener
      * 
      * @return
      */
-    public Map<QoSTestResultEnum, Counter> getQoSGroupCounterMap() {
+    public Map<QosMeasurementType, Counter> getQoSGroupCounterMap() {
     	if (testTask != null) {
     		return testTask.getQoSGroupCounterMap();
     	}

@@ -73,6 +73,12 @@ public interface WebsiteTestService {
 	 * @return
 	 */
 	public boolean hasError();
+
+	/**
+	 * The corresponding error message
+	 * @return null if hasError returned false
+	 */
+	public String getErrorMessage();
 	
 	/**
 	 * 
@@ -109,4 +115,6 @@ public interface WebsiteTestService {
 	 * @return
 	 */
 	public int getResourceCount();
+
+	public long getHttpResponseTime();
 }

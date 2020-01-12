@@ -16,25 +16,31 @@
  ******************************************************************************/
 package at.rtr.rmbt.client.v2.task;
 
+import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Map;
 
 import at.rtr.rmbt.client.RMBTTestParameter;
-import at.rtr.rmbt.client.helper.Config;
 
 /**
  * 
  * @author lb
  *
  */
-public class TaskDesc extends RMBTTestParameter {
+public class TaskDesc extends RMBTTestParameter implements Serializable {
 	
 	public final static String QOS_TEST_IDENTIFIER_KEY = "qostest";
 
 	/**
 	 * 
 	 */
-	private final HashMap<String, Object> params;	
-	
+	private final Map<String, Object> params;
+
+	public TaskDesc() {
+		super();
+		params = new HashMap<>();
+	}
+
 	/**
 	 * 
 	 * @param host
@@ -46,13 +52,13 @@ public class TaskDesc extends RMBTTestParameter {
 	 * @param startTime
 	 */
 	public TaskDesc(String host, int port, boolean encryption, String token,
-			int duration, int numThreads, int numPings, long startTime, HashMap<String, Object> params) {
-		super(host, port, encryption, token, duration, numThreads, numPings, startTime, Config.SERVER_TYPE_QOS);
+			int duration, int numThreads, int numPings, long startTime, Map<String, Object> params) {
+		super(host, port, encryption, token, duration, numThreads, numPings, startTime);
 		this.params = params;
 	}
 	
 	public TaskDesc(String host, int port, boolean encryption, String token,
-			int duration, int numThreads, int numPings, long startTime, HashMap<String, Object> params, String qosTestId) {
+			int duration, int numThreads, int numPings, long startTime, Map<String, Object> params, String qosTestId) {
 		this(host, port, encryption, token, duration, numThreads, numPings, startTime, params);
 		params.put(QOS_TEST_IDENTIFIER_KEY, qosTestId);
 	}
@@ -61,7 +67,7 @@ public class TaskDesc extends RMBTTestParameter {
 	 * 
 	 * @return
 	 */
-	public HashMap<String, Object> getParams() {
+	public Map<String, Object> getParams() {
 		return params;
 	}
 

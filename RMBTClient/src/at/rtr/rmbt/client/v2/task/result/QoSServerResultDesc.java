@@ -25,6 +25,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import at.rtr.rmbt.shared.qos.QosMeasurementType;
 import at.rtr.rmbt.client.v2.task.result.QoSServerResult.DetailType;
 
 /**
@@ -48,7 +49,7 @@ public class QoSServerResultDesc implements Serializable {
 	public final static String JSON_KEY_UID_LIST = "uid";
 	
 	private String desc;
-	private QoSTestResultEnum testType;
+	private QosMeasurementType testType;
 	private DetailType status;
 	private Set<Long> uidSet = new TreeSet<Long>();
 	
@@ -58,7 +59,7 @@ public class QoSServerResultDesc implements Serializable {
 	 * @param testType
 	 * @param status
 	 */
-	public QoSServerResultDesc(String desc, QoSTestResultEnum testType, DetailType status, Set<Long> uidSet) {
+	public QoSServerResultDesc(String desc, QosMeasurementType testType, DetailType status, Set<Long> uidSet) {
 		this.desc = desc;
 		this.testType = testType;
 		this.status = status;
@@ -72,7 +73,7 @@ public class QoSServerResultDesc implements Serializable {
 	 */
 	public QoSServerResultDesc(JSONObject json) throws JSONException {
 		this.desc = json.getString(JSON_KEY_DESCRIPTION);
-		this.testType = QoSTestResultEnum.valueOf(json.getString(JSON_KEY_TESTTYPE));
+		this.testType = QosMeasurementType.valueOf(json.getString(JSON_KEY_TESTTYPE));
 		this.status = DetailType.valueOf(json.getString(JSON_KEY_STATUS).toUpperCase(Locale.US));
 		JSONArray uidArray = json.getJSONArray(JSON_KEY_UID_LIST);
 		for (int i = 0; i < uidArray.length(); i++) {
@@ -88,11 +89,11 @@ public class QoSServerResultDesc implements Serializable {
 		this.desc = desc;
 	}
 	
-	public QoSTestResultEnum getTestType() {
+	public QosMeasurementType getTestType() {
 		return testType;
 	}
 	
-	public void setTestType(QoSTestResultEnum testType) {
+	public void setTestType(QosMeasurementType testType) {
 		this.testType = testType;
 	}
 	

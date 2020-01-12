@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2013-2015 alladin-IT GmbH
+ * Copyright 2013-2019 alladin-IT GmbH
  * Copyright 2013-2015 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,13 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
+
 package at.rtr.rmbt.client.v2.task;
 
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.json.JSONObject;
 import org.xbill.DNS.A6Record;
 import org.xbill.DNS.AAAARecord;
 import org.xbill.DNS.ARecord;
@@ -31,11 +33,11 @@ import org.xbill.DNS.Record;
 import org.xbill.DNS.ResolverConfig;
 import org.xbill.DNS.Section;
 
+import at.rtr.rmbt.shared.qos.QosMeasurementType;
 import at.rtr.rmbt.client.QualityOfServiceTest;
 import at.rtr.rmbt.client.helper.Dig;
 import at.rtr.rmbt.client.helper.Dig.DnsRequest;
 import at.rtr.rmbt.client.v2.task.result.QoSTestResult;
-import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum;
 
 public class DnsTask extends AbstractQoSTask {
 
@@ -99,13 +101,13 @@ public class DnsTask extends AbstractQoSTask {
 	 * 
 	 */
 	public QoSTestResult call() throws Exception {
-  		final QoSTestResult testResult = initQoSTestResult(QoSTestResultEnum.DNS);
+  		final QoSTestResult testResult = initQoSTestResult(QosMeasurementType.DNS);
   		
 		try {
 			onStart(testResult);
 			
 	  		long start = System.nanoTime();
-	  		List<JSONObject> dnsResult = lookupDns(host, record, resolver, (int)(timeout / 1000000), testResult);
+	  		List<Map<String, Object>> dnsResult = lookupDns(host, record, resolver, (int)(timeout / 1000000), testResult);
 	  		testResult.getResultMap().put(RESULT_ENTRY, dnsResult);
 	  		long duration = System.nanoTime() - start;
 	  		//testResult.getResultMap().put(RESULT_DURATION, (duration / 1000000));
@@ -138,9 +140,9 @@ public class DnsTask extends AbstractQoSTask {
 	 * @param resolver
 	 * @return
 	 */
-	public static List<JSONObject> lookupDns(String domainName, String record, String resolver, int timeout, QoSTestResult testResult) {
+	public static List<Map<String, Object>> lookupDns(String domainName, String record, String resolver, int timeout, QoSTestResult testResult) {
 		//List<String> result = new ArrayList<String>();
-		List<JSONObject> result = new ArrayList<JSONObject>();
+		List<Map<String, Object>> result = new ArrayList<>();
 		
 		//Lookup dnsLookup = null;
 		try {
@@ -160,7 +162,7 @@ public class DnsTask extends AbstractQoSTask {
 				
 				if (records != null && records.length > 0) {
 					for (int i = 0; i < records.length; i++) {
-						JSONObject dnsEntry = new JSONObject();
+						Map<String, Object> dnsEntry = new HashMap<>();
 						if (records[i] instanceof MXRecord) {
 							dnsEntry.put(RESULT_PRIORITY, String.valueOf(((MXRecord) records[i]).getPriority()));
 							dnsEntry.put(RESULT_ADDRESS, ((MXRecord) records[i]).getTarget().toString());
@@ -220,8 +222,8 @@ public class DnsTask extends AbstractQoSTask {
 	 * (non-Javadoc)
 	 * @see at.rtr.rmbt.client.v2.task.QoSTask#getTestType()
 	 */
-	public QoSTestResultEnum getTestType() {
-		return QoSTestResultEnum.DNS;
+	public QosMeasurementType getTestType() {
+		return QosMeasurementType.DNS;
 	}
 
 	/*

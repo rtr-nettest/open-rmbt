@@ -225,7 +225,7 @@ public class RMBTClient
     	return this.trafficService;
     }
     
-    private SSLSocketFactory createSSLSocketFactory()
+    protected SSLSocketFactory createSSLSocketFactory()
     {
         log("initSSL...");
         try

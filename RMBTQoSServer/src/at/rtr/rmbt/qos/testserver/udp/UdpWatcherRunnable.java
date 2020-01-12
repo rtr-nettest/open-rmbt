@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import at.rtr.rmbt.qos.testserver.ServerPreferences.TestServerServiceEnum;
-import at.rtr.rmbt.qos.testserver.servers.AbstractUdpServer;
 import at.rtr.rmbt.qos.testserver.TestServer;
+import at.rtr.rmbt.qos.testserver.servers.AbstractUdpServer;
 import at.rtr.rmbt.qos.testserver.service.IntervalJob;
 
 /**
@@ -62,9 +62,9 @@ public class UdpWatcherRunnable extends IntervalJob<String> {
 	public String execute() {
 		int healthy = 0;
 		int unhealthy = 0;
-		if (TestServer.udpServerMap != null) {
-			synchronized (TestServer.udpServerMap) {
-				Iterator<List<AbstractUdpServer<?>>> listIterator = TestServer.udpServerMap.values().iterator();
+		if (TestServer.getInstance().udpServerMap != null) {
+			synchronized (TestServer.getInstance().udpServerMap) {
+				Iterator<List<AbstractUdpServer<?>>> listIterator = TestServer.getInstance().udpServerMap.values().iterator();
 				while (listIterator.hasNext()) {
 					Iterator<AbstractUdpServer<?>> iterator = listIterator.next().iterator();
 					while (iterator.hasNext()) {

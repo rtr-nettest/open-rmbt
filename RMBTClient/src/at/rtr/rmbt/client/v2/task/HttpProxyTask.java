@@ -39,10 +39,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import at.rtr.rmbt.shared.qos.QosMeasurementType;
 import at.rtr.rmbt.client.QualityOfServiceTest;
 import at.rtr.rmbt.client.RMBTClient;
 import at.rtr.rmbt.client.v2.task.result.QoSTestResult;
-import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum;
 
 /**
  * 
@@ -115,7 +115,7 @@ public class HttpProxyTask extends AbstractQoSTask {
 	 * @see java.util.concurrent.Callable#call()
 	 */
 	public QoSTestResult call() throws Exception {
-		final QoSTestResult result = initQoSTestResult(QoSTestResultEnum.HTTP_PROXY);
+		final QoSTestResult result = initQoSTestResult(QosMeasurementType.HTTP_PROXY);
 		try {
 			result.getResultMap().put(RESULT_RANGE, range);
 			result.getResultMap().put(RESULT_TARGET, target);	
@@ -371,7 +371,7 @@ public class HttpProxyTask extends AbstractQoSTask {
 	
 	/*
 	 * (non-Javadoc)
-	 * @see at.rtr.rmbt.client.v2.task.AbstractRmbtTask#initTask()
+	 * @see at.alladin.rmbt.client.v2.task.AbstractRmbtTask#initTask()
 	 */
 	@Override
 	public void initTask() {
@@ -381,15 +381,15 @@ public class HttpProxyTask extends AbstractQoSTask {
 	
 	/*
 	 * (non-Javadoc)
-	 * @see at.rtr.rmbt.client.v2.task.QoSTask#getTestType()
+	 * @see at.alladin.rmbt.client.v2.task.QoSTask#getTestType()
 	 */
-	public QoSTestResultEnum getTestType() {
-		return QoSTestResultEnum.HTTP_PROXY;
+	public QosMeasurementType getTestType() {
+		return QosMeasurementType.HTTP_PROXY;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * @see at.rtr.rmbt.client.v2.task.QoSTask#needsQoSControlConnection()
+	 * @see at.alladin.rmbt.client.v2.task.QoSTask#needsQoSControlConnection()
 	 */
 	public boolean needsQoSControlConnection() {
 		return false;
