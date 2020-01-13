@@ -16,11 +16,7 @@ repositories {
     maven{url 'http://maven.restlet.com'}
 }
 
-sourceSets {
-    main {
-        java { srcDir 'src' }
-    }
-}
+
 
 dependencies {
     compile project(':RMBTUtil')
@@ -30,8 +26,8 @@ dependencies {
     compile 'org.json:json:5.0.5'
     compile 'org.restlet.jse:org.restlet:2.3-M4'
 
-    testImplementation group: 'junit', name: 'junit', version: '4.12'
     testImplementation group: 'org.jmockit', name: 'jmockit', version: '1.45'
+    testImplementation group: 'junit', name: 'junit', version: '4.12'
 }
 
 jar {
@@ -44,4 +40,9 @@ jar {
 
 task wrapper(type: Wrapper) {
     gradleVersion = '2.2.1'
+}
+
+
+test {
+    jvmArgs "-javaagent:${classpath.find { it.name.contains("jmockit") }.absolutePath}"
 }
