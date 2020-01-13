@@ -24,12 +24,6 @@ dependencies {
     compile project(':RMBTUtil')
 }
 
-sourceSets {
-    main {
-        java { srcDir 'src' }
-        resources { srcDir 'src' }
-    }
-}
 
 subprojects{
     evaluationDependsOn(':RMBTSharedCode')
