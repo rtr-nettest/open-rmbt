@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Copyright 2013-2016 alladin-IT GmbH
- * Copyright 2013-2016 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
+ * Copyright 2013-2020 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -115,9 +115,10 @@ public class RMBTClient
     public final static String TASK_WEBSITE = "website";
     public final static String TASK_TRACEROUTE = "traceroute";
     public final static String TASK_TRACEROUTE_MASKED = "traceroute_masked";
+    public final static String TASK_ECHO_PROTOCOL = "echo_protocol";
     
     
-    private List<TaskDesc> taskDescList;
+    protected List<TaskDesc> taskDescList;
 
     /*------------------------------------*/
     
@@ -180,18 +181,24 @@ public class RMBTClient
         
         return new RMBTClient(params, controlConnection);
     }
-    
+
     public static RMBTClient getInstance(final RMBTTestParameter params)
     {
         return new RMBTClient(params, null);
     }
-    
-    RMBTClient(final RMBTTestParameter params, final ControlServerConnection controlConnection)
-    {
+
+    RMBTClient(final RMBTTestParameter params, final ControlServerConnection controlConnection) {
+        this(params, controlConnection, false);
+    }
+
+    protected RMBTClient(final RMBTTestParameter params, final ControlServerConnection controlConnection, boolean skipCheck) {
+
         this.params = params;
         this.controlConnection = controlConnection;
-        
-        params.check();
+
+        if (!skipCheck) {
+            params.check();
+        }
         
         if (params.getNumThreads() > 0)
         {
