@@ -101,22 +101,7 @@ public class RMBTClient
     
     private String errorMsg = "";
     
-    
-    /*------------------------------------
-    	V2 tests
-    --------------------------------------*/
-    
-    public final static String TASK_UDP = "udp";
-    public final static String TASK_TCP = "tcp";
-    public final static String TASK_DNS = "dns";
-    public final static String TASK_VOIP = "voip";
-    public final static String TASK_NON_TRANSPARENT_PROXY = "non_transparent_proxy";
-    public final static String TASK_HTTP = "http_proxy";
-    public final static String TASK_WEBSITE = "website";
-    public final static String TASK_TRACEROUTE = "traceroute";
-    public final static String TASK_TRACEROUTE_MASKED = "traceroute_masked";
-    public final static String TASK_ECHO_PROTOCOL = "echo_protocol";
-    
+
     
     protected List<TaskDesc> taskDescList;
 

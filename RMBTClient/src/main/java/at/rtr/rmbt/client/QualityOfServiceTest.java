@@ -73,6 +73,7 @@ public class QualityOfServiceTest implements Callable<QoSResultCollector> {
 	public final static String TASK_HTTP = "http_proxy";
 	public final static String TASK_WEBSITE = "website";
 	public final static String TASK_TRACEROUTE = "traceroute";
+	public final static String TASK_TRACEROUTE_MASKED = "traceroute_masked";
 	public final static String TASK_ECHO_PROTOCOL = "echo_protocol";
 	public final static String TASK_SIP = "sip";
 	public final static String TASK_MKIT_WEB_CONNECTIVITY = "mkit_web_connectivity";
@@ -184,7 +185,7 @@ public class QualityOfServiceTest implements Callable<QoSResultCollector> {
 					System.out.println("No TracerouteService implementation: Skipping TracerouteTask: " + taskDesc);
 				}
 			}
-			if (RMBTClient.TASK_TRACEROUTE_MASKED.equals(taskId)) {
+			if (TASK_TRACEROUTE_MASKED.equals(taskId)) {
 				final boolean TraceRouteMaskedAvailable = true; // enable service
 				if (TraceRouteMaskedAvailable && nnTestSettings != null && nnTestSettings.getTracerouteServiceClazz() != null) {
 					test = new TracerouteTask(this, taskDesc, threadCounter++,true);

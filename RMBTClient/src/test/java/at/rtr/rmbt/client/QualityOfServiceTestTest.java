@@ -39,6 +39,7 @@ import at.rtr.rmbt.util.tools.TracerouteService;
 import mockit.Expectations;
 import mockit.Mocked;
 
+import static at.rtr.rmbt.client.QualityOfServiceTest.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -107,25 +108,25 @@ public class QualityOfServiceTestTest {
         testSettings.setWebsiteTestService(websiteTestService);
 
 
-        httpProxyTaskDesc = new TaskDesc("host", 80, false, "token", 1, 1, 1, 1, new HashMap<String, Object>(), RMBTClient.TASK_HTTP);
-        nonTransparentProxyTaskDesc = new TaskDesc("host", 80, false, "token", 1, 1, 1, 1, new HashMap<String, Object>(), RMBTClient.TASK_NON_TRANSPARENT_PROXY);
-        dnsTaskDesc = new TaskDesc("host", 80, false, "token", 1, 1, 1, 1, new HashMap<String, Object>(), RMBTClient.TASK_DNS);
-        tcpTaskDesc = new TaskDesc("host", 80, false, "token", 1, 1, 1, 1, new HashMap<String, Object>(), RMBTClient.TASK_TCP);
-        udpTaskDesc = new TaskDesc("host", 80, false, "token", 1, 1, 1, 1, new HashMap<String, Object>(), RMBTClient.TASK_UDP);
-        voipTaskDesc = new TaskDesc("host", 80, false, "token", 1, 1, 1, 1, new HashMap<String, Object>(), RMBTClient.TASK_VOIP);
-        tracerouteTaskDesc = new TaskDesc("host", 80, false, "token", 1, 1, 1, 1, new HashMap<String, Object>(), RMBTClient.TASK_TRACEROUTE);
-        websiteTaskDesc = new TaskDesc("host", 80, false, "token", 1, 1, 1, 1, new HashMap<String, Object>(), RMBTClient.TASK_WEBSITE);
+        httpProxyTaskDesc = new TaskDesc("host", 80, false, "token", 1, 1, 1, 1, new HashMap<String, Object>(), TASK_HTTP);
+        nonTransparentProxyTaskDesc = new TaskDesc("host", 80, false, "token", 1, 1, 1, 1, new HashMap<String, Object>(), TASK_NON_TRANSPARENT_PROXY);
+        dnsTaskDesc = new TaskDesc("host", 80, false, "token", 1, 1, 1, 1, new HashMap<String, Object>(), TASK_DNS);
+        tcpTaskDesc = new TaskDesc("host", 80, false, "token", 1, 1, 1, 1, new HashMap<String, Object>(), TASK_TCP);
+        udpTaskDesc = new TaskDesc("host", 80, false, "token", 1, 1, 1, 1, new HashMap<String, Object>(), TASK_UDP);
+        voipTaskDesc = new TaskDesc("host", 80, false, "token", 1, 1, 1, 1, new HashMap<String, Object>(), TASK_VOIP);
+        tracerouteTaskDesc = new TaskDesc("host", 80, false, "token", 1, 1, 1, 1, new HashMap<String, Object>(), TASK_TRACEROUTE);
+        websiteTaskDesc = new TaskDesc("host", 80, false, "token", 1, 1, 1, 1, new HashMap<String, Object>(), TASK_WEBSITE);
 
         Map<String, Object> echoParams = new HashMap<>();
         echoParams.put(AbstractEchoProtocolTask.PROTOCOL, AbstractEchoProtocolTask.PROTOCOL_TCP);
-        echoTcpTaskDesc = new TaskDesc("host", 80, false, "token", 1, 1, 1, 1, echoParams, RMBTClient.TASK_ECHO_PROTOCOL);
+        echoTcpTaskDesc = new TaskDesc("host", 80, false, "token", 1, 1, 1, 1, echoParams, TASK_ECHO_PROTOCOL);
         echoParams = new HashMap<>();
         echoParams.put(AbstractEchoProtocolTask.PROTOCOL, AbstractEchoProtocolTask.PROTOCOL_UDP);
-        echoUdpTaskDesc = new TaskDesc("host", 80, false, "token", 1, 1, 1, 1, echoParams, RMBTClient.TASK_ECHO_PROTOCOL);
+        echoUdpTaskDesc = new TaskDesc("host", 80, false, "token", 1, 1, 1, 1, echoParams, TASK_ECHO_PROTOCOL);
         echoParams = new HashMap<>();
         echoParams.put(AbstractEchoProtocolTask.PROTOCOL, "Not an echo protocol");
-        echoUnknownTaskDesc = new TaskDesc("host", 80, false, "token", 1, 1, 1, 1, echoParams, RMBTClient.TASK_ECHO_PROTOCOL);
-        echoNoProtocolTaskDesc = new TaskDesc("host", 80, false, "token", 1, 1, 1, 1, new HashMap<String, Object>(), RMBTClient.TASK_ECHO_PROTOCOL);
+        echoUnknownTaskDesc = new TaskDesc("host", 80, false, "token", 1, 1, 1, 1, echoParams, TASK_ECHO_PROTOCOL);
+        echoNoProtocolTaskDesc = new TaskDesc("host", 80, false, "token", 1, 1, 1, 1, new HashMap<String, Object>(), TASK_ECHO_PROTOCOL);
 
     }
 
