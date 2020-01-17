@@ -46,7 +46,9 @@ public class TracerouteTask extends AbstractQoSTask {
 	private final long timeout;
 	
 	private final int maxHops;
-	
+
+	private final boolean masked;
+
 	public final static String PARAM_HOST = "host";
 	
 	public final static String PARAM_TIMEOUT = "timeout";
@@ -66,10 +68,18 @@ public class TracerouteTask extends AbstractQoSTask {
 	public final static String RESULT_HOPS = "traceroute_result_hops";
 
 	/**
-	 * 
+	 *
 	 * @param taskDesc
 	 */
 	public TracerouteTask(QualityOfServiceTest nnTest, TaskDesc taskDesc, int threadId) {
+		this(nnTest, taskDesc, threadId, false);
+	}
+
+	/**
+	 * 
+	 * @param taskDesc
+	 */
+	public TracerouteTask(QualityOfServiceTest nnTest, TaskDesc taskDesc, int threadId, boolean masked) {
 		super(nnTest, taskDesc, threadId, threadId);
 		this.host = (String)taskDesc.getParams().get(PARAM_HOST);
 		
@@ -78,13 +88,21 @@ public class TracerouteTask extends AbstractQoSTask {
 		
 		value = (String) taskDesc.getParams().get(PARAM_MAX_HOPS);
 		this.maxHops = value != null ? Integer.valueOf(value) : DEFAULT_MAX_HOPS;
+
+		this.masked = masked;
 	}
 
 	/**
 	 * 
 	 */
 	public QoSTestResult call() throws Exception {
-  		final QoSTestResult testResult = initQoSTestResult(QosMeasurementType.TRACEROUTE);
+  		final QoSTestResult testResult;
+  		if (this.masked) {
+  			testResult = initQoSTestResult(QosMeasurementType.TRACEROUTE_MASKED);
+		}
+  		else {
+			testResult = initQoSTestResult(QosMeasurementType.TRACEROUTE);
+		}
 
   		testResult.getResultMap().put(RESULT_HOST, host);
   		testResult.getResultMap().put(RESULT_TIMEOUT, timeout);
@@ -119,7 +137,7 @@ public class TracerouteTask extends AbstractQoSTask {
 	  			if (pingDetailList != null) {
 		  			List<Map<String, Object>> resultArray = new ArrayList<>();
 		  			for (final HopDetail p : pingDetailList) {
-		  				resultArray.add(p.toMap());
+		  				resultArray.add(p.toMap(masked));
 		  			}
 
 		  			testResult.getResultMap().put(RESULT_DETAILS, resultArray);
@@ -150,7 +168,11 @@ public class TracerouteTask extends AbstractQoSTask {
 	 * @see at.alladin.rmbt.client.v2.task.QoSTask#getTestType()
 	 */
 	public QosMeasurementType getTestType() {
-		return QosMeasurementType.TRACEROUTE;
+		if (this.masked) {
+			return QosMeasurementType.TRACEROUTE_MASKED;
+		} else {
+			return QosMeasurementType.TRACEROUTE;
+		}
 	}
 
 	/*

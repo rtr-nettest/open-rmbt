@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.http.annotation.Obsolete;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -141,7 +142,8 @@ public class TracerouteAndroidImpl implements TracerouteService {
 					+ packetLoss + ", time=" + (time / 1000000) + "ms, fromIp=" + fromIp
 					+ "]";
 		}
-		
+
+		@Obsolete
 		public JSONObject toJson(Boolean masked) {
 			JSONObject json = new JSONObject();
 			try {
@@ -162,6 +164,7 @@ public class TracerouteAndroidImpl implements TracerouteService {
 			}
 		}
 
+		@Obsolete
 		public JSONObject toJson() {
 			JSONObject json = new JSONObject();
 			try {
@@ -174,12 +177,24 @@ public class TracerouteAndroidImpl implements TracerouteService {
 			}
 		}
 
-		public Map<String, Object> toMap() {
+		public Map<String, Object> toMap(boolean masked) {
 			Map<String, Object> result = new HashMap<>();
+			if (masked) {
+				try {
+					InetAddress ip = InetAddress.getByName(fromIp);
+					fromIp = Helperfunctions.anonymizeIp(ip,".x");
+				} catch (UnknownHostException e) {
+					fromIp = "*";
+				}
+			}
 			result.put("host", fromIp);
 			result.put("time", time);
 
 			return result;
+		}
+
+		public Map<String, Object> toMap() {
+			return toMap(false);
 		}
 	}
 	

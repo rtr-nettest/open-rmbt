@@ -71,6 +71,12 @@ public enum QosMeasurementType {
 	 */
     @SerializedName("traceroute")
     TRACEROUTE("traceroute", "test.trace", "name.trace", TracerouteResult.class),
+
+    /**
+     *
+     */
+    @SerializedName("traceroute_masked")
+    TRACEROUTE_MASKED("traceroute_masked", "test.trace", "name.trace", TracerouteResult.class),
     
     /**
 	 * 

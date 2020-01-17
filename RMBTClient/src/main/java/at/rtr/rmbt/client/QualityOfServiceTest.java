@@ -184,6 +184,15 @@ public class QualityOfServiceTest implements Callable<QoSResultCollector> {
 					System.out.println("No TracerouteService implementation: Skipping TracerouteTask: " + taskDesc);
 				}
 			}
+			if (RMBTClient.TASK_TRACEROUTE_MASKED.equals(taskId)) {
+				final boolean TraceRouteMaskedAvailable = true; // enable service
+				if (TraceRouteMaskedAvailable && nnTestSettings != null && nnTestSettings.getTracerouteServiceClazz() != null) {
+					test = new TracerouteTask(this, taskDesc, threadCounter++,true);
+				}
+				else {
+					System.out.println("No TracerouteMaskedService implementation: Skipping TracerouteMaskedTask: " + taskDesc);
+				}
+			}
 			else if (TASK_WEBSITE.equals(taskId)) {
 				if (nnTestSettings != null && nnTestSettings.getWebsiteTestService() != null) {
 					test = new WebsiteTask(this, taskDesc, threadCounter++);
