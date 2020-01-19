@@ -16,7 +16,6 @@
 
 package at.rtr.rmbt.shared.qos;
 
-import at.rtr.rmbt.shared.model.berec.collector.api.v1.dto.shared.QoSMeasurementTypeDto;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.HashMap;
@@ -212,65 +211,4 @@ public enum QosMeasurementType {
         }
     }
 
-    public QoSMeasurementTypeDto getQosMeasurementTypeDto() {
-        switch(this) {
-            case DNS:
-                return QoSMeasurementTypeDto.DNS;
-            case TCP:
-                return QoSMeasurementTypeDto.TCP;
-            case UDP:
-                return QoSMeasurementTypeDto.UDP;
-            case VOIP:
-                return QoSMeasurementTypeDto.VOIP;
-            case WEBSITE:
-                return QoSMeasurementTypeDto.WEBSITE;
-            case HTTP_PROXY:
-                return QoSMeasurementTypeDto.HTTP_PROXY;
-            case ECHO_PROTOCOL:
-                return QoSMeasurementTypeDto.ECHO_PROTOCOL;
-            case NON_TRANSPARENT_PROXY:
-                return QoSMeasurementTypeDto.NON_TRANSPARENT_PROXY;
-            case TRACEROUTE:
-                return QoSMeasurementTypeDto.TRACEROUTE;
-            case SIP:
-                return QoSMeasurementTypeDto.SIP;
-            case MKIT_WEB_CONNECTIVITY:
-                return QoSMeasurementTypeDto.MKIT_WEB_CONNECTIVITY;
-            case MKIT_DASH:
-                return QoSMeasurementTypeDto.MKIT_DASH;
-            default:
-                return null;
-        }
-    }
-
-    public static QosMeasurementType fromQosTypeDto(final QoSMeasurementTypeDto dto) {
-        switch(dto) {
-            case DNS:
-                return DNS;
-            case TCP:
-                return TCP;
-            case UDP:
-                return UDP;
-            case VOIP:
-                return VOIP;
-            case WEBSITE:
-                return WEBSITE;
-            case HTTP_PROXY:
-                return HTTP_PROXY;
-            case ECHO_PROTOCOL:
-                return ECHO_PROTOCOL;
-            case NON_TRANSPARENT_PROXY:
-                return NON_TRANSPARENT_PROXY;
-            case TRACEROUTE:
-                return TRACEROUTE;
-            case SIP:
-                return SIP;
-            case MKIT_WEB_CONNECTIVITY:
-                return MKIT_WEB_CONNECTIVITY;
-            case MKIT_DASH:
-                return MKIT_DASH;
-            default:
-                return null;
-        }
-    }
 }
