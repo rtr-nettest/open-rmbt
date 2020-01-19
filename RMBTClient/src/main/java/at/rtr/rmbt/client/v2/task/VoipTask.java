@@ -64,7 +64,7 @@ import at.rtr.rmbt.util.net.udp.StreamSender.UdpStreamCallback;
  */
 public class VoipTask extends AbstractQoSTask {
 	
-	private final static Pattern VOIP_RECEIVE_RESPONSE_PATTERN = Pattern.compile("VOIPRESULT (-?[\\d]*) (-?[\\d]*) (-?[\\d]*) (-?[\\d]*) (-?[\\d]*) (-?[\\d]*) (-?[\\d]*) (-?[\\d]*) (-?[\\d]*) (-?[\\d]*)");
+	private final static Pattern VOIP_RECEIVE_RESPONSE_PATTERN = Pattern.compile("VOIPRESULT (-?[\\d]*) (-?[\\d]*) (-?[\\d]*) (-?[\\d]*) (-?[\\d]*) (-?[\\d]*) (-?[\\d]*) (-?[\\d]*)( (-?[\\d]*) (-?[\\d]*))?");
 	
 	private final static Pattern VOIP_OK_PATTERN = Pattern.compile("OK ([\\d]*)");
 	
@@ -338,8 +338,11 @@ public class VoipTask extends AbstractQoSTask {
 							result.getResultMap().put(prefix + RESULT_SEQUENCE_ERRORS, Long.parseLong(m.group(6)));
 							result.getResultMap().put(prefix + RESULT_SHORT_SEQUENTIAL, Long.parseLong(m.group(7)));
 							result.getResultMap().put(prefix + RESULT_LONG_SEQUENTIAL, Long.parseLong(m.group(8)));
-							result.getResultMap().put(prefix + RESULT_NUMBER_OF_STALLS, Long.parseLong(m.group(9)));
-							result.getResultMap().put(prefix + RESULT_AVG_STALL_TIME, Long.parseLong(m.group(10)));
+							//fallback to work with older versions
+							if (m.group(9) != null) {
+								result.getResultMap().put(prefix + RESULT_NUMBER_OF_STALLS, Long.parseLong(m.group(10)));
+								result.getResultMap().put(prefix + RESULT_AVG_STALL_TIME, Long.parseLong(m.group(11)));
+							}
 						}
 						resultLatch.countDown();
 					}
