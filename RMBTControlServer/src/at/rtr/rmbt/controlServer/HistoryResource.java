@@ -175,7 +175,7 @@ public class HistoryResource extends ServerResource
                                             .format(
 
                                             		"SELECT DISTINCT"
-                                                    + " t.uuid, time, timezone, speed_upload, speed_download, ping_median, network_type, nt.group_name network_type_group_name, l.loop_uuid loop_uuid,"
+                                                    + " t.uuid, time, timezone, speed_upload, speed_download, ping_median, lte_rsrp, signal_strength, dual_sim, sim_count, network_type, nt.group_name network_type_group_name, l.loop_uuid loop_uuid,"
                                                     + " COALESCE(adm.fullname, t.model) model"
                                                     + " FROM test t"
                                                     + " LEFT JOIN device_map adm ON adm.codename=t.model"
@@ -191,7 +191,7 @@ public class HistoryResource extends ServerResource
                                         .prepareStatement(String
                                                 .format(
                                                 		"SELECT DISTINCT"
-                                                        + " t.uuid, time, timezone, speed_upload, speed_download, ping_median, network_type, nt.group_name network_type_group_name, l.loop_uuid loop_uuid,"
+                                                        + " t.uuid, time, timezone, speed_upload, speed_download, ping_median, lte_rsrp, signal_strength, dual_sim, sim_count, network_type, nt.group_name network_type_group_name, l.loop_uuid loop_uuid,"
                                                         + " COALESCE(adm.fullname, t.model) model"
                                                         + " FROM test t"
                                                         + " LEFT JOIN device_map adm ON adm.codename=t.model"
@@ -257,7 +257,59 @@ public class HistoryResource extends ServerResource
                                 jsonItem.put("ping_classification", Classification.classify(Classification.THRESHOLD_PING, rs.getLong("ping_median"), capabilities.getClassificationCapability().getCount()));
                                 // backwards compatibility for old clients
                                 jsonItem.put("ping_shortest_classification", Classification.classify(Classification.THRESHOLD_PING, rs.getLong("ping_median"), capabilities.getClassificationCapability().getCount()));
-                                
+
+                                //for new android version: also add signal classification to the response
+                                boolean dualSim = false;
+                                String dualSimField = rs.getString("dual_sim");
+                                if (!(dualSimField == null) && (dualSimField.toLowerCase().equals("true")))
+                                    dualSim = true;
+
+
+                                final int networkType = rs.getInt("network_type");
+
+                                //workaround for clients reporting "dual sim" on Wifi
+                                if (networkType > 90)
+                                    dualSim = false;
+
+                                String signalString = null;
+                                final int signalField = rs.getInt("signal_strength"); // signal strength as RSSI (GSM, UMTS, Wifi, sometimes LTE)
+                                final int lteRsrpField = rs.getInt("lte_rsrp");            // signal strength as RSRP, used in LTE
+
+                                //maybe, dualSim was already handled by a new client, in this case, it's ok
+                                boolean useSignal = !dualSim;
+                                if (dualSim) {
+                                    if (rs.getInt("sim_count") != 0) {
+                                        useSignal = true;
+                                    }
+                                }
+                                if (useSignal)
+                                {
+                                    JSONObject singleItem;
+                                    if (!(signalField != 0) || !(lteRsrpField != 0) )
+                                    {
+                                        if (lteRsrpField == 0) {  // only RSSI value, output RSSI to JSON
+                                            final int signalValue = signalField;
+                                            final int[] threshold = networkType == 99 || networkType == 0 ? Classification.THRESHOLD_SIGNAL_WIFI
+                                                    : Classification.THRESHOLD_SIGNAL_MOBILE;
+
+                                            jsonItem.put("signal_strength", signalField);
+                                            jsonItem.put("signal_classification", Classification.classify(threshold, signalValue, capabilities.getClassificationCapability().getCount()));
+                                        }
+                                        else  { // use RSRP value else (RSRP value has priority if both are available (e.g. 3G/4G-test))
+                                            final int signalValue = lteRsrpField;
+                                            final int[] threshold = Classification.THRESHOLD_SIGNAL_RSRP;
+
+                                            jsonItem.put("lte_rsrp", lteRsrpField);
+                                            jsonItem.put("signal_classification", Classification.classify(threshold, signalValue, capabilities.getClassificationCapability().getCount()));
+
+                                        }
+                                    }
+                                    else {
+                                        jsonItem.put("lte_rsrp", JSONObject.NULL);
+                                        jsonItem.put("signal_classification", JSONObject.NULL);
+                                    }
+                                } //dualSim
+
                                 historyList.put(jsonItem);
                             }
                             
