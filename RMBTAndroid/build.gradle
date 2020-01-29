@@ -64,6 +64,8 @@ appSecretProperties.load(new FileInputStream(appSecretPropertiesFile))
 
 android {
     compileSdkVersion 29
+
+	useLibrary  'org.apache.http.legacy'
 //  obsolete since Android studio 3.0.0
 //  buildToolsVersion '27.0.3'
 

@@ -63,13 +63,13 @@ public class LoopModeResults {
 			}
 		}
 		
-		public void addCurrent(final TrafficService trafficService) {
+		/*public void addCurrent(final TrafficService trafficService) {
 			if (trafficService != null) {
 				trafficService.update();
 				this.tx+=trafficService.getCurrentTxBytes();
 				this.rx+=trafficService.getCurrentRxBytes();
 			}
-		}
+		}*/
 
 		public void addTotal(final TrafficService trafficService) {
 			if (trafficService != null) {

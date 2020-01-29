@@ -111,9 +111,10 @@ public class UdpStreamReceiver {
 			{
 				byteOut.reset();
 
-				if (callback != null && callback.onSend(dataOut, packetsReceived)) {
+				if (callback != null && callback.onSend(dataOut, packetsReceived, packet.getData())) {
 					final byte[] dataToSend = byteOut.toByteArray();
-					DatagramPacket dp = new DatagramPacket(dataToSend, dataToSend.length, packet.getAddress(), packet.getPort());
+					DatagramPacket dp = new DatagramPacket(dataToSend, dataToSend.length,
+							packet.getAddress(), packet.getPort());
 					settings.socket.send(dp);
 				}
 			}

@@ -22,14 +22,11 @@ dependencies {
     compile group: 'dnsjava', name: 'dnsjava', version: '2.1.8'
     compile project(':RMBTSharedCode')
     compile project(':RMBTUtil')
+
+    testImplementation group: 'org.jmockit', name: 'jmockit', version: '1.45'
+    testImplementation group: 'junit', name: 'junit', version: '4.12'
 }
 
-sourceSets {
-    main {
-        java { srcDir 'src' }
-        resources { srcDir 'src' }
-    }
-}
 
 subprojects{
     evaluationDependsOn(':RMBTSharedCode')
@@ -56,4 +53,8 @@ processResources {
         revisionProperties = revisionProperties + "git.revision=" + getVersionCodeFromGit() + "\n"
         revisionPropertiesFile.write(revisionProperties, 'UTF-8')
     }
+}
+
+test {
+    jvmArgs "-javaagent:${classpath.find { it.name.contains("jmockit") }.absolutePath}"
 }

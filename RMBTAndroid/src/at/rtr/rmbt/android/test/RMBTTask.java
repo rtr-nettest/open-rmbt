@@ -39,6 +39,7 @@ import android.os.Handler;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
+import at.rtr.rmbt.shared.qos.QosMeasurementType;
 import com.google.common.base.Strings;
 
 import at.rtr.rmbt.android.impl.TracerouteAndroidImpl;
@@ -56,7 +57,6 @@ import at.rtr.rmbt.client.helper.TestStatus;
 import at.rtr.rmbt.client.ndt.NDTRunner;
 import at.rtr.rmbt.client.v2.task.QoSTestEnum;
 import at.rtr.rmbt.client.v2.task.result.QoSResultCollector;
-import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum;
 import at.rtr.rmbt.client.v2.task.service.TestMeasurement;
 import at.rtr.rmbt.client.v2.task.service.TestSettings;
 import at.rtr.rmbt.client.v2.task.service.TrafficService;
@@ -327,7 +327,7 @@ public class RMBTTask
 
                         //get default dns servers
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                            qosTestSettings.setDefaultDnsResolvers(getDnsServers(context));
+                            qosTestSettings.setDnsServerAddressList(getDnsServers(context));
                         }
 
 						
@@ -536,7 +536,7 @@ public class RMBTTask
      * 
      * @return
      */
-    public Map<QoSTestResultEnum, Counter> getQoSGroupCounterMap() {
+    public Map<QosMeasurementType, Counter> getQoSGroupCounterMap() {
     	final QualityOfServiceTest nnTest = qosReference.get();
         if (nnTest == null)
             return null;

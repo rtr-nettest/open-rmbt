@@ -30,30 +30,31 @@ import at.alladin.rmbt.android.R;
 import at.rtr.rmbt.android.fragments.result.QoSCategoryView;
 import at.rtr.rmbt.android.main.RMBTMainActivity;
 import at.rtr.rmbt.android.util.ConfigHelper;
-import at.rtr.rmbt.client.v2.task.result.QoSServerResult;
-import at.rtr.rmbt.client.v2.task.result.QoSServerResultCollection;
-import at.rtr.rmbt.client.v2.task.result.QoSServerResultDesc;
 import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum;
+import at.rtr.rmbt.client.v2.task.result.QoSServerResultCollection;
+import at.rtr.rmbt.client.v2.task.result.QoSServerResult;
+import at.rtr.rmbt.client.v2.task.result.QoSServerResultDesc;
+import at.rtr.rmbt.shared.qos.QosMeasurementType;
 
 public class QoSCategoryPagerAdapter extends PagerAdapter {
 
-	public final static HashMap<QoSTestResultEnum, Integer> TITLE_MAP;
+	public final static HashMap<QosMeasurementType, Integer> TITLE_MAP;
 	
 	static {
-		TITLE_MAP = new HashMap<QoSTestResultEnum, Integer>();
-		TITLE_MAP.put(QoSTestResultEnum.WEBSITE, R.string.qos_test_name_website);
-		TITLE_MAP.put(QoSTestResultEnum.HTTP_PROXY, R.string.qos_test_name_http_proxy);
-		TITLE_MAP.put(QoSTestResultEnum.NON_TRANSPARENT_PROXY, R.string.qos_test_name_non_transparent_proxy);
-		TITLE_MAP.put(QoSTestResultEnum.DNS, R.string.qos_test_name_dns);
-		TITLE_MAP.put(QoSTestResultEnum.TCP, R.string.qos_test_name_tcp);
-		TITLE_MAP.put(QoSTestResultEnum.UDP, R.string.qos_test_name_udp);
+		TITLE_MAP = new HashMap<QosMeasurementType, Integer>();
+		TITLE_MAP.put(QosMeasurementType.WEBSITE, R.string.qos_test_name_website);
+		TITLE_MAP.put(QosMeasurementType.HTTP_PROXY, R.string.qos_test_name_http_proxy);
+		TITLE_MAP.put(QosMeasurementType.NON_TRANSPARENT_PROXY, R.string.qos_test_name_non_transparent_proxy);
+		TITLE_MAP.put(QosMeasurementType.DNS, R.string.qos_test_name_dns);
+		TITLE_MAP.put(QosMeasurementType.TCP, R.string.qos_test_name_tcp);
+		TITLE_MAP.put(QosMeasurementType.UDP, R.string.qos_test_name_udp);
 	}
 	
-	private final List<QoSTestResultEnum> titleList = new ArrayList<QoSTestResultEnum>();
+	private final List<QosMeasurementType> titleList = new ArrayList<>();
     private final RMBTMainActivity activity;
     private final QoSServerResultCollection results;
-    private final Map<QoSTestResultEnum, List<QoSServerResult>> resultMap;
-    private final Map<QoSTestResultEnum, List<QoSServerResultDesc>> descMap;
+    private final HashMap<QosMeasurementType, List<QoSServerResult>> resultMap;
+    private final HashMap<QosMeasurementType, List<QoSServerResultDesc>> descMap;
         
 	public QoSCategoryPagerAdapter(final RMBTMainActivity _activity, 
 			final Handler _handler, final QoSServerResultCollection results)
@@ -66,7 +67,7 @@ public class QoSCategoryPagerAdapter extends PagerAdapter {
         this.descMap = results.getDescMap();
         this.resultMap = results.getResultMap();
         
-        for (QoSTestResultEnum type : QoSTestResultEnum.values()) {
+        for (QosMeasurementType type : QosMeasurementType.values()) {
         	if (results.getQoSStatistics().getTestCounter(type) > 0) {
         		titleList.add(type);
         	}
@@ -84,7 +85,7 @@ public class QoSCategoryPagerAdapter extends PagerAdapter {
 	 * @param key
 	 * @return
 	 */
-	public boolean hasResults(QoSTestResultEnum key) {
+	public boolean hasResults(QosMeasurementType key) {
 		return titleList.contains(key);
 	}
 	
@@ -93,7 +94,7 @@ public class QoSCategoryPagerAdapter extends PagerAdapter {
         final Context context = container.getContext();
         
         //QoSTestResultEnum key = QoSTestResultEnum.values()[position];
-        QoSTestResultEnum key = titleList.get(position);
+		QosMeasurementType key = titleList.get(position);
         View view = null;
         view = new QoSCategoryView(context, activity, results.getTestDescMap().get(key), resultMap.get(key), descMap.get(key));
         container.addView(view);

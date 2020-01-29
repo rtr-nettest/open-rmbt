@@ -47,7 +47,7 @@
         android:banner="@drawable/app_icon"
         android:networkSecurityConfig="@xml/network_security_config"
         >
-    >
+
         <uses-library android:name="android.test.runner" />
         <uses-library android:name="org.apache.http.legacy" android:required="false"/>
 
