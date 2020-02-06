@@ -27,6 +27,11 @@ dependencies {
     testImplementation group: 'junit', name: 'junit', version: '4.12'
 }
 
+sourceSets {
+    main {
+        resources { srcDir 'src' }
+    }
+}
 
 subprojects{
     evaluationDependsOn(':RMBTSharedCode')
