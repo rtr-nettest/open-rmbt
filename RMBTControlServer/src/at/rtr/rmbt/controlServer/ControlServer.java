@@ -94,7 +94,10 @@ public class ControlServer extends Application
 
         router.attach("/qosTestRequest", QoSTestRequestResource.class);
         router.attach("/qosTestResult", QoSResultResource.class);
-        
+
+        router.attach("/signalRequest", SignalRegistrationResource.class);
+        router.attach("/signalResult", SignalResultResource.class);
+
         // administrative resources (access restrictions might be applied to /admin/ 
         router.attach("/admin/qosObjectives", QualityOfServiceExportResource.class);
         router.attach("/admin/setImplausible", ImplausibilityHelperResource.class);
