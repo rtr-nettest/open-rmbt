@@ -38,7 +38,11 @@ public class SignalResultResource extends ServerResource {
                         setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
                     }
                 }
-            } catch (final JSONException | IllegalArgumentException e) {
+            } catch(final JSONException e) {
+                e.printStackTrace();
+                setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+            }
+            catch (final IllegalArgumentException e) {
                 errorList.addError("ERROR_REQUEST_JSON");
                 setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
             }
