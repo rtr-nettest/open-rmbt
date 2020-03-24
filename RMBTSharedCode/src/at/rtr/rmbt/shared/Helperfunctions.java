@@ -160,6 +160,7 @@ public abstract class Helperfunctions
         switch (type)
         {
         case 1:
+        case 16:
             return "2G (GSM)";
         case 2:
             return "2G (EDGE)";
