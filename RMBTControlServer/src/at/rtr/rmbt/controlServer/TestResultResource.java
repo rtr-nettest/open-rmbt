@@ -234,7 +234,10 @@ public class TestResultResource extends ServerResource
 
                         try {
                             //QoE classification
-                            List<QoEClassification.Classification> qoe = QoEClassification.classify(fieldPing.longValue(), fieldDown.longValue(), fieldUp.longValue());
+
+                            //get configuration from db
+                            List<QoEClassification.Classification> qoe = QoEClassification.classify(fieldPing.longValue(), fieldDown.longValue(), fieldUp.longValue(),
+                                    QoEClassification.getQoEClassificationsFromDb(conn));
                             ObjectMapper om = new ObjectMapper();
                             String qoeAsString = om.writer().writeValueAsString(qoe);
                             jsonItem.put("qoe_classification", new JSONArray(qoeAsString));
