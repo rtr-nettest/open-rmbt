@@ -4974,6 +4974,28 @@ CREATE VIEW public.v_get_replication_delay AS
 
 ALTER TABLE public.v_get_replication_delay OWNER TO postgres;
 
+
+create table if not exists qoe_classification
+(
+	uid serial not null
+		constraint qoe_classification_pk
+			primary key,
+	category varchar(30) not null,
+	dl_4 double precision not null,
+	dl_3 double precision not null,
+	dl_2 double precision not null,
+	ul_4 double precision not null,
+	ul_3 double precision not null,
+	ul_2 double precision not null,
+	ping_4 double precision not null,
+	ping_3 double precision not null,
+	ping_2 double precision not null
+);
+
+ALTER TABLE public.qoe_classification OWNER TO rmbt;
+GRANT SELECT ON TABLE public.qoe_classification TO rmbt_group_read_only;
+
+
 --
 -- Name: v_test; Type: VIEW; Schema: public; Owner: postgres
 --
