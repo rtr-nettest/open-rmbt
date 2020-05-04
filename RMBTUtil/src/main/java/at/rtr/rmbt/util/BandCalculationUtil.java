@@ -331,56 +331,56 @@ public class BandCalculationUtil {
     public static abstract class Band {
         private int band;
 
-        private final double upload_frequency_lower_bound;
-        private final double upload_frequency_upper_bound;
-        private final double download_frequency_lower_bound;
-        private final double download_frequency_upper_bound;
-        private final double upload_channel_lower_bound;
-        private final double upload_channel_upper_bound;
-        private final double channel_offset; //difference between (upload_channel_lower_bound - download_channel_lower_bound)
+        private final double uplink_frequency_lower_bound;
+        private final double uplink_frequency_upper_bound;
+        private final double downlink_frequency_lower_bound;
+        private final double downlink_frequency_upper_bound;
+        private final double uplink_channel_lower_bound;
+        private final double uplink_channel_upper_bound;
+        private final double channel_offset; //difference between (uplink_channel_lower_bound - downlink_channel_lower_bound)
         private final String informal_name;
 
-        protected Band(int band, double upload_frequency_lower_bound, double upload_frequency_upper_bound, double download_frequency_lower_bound, double download_frequency_upper_bound, double upload_channel_lower_bound, double upload_channel_upper_bound, double channel_offset, String informal_name) {
+        protected Band(int band, double uplink_frequency_lower_bound, double uplink_frequency_upper_bound, double downlink_frequency_lower_bound, double downlink_frequency_upper_bound, double uplink_channel_lower_bound, double uplink_channel_upper_bound, double channel_offset, String informal_name) {
             this.band = band;
-            this.upload_frequency_lower_bound = upload_frequency_lower_bound;
-            this.upload_frequency_upper_bound = upload_frequency_upper_bound;
-            this.download_frequency_lower_bound = download_frequency_lower_bound;
-            this.download_frequency_upper_bound = download_frequency_upper_bound;
-            this.upload_channel_lower_bound = upload_channel_lower_bound;
-            this.upload_channel_upper_bound = upload_channel_upper_bound;
+            this.uplink_frequency_lower_bound = uplink_frequency_lower_bound;
+            this.uplink_frequency_upper_bound = uplink_frequency_upper_bound;
+            this.downlink_frequency_lower_bound = downlink_frequency_lower_bound;
+            this.downlink_frequency_upper_bound = downlink_frequency_upper_bound;
+            this.uplink_channel_lower_bound = uplink_channel_lower_bound;
+            this.uplink_channel_upper_bound = uplink_channel_upper_bound;
             this.channel_offset = channel_offset;
             this.informal_name = informal_name;
         }
 
         public abstract double getStep();
 
-        /** Checks whether a upload frequency is contained in band object
+        /** Checks whether a uplink frequency is contained in band object
          *
          * @param channel Frequency to check
-         * @return True if the upload frequency is contained in this band, else false
+         * @return True if the uplink frequency is contained in this band, else false
          */
         public boolean containsChannel (double channel) {
             return containsDLChannel(channel) || containsULChannel(channel);
         }
 
         public boolean containsDLChannel(double channel) {
-            return channel > (upload_channel_lower_bound - channel_offset) && channel < (upload_channel_upper_bound - channel_offset);
+            return channel > (uplink_channel_lower_bound - channel_offset) && channel < (uplink_channel_upper_bound - channel_offset);
         }
 
         public boolean containsULChannel(double channel) {
-            return channel > upload_channel_lower_bound && channel < upload_channel_upper_bound;
+            return channel > uplink_channel_lower_bound && channel < uplink_channel_upper_bound;
         }
 
         public double getFrequencyDL(double channel) {
             double channelOffset = (!containsDLChannel(channel))?0:this.channel_offset;
-            double frequency = this.download_frequency_lower_bound + getStep() * (channel - (this.upload_channel_lower_bound - channelOffset));
+            double frequency = this.downlink_frequency_lower_bound + getStep() * (channel - (this.uplink_channel_lower_bound - channelOffset));
             frequency = (double) Math.round(frequency * 1000) / 1000;
             return frequency;
         }
 
         public double getFrequencyUL(double channel) {
             double channelOffset = (!containsULChannel(channel))?0:-this.channel_offset;
-            double frequency = this.download_frequency_lower_bound + getStep() * (channel - (this.upload_channel_lower_bound - channelOffset));
+            double frequency = this.downlink_frequency_lower_bound + getStep() * (channel - (this.uplink_channel_lower_bound - channelOffset));
             frequency = (double) Math.round(frequency * 1000) / 1000;
             return frequency;
         }
@@ -397,8 +397,8 @@ public class BandCalculationUtil {
 
     public static class LTEBand extends Band {
 
-        protected LTEBand(int band, double upload_frequency_lower_bound, double upload_frequency_upper_bound, double download_frequency_lower_bound, double download_frequency_upper_bound, double upload_channel_lower_bound, double upload_channel_upper_bound, double channel_offset, String informal_name) {
-            super(band, upload_frequency_lower_bound, upload_frequency_upper_bound, download_frequency_lower_bound, download_frequency_upper_bound, upload_channel_lower_bound, upload_channel_upper_bound, channel_offset, informal_name);
+        protected LTEBand(int band, double uplink_frequency_lower_bound, double uplink_frequency_upper_bound, double downlink_frequency_lower_bound, double downlink_frequency_upper_bound, double uplink_channel_lower_bound, double uplink_channel_upper_bound, double channel_offset, String informal_name) {
+            super(band, uplink_frequency_lower_bound, uplink_frequency_upper_bound, downlink_frequency_lower_bound, downlink_frequency_upper_bound, uplink_channel_lower_bound, uplink_channel_upper_bound, channel_offset, informal_name);
         }
 
         @Override
@@ -409,8 +409,8 @@ public class BandCalculationUtil {
 
     public static class UMTSBand extends Band {
 
-        public UMTSBand(int band, double upload_frequency_lower_bound, double upload_frequency_upper_bound, double download_frequency_lower_bound, double download_frequency_upper_bound, double upload_channel_lower_bound, double upload_channel_upper_bound, double channel_offset, String informal_name) {
-            super(band, upload_frequency_lower_bound, upload_frequency_upper_bound, download_frequency_lower_bound, download_frequency_upper_bound, upload_channel_lower_bound, upload_channel_upper_bound, channel_offset, informal_name);
+        public UMTSBand(int band, double uplink_frequency_lower_bound, double uplink_frequency_upper_bound, double downlink_frequency_lower_bound, double downlink_frequency_upper_bound, double uplink_channel_lower_bound, double uplink_channel_upper_bound, double channel_offset, String informal_name) {
+            super(band, uplink_frequency_lower_bound, uplink_frequency_upper_bound, downlink_frequency_lower_bound, downlink_frequency_upper_bound, uplink_channel_lower_bound, uplink_channel_upper_bound, channel_offset, informal_name);
         }
 
         @Override
@@ -421,8 +421,8 @@ public class BandCalculationUtil {
 
     public static class GSMBand extends Band {
 
-        protected GSMBand(int band, double upload_frequency_lower_bound, double upload_frequency_upper_bound, double download_frequency_lower_bound, double download_frequency_upper_bound, double upload_channel_lower_bound, double upload_channel_upper_bound, double channel_offset, String informal_name) {
-            super(band, upload_frequency_lower_bound, upload_frequency_upper_bound, download_frequency_lower_bound, download_frequency_upper_bound, upload_channel_lower_bound, upload_channel_upper_bound, channel_offset, informal_name);
+        protected GSMBand(int band, double uplink_frequency_lower_bound, double uplink_frequency_upper_bound, double downlink_frequency_lower_bound, double downlink_frequency_upper_bound, double uplink_channel_lower_bound, double uplink_channel_upper_bound, double channel_offset, String informal_name) {
+            super(band, uplink_frequency_lower_bound, uplink_frequency_upper_bound, downlink_frequency_lower_bound, downlink_frequency_upper_bound, uplink_channel_lower_bound, uplink_channel_upper_bound, channel_offset, informal_name);
         }
 
         @Override
