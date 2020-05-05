@@ -17,20 +17,9 @@ package at.rtr.rmbt.android.util;
 
 import android.net.wifi.WifiInfo;
 import android.os.Build;
+import android.os.SystemClock;
 import android.support.annotation.RequiresApi;
-import android.telephony.CellIdentityCdma;
-import android.telephony.CellIdentityGsm;
-import android.telephony.CellIdentityLte;
-import android.telephony.CellIdentityWcdma;
-import android.telephony.CellInfo;
-import android.telephony.CellInfoCdma;
-import android.telephony.CellInfoGsm;
-import android.telephony.CellInfoLte;
-import android.telephony.CellInfoWcdma;
-import android.telephony.CellSignalStrengthCdma;
-import android.telephony.CellSignalStrengthGsm;
-import android.telephony.CellSignalStrengthLte;
-import android.telephony.CellSignalStrengthWcdma;
+import android.telephony.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -75,14 +64,21 @@ public class CellInformationWrapper {
     private Boolean registered;
     private Boolean active;
     private long timeStamp;
+    private long fallbackTimestamp;
+
     //start timestamp of the test, set in InformationCollector
-    private Long startTimestampNs;
+    private Long startTimestampNsSinceBoot;
+    private Long startTimestampNsNanotime;
     private Long timeLast;
 
 
     public CellInformationWrapper(CellInfo cellInfo) {
         setRegistered(cellInfo.isRegistered());
+        //a time stamp in nanos since boot according do to documentation (see below)
         this.setTimeStamp(cellInfo.getTimeStamp());
+
+        //fallback timestamp, should be almost identical
+        this.setFallbackTimestamp(SystemClock.elapsedRealtimeNanos());
 
         if (cellInfo.getClass().equals(CellInfoLte.class)) {
             setTechnology(Technology.CONNECTION_4G);
@@ -108,7 +104,8 @@ public class CellInformationWrapper {
 
     public CellInformationWrapper(WifiInfo wifiInfo) {
         setTechnology(Technology.CONNECTION_WLAN);
-        this.setTimeStamp(System.nanoTime());
+        this.setTimeStamp(SystemClock.elapsedRealtimeNanos());
+        this.setFallbackTimestamp(SystemClock.elapsedRealtimeNanos());
         setRegistered(true);
 
         this.ci = new CellIdentity(wifiInfo);
@@ -378,7 +375,7 @@ public class CellInformationWrapper {
         private Integer mnc;
         private Integer mcc;
         private Integer locationId;
-        private Integer areaCode;
+        private Long areaCode;
         private Integer scramblingCode;
         private String cellUuid = UUID.randomUUID().toString();
 
@@ -500,7 +497,7 @@ public class CellInformationWrapper {
         }
 
         @JsonProperty("area_code")
-        public Integer getAreaCode() {
+        public Long getAreaCode() {
             if (objectsEquals(areaCode, Integer.MAX_VALUE) ||
                     objectsEquals(areaCode, -1)) {
                 return null;
@@ -508,7 +505,7 @@ public class CellInformationWrapper {
             return areaCode;
         }
 
-        public void setAreaCode(int areaCode) {
+        public void setAreaCode(long areaCode) {
             this.areaCode = areaCode;
         }
 
@@ -627,6 +624,14 @@ public class CellInformationWrapper {
         this.timeStamp = timeStamp;
     }
 
+    public long getFallbackTimestamp() {
+        return fallbackTimestamp;
+    }
+
+    public void setFallbackTimestamp(long fallbackTimestamp) {
+        this.fallbackTimestamp = fallbackTimestamp;
+    }
+
     @Override
     public boolean equals(Object obj) {
         String a1 = obj.getClass().toString();
@@ -657,18 +662,28 @@ public class CellInformationWrapper {
     }
 
     @JsonIgnore
-    public Long getStartTimestampNs() {
-        return startTimestampNs;
+    public Long getStartTimestampNsSinceBoot() {
+        return startTimestampNsSinceBoot;
     }
 
-    public void setStartTimestampNs(Long startTimestampNs) {
-        this.startTimestampNs = startTimestampNs;
+    public void setStartTimestampNsSinceBoot(Long startTimestampNsSinceBoot) {
+        this.startTimestampNsSinceBoot = startTimestampNsSinceBoot;
+    }
+
+    @JsonIgnore
+    public Long getStartTimestampNsNanotime() {
+        return startTimestampNsNanotime;
+    }
+
+    public void setStartTimestampNsNanotime(Long startTimestampNsNanotime) {
+        this.startTimestampNsNanotime = startTimestampNsNanotime;
     }
 
     @JsonProperty("time_ns_last")
     public Long getTimeStampLast() {
-        if (startTimestampNs != null && this.timeLast != null) {
-            return this.timeLast - startTimestampNs;
+        //always based on nanotime
+        if (startTimestampNsNanotime != null && this.timeLast != null) {
+            return this.timeLast - startTimestampNsNanotime;
         }
         return null;
     }
@@ -685,8 +700,29 @@ public class CellInformationWrapper {
      */
     @JsonProperty("time_ns")
     public Long getTimeStampNs() {
-        if (startTimestampNs != null) {
-            return this.timeStamp - startTimestampNs;
+        //in theory, timestamps for cells should always return
+        //nano since boot (https://developer.android.com/reference/android/telephony/CellInfo.html#getTimeStamp())
+        //however, in practice, some seem to return a nano timestamp based on System.nanoTime() in some cases
+
+        if (startTimestampNsNanotime != null && startTimestampNsSinceBoot != null) {
+            long diffBasedOnNanotime = this.timeStamp - startTimestampNsNanotime;
+            long diffBasedOnNsSinceBoot = this.timeStamp - startTimestampNsSinceBoot;
+
+            long probableTimestamp = (Math.abs(diffBasedOnNanotime) < Math.abs(diffBasedOnNsSinceBoot)) ? diffBasedOnNanotime : diffBasedOnNsSinceBoot;
+
+            //additionally, compare to fallback timestamp based on time the EventHandler was invoked
+            long diffBasedOnFallback = this.fallbackTimestamp - startTimestampNsSinceBoot;
+
+            //if they are not within 60sec, use the "accurate" timestamp, otherwise, fall back
+            if (Math.abs(Math.abs(diffBasedOnFallback) - Math.abs(probableTimestamp)) > 60*1e9) {
+                return diffBasedOnFallback;
+            }
+
+            return probableTimestamp;
+        }
+
+        if (startTimestampNsSinceBoot != null) {
+            return this.timeStamp - startTimestampNsSinceBoot;
         }
         return null;
     }

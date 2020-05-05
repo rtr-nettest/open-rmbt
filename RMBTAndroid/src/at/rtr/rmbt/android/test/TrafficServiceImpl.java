@@ -99,7 +99,7 @@ public class TrafficServiceImpl implements TrafficService {
 		return TrafficStats.getTotalRxBytes();
 	}
 
-	@Override
+	/*@Override
 	public long getCurrentTxBytes() {
 		return (trafficTxStart != -1 ? getTotalTxBytes() - trafficTxStart : -1);
 	}
@@ -115,5 +115,5 @@ public class TrafficServiceImpl implements TrafficService {
 			stop();
 			running = true;
 		}
-	}
+	}*/
 }

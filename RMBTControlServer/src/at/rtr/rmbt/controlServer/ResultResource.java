@@ -782,6 +782,36 @@ public class ResultResource extends ServerResource
 
                                         if (errorList.isEmpty()) {
                                             test.getField("status").setString("FINISHED");
+
+                                            //new android app allows different test status
+                                            if (request.opt("test_status") != null) {
+                                                //current: integer
+                                                if (request.optInt("test_status",10) != 10) {
+                                                    switch (request.getInt("test_status")) {
+                                                        case 0:
+                                                            test.getField("status").setString("FINISHED");
+                                                            break;
+                                                        case 1:
+                                                            test.getField("status").setString("ERROR");
+                                                            break;
+                                                        case 2:
+                                                            test.getField("status").setString("ABORTED");
+                                                            break;
+                                                    }
+                                                } else {
+                                                    switch(request.optString("test_status")) {
+                                                        case "SUCCESS":
+                                                            test.getField("status").setString("FINISHED");
+                                                            break;
+                                                        case "ERROR":
+                                                            test.getField("status").setString("ERROR");
+                                                            break;
+                                                        case "ABORTED":
+                                                            test.getField("status").setString("ABORTED");
+                                                            break;
+                                                    }
+                                                }
+                                            }
                                         }
                                         else {
                                             test.getField("status").setString("ERROR");

@@ -47,8 +47,12 @@ public class SubscriptionInfoHelper {
             info.setCountry(activeSubscription.getCountryIso());
             String simOperator = activeSubscription.getMcc() + "-" + String.format("%02d", activeSubscription.getMnc());
             info.setSimOperator(String.valueOf(simOperator));
-            info.setSimOperatorName(activeSubscription.getCarrierName().toString());
-            info.setDisplayName(activeSubscription.getDisplayName().toString());
+            if (activeSubscription.getCarrierName() != null) {
+                info.setSimOperatorName(activeSubscription.getCarrierName().toString());
+            }
+            if (activeSubscription.getDisplayName() != null) {
+                info.setDisplayName(activeSubscription.getDisplayName().toString());
+            }
             info.setSimCount(subscriptionManager.getActiveSubscriptionInfoCount());
             return info;
         }

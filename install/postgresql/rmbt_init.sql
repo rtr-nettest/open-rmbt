@@ -2424,7 +2424,11 @@ INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (91, 'name.
 INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (78, 'test.desc.ntp', 'Port: %PARAM nontransproxy_objective_port%
 Anfrage: %PARAM nontransproxy_objective_request%', 'de');
 INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (89, 'name.http_proxy', 'Unmodified content', 'en');
-INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (40, 'dns.unknowndomain.info', 'A DNS request for a non-existent domain (%PARAM dns_objective_host%) has been run to check the response for the request of the domain''s DNS %PARAM dns_objective_dns_record% record.The correct answer would be ''NXDOMAIN'' (non-existend domain).DNS status: ''%PARAM dns_result_status%'';Duration:%PARAM duration_ns 1000000 0 f% ms', 'en');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (40, 'dns.unknowndomain.info', 'A DNS request for a non-existent domain (%PARAM dns_objective_host%) has been run to check the response for the request of the domain''s DNS %PARAM dns_objective_dns_record% record.
+The correct answer would be ''NXDOMAIN'' (non-existend domain).
+DNS status: ''%PARAM dns_result_status%'';
+Duration:%PARAM duration_ns 1000000 0 f% ms
+', 'en');
 INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (37, 'http.testinfo', 'Ziel: ''%PARAM http_objective_url%''
 Intervall: %PARAM http_objective_range%
 Dauer: %PARAM duration_ns 1000000000 1 f% s
@@ -2461,7 +2465,10 @@ INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (94, 'name.
 INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (83, 'website.200', 'Die Webseite wurde erfolgreich übertragen.', 'de');
 INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (86, 'name.website', 'Webseite', 'de');
 INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (60, 'timeout', 'Test could not be completed. Timeout exceeded!', 'en');
-INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (39, 'dns.unknowndomain.info', 'Eine DNS Anfrage zu einer nicht existierende Domain (%PARAM dns_objective_host%) wurde ausgeführt, um zu überprüfen, ob ein  %PARAM dns_objective_dns_record% -Eintrag gefunden wird. Korrekt wäre die Antwort ''NXDOMAIN'' (Non-Existent Domain, nicht existierende Domain).DNS Status: ''%PARAM dns_result_status%'';Dauer: %PARAM duration_ns 1000000 0 f% ms', 'de');
+INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (39, 'dns.unknowndomain.info', 'Eine DNS Anfrage zu einer nicht existierende Domain (%PARAM dns_objective_host%) wurde ausgeführt, um zu überprüfen, ob ein  %PARAM dns_objective_dns_record% -Eintrag gefunden wird. Korrekt wäre die Antwort ''NXDOMAIN'' (Non-Existent Domain, nicht existierende Domain).
+DNS Status: ''%PARAM dns_result_status%'';
+Dauer: %PARAM duration_ns 1000000 0 f% ms
+', 'de');
 INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (87, 'name.website', 'Web page', 'en');
 INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (14, 'test.website', 'Beim Webseiten-Test wird eine Referenz-Webseite (mobile Kepler-Seite der ETSI) heruntergeladen. Es wird dabei überprüft, ob die Übertragung der Seite möglich ist, und wie lange die Übertragung der Seite dauert.', 'de');
 INSERT INTO public.qos_test_desc (uid, desc_key, value, lang) VALUES (104, 'test.desc.tcp.out.21', 'Übertragung von Dateien (FTP, TCP-Port 21 ausgehend)', 'de');
@@ -3078,6 +3085,7 @@ SET row_security = off;
 --
 
 INSERT INTO public.test_server (name, web_address, port, port_ssl, city, country, geo_lat, geo_long, location, web_address_ipv4, web_address_ipv6, server_type, priority, weight, active, uuid, key, selectable, countries, node) VALUES ('OpenRMBT Server', NULL, NULL, 443, 'Vienna', 'AT', 48.2697550000000035, 16.4109130000000007,'010100002031BF0D00DD5C867A26E03B41B6FC3597AA775741', 'server-v4.example.com', 'server-v6.example.com', 'RMBT', 1, 1, true, 'ccc9107b-3d34-493f-8afc-6af8b6a66b6e', '-change-me', true, '{any}', 'VIE');
+INSERT INTO public.test_server (uid,"name",port_ssl,city,country,geo_lat,geo_long,"location",web_address_ipv4,web_address_ipv6,server_type,priority,weight,active,uuid,"key",selectable,countries,node) VALUES (35,'QOS Server',443,'Vienna','AT',48.2697550000000035,16.4109130000000007,'010100002031BF0D00DD5C867A26E03B41B6FC3597AA775741','qos-v4.example.com','qos-v6.example.com','QoS',0,1,true,'27ba66e8-d6fc-4fca-890a-19e3b4aed6bf','-change-me',true,'{any}','VIE');
 
 --
 -- Name: test_server_uid_seq; Type: SEQUENCE SET; Schema: public; Owner: rmbt

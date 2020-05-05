@@ -273,6 +273,8 @@ public final class Helperfunctions
             return "HSPA+";
         case 19:
             return "LTE CA";
+        case 20:
+            return "NR";
         case 98:
             return "LAN";
         case 99:

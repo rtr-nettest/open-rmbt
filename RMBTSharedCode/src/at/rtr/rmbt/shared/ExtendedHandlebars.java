@@ -5,6 +5,7 @@ import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Options;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.Collection;
 import java.util.List;
@@ -192,6 +193,18 @@ public class ExtendedHandlebars extends Handlebars {
             }
         });
 
+        this.registerHelper("toMB", new Helper<Object>() {
+            @Override
+            public Object apply(Object number, Options block) throws IOException {
+                if (number == null) {
+                    return null;
+                }
+                NumberFormat nf = new SignificantFormat(2);
+                String f = nf.format(Double.parseDouble(number.toString()) / 1000d / 1000d);
+                return f;
+            }
+        });
+
         this.registerHelper("twoSignificantDigits", new Helper<Object>() {
             @Override
             public Object apply(Object number, Options block) throws IOException {
@@ -204,6 +217,37 @@ public class ExtendedHandlebars extends Handlebars {
             }
         });
 
+        /**
+         * Helper {{roundNumber number decimalPlaces}}
+         * Rounds a number to d decimals
+         */
+        this.registerHelper("roundNumber", new Helper<Object>() {
+            @Override
+            public Object apply(Object number, Options block) throws IOException {
+                if (number == null) {
+                    return null;
+                }
+                int decimals = Integer.parseInt(block.param(0).toString());
+
+                BigDecimal bd = new BigDecimal(number.toString());
+                bd = bd.setScale(decimals, BigDecimal.ROUND_HALF_UP);
+                return bd.toPlainString();
+            }
+        });
+
+        /**
+         * Helper {{nl2br text}}
+         * Replaces newlines with html line breaks
+         */
+        this.registerHelper("nl2br", new Helper<Object>() {
+            @Override
+            public Object apply(Object text, Options block) throws IOException {
+                String sText = (text == null) ? "" : text.toString();
+                sText = Handlebars.Utils.escapeExpression(sText).toString();
+                sText = sText.trim().replaceAll("(\\r\\n|\\n\\r|\\r|\\n)", "<br/>");
+                return new Handlebars.SafeString(sText);
+            }
+        });
     }
 
 }

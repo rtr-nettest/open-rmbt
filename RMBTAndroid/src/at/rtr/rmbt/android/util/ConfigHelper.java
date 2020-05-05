@@ -33,6 +33,7 @@ import at.rtr.rmbt.android.adapter.result.QoSCategoryPagerAdapter;
 import at.rtr.rmbt.android.main.AppConstants;
 import at.rtr.rmbt.client.helper.Config;
 import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum;
+import at.rtr.rmbt.shared.qos.QosMeasurementType;
 
 public final class ConfigHelper
 {
@@ -587,8 +588,8 @@ public final class ConfigHelper
      * @return
      */
     @SuppressWarnings("unchecked")
-	public static Map<QoSTestResultEnum, String> getCachedQoSNames(Context context) {
-    	final Map<QoSTestResultEnum, String> namesMap = new HashMap<QoSTestResultEnum, String>();
+	public static Map<QosMeasurementType, String> getCachedQoSNames(Context context) {
+    	final Map<QosMeasurementType, String> namesMap = new HashMap<QosMeasurementType, String>();
     	final SharedPreferences prefs = context.getSharedPreferences("cache_qos_names", Context.MODE_PRIVATE);
     	final Map<String, ?> cacheMap = prefs.getAll();
     	
@@ -597,7 +598,7 @@ public final class ConfigHelper
     		while(namesIterator.hasNext()) {
     			Entry<String, String> name = (Entry<String, String>) namesIterator.next();
     			try {
-    				namesMap.put(QoSTestResultEnum.valueOf(name.getKey().toUpperCase(Locale.US)), name.getValue());
+    				namesMap.put(QosMeasurementType.fromValue(name.getKey().toUpperCase(Locale.US)), name.getValue());
     			}
     			catch (IllegalArgumentException e) {
     				//in case the qos type doesn't exist
@@ -606,7 +607,7 @@ public final class ConfigHelper
     		}
     	}
     	else {
-    		for (Entry<QoSTestResultEnum, Integer> e : QoSCategoryPagerAdapter.TITLE_MAP.entrySet()) {
+    		for (Entry<QosMeasurementType, Integer> e : QoSCategoryPagerAdapter.TITLE_MAP.entrySet()) {
     			String name = context.getString(e.getValue());
     			namesMap.put(e.getKey(), name);
     		}
@@ -621,7 +622,7 @@ public final class ConfigHelper
      * @param context
      * @return
      */
-    public static String getCachedQoSNameByTestType(QoSTestResultEnum testType, Context context) {
+    public static String getCachedQoSNameByTestType(QosMeasurementType testType, Context context) {
     	final SharedPreferences prefs = context.getSharedPreferences("cache_qos_names", Context.MODE_PRIVATE);
     	String name = prefs.getString(testType.name(), null);
     	if (name == null) {

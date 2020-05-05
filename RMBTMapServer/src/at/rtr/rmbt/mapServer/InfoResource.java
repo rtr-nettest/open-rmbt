@@ -207,13 +207,25 @@ public class InfoResource extends ServerResource
         obj.put("default", true);
         obj.put("technology", "");
  
-        //Filter for 3G + 4G
+        //Filter for combined technologies
+        /*obj = new JSONObject();
+        options.put(obj);
+        obj.put("title", labels.getString("MAP_FILTER_TECHNOLOGY_3G_4G_5G"));
+        obj.put("summary", labels.getString("MAP_FILTER_TECHNOLOGY_3G_4G_5G"));
+        obj.put("technology", "345");
+
+        obj = new JSONObject();
+        options.put(obj);
+        obj.put("title", labels.getString("MAP_FILTER_TECHNOLOGY_4G_5G"));
+        obj.put("summary", labels.getString("MAP_FILTER_TECHNOLOGY_4G_5G"));
+        obj.put("technology", "45");
+
         obj = new JSONObject();
         options.put(obj);
         obj.put("title", labels.getString("MAP_FILTER_TECHNOLOGY_3G_4G"));
         obj.put("summary", labels.getString("MAP_FILTER_TECHNOLOGY_3G_4G"));
-        obj.put("technology", "34");     
-        
+        obj.put("technology", "34");*/
+
         obj = new JSONObject();
         options.put(obj);
         obj.put("title", labels.getString("MAP_FILTER_TECHNOLOGY_2G"));
@@ -232,6 +244,11 @@ public class InfoResource extends ServerResource
         obj.put("summary", labels.getString("MAP_FILTER_TECHNOLOGY_4G"));
         obj.put("technology", "4");
 
+        obj = new JSONObject();
+        options.put(obj);
+        obj.put("title", labels.getString("MAP_FILTER_TECHNOLOGY_5G"));
+        obj.put("summary", labels.getString("MAP_FILTER_TECHNOLOGY_5G"));
+        obj.put("technology", "5");
         
         final JSONObject result = new JSONObject();
 

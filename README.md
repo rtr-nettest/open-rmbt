@@ -120,13 +120,19 @@ Installation
   * openjdk-8-jre (do not use a higher version)
   * libservlet3.1-java
   * geoip-database
-  * _Optional:_ For StatisticServer pdf export functionality, [Prince](https://www.princexml.com/) or [Weasyprint](https://weasyprint.org/)
+  * _Optional:_ For StatisticServer pdf export functionality
+    * [Prince](https://www.princexml.com/) or 
+    * [Weasyprint](https://weasyprint.org/). For weasyprint, install:
+        * python3
+        * python3-pip
+        * run `pip3 install weasyprint`
 
-2. Edit `/etc/tomcat7/context.xml` (substitute parts with `[]`), add to `<Context>`:
+2. Edit `/etc/tomcat8/context.xml` (substitute parts with `[]`), add to `<Context>`:
 
    For control server:
     ```xml
     <Context>
+    <!-- [...] -->
     <Resource 
        name="jdbc/rmbt" 
        auth="Container"
@@ -137,12 +143,14 @@ Installation
        username="rmbt_control" password="[db r/w pass]"
        description="DB RW Connection" />
     <Parameter name="RMBT_SECRETKEY" value="[rmbt qos secret key]" override="false" />
+    <!-- [...] -->
     </Context>
     ```
     For statistic/map servers:
     
     ```xml
     <Context>
+    <!-- [...] -->
     <Resource 
        name="jdbc/rmbtro" 
        auth="Container"
@@ -152,6 +160,7 @@ Installation
        driverClassName="org.postgresql.Driver"
        username="rmbt" password="[read only pass]"
        description="DB RO Connection" />
+    <!-- [...] -->
     </Context>
      
     ```
@@ -161,16 +170,12 @@ Installation
     ```bash
     ./gradlew :RMBTControlServer:war :RMBTMapServer:war :RMBTStatisticServer:war
     ```
-    The war files are then located in `RMBT[Control/Map/Statistic]Server/build/lib`.
+    The war files are then located in `RMBT[Control|Map|Statistic]Server/build/lib`.
 
-4. Copy `RMBTControlServer.war`, `RMBTMapServer.war` and/or `RMBTStatisticServer.war` to `/var/lib/tomcat7/webapps/`
+4. Copy `RMBTControlServer.war`, `RMBTMapServer.war` and/or `RMBTStatisticServer.war` to `/var/lib/tomcat8/webapps/`
 
     In case the Java-Postgres connector is missing:
-    Add the package `libpostgresql-jdbc-java`
-    manually add the jar to the `lib` folder (create folder if it does not exist)
-    
-    `cp /var/lib/tomcat7/webapps/RMBTControlServer/WEB-INF/lib/postgresql-XXX.jdbcYY.jar /var/lib/postgresql/netztest/RMBTSharedCode/lib/postgresql-XXX.jdbcYY.jar` 
-
+    Add the package `libpostgresql-jdbc-java` and restart tomcat8.
 
 5. Run `service tomcat8 restart`
 

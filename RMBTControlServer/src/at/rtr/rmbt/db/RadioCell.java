@@ -30,6 +30,7 @@ public class RadioCell {
         CONNECTION_2G("2G"),
         CONNECTION_3G("3G"),
         CONNECTION_4G("4G"),
+        CONNECTION_5G("5G"),
         CONNECTION_WLAN("WLAN");
 
         private String val;
@@ -47,6 +48,8 @@ public class RadioCell {
                     return CONNECTION_3G;
                 case "4G":
                     return CONNECTION_4G;
+                case "5G":
+                    return CONNECTION_5G;
                 case "WLAN":
                     return CONNECTION_WLAN;
                 default:

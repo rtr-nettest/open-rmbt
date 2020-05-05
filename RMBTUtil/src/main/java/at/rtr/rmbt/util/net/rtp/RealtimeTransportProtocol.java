@@ -16,9 +16,9 @@
  *******************************************************************************/
 package at.rtr.rmbt.util.net.rtp;
 
-import java.nio.ByteOrder;
-
 import at.rtr.rmbt.util.ByteUtil;
+
+import java.nio.ByteOrder;
 
 /**
  * contains basic RTP definitions and oprations (payload types, versions, codecs, exceptions, header generation)

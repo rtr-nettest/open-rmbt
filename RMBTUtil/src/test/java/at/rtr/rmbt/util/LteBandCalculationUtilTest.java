@@ -9,10 +9,22 @@ import static org.junit.Assert.*;
  */
 public class LteBandCalculationUtilTest {
     @Test
-    public void getBandFromEarfcn() throws Exception {
+    public void testGetBandFromEarfcn() throws Exception {
         BandCalculationUtil.FrequencyInformation band = BandCalculationUtil.getBandFromEarfcn(2850);
         assertEquals(7, band.getBand());
         assertEquals(2630.0, band.getFrequencyDL(), 0);
+
+        band = BandCalculationUtil.getBandFromNrarfcn(636000);
+        assertEquals(78, band.getBand());
+        assertEquals(3540.0, band.getFrequencyDL(), 0);
+
+        band = BandCalculationUtil.getBandFromNrarfcn(2016749);
+        assertEquals(258, band.getBand());
+        assertEquals(24255.0, band.getFrequencyDL(), 0);
+
+        band = BandCalculationUtil.getBandFromNrarfcn(390000);
+        assertEquals(1, band.getBand());
+        assertEquals(1950.0, band.getFrequencyDL(), 0);
 
         band = BandCalculationUtil.getBandFromEarfcn(1814);
         assertEquals(3, band.getBand());

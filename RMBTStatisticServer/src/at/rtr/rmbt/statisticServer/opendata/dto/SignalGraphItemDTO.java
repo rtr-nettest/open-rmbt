@@ -130,7 +130,7 @@ public class SignalGraphItemDTO {
     }
 
     @JsonProperty("cat_technology")
-    @ApiModelProperty(value = "Technology category of the network, e.g. “3G”, “4G”, “WLAN”.",
+    @ApiModelProperty(value = "Technology category of the network, e.g. “3G”, “4G”, “5G”, “WLAN”.",
             example = "3G")
     public String getCatTechnology() {
         return catTechnology;

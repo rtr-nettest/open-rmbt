@@ -4685,6 +4685,9 @@ CREATE TABLE public.test (
     frc_obsolete smallint,
     edge_id_obsolete numeric,
     geo_location_uuid uuid,
+    last_client_status varchar(50),
+	last_qos_status varchar(50),
+	test_error_cause varchar,
     CONSTRAINT enforce_dims_location CHECK ((public.st_ndims(location) = 2)),
     CONSTRAINT enforce_geotype_location CHECK (((public.geometrytype(location) = 'POINT'::text) OR (location IS NULL))),
     CONSTRAINT enforce_srid_location CHECK ((public.st_srid(location) = 900913)),
@@ -4973,6 +4976,28 @@ CREATE VIEW public.v_get_replication_delay AS
 
 
 ALTER TABLE public.v_get_replication_delay OWNER TO postgres;
+
+
+create table if not exists qoe_classification
+(
+	uid serial not null
+		constraint qoe_classification_pk
+			primary key,
+	category varchar(30) not null,
+	dl_4 double precision not null,
+	dl_3 double precision not null,
+	dl_2 double precision not null,
+	ul_4 double precision not null,
+	ul_3 double precision not null,
+	ul_2 double precision not null,
+	ping_4 double precision not null,
+	ping_3 double precision not null,
+	ping_2 double precision not null
+);
+
+ALTER TABLE public.qoe_classification OWNER TO rmbt;
+GRANT SELECT ON TABLE public.qoe_classification TO rmbt_group_read_only;
+
 
 --
 -- Name: v_test; Type: VIEW; Schema: public; Owner: postgres
@@ -5467,7 +5492,7 @@ CREATE VIEW public.vt AS
    FROM public.test;
 
 
-ALTER TABLE public.vt OWNER TO dj;
+ALTER TABLE public.vt OWNER TO rmbt;
 
 --
 -- Name: VIEW vt; Type: COMMENT; Schema: public; Owner: dj
@@ -7597,7 +7622,7 @@ GRANT SELECT ON TABLE public.v_dl_bandwidth_per_minute TO rmbt_group_read_only;
 -- Name: TABLE v_get_replication_delay; Type: ACL; Schema: public; Owner: postgres
 --
 
-GRANT SELECT ON TABLE public.v_get_replication_delay TO nagios;
+--GRANT SELECT ON TABLE public.v_get_replication_delay TO nagios;
 
 
 --

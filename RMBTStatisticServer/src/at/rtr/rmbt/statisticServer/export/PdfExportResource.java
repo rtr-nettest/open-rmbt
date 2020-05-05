@@ -1,7 +1,7 @@
 package at.rtr.rmbt.statisticServer.export;
 
 import at.rtr.rmbt.shared.ExtendedHandlebars;
-import at.rtr.rmbt.shared.cache.CacheHelper;
+import at.rtr.rmbt.shared.ResourceManager;
 import at.rtr.rmbt.statisticServer.ServerResource;
 import at.rtr.rmbt.statisticServer.opendata.QueryParser;
 import at.rtr.rmbt.statisticServer.opendata.dao.OpenTestDAO;
@@ -25,6 +25,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
 import org.restlet.data.*;
 import org.restlet.ext.fileupload.RestletFileUpload;
@@ -37,22 +38,20 @@ import javax.imageio.ImageIO;
 import javax.ws.rs.GET;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Api(value="/export/pdf")
 public class PdfExportResource extends ServerResource {
-    public static final String FILENAME_PDF = "testergebnis.pdf";
-
     public static final int MAX_RESULTS = 1000; //max results for pdf
 
-    private final CacheHelper cache = CacheHelper.getInstance();
-    private static final int CACHE_EXP = 600;
 
     @Post
     @Get
@@ -69,22 +68,60 @@ public class PdfExportResource extends ServerResource {
     public Representation request(final Representation entity) throws IOException {
         addAllowOrigin();
 
+        //load locale, if possible
+        String language = settings.getString("RMBT_DEFAULT_LANGUAGE");
+        ResourceBundle labels = this.labels;
+        if (getRequest().getAttributes().containsKey("lang")) {
+            language = getRequest().getAttributes().get("lang").toString();
+            final List<String> langs = Arrays.asList(settings.getString("RMBT_SUPPORTED_LANGUAGES").split(",\\s*"));
+
+            if (langs.contains(language)) {
+                labels = ResourceManager.getSysMsgBundle(new Locale(language));
+            }
+        }
+
+        String tempPath = settings.getString("PDF_TEMP_PATH");
         //allow only fetching files
         if (getRequest().getAttributes().containsKey("filename")) {
             String filename = getRequest().getAttributes().get("filename").toString();
-            byte[] o = (byte[]) cache.get("loop-" + filename);
-            if (o == null) {
+
+            char discriminatorLetter = filename.charAt(0);
+            filename = filename.substring(1);
+
+            //keep date, if any
+            String[] filenameParts = filename.split("-");
+            String filenameDatePart = "";
+            if (filenameParts[filenameParts.length - 1].length() == 14) {
+                //subtract from filename date part + "minus"
+                filename = filename.substring(0, filename.length() - 15);
+                filenameDatePart = "-" + filenameParts[filenameParts.length - 1];
+            }
+
+            File retFile = new File(tempPath + filename + ".pdf");
+
+            if (!retFile.exists()) {
                 setStatus(Status.CLIENT_ERROR_NOT_FOUND);
                 return null;
             }
-            ByteArrayRepresentation ret = new ByteArrayRepresentation(o, MediaType.APPLICATION_PDF);
+            ByteArrayRepresentation ret = new ByteArrayRepresentation(Files.readAllBytes(retFile.toPath()), MediaType.APPLICATION_PDF);
             Disposition disposition = new Disposition(Disposition.TYPE_ATTACHMENT);
-            disposition.setFilename(FILENAME_PDF);
+
+            //different filenames for certified measurement vs loop mode pdf
+            String pdfFilename;
+            if (discriminatorLetter == 'C') {
+                pdfFilename = labels.getString("RESULT_PDF_FILENAME_CERTIFIED");
+            }
+            else {
+                pdfFilename = labels.getString("RESULT_PDF_FILENAME");
+            }
+            disposition.setFilename(pdfFilename + filenameDatePart + ".pdf");
+
             ret.setDisposition(disposition);
             return ret;
         }
 
         final Form getParameters;
+        final Map<String, List<String>> multivalueParams = new HashMap<>();
         if (getRequest().getMethod().equals(Method.POST)) {
             // HTTP POST
 
@@ -106,6 +143,24 @@ public class PdfExportResource extends ServerResource {
                         if (item.isFormField() && item.getFieldName() != null && !Strings.isNullOrEmpty(item.getString("utf-8"))) {
                             getParameters.set(item.getFieldName(), item.getString("utf-8"));
                         }
+                        else if (!item.isFormField() && item.getFieldName() != null && item.getInputStream() != null && item.getSize() > 0){
+                            //it is really a file - parse it, add it as base64 input
+                            String contentType = item.getContentType();
+                            byte[] bytes = IOUtils.toByteArray(item.getInputStream());
+                            String base64Str = Base64.encodeBase64String(bytes);
+                            String dataUri = "data:" + contentType + ";base64," + base64Str;
+
+                            if (item.getFieldName().endsWith("[]")) {
+                                String fieldName = item.getFieldName().replaceAll("\\[\\]","");
+                                if (!multivalueParams.containsKey(fieldName)) {
+                                    multivalueParams.put(fieldName, new LinkedList<String>());
+                                }
+                                multivalueParams.get(fieldName).add(dataUri);
+                            }
+                            else {
+                                getParameters.set(item.getFieldName(), dataUri);
+                            }
+                        }
                     }
                 } catch (FileUploadException e) {
                     e.printStackTrace();
@@ -124,11 +179,25 @@ public class PdfExportResource extends ServerResource {
         //load template
         Handlebars handlebars = new ExtendedHandlebars();
         Template template = null;
+        boolean certifiedMeasurement;
+        String pdfFilename = labels.getString("RESULT_PDF_FILENAME");
         try {
-            String html = Resources.toString(getClass().getClassLoader().getResource("at/rtr/rmbt/res/export_de.hbs.html"), Charsets.UTF_8);
+            String html;
+            if (getParameters.size() > 1 && !Strings.isNullOrEmpty(getParameters.getFirstValue("first"))) {
+                //use different template for certified measurement protocol
+                html = Resources.toString(getClass().getClassLoader().getResource("at/rtr/rmbt/res/export_zert.hbs.html"), Charsets.UTF_8);
+                pdfFilename = labels.getString("RESULT_PDF_FILENAME_CERTIFIED");
+                certifiedMeasurement = true;
+            }
+            else {
+                html = Resources.toString(getClass().getClassLoader().getResource("at/rtr/rmbt/res/export.hbs.html"), Charsets.UTF_8);
+                pdfFilename = labels.getString("RESULT_PDF_FILENAME");
+                certifiedMeasurement = false;
+            }
             template = handlebars.compileInline(html);
         } catch (IOException e) {
             e.printStackTrace();
+            certifiedMeasurement = false;
         }
 
         final QueryParser qp = new QueryParser();
@@ -149,13 +218,24 @@ public class PdfExportResource extends ServerResource {
         OpenTestSearchDTO searchResult = dao.getOpenTestSearchResults(qp, 0, MAX_RESULTS, new HashSet<String>());
 
         Map<String, Object> data = new HashMap<>();
-        data.put("date",new SimpleDateFormat("d.M.yyyy H:mm:ss", Locale.GERMAN).format(new Date()));
-        data.put("tests", searchResult.getResults());
 
-        //if the loop uuid is given - add this to the inputs
-        if (qp.getWhereParams().containsKey("loop_uuid")) {
-            data.put("loop_uuid",qp.getWhereParams().get("loop_uuid").get(0).getValue());
-        }
+        //date handling
+        Date generationDate = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("d.M.yyyy H:mm:ss", Locale.GERMAN);
+        sdf.setTimeZone(TimeZone.getTimeZone("Europe/Vienna"));
+        SimpleDateFormat filenameDateFormat = new SimpleDateFormat("yyyyMMddHHmmss", Locale.GERMAN);
+        filenameDateFormat.setTimeZone(TimeZone.getTimeZone("Europe/Vienna"));
+        String filenameDatePart = filenameDateFormat.format(generationDate);
+        data.put("date", sdf.format(generationDate));
+
+        //make tests accessible to handlebars
+        List<OpenTestDTO> testResults = searchResult.getResults();
+        Collections.reverse(testResults);
+        data.put("tests", testResults);
+
+        //add all params to the model
+        data.putAll(getParameters.getValuesMap());
+        data.putAll(multivalueParams);
 
         //if no measurements - don't generate the application
         if (searchResult.getResults() == null || searchResult.getResults().isEmpty()) {
@@ -165,7 +245,7 @@ public class PdfExportResource extends ServerResource {
 
         //get details for single results - set more detailled info
         Logger.getLogger(PdfExportResource.class.getName()).fine("Gathering extended test results");
-        ListIterator<OpenTestDTO> testIterator = searchResult.getResults().listIterator();
+        ListIterator<OpenTestDTO> testIterator = testResults.listIterator();
         while (testIterator.hasNext()) {
             OpenTestDTO result = testIterator.next();
             OpenTestDetailsDTO singleTest = dao.getSingleOpenTestDetails(result.getOpenTestUuid(), 0);
@@ -187,6 +267,18 @@ public class PdfExportResource extends ServerResource {
             }
         }
 
+        //add translation files
+        if (labels != null) {
+            Map<String, String> labelsMap = new HashMap<>();
+            Set<String> keys = labels.keySet();
+            for (String key : keys) {
+                if (key.startsWith("key_")) {
+                    labelsMap.put(key.substring(4), labels.getString(key));
+                }
+            }
+            labelsMap.put("lang", language);
+            data.put("Lang", labelsMap);
+        }
 
         String fullTemplate;
         try {
@@ -197,12 +289,14 @@ public class PdfExportResource extends ServerResource {
             fullTemplate = template.apply(context);
             fullTemplate = fullTemplate.replace("<script type=\"text/x-handlebars\" id=\"template\">", "");
 
+            String uuid = UUID.randomUUID().toString();
             //create temp file
-            Path htmlFile = Files.createTempFile("nt", ".pdf.html");
+            Path htmlFile = Files.createTempFile("nt" + uuid, ".pdf.html");
             Files.write(htmlFile, fullTemplate.getBytes("utf-8"));
             Logger.getLogger(PdfExportResource.class.getName()).fine("Generating PDF from: " + htmlFile);
 
-            Path pdfTarget = Files.createTempFile(htmlFile.getFileName().toString(),".pdf");
+            Path pdfTarget = new File(tempPath + uuid + ".pdf").toPath();
+
             PdfConverter pdfConverter;
             switch (settings.getString("PDF_CONVERTER")) {
                 case "weasyprint":
@@ -216,25 +310,28 @@ public class PdfExportResource extends ServerResource {
             }
 
             pdfConverter.convertHtml(htmlFile,pdfTarget);
-            Logger.getLogger(PdfExportResource.class.getName()).fine("PDF generated: " + pdfTarget);
+            Logger.getLogger(PdfExportResource.class.getName()).info("PDF generated: " + pdfTarget);
+
+            //delete html file, as not longer needed
+            boolean deleted = htmlFile.toFile().delete();
+            if (!deleted) {
+                Logger.getLogger(PdfExportResource.class.getName()).log(Level.WARNING, "HTML file could not be deleted");
+            }
+
 
             //depending on Accepts-Header, return file or json with link to file
             if (getClientInfo().getAcceptedMediaTypes().size() > 0 &&
                     getClientInfo().getAcceptedMediaTypes().get(0).getMetadata() == MediaType.APPLICATION_JSON) {
 
-                String uuid = UUID.randomUUID().toString();
-                //put in cache for later collection
-                cache.set("loop-" + uuid, CACHE_EXP, Files.readAllBytes(pdfTarget));
-
                 JSONObject retJson = new JSONObject();
-                retJson.put("file", uuid + ".pdf");
+                retJson.put("file", (certifiedMeasurement ? "C" : "L") + uuid + "-" + filenameDatePart + ".pdf");
 
                 return new JsonRepresentation(retJson.toString());
             }
             else {
                 FileRepresentation ret = new FileRepresentation(pdfTarget.toFile(), MediaType.APPLICATION_PDF);
                 Disposition disposition = new Disposition(Disposition.TYPE_ATTACHMENT);
-                disposition.setFilename(FILENAME_PDF);
+                disposition.setFilename(pdfFilename + "-" + filenameDatePart + ".pdf");
                 ret.setDisposition(disposition);
                 return ret;
             }

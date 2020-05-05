@@ -2,13 +2,13 @@
 <!--
   Copyright 2013-2014 alladin-IT GmbH
   Copyright 2013-2014 Rundfunk und Telekom Regulierungs-GmbH (RTR-GmbH)
-  
+
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
-  
+
     http://www.apache.org/licenses/LICENSE-2.0
-  
+
   Unless required by applicable law or agreed to in writing, software
   distributed under the License is distributed on an "AS IS" BASIS,
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,77 +16,77 @@
   limitations under the License.
 -->
 <resources xmlns:tools="http://schemas.android.com/tools" tools:locale="es">
-    
-    <string name="error_no_internet">Por favor active\nsu conexión de internet</string>
+
+    <string name="error_no_internet">Por favor active\nsu conexión a internet</string>
     <string name="error_no_data">No hay datos disponibles.</string>
-    
+
     <string name="main_dialog_registration_title">Registrando…</string>
     <string name="main_dialog_registration_text">Registrando cliente. Por favor espere…</string>
-    
+
     <string name="main_dialog_reload_title">Actualizando…</string>
     <string name="main_dialog_reload_text">Actualizando los datos. Por favor espere…</string>
-    
+
     <string name="preferences">Ajustes</string>
-    
+
     <string name="preferences_category_test">Ajustes</string>
-    
+
     <string name="preferences_location_settings">Ubicación</string>
     <string name="preferences_location_settings_sum">Cambiar los ajustes de ubicación del sistema</string>
-    
+
     <string name="preferences_no_gps">No hay localización GPS</string>
     <string name="preferences_no_gps_sum">GPS inactivado durante medición</string>
-    
-    <string name="preferences_loop_mode">Repetición</string>
-    <string name="preferences_loop_mode_sum">Prueba colgado en un bucle indefinito</string>
-    
+
+    <string name="preferences_loop_mode">Modo Bucle</string>
+    <string name="preferences_loop_mode_sum">Nueva prueba cuando el tiempo o la distancia se han cumplido. Máx. 2 días.</string>
+
     <string name="preferences_ndt">NDT</string>
     <string name="preferences_ndt_sum">Activar la prueba ampliada</string>
-    
+
     <string name="preferences_ipv4_only">Sólo IPv4</string>
     <string name="preferences_ipv4_only_sum">No se usa IPv6</string>
-    
+
     <string name="preferences_category_developer">DESARROLLO</string>
     <string name="preferences_category_developer_control_server">Servidor de control</string>
     <string name="preferences_category_developer_map_server">Servidor de mapa</string>
-    
+
     <string name="preferences_dev_control_override">Sobreescribir servidor de control</string>
     <string name="preferences_dev_control_override_sum">Activa los siguientes ajustes para el servidor de control</string>
-    
+
     <string name="preferences_dev_control_host">Host de control</string>
     <string name="preferences_dev_control_host_sum">Sobreescribir dirección del servidor de control</string>
-    
+
     <string name="preferences_dev_control_port">Puerto de control</string>
     <string name="preferences_dev_control_port_sum">Sobreescribir el puerto del servidor de control</string>
-    
+
     <string name="preferences_dev_control_ssl">Control-Server SSL</string>
     <string name="preferences_dev_control_ssl_sum">Conexión codificada con el servidor de control</string>
-    
+
     <string name="preferences_dev_map_override">Sobreescribir servidor de mapa</string>
     <string name="preferences_dev_map_override_sum">Activa los siguientes ajustes para el servidor de mapa</string>
-    
+
     <string name="preferences_dev_map_host">Host mapa</string>
     <string name="preferences_dev_map_host_sum">Sobreescribir la dirección del servidor de mapa</string>
-    
+
     <string name="preferences_dev_map_port">Puerto de mapa</string>
     <string name="preferences_dev_map_port_sum">Sobreescribir el puerto del servidor de mapa</string>
-    
+
     <string name="preferences_dev_map_ssl">Servidor de mapa SSL</string>
     <string name="preferences_dev_map_ssl_sum">Conexión codificada con el servidor de mapa</string>
-    
+
     <string name="menu_button_start">START</string>
     <string name="menu_button_map">Mapa</string>
     <string name="menu_button_history">Historia</string>
     <string name="menu_button_help">Ayuda</string>
-    <string name="menu_button_statistics">Estatística</string>
+    <string name="menu_button_statistics">Estadísticas</string>
     <string name="menu_button_settings">Ajustes</string>
     <string name="menu_button_about">Info</string>
-    
+
     <string name="news_title">Noticias</string>
     <string name="news_no_message">No hay contenido.</string>
-    
+
     <string name="about_version_title">Versión</string>
     <string name="about_clientid_title">Cliente UUID</string>
-    <string name="about_clientid_toast">Se copió el cliente UUID a la memoria tempora.</string>
+    <string name="about_clientid_toast">Se copió el cliente UUID a la memoria temporal.</string>
     <string name="about_web_title">Web</string>
     <string name="about_email_title">Correo electrónico</string>
     <string name="about_email_sending">Mandar correo electrónico…</string>
@@ -95,13 +95,13 @@
     <string name="about_dev_title">Desarrollo</string>
     <string name="about_gms_legal_line1">Aviso legal de Google Play Services</string>
     <string name="about_test_counter_title">Contador de pruebas</string>
-    
+
     <string name="terms">Declaración de protección de datos y términos de uso(sólo en inglés)</string>
 
     <string name="terms_accept_button">Aprobación</string>
-    <string name="terms_accept_button_continue">Continúe</string>
+    <string name="terms_accept_button_continue">Continuar</string>
     <string name="terms_decline_button">Cancelar</string>
-    
+
     <string name="terms_ndt_header"> Prueba NDT ampliada opcional</string>
     <string name="terms_ndt_accept_text"><b>Quiero realizar adicionalmente la prueba NDT ampliada opcional.</b></string>
     <string name="terms_ndt_back_button">Atrás</string>
@@ -117,150 +117,150 @@
     <string name="test_location_dir_e">E</string>
     <string name="test_location_dir_s">S</string>
     <string name="test_location_dir_w">O</string>
-    
+
     <string name="test_notification_text">La prueba todavía se está ejecutando.</string>
     <string name="test_dialog_error_title">Error…</string>
     <string name="test_dialog_error_text">Se produjo un error durante la prueba.</string>
-    
+
     <string name="test_dialog_abort_title">Cancelar…</string>
-    <string name="test_dialog_abort_text">Está seguro que quiere cancelar la prueba en marcha?</string>
+    <string name="test_dialog_abort_text">¿Está seguro que quiere cancelar la prueba en marcha?</string>
     <string name="test_dialog_abort_yes">Cancelar prueba</string>
     <string name="test_dialog_abort_no">Continuar prueba</string>
-    
+
     <string name="history_button_sync">Sync</string>
     <string name="history_button_filter">Filtro</string>
     <string name="history_device">Dispositivo</string>
-	<string name="history_type">Acceso</string>
-	<string name="history_date">Fecha</string>
-	<string name="history_down">Bajada\nMbps</string>
-	<string name="history_up">Subida\nMbps</string>
-	<string name="history_ping">Ping\nms</string>
-	
-	<string name="history_filter">FILTRO</string>
-	<string name="history_filter_networks">ACCESO</string>
-	<string name="history_filter_devices">DISPOSITIVO</string>
-	<string name="history_filter_result_number">NÚMERO DE RESULTADOS</string>
-	<string name="history_filter_result_number_25">Mostrar los 250 resultados más recientes</string>
-	
-	<string name="result_measurement">MEDICIÓN</string>
-	<string name="result_net">RED</string>
-	
-	<string name="result_details">DETALLES</string>
-	
-	<string name="sync_info_text">Hay la posibilidad de unir los resultados de medición de otros dispositivos. Para hacerlo introduzca el código de sincronización que tiene o pida otro código.</string>
-	<string name="sync_request_code_button">Pedir código</string>
-	<string name="sync_enter_code_button">Introducir código</string>
-	
-	<string name="sync_enter_code_header">Introducir código</string>
-	<string name="sync_enter_code_msg">Código</string>
-	<string name="sync_enter_code_desc">Por favor, introduzca el código que pidió con el otro dispositivo.</string>
-	<string name="sync_enter_code_length">El código consiste de 12 signos</string>
-	
-	<string name="sync_request_code_header">Su código de sincronización es el siguiente:</string>
-	<string name="sync_request_code_msg">Pidiendo código....</string>
-	<string name="sync_request_code_desc">Por favor introduzca el código mostrado arriba en su segundo dispositivo para sincronizarlo.</string>
-	<string name="sync_request_code_context_copy">Copiar código</string>
+    <string name="history_type">Acceso</string>
+    <string name="history_date">Fecha</string>
+    <string name="history_down">Bajada\nMbps</string>
+    <string name="history_up">Subida\nMbps</string>
+    <string name="history_ping">Ping\nms</string>
 
-	<!-- Map -->
-	<string name="map_filter_header">FILTRO DE MAPAS</string>
+    <string name="history_filter">FILTRO</string>
+    <string name="history_filter_networks">ACCESO</string>
+    <string name="history_filter_devices">DISPOSITIVO</string>
+    <string name="history_filter_result_number">NÚMERO DE RESULTADOS</string>
+    <string name="history_filter_result_number_25">Mostrar los 250 resultados más recientes</string>
 
-	<string name="map_balloon_overlay_header">MEDICIONES</string>
-	
-	<!-- Test -->
-	<string name="test_progress_title">Conectando…</string>
-	<string name="test_progress_text">Estableciendo conexión con el servidor de prueba. Espere por favor…</string>
-	<string name="test_progress_text_wait">El servidor de prueba está ocupado de momento. La prueba empieza en {0,choice,0#enseguida|1#en 1 segundo|1&lt;en {0} segundos}. Espere por favor…</string>
-	<string name="test_bottom_test">Estado: {0}\nServidor: {1}\nIP: {2}\n{3}\n{4}</string>
-	<string name="test_bottom_test_status_init">Inicializando</string>
-	<string name="test_bottom_test_status_ping">Ping</string>
-	<string name="test_bottom_test_status_down">Bajada</string>
-	<string name="test_bottom_test_status_init_up">Inicializando subida</string>
-	<string name="test_bottom_test_status_up">Subida</string>
-	<string name="test_bottom_test_status_end">Terminando</string>
-	<string name="test_bottom_test_status_error">Error</string>
-	<string name="test_bottom_test_status_aborted">Cancelado</string>
-	
-	<!-- App version 2.0 -->
-<!-- Not translated -->
-    <string name="error_history_no_data_no_connection">No Internet connection. Could not load data.</string>
-    <string name="preferences_tag">Tag</string>
-    <string name="preferences_tag_sum">Add a custom test tag to every test</string>
-    <string name="preferences_loop_mode_max_tests">Loop max tests</string>
-    <string name="preferences_loop_mode_max_tests_sum">Maximum number of tests to run if loop mode is active (0 = run forever)</string>
-    <string name="preferences_loop_mode_min_delay">Loop min delay</string>
-    <string name="preferences_loop_mode_min_delay_sum">Minimum time in seconds between two tests if loop mode is active</string>
-    <string name="preferences_loop_mode_waiting_time">Waiting time</string>
-    <string name="preferences_loop_mode_waiting_time_sum">Maximum time in seconds between two tests if loop mode is active</string>
+    <string name="result_measurement">MEDICIÓN</string>
+    <string name="result_net">RED</string>
+
+    <string name="result_details">DETALLES</string>
+
+    <string name="sync_info_text">Tiene la posibilidad de unir los resultados de medición de otros dispositivos. Para hacerlo introduzca el código de sincronización que tiene o pida otro código.</string>
+    <string name="sync_request_code_button">Pedir código</string>
+    <string name="sync_enter_code_button">Introducir código</string>
+
+    <string name="sync_enter_code_header">Introducir código</string>
+    <string name="sync_enter_code_msg">Código</string>
+    <string name="sync_enter_code_desc">Por favor, introduzca el código que pidió con el otro dispositivo.</string>
+    <string name="sync_enter_code_length">El código consiste de 12 caracteres</string>
+
+    <string name="sync_request_code_header">Su código de sincronización es el siguiente:</string>
+    <string name="sync_request_code_msg">Pidiendo código....</string>
+    <string name="sync_request_code_desc">Por favor introduzca el código mostrado arriba en su segundo dispositivo para sincronizarlo.</string>
+    <string name="sync_request_code_context_copy">Copiar código</string>
+
+    <!-- Map -->
+    <string name="map_filter_header">FILTROS DEL MAPA</string>
+
+    <string name="map_balloon_overlay_header">MEDIDAS</string>
+
+    <!-- Test -->
+    <string name="test_progress_title">Conectando…</string>
+    <string name="test_progress_text">Estableciendo conexión con el servidor de prueba. Espere por favor…</string>
+    <string name="test_progress_text_wait">El servidor de prueba está ocupado en este momento. La prueba empieza en {0,choice,0#enseguida|1#en 1 segundo|1&lt;en {0} segundos}. Espere por favor…</string>
+    <string name="test_bottom_test">Estado: {0}\nServidor: {1}\nIP: {2}\n{3}\n{4}</string>
+    <string name="test_bottom_test_status_init">Inicializando</string>
+    <string name="test_bottom_test_status_ping">Ping</string>
+    <string name="test_bottom_test_status_down">Bajada</string>
+    <string name="test_bottom_test_status_init_up">Inicializando subida</string>
+    <string name="test_bottom_test_status_up">Subida</string>
+    <string name="test_bottom_test_status_end">Terminado</string>
+    <string name="test_bottom_test_status_error">Error</string>
+    <string name="test_bottom_test_status_aborted">Cancelado</string>
+
+    <!-- App version 2.0 -->
+    <!-- Not translated -->
+    <string name="error_history_no_data_no_connection">Conexión a Internet no disponible. No se pudo acceder a sus datos.</string>
+    <string name="preferences_tag">Etiqueta</string>
+    <string name="preferences_tag_sum">Añadir etiqueta a cada prueba</string>
+    <string name="preferences_loop_mode_max_tests">Bucle: número de pruebas</string>
+    <string name="preferences_loop_mode_max_tests_sum">Número máximo de pruebas en modo bucle (0 = bucle infinito)</string>
+    <string name="preferences_loop_mode_min_delay">Bucle: intervalo mínimo</string>
+    <string name="preferences_loop_mode_min_delay_sum">Mínimo tiempo en segundos entre dos pruebas en modo bucle</string>
+    <string name="preferences_loop_mode_waiting_time">Tiempo de espera</string>
+    <string name="preferences_loop_mode_waiting_time_sum">Máximo tiempo en segundos entre dos pruebas en modo bucle</string>
     <string name="preferences_loop_mode_movement">Distance</string>
-    <string name="preferences_loop_mode_movement_sum">Movement in meters after which a test in loop mode is triggered</string>
-    <string name="preferences_loop_mode_gps">Use GPS when loop mode is active</string>
-    <string name="preferences_loop_mode_gps_sum">Use GPS between two tests in loop mode</string>
-    <string name="loop_notification_ticker">Loop mode is active…</string>
-    <string name="loop_notification_title">Loop mode is active</string>
-    <string name="loop_notification_text">Touch to stop Loop mode</string>
-    <string name="loop_started">Loop mode started.</string>
-    <string name="loop_already_active">Loop mode is already active.</string>
-    <string name="preferences_category_loop_mode">Loop mode</string>
-    <string name="preferences_category_developer_qos_server">QoS server</string>
+    <string name="preferences_loop_mode_movement_sum">Desplazamiento en metros para activar prueba en modo bucle</string>
+    <string name="preferences_loop_mode_gps">Usar GPS cuando el modo bucle está activado</string>
+    <string name="preferences_loop_mode_gps_sum">Usar GPS entre pruebas en modo bucle</string>
+    <string name="loop_notification_ticker">Modo bucle activo…</string>
+    <string name="loop_notification_title">Modo bucle activo</string>
+    <string name="loop_notification_text">Para modo bucle</string>
+    <string name="loop_started">Modo bucle ha comenzado.</string>
+    <string name="loop_already_active">Modo bucle ya está activado.</string>
+    <string name="preferences_category_loop_mode">Modo bucle</string>
+    <string name="preferences_category_developer_qos_server">Servidor de QoS</string>
     <string name="preferences_category_developer_debug">Debugging</string>
-    <string name="preferences_dev_qos_ssl">QoS server SSL</string>
-    <string name="preferences_dev_qos_ssl_sum">Use encrypted connection to QoS server</string>
-    <string name="preferences_dev_debug_sysout">Store error output in file</string>
-    <string name="preferences_dev_debug_sysout_sum">Stores error output in a text file located in the "qosdebug" folder</string>
-    <string name="test_dialog_error_control_server_conn">Connection to test server cannot be established.</string>
+    <string name="preferences_dev_qos_ssl">SSL servidor QoS</string>
+    <string name="preferences_dev_qos_ssl_sum">Encriptar conexión al servidor de QoS</string>
+    <string name="preferences_dev_debug_sysout">Almacenar informe de errores en archivo</string>
+    <string name="preferences_dev_debug_sysout_sum">Almacena informe de errores en un archivo de texto en la carpeta "qosdebug"</string>
+    <string name="test_dialog_error_control_server_conn">No se puede establecer la conexión con el servidor de pruebas.</string>
 
     <!-- QoS values: -->
     <string name="about_control_server">Control server</string>
-    <string name="preferences_dont_show_menu_on_exit">No menu on close</string>
-    <string name="preferences_dont_show_menu_on_exit_sum">Don\'t show application menu before closing it.</string>
-    <string name="qos_test_name_website">Reference web page</string>
-    <string name="qos_test_name_http_proxy">Unmodified content</string>
-    <string name="qos_test_name_non_transparent_proxy">Transparent connection</string>
+    <string name="preferences_dont_show_menu_on_exit">No mostrar menu al cerrar la aplicación</string>
+    <string name="preferences_dont_show_menu_on_exit_sum">No mostrar menu al cerrar la aplicación.</string>
+    <string name="qos_test_name_website">Página web de referencia</string>
+    <string name="qos_test_name_http_proxy">Modificación de contenido</string>
+    <string name="qos_test_name_non_transparent_proxy">Conexión de proxy transparente</string>
     <string name="qos_test_name_dns">DNS</string>
-    <string name="qos_test_name_tcp">TCP ports</string> 
-    <string name="qos_test_name_udp">UDP ports</string>
-    
+    <string name="qos_test_name_tcp">puertos TCP</string>
+    <string name="qos_test_name_udp">puertos UDP</string>
+
     <string name="result_details_qos_failure">FALLADO</string>
     <string name="result_details_qos_success">Éxito</string>
     <string name="result_qos_stats">Pruebas de calidad.</string>
     <string name="result_qos_error_no_data_available">No hay datos de QoS.</string>
-    
+
     <string name="title_screen_ipv4">IPv4</string>
-    <string name="title_screen_ipv6">IPv6</string>  
+    <string name="title_screen_ipv6">IPv6</string>
     <string name="title_screen_ipv4_overlay">Dirección de internet (v4)</string>
-	<string name="title_screen_ipv6_overlay">Dirección de internet (v6)</string>
+    <string name="title_screen_ipv6_overlay">Dirección de internet (v6)</string>
     <string name="title_screen_traffic">Tráfico de fondo</string>
     <string name="title_screen_network_id">ID de red:</string>
-    
+
     <string name="title_screen_info_overlay_location">Ubicación</string>
-    <string name="title_screen_info_overlay_ipv4_public">IPv4 público</string>
-    <string name="title_screen_info_overlay_ipv4_private">IPv4 privado</string>
-    <string name="title_screen_info_overlay_ipv6_public">IPv6 público</string>
-    <string name="title_screen_info_overlay_ipv6_private">IPv6 privado</string>
-    <string name="title_screen_info_overlay_ul_traffic">Cargar tráfico</string>
-    <string name="title_screen_info_overlay_dl_traffic">Descargar tráfico</string>
-    <string name="title_screen_info_overlay_control_server_conn">Conexión de ControlServer</string>
+    <string name="title_screen_info_overlay_ipv4_public">IPv4 pública</string>
+    <string name="title_screen_info_overlay_ipv4_private">IPv4 privada</string>
+    <string name="title_screen_info_overlay_ipv6_public">IPv6 pública</string>
+    <string name="title_screen_info_overlay_ipv6_private">IPv6 privada</string>
+    <string name="title_screen_info_overlay_ul_traffic">Tráfico de subida</string>
+    <string name="title_screen_info_overlay_dl_traffic">Tráfico de bajada</string>
+    <string name="title_screen_info_overlay_control_server_conn">Conexión de Servidor de control</string>
     <string name="title_screen_info_overlay_captive_portal_status">Portal cautivo</string>
-    <string name="title_screen_info_overlay_is_loopback">Hay es loopback</string>
-    <string name="title_screen_info_overlay_is_link_local">Hay es link local</string>
-    <string name="title_screen_info_overlay_location_position">Coordinadas</string>
+    <string name="title_screen_info_overlay_is_loopback">Es loopback</string>
+    <string name="title_screen_info_overlay_is_link_local">Es link local</string>
+    <string name="title_screen_info_overlay_location_position">Coordenadas</string>
     <string name="title_screen_info_overlay_location_source">Fuente</string>
     <string name="title_screen_info_overlay_location_accuracy">Precisión</string>
     <string name="title_screen_info_overlay_location_altitude">Altitud</string>
     <string name="title_screen_info_overlay_location_age">Edad</string>
-    
-    <string name="captive_portal_found">encontrado</string>
-    <string name="captive_portal_not_found">no encontrado</string>
-    <string name="captive_portal_testing">test running…</string>
-    
+
+    <string name="captive_portal_found">Captive portal encontrado</string>
+    <string name="captive_portal_not_found"> Captive portal no encontrado</string>
+    <string name="captive_portal_testing">Captive portal: prueba en marcha…</string>
+
     <string name="not_available">No disponible</string>
-    
+
     <string name="test_label_test_info">Información de prueba</string>
     <string name="test_label_progress">Progreso</string>
-    <string name="test_label_quality_test">Prueba de calidad</string>
+    <string name="test_label_quality_test">Prueba de calidad (QoS)</string>
     <string name="test_toast_error_text_qos">Se ha producido un error durante la prueba de QoS.</string>
 
-<!-- Translated, with examples in English and German at the end of the line-->
+    <!-- Translated, with examples in English and German at the end of the line-->
     <string name="menu_button_title_page">Inicio</string> <!--Home,Startseite-->
     <string name="menu_button_share">Compartir</string> <!--Share,Teilen-->
     <string name="test_location_sat">satélites</string> <!--satellites,Satelliten-->
@@ -273,7 +273,7 @@
     <string name="result_page_title_graph">Gráfico</string> <!--Graph,Graph-->
     <string name="result_page_title_map">Ubicación</string> <!--Location,Standort-->
     <string name="page_title_title_page">Menú</string> <!--Menu,Menü-->
-    <string name="page_title_history">Historia</string> <!--History,Verlauf-->
+    <string name="page_title_history">Historial</string> <!--History,Verlauf-->
     <string name="page_title_help">Ayuda</string> <!--Help,Hilfe-->
     <string name="page_title_statistics">Estadísticas</string> <!--Statistics,Statistik-->
     <string name="page_title_information">Información</string> <!--Information,Information-->
@@ -281,80 +281,80 @@
     <string name="page_title_settings">Ajustes</string> <!--Settings,Einstellungen-->
     <string name="page_title_about">Información</string> <!--About,Info-->
     <string name="page_title_main_result">Resultado de la prueba</string> <!--Test result,Ergebnisse-->
-    <string name="page_title_sync">Sync</string> <!--Sync,Sync-->
+    <string name="page_title_sync">Sincronizar</string> <!--Sync,Sync-->
     <string name="page_title_qos_result">QoS</string>
-    <string name="value_invalid">Invalid value</string> <!--QoS results,QoS-->
+    <string name="value_invalid">Valor no válido</string> <!--QoS results,QoS-->
 
-    <string name="loop_test_measurement">Measurement</string>
-    <string name="loop_test_current">Current</string>
-    <string name="loop_test_last">Previous test</string>
-    <string name="loop_test_median">Median</string>
+    <string name="loop_test_measurement">Prueba</string>
+    <string name="loop_test_current">Actual</string>
+    <string name="loop_test_last">Prueba anterior</string>
+    <string name="loop_test_median">Mediana</string>
 
-    <string name="loop_test_progress_test_running">Test running</string>
-    <string name="loop_test_progress_test_waiting">Waiting</string>
-    <string name="loop_test_progress_test_finished">Finished</string>
-    <string name="loop_test_progress_test_not_running">Loop mode test</string>
+    <string name="loop_test_progress_test_running">Prueba en marcha</string>
+    <string name="loop_test_progress_test_waiting">Esperando</string>
+    <string name="loop_test_progress_test_finished">Terminado</string>
+    <string name="loop_test_progress_test_not_running">Bucle</string>
 
-    <string name="loop_test_quit">Quit</string>
+    <string name="loop_test_quit">Parar</string>
 
     <string name="lm_measurement_ping">Ping (ms)</string>
     <string name="lm_measurement_down">Down (Mbps)</string>
     <string name="lm_measurement_up">Up (Mbps)</string>
     <string name="lm_measurement_qos">QoS</string>
 
-    <string name="lm_measurement_server">Server</string>
-    <string name="lm_measurement_ip">Client IP</string>
-    <string name="lm_measurement_data_usage">Data usage</string>
-    <string name="lm_measurement_movement">Movement</string>
-    <string name="lm_measurement_delay">Waiting time</string>
+    <string name="lm_measurement_server">Servidor</string>
+    <string name="lm_measurement_ip">Dirección IP</string>
+    <string name="lm_measurement_data_usage">Uso de datos</string>
+    <string name="lm_measurement_movement">Distancia</string>
+    <string name="lm_measurement_delay">Tiempo de espera</string>
 
-    <string name="lm_details_access">Access</string>
-    <string name="lm_details_network_id">Network</string>
-    <string name="lm_details_signal">Signal</string>
-    <string name="lm_details_gps">Location</string>
-    <string name="lm_details_gps_accuracy">Accuracy</string>
+    <string name="lm_details_access">Accesso</string>
+    <string name="lm_details_network_id">Red</string>
+    <string name="lm_details_signal">Señal</string>
+    <string name="lm_details_gps">Posición</string>
+    <string name="lm_details_gps_accuracy">Precisión</string>
 
-    <string name="about_hidden_feature_dialog_title">Code</string>
-    <string name="about_hidden_feature_dialog_enter_code">Please enter the code:</string>
-    <string name="about_hidden_feature_dialog_msg_deactivated">Deactivated.</string>
-    <string name="about_hidden_feature_dialog_msg_activated">Activated.</string>
-    <string name="about_expert_mode_activated">Expert mode available.</string>
-    <string name="about_expert_mode_deactivated">Expert mode removed.</string>
-    <string name="about_server_selection_activated">Server selection available.</string>
-    <string name="about_server_selection_deactivated">Server selection removed.</string>
-    <string name="about_hidden_feature_dialog_msg_try_again">Try again!</string>
+    <string name="about_hidden_feature_dialog_title">Código</string>
+    <string name="about_hidden_feature_dialog_enter_code">Por favor, introduzca el código:</string>
+    <string name="about_hidden_feature_dialog_msg_deactivated">Desactivado.</string>
+    <string name="about_hidden_feature_dialog_msg_activated">Activado.</string>
+    <string name="about_expert_mode_activated">Modo esperto no disponible.</string>
+    <string name="about_expert_mode_deactivated">Modo experto desactivado.</string>
+    <string name="about_server_selection_activated">Selección de servidor disponible.</string>
+    <string name="about_server_selection_deactivated">Selección de servidor desactivada.</string>
+    <string name="about_hidden_feature_dialog_msg_try_again">Probar de nuevo!</string>
 
     <!-- copy  -->
 
 
-    <string name="preferences_skip_qos">Skip QoS</string>
-    <string name="preferences_skip_qos_sum">Skip QoS tests</string>
-    <string name="preferences_expert_mode">Expert mode</string>
-    <string name="preferences_expert_mode_sum">Show advanced settings and information</string>
+    <string name="preferences_skip_qos">Saltar QoS</string>
+    <string name="preferences_skip_qos_sum">Saltar pruebas de QoS</string>
+    <string name="preferences_expert_mode">Modo experto</string>
+    <string name="preferences_expert_mode_sum">Mostrar ajustes avanzados e información</string>
 
 
-    <string name="preferences_loop_mode_wake_lock">Loop WakeLock</string>
-    <string name="preferences_loop_mode_wake_lock_sum">Workaround for some devices: Leaves the display on to keep GPS working</string>
+    <string name="preferences_loop_mode_wake_lock">Bucle WakeLock</string>
+    <string name="preferences_loop_mode_wake_lock_sum">Para algunos dispositivos: mantener pantalla activa para utilizar GPS</string>
 
-    <string name="preferences_category_loop_mode_heading">Loop mode</string>
+    <string name="preferences_category_loop_mode_heading">Modo bucle</string>
 
-    <string name="menu_button_loop">LOOP</string>
+    <string name="menu_button_loop">BUCLE</string>
 
-    <string name="terms_loop_mode">Loop mode</string>
-    <string name="terms_loop_mode_header">Loop mode activation</string>
+    <string name="terms_loop_mode">Modo bucle</string>
+    <string name="terms_loop_mode_header">Activación del modo bucle</string>
 
 
-    <string name="map_search_location_dialog_title">Search</string>
-    <string name="map_search_location_progress_title">Searching</string>
-    <string name="map_search_location_progress_message">Looking for your location. Please wait…</string>
-    <string name="map_search_location_dialog_info">Search for an address or city:</string>
-    <string name="map_search_location_dialog_not_found">Address not found.</string>
-    <string name="map_search_location_not_supported">Sorry, this function is not supported by your device.</string>
+    <string name="map_search_location_dialog_title">Buscar</string>
+    <string name="map_search_location_progress_title">Buscando</string>
+    <string name="map_search_location_progress_message">Actualizando su localización. Por favor espere…</string>
+    <string name="map_search_location_dialog_info">Buscar una dirección o ciudad:</string>
+    <string name="map_search_location_dialog_not_found">Dirección no encontrada.</string>
+    <string name="map_search_location_not_supported">Lo sentimos, esta función no está soportada por su dispositivo.</string>
 
 
     <!-- QoS values: -->
 
-    <string name="term_signal_quality">Quality</string>
+    <string name="term_signal_quality">Calidad de señal</string>
 
     <string-array name="result_page_title">
         <item>@string/result_page_title_menu</item>
@@ -364,7 +364,7 @@
         <item>@string/result_page_title_map</item>
     </string-array>
 
-    <string name="result_details_qos_info">ADDITIONAL RESULTS</string>
+    <string name="result_details_qos_info">RESULTADOS ADICIONALES</string>
 
 
     <string-array name="navigation_main_titles">
@@ -377,51 +377,49 @@
         <item>@string/page_title_settings</item>
     </string-array>
 
-    <string name="server_selection">Server selection</string>
+    <string name="server_selection">Seleccionar servidor</string>
 
-    <string name="permission_telephony_dialog_title">Permission required</string>
-    <string name="permission_telephony_dialog_text">The permission READ_PHONE_STATE is required for the correct identification of network settings of dual-SIM devices.</string>
+    <string name="permission_telephony_dialog_title">Autorización requerida</string>
+    <string name="permission_telephony_dialog_text">La autorización READ_PHONE_STATE es requerida para identificar los parámetros de red de dispositivos con dual-SIM.</string>
     <string name="loop_notification_text_without_stop">{0}x; {1}; {2}m;</string>
 
 
-    <string name="go">Start tests</string>
-    <string name="go_to_settings">Change settings</string>
+    <string name="go">Comenzar pruebas</string>
+    <string name="go_to_settings">Cambiar ajustes</string>
 
-    <string name="loop_mode_max_delay_invalid">Invalid maximum delay. Please choose a number between {0,number,#} and {1,number,#}.</string>
-    <string name="loop_mode_max_movement_invalid">Invalid maximum distance. Please choose a number between {0,number,#} and {1,number,#}.</string>
-    <string name="loop_mode_max_tests_invalid">Invalid number of tests. Please choose a number between {0,number,#} and {1,number,#}.</string>
-    <string name="loop_mode_max_test">Number of tests</string>
-    <string name="loop_mode_info">You are about to start tests in loop mode. The distance is set to {0,number,#} meters. The waiting time is {1,number,#} minutes.</string>
+    <string name="loop_mode_max_delay_invalid">Intervalo no válido. Por favor elija un tiempo entre {0,number,#} y {1,number,#}.</string>
+    <string name="loop_mode_max_movement_invalid">Máxima distancia no válida. Por favor elija una distancia entre {0,number,#} y {1,number,#}.</string>
+    <string name="loop_mode_max_tests_invalid">Número de pruebas no válido. Por favor elija un número entre {0,number,#} y {1,number,#}.</string>
+    <string name="loop_mode_max_test">Número de pruebas</string>
+    <string name="loop_mode_info">Va a comenzar las pruebas en modo bucle. La distancia es {0,number,#} metros. El tiempo de espera es {1,number,#} minutos.</string>
 
-    <string name="loop_mode_test_dialog_abort">Do you really want to stop the loop mode?</string>
+    <string name="loop_mode_test_dialog_abort">Desea parar el modo bucle?</string>
 
-    <string name="loop_notification_finished_ticker">Loop mode is finished. No more tests will be run.</string>
-    <string name="loop_notification_finished_title">Loop mode is finished</string>
+    <string name="loop_notification_finished_ticker">El bucle ha terminado. No hay más pruebas.</string>
+    <string name="loop_notification_finished_title">El bucle ha terminado</string>
 
-    <string name="loop_test_last_status_ok">Previous test: successful</string>
-    <string name="loop_test_last_status_error">Previous test: error</string>
-    <string name="loop_test_last_status_rejected">Previous test: rejected</string>
-    <string name="terms_check_accept_button">Accept</string>
-    <string name="terms_check_decline_button">Decline</string>
-    <string name="terms_loop_mode2">Loop mode (2/2)</string>
-    <string name="terms_loop_mode_header2">Usage</string>
+    <string name="loop_test_last_status_ok">Prueba anterior: éxito</string>
+    <string name="loop_test_last_status_error">Prueba anterior: error</string>
+    <string name="loop_test_last_status_rejected">Prueba anterior: rechazada</string>
+    <string name="terms_check_accept_button">Aceptar</string>
+    <string name="terms_check_decline_button">Rechazar</string>
+    <string name="terms_loop_mode2">Modo bucle (2/2)</string>
+    <string name="terms_loop_mode_header2">Uso</string>
     <string name="title_screen_info_overlay_location_speed">Velocidad</string>
-    <string name="loop_test_progress_test_finished_max_time">Finished/Time</string>
-    <string name="loop_notification_finished_ticker_time">Loop mode is finished. Max time has been reached. No more tests will be run.</string>
-    <string name="loop_notification_finished_title_time">Loop mode is finished (max time reached)</string>
-    <string name="lm_details_location_provider">Location provider</string>
+    <string name="loop_test_progress_test_finished_max_time">Terminado/Tiempo</string>
+    <string name="loop_notification_finished_ticker_time">El bucle ha terminado. Máximo tiempo alcanzado. No hay más pruebas.</string>
+    <string name="loop_notification_finished_title_time"> El bucle ha terminado (máx. tiempo alcanzado)</string>
+    <string name="lm_details_location_provider">Proveedor de localización</string>
     <string name="title_screen_info_overlay_location_bearing">Bearing</string>
-    <string name="lm_measurement_movement_no_gps">Waiting for GPS</string>
-    <string name="preferences_loop_mode_waiting_time_title">Waiting time (min)</string>
-    <string name="preferences_loop_mode_movement_title">Distance (m)</string>
-    <string name="notification_channel_loop_description">Information on loop mode status</string>
-    <string name="notification_channel_loop_name">RTR-NetTest loop mode</string>
-    <string name="notification_channel_rmbt_description">Information about active test</string>
+    <string name="lm_measurement_movement_no_gps">Esperando GPS</string>
+    <string name="preferences_loop_mode_waiting_time_title">Tiempo de espera (mín)</string>
+    <string name="preferences_loop_mode_movement_title">Distancia (m)</string>
+    <string name="notification_channel_loop_description">Información sobre el estado del bucle</string>
+    <string name="notification_channel_loop_name">RTR-NetTest modo bucle</string>
+    <string name="notification_channel_rmbt_description">Información sobre la prueba activa</string>
     <string name="notification_channel_rmbt_name">RTR-NetTest</string>
     <string name="nat_ipv6">NAT IPv6</string>
     <string name="nat_ipv4">NAT IPv4</string>
-    <string name="preferences_expert">Expert settings</string>
+    <string name="preferences_expert">Ajustes modo experto</string>
 
 </resources>
-
-
