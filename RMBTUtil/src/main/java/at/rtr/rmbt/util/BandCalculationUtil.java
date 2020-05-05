@@ -18,6 +18,7 @@ package at.rtr.rmbt.util;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 public class BandCalculationUtil {
@@ -42,6 +43,48 @@ public class BandCalculationUtil {
 
         //Invalid input
         return null;
+    }
+
+    public static FrequencyInformation<NRBand> getBandFromNrarfcn(int nrarfcn) {
+        //different calculation - get frequency from nrarfcn directly, then assign band
+        double frequencyMHz = getNrFrequencyFromNrArfcn(nrarfcn);
+        if (frequencyMHz == 0) {
+            return null;
+        }
+
+        //check if a band contains this frequency
+        for (NRBand band : nrBands.values()) {
+            if (band.containsULFrequency(frequencyMHz)) {
+                return new FrequencyInformation<>(nrarfcn, band);
+            }
+        }
+        return null;
+    }
+
+    private static double getNrFrequencyFromNrArfcn(int nrarfcn) {
+        double frequencyOffset;
+        double deltaFrequencyKHz;
+        double nRefOffs;
+        if (nrarfcn >= 0 && nrarfcn < 600000) {
+            frequencyOffset = 0;
+            deltaFrequencyKHz = 5;
+            nRefOffs = 0;
+        } else if (nrarfcn >= 600000 && nrarfcn < 2016667) {
+            frequencyOffset = 3000;
+            deltaFrequencyKHz = 15;
+            nRefOffs = 600000;
+        } else if (nrarfcn >= 2016667 && nrarfcn < 3279165) {
+            frequencyOffset = 24250.08;
+            deltaFrequencyKHz = 60;
+            nRefOffs = 2016667;
+        } else {
+            //invalid input
+            return 0;
+        }
+
+        //FREF = FREF-Offs + ΔFGlobal (NREF – NREF-Offs)
+        double frequencyMHz = frequencyOffset + (deltaFrequencyKHz / 1000f) * (nrarfcn - nRefOffs);
+        return frequencyMHz;
     }
 
     /**
@@ -162,6 +205,50 @@ public class BandCalculationUtil {
         put(69, new LTEBand(69, 0, 0, 2570, 2620, 0, 0, -67836, "IMT-E FDD CA"));
         put(70, new LTEBand(70, 1695, 1710, 1995, 2020, 132972, 133121, 64636, "AWS-4"));
         put(0, new LTEBand(0, 0, 0, 0, 0, 0, 0, 0, null));
+
+    }};
+
+    //
+    private static HashMap<Integer, NRBand> nrBands = new LinkedHashMap<Integer, NRBand>() {{
+        put(1, new NRBand(1, 1920, 1980, 2110, 2170, "2100 MHz"));
+        put(3, new NRBand(3, 1710, 1785, 1805, 1880, "1800 MHz"));
+        put(8, new NRBand(8, 880, 915, 925, 960, "900 MHz"));
+        put(7, new NRBand(7, 2500, 2570, 2620, 2690, "2600 MHz"));
+        put(78, new NRBand(78, 3300, 3800, 3300, 3800, "3500 MHz"));
+        put(75, new NRBand(75, 0, 0, 1432, 1517, "1500 MHz"));
+        put(258, new NRBand(258,24250, 27500, 24250, 27500, "26 GHz"));
+        put(20, new NRBand(20, 832, 862, 791, 821, "800 MHz"));
+        put(28, new NRBand(28, 703, 748, 758, 803, "700 MHz"));
+        put(40, new NRBand(40, 2300, 2400, 2300, 2400, "TD 2300 MHz"));
+        put(2, new NRBand(2, 1850, 1910, 1930, 1990, "1900 MHz"));
+        put(5, new NRBand(5, 824, 849, 869, 894, "850 MHz"));
+        put(12, new NRBand(12, 699, 716, 729, 746, "700 MHz US A"));
+        put(25, new NRBand(25, 1850, 1915, 1930, 1995, "1900 MHz +"));
+        put(34, new NRBand(34, 2010, 2025, 2010, 2025, "TD 2 GHz upper"));
+        put(38, new NRBand(38, 2570, 2620, 2570, 2620, "TD 2600 MHz"));
+        put(39, new NRBand(39, 1880, 1920, 1880, 1920, "TD 1900 MHz"));
+        put(41, new NRBand(41, 2496, 2690, 2496, 2690, "TD 2.6 GHz +"));
+        put(50, new NRBand(50, 1432, 1517, 1432, 1517, "TD 1500 MHz +"));
+        put(51, new NRBand(51, 1427, 1432, 1427, 1432, "TD 1500 MHz -"));
+        put(66, new NRBand(66, 1710, 1780, 2110, 2200, "AWS-3"));
+        put(70, new NRBand(70, 1695, 1710, 1995, 2020, "AWS-4"));
+        put(71, new NRBand(71, 663, 698, 617, 652, "600 MHz US"));
+        put(74, new NRBand(74, 1427, 1470, 1475, 1518, "L-Band"));
+        put(76, new NRBand(76, 0, 0, 1427, 1432, "500 MHz -"));
+
+        put(77,new NRBand(77,3300,4200,3300,4200,"3500 MHz +"));
+        put(79,new NRBand(79,4400,5000,4400,5000,"4500 MHz"));
+
+        put(80,new NRBand(80,1710,1785,0,0,"SUL 1800 MHz+"));
+        put(81,new NRBand(81,880,915,0,0,"SUL 900 MHz"));
+        put(82,new NRBand(82,832,862,0,0,"SUL 800 MHz"));
+        put(83,new NRBand(83,703,748,0,0,"SUL 700 MHz"));
+        put(84,new NRBand(84,1920,1980,0,0,"SUL 2100 MHz"));
+        put(86,new NRBand(86,1710,1780,0,0,"SUL 1800 MHz"));
+
+        put(257,new NRBand(257,26500,29500,26500,29500,"28 GHz"));
+        put(260,new NRBand(260,37000,40000,37000,40000,"39 GHz US"));
+        put(261,new NRBand(261,27500,28350,27500,28350,"28 GHz US"));
 
     }};
 
@@ -371,6 +458,14 @@ public class BandCalculationUtil {
             return channel > uplink_channel_lower_bound && channel < uplink_channel_upper_bound;
         }
 
+        public boolean containsULFrequency(double frequencyMHz) {
+            return frequencyMHz >= uplink_frequency_lower_bound && frequencyMHz <= uplink_frequency_upper_bound;
+        }
+
+        public boolean containsDLFrequency(double frequencyMHz) {
+            return frequencyMHz >= downlink_frequency_lower_bound && frequencyMHz <= downlink_frequency_upper_bound;
+        }
+
         public double getFrequencyDL(double channel) {
             double channelOffset = (!containsDLChannel(channel))?0:this.channel_offset;
             double frequency = this.downlink_frequency_lower_bound + getStep() * (channel - (this.uplink_channel_lower_bound - channelOffset));
@@ -404,6 +499,24 @@ public class BandCalculationUtil {
         @Override
         public double getStep() {
             return 0.1;
+        }
+    }
+
+    public static class NRBand extends Band {
+        protected NRBand(int band, double uplink_frequency_lower_bound, double uplink_frequency_upper_bound, double downlink_frequency_lower_bound, double downlink_frequency_upper_bound, String informal_name) {
+            super(band, uplink_frequency_lower_bound, uplink_frequency_upper_bound, downlink_frequency_lower_bound, downlink_frequency_upper_bound, 0, 0, 0, informal_name);
+        }
+
+
+        @Override
+        public double getStep() {
+            //not applicable for NR
+            return 0;
+        }
+
+        @Override
+        public double getFrequencyDL(double channel) {
+            return getNrFrequencyFromNrArfcn((int) channel);
         }
     }
 
