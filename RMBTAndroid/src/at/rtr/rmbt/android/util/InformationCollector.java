@@ -1512,6 +1512,14 @@ public class InformationCollector
                             activeCell = registeredCells.get(1);
                         }
                     }
+                    else if (network == TelephonyManager.NETWORK_TYPE_NR) {
+                        if (registeredCells.get(0).getTechnology() == CellInformationWrapper.Technology.CONNECTION_5G) {
+                            activeCell = registeredCells.get(0);
+                        }
+                        else {
+                            activeCell = registeredCells.get(1);
+                        }
+                    }
                     else {
                         //active network is 3G
                         if (registeredCells.get(0).getTechnology() == CellInformationWrapper.Technology.CONNECTION_3G) {
@@ -1581,6 +1589,7 @@ public class InformationCollector
                 conversionTable.put(CellInformationWrapper.Technology.CONNECTION_3G, TelephonyManager.NETWORK_TYPE_UMTS);
                 conversionTable.put(CellInformationWrapper.Technology.CONNECTION_4G, TelephonyManager.NETWORK_TYPE_LTE);
                 conversionTable.put(CellInformationWrapper.Technology.CONNECTION_4G, NETWORK_TYPE_LTE_CA);
+                conversionTable.put(CellInformationWrapper.Technology.CONNECTION_5G, TelephonyManager.NETWORK_TYPE_NR);
 
                 lastNetworkType.set(conversionTable.get(activeCell.getTechnology()));
 
