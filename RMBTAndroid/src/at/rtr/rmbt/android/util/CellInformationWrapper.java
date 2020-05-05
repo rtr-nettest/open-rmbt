@@ -44,6 +44,7 @@ public class CellInformationWrapper {
         CONNECTION_2G("2G"),
         CONNECTION_3G("3G"),
         CONNECTION_4G("4G"),
+        CONNECTION_5G("5G"),
         CONNECTION_WLAN("WLAN");
 
         private String val;
@@ -100,6 +101,12 @@ public class CellInformationWrapper {
             this.ci = new CellIdentity(((CellInfoCdma) cellInfo).getCellIdentity());
             this.cs = new CellSignalStrength(((CellInfoCdma) cellInfo).getCellSignalStrength());
         }
+        else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
+                cellInfo.getClass().equals(CellInfoNr.class)) {
+            setTechnology(Technology.CONNECTION_5G);
+            this.ci = new CellIdentity((CellIdentityNr) ((CellInfoNr) cellInfo).getCellIdentity());
+            this.cs = new CellSignalStrength((CellSignalStrengthNr) ((CellInfoNr) cellInfo).getCellSignalStrength());
+        }
     }
 
     public CellInformationWrapper(WifiInfo wifiInfo) {
@@ -135,6 +142,16 @@ public class CellInformationWrapper {
             setTimingAdvance(ss.getTimingAdvance());
             //setSignal(ss.getDbm());
         }
+
+        @RequiresApi(api = Build.VERSION_CODES.Q)
+        public CellSignalStrength(CellSignalStrengthNr ss) {
+            String desc = ss.toString();
+            setRsrp(ss.getSsRsrp());
+            setRsrq(ss.getSsRsrq());
+            setRssnr(ss.getSsSinr());
+            //setSignal(ss.getDbm());
+        }
+
 
         public CellSignalStrength(CellSignalStrengthWcdma ss) {
             setSignal(ss.getDbm());
@@ -374,7 +391,7 @@ public class CellInformationWrapper {
         private Integer channelNumber;
         private Integer mnc;
         private Integer mcc;
-        private Integer locationId;
+        private long locationId;
         private Long areaCode;
         private Integer scramblingCode;
         private String cellUuid = UUID.randomUUID().toString();
@@ -422,6 +439,23 @@ public class CellInformationWrapper {
             this.setMcc(cellIdentity.getMcc());
             this.setLocationId(cellIdentity.getTac());
             this.setAreaCode(cellIdentity.getCi());
+            this.setScramblingCode(cellIdentity.getPci());
+        }
+
+        @RequiresApi(api = Build.VERSION_CODES.Q)
+        public CellIdentity(CellIdentityNr cellIdentity) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                this.setChannelNumber(cellIdentity.getNrarfcn());
+            }
+
+            try {
+                this.setMnc(Integer.parseInt(cellIdentity.getMncString()));
+                this.setMcc(Integer.parseInt(cellIdentity.getMccString()));
+            } catch (NumberFormatException e) {
+                //todo
+            }
+            this.setLocationId(cellIdentity.getNci());
+            this.setAreaCode(cellIdentity.getTac());
             this.setScramblingCode(cellIdentity.getPci());
         }
 
@@ -485,14 +519,14 @@ public class CellInformationWrapper {
          * @return
          */
         @JsonProperty("location_id")
-        public Integer getLocationId() {
+        public Long getLocationId() {
             if (objectsEquals(locationId, Integer.MAX_VALUE)) {
                 return null;
             }
             return locationId;
         }
 
-        public void setLocationId(int locationId) {
+        public void setLocationId(long locationId) {
             this.locationId = locationId;
         }
 
