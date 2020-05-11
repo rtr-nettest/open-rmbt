@@ -238,6 +238,8 @@ public class SettingsResource extends ServerResource
                             platform = request.optString("plattform");
                         }
 
+                    	String softwareVersionName = request.optString("softwareVersionName");
+
                         String tcUrl = null;
                     	String tcNdtUrl = null;
                     	Integer tcVersion = null;
@@ -247,6 +249,14 @@ public class SettingsResource extends ServerResource
                             try {
                                 tcVersion = Integer.valueOf(getSetting("tc_version_android", lang));
                             } catch (NumberFormatException e) {}
+
+                            //new android version - new settings url
+                            if (tcUrl != null && softwareVersionName != null && softwareVersionName.startsWith("4.")) {
+                                String newUrl = getSetting("tc_url_android_v4", lang);
+                                if (newUrl != null && !newUrl.isEmpty()) {
+                                    tcUrl = newUrl;
+                                }
+                            }
                         }
                         else if (platform != null && platform.toLowerCase().equals("ios")) {
                             tcUrl = getSetting("tc_url_ios", lang);
