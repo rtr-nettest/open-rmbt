@@ -48,34 +48,37 @@ public final class QoEClassification {
                 int assignedClass = 1;
                 float assignedQuality = 0;
 
+                //formula
+                //a_1 := threshold between yellow / red
+                //a_3 := threshold between dark green / green
+                //c= sqrt(a_3/a_1)
+                //a_0 := a1 / c ==> 0
+                //a_2 := a1 * c ==> threshold yellow / green
+                //a_4 := a3 * c ==> 1
+                //a_n := a_(n-1) * c
+
+
+                //percent := (log(x) - log(a_0))/(log(a_4)-log/a_0)
+                double a1 = threshold[threshold.length-1];
+                double a3 = threshold[0];
+                double c = Math.sqrt(a3/a1);
+                double a0 = a1 / c;
+                double a2 = a1 * c;
+                double a4 = a3 * c;
+
+                assignedQuality = (float) ((Math.log(value) - Math.log(a0)) / (Math.log(a4) - Math.log(a0)));
+
                 if (!inverse) {
                     //down, up
-                    int c = 0;
-                    for (int i = 0; i < threshold.length; i++, c++) {
-                        if (value >= threshold[i]) {
-                            assignedClass = CLASSIFICATION_ITEMS - c;
-                            if (assignedClass > 1 && assignedClass < CLASSIFICATION_ITEMS) {
-                                //linear calculation of the value within the given class bounds
-                                assignedQuality = (assignedClass - 1) * 0.33f + 0.33f * ((value - threshold[i]) / (float) (threshold[i - 1] - threshold[i]));
-                            }
-                            //System.out.println("classified " + value + " for " + entry.getKey().name() + " as "+ assignedClass + "/" + assignedQuality);
-                            break;
-                        }
-                    }
+                    assignedClass = value >= a3 ? 4 : value >= a2 ? 3 : value >= a1 ? 2 : 1;
+
                 } else {
-                    //inverse --> e.g. for ping, where lower value is better
-                    int c = 0;
-                    for (int i = 0; i < threshold.length; i++, c++) {
-                        if (value <= threshold[i]) {
-                            assignedClass = CLASSIFICATION_ITEMS - c;
-                            if (assignedClass > 1  && assignedClass < CLASSIFICATION_ITEMS) {
-                                assignedQuality = (assignedClass - 1) * 0.33f + 0.33f * ((value - threshold[i - 1]) / (float) (threshold[i] - threshold[i - 1]));
-                            }
-                            //System.out.println("classified " + value + " for " + entry.getKey().name() + " as "+ assignedClass + "/" + assignedQuality);
-                            break;
-                        }
-                    }
+                    assignedClass = value <= a3 ? 4 : value <= a2 ? 3 : value <= a1 ? 2 : 1;
                 }
+                assignedQuality = Math.max(0, Math.min(1, assignedQuality));
+
+                //System.out.printf("%s / %s: a0: %d, a1: %d, a2: %d, a3: %d, a4: %d; val %d --> %.2f (class %d)%n",
+                 //       classifier.category, entry.getKey(), (long) a0, (long) a1, (long) a2, (long) a3, (long) a4, value, assignedQuality, assignedClass);
 
                 if (assignedClass == CLASSIFICATION_ITEMS) {
                     assignedQuality = 1f;
