@@ -1228,6 +1228,17 @@ public class InformationCollector
 
             Method[] methods = Class.forName(obj.getClass().getName()).getDeclaredMethods();
 
+            //try extracting from string
+            //source: https://github.com/mroczis/netmonster-core/blob/master/library/src/main/java/cz/mroczis/netmonster/core/feature/detect/DetectorLteAdvancedNrServiceState.kt#L69
+            String serviceState = obj.toString();
+            boolean is5gActive = serviceState.contains("nrState=CONNECTED") ||
+                    serviceState.contains("nsaState=5") ||
+                    (serviceState.contains("EnDc=true") &&
+                            serviceState.contains("5G Allocated=true"));
+            if (is5gActive) {
+                return true;
+            }
+
             for (Method method : methods) {
                 if (method.getName().equals("getNrStatus") || method.getName().equals("getNrState")) {
                     method.setAccessible(true);
