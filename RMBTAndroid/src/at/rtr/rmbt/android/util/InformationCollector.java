@@ -1222,6 +1222,11 @@ public class InformationCollector
     //get 5G connection info from Service State over reflection call
     //https://stackoverflow.com/questions/55598359/how-to-detect-samsung-s10-5g-is-running-on-5g-network
     static boolean isNRConnected(TelephonyManager telephonyManager) {
+        //only for android 9 and up
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+            return false;
+        }
+
         try {
             Object obj = Class.forName(telephonyManager.getClass().getName())
                     .getDeclaredMethod("getServiceState", new Class[0]).invoke(telephonyManager, new Object[0]);
