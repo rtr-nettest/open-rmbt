@@ -100,8 +100,8 @@ android {
 		manifestPlaceholders = [googleMapsApiKey:appSecretProperties['googleMapsApiKey']]
         minSdkVersion 15
         targetSdkVersion 29
-        versionCode 30707
-        versionName "3.7.7"
+        versionCode 30709
+        versionName "3.7.9"
         buildConfigField "long", "BUILD_TIMESTAMP", System.currentTimeMillis() + "L"
 		buildConfigField "int", "LOOP_MODE_UNLOCK_CODE",appSecretProperties['loopModeUnlockCode']
 		buildConfigField "int", "LOOP_MODE_LOCK_CODE",appSecretProperties['loopModeLockCode']
