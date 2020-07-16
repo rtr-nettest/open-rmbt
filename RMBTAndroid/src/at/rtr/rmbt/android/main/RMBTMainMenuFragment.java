@@ -654,10 +654,32 @@ public class RMBTMainMenuFragment extends Fragment
 	                		}
 	                		else {
 	                			infoNetworkType.setVisibility(View.VISIBLE);
-	                			
-		                		if (lastNetworkTypeString.equals(networkFamily.getNetworkFamily())) {
+
+	                			//5G treatment
+                                if (informationCollector.getLastNrConnectionState() != InformationCollector.NrConnectionState.NOT_AVAILABLE) {
+                                    switch (informationCollector.getLastNrConnectionState()) {
+                                        case NSA:
+                                            networkFamily = NetworkFamilyEnum.NR_NSA;
+                                            break;
+                                        case SA:
+                                            networkFamily = NetworkFamilyEnum.NR;
+                                            break;
+                                        case AVAILABLE:
+                                            networkFamily = NetworkFamilyEnum.NR_AVAILABLE;
+                                            break;
+                                    }
+
+                                    if (networkFamily != NetworkFamilyEnum.NR_AVAILABLE) {
+                                        infoSignalStrengthExtra.setVisibility(View.GONE);
+                                        infoSignalStrength.setVisibility(View.GONE);
+                                    }
+
+                                    lastNetworkTypeString = networkFamily.getNetworkId();
+                                }
+
+	                			if (lastNetworkTypeString.equals(networkFamily.getNetworkFamily())) {
 		                			infoCollector.setNetworkTypeString(lastNetworkTypeString);
-			                		infoNetworkType.setText(lastNetworkTypeString);	                			
+			                		infoNetworkType.setText(lastNetworkTypeString);
 		                		}
 		                		else {
 		                			infoCollector.setNetworkTypeString(networkFamily.getNetworkFamily() + "/" + lastNetworkTypeString);

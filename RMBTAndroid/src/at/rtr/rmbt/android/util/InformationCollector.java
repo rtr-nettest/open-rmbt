@@ -69,6 +69,7 @@ public class InformationCollector
 	 * set to true if location information should be included to server request
 	 */
 	public final static boolean BASIC_INFORMATION_INCLUDE_LOCATION = true;
+	public static enum NrConnectionState { NSA, SA, AVAILABLE, NOT_AVAILABLE }
 
 	/**
 	 * set to true if last signal information should be included to server request
@@ -153,6 +154,7 @@ public class InformationCollector
     private final AtomicReference<SignalItem> lastSignalItem = new AtomicReference<InformationCollector.SignalItem>();
     private final AtomicInteger lastNetworkType = new AtomicInteger(TelephonyManager.NETWORK_TYPE_UNKNOWN);
     private final AtomicBoolean illegalNetworkTypeChangeDetcted = new AtomicBoolean(false);
+    private final AtomicReference<NrConnectionState> lastNrConnectionState = new AtomicReference<>(NrConnectionState.NOT_AVAILABLE);
 
     public static QoSResultCollector qoSResult;
 
@@ -764,6 +766,12 @@ public class InformationCollector
                     }
                 }
 
+                //NR
+                if (getNrConnectionState(telManager) != NrConnectionState.NOT_AVAILABLE) {
+                    fullInfo.setProperty("TELEPHONY_NR_CONNECTION", getNrConnectionState(telManager).toString());
+                } else {
+                    fullInfo.remove("TELEPHONY_NR_CONNECTION");
+                }
             }
 
             // telManager.listen(telListener,
@@ -1190,8 +1198,14 @@ public class InformationCollector
                     //see https://dl.google.com/io/2009/pres/W_0300_CodingforLife-BatteryLifeThatIs.pdf
                     //    https://stackoverflow.com/questions/25414830/networkinfo-subtype-values
                     result = activeNetworkInfo.getSubtype();
-                    if (isNRConnected(telManager)) {
+                    NrConnectionState nrConnectionState = getNrConnectionState(telManager);
+                    lastNrConnectionState.set(nrConnectionState);
+                    if (nrConnectionState == NrConnectionState.NSA ||
+                            nrConnectionState == NrConnectionState.SA) {
                         result = TelephonyManager.NETWORK_TYPE_NR;
+                    }
+                    else if (nrConnectionState == NrConnectionState.AVAILABLE) {
+                        //nothing tbd, plain LTE
                     }
                     break;
                 }
@@ -1221,10 +1235,10 @@ public class InformationCollector
 
     //get 5G connection info from Service State over reflection call
     //https://stackoverflow.com/questions/55598359/how-to-detect-samsung-s10-5g-is-running-on-5g-network
-    static boolean isNRConnected(TelephonyManager telephonyManager) {
+    static NrConnectionState getNrConnectionState(TelephonyManager telephonyManager) {
         //only for android 9 and up
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
-            return false;
+            return NrConnectionState.NOT_AVAILABLE;
         }
 
         try {
@@ -1241,19 +1255,26 @@ public class InformationCollector
                     (serviceState.contains("EnDc=true") &&
                             serviceState.contains("5G Allocated=true"));
             if (is5gActive) {
-                return true;
+                return NrConnectionState.NSA;
+            }
+            boolean is5gAvailable = serviceState.contains("isNrAvailable=true") ||
+                    serviceState.contains("isNrAvailable = true");
+            if (is5gAvailable) {
+                return NrConnectionState.AVAILABLE;
             }
 
             for (Method method : methods) {
                 if (method.getName().equals("getNrStatus") || method.getName().equals("getNrState")) {
                     method.setAccessible(true);
-                    return ((Integer) method.invoke(obj, new Object[0])).intValue() == 3;
+                    if (((Integer) method.invoke(obj, new Object[0])).intValue() == 3) {
+                        return NrConnectionState.NSA;
+                    }
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return false;
+        return NrConnectionState.NOT_AVAILABLE;
     }
 
     public boolean getIllegalNetworkTypeChangeDetcted()
@@ -1399,6 +1420,10 @@ public class InformationCollector
     
     public SignalItem getLastSignalItem() {
     	return lastSignalItem.get();
+    }
+
+    public NrConnectionState getLastNrConnectionState() {
+        return lastNrConnectionState.get();
     }
     
     public void setTestServerName(final String serverName)
