@@ -70,6 +70,7 @@ dependencies {
     compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.9.7'
     compile group: 'commons-dbutils', name: 'commons-dbutils', version: '1.7'
     compile 'com.github.sett4:jackson-dataformat-xlsx-lite:2.9.6-1'
+    compile (group: 'net.bull.javamelody', name: 'javamelody-core', version: '1.85.0')
     compile project(':RMBTSharedCode')
     compile project(':RMBTUtil')
 }
