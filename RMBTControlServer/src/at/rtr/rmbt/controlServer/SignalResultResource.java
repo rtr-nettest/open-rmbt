@@ -84,7 +84,7 @@ public class SignalResultResource extends ServerResource {
 
 
                     //get existing open-uuid, if any
-                    final PreparedStatement psOpenUuid = conn.prepareStatement("SELECT uuid, open_test_uuid FROM test WHERE uuid = ? AND (status is null or status = ?)");
+                    final PreparedStatement psOpenUuid = conn.prepareStatement("SELECT uuid, open_test_uuid, last_sequence_number FROM test WHERE uuid = ? AND (status is null or status = ?)");
                     psOpenUuid.setObject(1, testUuid);
                     psOpenUuid.setObject(2, STATUS_SIGNAL);
                     ResultSet rsTokenUuid = psOpenUuid.executeQuery();
@@ -93,6 +93,10 @@ public class SignalResultResource extends ServerResource {
 
                     if (rsTokenUuid.next()) {
                         openTestUuid = (java.util.UUID) rsTokenUuid.getObject("open_test_uuid");
+                        int lastSequenceNumber = rsTokenUuid.getInt("last_sequence_number");
+                        if (sequenceNumber <= lastSequenceNumber) {
+                            errorList.addError("ERROR_INVALID_SEQUENCE");
+                        }
                         existingInDb = true;
                     } else {
                         openTestUuid = UUID.randomUUID();
@@ -112,7 +116,7 @@ public class SignalResultResource extends ServerResource {
                     final Client clientDb = new Client(conn);
                     clientUid = clientDb.getClientByUuid(UUID.fromString(request.getString("client_uuid")));
 
-                    if (testUuid != null && clientUid > 0) {
+                    if (testUuid != null && clientUid > 0 && errorList.isEmpty()) {
 
                         Calendar timeWithZone = null;
 
@@ -125,15 +129,29 @@ public class SignalResultResource extends ServerResource {
                             timeWithZone = Helperfunctions.getTimeWithTimeZone(timeZoneId);
 
 
-                        //Insert basic info
+                        //Insert basic info if registration was not received by server
                         if (sequenceNumber == 0 && !existingInDb){
+                            System.out.println("not existing in db");
+                            //adjust time using time_ns
+                            GregorianCalendar calendar = new GregorianCalendar();
+                            //System.out.println(calendar.getTime().toGMTString());
+                            try{
+                                long timeNs = request.getLong("time_ns");
+                                calendar.add(Calendar.MILLISECOND, (int) Math.round(timeNs/1e6));
+                            }
+                            catch (NumberFormatException e) {}
+
+
+                            //System.out.println(calendar.getTime().toGMTString());
                             PreparedStatement st;
                             st = conn
                                     .prepareStatement(
                                             "INSERT INTO test(time, uuid, open_test_uuid, client_id, status)"
-                                                    + "VALUES(NOW(), ?, ?, ?, ?)",
+                                                    + "VALUES(?, ?, ?, ?, ?)",
                                             Statement.RETURN_GENERATED_KEYS);
                             int i = 1;
+                            //time
+                            st.setDate(i++,new java.sql.Date(calendar.getTime().getTime()));
                             // uuid
                             st.setObject(i++, testUuid);
                             // open_test_uuid
@@ -195,6 +213,7 @@ public class SignalResultResource extends ServerResource {
                         final JSONArray geoData = request.optJSONArray("geoLocations");
                         // geo_location_uuid to be stored in test table ("reference location")
                         UUID geoRefUuid = null;
+                        //System.out.println("geoData " + (geoData == null || geoData.toList().isEmpty()));
 
                         if (geoData != null && !test.hasError()) {
                             float minAccuracy = Float.MAX_VALUE;
@@ -439,7 +458,25 @@ public class SignalResultResource extends ServerResource {
                                 errorList.addError(test.getError());
                             }
                         } else {
-                            System.out.println("sequence >0, only storing geo / signal");
+                            //System.out.println("sequence >0, only storing geo / signal, updating sequence");
+                            PreparedStatement st;
+                            try {
+                                st = conn
+                                        .prepareStatement(
+                                                "UPDATE test SET last_sequence_number = ? where uuid = ?;");
+                                int i = 1;
+                                //sequence
+                                st.setInt(i++, sequenceNumber);
+                                // uuid
+                                st.setObject(i++, testUuid);
+                                final int affectedRows = st.executeUpdate();
+                                if (affectedRows == 0) {
+                                    errorList.addError("ERROR_DB_STORE_TEST");
+                                }
+                            } catch (SQLException throwables) {
+                                errorList.addError("ERROR_DB_STORE_TEST");
+                                throwables.printStackTrace();
+                            }
                         }
 
                         //commit
