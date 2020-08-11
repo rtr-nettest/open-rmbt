@@ -17,6 +17,7 @@
 package at.rtr.rmbt.controlServer;
 
 import com.fasterxml.jackson.core.exc.InputCoercionException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.google.common.net.InetAddresses;
@@ -531,7 +532,7 @@ public class ResultResource extends ServerResource
 
                                                 }
                                             }
-                                            catch (InputCoercionException e) {
+                                            catch (InputCoercionException | JsonMappingException e) {
                                                 //errorList.addError("ERROR_REQUEST_JSON");
                                             }
                                         }
