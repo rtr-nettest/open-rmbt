@@ -57,7 +57,7 @@ public class Test extends Table
             " t.testdl_if_bytes_upload, t.testul_if_bytes_download, t.testul_if_bytes_upload , t.time_dl_ns," +
             " t.time_ul_ns, t.num_threads_ul  , t.tag, t.hidden_code, t.user_server_selection, t.dual_sim," +
             " t.android_permissions, t.dual_sim_detection_method, t.radio_band, t.cell_location_id," +
-            " t.cell_area_code, t.channel_number, t.sim_count, t.test_error_cause, t.last_qos_status, t.last_client_status," +
+            " t.cell_area_code, t.channel_number, t.sim_count, t.test_error_cause, t.last_qos_status, t.last_client_status, t.last_sequence_number," +
             " pMob.shortname mobile_provider_name," +
             " pSim.shortname network_sim_operator_mcc_mnc_text," +
             " pPro.shortname provider_id_name," +
@@ -236,7 +236,8 @@ public class Test extends Table
             new IntField("sim_count","telephony_sim_count"),
             new StringField("last_client_status","last_client_status"),
             new StringField("last_qos_status","last_qos_status"),
-            new StringField("test_error_cause","test_error_cause")
+            new StringField("test_error_cause","test_error_cause"),
+            new IntField("last_sequence_number","sequence_number")
             };
         }
     };
@@ -279,7 +280,7 @@ public class Test extends Table
             
             // uid to update
             st.setLong(idx++, uid);
-            
+            System.out.println(st);
             final int affectedRows = st.executeUpdate();
             if (affectedRows == 0)
                 setError("ERROR_DB_STORE_TEST");
@@ -310,6 +311,7 @@ public class Test extends Table
             else {
                 setError("ERROR_DB_GET_TEST");
                 Logger.getLogger(Test.class.getName()).log(Level.WARNING, "Load test failed: " + rs.toString());
+                System.out.println(st);
             }
             rs.close();
             st.close();
@@ -419,5 +421,14 @@ public class Test extends Table
             setError("ERROR_DB_GET_TEST_SQL");
         }
         return false;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder b = new StringBuilder();
+        for (final Field field : fields) {
+            b.append(field.getDbKey() + " : " + field.toString() + ", ");
+        }
+        return b.toString();
     }
 }
