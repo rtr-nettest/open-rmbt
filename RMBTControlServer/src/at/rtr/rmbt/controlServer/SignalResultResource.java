@@ -41,7 +41,7 @@ public class SignalResultResource extends ServerResource {
             // try parse the string to a JSON object
             try {
                 request = new JSONObject(entity);
-                System.out.println(request.toString(1));
+                //System.out.println(request.toString(1));
                 UUID testUuid;
 
                 int sequenceNumber = -1;
@@ -179,12 +179,12 @@ public class SignalResultResource extends ServerResource {
                         oldAutoCommitState = conn.getAutoCommit();
                         conn.setAutoCommit(false);
 
-                        System.out.println("loaded test:" + testLoaded);
+                        //System.out.println("loaded test:" + testLoaded);
 
                         test.getField("timezone").setString(timeZoneId);
                         //TODO: client_time
                         test.setFields(request);
-                        System.out.println(test.toString());
+                        //System.out.println(test.toString());
 
                         //code duplication from ResultResource
                         final String ipLocalRaw = request.optString("test_ip_local", null);

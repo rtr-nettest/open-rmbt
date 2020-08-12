@@ -155,7 +155,7 @@ public class SignalRegistrationResource extends ServerResource {
                     if (affectedRows == 0) {
                         errorList.addError("ERROR_DB_STORE_TEST");
                     } else {
-                        System.out.println("saved new uuid " + testUuid + " into database");
+                        //System.out.println("saved new uuid " + testUuid + " into database");
 
                         long key = 0;
                         final ResultSet rs = st.getGeneratedKeys();
