@@ -229,7 +229,11 @@ public class CellInformationWrapper {
 
         @JsonProperty("lte_rsrp")
         public Integer getRsrp() {
+            Integer rsrp = this.rsrp;
             //some devices return invalid values (#913)
+            if (rsrp != null && rsrp > 0) {
+                rsrp = -rsrp;
+            }
             if (rsrp != null &&
                     (rsrp >= 0 || rsrp < -140 || (rsrq != null && rsrq == -1))) {
                 return null;
@@ -520,7 +524,8 @@ public class CellInformationWrapper {
          */
         @JsonProperty("location_id")
         public Long getLocationId() {
-            if (objectsEquals(locationId, Integer.MAX_VALUE)) {
+            if (objectsEquals(locationId, Integer.MAX_VALUE) ||
+                objectsEquals(locationId, Long.MAX_VALUE)) {
                 return null;
             }
             return locationId;
