@@ -186,8 +186,13 @@ public class MarkerResource extends ServerResource
 								else
 								{
 									final MapFilter mapFilter = MapServerOptions.getMapFilterMap().get(key);
-									if (mapFilter != null)
-										filters.add(mapFilter.getFilter(mapFilterObj.getString(key)));
+									if (mapFilter != null) {
+										try {
+											filters.add(mapFilter.getFilter(mapFilterObj.getString(key)));
+										} catch (JSONException e) {
+											e.printStackTrace();
+										}
+									}
 								}
 						}
 					}
@@ -531,6 +536,7 @@ public class MarkerResource extends ServerResource
 		catch (final JSONException e)
 		{
 			System.out.println("Error parsing JSDON Data " + e.toString());
+			e.printStackTrace();
 		}
 		catch (final SQLException e)
 		{
