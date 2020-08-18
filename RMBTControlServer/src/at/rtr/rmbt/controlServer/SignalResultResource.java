@@ -27,6 +27,7 @@ import java.util.regex.Pattern;
 
 public class SignalResultResource extends ServerResource {
     public static final String STATUS_SIGNAL = "SIGNAL";
+    public static final String STATUS_SIGNAL_STARTED = "SIGNAL_STARTED";
 
     @Post("json")
     public String request(final String entity) {
@@ -84,9 +85,10 @@ public class SignalResultResource extends ServerResource {
 
 
                     //get existing open-uuid, if any
-                    final PreparedStatement psOpenUuid = conn.prepareStatement("SELECT uuid, open_test_uuid, last_sequence_number FROM test WHERE uuid = ? AND (status is null or status = ?)");
+                    final PreparedStatement psOpenUuid = conn.prepareStatement("SELECT uuid, open_test_uuid, last_sequence_number FROM test WHERE uuid = ? AND (status is null or status = ? or status = ?)");
                     psOpenUuid.setObject(1, testUuid);
                     psOpenUuid.setObject(2, STATUS_SIGNAL);
+                    psOpenUuid.setObject(3, STATUS_SIGNAL_STARTED);
                     ResultSet rsTokenUuid = psOpenUuid.executeQuery();
                     UUID openTestUuid = null;
                     boolean existingInDb = false;
@@ -452,6 +454,7 @@ public class SignalResultResource extends ServerResource {
                         //store, but only for sequence number 0
                         if (sequenceNumber == 0) {
                             System.out.println("sequence 0, storing test");
+                            test.getField("status").setString(STATUS_SIGNAL);
                             test.storeTestResults(true);
 
                             if (test.hasError()) {
@@ -463,10 +466,12 @@ public class SignalResultResource extends ServerResource {
                             try {
                                 st = conn
                                         .prepareStatement(
-                                                "UPDATE test SET last_sequence_number = ? where uuid = ?;");
+                                                "UPDATE test SET last_sequence_number = ?, status = ? where uuid = ?;");
                                 int i = 1;
                                 //sequence
                                 st.setInt(i++, sequenceNumber);
+                                //status
+                                st.setString(i++, STATUS_SIGNAL);
                                 // uuid
                                 st.setObject(i++, testUuid);
                                 final int affectedRows = st.executeUpdate();

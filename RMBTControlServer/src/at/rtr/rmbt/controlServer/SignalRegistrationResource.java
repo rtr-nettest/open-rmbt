@@ -150,7 +150,7 @@ public class SignalRegistrationResource extends ServerResource {
                         st.setString(i++, reverseDNS); // cut off last dot (#332)
                     }
                     //status
-                    st.setString(i++, SignalResultResource.STATUS_SIGNAL);
+                    st.setString(i++, SignalResultResource.STATUS_SIGNAL_STARTED);
                     final int affectedRows = st.executeUpdate();
                     if (affectedRows == 0) {
                         errorList.addError("ERROR_DB_STORE_TEST");
