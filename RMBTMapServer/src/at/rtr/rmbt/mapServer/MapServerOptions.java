@@ -347,16 +347,16 @@ final public class MapServerOptions
             				return new SQLFilter("network_type in (1,2,4,5,6,7,11,12,14)");
             			else if (technology == 3) // 3G
             				return new SQLFilter("network_type in (8,9,10,15)");
-            			else if (technology == 4) // 4G + 4G CA
-            				return new SQLFilter("network_type in (13,19)");
-                        else if (technology == 5) // 5G
-                            return new SQLFilter("network_type = 20");
+            			else if (technology == 4) // 4G + 4G CA + 4G with NR available
+            				return new SQLFilter("network_type in (13,19,40)");
+                        else if (technology == 5) // 5G SA + 5G NSA
+                            return new SQLFilter("network_type in (20,41,42)");
             			else if (technology == 34) // 3G or 4G
             				return new SQLFilter("network_type in (8,9,10,13,15,19)");
                         else if (technology == 45) // 4G/5G
-                            return new SQLFilter("network_type in (13,19,20)");
+                            return new SQLFilter("network_type in (13,19,20,40,41,42)");
                         else if (technology == 345) // 3G/4G/5G
-                            return new SQLFilter("network_type in (8,9,10,15,13,19,20)");
+                            return new SQLFilter("network_type in (8,9,10,15,13,19,20,40,41,42)");
             			else
             				return null;
  
