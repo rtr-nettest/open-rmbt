@@ -199,6 +199,12 @@ public abstract class Helperfunctions
             return "4G (LTE CA)";
         case 20:
             return "5G (NR)";
+        case 40:
+            return "4G (+5G)";
+        case 41:
+            return "5G (NR)";
+        case 42:
+            return "5G (NR)";
         case 97:
             return "CLI";
         case 98:
