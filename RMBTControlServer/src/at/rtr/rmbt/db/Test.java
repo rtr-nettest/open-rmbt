@@ -280,7 +280,7 @@ public class Test extends Table
             
             // uid to update
             st.setLong(idx++, uid);
-            System.out.println(st);
+            //System.out.println(st);
             final int affectedRows = st.executeUpdate();
             if (affectedRows == 0)
                 setError("ERROR_DB_STORE_TEST");
@@ -311,7 +311,7 @@ public class Test extends Table
             else {
                 setError("ERROR_DB_GET_TEST");
                 Logger.getLogger(Test.class.getName()).log(Level.WARNING, "Load test failed: " + rs.toString());
-                System.out.println(st);
+                //System.out.println(st);
             }
             rs.close();
             st.close();

@@ -94,7 +94,7 @@ public class ResultResource extends ServerResource
             // try parse the string to a JSON object
             try {
                 request = new JSONObject(entity);
-                System.out.println(request.toString(2));
+                //System.out.println(request.toString(2));
 
                 final String lang = request.optString("client_language");
 
