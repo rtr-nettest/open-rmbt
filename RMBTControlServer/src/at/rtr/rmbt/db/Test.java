@@ -286,7 +286,7 @@ public class Test extends Table
             final int affectedRows = st.executeUpdate();
             if (affectedRows == 0)
                 setError("ERROR_DB_STORE_TEST");
-            System.out.println(st);
+            //System.out.println(st);
             st.close();
         }
         catch (final SQLException e)
