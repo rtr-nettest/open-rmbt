@@ -38,21 +38,54 @@ public class Test extends Table
 {
     
     // Interface for Table Test
-    
+
     private final static String SELECT = "SELECT" +
-            " t.*," +
+            " t.uid, t.uuid, t.client_id, t.client_version, t.client_name, t.client_language, t.client_ip_local," +
+            " t.client_ip_local_anonymized, t.client_ip_local_type, t.token, t.server_id, t.port, t.use_ssl, t.time," +
+            " t.client_time, t.speed_upload, t.speed_download, t.ping_shortest, t.ping_median, t.client_public_ip," +
+            " t.client_public_ip_anonymized, t.plattform, t.os_version, t.api_level, t.device, t.model, t.product," +
+            " t.phone_type, t.data_state, t.network_country, t.network_operator, t.network_operator_name," +
+            " t.network_sim_country, t.network_sim_operator, t.network_sim_operator_name, t.roaming_type," +
+            " t.wifi_ssid, t.wifi_bssid, t.wifi_network_id, t.duration, t.num_threads, t.status, t.timezone," +
+            " t.bytes_download, t.bytes_upload, t.nsec_download, t.nsec_upload, t.server_ip, t.source_ip,"+
+            " t.source_ip_anonymized, t.client_software_version, t.network_type," +
+            " t.signal_strength, t.lte_rsrp, t.lte_rsrq, t.software_revision, t.client_test_counter, t.nat_type," +
+            " t.client_previous_test_status, t.public_ip_asn, t.public_ip_rdns, t.public_ip_as_name, t.country_geoip," +
+            " t.country_asn, t.total_bytes_download, t.total_bytes_upload, t.wifi_link_speed," +
+            " t.network_is_roaming, t.provider_id, t.open_uuid, t.open_test_uuid, t.geo_location_uuid, " +
+             "t.test_if_bytes_download, t.test_if_bytes_upload, t.testdl_if_bytes_download,"+
+            " t.testdl_if_bytes_upload, t.testul_if_bytes_download, t.testul_if_bytes_upload , t.time_dl_ns," +
+            " t.time_ul_ns, t.num_threads_ul  , t.tag, t.hidden_code, t.user_server_selection, t.dual_sim," +
+            " t.android_permissions, t.dual_sim_detection_method, t.radio_band, t.cell_location_id," +
+            " t.cell_area_code, t.channel_number, t.sim_count, t.test_error_cause, t.last_qos_status, t.last_client_status, t.last_sequence_number," +
             " pMob.shortname mobile_provider_name," +
             " pSim.shortname network_sim_operator_mcc_mnc_text," +
             " pPro.shortname provider_id_name," +
-            " t.land_cover land_cover," +
-            " t.kg_nr_bev kg_nr_bev," +
-            " t.gkz_bev gkz_bev," +
-            " t.gkz_sa gkz_sa," +
+            " tl.geo_lat geo_lat," +
+            " tl.country_location," +
+            " tl.geo_long geo_long," +
+            " tl.geo_provider geo_provider," +
+            " tl.geo_accuracy," +
+            " tl.land_cover land_cover," +
+            " tl.kg_nr_bev kg_nr_bev," +
+            " tl.gkz_bev gkz_bev," +
+            " tl.gkz_sa gkz_sa," +
+            " tl.settlement_type settlement_type," +
+            " tl.link_id link_id," +
+            " tl.link_name link_name," +
+            " tl.link_distance link_distance," +
+            " tl.edge_id edge_id," +
+            " tl.frc link_frc," +
+            " tl.frc link_frc," +
+            " tl.dtm_level," +
+            " gl.altitude geo_altitude," +
+            " gl.speed geo_speed," +
+            " ln.name1 link_name1," +
+            " ln.name2 link_name2," +
             " k.kg locality," +
             " k.pg community," +
             " k.pb district," +
             " k.bl province," +
-            " t.land_cover land_cover," +
             " COALESCE(adm.fullname, t.model) model_fullname," +
             " pServ.name server_name" +
             " FROM test t" +
@@ -64,7 +97,10 @@ public class Test extends Table
             " ON t.mobile_provider_id=pMob.uid" +
             " LEFT JOIN device_map adm ON adm.codename=t.model" +
             " LEFT JOIN test_server pServ ON t.server_id=pServ.uid" +
-            " LEFT JOIN bev_vgd k ON t.kg_nr_bev = k.kg_nr_int";
+            " LEFT JOIN test_location tl ON t.open_test_uuid = tl.open_test_uuid" +
+            " LEFT JOIN bev_vgd k ON tl.kg_nr_bev = k.kg_nr_int" +
+            " LEFT JOIN linknet ln ON tl.link_id = ln.link_id" +
+            " LEFT JOIN geo_location gl ON tl.geo_location_uuid = gl.geo_location_uuid";
     
     private final static ThreadLocal<Field[]> PER_THREAD_FIELDS = new ThreadLocal<Field[]>() {
         protected Field[] initialValue() {
@@ -161,6 +197,17 @@ public class Test extends Table
             new StringField("community",null,true),
             new StringField("district",null,true),
             new StringField("province",null,true),
+            new IntField("settlement_type",null,true),
+            new IntField("link_id",null,true),
+            new StringField("link_name",null,true),
+            new IntField("link_distance",null,true),
+            new LongField("edge_id",null,true),
+            new IntField("link_frc",null,true),
+            new StringField("link_name1",null,true),
+            new StringField("link_name2",null,true),
+            new IntField("dtm_level",null,true),
+            new DoubleField("geo_altitude",null,true),
+            new DoubleField("geo_speed",null,true),
             new StringField("provider_id_name", null, true),
             new StringField("geo_provider", "provider"),
             new DoubleField("geo_accuracy", "accuracy"),
@@ -186,7 +233,11 @@ public class Test extends Table
             new IntField("cell_location_id", null),
             new IntField("cell_area_code", null),
             new IntField("channel_number", null),
-            new IntField("sim_count","telephony_sim_count")
+            new IntField("sim_count","telephony_sim_count"),
+            new StringField("last_client_status","last_client_status"),
+            new StringField("last_qos_status","last_qos_status"),
+            new StringField("test_error_cause","test_error_cause"),
+            new IntField("last_sequence_number","sequence_number")
             };
         }
     };
@@ -229,7 +280,7 @@ public class Test extends Table
             
             // uid to update
             st.setLong(idx++, uid);
-            
+            //System.out.println(st);
             final int affectedRows = st.executeUpdate();
             if (affectedRows == 0)
                 setError("ERROR_DB_STORE_TEST");
@@ -257,9 +308,11 @@ public class Test extends Table
             
             if (rs.next())
                 setValuesFromResult(rs);
-            else
+            else {
                 setError("ERROR_DB_GET_TEST");
-            
+                Logger.getLogger(Test.class.getName()).log(Level.WARNING, "Load test failed: " + rs.toString());
+                //System.out.println(st);
+            }
             rs.close();
             st.close();
         }
@@ -368,5 +421,14 @@ public class Test extends Table
             setError("ERROR_DB_GET_TEST_SQL");
         }
         return false;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder b = new StringBuilder();
+        for (final Field field : fields) {
+            b.append(field.getDbKey() + " : " + field.toString() + ", ");
+        }
+        return b.toString();
     }
 }

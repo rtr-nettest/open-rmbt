@@ -30,6 +30,7 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.location.Location;
+import android.net.wifi.WifiInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -531,7 +532,30 @@ public class RMBTMainMenuFragment extends Fragment
                                 infoChannelNumber.setText(channelAttribution +
                                         ": " + channelNumber);
                                 infoChannelName.setText("Band: " + band.getBand() + " (" + band.getInformalName() + ")");
+                            } else {
+                                infoChannelNumber.setVisibility(View.GONE);
                             }
+
+                        } else if (channelNumber != null &&
+                                ConfigHelper.isExpertModeEnabled(getActivity()) &&
+                                lastNetworkType == InformationCollector.NETWORK_WIFI) {
+                            //show frequency (saved in channel number) for WiFi
+                            if (infoChannelNumber.getVisibility() == View.GONE) {
+                                infoChannelNumber.setVisibility(View.VISIBLE);
+                                infoChannelName.setVisibility(View.VISIBLE);
+                            }
+                            BandCalculationUtil.WifiBand wifiBand = BandCalculationUtil.getBandFromWifiFrequency(channelNumber);
+                            if (wifiBand != null) {
+                                infoChannelName.setText("Band: " + wifiBand.getInformalName());
+                                infoChannelNumber.setText("Ch: " + wifiBand.getChannelNumber() +
+                                        " (" + wifiBand.getFrequency() + " " + WifiInfo.FREQUENCY_UNITS + ")");
+                            }
+                            else {
+                                infoChannelName.setVisibility(View.GONE);
+                                infoChannelNumber.setVisibility(View.GONE);
+                            }
+
+
                         } else {
                             infoChannelNumber.setVisibility(View.GONE);
                             infoChannelName.setVisibility(View.GONE);
@@ -583,6 +607,9 @@ public class RMBTMainMenuFragment extends Fragment
 						curSignal = Integer.MIN_VALUE;
 						infoSignalStrength.setVisibility(View.GONE);
 						infoSignalStrengthExtra.setVisibility(View.GONE);
+                        infoChannelNumber.setVisibility(View.GONE);
+                        infoChannelName.setVisibility(View.GONE);
+                        infoTimingAdvance.setVisibility(View.GONE);
 					}
 
 				}
@@ -627,10 +654,32 @@ public class RMBTMainMenuFragment extends Fragment
 	                		}
 	                		else {
 	                			infoNetworkType.setVisibility(View.VISIBLE);
-	                			
-		                		if (lastNetworkTypeString.equals(networkFamily.getNetworkFamily())) {
+
+	                			//5G treatment
+                                if (informationCollector.getLastNrConnectionState() != InformationCollector.NrConnectionState.NOT_AVAILABLE) {
+                                    switch (informationCollector.getLastNrConnectionState()) {
+                                        case NSA:
+                                            networkFamily = NetworkFamilyEnum.NR_NSA;
+                                            break;
+                                        case SA:
+                                            networkFamily = NetworkFamilyEnum.NR;
+                                            break;
+                                        case AVAILABLE:
+                                            networkFamily = NetworkFamilyEnum.NR_AVAILABLE;
+                                            break;
+                                    }
+
+                                    if (networkFamily != NetworkFamilyEnum.NR_AVAILABLE) {
+                                        infoSignalStrengthExtra.setVisibility(View.GONE);
+                                        infoSignalStrength.setVisibility(View.GONE);
+                                    }
+
+                                    lastNetworkTypeString = networkFamily.getNetworkId();
+                                }
+
+	                			if (lastNetworkTypeString.equals(networkFamily.getNetworkFamily())) {
 		                			infoCollector.setNetworkTypeString(lastNetworkTypeString);
-			                		infoNetworkType.setText(lastNetworkTypeString);	                			
+			                		infoNetworkType.setText(lastNetworkTypeString);
 		                		}
 		                		else {
 		                			infoCollector.setNetworkTypeString(networkFamily.getNetworkFamily() + "/" + lastNetworkTypeString);

@@ -60,7 +60,7 @@ public class ContextListener implements ServletContextListener
             {
                 try
                 {
-                    System.out.println("Cleaning IPs");
+                    System.out.println("Removing old IPs");
                     final Connection conn = DbConnection.getConnection();
                     //purge test table
                     PreparedStatement ps = conn.prepareStatement(
@@ -70,6 +70,7 @@ public class ContextListener implements ServletContextListener
                     ps.executeUpdate();
                     ps.close();
                     //purge ndt table
+                    System.out.println("Removing old NDT data");
                     ps = conn.prepareStatement("UPDATE test_ndt n SET main = NULL, stat = NULL, diag = NULL FROM test t "
                     		+ "WHERE t.uid = n.test_id AND t.time < NOW() - CAST('4 months' AS INTERVAL) "
                     		+ "AND (n.main IS NOT NULL OR n.stat IS NOT NULL OR n.diag IS NOT NULL)");
@@ -81,7 +82,7 @@ public class ContextListener implements ServletContextListener
                     		+ "AND (ip IS NOT NULL)");
                     ps.executeUpdate();
                     ps.close();
-                     
+                    System.out.println("Removing old data completed");
                     conn.close();
                 }
                 catch (Exception e)
@@ -89,7 +90,7 @@ public class ContextListener implements ServletContextListener
                     e.printStackTrace();
                 }
             }
-        }, 0, 24, TimeUnit.HOURS);
+        }, 1, 24, TimeUnit.HOURS);
 
         scheduler.scheduleAtFixedRate(new Runnable() {
             @Override
@@ -136,9 +137,15 @@ public class ContextListener implements ServletContextListener
                         {
                             e.printStackTrace();
                         }
+                        finally {
+                            ps2.close();
+                            ps3.close();
+                        }
                         Thread.sleep(10);
                     }
 
+                    ps1.close();
+                    System.out.println("Looking up missing ASN infos completed");
                 }
                 catch (SQLException | InterruptedException | UnknownHostException | NamingException e)
                 {

@@ -22,12 +22,15 @@ import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.http.annotation.Obsolete;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -139,7 +142,8 @@ public class TracerouteAndroidImpl implements TracerouteService {
 					+ packetLoss + ", time=" + (time / 1000000) + "ms, fromIp=" + fromIp
 					+ "]";
 		}
-		
+
+		@Obsolete
 		public JSONObject toJson(Boolean masked) {
 			JSONObject json = new JSONObject();
 			try {
@@ -158,6 +162,39 @@ public class TracerouteAndroidImpl implements TracerouteService {
 				e.printStackTrace();
 				return null;
 			}
+		}
+
+		@Obsolete
+		public JSONObject toJson() {
+			JSONObject json = new JSONObject();
+			try {
+				json.put("host", fromIp);
+				json.put("time", time);
+				return json;
+			} catch (JSONException e) {
+				e.printStackTrace();
+				return null;
+			}
+		}
+
+		public Map<String, Object> toMap(boolean masked) {
+			Map<String, Object> result = new HashMap<>();
+			if (masked) {
+				try {
+					InetAddress ip = InetAddress.getByName(fromIp);
+					fromIp = Helperfunctions.anonymizeIp(ip,".x");
+				} catch (UnknownHostException e) {
+					fromIp = "*";
+				}
+			}
+			result.put("host", fromIp);
+			result.put("time", time);
+
+			return result;
+		}
+
+		public Map<String, Object> toMap() {
+			return toMap(false);
 		}
 	}
 	

@@ -18,6 +18,7 @@ package at.rtr.rmbt.util;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 public class BandCalculationUtil {
@@ -42,6 +43,48 @@ public class BandCalculationUtil {
 
         //Invalid input
         return null;
+    }
+
+    public static FrequencyInformation<NRBand> getBandFromNrarfcn(int nrarfcn) {
+        //different calculation - get frequency from nrarfcn directly, then assign band
+        double frequencyMHz = getNrFrequencyFromNrArfcn(nrarfcn);
+        if (frequencyMHz == 0) {
+            return null;
+        }
+
+        //check if a band contains this frequency
+        for (NRBand band : nrBands.values()) {
+            if (band.containsULFrequency(frequencyMHz)) {
+                return new FrequencyInformation<>(nrarfcn, band);
+            }
+        }
+        return null;
+    }
+
+    private static double getNrFrequencyFromNrArfcn(int nrarfcn) {
+        double frequencyOffset;
+        double deltaFrequencyKHz;
+        double nRefOffs;
+        if (nrarfcn >= 0 && nrarfcn < 600000) {
+            frequencyOffset = 0;
+            deltaFrequencyKHz = 5;
+            nRefOffs = 0;
+        } else if (nrarfcn >= 600000 && nrarfcn < 2016667) {
+            frequencyOffset = 3000;
+            deltaFrequencyKHz = 15;
+            nRefOffs = 600000;
+        } else if (nrarfcn >= 2016667 && nrarfcn < 3279165) {
+            frequencyOffset = 24250.08;
+            deltaFrequencyKHz = 60;
+            nRefOffs = 2016667;
+        } else {
+            //invalid input
+            return 0;
+        }
+
+        //FREF = FREF-Offs + ΔFGlobal (NREF – NREF-Offs)
+        double frequencyMHz = frequencyOffset + (deltaFrequencyKHz / 1000f) * (nrarfcn - nRefOffs);
+        return frequencyMHz;
     }
 
     /**
@@ -165,6 +208,50 @@ public class BandCalculationUtil {
 
     }};
 
+    //
+    private static HashMap<Integer, NRBand> nrBands = new LinkedHashMap<Integer, NRBand>() {{
+        put(1, new NRBand(1, 1920, 1980, 2110, 2170, "2100 MHz"));
+        put(3, new NRBand(3, 1710, 1785, 1805, 1880, "1800 MHz"));
+        put(8, new NRBand(8, 880, 915, 925, 960, "900 MHz"));
+        put(7, new NRBand(7, 2500, 2570, 2620, 2690, "2600 MHz"));
+        put(78, new NRBand(78, 3300, 3800, 3300, 3800, "3500 MHz"));
+        put(75, new NRBand(75, 0, 0, 1432, 1517, "1500 MHz"));
+        put(258, new NRBand(258,24250, 27500, 24250, 27500, "26 GHz"));
+        put(20, new NRBand(20, 832, 862, 791, 821, "800 MHz"));
+        put(28, new NRBand(28, 703, 748, 758, 803, "700 MHz"));
+        put(40, new NRBand(40, 2300, 2400, 2300, 2400, "TD 2300 MHz"));
+        put(2, new NRBand(2, 1850, 1910, 1930, 1990, "1900 MHz"));
+        put(5, new NRBand(5, 824, 849, 869, 894, "850 MHz"));
+        put(12, new NRBand(12, 699, 716, 729, 746, "700 MHz US A"));
+        put(25, new NRBand(25, 1850, 1915, 1930, 1995, "1900 MHz +"));
+        put(34, new NRBand(34, 2010, 2025, 2010, 2025, "TD 2 GHz upper"));
+        put(38, new NRBand(38, 2570, 2620, 2570, 2620, "TD 2600 MHz"));
+        put(39, new NRBand(39, 1880, 1920, 1880, 1920, "TD 1900 MHz"));
+        put(41, new NRBand(41, 2496, 2690, 2496, 2690, "TD 2.6 GHz +"));
+        put(50, new NRBand(50, 1432, 1517, 1432, 1517, "TD 1500 MHz +"));
+        put(51, new NRBand(51, 1427, 1432, 1427, 1432, "TD 1500 MHz -"));
+        put(66, new NRBand(66, 1710, 1780, 2110, 2200, "AWS-3"));
+        put(70, new NRBand(70, 1695, 1710, 1995, 2020, "AWS-4"));
+        put(71, new NRBand(71, 663, 698, 617, 652, "600 MHz US"));
+        put(74, new NRBand(74, 1427, 1470, 1475, 1518, "L-Band"));
+        put(76, new NRBand(76, 0, 0, 1427, 1432, "500 MHz -"));
+
+        put(77,new NRBand(77,3300,4200,3300,4200,"3500 MHz +"));
+        put(79,new NRBand(79,4400,5000,4400,5000,"4500 MHz"));
+
+        put(80,new NRBand(80,1710,1785,0,0,"SUL 1800 MHz+"));
+        put(81,new NRBand(81,880,915,0,0,"SUL 900 MHz"));
+        put(82,new NRBand(82,832,862,0,0,"SUL 800 MHz"));
+        put(83,new NRBand(83,703,748,0,0,"SUL 700 MHz"));
+        put(84,new NRBand(84,1920,1980,0,0,"SUL 2100 MHz"));
+        put(86,new NRBand(86,1710,1780,0,0,"SUL 1800 MHz"));
+
+        put(257,new NRBand(257,26500,29500,26500,29500,"28 GHz"));
+        put(260,new NRBand(260,37000,40000,37000,40000,"39 GHz US"));
+        put(261,new NRBand(261,27500,28350,27500,28350,"28 GHz US"));
+
+    }};
+
     /**
      * Static list of all UMTS Bands
      * taken from the 3GPP TS 25.101 standard
@@ -215,59 +302,180 @@ public class BandCalculationUtil {
         add(new GSMBand(2, 1850.2, 1909.8, 1930.2, 1989.8, 512, 810, 0, "GSM 1900"));
     }};
 
+    private static HashMap<Integer, WifiBand> wifiBands = new HashMap<Integer, WifiBand>() {{
+        put(2412, new WifiBand(2412, 1, "2.4 GHz"));
+        put(2417, new WifiBand(2417, 2, "2.4 GHz"));
+        put(2422, new WifiBand(2422, 3, "2.4 GHz"));
+        put(2427, new WifiBand(2427, 4, "2.4 GHz"));
+        put(2432, new WifiBand(2432, 5, "2.4 GHz"));
+        put(2437, new WifiBand(2437, 6, "2.4 GHz"));
+        put(2442, new WifiBand(2442, 7, "2.4 GHz"));
+        put(2447, new WifiBand(2447, 8, "2.4 GHz"));
+        put(2452, new WifiBand(2452, 9, "2.4 GHz"));
+        put(2457, new WifiBand(2457, 10, "2.4 GHz"));
+        put(2462, new WifiBand(2462, 11, "2.4 GHz"));
+        put(2467, new WifiBand(2467, 12, "2.4 GHz"));
+        put(2472, new WifiBand(2472, 13, "2.4 GHz"));
+        put(2484, new WifiBand(2484, 14, "2.4 GHz"));
+        put(5160, new WifiBand(5160, 32, "5 GHz"));
+        put(5170, new WifiBand(5170, 34, "5 GHz"));
+        put(5180, new WifiBand(5180, 36, "5 GHz"));
+        put(5190, new WifiBand(5190, 38, "5 GHz"));
+        put(5200, new WifiBand(5200, 40, "5 GHz"));
+        put(5210, new WifiBand(5210, 42, "5 GHz"));
+        put(5220, new WifiBand(5220, 44, "5 GHz"));
+        put(5230, new WifiBand(5230, 46, "5 GHz"));
+        put(5240, new WifiBand(5240, 48, "5 GHz"));
+        put(5250, new WifiBand(5250, 50, "5 GHz"));
+        put(5260, new WifiBand(5260, 52, "5 GHz"));
+        put(5270, new WifiBand(5270, 54, "5 GHz"));
+        put(5280, new WifiBand(5280, 56, "5 GHz"));
+        put(5290, new WifiBand(5290, 58, "5 GHz"));
+        put(5300, new WifiBand(5300, 60, "5 GHz"));
+        put(5310, new WifiBand(5310, 62, "5 GHz"));
+        put(5320, new WifiBand(5320, 64, "5 GHz"));
+        put(5340, new WifiBand(5340, 68, "5 GHz"));
+        put(5480, new WifiBand(5480, 96, "5 GHz"));
+        put(5500, new WifiBand(5500, 100, "5 GHz"));
+        put(5510, new WifiBand(5510, 102, "5 GHz"));
+        put(5520, new WifiBand(5520, 104, "5 GHz"));
+        put(5530, new WifiBand(5530, 106, "5 GHz"));
+        put(5540, new WifiBand(5540, 108, "5 GHz"));
+        put(5550, new WifiBand(5550, 110, "5 GHz"));
+        put(5560, new WifiBand(5560, 112, "5 GHz"));
+        put(5570, new WifiBand(5570, 114, "5 GHz"));
+        put(5580, new WifiBand(5580, 116, "5 GHz"));
+        put(5590, new WifiBand(5590, 118, "5 GHz"));
+        put(5600, new WifiBand(5600, 120, "5 GHz"));
+        put(5610, new WifiBand(5610, 122, "5 GHz"));
+        put(5620, new WifiBand(5620, 124, "5 GHz"));
+        put(5630, new WifiBand(5630, 126, "5 GHz"));
+        put(5640, new WifiBand(5640, 128, "5 GHz"));
+        put(5660, new WifiBand(5660, 132, "5 GHz"));
+        put(5670, new WifiBand(5670, 134, "5 GHz"));
+        put(5680, new WifiBand(5680, 136, "5 GHz"));
+        put(5690, new WifiBand(5690, 138, "5 GHz"));
+        put(5700, new WifiBand(5700, 140, "5 GHz"));
+        put(5710, new WifiBand(5710, 142, "5 GHz"));
+        put(5720, new WifiBand(5720, 144, "5 GHz"));
+        put(5745, new WifiBand(5745, 149, "5 GHz"));
+        put(5755, new WifiBand(5755, 151, "5 GHz"));
+        put(5765, new WifiBand(5765, 153, "5 GHz"));
+        put(5775, new WifiBand(5775, 155, "5 GHz"));
+        put(5785, new WifiBand(5785, 157, "5 GHz"));
+        put(5795, new WifiBand(5795, 159, "5 GHz"));
+        put(5805, new WifiBand(5805, 161, "5 GHz"));
+        put(5825, new WifiBand(5825, 165, "5 GHz"));
+        put(5845, new WifiBand(5845, 169, "5 GHz"));
+        put(5865, new WifiBand(5865, 173, "5 GHz"));
+        put(4915, new WifiBand(4915, 183, "5 GHz"));
+        put(4920, new WifiBand(4920, 184, "5 GHz"));
+        put(4925, new WifiBand(4925, 185, "5 GHz"));
+        put(4935, new WifiBand(4935, 187, "5 GHz"));
+        put(4940, new WifiBand(4940, 188, "5 GHz"));
+        put(4945, new WifiBand(4945, 189, "5 GHz"));
+        put(4960, new WifiBand(4960, 192, "5 GHz"));
+        put(4980, new WifiBand(4980, 196, "5 GHz"));
+        put(58320, new WifiBand(58320, 1, "60 GHz"));
+        put(60480, new WifiBand(60480, 2, "60 GHz"));
+        put(62640, new WifiBand(62640, 3, "60 GHz"));
+        put(64800, new WifiBand(64800, 4, "60 GHz"));
+        put(66960, new WifiBand(66960, 5, "60 GHz"));
+        put(69120, new WifiBand(69120, 6, "60 GHz"));
+    }};
+
+    public static class WifiBand {
+        private String informal_name; //e.g. 2.4 GHz; 5 GHz; 60 GHz
+        private int channel_number;
+        private int frequency;
+
+        public WifiBand(int frequency,  int channelNumber, String informalName) {
+            this.frequency = frequency;
+            this.channel_number = channelNumber;
+            this.informal_name = informalName;
+        }
+
+        public String getInformalName() {
+            return informal_name;
+        }
+
+        public int getChannelNumber() {
+            return channel_number;
+        }
+
+        public int getFrequency() {
+            return frequency;
+        }
+    }
+
+    public static WifiBand getBandFromWifiFrequency(int frequency) {
+        if (wifiBands.containsKey(frequency)) {
+            return wifiBands.get(frequency);
+        }
+        return null;
+    }
+
     public static abstract class Band {
         private int band;
 
-        private final double upload_frequency_lower_bound;
-        private final double upload_frequency_upper_bound;
-        private final double download_frequency_lower_bound;
-        private final double download_frequency_upper_bound;
-        private final double upload_channel_lower_bound;
-        private final double upload_channel_upper_bound;
-        private final double channel_offset; //difference between (upload_channel_lower_bound - download_channel_lower_bound)
+        private final double uplink_frequency_lower_bound;
+        private final double uplink_frequency_upper_bound;
+        private final double downlink_frequency_lower_bound;
+        private final double downlink_frequency_upper_bound;
+        private final double uplink_channel_lower_bound;
+        private final double uplink_channel_upper_bound;
+        private final double channel_offset; //difference between (uplink_channel_lower_bound - downlink_channel_lower_bound)
         private final String informal_name;
 
-        protected Band(int band, double upload_frequency_lower_bound, double upload_frequency_upper_bound, double download_frequency_lower_bound, double download_frequency_upper_bound, double upload_channel_lower_bound, double upload_channel_upper_bound, double channel_offset, String informal_name) {
+        protected Band(int band, double uplink_frequency_lower_bound, double uplink_frequency_upper_bound, double downlink_frequency_lower_bound, double downlink_frequency_upper_bound, double uplink_channel_lower_bound, double uplink_channel_upper_bound, double channel_offset, String informal_name) {
             this.band = band;
-            this.upload_frequency_lower_bound = upload_frequency_lower_bound;
-            this.upload_frequency_upper_bound = upload_frequency_upper_bound;
-            this.download_frequency_lower_bound = download_frequency_lower_bound;
-            this.download_frequency_upper_bound = download_frequency_upper_bound;
-            this.upload_channel_lower_bound = upload_channel_lower_bound;
-            this.upload_channel_upper_bound = upload_channel_upper_bound;
+            this.uplink_frequency_lower_bound = uplink_frequency_lower_bound;
+            this.uplink_frequency_upper_bound = uplink_frequency_upper_bound;
+            this.downlink_frequency_lower_bound = downlink_frequency_lower_bound;
+            this.downlink_frequency_upper_bound = downlink_frequency_upper_bound;
+            this.uplink_channel_lower_bound = uplink_channel_lower_bound;
+            this.uplink_channel_upper_bound = uplink_channel_upper_bound;
             this.channel_offset = channel_offset;
             this.informal_name = informal_name;
         }
 
         public abstract double getStep();
 
-        /** Checks whether a upload frequency is contained in band object
+        /** Checks whether a uplink frequency is contained in band object
          *
          * @param channel Frequency to check
-         * @return True if the upload frequency is contained in this band, else false
+         * @return True if the uplink frequency is contained in this band, else false
          */
         public boolean containsChannel (double channel) {
             return containsDLChannel(channel) || containsULChannel(channel);
         }
 
         public boolean containsDLChannel(double channel) {
-            return channel > (upload_channel_lower_bound - channel_offset) && channel < (upload_channel_upper_bound - channel_offset);
+            return channel > (uplink_channel_lower_bound - channel_offset) && channel < (uplink_channel_upper_bound - channel_offset);
         }
 
         public boolean containsULChannel(double channel) {
-            return channel > upload_channel_lower_bound && channel < upload_channel_upper_bound;
+            return channel > uplink_channel_lower_bound && channel < uplink_channel_upper_bound;
+        }
+
+        public boolean containsULFrequency(double frequencyMHz) {
+            return frequencyMHz >= uplink_frequency_lower_bound && frequencyMHz <= uplink_frequency_upper_bound;
+        }
+
+        public boolean containsDLFrequency(double frequencyMHz) {
+            return frequencyMHz >= downlink_frequency_lower_bound && frequencyMHz <= downlink_frequency_upper_bound;
         }
 
         public double getFrequencyDL(double channel) {
             double channelOffset = (!containsDLChannel(channel))?0:this.channel_offset;
-            double frequency = this.download_frequency_lower_bound + getStep() * (channel - (this.upload_channel_lower_bound - channelOffset));
+            double frequency = this.downlink_frequency_lower_bound + getStep() * (channel - (this.uplink_channel_lower_bound - channelOffset));
             frequency = (double) Math.round(frequency * 1000) / 1000;
             return frequency;
         }
 
         public double getFrequencyUL(double channel) {
             double channelOffset = (!containsULChannel(channel))?0:-this.channel_offset;
-            double frequency = this.download_frequency_lower_bound + getStep() * (channel - (this.upload_channel_lower_bound - channelOffset));
+            double frequency = this.downlink_frequency_lower_bound + getStep() * (channel - (this.uplink_channel_lower_bound - channelOffset));
             frequency = (double) Math.round(frequency * 1000) / 1000;
             return frequency;
         }
@@ -284,8 +492,8 @@ public class BandCalculationUtil {
 
     public static class LTEBand extends Band {
 
-        protected LTEBand(int band, double upload_frequency_lower_bound, double upload_frequency_upper_bound, double download_frequency_lower_bound, double download_frequency_upper_bound, double upload_channel_lower_bound, double upload_channel_upper_bound, double channel_offset, String informal_name) {
-            super(band, upload_frequency_lower_bound, upload_frequency_upper_bound, download_frequency_lower_bound, download_frequency_upper_bound, upload_channel_lower_bound, upload_channel_upper_bound, channel_offset, informal_name);
+        protected LTEBand(int band, double uplink_frequency_lower_bound, double uplink_frequency_upper_bound, double downlink_frequency_lower_bound, double downlink_frequency_upper_bound, double uplink_channel_lower_bound, double uplink_channel_upper_bound, double channel_offset, String informal_name) {
+            super(band, uplink_frequency_lower_bound, uplink_frequency_upper_bound, downlink_frequency_lower_bound, downlink_frequency_upper_bound, uplink_channel_lower_bound, uplink_channel_upper_bound, channel_offset, informal_name);
         }
 
         @Override
@@ -294,10 +502,28 @@ public class BandCalculationUtil {
         }
     }
 
+    public static class NRBand extends Band {
+        protected NRBand(int band, double uplink_frequency_lower_bound, double uplink_frequency_upper_bound, double downlink_frequency_lower_bound, double downlink_frequency_upper_bound, String informal_name) {
+            super(band, uplink_frequency_lower_bound, uplink_frequency_upper_bound, downlink_frequency_lower_bound, downlink_frequency_upper_bound, 0, 0, 0, informal_name);
+        }
+
+
+        @Override
+        public double getStep() {
+            //not applicable for NR
+            return 0;
+        }
+
+        @Override
+        public double getFrequencyDL(double channel) {
+            return getNrFrequencyFromNrArfcn((int) channel);
+        }
+    }
+
     public static class UMTSBand extends Band {
 
-        public UMTSBand(int band, double upload_frequency_lower_bound, double upload_frequency_upper_bound, double download_frequency_lower_bound, double download_frequency_upper_bound, double upload_channel_lower_bound, double upload_channel_upper_bound, double channel_offset, String informal_name) {
-            super(band, upload_frequency_lower_bound, upload_frequency_upper_bound, download_frequency_lower_bound, download_frequency_upper_bound, upload_channel_lower_bound, upload_channel_upper_bound, channel_offset, informal_name);
+        public UMTSBand(int band, double uplink_frequency_lower_bound, double uplink_frequency_upper_bound, double downlink_frequency_lower_bound, double downlink_frequency_upper_bound, double uplink_channel_lower_bound, double uplink_channel_upper_bound, double channel_offset, String informal_name) {
+            super(band, uplink_frequency_lower_bound, uplink_frequency_upper_bound, downlink_frequency_lower_bound, downlink_frequency_upper_bound, uplink_channel_lower_bound, uplink_channel_upper_bound, channel_offset, informal_name);
         }
 
         @Override
@@ -308,8 +534,8 @@ public class BandCalculationUtil {
 
     public static class GSMBand extends Band {
 
-        protected GSMBand(int band, double upload_frequency_lower_bound, double upload_frequency_upper_bound, double download_frequency_lower_bound, double download_frequency_upper_bound, double upload_channel_lower_bound, double upload_channel_upper_bound, double channel_offset, String informal_name) {
-            super(band, upload_frequency_lower_bound, upload_frequency_upper_bound, download_frequency_lower_bound, download_frequency_upper_bound, upload_channel_lower_bound, upload_channel_upper_bound, channel_offset, informal_name);
+        protected GSMBand(int band, double uplink_frequency_lower_bound, double uplink_frequency_upper_bound, double downlink_frequency_lower_bound, double downlink_frequency_upper_bound, double uplink_channel_lower_bound, double uplink_channel_upper_bound, double channel_offset, String informal_name) {
+            super(band, uplink_frequency_lower_bound, uplink_frequency_upper_bound, downlink_frequency_lower_bound, downlink_frequency_upper_bound, uplink_channel_lower_bound, uplink_channel_upper_bound, channel_offset, informal_name);
         }
 
         @Override

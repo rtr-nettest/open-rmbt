@@ -83,7 +83,9 @@ public class NetworkWatcherRunnable implements Runnable {
 
 				//Android 8.1 will return dummy values if location access is not enabled
 				//see https://developer.android.com/reference/android/net/wifi/WifiManager#getConnectionInfo()
-				if (wifiInfo.getSSID().equals("<unknown ssid>") &&
+				if (wifiInfo.getSSID() != null &&
+						wifiInfo.getBSSID() != null &&
+						wifiInfo.getSSID().equals("<unknown ssid>") &&
 						wifiInfo.getBSSID().equals("02:00:00:00:00:00")) {
 					return;
 				}

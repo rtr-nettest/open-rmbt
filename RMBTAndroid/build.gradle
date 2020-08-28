@@ -17,15 +17,17 @@ dependencies {
 	implementation (project(':RMBTClient')) {
 		exclude group: 'org.apache.httpcomponents', module: 'httpclient'
 		exclude group: 'org.json', module: 'json'
+        exclude group: 'com.github.jknack', module: 'handlebars'
     }
 	implementation (project(':RMBTUtil')) {
 		exclude group: 'org.json', module: 'json'
     }
+	//RMBTAndroid also depends on RMTBSharedCode via the RMBTClient dependency
 	implementation group: 'junit', name: 'junit', version: '4.12'
 	implementation 'com.google.android.gms:play-services-maps:16.1.0'
 	implementation 'dnsjava:dnsjava:2.1.8'
 	implementation 'net.sf.jopt-simple:jopt-simple:5.0.4'
-	implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.7'
+	implementation 'com.fasterxml.jackson.core:jackson-databind:2.10.5'
 	// fix dex overflow
 	// see https://stackoverflow.com/questions/38714651/android-studio-dexindexoverflowexception-method-id-not-in
 	implementation 'com.android.support:multidex:1.0.3'
@@ -61,7 +63,9 @@ def appSecretProperties = new Properties()
 appSecretProperties.load(new FileInputStream(appSecretPropertiesFile))
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
+
+	useLibrary  'org.apache.http.legacy'
 //  obsolete since Android studio 3.0.0
 //  buildToolsVersion '27.0.3'
 
@@ -95,9 +99,9 @@ android {
         applicationId "at.alladin.rmbt.android"
 		manifestPlaceholders = [googleMapsApiKey:appSecretProperties['googleMapsApiKey']]
         minSdkVersion 15
-        targetSdkVersion 28
-        versionCode 30504
-        versionName "3.5.4"
+        targetSdkVersion 29
+        versionCode 30710
+        versionName "3.7.10"
         buildConfigField "long", "BUILD_TIMESTAMP", System.currentTimeMillis() + "L"
 		buildConfigField "int", "LOOP_MODE_UNLOCK_CODE",appSecretProperties['loopModeUnlockCode']
 		buildConfigField "int", "LOOP_MODE_LOCK_CODE",appSecretProperties['loopModeLockCode']

@@ -16,6 +16,8 @@
  ******************************************************************************/
 package at.rtr.rmbt.controlServer;
 
+import com.fasterxml.jackson.core.exc.InputCoercionException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.google.common.net.InetAddresses;
@@ -320,25 +322,31 @@ public class ResultResource extends ServerResource
                                                     geoloc.setTime(tstamp, test.getField("timezone").toString());
                                                     geoloc.setAccuracy((float) geoDataItem.optDouble("accuracy",Float.MAX_VALUE));
 
-                                                    geoloc.storeLocation();
+                                                    final long timeNs = geoDataItem.optLong("time_ns");
 
-                                                    // Find reference location
-                                                    if (geoloc.getAccuracy() != null && geoloc.getAccuracy() < minAccuracy) {
-                                                        minAccuracy = geoloc.getAccuracy();
-                                                        // store geo_location_uuid
-                                                        geoRefUuid = geoloc.getGeoLocationUuid();
-                                                        firstAccuratePosition.set(geoDataItem);
-                                                    }
-                                                    // Fallback: store last geolocation as reference location
-                                                    else if (firstAccuratePosition.get() == null &&
-                                                            i == geoData.length() - 1) {
-                                                        geoRefUuid = geoloc.getGeoLocationUuid();
-                                                        firstAccuratePosition.set(geoDataItem);
-                                                    }
+                                                    // ignore all timestamps older than 20s
+                                                    if (timeNs > -20000000000L) {
 
-                                                    if (geoloc.hasError()) {
-                                                        errorList.addError(geoloc.getError());
-                                                        break;
+                                                        geoloc.storeLocation();
+
+                                                        // Find reference location
+                                                        if (geoloc.getAccuracy() != null && geoloc.getAccuracy() < minAccuracy) {
+                                                            minAccuracy = geoloc.getAccuracy();
+                                                            // store geo_location_uuid
+                                                            geoRefUuid = geoloc.getGeoLocationUuid();
+                                                            firstAccuratePosition.set(geoDataItem);
+                                                        }
+                                                        // Fallback: store last geolocation as reference location
+                                                        else if (firstAccuratePosition.get() == null &&
+                                                                i == geoData.length() - 1) {
+                                                            geoRefUuid = geoloc.getGeoLocationUuid();
+                                                            firstAccuratePosition.set(geoDataItem);
+                                                        }
+
+                                                        if (geoloc.hasError()) {
+                                                            errorList.addError(geoloc.getError());
+                                                            break;
+                                                        }
                                                     }
                                                 }
                                             }
@@ -383,146 +391,149 @@ public class ResultResource extends ServerResource
                                             om = new ObjectMapper();
                                             QueryRunner qr = new QueryRunner();
                                             om.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
-                                            List<RadioCell> radioCells = Arrays.asList(om.readValue(request.getJSONObject("radioInfo").getJSONArray("cells").toString(), RadioCell[].class));
-                                            List<RadioSignal> radioSignals = Arrays.asList(om.readValue(request.getJSONObject("radioInfo").getJSONArray("signals").toString(), RadioSignal[].class));
-                                            Map<UUID, RadioCell> radioCellsByUuid = new HashMap<>();
-                                            //System.out.println(request.getJSONObject("radioInfo").toString(4));
+                                            try {
+                                                List<RadioCell> radioCells = Arrays.asList(om.readValue(request.getJSONObject("radioInfo").getJSONArray("cells").toString(), RadioCell[].class));
+                                                List<RadioSignal> radioSignals = Arrays.asList(om.readValue(request.getJSONObject("radioInfo").getJSONArray("signals").toString(), RadioSignal[].class));
+                                                Map<UUID, RadioCell> radioCellsByUuid = new HashMap<>();
+                                                //System.out.println(request.getJSONObject("radioInfo").toString(4));
 
-                                            //set open test uuid, write to db
-                                            for (RadioCell cell : radioCells) {
-                                                radioCellsByUuid.put(cell.getUuid(), cell);
-                                                //System.out.println(cell);
-                                                cell.setOpenTestUuid(openTestUuid);
-                                                String sql = "INSERT INTO radio_cell(uuid, open_test_uuid, mnc, mcc, location_id, area_code, primary_scrambling_code, technology, channel_number, registered, active)" +
-                                                        "        VALUES(?,?,?,?,?,?,?,?,?,?,?);";
+                                                //set open test uuid, write to db
+                                                for (RadioCell cell : radioCells) {
+                                                    radioCellsByUuid.put(cell.getUuid(), cell);
+                                                    //System.out.println(cell);
+                                                    cell.setOpenTestUuid(openTestUuid);
+                                                    String sql = "INSERT INTO radio_cell(uuid, open_test_uuid, mnc, mcc, location_id, area_code, primary_scrambling_code, technology, channel_number, registered, active)" +
+                                                            "        VALUES(?,?,?,?,?,?,?,?,?,?,?);";
 
-                                                //this will return some id
-                                                MapHandler results = new MapHandler();
-                                                Map<String, Object> insert = qr.insert(conn, sql, results,
-                                                        cell.getUuid(),
-                                                        cell.getOpenTestUuid(),
-                                                        cell.getMnc(),
-                                                        cell.getMcc(),
-                                                        cell.getLocationId(),
-                                                        cell.getAreaCode(),
-                                                        cell.getPrimaryScramblingCode(),
-                                                        cell.getTechnology().toString(),
-                                                        cell.getChannelNumber(),
-                                                        cell.isRegistered(),
-                                                        cell.isActive());
+                                                    //this will return some id
+                                                    MapHandler results = new MapHandler();
+                                                    Map<String, Object> insert = qr.insert(conn, sql, results,
+                                                            cell.getUuid(),
+                                                            cell.getOpenTestUuid(),
+                                                            cell.getMnc(),
+                                                            cell.getMcc(),
+                                                            cell.getLocationId(),
+                                                            cell.getAreaCode(),
+                                                            cell.getPrimaryScramblingCode(),
+                                                            cell.getTechnology().toString(),
+                                                            cell.getChannelNumber(),
+                                                            cell.isRegistered(),
+                                                            cell.isActive());
 
-                                                if (channelNumber == null && Objects.equals(cell.isActive(), true)) {
-                                                    channelNumber = cell.getChannelNumber();
-                                                } else if (channelNumber != null && Objects.equals(cell.isActive(), true) &&
-                                                        !channelNumber.equals(cell.getChannelNumber())) {
-                                                    channelChanged = true;
-                                                }
-
-                                                if (Objects.equals(cell.isActive(), true) &&
-                                                        cell.getTechnology() != RadioCell.Technology.CONNECTION_WLAN) {
-                                                    if (locationId == null && !locationIdChanged) {
-                                                        locationId = cell.getLocationId();
-                                                    }
-                                                    else {
-                                                        if (!locationIdChanged &&
-                                                                !locationId.equals(cell.getLocationId())) {
-                                                            locationIdChanged = true;
-                                                            locationId = null;
-                                                        }
+                                                    if (channelNumber == null && Objects.equals(cell.isActive(), true)) {
+                                                        channelNumber = cell.getChannelNumber();
+                                                    } else if (channelNumber != null && Objects.equals(cell.isActive(), true) &&
+                                                            !channelNumber.equals(cell.getChannelNumber())) {
+                                                        channelChanged = true;
                                                     }
 
-                                                    if (areaCode == null && !areaCodeChanged) {
-                                                        areaCode = cell.getAreaCode();
-                                                    }
-                                                    else if (areaCode != null){
-                                                        if (!areaCode.equals(cell.getAreaCode())) {
-                                                            areaCodeChanged = true;
-                                                            areaCode = null;
-                                                        }
-                                                    }
-
-                                                    if (cell.getChannelNumber() != null &&
-                                                            !radioBandChanged) {
-
-                                                        BandCalculationUtil.FrequencyInformation fi = null;
-                                                        switch (cell.getTechnology()) {
-                                                            case CONNECTION_2G:
-                                                                fi = BandCalculationUtil.getBandFromArfcn(cell.getChannelNumber());
-                                                                break;
-                                                            case CONNECTION_3G:
-                                                                fi = BandCalculationUtil.getBandFromUarfcn(cell.getChannelNumber());
-                                                                break;
-                                                            case CONNECTION_4G:
-                                                                fi = BandCalculationUtil.getBandFromEarfcn(cell.getChannelNumber());
-                                                                break;
-                                                            case CONNECTION_WLAN:
-                                                                break;
+                                                    if (Objects.equals(cell.isActive(), true) &&
+                                                            cell.getTechnology() != RadioCell.Technology.CONNECTION_WLAN) {
+                                                        if (locationId == null && !locationIdChanged) {
+                                                            locationId = cell.getLocationId();
+                                                        } else {
+                                                            if (!locationIdChanged &&
+                                                                    !locationId.equals(cell.getLocationId())) {
+                                                                locationIdChanged = true;
+                                                                locationId = null;
+                                                            }
                                                         }
 
-                                                        if (fi != null) {
-                                                            if (radioBand == null || radioBand.equals(fi.getBand())) {
-                                                                radioBand = fi.getBand();
-                                                            } else {
-                                                                radioBand = null;
-                                                                radioBandChanged = true;
+                                                        if (areaCode == null && !areaCodeChanged) {
+                                                            areaCode = cell.getAreaCode();
+                                                        } else if (areaCode != null) {
+                                                            if (!areaCode.equals(cell.getAreaCode())) {
+                                                                areaCodeChanged = true;
+                                                                areaCode = null;
+                                                            }
+                                                        }
+
+                                                        if (cell.getChannelNumber() != null &&
+                                                                !radioBandChanged) {
+
+                                                            BandCalculationUtil.FrequencyInformation fi = null;
+                                                            switch (cell.getTechnology()) {
+                                                                case CONNECTION_2G:
+                                                                    fi = BandCalculationUtil.getBandFromArfcn(cell.getChannelNumber());
+                                                                    break;
+                                                                case CONNECTION_3G:
+                                                                    fi = BandCalculationUtil.getBandFromUarfcn(cell.getChannelNumber());
+                                                                    break;
+                                                                case CONNECTION_4G:
+                                                                    fi = BandCalculationUtil.getBandFromEarfcn(cell.getChannelNumber());
+                                                                    break;
+                                                                case CONNECTION_WLAN:
+                                                                    break;
+                                                            }
+
+                                                            if (fi != null) {
+                                                                if (radioBand == null || radioBand.equals(fi.getBand())) {
+                                                                    radioBand = fi.getBand();
+                                                                } else {
+                                                                    radioBand = null;
+                                                                    radioBandChanged = true;
+                                                                }
                                                             }
                                                         }
                                                     }
                                                 }
-                                            }
 
-                                            for (RadioSignal signal : radioSignals) {
-                                                signal.setOpenTestUuid(openTestUuid);
+                                                for (RadioSignal signal : radioSignals) {
+                                                    signal.setOpenTestUuid(openTestUuid);
 
-                                                //set signal times as seens from server side
-                                                TimestampField time = (TimestampField) test.getField("time");
-                                                GregorianCalendar calendar = new GregorianCalendar();
-                                                calendar.setTime(time.getDate());
-                                                calendar.add(Calendar.MILLISECOND, (int) (signal.getTimeNs() / 1e6));
-                                                signal.setTime(calendar.getTime());
+                                                    //set signal times as seens from server side
+                                                    TimestampField time = (TimestampField) test.getField("time");
+                                                    GregorianCalendar calendar = new GregorianCalendar();
+                                                    calendar.setTime(time.getDate());
+                                                    calendar.add(Calendar.MILLISECOND, (int) (signal.getTimeNs() / 1e6));
+                                                    signal.setTime(calendar.getTime());
 
-                                                String sql = "INSERT INTO radio_signal(cell_uuid, open_test_uuid, network_type_id, bit_error_rate, wifi_link_speed, " +
-                                                        " lte_cqi, lte_rssnr, lte_rsrp, lte_rsrq, signal_strength, timing_advance, time, time_ns, time_ns_last) " +
-                                                        "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
-                                                MapHandler results = new MapHandler();
+                                                    String sql = "INSERT INTO radio_signal(cell_uuid, open_test_uuid, network_type_id, bit_error_rate, wifi_link_speed, " +
+                                                            " lte_cqi, lte_rssnr, lte_rsrp, lte_rsrq, signal_strength, timing_advance, time, time_ns, time_ns_last) " +
+                                                            "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+                                                    MapHandler results = new MapHandler();
 
-                                                qr.insert(conn, sql, results,
-                                                        signal.getCellUuid(),
-                                                        signal.getOpenTestUuid(),
-                                                        signal.getNetworkTypeId(),
-                                                        signal.getBitErrorRate(),
-                                                        signal.getWifiLinkSpeed(),
-                                                        signal.getLteCqi(),
-                                                        signal.getLteRssnr(),
-                                                        signal.getLteRsrp(),
-                                                        signal.getLteRsrq(),
-                                                        signal.getSignal(),
-                                                        signal.getTimingAdvance(),
-                                                        new Timestamp(signal.getTime().getTime()),
-                                                        signal.getTimeNs(),
-                                                        signal.getTimeNsLast());
+                                                    qr.insert(conn, sql, results,
+                                                            signal.getCellUuid(),
+                                                            signal.getOpenTestUuid(),
+                                                            signal.getNetworkTypeId(),
+                                                            signal.getBitErrorRate(),
+                                                            signal.getWifiLinkSpeed(),
+                                                            signal.getLteCqi(),
+                                                            signal.getLteRssnr(),
+                                                            signal.getLteRsrp(),
+                                                            signal.getLteRsrq(),
+                                                            signal.getSignal(),
+                                                            signal.getTimingAdvance(),
+                                                            new Timestamp(signal.getTime().getTime()),
+                                                            signal.getTimeNs(),
+                                                            signal.getTimeNsLast());
 
 
-                                                //use signal information, if this was a signal belonging
-                                                //to a cell that was active during this test
-                                                if (Objects.equals(radioCellsByUuid.get(signal.getCellUuid()).isActive(), true)) {
-                                                    //System.out.println("active: " + signal);
-                                                    if (signal.getSignal() != null && signal.getSignal() < minSignalStrength) {
-                                                        minSignalStrength = signal.getSignal();
+                                                    //use signal information, if this was a signal belonging
+                                                    //to a cell that was active during this test
+                                                    if (Objects.equals(radioCellsByUuid.get(signal.getCellUuid()).isActive(), true)) {
+                                                        //System.out.println("active: " + signal);
+                                                        if (signal.getSignal() != null && signal.getSignal() < minSignalStrength) {
+                                                            minSignalStrength = signal.getSignal();
+                                                        }
+                                                        if (signal.getLteRsrp() != null && signal.getLteRsrp() < minLteRsrp) {
+                                                            minLteRsrp = signal.getLteRsrp();
+                                                        }
+                                                        if (signal.getLteRsrq() != null && signal.getLteRsrq() < minLteRsrq) {
+                                                            minLteRsrq = signal.getLteRsrq();
+                                                        }
+                                                        if (signal.getWifiLinkSpeed() != null && (signal.getWifiLinkSpeed() < minLinkSpeed || minLinkSpeed == UNKNOWN)) {
+                                                            minLinkSpeed = signal.getWifiLinkSpeed();
+                                                        }
+                                                    } else {
+                                                        //System.out.println("not active: " + signal);
                                                     }
-                                                    if (signal.getLteRsrp() != null && signal.getLteRsrp() < minLteRsrp) {
-                                                        minLteRsrp = signal.getLteRsrp();
-                                                    }
-                                                    if (signal.getLteRsrq() != null && signal.getLteRsrq() < minLteRsrq) {
-                                                        minLteRsrq = signal.getLteRsrq();
-                                                    }
-                                                    if (signal.getWifiLinkSpeed() != null && (signal.getWifiLinkSpeed() < minLinkSpeed || minLinkSpeed == UNKNOWN)) {
-                                                        minLinkSpeed = signal.getWifiLinkSpeed();
-                                                    }
-                                                } else {
-                                                    //System.out.println("not active: " + signal);
+
                                                 }
-
+                                            }
+                                            catch (InputCoercionException | JsonMappingException e) {
+                                                //errorList.addError("ERROR_REQUEST_JSON");
                                             }
                                         }
 
@@ -624,7 +635,7 @@ public class ResultResource extends ServerResource
                                                 if (lteRsrp < minLteRsrp && lteRsrp != UNKNOWN)
                                                     minLteRsrp = lteRsrp;
 
-                                                if (lteRsrq < minLteRsrq && lteRsrq != UNKNOWN)
+                                                if (lteRsrq < minLteRsrq && lteRsrq != UNKNOWN && !(Math.abs(lteRsrq) > 19.5 || Math.abs(lteRsrq) < 3.0))
                                                     minLteRsrq = lteRsrq;
 
                                                 if (thisLinkSpeed != 0 && (minLinkSpeed == UNKNOWN || thisLinkSpeed < minLinkSpeed))
@@ -776,6 +787,36 @@ public class ResultResource extends ServerResource
 
                                         if (errorList.isEmpty()) {
                                             test.getField("status").setString("FINISHED");
+
+                                            //new android app allows different test status
+                                            if (request.opt("test_status") != null) {
+                                                //current: integer
+                                                if (request.optInt("test_status",10) != 10) {
+                                                    switch (request.getInt("test_status")) {
+                                                        case 0:
+                                                            test.getField("status").setString("FINISHED");
+                                                            break;
+                                                        case 1:
+                                                            test.getField("status").setString("ERROR");
+                                                            break;
+                                                        case 2:
+                                                            test.getField("status").setString("ABORTED");
+                                                            break;
+                                                    }
+                                                } else {
+                                                    switch(request.optString("test_status")) {
+                                                        case "SUCCESS":
+                                                            test.getField("status").setString("FINISHED");
+                                                            break;
+                                                        case "ERROR":
+                                                            test.getField("status").setString("ERROR");
+                                                            break;
+                                                        case "ABORTED":
+                                                            test.getField("status").setString("ABORTED");
+                                                            break;
+                                                    }
+                                                }
+                                            }
                                         }
                                         else {
                                             test.getField("status").setString("ERROR");

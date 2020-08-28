@@ -38,6 +38,7 @@ import java.util.logging.Logger;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
+import com.google.common.io.BaseEncoding;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -76,6 +77,10 @@ public abstract class Helperfunctions
             System.out.println("Unexpected error while creating hash: " + e.getMessage());
             return "";
         }
+    }
+
+    public static String calculateHMAC(final String secret, final String data) {
+        return calculateHMAC(secret.getBytes(), data);
     }
 
     /**
@@ -133,15 +138,11 @@ public abstract class Helperfunctions
         temp = java.lang.Math.abs(geoLat);
         latd = (int) temp;
         latm = (temp - latd) * 60.0;
-        if (geoLat < 0)
-            latd = -latd;
 
         // longitude
         temp = java.lang.Math.abs(geoLong);
         lond = (int) temp;
         lonm = (temp - lond) * 60.0;
-        if (geoLong < 0)
-            lond = -lond;
 
         final String dirLat;
         if (geoLat >= 0)
@@ -154,7 +155,7 @@ public abstract class Helperfunctions
         else
             dirLon = "W";
 
-        return String.format("%s %02d°%02.3f'  %s %02d°%02.3f'", dirLat, latd, latm, dirLon, lond, lonm);
+        return String.format("%s %2d°%02.3f'  %s %2d°%02.3f'", dirLat, latd, latm, dirLon, lond, lonm);
     }
 
     public static String getNetworkTypeName(final int type)
@@ -164,6 +165,7 @@ public abstract class Helperfunctions
         switch (type)
         {
         case 1:
+        case 16:
             return "2G (GSM)";
         case 2:
             return "2G (EDGE)";
@@ -195,6 +197,14 @@ public abstract class Helperfunctions
             return "3G (HSPA+)";
         case 19:
             return "4G (LTE CA)";
+        case 20:
+            return "5G (NR)";
+        case 40:
+            return "4G (+5G)";
+        case 41:
+            return "5G (NR)";
+        case 42:
+            return "5G (NR)";
         case 97:
             return "CLI";
         case 98:

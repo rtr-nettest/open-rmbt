@@ -30,7 +30,6 @@ import at.rtr.rmbt.db.fields.Field;
 public abstract class Table
 {
     protected long uid;
-    protected UUID open_test_uuid;
     protected Connection conn = null;
     protected String errorLabel = "";
     protected boolean error = false;
@@ -102,11 +101,6 @@ public abstract class Table
     public long getUid()
     {
         return uid;
-    }
-
-    public UUID getOpenTestUuid()
-    {
-        return open_test_uuid;
     }
 
     /***********

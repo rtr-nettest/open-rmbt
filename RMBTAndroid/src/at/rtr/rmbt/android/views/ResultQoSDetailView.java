@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import at.rtr.rmbt.shared.qos.QosMeasurementType;
 import org.json.JSONArray;
 
 import android.content.Context;
@@ -153,7 +154,7 @@ public class ResultQoSDetailView extends ScrollView implements EndTaskListener, 
 
 			List<HashMap<String, String>> itemList = new ArrayList<HashMap<String,String>>();
 			int index = 0;
-			for (QoSTestResultEnum type : QoSTestResultEnum.values()) {
+			for (QosMeasurementType type : QosMeasurementType.values()) {
 				if (results.getQoSStatistics().getTestCounter(type) > 0) {
 					HashMap<String, String> listItem = new HashMap<String, String>();
 					listItem.put("name", ConfigHelper.getCachedQoSNameByTestType(type, activity));
@@ -179,8 +180,8 @@ public class ResultQoSDetailView extends ScrollView implements EndTaskListener, 
 	            	ViewGroup vgList = (ViewGroup) successList;
 	            	for (int i = 0; i < valueList.getCount(); i++) {
 	            		View v = valueList.getView(i, null, null);
-	            		
-	            		QoSTestResultEnum key = QoSTestResultEnum.valueOf(((HashMap<String, String>)valueList.getItem(i)).get("type_name"));
+
+						QosMeasurementType key = QosMeasurementType.fromValue(((HashMap<String, String>)valueList.getItem(i)).get("type_name"));
 	            		if (results.getQoSStatistics().getFailureCounter(key) > 0) {
 		            		ImageView img = (ImageView) v.findViewById(R.id.status);
 		            		img.setImageResource(R.drawable.traffic_lights_red);

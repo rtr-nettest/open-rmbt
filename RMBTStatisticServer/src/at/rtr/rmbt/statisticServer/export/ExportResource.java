@@ -17,8 +17,8 @@
 package at.rtr.rmbt.statisticServer.export;
 
 import at.rtr.rmbt.statisticServer.ServerResource;
+import at.rtr.rmbt.statisticServer.opendata.dao.OpenTestDAO;
 import at.rtr.rmbt.statisticServer.opendata.dto.OpenTestExportDTO;
-import at.rtr.rmbt.statisticServer.opendata.dto.OpenTestSearchDTO;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.SequenceWriter;
 import com.fasterxml.jackson.dataformat.csv.CsvGenerator;
@@ -29,9 +29,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.apache.commons.dbutils.BasicRowProcessor;
-import org.apache.commons.dbutils.GenerousBeanProcessor;
-import org.apache.commons.dbutils.handlers.BeanListHandler;
 import org.apache.commons.io.IOUtils;
 import org.restlet.data.Disposition;
 import org.restlet.data.MediaType;
@@ -44,13 +41,8 @@ import javax.ws.rs.Path;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -176,136 +168,9 @@ public class ExportResource extends ServerResource
         
             }
         }
-        
-        final String timeClause;
-        
-        if (dateExport)
-        	timeClause = " AND (EXTRACT (month FROM t.time AT TIME ZONE 'UTC') = " + month + 
-        	") AND (EXTRACT (year FROM t.time AT TIME ZONE 'UTC') = " + year + ") ";
-        else if (hoursExport)
-        	timeClause = " AND time > now() - interval '" + hours + " hours' ";
-        else 
-        	timeClause = " AND time > current_date - interval '31 days' ";
-         
-        
-        final String sql = "SELECT" +
-                " ('P' || t.open_uuid) open_uuid," +
-                " ('O' || t.open_test_uuid) open_test_uuid," + 
-                " to_char(t.time AT TIME ZONE 'UTC', 'YYYY-MM-DD HH24:MI:SS') \"time\"," +
-                " nt.group_name cat_technology," +
-                " nt.name network_type," +
-                " (CASE WHEN (t.geo_accuracy < ?) AND (t.geo_provider IS DISTINCT FROM 'manual') AND (t.geo_provider IS DISTINCT FROM 'geocoder') THEN" +
-                " t.geo_lat" +
-                " WHEN (t.geo_accuracy < ?) THEN" +
-                " ROUND(t.geo_lat*1111)/1111" +
-                " ELSE null" +
-                " END) latitude," +
-                " (CASE WHEN (t.geo_accuracy < ?) AND (t.geo_provider IS DISTINCT FROM 'manual') AND (t.geo_provider IS DISTINCT FROM 'geocoder') THEN" +
-                " t.geo_long" +
-                " WHEN (t.geo_accuracy < ?) THEN" +
-                " ROUND(t.geo_long*741)/741 " +
-                " ELSE null" +
-                " END) longitude," +
-                " (CASE WHEN ((t.geo_provider = 'manual') OR (t.geo_provider = 'geocoder')) THEN" +
-                " 'rastered'" + //make raster transparent
-                " ELSE t.geo_provider" +
-                " END) loc_src," + 
-                " (CASE WHEN (t.geo_accuracy < ?) AND (t.geo_provider IS DISTINCT FROM 'manual') AND (t.geo_provider IS DISTINCT FROM 'geocoder') " +
-                " THEN round(t.geo_accuracy::float * 10)/10 " +
-                " WHEN (t.geo_accuracy < 100) AND ((t.geo_provider = 'manual') OR (t.geo_provider = 'geocoder')) THEN 100" + // limit accuracy to 100m
-                " WHEN (t.geo_accuracy < ?) THEN round(t.geo_accuracy::float * 10)/10" +
-                " ELSE null END) loc_accuracy, " +
-                " t.gkz_bev gkz," +
-                " NULL zip_code," +
-                " t.country_location country_location," + 
-                " t.speed_download download_kbit," +
-                " t.speed_upload upload_kbit," +
-                " round(t.ping_median::float / 100000)/10 ping_ms," +
-                " t.lte_rsrp," +
-                " t.lte_rsrq," +
-                " ts.name server_name," +
-                " duration test_duration," +
-                " num_threads," +
-                " t.plattform platform," +
-                " COALESCE(adm.fullname, t.model) model," +
-                " client_software_version client_version," +
-                " network_operator network_mcc_mnc," +
-                " network_operator_name network_name," +
-                " network_sim_operator sim_mcc_mnc," +
-                " nat_type," +
-                " public_ip_asn asn," +
-                " client_public_ip_anonymized ip_anonym," +
-                " (ndt.s2cspd*1000)::int ndt_download_kbit," +
-                " (ndt.c2sspd*1000)::int ndt_upload_kbit," +
-                " COALESCE(t.implausible, false) implausible," +
-                " t.signal_strength," +
-                " t.pinned pinned," +
-                " t.kg_nr_bev kg_nr," +
-                " t.gkz_sa gkz_sa," +
-                " t.land_cover, " +
-                " t.cell_location_id cell_area_code," +
-                " t.cell_area_code cell_location_id," +
-                " t.channel_number channel_number," +
-                " t.radio_band radio_band" +
-                " FROM test t" +
-                /* no comma at then end !! */
-                " LEFT JOIN network_type nt ON nt.uid=t.network_type" +
-                " LEFT JOIN device_map adm ON adm.codename=t.model" +
-                " LEFT JOIN test_server ts ON ts.uid=t.server_id" +
-                " LEFT JOIN test_ndt ndt ON t.uid=ndt.test_id" +
-                " WHERE " +
-                " t.deleted = false" + 
-                timeClause +
-                " AND status = 'FINISHED'" +
-                " ORDER BY t.uid";
-        
-        final String[] columns;
-        final List<String[]> data = new ArrayList<>();
-        PreparedStatement ps = null;
-        ResultSet rs = null;
 
-        final List<OpenTestExportDTO> results;
-        try
-        {
-            ps = conn.prepareStatement(sql);
-            
-            //insert filter for accuracy
-            double accuracy = Double.parseDouble(settings.getString("RMBT_GEO_ACCURACY_DETAIL_LIMIT"));
-            ps.setDouble(1, accuracy);
-            ps.setDouble(2, accuracy);
-            ps.setDouble(3, accuracy);
-            ps.setDouble(4, accuracy);
-            ps.setDouble(5, accuracy);
-            ps.setDouble(6, accuracy);
-            
-            if (!ps.execute())
-                return null;
-            rs = ps.getResultSet();
-
-
-            BeanListHandler<OpenTestExportDTO> handler = new BeanListHandler<>(OpenTestExportDTO.class,new BasicRowProcessor(new GenerousBeanProcessor()));
-            results = handler.handle(rs);
-
-        }
-        catch (final SQLException e)
-        {
-            e.printStackTrace();
-            return null;
-        }
-        finally
-        {
-            try
-            {
-                if (rs != null)
-                    rs.close();
-                if (ps != null)
-                    ps.close();
-            }
-            catch (final SQLException e)
-            {
-                e.printStackTrace();
-            }
-        }
+        OpenTestDAO openTestDAO = new OpenTestDAO(conn,settings,capabilities);
+        final List<OpenTestExportDTO> results = openTestDAO.getOpenTestExport(hoursExport, dateExport, year, month, hours);
         
         final OutputRepresentation result = new OutputRepresentation(xlsx ? MediaType.APPLICATION_MSOFFICE_XLSX : zip ? MediaType.APPLICATION_ZIP
                 : MediaType.TEXT_CSV)

@@ -16,10 +16,7 @@
  *******************************************************************************/
 package at.rtr.rmbt.android.views;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import android.content.Context;
 import android.os.Handler;
@@ -36,8 +33,8 @@ import at.rtr.rmbt.client.QualityOfServiceTest;
 import at.rtr.rmbt.client.QualityOfServiceTest.Counter;
 import at.rtr.rmbt.client.v2.task.AbstractQoSTask;
 import at.rtr.rmbt.client.v2.task.QoSTestEnum;
-import at.rtr.rmbt.client.v2.task.result.QoSTestResultEnum;
 import at.rtr.rmbt.client.v2.task.service.TestProgressListener;
+import at.rtr.rmbt.shared.qos.QosMeasurementType;
 
 /**
  * 
@@ -56,9 +53,9 @@ public class GroupCountView extends LinearLayout implements TestProgressListener
 	 */
 	public final static float MAX_VALUE_UNFINISHED_TEST = 0.9f;
 	
-	Map<QoSTestResultEnum, Counter> counterMap;
-	Map<QoSTestResultEnum, View> viewMap = new HashMap<QoSTestResultEnum, View>();
-	Map<QoSTestResultEnum, List<AbstractQoSTask>> taskMap = new HashMap<QoSTestResultEnum, List<AbstractQoSTask>>();
+	Map<QosMeasurementType, Counter> counterMap;
+	Map<QosMeasurementType, View> viewMap = new HashMap<QosMeasurementType, View>();
+	Map<QosMeasurementType, List<AbstractQoSTask>> taskMap = new HashMap<QosMeasurementType, List<AbstractQoSTask>>();
 	float ndtProgress = -1f;
 	View ndtView;
 	QoSTestEnum status;
@@ -74,10 +71,10 @@ public class GroupCountView extends LinearLayout implements TestProgressListener
 	}
 	
 	/**
-	 * 
-	 * @param taskMap
-	 */
-	public void setTaskMap(Map<QoSTestResultEnum, List<AbstractQoSTask>> taskMap) {
+	 *
+     * @param taskMap
+     */
+	public void setTaskMap(TreeMap<QosMeasurementType, List<AbstractQoSTask>> taskMap) {
 		this.taskMap = taskMap;
 	}
 	
@@ -108,13 +105,13 @@ public class GroupCountView extends LinearLayout implements TestProgressListener
 		try {
 			if (!isInitializing && counterMap != null && counterMap.keySet()!= null) {
 				removeAllViews();
-				Iterator<QoSTestResultEnum> keys = counterMap.keySet().iterator();
+				Iterator<QosMeasurementType> keys = counterMap.keySet().iterator();
 				while (keys.hasNext()) {
 			    	LinearLayout l = new LinearLayout(getContext());
 			    	l.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 			    	l.setOrientation(LinearLayout.HORIZONTAL);
 
-					QoSTestResultEnum testType = keys.next();
+					QosMeasurementType testType = keys.next();
 					View viewLeft = createSubView(inflater, testType, counterMap.get(testType));
 					viewMap.put(testType, viewLeft);
 					l.addView(viewLeft);
@@ -153,7 +150,7 @@ public class GroupCountView extends LinearLayout implements TestProgressListener
 	 * @param counter
 	 * @return
 	 */
-	private View createSubView(LayoutInflater inflater, QoSTestResultEnum testType, Counter counter) {
+	private View createSubView(LayoutInflater inflater, QosMeasurementType testType, Counter counter) {
 		View view = null;
     	view = inflater.inflate(R.layout.test_view_qos_group_counter, null);
     	view.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, .5f));
@@ -183,12 +180,12 @@ public class GroupCountView extends LinearLayout implements TestProgressListener
 	}
 	
 	/**
-	 * 
+	 *
 	 * @param counterMap
 	 */
-	public void updateView(Map<QoSTestResultEnum, Counter> counterMap) {
+	public void updateView(Map<QosMeasurementType, Counter> counterMap) {
 		//if (counterMap != null && counterMap.keySet() != null) {
-			Iterator<QoSTestResultEnum> keys = counterMap.keySet().iterator();
+			Iterator<QosMeasurementType> keys = counterMap.keySet().iterator();
 			if ((viewMap == null || getChildCount() <= 1 || (viewMap.size() == 0  && status.equals(QoSTestEnum.QOS_RUNNING))) && counterMap != null) {
 				//init and create view if empty:
 				this.counterMap = counterMap;
@@ -204,7 +201,7 @@ public class GroupCountView extends LinearLayout implements TestProgressListener
 			}
 			
 			while (keys.hasNext()) {
-				QoSTestResultEnum key = keys.next();
+				QosMeasurementType key = keys.next();
 				View view = viewMap.get(key);
 				if (view != null) {
 					Counter counter = counterMap.get(key);
@@ -264,7 +261,7 @@ public class GroupCountView extends LinearLayout implements TestProgressListener
 	 * 
 	 * @param testType
 	 */
-	public void updateProgressBar(final QoSTestResultEnum testType) {
+	public void updateProgressBar(final QosMeasurementType testType) {
 		if (viewMap != null) {
 			View view = viewMap.get(testType);
 			if (view != null) {

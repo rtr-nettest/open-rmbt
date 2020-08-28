@@ -12,8 +12,8 @@ export LANG=C
 DATE=`date '+%Y-%m-%d_%H-%M-%S'`
 OUTPUT=rmbt_init.sql
 # List of tables to be dumped
-declare -a TABLES=("as2provider" "client_type" "mcc2country" "mccmnc2name" "mccmnc2provider" "network_type" "provider" \
-  "qos_test_desc" "qos_test_objective" "qos_test_type_desc")
+declare -a TABLES=("provider" "as2provider" "client_type" "mcc2country" "mccmnc2name" "mccmnc2provider" "network_type"  \
+  "qos_test_desc" "qos_test_type_desc" "qos_test_objective")
 
 # Check if file exists
 test -r $OUTPUT                    && echo "$OUTPUT exists, aborting." &&  exit 0
@@ -28,7 +28,7 @@ do
    # Update on progress
    echo "Dumping table $i..."
    echo "-- $DATE $OUTPUT table $i" > $i.sql
-   pg_dump rmbt --table=$i --column-inserts >> $i.sql
+   pg_dump rmbt --table=$i --column-inserts --data-only >> $i.sql
    cat $i.sql >> $OUTPUT
 done
 

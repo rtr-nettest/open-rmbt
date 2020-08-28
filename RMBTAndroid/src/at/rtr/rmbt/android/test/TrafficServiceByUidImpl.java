@@ -95,7 +95,7 @@ public class TrafficServiceByUidImpl implements TrafficService {
 		return TrafficStats.getUidRxBytes(uid);
 	}
 
-	@Override
+	/*@Override
 	public long getCurrentTxBytes() {
 		return (trafficTxStart != -1 ? getTotalTxBytes() - trafficTxStart : -1);
 	}
@@ -111,5 +111,5 @@ public class TrafficServiceByUidImpl implements TrafficService {
 			stop();
 			running = true;
 		}
-	}
+	}*/
 }

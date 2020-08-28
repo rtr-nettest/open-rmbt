@@ -186,8 +186,13 @@ public class MarkerResource extends ServerResource
 								else
 								{
 									final MapFilter mapFilter = MapServerOptions.getMapFilterMap().get(key);
-									if (mapFilter != null)
-										filters.add(mapFilter.getFilter(mapFilterObj.getString(key)));
+									if (mapFilter != null) {
+										try {
+											filters.add(mapFilter.getFilter(mapFilterObj.getString(key)));
+										} catch (JSONException e) {
+											e.printStackTrace();
+										}
+									}
 								}
 						}
 					}
@@ -328,6 +333,14 @@ public class MarkerResource extends ServerResource
 
 								jsonItemList.put(singleItem);
 
+								JSONObject measurementResult = new JSONObject();
+								{
+									measurementResult.put("download_kbit", fieldDown);
+									measurementResult.put("download_classification", Classification.classify(Classification.THRESHOLD_DOWNLOAD, fieldDown, capabilities.getClassificationCapability().getCount()));
+									measurementResult.put("upload_kbit", fieldUp);
+									measurementResult.put("upload_classification", Classification.classify(Classification.THRESHOLD_UPLOAD, fieldUp, capabilities.getClassificationCapability().getCount()));
+								}
+
 								final long fieldPing = rs.getLong("ping_median");
 								final int pingValue = (int) Math.round(rs.getDouble("ping_median") / 1000000d);
 								singleItem = new JSONObject();
@@ -339,6 +352,8 @@ public class MarkerResource extends ServerResource
 										Classification.classify(Classification.THRESHOLD_PING, fieldPing, capabilities.getClassificationCapability().getCount()));
 
 								jsonItemList.put(singleItem);
+								measurementResult.put("ping_ms", fieldPing / 1000000d);
+								measurementResult.put("ping_classification", Classification.classify(Classification.THRESHOLD_PING, fieldPing, capabilities.getClassificationCapability().getCount()));
 
 								final int networkType = rs.getInt("network_type");
 
@@ -355,6 +370,8 @@ public class MarkerResource extends ServerResource
 									singleItem.put("classification",
 											Classification.classify(threshold, signalValue, capabilities.getClassificationCapability().getCount()));
 									jsonItemList.put(singleItem);
+									measurementResult.put("signal_strength", signalField);
+									measurementResult.put("signal_classification", Classification.classify(threshold, signalValue, capabilities.getClassificationCapability().getCount()));
 								}
 
 								final String lteRsrpField = rs.getString("lte_rsrp");
@@ -369,16 +386,21 @@ public class MarkerResource extends ServerResource
 									singleItem.put("classification",
 											Classification.classify(threshold, lteRsrpValue, capabilities.getClassificationCapability().getCount()));
 									jsonItemList.put(singleItem);
+									measurementResult.put("lte_rsrp", lteRsrpValue);
+									measurementResult.put("signal_classification", Classification.classify(threshold, lteRsrpValue, capabilities.getClassificationCapability().getCount()));
 								}
 
 
 								jsonItem.put("measurement", jsonItemList);
+								jsonItem.put("measurement_result", measurementResult);
 
 								jsonItemList = new JSONArray();
+								JSONObject networkInfo = new JSONObject();
 
 								singleItem = new JSONObject();
 								singleItem.put("title", labels.getString("RESULT_NETWORK_TYPE"));
 								singleItem.put("value", Helperfunctions.getNetworkTypeName(networkType));
+								networkInfo.put("network_type_label", Helperfunctions.getNetworkTypeName(networkType));
 
 								jsonItemList.put(singleItem);
 
@@ -391,6 +413,7 @@ public class MarkerResource extends ServerResource
 
 									if (! Strings.isNullOrEmpty(providerText))
 									{
+										networkInfo.put("provider_name", providerText);
 										if (providerText.length() > (MAX_PROVIDER_LENGTH +3)) {
 											providerText = providerText.substring(0, MAX_PROVIDER_LENGTH) + "...";
 										}
@@ -411,6 +434,7 @@ public class MarkerResource extends ServerResource
 												singleItem.put("title", labels.getString("RESULT_WIFI_SSID"));
 												singleItem.put("value", ssid.toString());
 												jsonItemList.put(singleItem);
+												networkInfo.put("wifi_ssid", ssid.toString());
 											}
 										}
 									}
@@ -427,21 +451,26 @@ public class MarkerResource extends ServerResource
 									{
 										final String mobileNetworkString;
 										if (roamingType != 2) { //not international roaming - display name of home network
-											if (Strings.isNullOrEmpty(mobileSimName))
+											if (Strings.isNullOrEmpty(mobileSimName)) {
 												mobileNetworkString = networkOperator;
-											else
+											}
+											else {
 												mobileNetworkString = String.format("%s (%s)", mobileSimName, networkOperator);
+											}
 										}
 										else { //international roaming - display name of network
-											if (Strings.isNullOrEmpty(mobileSimName))
+											if (Strings.isNullOrEmpty(mobileSimName)) {
 												mobileNetworkString = networkOperator;
-											else
+											}
+											else {
 												mobileNetworkString = String.format("%s (%s)", mobileNetworkName, networkOperator);
+											}
 										}
 
 										singleItem = new JSONObject();
 										singleItem.put("title", labels.getString("RESULT_MOBILE_NETWORK"));
 										singleItem.put("value", mobileNetworkString);
+										networkInfo.put("provider_name", mobileNetworkString);
 										jsonItemList.put(singleItem);
 									}
 									//home network (sim)
@@ -464,6 +493,7 @@ public class MarkerResource extends ServerResource
 										singleItem = new JSONObject();
 										singleItem.put("title", labels.getString("RESULT_HOME_NETWORK"));
 										singleItem.put("value", mobileNetworkString);
+										networkInfo.put("provider_name", mobileNetworkString);
 										jsonItemList.put(singleItem);
 									}
 
@@ -472,11 +502,13 @@ public class MarkerResource extends ServerResource
 										singleItem = new JSONObject();
 										singleItem.put("title", labels.getString("RESULT_ROAMING"));
 										singleItem.put("value", Helperfunctions.getRoamingType(labels, roamingType));
+										networkInfo.put("roaming_type_label", Helperfunctions.getRoamingType(labels, roamingType));
 										jsonItemList.put(singleItem);
 									}
 								}
 
 								jsonItem.put("net", jsonItemList);
+								jsonItem.put("network_info", networkInfo);
 
 								resultList.put(jsonItem);
 
@@ -504,6 +536,7 @@ public class MarkerResource extends ServerResource
 		catch (final JSONException e)
 		{
 			System.out.println("Error parsing JSDON Data " + e.toString());
+			e.printStackTrace();
 		}
 		catch (final SQLException e)
 		{

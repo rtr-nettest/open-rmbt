@@ -163,8 +163,14 @@ public class StatisticsResource extends ServerResource
                     where = "nt.group_name = '4G'";
                     signalColumn = "lte_rsrp";
                 }
+                else if ("5G".equalsIgnoreCase(networkTypeGroup))
+                {
+                    where = "nt.group_name = '5G'";
+                    signalColumn = "lte_rsrp";
+                }
                 else if ("mixed".equalsIgnoreCase(networkTypeGroup))
-                    where = "nt.group_name IN ('2G/3G','2G/4G','3G/4G','2G/3G/4G')";
+                    where = "nt.group_name IN ('2G/3G','2G/4G','3G/4G','2G/3G/4G'," +
+                            "'2G/5G', '3G/5G', '4G/5G', '2G/3G/5G', '2G/4G/5G', '3G/4G/5G')";
                 else
                     where = "1=0";
             }
@@ -313,7 +319,8 @@ public class StatisticsResource extends ServerResource
                         
                         " FROM test t" +
                         " LEFT JOIN network_type nt ON nt.uid=t.network_type" +
-                        " JOIN provider p ON" + 
+                        (((province != -1) || (accuracy > 0)) ? (" LEFT JOIN test_location tl ON t.open_test_uuid = tl.open_test_uuid") : "")  +
+                        " JOIN provider p ON" +
                         (useMobileProvider ? " t.mobile_provider_id = p.uid" : " t.provider_id = p.uid") +
                         " WHERE %2$s" +
                         ((country != null && useMobileProvider)? " AND t.network_sim_country = ?" : "") +
@@ -323,8 +330,8 @@ public class StatisticsResource extends ServerResource
                         " - ?::INTERVAL " +
                         ((endDate != null) ? (" AND \"time\" <=  ?::TIMESTAMP WITH TIME ZONE ") : "") +
                         //" AND user_server_selection = ? " +
-                        ((province != -1) ? (" AND gkz_bev/10000 = ? ") : "") +
-                        ((accuracy > 0) ? " AND t.geo_accuracy < ?" : "") + 
+                        ((province != -1) ? (" AND tl.gkz_bev/10000 = ? ") : "") +
+                        ((accuracy > 0) ? " AND tl.geo_accuracy < ?" : "") +
                         ((ONLY_PINNED)?" AND t.pinned = true":"") +
                         (group? " GROUP BY p.uid" : "") +
                         " ORDER BY count DESC",
@@ -349,7 +356,8 @@ public class StatisticsResource extends ServerResource
                             
                             " FROM test t" +
                             " LEFT JOIN network_type nt ON nt.uid=t.network_type" +
-                            (useMobileProvider ? " LEFT JOIN mccmnc2name p ON p.uid = t.mobile_sim_id" : "") + 
+                            (((province != -1) || (accuracy > 0)) ? (" LEFT JOIN test_location tl ON t.open_test_uuid = tl.open_test_uuid") : "")  +
+                            (useMobileProvider ? " LEFT JOIN mccmnc2name p ON p.uid = t.mobile_sim_id" : "") +
                             " WHERE %2$s" +
                             " AND " + (useMobileProvider?"p.country = ? AND ((t.country_location IS NULL OR t.country_location = ?)  AND (NOT t.roaming_type = 2))":"t.country_geoip = ? ") +
                             " AND t.deleted = false AND t.implausible = false AND t.status = 'FINISHED'"+
@@ -358,8 +366,8 @@ public class StatisticsResource extends ServerResource
                             " - ?::INTERVAL " +
                             ((endDate != null) ? (" AND \"time\" <=  ?::TIMESTAMP WITH TIME ZONE ") : "") +
                             //" AND user_server_selection = ? " +
-                            ((province != -1) ? (" AND gkz_bev/10000 = ? ") : "") +
-                            ((accuracy > 0) ? " AND t.geo_accuracy < ?" : "") + 
+                            ((province != -1) ? (" AND tl.gkz_bev/10000 = ? ") : "") +
+                            ((accuracy > 0) ? " AND tl.geo_accuracy < ?" : "") +
                             ((ONLY_PINNED)?" AND t.pinned = true":"") +
                             ((group && (useMobileProvider))? " GROUP BY p.uid, p.mccmnc" : "") +
                             ((group && (!useMobileProvider))? " GROUP BY t.public_ip_as_name, t.public_ip_asn" : "") +
@@ -469,6 +477,7 @@ public class StatisticsResource extends ServerResource
                 " FROM test t" +
                 " LEFT JOIN device_map adm ON adm.codename=t.model" +
                 " LEFT JOIN network_type nt ON nt.uid=t.network_type" +
+                (((province != -1) || (accuracy > 0)) ? (" LEFT JOIN test_location tl ON t.open_test_uuid = tl.open_test_uuid") : "") +
                 " WHERE %s" +
                 " AND t.deleted = false AND t.implausible = false AND t.status = 'FINISHED'" +
                 " AND \"time\" > " +
@@ -476,9 +485,9 @@ public class StatisticsResource extends ServerResource
                 " - ?::INTERVAL " +
                 ((endDate != null) ? (" AND \"time\" <=  ?::TIMESTAMP WITH TIME ZONE ") : "") +
                 //" AND user_server_selection = ? " +
-                ((province != -1) ? (" AND gkz_bev/10000 = ? ") : "") +
+                ((province != -1) ? (" AND tl.gkz_bev/10000 = ? ") : "") +
                 (useMobileProvider ? " AND t.mobile_provider_id IS NOT NULL" : "") +
-                ((accuracy > 0) ? " AND t.geo_accuracy < ?" : "") + 
+                ((accuracy > 0) ? " AND tl.geo_accuracy < ?" : "") +
                 ((ONLY_PINNED)?" AND t.pinned = true":"") +
                 (group ? " GROUP BY COALESCE(adm.fullname, t.model) HAVING count(t.uid) > 10" : "") +
                 " ORDER BY count DESC" +
@@ -492,6 +501,7 @@ public class StatisticsResource extends ServerResource
                     " FROM test t" +
                     " LEFT JOIN device_map adm ON adm.codename=t.model" +
                     " LEFT JOIN network_type nt ON nt.uid=t.network_type" +
+                    (((province != -1) || (accuracy > 0)) ? (" LEFT JOIN test_location tl ON t.open_test_uuid = tl.open_test_uuid") : "") +
                     (useMobileProvider ? " LEFT JOIN mccmnc2name p ON p.uid = t.mobile_sim_id" : "") +
                     " WHERE %s" +
                     " AND t.deleted = false AND t.implausible = false AND t.status = 'FINISHED'" +
@@ -500,9 +510,9 @@ public class StatisticsResource extends ServerResource
                     " - ?::INTERVAL" +
                     ((endDate != null) ? (" AND \"time\" <=  ?::TIMESTAMP WITH TIME ZONE ") : "") +
                     //" AND user_server_selection = ? " +
-                    ((province != -1) ? (" AND gkz_bev/10000 = ? ") : "") +
+                    ((province != -1) ? (" AND tl.gkz_bev/10000 = ? ") : "") +
                     " AND " + (useMobileProvider?"p.country = ? AND ((t.country_location IS NULL OR t.country_location = ?)  AND (NOT t.roaming_type = 2))":"t.country_geoip = ? ") +
-                    ((accuracy > 0) ? " AND t.geo_accuracy < ?" : "") + 
+                    ((accuracy > 0) ? " AND tl.geo_accuracy < ?" : "") +
                     ((ONLY_PINNED)?" AND t.pinned = true":"") +
                     (group ? " GROUP BY COALESCE(adm.fullname, t.model) HAVING count(t.uid) > 10" : "") +
                     " ORDER BY count DESC" +

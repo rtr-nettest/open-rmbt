@@ -16,31 +16,24 @@
  ******************************************************************************/
 package at.rtr.rmbt.controlServer;
 
-import java.text.DateFormat;
-import java.text.Format;
-import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.TimeZone;
-import java.util.UUID;
-
+import at.rtr.rmbt.db.Client;
+import at.rtr.rmbt.db.Test;
+import at.rtr.rmbt.db.fields.Field;
+import at.rtr.rmbt.db.fields.TimestampField;
+import at.rtr.rmbt.db.fields.UUIDField;
+import at.rtr.rmbt.shared.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.restlet.resource.Get;
 import org.restlet.resource.Post;
 
-import at.rtr.rmbt.db.Client;
-import at.rtr.rmbt.db.Test;
-import at.rtr.rmbt.db.fields.Field;
-import at.rtr.rmbt.db.fields.TimestampField;
-import at.rtr.rmbt.db.fields.UUIDField;
-import at.rtr.rmbt.shared.Classification;
-import at.rtr.rmbt.shared.Helperfunctions;
-import at.rtr.rmbt.shared.ResourceManager;
-import at.rtr.rmbt.shared.SignificantFormat;
+import java.text.DateFormat;
+import java.text.Format;
+import java.text.MessageFormat;
+import java.util.*;
 
 public class TestResultResource extends ServerResource
 {
@@ -123,7 +116,7 @@ public class TestResultResource extends ServerResource
                         dateFormat.setTimeZone(tz);
                         final String timeString = dateFormat.format(date);
                         jsonItem.put("time_string", timeString);
-                        
+
                         final Field fieldDown = test.getField("speed_download");
                         JSONObject singleItem = new JSONObject();
                         singleItem.put("title", labels.getString("RESULT_DOWNLOAD"));
@@ -146,6 +139,14 @@ public class TestResultResource extends ServerResource
                                 Classification.classify(Classification.THRESHOLD_UPLOAD, fieldUp.intValue(), capabilities.getClassificationCapability().getCount()));
                         
                         jsonItemList.put(singleItem);
+
+                        JSONObject measurementResult = new JSONObject();
+                        {
+                            measurementResult.put("download_kbit", fieldDown.longValue());
+                            measurementResult.put("download_classification", Classification.classify(Classification.THRESHOLD_DOWNLOAD, fieldDown.intValue(), capabilities.getClassificationCapability().getCount()));
+                            measurementResult.put("upload_kbit", fieldUp.longValue());
+                            measurementResult.put("upload_classification", Classification.classify(Classification.THRESHOLD_UPLOAD, fieldUp.intValue(), capabilities.getClassificationCapability().getCount()));
+                        }
                         
                         final Field fieldPing = test.getField("ping_median");
                         String pingString = "";
@@ -160,6 +161,8 @@ public class TestResultResource extends ServerResource
                         			Classification.classify(Classification.THRESHOLD_PING, fieldPing.longValue(), capabilities.getClassificationCapability().getCount()));
 
                         	jsonItemList.put(singleItem);
+                            measurementResult.put("ping_ms", fieldPing.doubleValue() / 1000000d);
+                            measurementResult.put("ping_classification", Classification.classify(Classification.THRESHOLD_PING, fieldPing.longValue(), capabilities.getClassificationCapability().getCount()));
                         }
 
                         
@@ -201,6 +204,9 @@ public class TestResultResource extends ServerResource
                         			signalString = signalValue + " " + labels.getString("RESULT_SIGNAL_UNIT");
                         			singleItem.put("value", signalString);
                         			singleItem.put("classification", Classification.classify(threshold, signalValue, capabilities.getClassificationCapability().getCount()));
+
+                                    measurementResult.put("signal_strength", signalField.intValue());
+                                    measurementResult.put("signal_classification", Classification.classify(threshold, signalValue, capabilities.getClassificationCapability().getCount()));
                         		}
                         		else  { // use RSRP value else (RSRP value has priority if both are available (e.g. 3G/4G-test))
                         			final int signalValue = lteRsrpField.intValue();
@@ -210,24 +216,50 @@ public class TestResultResource extends ServerResource
                         			signalString = signalValue + " " + labels.getString("RESULT_SIGNAL_UNIT");
                         			singleItem.put("value", signalString);
                         			singleItem.put("classification", Classification.classify(threshold, signalValue, capabilities.getClassificationCapability().getCount()));
+                                    measurementResult.put("lte_rsrp", lteRsrpField.intValue());
+                                    measurementResult.put("signal_classification", Classification.classify(threshold, signalValue, capabilities.getClassificationCapability().getCount()));
 
                         		}	
                         		jsonItemList.put(singleItem);
                         	}
+                        	else {
+                                measurementResult.put("lte_rsrp", JSONObject.NULL);
+                                measurementResult.put("signal_classification", JSONObject.NULL);
+                            }
                         } //dualSim
 
                         jsonItem.put("measurement", jsonItemList);
-                        
-                        jsonItemList = new JSONArray();                        
+                        jsonItem.put("measurement_result", measurementResult);
+
+
+                        try {
+                            //QoE classification
+
+                            //get configuration from db
+                            List<QoEClassification.Classification> qoe = QoEClassification.classify(fieldPing.longValue(), fieldDown.longValue(), fieldUp.longValue(),
+                                    QoEClassification.getQoEClassificationsFromDb(conn));
+                            ObjectMapper om = new ObjectMapper();
+                            String qoeAsString = om.writer().writeValueAsString(qoe);
+                            jsonItem.put("qoe_classification", new JSONArray(qoeAsString));
+                        } catch (JsonProcessingException e) {
+                            e.printStackTrace();
+                        }
+
+                        jsonItemList = new JSONArray();
+                        JSONObject networkInfo = new JSONObject();
                         
                         singleItem = new JSONObject();
                         singleItem.put("title", labels.getString("RESULT_NETWORK_TYPE"));
                         final String networkTypeString = Helperfunctions.getNetworkTypeName(networkType);
                         
-                        if (!useSignal)
-                           singleItem.put("value", labels.getString("RESULT_DUAL_SIM"));
-                        else
-                        	singleItem.put("value", networkTypeString);
+                        if (!useSignal) {
+                            singleItem.put("value", labels.getString("RESULT_DUAL_SIM"));
+                            networkInfo.put("network_type_label", labels.getString("RESULT_DUAL_SIM"));
+                        }
+                        else {
+                            singleItem.put("value", networkTypeString);
+                            networkInfo.put("network_type_label", Helperfunctions.getNetworkTypeName(networkType));
+                        }
 
                         jsonItemList.put(singleItem);
                         
@@ -240,6 +272,7 @@ public class TestResultResource extends ServerResource
                                 singleItem.put("title", labels.getString("RESULT_OPERATOR_NAME"));
                                 singleItem.put("value", providerNameField.toString());
                                 jsonItemList.put(singleItem);
+                                networkInfo.put("provider_name", providerNameField.toString());
                             }
                             if (networkType == 99)  // mobile wifi
                             {
@@ -250,6 +283,7 @@ public class TestResultResource extends ServerResource
                                     singleItem.put("title", labels.getString("RESULT_WIFI_SSID"));
                                     singleItem.put("value", ssid.toString());
                                     jsonItemList.put(singleItem);
+                                    networkInfo.put("wifi_ssid", ssid.toString());
                                 }
                                 
                             }
@@ -266,6 +300,7 @@ public class TestResultResource extends ServerResource
                             		singleItem.put("title", labels.getString("RESULT_OPERATOR_NAME"));
                             		singleItem.put("value", operatorNameField.toString());
                             		jsonItemList.put(singleItem);
+                                    networkInfo.put("provider_name", operatorNameField.toString());
                             	}
 
                             	final Field roamingTypeField = test.getField("roaming_type");
@@ -276,13 +311,14 @@ public class TestResultResource extends ServerResource
                             		singleItem.put("title", labels.getString("RESULT_ROAMING"));
                             		singleItem.put("value", Helperfunctions.getRoamingType(labels, roamingTypeField.intValue()));
                             		jsonItemList.put(singleItem);
+                                    networkInfo.put("roaming_type_label", Helperfunctions.getRoamingType(labels, roamingTypeField.intValue()));
                             	}
                             }
                             
                         }
                         
                         jsonItem.put("net", jsonItemList);
-                        
+                        jsonItem.put("network_info", networkInfo);
                         
                         final Field latField = test.getField("geo_lat");
                         final Field longField = test.getField("geo_long");
