@@ -4136,7 +4136,7 @@ CREATE TABLE public.radio_cell (
     technology character varying(10),
     mnc integer,
     mcc integer,
-    location_id integer,
+    location_id bigint,
     area_code integer,
     primary_scrambling_code integer,
     registered boolean,
