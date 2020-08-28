@@ -466,7 +466,7 @@ public class SignalResultResource extends ServerResource {
                             try {
                                 st = conn
                                         .prepareStatement(
-                                                "UPDATE test SET last_sequence_number = ?, status = ? where uuid = ?;");
+                                                "UPDATE test SET last_sequence_number = ?, status = ?, timestamp=NOW() where uuid = ?;");
                                 int i = 1;
                                 //sequence
                                 st.setInt(i++, sequenceNumber);
