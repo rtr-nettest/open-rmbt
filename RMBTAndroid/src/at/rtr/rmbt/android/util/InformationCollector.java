@@ -1493,7 +1493,7 @@ public class InformationCollector
                 return;
             }
 
-            if (cells == null) {
+            if (cells == null ||cells.isEmpty()) {
                 return;
             }
 
@@ -1514,6 +1514,14 @@ public class InformationCollector
             for (CellInfo cellInfo : cells) {
                 wCells.add(new CellInformationWrapper(cellInfo));
             }
+
+            for (CellInformationWrapper cellInfo : wCells) {
+                if (cellInfo.getTechnology() == CellInformationWrapper.Technology.CONNECTION_5G) {
+                    System.out.println(cellInfo.toString());
+                    activeCell = cellInfo;
+                }
+            }
+
 
             //filter to cells where info is present (i.e. not in TDSCMA)
             Iterator<CellInformationWrapper> iter = wCells.iterator();
@@ -1614,6 +1622,13 @@ public class InformationCollector
             else {
                 //no active cell?
 
+            }
+
+            for (CellInformationWrapper cellInfo : wCells) {
+                if (cellInfo.getTechnology() == CellInformationWrapper.Technology.CONNECTION_5G) {
+                    System.out.println(cellInfo.toString());
+                    activeCell = cellInfo;
+                }
             }
 
             if (activeCell != null) {

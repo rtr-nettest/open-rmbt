@@ -670,8 +670,8 @@ public class RMBTMainMenuFragment extends Fragment
                                     }
 
                                     if (networkFamily != NetworkFamilyEnum.NR_AVAILABLE) {
-                                        infoSignalStrengthExtra.setVisibility(View.GONE);
-                                        infoSignalStrength.setVisibility(View.GONE);
+                                        //infoSignalStrengthExtra.setVisibility(View.GONE);
+                                        //infoSignalStrength.setVisibility(View.GONE);
                                     }
 
                                     lastNetworkTypeString = networkFamily.getNetworkId();
