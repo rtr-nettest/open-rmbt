@@ -67,7 +67,7 @@ public class RadioCell {
     private Integer mnc;
     private Integer mcc;
 
-    private Integer locationId;
+    private Long locationId;
     private Integer areaCode;
 
     private Integer primaryScramblingCode;
@@ -96,11 +96,11 @@ public class RadioCell {
         this.mcc = mcc;
     }
 
-    public Integer getLocationId() {
+    public Long getLocationId() {
         return locationId;
     }
 
-    public void setLocationId(Integer locationId) {
+    public void setLocationId(Long locationId) {
         this.locationId = locationId;
     }
 
