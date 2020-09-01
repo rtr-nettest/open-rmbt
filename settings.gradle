@@ -7,29 +7,3 @@ include ':RMBTMapServer'
 include ':RMBTClient'
 
 
-// include Android projects only if Android SDK is present
-def skipAndroid = false
-def sdkDir = null
-
-// include Android projects only if Android SDK is present
-def localProperties = new File("local.properties")
-if (localProperties.exists()) {
-    Properties properties = new Properties()
-    localProperties.withInputStream { instr ->
-        properties.load(instr)
-    }
-    sdkDir = properties.getProperty('sdk.dir')
-    println "Found 'sdk.dir' in local.properties: " + sdkDir
-}
-
-// skip if Android SDK could not be found
-if ((System.env.ANDROID_HOME == null && sdkDir == null)) {
-    skipAndroid = true
-}
-
-if (skipAndroid) {
-    println 'Skipping Android, either ANDROID_HOME or local.properties are is required'
-}
-else {
-    include ':RMBTAndroid'
-}
