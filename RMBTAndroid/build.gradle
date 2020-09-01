@@ -96,12 +96,12 @@ android {
 	}
 
     defaultConfig {
-        applicationId "at.alladin.rmbt.android"
+        applicationId "at.alladin.rmbt.android.v3"
 		manifestPlaceholders = [googleMapsApiKey:appSecretProperties['googleMapsApiKey']]
         minSdkVersion 15
         targetSdkVersion 29
-        versionCode 30710
-        versionName "3.7.10"
+        versionCode 30800
+        versionName "3.8.00"
         buildConfigField "long", "BUILD_TIMESTAMP", System.currentTimeMillis() + "L"
 		buildConfigField "int", "LOOP_MODE_UNLOCK_CODE",appSecretProperties['loopModeUnlockCode']
 		buildConfigField "int", "LOOP_MODE_LOCK_CODE",appSecretProperties['loopModeLockCode']
