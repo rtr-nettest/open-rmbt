@@ -1,10 +1,25 @@
 package at.rtr.rmbt.statisticServer.opendata.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModelProperty;
 
+//JSON property order for CSV output
+@JsonPropertyOrder({
+        "open_test_uuid", "time",
+        //geo
+        "lat", "long",
+        //signal
+        "cat_technology", "signal_strength", "lte_rsrp", "lte_rsrq", "timing_advance",
+        //2G cell
+        "arfcn_2G", "band_2G", "bsic_2G", "cid_2G", "frequency_dl_2G", "lac_2G",
+        //3G cell
+        "band_3G", "cid_3G", "frequency_dl_3G", "lac_3G", "psc_3G", "uarfcn_3G",
+        //4G cell
+        "band_4G", "ci_4G", "earfcn_4G", "frequency_dl_4G", "pci_4G", "tac_4G"
+        //5G cell - tbd when standalone is available
+        })
 public class SignalLocationDTO {
 
     private String openTestUuid;
