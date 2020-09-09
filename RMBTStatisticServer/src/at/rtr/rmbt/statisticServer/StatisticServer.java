@@ -17,6 +17,7 @@
 package at.rtr.rmbt.statisticServer;
 
 import at.rtr.rmbt.statisticServer.export.PdfExportResource;
+import at.rtr.rmbt.statisticServer.export.SignalLocationExportResource;
 import at.rtr.rmbt.statisticServer.opendata.IntradayResource;
 import org.restlet.Application;
 import org.restlet.Context;
@@ -65,6 +66,12 @@ public class StatisticServer extends Application
         router.attach("/export/netztest-opendata_hours-{hours}.{format}", ExportResource.class);
         router.attach("/export/netztest-opendata_hours-{hours}.", ExportResource.class, Template.MODE_STARTS_WITH);
         router.attach("/export/netztest-opendata.{format}", ExportResource.class, Template.MODE_STARTS_WITH);
+
+        router.attach("/export/signal-{year}-{month}.{format}", SignalLocationExportResource.class);
+        router.attach("/export/signal-{year}-{month}.", SignalLocationExportResource.class, Template.MODE_STARTS_WITH);
+        router.attach("/export/signal_hours-{hours}.{format}", SignalLocationExportResource.class);
+        router.attach("/export/signal_hours-{hours}.", SignalLocationExportResource.class, Template.MODE_STARTS_WITH);
+        router.attach("/export/signal.{format}", SignalLocationExportResource.class, Template.MODE_STARTS_WITH);
         router.attach("/export/pdf/{lang}/{filename}.pdf", PdfExportResource.class);
         router.attach("/export/pdf/{filename}.pdf", PdfExportResource.class);
         router.attach("/export/pdf/{lang}", PdfExportResource.class);

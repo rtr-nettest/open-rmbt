@@ -256,10 +256,16 @@ public class SignalGraphItemDTO {
 
 
         public void setLac(Integer lac) {
+            if (lac != null && lac == Integer.MAX_VALUE) {
+                return;
+            }
             this.lac = lac;
         }
 
         public void setCid(Integer cid) {
+            if (cid != null && cid == Integer.MAX_VALUE) {
+                return;
+            }
             this.cid = cid;
         }
 
@@ -319,10 +325,16 @@ public class SignalGraphItemDTO {
 
 
         public void setLac(Integer lac) {
+            if (lac != null && lac == Integer.MAX_VALUE) {
+                return;
+            }
             this.lac = lac;
         }
 
         public void setCid(Integer cid) {
+            if (cid != null && cid == Integer.MAX_VALUE) {
+                return;
+            }
             this.cid = cid;
         }
 
