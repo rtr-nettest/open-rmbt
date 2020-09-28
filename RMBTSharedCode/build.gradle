@@ -23,7 +23,7 @@ dependencies {
     compile group: 'net.spy', name: 'spymemcached', version: '2.12.1'
     compile group: 'joda-time', name: 'joda-time', version: '2.9.7'
     testCompile group: 'junit', name: 'junit', version: '4.11'
-    compile group: 'org.postgresql', name: 'postgresql', version: '9.4-1206-jdbc41'
+    compile group: 'org.postgresql', name: 'postgresql', version: '42.2.16.jre6'
     compile group: 'com.google.guava', name: 'guava', version: '20.0'
     providedCompile group: 'javax.servlet', name: 'javax.servlet-api', version: '3.1.0'
     compile group: 'org.json', name: 'json', version: '20160810'
