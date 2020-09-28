@@ -230,7 +230,13 @@ public class SettingsResource extends ServerResource
                                 
                                 if (errorList.getLength() == 0)
                                     jsonItem.put("history", subItem);
-                                
+
+
+                                //sync uuid_legacy, if any (and different from new client uuid)
+                                if (request.has("uuid_legacy") &&
+                                        !request.optString("uuid_legacy","").equals(request.getString("uuid"))) {
+                                    System.out.println("App upgrade not success: old " + request.getString("uuid_legacy") + "  /  new " + request.get("uuid"));
+                                }
                             }
 
                         String platform = request.optString("platform",null);
