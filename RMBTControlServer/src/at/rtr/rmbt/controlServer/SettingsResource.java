@@ -248,10 +248,12 @@ public class SettingsResource extends ServerResource
                                         int syncCode = -1;
                                         if (rs.next()) {
                                             syncCode = rs.getInt(1);
-                                            System.out.println("App upgrade not success: reusing existing sync: " + syncCode);
                                             if (rs.next()) {
-                                                System.out.printf("\"App upgrade not success: already handled");
+                                                System.out.printf("App upgrade not success: already handled");
                                                 syncCode = -1;
+                                            }
+                                            else {
+                                                System.out.println("App upgrade not success: reusing existing sync: " + syncCode);
                                             }
                                             st.close();
                                         }
