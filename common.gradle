@@ -1,6 +1,12 @@
 //
 // This file is to be applied to every subproject.
 //
-
+ext {
+    restletVersion = '2.3.12'
+    servletVersion = '3.1.0'
+    jacksonVersion = '2.11.3'
+    catalinaVersion = '7.0.56'
+    jsonVersion = '20200518'
+}
 
 
