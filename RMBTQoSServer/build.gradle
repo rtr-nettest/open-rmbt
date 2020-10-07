@@ -5,7 +5,7 @@ buildscript {
 }
 
 apply plugin: 'java'
-sourceCompatibility = '1.7'
+sourceCompatibility = '1.8'
 
 tasks.withType(JavaCompile) {
     options.encoding = "UTF-8"
@@ -23,8 +23,8 @@ dependencies {
     compile project(':RMBTSharedCode')
     compile 'org.jumpmind.symmetric.jdbc:postgresql:9.2-1002-jdbc4'
     compile 'log4j:log4j:1.2.17'
-    compile 'org.json:json:5.0.5'
-    compile 'org.restlet.jse:org.restlet:2.3-M4'
+    compile "org.json:json:$jsonVersion"
+    compile "org.restlet.jse:org.restlet:$restletVersion"
 
     testImplementation group: 'org.jmockit', name: 'jmockit', version: '1.45'
     testImplementation group: 'junit', name: 'junit', version: '4.12'

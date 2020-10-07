@@ -25,7 +25,7 @@ import org.restlet.Request;
 import org.restlet.data.ClientInfo;
 import org.restlet.data.Language;
 import org.restlet.data.Preference;
-import org.restlet.engine.header.Header;
+import org.restlet.data.Header;
 import org.restlet.resource.Get;
 import org.restlet.util.Series;
 
@@ -76,8 +76,8 @@ public class RequestDataCollector extends ServerResource
         answer.put("headers", headersObj);
         
         @SuppressWarnings("unchecked")
-        final Series<Header> headers = (Series<Header>) request.getAttributes().get("org.restlet.http.headers");
-        
+        final Series<Header> headers = request.getHeaders();
+
         if (headers != null)
             for (final Header h : headers)
             {

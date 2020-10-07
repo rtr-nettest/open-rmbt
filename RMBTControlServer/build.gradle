@@ -5,7 +5,7 @@ buildscript {
 }
 
 apply plugin: 'war'
-sourceCompatibility = '1.7'
+sourceCompatibility = '1.8'
 
 tasks.withType(JavaCompile) {
     options.encoding = "UTF-8"
@@ -39,16 +39,16 @@ def webXmlFile = file(project.webAppDirName + "/WEB-INF/web.xml")
 def generatedContextXmlFile = file("${buildDir}/context.xml")
 
 dependencies {
-    providedCompile 'org.apache.tomcat:tomcat-catalina:7.0.56'
-    providedCompile group: 'javax.servlet', name: 'servlet-api', version: '2.3'
+    providedCompile "org.apache.tomcat:tomcat-catalina:$catalinaVersion"
+    providedCompile "javax.servlet:javax.servlet-api:$servletVersion"
     compile('commons-io:commons-io:2.4',
-            'org.json:json:20140107',
-            'org.restlet.jse:org.restlet.ext.json:2.1.7',
-            'org.restlet.jee:org.restlet.ext.servlet:2.1.7',
+            "org.json:json:$jsonVersion",
+            "org.restlet.jse:org.restlet.ext.json:${restletVersion}",
+            "org.restlet.jee:org.restlet.ext.servlet:$restletVersion",
             'is.tagomor.woothee:woothee-java:1.7.0',
             'com.vdurmont:semver4j:2.0.2',
             'commons-dbutils:commons-dbutils:1.6',
-            'com.fasterxml.jackson.core:jackson-databind:2.8.8.1',
+            "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
             group: 'net.bull.javamelody', name: 'javamelody-core', version: '1.85.0'
     )
     testCompile 'net.sf.uadetector:uadetector-resources:2014.10'
