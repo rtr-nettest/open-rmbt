@@ -26,11 +26,13 @@ import java.util.ResourceBundle;
 
 import javax.naming.NamingException;
 
+import com.google.common.collect.Sets;
 import org.joda.time.DateTime;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.restlet.data.Method;
 import org.restlet.data.Reference;
-import org.restlet.engine.header.Header;
+import org.restlet.data.Header;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Options;
 import org.restlet.resource.ResourceException;
@@ -139,17 +141,11 @@ public class ServerResource extends org.restlet.resource.ServerResource
     @SuppressWarnings("unchecked")
     protected void addAllowOrigin()
     {
-        Series<Header> responseHeaders = (Series<Header>) getResponse().getAttributes().get("org.restlet.http.headers");
-        if (responseHeaders == null)
-        {
-            responseHeaders = new Series<>(Header.class);
-            getResponse().getAttributes().put("org.restlet.http.headers", responseHeaders);
-        }
-        responseHeaders.add("Access-Control-Allow-Origin", "*");
-        responseHeaders.add("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
-        responseHeaders.add("Access-Control-Allow-Headers", "Content-Type");
-        responseHeaders.add("Access-Control-Allow-Credentials", "false");
-        responseHeaders.add("Access-Control-Max-Age", "60");
+        getResponse().setAccessControlAllowCredentials(false);
+        getResponse().setAccessControlAllowMethods(Sets.newHashSet(Method.GET, Method.POST, Method.OPTIONS));
+        getResponse().setAccessControlMaxAge(60);
+        getResponse().setAccessControlAllowOrigin("*");
+        getResponse().setAccessControlAllowHeaders(Sets.newHashSet("Content-Type"));
     }
 
     @Options
@@ -161,7 +157,7 @@ public class ServerResource extends org.restlet.resource.ServerResource
     @SuppressWarnings("unchecked")
     public String getIP()
     {
-        final Series<Header> headers = (Series<Header>) getRequest().getAttributes().get("org.restlet.http.headers");
+        final Series<Header> headers = getRequest().getHeaders();
         final String realIp = headers.getFirstValue("X-Real-IP", true);
         if (realIp != null)
             return realIp;
@@ -172,7 +168,7 @@ public class ServerResource extends org.restlet.resource.ServerResource
     @SuppressWarnings("unchecked")
     public Reference getURL()
     {
-        final Series<Header> headers = (Series<Header>) getRequest().getAttributes().get("org.restlet.http.headers");
+        final Series<Header> headers = getRequest().getHeaders();
         final String realURL = headers.getFirstValue("X-Real-URL", true);
         if (realURL != null)
             return new Reference(realURL);

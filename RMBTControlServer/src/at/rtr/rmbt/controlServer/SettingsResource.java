@@ -232,7 +232,8 @@ public class SettingsResource extends ServerResource
                                 //sync uuid_legacy, if any (and different from new client uuid)
                                 //remove at latest 2021-01-01
                                 if (request.has("uuid_legacy") &&
-                                        !request.optString("uuid_legacy","").equals(request.getString("uuid"))) {
+                                        !request.optString("uuid_legacy","").equals(request.getString("uuid")) &&
+                                        !request.optString("uuid_legacy","").isEmpty()) {
                                     System.out.println("App upgrade not success: old " + request.getString("uuid_legacy") + "  /  new " + request.get("uuid"));
 
                                     UUID clientUuid = UUID.fromString(request.getString("uuid"));

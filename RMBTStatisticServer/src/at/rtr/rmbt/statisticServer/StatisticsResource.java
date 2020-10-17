@@ -16,30 +16,20 @@
  ******************************************************************************/
 package at.rtr.rmbt.statisticServer;
 
+import at.rtr.rmbt.db.DbConnection;
+import at.rtr.rmbt.shared.Classification;
+import at.rtr.rmbt.shared.cache.CacheHelper;
+import at.rtr.rmbt.shared.cache.CacheHelper.ObjectWithTimestamp;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.restlet.resource.Get;
 import org.restlet.resource.Post;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.util.Calendar;
-import java.util.Queue;
-import java.util.Set;
-import java.util.TimeZone;
-import java.util.TreeSet;
-import java.util.concurrent.LinkedBlockingQueue;
-
 import javax.naming.NamingException;
-
-import at.rtr.rmbt.db.DbConnection;
-import at.rtr.rmbt.shared.Classification;
-import at.rtr.rmbt.shared.cache.CacheHelper;
-import at.rtr.rmbt.shared.cache.CacheHelper.ObjectWithTimestamp;
+import java.sql.*;
+import java.util.*;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class StatisticsResource extends ServerResource
 {
