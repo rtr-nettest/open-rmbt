@@ -432,7 +432,7 @@ public class ResultResource extends ServerResource
                                                         if (locationId == null && !locationIdChanged && cell.getLocationId() != null) {
                                                             locationId = cell.getLocationId().intValue();
                                                         } else {
-                                                            if (!locationIdChanged && cell.getLocationId() != null &&
+                                                            if (!locationIdChanged && locationId != null &&
                                                                     !locationId.equals(cell.getLocationId())) {
                                                                 locationIdChanged = true;
                                                                 locationId = null;
