@@ -429,7 +429,7 @@ public class ResultResource extends ServerResource
 
                                                     if (Objects.equals(cell.isActive(), true) &&
                                                             cell.getTechnology() != RadioCell.Technology.CONNECTION_WLAN) {
-                                                        if (locationId == null && !locationIdChanged) {
+                                                        if (locationId == null && !locationIdChanged && cell.getLocationId() != null) {
                                                             locationId = cell.getLocationId().intValue();
                                                         } else {
                                                             if (!locationIdChanged &&
