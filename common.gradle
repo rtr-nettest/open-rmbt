@@ -7,6 +7,7 @@ ext {
     jacksonVersion = '2.11.3'
     catalinaVersion = '7.0.106'
     jsonVersion = '20200518'
+    javaMelodyVersion = '1.86.0'
 }
 
 

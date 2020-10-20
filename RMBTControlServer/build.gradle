@@ -49,7 +49,7 @@ dependencies {
             'com.vdurmont:semver4j:2.0.2',
             'commons-dbutils:commons-dbutils:1.6',
             "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
-            group: 'net.bull.javamelody', name: 'javamelody-core', version: '1.85.0'
+            group: 'net.bull.javamelody', name: 'javamelody-core', version: "$javaMelodyVersion"
     )
     testCompile 'net.sf.uadetector:uadetector-resources:2014.10'
     compile project(':RMBTSharedCode')
