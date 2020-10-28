@@ -8,6 +8,7 @@ ext {
     catalinaVersion = '7.0.106'
     jsonVersion = '20200518'
     javaMelodyVersion = '1.86.0'
+    dbUtilsVersion = '1.7'
 }
 
 

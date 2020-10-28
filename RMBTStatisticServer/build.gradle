@@ -68,7 +68,7 @@ dependencies {
     compile 'javax.ws.rs:javax.ws.rs-api:2.0.1'
     compile "com.fasterxml.jackson:jackson-base:$jacksonVersion"
     compile "com.fasterxml.jackson.dataformat:jackson-dataformat-csv:$jacksonVersion"
-    compile group: 'commons-dbutils', name: 'commons-dbutils', version: '1.7'
+    compile group: 'commons-dbutils', name: 'commons-dbutils', version: "$dbUtilsVersion"
     compile "com.github.sett4:jackson-dataformat-xlsx-lite:2.9.10.1"
     compile (group: 'net.bull.javamelody', name: 'javamelody-core', version: "$javaMelodyVersion")
     compile project(':RMBTSharedCode')
