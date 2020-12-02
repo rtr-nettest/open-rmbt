@@ -14,6 +14,10 @@ public class LteBandCalculationUtilTest {
         assertEquals(7, band.getBand());
         assertEquals(2630.0, band.getFrequencyDL(), 0);
 
+        band = BandCalculationUtil.getBandFromUarfcn(3087);
+        assertEquals("900 MHz", band.getInformalName());
+        assertEquals(957.4, band.getFrequencyDL(), 0);
+
         band = BandCalculationUtil.getBandFromNrarfcn(636000);
         assertEquals(78, band.getBand());
         assertEquals(3540.0, band.getFrequencyDL(), 0);
