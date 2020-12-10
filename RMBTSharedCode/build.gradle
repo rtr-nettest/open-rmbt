@@ -33,7 +33,7 @@ dependencies {
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: "$jacksonVersion"
     // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: "$jacksonVersion"
-
+    compile 'com.maxmind.geoip2:geoip2:2.15.0'
     compile 'io.swagger:swagger-annotations:1.5.15'
 }
 
