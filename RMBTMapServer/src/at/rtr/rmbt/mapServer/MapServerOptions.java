@@ -18,13 +18,7 @@ package at.rtr.rmbt.mapServer;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
 
 import at.rtr.rmbt.shared.Classification;
 
@@ -49,17 +43,17 @@ final public class MapServerOptions
     protected static final double[] signal_wifi = new double[]{-96, -86, -76, -61, -51, -30};
     protected static final String[] captions_wifi = new String[]{"", "", "-76", "-61", "-51", ""};
 
-    //speed_download_log = log(speed_download_kbit / 4) / 10
+    //speed_download_log = log10(100*speed_mbps))/4
     //speed_download_mbit = 10*10^(speed_download_log*4)/1000
     //                                                             0.1       0.3       1          3.2        10.0     31.6      100       316        1000
     protected static final int[] colors_rgb_download = new int[]{0x600000, 0xff0000, 0xffff00, 0x00cb00, 0x009600, 0x008000, 0x006100, 0x005A00, 0x005500};
-    protected static final double[] values_download = new double[]{0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1, 1.125, 1.25};
+    protected static final double[] values_download = new double[]{s2l(0.1), s2l(0.31), s2l(1), s2l(3.1), s2l(10), s2l(31), s2l(100), s2l(310), s2l(1000)};
     protected static final String[] captions_download = new String[] { "0.1", "", "1.0", "", "10", "", "100", "", "1000" };
 
 
-    protected static final int[] colors_rgb_upload = new int[] { 0xff0000, 0xffff00, 0x00cb00,  0x009600, 0x008000, 0x006100, 0x005A00, 0x005500, 0x005500 };
-    protected static final double[] values_upload = new double[]{0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1, 1.125, 1.25};
-    protected static final String[] captions_upload = new String[] { "0.1", "", "1.0", "", "10", "", "100", "", "1000" };
+    protected static final int[] colors_rgb_upload = new int[]{0x600000, 0xff0000, 0xffff00, 0x00cb00, 0x009600, 0x008000, 0x006100, 0x005A00, 0x005500};
+    protected static final double[] values_upload = new double[]{s2l(0.05), s2l(0.15), s2l(0.5), s2l(1.5), s2l(5), s2l(15), s2l(50), s2l(150), s2l(500)};
+    protected static final String[] captions_upload = new String[] { "0.05", "", "0.5", "", "5", "", "50", "", "500" };
 
     //ping_log = log(ping_ms/3)
     //ping_ms = 10^(ping_log*3)
@@ -507,7 +501,7 @@ final public class MapServerOptions
             this.valueColumn = valueColumn;
             this.valueColumnLog = valueColumnLog;
             this.sqlFilter = sqlFilter;
-            this.intervals = intervals;
+            //this.intervals = intervals;
             this.captions = captions;
             this.classification = classification;
             this.classificationCaptions = classificationCaptions;
@@ -547,7 +541,7 @@ final public class MapServerOptions
         public final int[] colorsSorted;
         public final double[] intervalsSorted;
         public final String[] colorsHexStrings;
-        public final double[] intervals;
+        //public final double[] intervals;
         public final String[] captions;
         public final int[] classification;
         public final String[] classificationCaptions;
@@ -617,5 +611,14 @@ final public class MapServerOptions
     public static SQLFilter getAccuracyMapFilter()
     {
         return accuracyMapFilter;
+    }
+
+    /**
+     * Speed in mbps to log for db helper function
+     * @param mbps
+     * @return
+     */
+    public static double s2l(double mbps) {
+        return (Math.log10(100*mbps)/4);
     }
 }
