@@ -28,6 +28,7 @@ import java.util.regex.Pattern;
 public class SignalResultResource extends ServerResource {
     public static final String STATUS_SIGNAL = "SIGNAL";
     public static final String STATUS_SIGNAL_STARTED = "SIGNAL_STARTED";
+    public static final String MAX_AGE_INTERVAL = "15 minutes";
 
     @Post("json")
     public String request(final String entity) {
@@ -85,7 +86,7 @@ public class SignalResultResource extends ServerResource {
 
 
                     //get existing open-uuid, if any
-                    final PreparedStatement psOpenUuid = conn.prepareStatement("SELECT uuid, open_test_uuid, last_sequence_number FROM test WHERE uuid = ? AND (status is null or status = ? or status = ?)");
+                    final PreparedStatement psOpenUuid = conn.prepareStatement(String.format("SELECT uuid, open_test_uuid, last_sequence_number, time, (time < now() - interval '%s') finished FROM test WHERE uuid = ? AND (status is null or status = ? or status = ?)",MAX_AGE_INTERVAL));
                     psOpenUuid.setObject(1, testUuid);
                     psOpenUuid.setObject(2, STATUS_SIGNAL);
                     psOpenUuid.setObject(3, STATUS_SIGNAL_STARTED);
@@ -100,6 +101,12 @@ public class SignalResultResource extends ServerResource {
                             errorList.addError("ERROR_INVALID_SEQUENCE");
                         }
                         existingInDb = true;
+
+                        if (rsTokenUuid.getBoolean("finished")) {
+                            //System.out.println("signal timeout reached, issueing new uuid");
+                            UUID newAndRandomUuid = UUID.randomUUID();
+                            answer.put("test_uuid", newAndRandomUuid.toString());
+                        }
                     } else {
                         openTestUuid = UUID.randomUUID();
                     }
@@ -169,7 +176,7 @@ public class SignalResultResource extends ServerResource {
                             System.out.println("saved new uuid " + testUuid + " into database");
                         }
                         else {
-                            System.out.println("did not save to db, as " + sequenceNumber + " / " + existingInDb);
+                            System.out.println("did not write to test table, as entry in test table already exists, sequence number " + sequenceNumber);
                         }
 
                         final Test test = new Test(conn);
@@ -305,7 +312,7 @@ public class SignalResultResource extends ServerResource {
                         boolean areaCodeChanged = false;
                         Integer areaCode = null;
 
-                        if (request.has("radioInfo")) {
+                        if (request.has("radioInfo") && request.getJSONObject("radioInfo").has("cells") && request.getJSONObject("radioInfo").has("signals")) {
                             //new radio info code
                             om = new ObjectMapper();
                             QueryRunner qr = new QueryRunner();
