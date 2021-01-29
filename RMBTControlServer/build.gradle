@@ -45,7 +45,7 @@ dependencies {
             "org.json:json:$jsonVersion",
             "org.restlet.jse:org.restlet.ext.json:${restletVersion}",
             "org.restlet.jee:org.restlet.ext.servlet:$restletVersion",
-            'is.tagomor.woothee:woothee-java:1.7.0',
+            'is.tagomor.woothee:woothee-java:1.11.0',
             'com.vdurmont:semver4j:2.0.2',
             "commons-dbutils:commons-dbutils:$dbUtilsVersion",
             "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
