@@ -156,11 +156,11 @@ public class SignalResultResource extends ServerResource {
                             st = conn
                                     .prepareStatement(
                                             "INSERT INTO test(time, uuid, open_test_uuid, client_id, status)"
-                                                    + "VALUES(?, ?, ?, ?, ?)",
+                                                    + "VALUES(NOW(), ?, ?, ?, ?)",
                                             Statement.RETURN_GENERATED_KEYS);
                             int i = 1;
                             //time
-                            st.setDate(i++,new java.sql.Date(calendar.getTime().getTime()));
+                            //st.setDate(i++,new java.sql.Date(calendar.getTime().getTime()));
                             // uuid
                             st.setObject(i++, testUuid);
                             // open_test_uuid
@@ -462,7 +462,7 @@ public class SignalResultResource extends ServerResource {
                         if (sequenceNumber == 0) {
                             System.out.println("sequence 0, storing test");
                             test.getField("status").setString(STATUS_SIGNAL);
-                            test.storeTestResults(true);
+                            test.storeTestResults(true, true);
 
                             if (test.hasError()) {
                                 errorList.addError(test.getError());

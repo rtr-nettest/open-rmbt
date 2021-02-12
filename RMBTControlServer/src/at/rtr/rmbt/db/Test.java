@@ -248,8 +248,13 @@ public class Test extends Table
     {
         super(PER_THREAD_FIELDS.get(), conn);
     }
-    
+
     public void storeTestResults(boolean update)
+    {
+        this.storeTestResults(update, false);
+    }
+
+    public void storeTestResults(boolean update, boolean longInterval)
     {
         PreparedStatement st = null;
         try
@@ -270,7 +275,7 @@ public class Test extends Table
             // allow updates only when previous status was 'started' and max 5min after test was started
             st = conn.prepareStatement("UPDATE test " + "SET " + sqlBuilder
                     + ", location = ST_TRANSFORM(ST_SetSRID(ST_Point(?, ?), 4326), 900913) WHERE uid = ? " + 
-            		updateString + " AND (now() - time  < interval '5' minute)");
+            		updateString + " AND (now() - time  < interval '" + (longInterval ? "60":"5") +"' minute)");
             
             int idx = 1;
             for (final Field field : fields)
