@@ -52,6 +52,8 @@ import at.rtr.rmbt.statisticServer.ServerResource;
  */
 public class ImageExport extends ServerResource {
 
+    private static Color RTR_GREEN = new Color(47,95,0);
+
     @Get
     public Representation retrieve(final String entity) {
         if (!getRequest().getAttributes().containsKey("lang") || !getRequest().getAttributes().containsKey("size")) {
@@ -232,21 +234,21 @@ public class ImageExport extends ServerResource {
             //de
             if (lang.equals("de")) {
                 //left
-                g.drawString((typ == null)?unknownString:typ, 110, 168);
-                g.drawString((isp == null)?unknownString:isp, 110, 191);
+                g.drawString((typ == null)?unknownString:typ, 115, 168);
+                g.drawString((isp == null)?unknownString:isp, 105, 191);
 
                 //right
-                g.drawString((signal==null)?unknownString:signal + " dBm", 410, 168);
-                g.drawString((os==null)?unknownString:os, 410, 191);
+                g.drawString((signal==null)?unknownString:signal + " dBm", 412, 168);
+                g.drawString((os==null)?unknownString:os, 405, 191);
             } 
             else { //en
                 //left
-                g.drawString((typ == null)?unknownString:typ, 130, 168);
+                g.drawString((typ == null)?unknownString:typ, 130, 170);
                 g.drawString((isp == null)?unknownString:isp, 90, 191);
 
                 //right
-                g.drawString((signal==null)?unknownString:signal + " dBm", 445, 168);
-                g.drawString((os==null)?unknownString:os, 445, 191);
+                g.drawString((signal==null)?unknownString:signal + " dBm", 445, 170);
+                g.drawString((os==null)?unknownString:os, 385   , 191);
             }
             
             return img;
@@ -282,8 +284,8 @@ public class ImageExport extends ServerResource {
             //de
             if (lang.equals("de")) {
                 //left
-                g.drawString((typ == null)?unknownString:typ, 73, 109);
-                g.drawString((isp == null)?unknownString:isp, 73, 124);
+                g.drawString((typ == null)?unknownString:typ, 80, 109);
+                g.drawString((isp == null)?unknownString:isp, 65, 124);
 
                 //right
                 g.drawString((signal==null)?"":signal + " dBm", 270, 109);
@@ -291,15 +293,15 @@ public class ImageExport extends ServerResource {
                 
                 //hide signal caption if signal is null
                 if (signal==null) {
-                	g.setColor(new Color(89,178,0));
-                	g.fillRect(195, 98, 71, 13);
+                	g.setColor(RTR_GREEN);
+                	g.fillRect(195, 98, 71, 15);
                 	
                 }
                 
             } 
             else { //en
                 //left
-                g.drawString((typ == null)?unknownString:typ, 83, 109);
+                g.drawString((typ == null)?unknownString:typ, 86, 109);
                 g.drawString((isp == null)?unknownString:isp, 60, 124);
 
                 //right
@@ -308,8 +310,8 @@ public class ImageExport extends ServerResource {
                 
                 //hide signal caption if signal is null
                 if (signal==null) {
-                	g.setColor(new Color(89,178,0));
-                	g.fillRect(195, 98, 90, 13);
+                	g.setColor(RTR_GREEN);
+                	g.fillRect(195, 98, 90, 17);
                 	
                 }
             }

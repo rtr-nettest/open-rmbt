@@ -90,7 +90,7 @@ public class BandCalculationUtil {
     /**
      *
      * @param uarfcn Frequency to check
-     * @return UMTSBand object for matched band, or NULL if invalid earfcn is passed
+     * @return UMTSBand object for matched band, or NULL if invalid uarfcn is passed
      */
     public static FrequencyInformation<UMTSBand> getBandFromUarfcn(int uarfcn){
         //we can't differentiate between UL and DL with umts?
@@ -106,7 +106,7 @@ public class BandCalculationUtil {
     /**
      *
      * @param arfcn Frequency to check
-     * @return GSMBand object for matched band, or NULL if invalid earfcn is passed
+     * @return GSMBand object for matched band, or NULL if invalid arfcn is passed
      */
     public static FrequencyInformation<GSMBand> getBandFromArfcn(int arfcn){
         //we can't differentiate between UL and DL with umts?
@@ -260,17 +260,17 @@ public class BandCalculationUtil {
      *
      * order by priority (if one uarfcn is contained in multiple bands)
      */
-    private static HashMap<Integer, UMTSBand> umtsBands = new HashMap<Integer, UMTSBand>() {{
+    private static HashMap<Integer, UMTSBand> umtsBands = new LinkedHashMap<Integer, UMTSBand>() {{
         put(1, new UMTSBand(1, 1922.4, 1977.6, 2112.4, 2167.6, 9612, 9888, -950, "2100 MHz"));
         put(2, new UMTSBand(2, 1852.4, 1907.6, 1932.4, 1987.6, 9262, 9538, -400, "1900 MHz PCS"));
         put(3, new UMTSBand(3, 1712.4, 1782.6, 1807.4, 1877.6, 937, 1288, -225, "1800 MHz DCS"));
-        put(4, new UMTSBand(4, 1712.4, 1752.6, 2112.4, 2152.6, 1312, 1513, -225, "AWS-1"));
         put(5, new UMTSBand(5, 826.4, 846.6, 871.4, 891.6, 4132, 4233, -225, "850 MHz"));
         put(6, new UMTSBand(6, 832.4, 837.6, 877.4, 882.6, 4162, 4188, -225, "850 MHz Japan"));
         put(7, new UMTSBand(7, 2502.4, 2567.6, 2622.4, 2687.6, 2012, 2338, -225, "2600 MHz"));
         put(8, new UMTSBand(8, 882.4, 912.6, 927.4, 957.6, 2712, 2863, -225, "900 MHz"));
         put(9, new UMTSBand(9, 1752.4, 1782.4, 1847.4, 1877.4, 8762, 8912, -475, "1800 MHz Japan"));
         put(10, new UMTSBand(10, 1712.4, 1767.6, 2112.4, 2167.6, 2887, 3163, -225, "AWS-1+"));
+        put(4, new UMTSBand(4, 1712.4, 1752.6, 2112.4, 2152.6, 1312, 1513, -225, "AWS-1"));
         put(11, new UMTSBand(11, 1430.4, 1445.4, 1478.4, 1493.4, 3487, 3562, -225, "1500 MHz Lower"));
         put(12, new UMTSBand(12, 701.4, 713.6, 731.4, 743.6, 3617, 3678, -225, "700 MHz US a"));
         put(13, new UMTSBand(13, 779.4, 784.6, 748.4, 753.6, 3792, 3818, -225, "700 MHz US c"));
@@ -451,11 +451,11 @@ public class BandCalculationUtil {
         }
 
         public boolean containsDLChannel(double channel) {
-            return channel > (uplink_channel_lower_bound - channel_offset) && channel < (uplink_channel_upper_bound - channel_offset);
+            return channel > (uplink_channel_lower_bound - channel_offset) && channel <= (uplink_channel_upper_bound - channel_offset);
         }
 
         public boolean containsULChannel(double channel) {
-            return channel > uplink_channel_lower_bound && channel < uplink_channel_upper_bound;
+            return channel > uplink_channel_lower_bound && channel <= uplink_channel_upper_bound;
         }
 
         public boolean containsULFrequency(double frequencyMHz) {

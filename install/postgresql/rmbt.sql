@@ -4136,7 +4136,7 @@ CREATE TABLE public.radio_cell (
     technology character varying(10),
     mnc integer,
     mcc integer,
-    location_id integer,
+    location_id bigint,
     area_code integer,
     primary_scrambling_code integer,
     registered boolean,
@@ -4688,6 +4688,8 @@ CREATE TABLE public.test (
     last_client_status varchar(50),
 	last_qos_status varchar(50),
 	test_error_cause varchar,
+	last_sequence_number integer,
+	submission_retry_count integer;
     CONSTRAINT enforce_dims_location CHECK ((public.st_ndims(location) = 2)),
     CONSTRAINT enforce_geotype_location CHECK (((public.geometrytype(location) = 'POINT'::text) OR (location IS NULL))),
     CONSTRAINT enforce_srid_location CHECK ((public.st_srid(location) = 900913)),

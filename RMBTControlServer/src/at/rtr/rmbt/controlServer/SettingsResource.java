@@ -16,10 +16,7 @@
  ******************************************************************************/
 package at.rtr.rmbt.controlServer;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -230,7 +227,79 @@ public class SettingsResource extends ServerResource
                                 
                                 if (errorList.getLength() == 0)
                                     jsonItem.put("history", subItem);
-                                
+
+
+                                //sync uuid_legacy, if any (and different from new client uuid)
+                                //remove at latest 2021-01-01
+                                if (request.has("uuid_legacy") &&
+                                        !request.optString("uuid_legacy","").equals(request.getString("uuid")) &&
+                                        !request.optString("uuid_legacy","").isEmpty()) {
+                                    System.out.println("App upgrade not success: old " + request.getString("uuid_legacy") + "  /  new " + request.get("uuid"));
+
+                                    UUID clientUuid = UUID.fromString(request.getString("uuid"));
+                                    UUID uuidLegacy = UUID.fromString(request.getString("uuid_legacy"));
+
+                                    //find if old client id already has a sync group
+                                    try {
+                                        String sql = "SELECT sync_group_id FROM client WHERE uuid IN (?,?) AND sync_group_id IS NOT NULL;";
+                                        PreparedStatement st = conn.prepareStatement(sql);
+                                        st.setObject(1, clientUuid);
+                                        st.setObject(2, uuidLegacy);
+                                        ResultSet rs = st.executeQuery();
+                                        int syncCode = -1;
+                                        if (rs.next()) {
+                                            syncCode = rs.getInt(1);
+                                            if (rs.next()) {
+                                                System.out.printf("App upgrade not success: already handled");
+                                                syncCode = -1;
+                                            }
+                                            else {
+                                                System.out.println("App upgrade not success: reusing existing sync: " + syncCode);
+                                            }
+                                            st.close();
+                                        }
+                                        else {
+                                            st.close();
+
+                                            // create new group
+                                            st = conn.prepareStatement("INSERT INTO sync_group(tstamp) " + "VALUES(now())",
+                                                    Statement.RETURN_GENERATED_KEYS);
+
+                                            int affectedRows = st.executeUpdate();
+                                            if (affectedRows == 0)
+                                                errorList.addError("ERROR_DB_STORE_SYNC_GROUP");
+                                            else
+                                            {
+
+                                                rs = st.getGeneratedKeys();
+                                                if (rs.next())
+                                                    // Retrieve the auto generated
+                                                    // key(s).
+                                                    syncCode = rs.getInt(1);
+                                            }
+                                            st.close();
+                                            System.out.println("App upgrade not success: generating new sync: " + syncCode);
+                                        }
+
+                                        if (syncCode > 0)
+                                        {
+                                            st = conn
+                                                    .prepareStatement("UPDATE client SET sync_group_id = ? WHERE uuid = ? OR uuid = ?");
+                                            st.setInt(1, syncCode);
+                                            st.setObject(2, clientUuid);
+                                            st.setObject(3, uuidLegacy);
+
+                                            int affectedRows = st.executeUpdate();
+
+                                            if (affectedRows == 0)
+                                                errorList.addError("ERROR_DB_UPDATE_SYNC_GROUP");
+                                            st.close();
+                                        }
+                                    } catch (SQLException throwables) {
+                                        throwables.printStackTrace();
+                                    }
+
+                                }
                             }
 
                         String platform = request.optString("platform",null);

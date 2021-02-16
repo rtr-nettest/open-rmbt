@@ -18,13 +18,7 @@ package at.rtr.rmbt.mapServer;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
 
 import at.rtr.rmbt.shared.Classification;
 
@@ -33,39 +27,272 @@ import com.google.common.base.Strings;
 final public class MapServerOptions
 {
     
-    // 10^(a×4)×10
-    // log(a÷10)÷4
-    
-    // 10^(a×3)×1000000
-    // log(a÷1000000)÷3
-    
-	public final static int SUPPORTED_CLASSIFICATION_ITEMS = 4;
+    public final static int SUPPORTED_CLASSIFICATION_ITEMS = 4;
+     
+   // color list
+   protected static final int color_start                  = 0x950000;
+   protected static final int color_red_center             = 0xab0000;
+   protected static final int color_red_yellow             = 0xe68a00;
+   protected static final int color_yellow_center          = 0xffcc00;
+   protected static final int color_yellow_green           = 0x4d9900;
+   protected static final int color_green_center           = 0x408000;
+   protected static final int color_green_darkgreen        = 0x336600;
+   protected static final int color_darkgreen_center       = 0x2F5F00;
+   protected static final int color_end                    = 0x264d00;
 
-    protected static final int[] colors_rgb_signal_mobile = new int[] { 0x600000, 0xff0000, 0xffff00, 0x00ff00, 0x008000, 0x005500 };
-    protected static final double[] signal_mobile = new double[]{-130, -101, -93.5, -85, -75, -51};
-    protected static final String[] captions_mobile = new String[]{"-140", "-111", "", "-95", "-85", ""};
+   // color gradient
+   protected static final int[] colors_rgb = new int[]{ 
+     color_start,
+     color_red_center,
+     color_red_yellow,
+     color_yellow_center,
+     color_yellow_green,
+     color_green_center,
+     color_green_darkgreen,
+     color_darkgreen_center,
+     color_end 
+   };
 
-    protected static final int[] colors_rgb_signal_wifi = new int[] { 0x600000, 0xff0000, 0xffff00, 0x00ff00, 0x008000, 0x005500 };
-    protected static final double[] signal_wifi = new double[]{-96, -86, -76, -61, -51, -30};
-    protected static final String[] captions_wifi = new String[]{"", "", "-76", "-61", "-51", ""};
+   // *downlink*
+   // data rate
+   protected static final double dr_dl_start                  =   1;
+   protected static final double dr_dl_red_center             =   2.5;
+   protected static final double dr_dl_red_yellow             =   5;
+   protected static final double dr_dl_yellow_center          =   7;
+   protected static final double dr_dl_yellow_green           =  10;
+   protected static final double dr_dl_green_center           =  31.6;
+   protected static final double dr_dl_green_darkgreen        = 100;
+   protected static final double dr_dl_darkgreen_center       = 316;
+   protected static final double dr_dl_end                    =1000;
 
-    //speed_download_log = log(speed_download_kbit / 4) / 10
-    //speed_download_mbit = 10*10^(speed_download_log*4)/1000
-    //                                                             0.1       0.3       1          3.2        10.0     31.6      100       316        1000
-    protected static final int[] colors_rgb_download = new int[]{0x600000, 0xff0000, 0xffff00, 0x00cb00, 0x009600, 0x008000, 0x006100, 0x005A00, 0x005500};
-    protected static final double[] values_download = new double[]{0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1, 1.125, 1.25};
-    protected static final String[] captions_download = new String[] { "0.1", "", "1.0", "", "10", "", "100", "", "1000" };
+   protected static final double[] values_download =  new double[]{
+     s2l(dr_dl_start), 
+     s2l(dr_dl_red_center),
+     s2l(dr_dl_red_yellow), 
+     s2l(dr_dl_yellow_center),
+     s2l(dr_dl_yellow_green),
+     s2l(dr_dl_green_center),
+     s2l(dr_dl_green_darkgreen), 
+     s2l(dr_dl_darkgreen_center), 
+     s2l(dr_dl_end)
+   };
+
+   // captions
+   protected static final String cap_dl_start                  = "1";
+   protected static final String cap_dl_red_center             = "";
+   protected static final String cap_dl_red_yellow             = "5";
+   protected static final String cap_dl_yellow_center          = "";
+   protected static final String cap_dl_yellow_green           = "10";
+   protected static final String cap_dl_green_center           = "";
+   protected static final String cap_dl_green_darkgreen        = "100";
+   protected static final String cap_dl_darkgreen_center       = "";
+   protected static final String cap_dl_end                    = "1000";
+
+   protected static final String[] captions_download = new String[] {
+     cap_dl_start,
+     cap_dl_red_center,
+     cap_dl_red_yellow,
+     cap_dl_yellow_center,
+     cap_dl_yellow_green,
+     cap_dl_green_center,
+     cap_dl_green_darkgreen,
+     cap_dl_darkgreen_center,
+     cap_dl_end     
+   };
+   
+   // *uplink*
+   // data rate
+   protected static final double dr_ul_start                  =   1;
+   protected static final double dr_ul_red_center             =   1.25;
+   protected static final double dr_ul_red_yellow             =   2.5;
+   protected static final double dr_ul_yellow_center          =   3.5;
+   protected static final double dr_ul_yellow_green           =   5;
+   protected static final double dr_ul_green_center           =  15.8;
+   protected static final double dr_ul_green_darkgreen        =  50;
+   protected static final double dr_ul_darkgreen_center       = 158;
+   protected static final double dr_ul_end                    =1000;
+
+   protected static final double[] values_upload =  new double[]{
+     s2l(dr_ul_start), 
+     s2l(dr_ul_red_center),
+     s2l(dr_ul_red_yellow), 
+     s2l(dr_ul_yellow_center),
+     s2l(dr_ul_yellow_green),
+     s2l(dr_ul_green_center),
+     s2l(dr_ul_green_darkgreen), 
+     s2l(dr_ul_darkgreen_center), 
+     s2l(dr_ul_end)
+   };
+ 
+   // captions
+   protected static final String cap_ul_start                  = "1";
+   protected static final String cap_ul_red_center             = "";
+   protected static final String cap_ul_red_yellow             = "2.5";
+   protected static final String cap_ul_yellow_center          = "";
+   protected static final String cap_ul_yellow_green           = "5";
+   protected static final String cap_ul_green_center           = "";
+   protected static final String cap_ul_green_darkgreen        = "50";
+   protected static final String cap_ul_darkgreen_center       = "";
+   protected static final String cap_ul_end                    = "1000";
+
+   protected static final String[] captions_upload = new String[] {
+     cap_ul_start,
+     cap_ul_red_center,
+     cap_ul_red_yellow,
+     cap_ul_yellow_center,
+     cap_ul_yellow_green,
+     cap_ul_green_center,
+     cap_ul_green_darkgreen,
+     cap_ul_darkgreen_center,
+     cap_ul_end 
+   };
+
+   // *ping*
+   // ping value (ms)
+   
+   protected static final double ms_ping_start                  = 100;
+   protected static final double ms_ping_red_center             =  86;
+   protected static final double ms_ping_red_yellow             =  75;
+   protected static final double ms_ping_yellow_center          =  35;
+   protected static final double ms_ping_yellow_green           =  25;
+   protected static final double ms_ping_green_center           =  15;
+   protected static final double ms_ping_green_darkgreen        =  10;
+   protected static final double ms_ping_darkgreen_center       =   3;
+   protected static final double ms_ping_end                    =   0.5;
+
+   protected static final double[] values_ping =  new double[]{
+     ms2l(ms_ping_start), 
+     ms2l(ms_ping_red_center),
+     ms2l(ms_ping_red_yellow), 
+     ms2l(ms_ping_yellow_center),
+     ms2l(ms_ping_yellow_green),
+     ms2l(ms_ping_green_center),
+     ms2l(ms_ping_green_darkgreen), 
+     ms2l(ms_ping_darkgreen_center), 
+     ms2l(ms_ping_end)
+   };
+ 
+   // captions
+   protected static final String cap_ping_start                  = "100";
+   protected static final String cap_ping_red_center             = "";
+   protected static final String cap_ping_red_yellow             = "75";
+   protected static final String cap_ping_yellow_center          = "";
+   protected static final String cap_ping_yellow_green           = "25";
+   protected static final String cap_ping_green_center           = "";
+   protected static final String cap_ping_green_darkgreen        = "10";
+   protected static final String cap_ping_darkgreen_center       = "";
+   protected static final String cap_ping_end                    = "0.5";
+
+   protected static final String[] captions_ping = new String[] {
+     cap_ping_start,
+     cap_ping_red_center,
+     cap_ping_red_yellow,
+     cap_ping_yellow_center,
+     cap_ping_yellow_green,
+     cap_ping_green_center,
+     cap_ping_green_darkgreen,
+     cap_ping_darkgreen_center,
+     cap_ping_end 
+   };
+   
+
+   // *wifi signal*
+   // dbm
+   protected static final double signal_wifi_start                  = -90;
+   protected static final double signal_wifi_red_center             = -80;
+   protected static final double signal_wifi_red_yellow             = -75;
+   protected static final double signal_wifi_yellow_center          = -70;
+   protected static final double signal_wifi_yellow_green           = -65;
+   protected static final double signal_wifi_green_center           = -60;
+   protected static final double signal_wifi_green_darkgreen        = -55;
+   protected static final double signal_wifi_darkgreen_center       = -50;
+   protected static final double signal_wifi_end                    = -40;
+
+   protected static final double[] signal_wifi =  new double[]{
+     signal_wifi_start, 
+     signal_wifi_red_center,
+     signal_wifi_red_yellow, 
+     signal_wifi_yellow_center,
+     signal_wifi_yellow_green,
+     signal_wifi_green_center,
+     signal_wifi_green_darkgreen, 
+     signal_wifi_darkgreen_center, 
+     signal_wifi_end
+   };
+
+   // captions
+   protected static final String cap_wifi_start                  = "-99";
+   protected static final String cap_wifi_red_center             = "";
+   protected static final String cap_wifi_red_yellow             = "-75";
+   protected static final String cap_wifi_yellow_center          = "";
+   protected static final String cap_wifi_yellow_green           = "-65";
+   protected static final String cap_wifi_green_center           = "";
+   protected static final String cap_wifi_green_darkgreen        = "-55";
+   protected static final String cap_wifi_darkgreen_center       = "";
+   protected static final String cap_wifi_end                    = "-40";
+
+   protected static final String[] captions_wifi = new String[] {
+     cap_wifi_start,
+     cap_wifi_red_center,
+     cap_wifi_red_yellow,
+     cap_wifi_yellow_center,
+     cap_wifi_yellow_green,
+     cap_wifi_green_center,
+     cap_wifi_green_darkgreen,
+     cap_wifi_darkgreen_center,
+     cap_wifi_end 
+   };
+   
+
+   // *mobile signal*
+   // dbm
+
+   protected static final double signal_mobile_start                  = -120;
+   protected static final double signal_mobile_red_center             = -110;
+   protected static final double signal_mobile_red_yellow             = -105;
+   protected static final double signal_mobile_yellow_center          = -100;
+   protected static final double signal_mobile_yellow_green           = -95;
+   protected static final double signal_mobile_green_center           = -90;
+   protected static final double signal_mobile_green_darkgreen        = -85;
+   protected static final double signal_mobile_darkgreen_center       = -80;
+   protected static final double signal_mobile_end                    = -70;
+
+   protected static final double[] signal_mobile =  new double[]{
+     signal_mobile_start, 
+     signal_mobile_red_center,
+     signal_mobile_red_yellow, 
+     signal_mobile_yellow_center,
+     signal_mobile_yellow_green,
+     signal_mobile_green_center,
+     signal_mobile_green_darkgreen, 
+     signal_mobile_darkgreen_center, 
+     signal_mobile_end
+   };
+
+   // captions
+   protected static final String cap_mobile_start                  = "-120";
+   protected static final String cap_mobile_red_center             = "";
+   protected static final String cap_mobile_red_yellow             = "-105";
+   protected static final String cap_mobile_yellow_center          = "";
+   protected static final String cap_mobile_yellow_green           = "-95";
+   protected static final String cap_mobile_green_center           = "";
+   protected static final String cap_mobile_green_darkgreen        = "-85";
+   protected static final String cap_mobile_darkgreen_center       = "";
+   protected static final String cap_mobile_end                    = "-70";
+
+   protected static final String[] captions_mobile = new String[] {
+     cap_mobile_start,
+     cap_mobile_red_center,
+     cap_mobile_red_yellow,
+     cap_mobile_yellow_center,
+     cap_mobile_yellow_green,
+     cap_mobile_green_center,
+     cap_mobile_green_darkgreen,
+     cap_mobile_darkgreen_center,
+     cap_mobile_end 
+   };
 
 
-    protected static final int[] colors_rgb_upload = new int[] { 0xff0000, 0xffff00, 0x00cb00,  0x009600, 0x008000, 0x006100, 0x005A00, 0x005500, 0x005500 };
-    protected static final double[] values_upload = new double[]{0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1, 1.125, 1.25};
-    protected static final String[] captions_upload = new String[] { "0.1", "", "1.0", "", "10", "", "100", "", "1000" };
-
-    //ping_log = log(ping_ms/3)
-    //ping_ms = 10^(ping_log*3)
-    protected static final int[] colors_rgb_ping = new int[] { 0x600000, 0xff0000, 0xffff00, 0x00ff00, 0x00cb00, 0x009600, 0x006100 };
-    protected static final double[] values_ping = new double[] { 0.8996566681, 0.7329900014, 0.5663233348, 0.3996566681, 0.2329900014, 0.0663233348, -0.1003433319 };
-    protected static final String[] captions_ping = new String[] { "500", "", "50", "", "5", "", "0.5" };
     
     protected static final Map<String, MapOption> mapOptionMap = new LinkedHashMap<String, MapOption>()
     {
@@ -85,7 +312,7 @@ final public class MapServerOptions
 //                        new String[] { "1", "4.5", "20" },
                         
                         // ampel 2
-                        colors_rgb_download,
+                        colors_rgb,
                         values_download,
                         captions_download,
                         
@@ -128,7 +355,7 @@ final public class MapServerOptions
                     new MapOption("speed_upload",
                         "speed_upload_log",
                         "speed_upload is not null AND network_type not in (0, 97, 98, 99)",
-                        colors_rgb_upload,
+                        colors_rgb,
                         values_upload,
                         captions_upload,
                         Classification.THRESHOLD_UPLOAD,
@@ -141,7 +368,7 @@ final public class MapServerOptions
                     new MapOption("ping_median",
                         "ping_median_log",
                         "ping_median is not null AND network_type not in (0, 97, 98, 99)",
-                        colors_rgb_ping,
+                        colors_rgb,
                         values_ping,
                         captions_ping,
                         Classification.THRESHOLD_PING,
@@ -152,7 +379,7 @@ final public class MapServerOptions
             put("mobile/signal",
                     new MapOption("merged_signal",
                     "merged_signal is not null AND network_type not in (0, 97, 98, 99)",
-                    colors_rgb_signal_mobile,
+                    colors_rgb,
                     signal_mobile,
                     captions_mobile,
                     Classification.THRESHOLD_SIGNAL_MOBILE,
@@ -163,7 +390,7 @@ final public class MapServerOptions
             put("wifi/download", new MapOption("speed_download",
                     "speed_download_log",
                     "speed_download is not null AND network_type = 99",
-                    colors_rgb_download,
+                    colors_rgb,
                     values_download,
                     captions_download,
                     Classification.THRESHOLD_DOWNLOAD,
@@ -175,7 +402,7 @@ final public class MapServerOptions
                     new MapOption("speed_upload",
                     "speed_upload_log",
                     "speed_upload is not null AND network_type = 99",
-                    colors_rgb_upload,
+                    colors_rgb,
                     values_upload,
                     captions_upload,
                     Classification.THRESHOLD_UPLOAD,
@@ -187,7 +414,7 @@ final public class MapServerOptions
                     new MapOption("ping_median",
                     "ping_median_log",
                     "ping_median is not null AND network_type = 99",
-                    colors_rgb_ping,
+                    colors_rgb,
                     values_ping,
                     captions_ping,
                     Classification.THRESHOLD_PING,
@@ -197,7 +424,7 @@ final public class MapServerOptions
             
             put("wifi/signal", new MapOption("signal_strength",
                     "signal_strength is not null AND network_type = 99",
-                    colors_rgb_signal_wifi,
+                    colors_rgb,
                     signal_wifi,
                     captions_wifi,
                     Classification.THRESHOLD_SIGNAL_WIFI,
@@ -209,7 +436,7 @@ final public class MapServerOptions
                     new MapOption("speed_download", 
                     "speed_download_log",
                     "speed_download is not null AND network_type = 98",
-                    colors_rgb_download,
+                    colors_rgb,
                     values_download,
                     captions_download,
                     Classification.THRESHOLD_DOWNLOAD,
@@ -221,7 +448,7 @@ final public class MapServerOptions
                     new MapOption("speed_upload",
                     "speed_upload_log",
                     "speed_upload is not null AND network_type = 98",
-                    colors_rgb_upload,
+                    colors_rgb,
                     values_upload,
                     captions_upload,
                     Classification.THRESHOLD_UPLOAD,
@@ -233,7 +460,7 @@ final public class MapServerOptions
                     new MapOption("ping_median",
                     "ping_median_log",
                     "ping_median is not null AND network_type = 98",
-                    colors_rgb_ping,
+                    colors_rgb,
                     values_ping,
                     captions_ping,
                     Classification.THRESHOLD_PING,
@@ -245,7 +472,7 @@ final public class MapServerOptions
                     new MapOption("speed_download", 
                     "speed_download_log",
                     "speed_download is not null",
-                    colors_rgb_download,
+                    colors_rgb,
                     values_download,
                     captions_download,
                     Classification.THRESHOLD_DOWNLOAD,
@@ -257,7 +484,7 @@ final public class MapServerOptions
                     new MapOption("speed_upload",
                     "speed_upload_log",
                     "speed_upload is not null",
-                    colors_rgb_upload,
+                    colors_rgb,
                     values_upload,
                     captions_upload,
                     Classification.THRESHOLD_UPLOAD,
@@ -269,7 +496,7 @@ final public class MapServerOptions
                     new MapOption("ping_median",
                     "ping_median_log",
                     "ping_median is not null",
-                    colors_rgb_ping,
+                    colors_rgb,
                     values_ping,
                     captions_ping,
                     Classification.THRESHOLD_PING,
@@ -347,16 +574,16 @@ final public class MapServerOptions
             				return new SQLFilter("network_type in (1,2,4,5,6,7,11,12,14)");
             			else if (technology == 3) // 3G
             				return new SQLFilter("network_type in (8,9,10,15)");
-            			else if (technology == 4) // 4G + 4G CA
-            				return new SQLFilter("network_type in (13,19)");
-                        else if (technology == 5) // 5G
-                            return new SQLFilter("network_type = 20");
+            			else if (technology == 4) // 4G + 4G CA + 4G with NR available
+            				return new SQLFilter("network_type in (13,19,40)");
+                        else if (technology == 5) // 5G SA + 5G NSA
+                            return new SQLFilter("network_type in (20,41,42)");
             			else if (technology == 34) // 3G or 4G
             				return new SQLFilter("network_type in (8,9,10,13,15,19)");
                         else if (technology == 45) // 4G/5G
-                            return new SQLFilter("network_type in (13,19,20)");
+                            return new SQLFilter("network_type in (13,19,20,40,41,42)");
                         else if (technology == 345) // 3G/4G/5G
-                            return new SQLFilter("network_type in (8,9,10,15,13,19,20)");
+                            return new SQLFilter("network_type in (8,9,10,15,13,19,20,40,41,42)");
             			else
             				return null;
  
@@ -507,7 +734,7 @@ final public class MapServerOptions
             this.valueColumn = valueColumn;
             this.valueColumnLog = valueColumnLog;
             this.sqlFilter = sqlFilter;
-            this.intervals = intervals;
+            //this.intervals = intervals;
             this.captions = captions;
             this.classification = classification;
             this.classificationCaptions = classificationCaptions;
@@ -547,7 +774,7 @@ final public class MapServerOptions
         public final int[] colorsSorted;
         public final double[] intervalsSorted;
         public final String[] colorsHexStrings;
-        public final double[] intervals;
+        //public final double[] intervals;
         public final String[] captions;
         public final int[] classification;
         public final String[] classificationCaptions;
@@ -617,5 +844,25 @@ final public class MapServerOptions
     public static SQLFilter getAccuracyMapFilter()
     {
         return accuracyMapFilter;
+    }
+
+    /**
+     * Speed in mbps to log for db helper function
+     * @param mbps
+     * @return
+     */
+    public static double s2l(double mbps) {
+        return (Math.log10(100*mbps)/4);
+    }
+
+    /**
+     * Ping in ms to log for db helper function
+     * @param ms
+     * @return
+     */
+    public static double ms2l(double ms) {
+        // ping_log = log(ping_ms/3)
+        // ping_ms = 10^(ping_log*3)
+        return (Math.log10(ms)/3);
     }
 }

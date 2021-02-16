@@ -119,7 +119,7 @@ Installation
   * nginx (optional, highly recommended)
   * openjdk-8-jre (do not use a higher version)
   * libservlet3.1-java
-  * geoip-database
+  * [Maxmind GeoLite2 database](https://dev.maxmind.com/geoip/geoip2/geolite2/)
   * _Optional:_ For StatisticServer pdf export functionality
     * [Prince](https://www.princexml.com/) or 
     * [Weasyprint](https://weasyprint.org/). For weasyprint, install:

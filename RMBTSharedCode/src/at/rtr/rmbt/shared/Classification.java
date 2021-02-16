@@ -18,15 +18,15 @@ package at.rtr.rmbt.shared;
 
 public final class Classification
 {
-    public static final int[] THRESHOLD_UPLOAD = { 10000, 1000, 500 }; // 10Mbit/s, 1Mbit/s, 500kbit/s
+    public static final int[] THRESHOLD_UPLOAD = { 50000, 5000, 2500 }; // 10Mbit/s, 1Mbit/s, 500kbit/s
     public static final String[] THRESHOLD_UPLOAD_CAPTIONS = { "1", "0.5" };
-    
-    public static final int[] THRESHOLD_DOWNLOAD = { 30000, 2000, 1000 }; // 30Mbit/s, 2Mbit/s, 1Mbit/s
+
+    public static final int[] THRESHOLD_DOWNLOAD = { 100000, 10000, 5000 }; // 30Mbit/s, 2Mbit/s, 1Mbit/s
     public static final String[] THRESHOLD_DOWNLOAD_CAPTIONS = { "2", "1" };
-    
+
     public static final int[] THRESHOLD_PING = { 10000000, 25000000, 75000000 }; // 10ms, 25ms, 75ms
     public static final String[] THRESHOLD_PING_CAPTIONS = { "25", "75" };
-    
+
     // RSSI limits used for 2G,3G (and 4G when RSSI is used)
     // only odd values are reported by 2G/3G 
     public static final int[] THRESHOLD_SIGNAL_MOBILE = { -75, -85, -101 }; // -75 is still ultra-green, -85 is still green, -101 is still yellow

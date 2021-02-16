@@ -23,85 +23,49 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 
 import com.google.common.net.InetAddresses;
-import com.maxmind.geoip.Country;
-import com.maxmind.geoip.LookupService;
+import com.maxmind.geoip2.DatabaseReader;
+import com.maxmind.geoip2.model.CountryResponse;
 
 public abstract class GeoIPHelper
 {
-    private static volatile LookupService lookupServiceV4;
-    private static volatile boolean lookupServiceV4Failure;
-    private static volatile LookupService lookupServiceV6;
-    private static volatile boolean lookupServiceV6Failure;
+    private static volatile boolean lookupServiceFailure;
+    private static volatile DatabaseReader lookupService;
     private final static Object LOOKUP_SERVICE_LOCK = new Object(); 
     
-    private static LookupService getLookupServiceV4()
+    private static DatabaseReader getLookupService()
     {
+        if (lookupService != null) {
+            return lookupService;
+        }
         synchronized (LOOKUP_SERVICE_LOCK)
         {
-            if (lookupServiceV4Failure)
+            if (lookupServiceFailure) {
                 return null;
-            if (lookupServiceV4 != null)
-                return lookupServiceV4;
+            }
+            // A File object pointing to your GeoIP2 or GeoLite2 database
+            File database = new File("/usr/share/GeoIP/GeoLite2-Country.mmdb");
             try
             {
-                return lookupServiceV4 = getLookupService("/usr/share/GeoIP/GeoIP.dat");
+                lookupService = new DatabaseReader.Builder(database).build();
+                return lookupService;
             }
             catch (Exception e)
             {
-                lookupServiceV4Failure = true;
+                lookupServiceFailure = true;
+                System.out.println("Maxmind GeoIP database could not be loaded");
                 return null;
             }
         }
     }
-    
-    private static LookupService getLookupServiceV6()
-    {
-        synchronized (LOOKUP_SERVICE_LOCK)
-        {
-            if (lookupServiceV6Failure)
-                return null;
-            if (lookupServiceV6 != null)
-                return lookupServiceV6;
-            try
-            {
-                return lookupServiceV6 = getLookupService("/usr/share/GeoIP/GeoIPv6.dat");
-            }
-            catch (Exception e)
-            {
-                lookupServiceV6Failure = true;
-                return null;
-            }
-        }
-    }
-    
-    private static LookupService getLookupService(String path) throws IOException
-    {
-        final File file = new File(path);
-        if (! (file.exists() && file.isFile() && file.canRead()))
-            throw new FileNotFoundException();
-        return new LookupService(file);
-    }
+
     
     public static String lookupCountry(final InetAddress adr)
     {
         try
         {
-            final Country country;
-            if (adr instanceof Inet6Address)
-            {
-                final LookupService ls = getLookupServiceV6();
-                if (ls == null)
-                    return null;
-                country = ls.getCountryV6(adr);
-            }
-            else
-            {
-                final LookupService ls = getLookupServiceV4();
-                if (ls == null)
-                    return null;
-                country = ls.getCountry(adr);
-            }
-            return country.getCode();
+            CountryResponse country = getLookupService().country(adr);
+            String countryCode = country.getCountry().getIsoCode();
+            return countryCode;
         }
         catch (Throwable t)
         {

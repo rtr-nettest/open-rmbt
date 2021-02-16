@@ -48,8 +48,8 @@ public abstract class TileRestlet<Params extends TileParameters> extends Restlet
     protected static final byte[][] EMPTY_IMAGES = new byte[TILE_SIZES.length][];
     protected static final byte[] EMPTY_MARKER = "EMPTY".getBytes();
     
-    private static final int CACHE_STALE = 3600;
-    private static final int CACHE_EXPIRE = 7200;
+    private static final int CACHE_STALE = 60*60;
+    private static final int CACHE_EXPIRE = 24*60*60;
     private final CacheHelper cache = CacheHelper.getInstance();
     
     static
@@ -195,6 +195,9 @@ public abstract class TileRestlet<Params extends TileParameters> extends Restlet
                     cache.getExecutor().execute(refreshCacheRunnable);
                 }
                 return data;
+            }
+            else {
+                System.out.println("no cache hit for: " + cacheKey);
             }
         }
         else
