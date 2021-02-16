@@ -18,10 +18,10 @@ package at.rtr.rmbt.shared;
 
 public final class Classification
 {
-    public static final int[] THRESHOLD_UPLOAD = { 50000, 5000, 2500 }; // 10Mbit/s, 1Mbit/s, 500kbit/s
+    public static final int[] THRESHOLD_UPLOAD = { 50000, 5000, 2500 };          // 100Mbit/s, 10Mbit/s, 5Mbit/s
     public static final String[] THRESHOLD_UPLOAD_CAPTIONS = { "1", "0.5" };
 
-    public static final int[] THRESHOLD_DOWNLOAD = { 100000, 10000, 5000 }; // 30Mbit/s, 2Mbit/s, 1Mbit/s
+    public static final int[] THRESHOLD_DOWNLOAD = { 100000, 10000, 5000 };      // 50Mbit/s, 5Mbit/s, 2.5Mbit/s
     public static final String[] THRESHOLD_DOWNLOAD_CAPTIONS = { "2", "1" };
 
     public static final int[] THRESHOLD_PING = { 10000000, 25000000, 75000000 }; // 10ms, 25ms, 75ms
