@@ -19,23 +19,40 @@ export LANG=C
 
 # inport open data from bev
 
-# open data site:
-# https://www.data.gv.at/katalog/dataset/verwaltungsgrenzen-vgd-stichtagsdaten-grundstucksgenau/resource/acb1b6b7-504d-4bd3-856a-89afb9657381
-# current release
-URL=http://www.bev.gv.at/pls/portal/docs/PAGE/BEV_PORTAL_CONTENT_ALLGEMEIN/0200_PRODUKTE/UNENTGELTLICHE_PRODUKTE_DES_BEV/VGD-Oesterreich_gst.zip
+# open data site (all annual releases)
+# https://www.data.gv.at/katalog/dataset/verwaltungsgrenzen-vgd-stichtagsdaten-grundstucksgenau
+# latest release
+# VGD-Oesterreich_gst_01202020.zip
+URL=https://nextcloud.bev.gv.at/nextcloud/index.php/s/5zXAdcpT5w7SM7R/download
 
-rm Aktualitaetsstand.txt Oesterreich*
-wget $URL
-unzip *.zip
+DB=bev_vgd
+
+
+mkdir ~/open
+cd ~/open
+
+rm $DB.zip
+rm $SHP.*
+
+
+wget $URL -O $DB.zip
+# -o overwrite without prompting
+unzip -o *.zip
 rm *.zip
-test -r bev_vgd.sql && rm bev_vgd.sql
-shp2pgsql -W LATIN1 -s 31287 *.shp > bev_vgd.sql
 
-# rename database
-sed -i "s/oesterreich_bev_vgd_lam/bev_vgd/g" bev_vgd.sql
+# File name might change (contains date)
+# e.g Oesterreich_BEV_VGD_LAM_040121
+SHP=`basename Oesterreich_BEV_VGD*.shp .shp`
 
-# import data
-psql rmbt < bev_vgd.sql
+
+# import as table statistik_austria_gem (takes some time)
+# -I create geo index
+# -s data is in "MGI / Austria Lambert" => code 31287
+# -d drop table if it exists
+# -W encoding LATIN1
+shp2pgsql -W LATIN1 -I -s 31287 -d $SHP.shp $DB | psql rmbt > /dev/null
+
+
 sql=$(cat <<EOF
 BEGIN;
 ALTER TABLE bev_vgd ADD COLUMN kg_nr_int INTEGER CONSTRAINT bev_vgd_kg_nr_int UNIQUE;
@@ -45,12 +62,15 @@ CREATE INDEX IF NOT EXISTS bev_vgd_gkz_idx ON bev_vgd USING btree (gkz);
 CREATE INDEX IF NOT EXISTS bev_vgd_kg_nr_idx ON bev_vgd USING btree (kg_nr);
 ALTER TABLE bev_vgd OWNER TO rmbt;
 GRANT SELECT ON TABLE bev_vgd TO rmbt_group_read_only;
+ALTER TABLE bev_vgd ADD COLUMN bbox geometry;
+UPDATE bev_vgd SET bbox=ST_EXPAND(geom,0.01);
+CREATE INDEX IF NOT EXISTS bev_vgd_bbox_gix ON bev_vgd USING gist (bbox);
 ANALYZE bev_vgd;
-VACUUM bev_vgd;
 COMMIT;
+VACUUM bev_vgd;
 
 EOF
 )
 echo -e $sql|psql rmbt
 
-ls -l bev_vgd.sql
+echo done
