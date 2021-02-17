@@ -23,32 +23,49 @@ export LANG=C
 # Open data site:
 # http://data.statistik.gv.at/web/meta.jsp?dataset=OGDEXT_GEM_1
 # current release
-URL=http://data.statistik.gv.at/data/OGDEXT_GEM_1_STATISTIK_AUSTRIA_20190101.zip
+URL=https://data.statistik.gv.at/data/OGDEXT_GEM_1_STATISTIK_AUSTRIA_20200101.zip
+# 2019: http://data.statistik.gv.at/data/OGDEXT_GEM_1_STATISTIK_AUSTRIA_20190101.zip
 # 2018: http://data.statistik.gv.at/data/OGDEXT_GEM_1_STATISTIK_AUSTRIA_20180101.zip
-
+SHP=STATISTIK_AUSTRIA_GEM_20200101Polygon
 DB=statistik_austria_gem
 
-rm STATISTIK_AUSTRIA_GEM*
+
+mkdir ~/open
+cd ~/open
+
+
+rm $SHP.*
 wget $URL
 unzip *.zip
 rm *.zip
-test -r ogd && rm ogd
-# projection: EPSG:31287
-shp2pgsql -s 31287 *.shp > statistik_austria_gem.sql
-sed -i "s/statistik_austria_gem_20190101polygon/statistik_austria_gem/g" statistik_austria_gem.sql
-rm STATISTIK_AUSTRIA_GEM*
-# import data
-psql rmbt < statistik_austria_gem.sql
+
+
+# import as table statistik_austria_gem (takes some time)
+# -I create geo index
+# -s data is in "MGI / Austria Lambert" => code 31287
+# -d drop table if it exists
+shp2pgsql -I -s 31287 -d $SHP.shp statistik_austria_gem | psql rmbt > /dev/null
+
+# typical record
+# INSERT INTO "statistik_austria_gem" ("id","name",geom) VALUES ('10706','Gattendorf','010600..')
+
+# bbox?
+
+# owner
 sql=$(cat <<EOF
 BEGIN;
-ALTER TABLE statistik_austria_gem OWNER TO rmbt;
-CREATE INDEX IF NOT EXISTS statistik_austria_gem_gix ON statistik_austria_gem USING gist (geom);
-GRANT SELECT ON TABLE statistik_austria_gem TO rmbt_group_read_only;
 ANALYZE statistik_austria_gem;
-VACUUM statistik_austria_gem;
+ALTER TABLE statistik_austria_gem OWNER TO rmbt;
+GRANT SELECT ON TABLE statistik_austria_gem TO rmbt_group_read_only;
+ALTER TABLE statistik_austria_gem ADD COLUMN bbox geometry;
+UPDATE statistik_austria_gem SET bbox=ST_EXPAND(geom,0.01);
+CREATE INDEX IF NOT EXISTS statistik_austria_gem_bbox_gix ON statistik_austria_gem USING gist (bbox);
+ANALYZE statistik_austria_gem;
 COMMIT;
+VACUUM statistik_austria_gem;
 EOF
 )
 echo -e $sql|psql rmbt
 
-ls -l  statistik_austria_gem.sql
+
+echo done
