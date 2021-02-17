@@ -65,7 +65,6 @@ URL_TMA_NUL=https://www.magenta.at/content/dam/magenta_at/csv/versorgungsdaten/R
 URL_TMA_MUL=https://www.magenta.at/content/dam/magenta_at/csv/versorgungsdaten/Rohdaten_SPEEDMAP_UL_MAX.csv
 
 # https://www.drei.at/de/info/netzabdeckung/versorgungsdaten-35-ghz.html
-# H3A Format: OPERATOR;REFERENCE;LICENSE;RFC_DATE;RASTER;DL_NORMAL;DL_MAX;UL_NORMAL;UL_MAX
 URL_H3A=https://www.drei.at/media/common/info/netzabdeckung/h3a-versorgung-rohdaten.csv
 URL_LIWEST=https://www.liwest.at/fileadmin/user_upload/5g/rtr_f716.CSV
 
@@ -79,7 +78,7 @@ URL_SBGAG=https://www.salzburg-ag.at/content/dam/web18/dokumente/cablelink/inter
 mkdir ~/open
 cd ~/open
 
-# rm *.csv
+rm *.csv
 
 
 # download files
@@ -149,7 +148,7 @@ SELECT raster,
   'TMA','F7/16','CCBY4.0','2021-01-01'  
 FROM tmp_tma GROUP BY raster;
 
-COPY cov_mno(operator,reference,license,rfc_date,raster,dl_normal,dl_max,ul_normal,ul_max)
+COPY cov_mno(operator,reference,license,rfc_date,raster,dl_normal,ul_normal,dl_max,ul_max)
 FROM '/var/lib/postgresql/open/H3A.csv'
 DELIMITER ';'
 CSV HEADER; 
