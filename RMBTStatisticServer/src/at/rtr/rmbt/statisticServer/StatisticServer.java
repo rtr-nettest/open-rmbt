@@ -87,6 +87,8 @@ public class StatisticServer extends Application
         router.attach("/opentests", at.rtr.rmbt.statisticServer.opendata.OpenTestSearchResource.class);
         
         router.attach("/opentests/O{open_test_uuid}", OpenTestResource.class);
+
+        router.attach("/coverage", CoverageResource.class);
         
         router.attach("/admin/usage", UsageResource.class);
         router.attach("/admin/usageJSON", UsageJSONResource.class);
