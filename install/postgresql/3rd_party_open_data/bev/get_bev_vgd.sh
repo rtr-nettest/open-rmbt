@@ -49,8 +49,7 @@ SHP=`basename Oesterreich_BEV_VGD*.shp .shp`
 # -I create geo index
 # -s data is in "MGI / Austria Lambert" => code 31287
 # -d drop table if it exists
-# -W encoding LATIN1
-shp2pgsql -W LATIN1 -I -s 31287 -d $SHP.shp $DB | psql rmbt > /dev/null
+shp2pgsql -I -s 31287 -d $SHP.shp $DB | psql rmbt > /dev/null
 
 
 sql=$(cat <<EOF
