@@ -17,6 +17,7 @@
 package at.rtr.rmbt.statisticServer;
 
 import at.rtr.rmbt.statisticServer.opendata.dto.CoverageDTO;
+import at.rtr.rmbt.statisticServer.opendata.dto.CoveragesDTO;
 import at.rtr.rmbt.statisticServer.opendata.dto.OpenTestDetailsDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -89,6 +90,8 @@ public class CoverageResource extends ServerResource
             return "invalid parameters";
         }
 
+        long startTime = System.currentTimeMillis();
+
         try {
             PreparedStatement ps = conn.prepareStatement("SELECT " +
                     " cov_mno_fn.operator," + //varchar
@@ -115,12 +118,16 @@ public class CoverageResource extends ServerResource
 
             BeanListHandler<CoverageDTO> handler = new BeanListHandler<>(CoverageDTO.class, new BasicRowProcessor(new GenerousBeanProcessor()));
             List<CoverageDTO> results = handler.handle(rs);
-
+            CoveragesDTO result = new CoveragesDTO();
+            result.setCoverages(results);
             ps.close();
+
+            long elapsedTime = System.currentTimeMillis() - startTime;
+            result.setDurationMs(elapsedTime);
 
             ObjectMapper om = new ObjectMapper();
             om.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
-            return (om.writer().writeValueAsString(results));
+            return (om.writer().writeValueAsString(result));
         } catch (SQLException | JsonProcessingException throwables) {
             throwables.printStackTrace();
         }
