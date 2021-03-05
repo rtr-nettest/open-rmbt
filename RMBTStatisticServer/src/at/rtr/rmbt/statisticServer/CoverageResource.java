@@ -68,6 +68,8 @@ public class CoverageResource extends ServerResource
     })
     @Post("json")
     public String request(final String entity) {
+        addAllowOrigin();
+
         double lat = 0, lng = 0;
         //parameters
         final Form getParameters = getRequest().getResourceRef().getQueryAsForm();
