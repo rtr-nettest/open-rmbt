@@ -96,7 +96,7 @@ public class CoverageResource extends ServerResource
 
         try {
             PreparedStatement ps = conn.prepareStatement("SELECT " +
-                    " cov_mno_fn.operator," + //varchar
+                    " coalesce(vn.visible_name, cov_mno_fn.operator) as operator," + //varchar
                     " cov_mno_fn.reference," +  //varchar
                     " cov_mno_fn.license," + //text
                     " cov_mno_fn.rfc_date last_updated," + //text
@@ -109,6 +109,7 @@ public class CoverageResource extends ServerResource
                     " ST_AsGeoJSON(ST_Transform(geom,4326)) geoJson" + //varchar
                     " from atraster " +
                     " left join cov_mno_fn on raster=id " +
+                    " left join cov_visible_name vn on vn.operator = cov_mno_fn.operator " +
                     " where cov_mno_fn.raster is not null AND" +
                     " ST_intersects((ST_Transform(ST_SetSRID(ST_MakePoint(?,?),4326),3035)),geom);");
             ps.setDouble(1, lng);
