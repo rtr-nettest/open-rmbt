@@ -23,8 +23,11 @@ export LANG=C
 # Open data site:
 # https://www.data.gv.at/katalog/dataset/breitbandatlas
 # current release
-URL=https://www.data.gv.at/katalog/dataset/588b9fdc-d2dd-4628-b186-f7b974065d40/resource/3eb11c2d-9567-4a07-abb1-ca06d7d27a55/download/festnetz_2020q1_20201016.zip
+URL=https://www.data.gv.at/katalog/dataset/588b9fdc-d2dd-4628-b186-f7b974065d40/resource/3eb11c2d-9567-4a07-abb1-ca06d7d27a55/download/festnetz_2020q2_20210129.zip
+# old releases:
+# URL=https://www.data.gv.at/katalog/dataset/588b9fdc-d2dd-4628-b186-f7b974065d40/resource/3eb11c2d-9567-4a07-abb1-ca06d7d27a55/download/festnetz_2020q1_20201016.zip
 
+m
 
 mkdir ~/open
 cd ~/open
@@ -51,6 +54,7 @@ CSV HEADER;
 ANALYSE cov_bb_fixed;
 COMMIT;
 VACUUM cov_bb_fixed;
+ALTER TABLE cov_bb_fixed OWNER TO rmbt;
 EOF
 )
 echo -e $sql|psql rmbt
