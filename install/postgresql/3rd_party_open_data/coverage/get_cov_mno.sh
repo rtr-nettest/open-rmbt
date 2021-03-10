@@ -28,11 +28,11 @@ export LANG=C
 #operator: String
 #- “A1TA” for A1 Telekom Austria AG
 #- “TMA”: for T-Mobile Austria GmbH
-#- “H3A”: for Drei Austria GmbH
-#-“LIWEST” for  LIWEST Kabelmedien GmbH
-#- “SBG” for  Salzburg AG für Energie, Verkehr und Telekommunikation
-#- “HGRAZ” for  Holding Graz - Kommunale Dienstleistungen GmbH
-#- “MASS” for MASS Response Service GmbH
+#- “H3A”: for Hutchison Drei Austria GmbH
+#-“LIWEST”: for  LIWEST Kabelmedien GmbH
+#- “SBG”: for  Salzburg AG für Energie, Verkehr und Telekommunikation
+#- “HGRAZ”: for  Holding Graz - Kommunale Dienstleistungen GmbH
+#- “MASS”: for MASS Response Service GmbH
 #reference: String
 #- “F1/16” for data according to TKK decision F1/16 (mobile)
 #- “F7/16” for data according to TKK decision F7/16 (3,5 GHz)
@@ -67,6 +67,7 @@ URL_TMA_MUL=https://www.magenta.at/content/dam/magenta_at/csv/versorgungsdaten/R
 # https://www.drei.at/de/info/netzabdeckung/versorgungsdaten-35-ghz.html
 URL_H3A=https://www.drei.at/media/common/info/netzabdeckung/h3a-versorgung-rohdaten.csv
 
+# https://www.liwest.at/5g-fwa
 URL_LIWEST=https://www.liwest.at/fileadmin/user_upload/5g/rtr_f716.CSV
 
 #URL_HGRAZ=
