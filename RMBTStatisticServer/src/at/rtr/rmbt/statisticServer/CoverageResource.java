@@ -111,7 +111,8 @@ public class CoverageResource extends ServerResource
                     " left join cov_mno_fn on raster=id " +
                     " left join cov_visible_name vn on vn.operator = cov_mno_fn.operator " +
                     " where cov_mno_fn.raster is not null AND" +
-                    " ST_intersects((ST_Transform(ST_SetSRID(ST_MakePoint(?,?),4326),3035)),geom);");
+                    " ST_intersects((ST_Transform(ST_SetSRID(ST_MakePoint(?,?),4326),3035)),geom)" +
+                    " order by cov_mno_fn.dl_max desc;");
             ps.setDouble(1, lng);
             ps.setDouble(2, lat);
             //System.out.println(ps);
