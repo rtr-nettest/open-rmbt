@@ -28,11 +28,11 @@ export LANG=C
 #operator: String
 #- “A1TA” for A1 Telekom Austria AG
 #- “TMA”: for T-Mobile Austria GmbH
-#- “H3A”: for Drei Austria GmbH
-#-“LIWEST” for  LIWEST Kabelmedien GmbH
-#- “SBG” for  Salzburg AG für Energie, Verkehr und Telekommunikation
-#- “HGRAZ” for  Holding Graz - Kommunale Dienstleistungen GmbH
-#- “MASS” for MASS Response Service GmbH
+#- “H3A”: for Hutchison Drei Austria GmbH
+#-“LIWEST”: for  LIWEST Kabelmedien GmbH
+#- “SBG”: for  Salzburg AG für Energie, Verkehr und Telekommunikation
+#- “HGRAZ”: for  Holding Graz - Kommunale Dienstleistungen GmbH
+#- “MASS”: for MASS Response Service GmbH
 #reference: String
 #- “F1/16” for data according to TKK decision F1/16 (mobile)
 #- “F7/16” for data according to TKK decision F7/16 (3,5 GHz)
@@ -66,6 +66,8 @@ URL_TMA_MUL=https://www.magenta.at/content/dam/magenta_at/csv/versorgungsdaten/R
 
 # https://www.drei.at/de/info/netzabdeckung/versorgungsdaten-35-ghz.html
 URL_H3A=https://www.drei.at/media/common/info/netzabdeckung/h3a-versorgung-rohdaten.csv
+
+# https://www.liwest.at/5g-fwa
 URL_LIWEST=https://www.liwest.at/fileadmin/user_upload/5g/rtr_f716.CSV
 
 #URL_HGRAZ=
@@ -73,7 +75,8 @@ URL_LIWEST=https://www.liwest.at/fileadmin/user_upload/5g/rtr_f716.CSV
 # https://www.salzburg-ag.at/internet-tv-telefon/fuer-privat/internet/cablelink-air/netzabdeckung-air.html
 URL_SBGAG=https://www.salzburg-ag.at/content/dam/web18/dokumente/cablelink/internet/RohdatenSalzburgAG3_5GHz.csv
 
-#URL_MASS=
+# https://www.massresponse.com/versorgungsdaten3-5ghz/
+URL_MASS=https://www.massresponse.com/versorgungsdaten3-5ghz/OpenDataRasterdatenMASS.csv
 
 mkdir ~/open
 cd ~/open
@@ -97,11 +100,11 @@ wget $URL_H3A -O H3A.csv
 wget $URL_LIWEST -O LIWEST.csv
 #
 wget $URL_SBGAG -O SBGAG.csv
+#
+wget $URL_MASS -O MASS.csv
 
 
 # import CSV
-
-# ! tmp and h3a with special formats/order
 
 sql=$(cat <<EOF
 BEGIN;
@@ -163,8 +166,17 @@ FROM '/var/lib/postgresql/open/SBGAG.csv'
 DELIMITER ';'
 CSV HEADER;
 
+COPY cov_mno(operator,reference,license,rfc_date,raster,dl_normal,ul_normal,dl_max,ul_max)
+FROM '/var/lib/postgresql/open/MASS.csv'
+DELIMITER ';'
+CSV HEADER;
+
 ANALYSE cov_mno;
 SELECT COUNT(*) FROM cov_mno;
+
+ALTER TABLE cov_mno_fn OWNER TO rmbt;
+GRANT SELECT ON TABLE cov_mno_fn TO rmbt_group_read_only;
+
 COMMIT;
 VACUUM cov_mno;
 EOF
