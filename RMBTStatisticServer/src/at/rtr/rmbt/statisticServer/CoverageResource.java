@@ -101,10 +101,10 @@ public class CoverageResource extends ServerResource
                     " cov_mno_fn.license," + //text
                     " cov_mno_fn.rfc_date last_updated," + //text
                     " cov_mno_fn.raster," + //varchar
-                    " round(cov_mno_fn.dl_max /1000) downloadKbitMax," +  //bigint
-                    " round(cov_mno_fn.ul_max /1000) uploadKbitMax," + //bigint
-                    " round(cov_mno_fn.dl_normal /1000) downloadKbitNormal," + //bigint
-                    " round(cov_mno_fn.ul_normal/1000) uploadKbitNormal," + //bigint
+                    " round(cov_mno_fn.dl_max /1000)::integer downloadKbitMax," +  //bigint
+                    " round(cov_mno_fn.ul_max /1000)::integer uploadKbitMax," + //bigint
+                    " round(cov_mno_fn.dl_normal /1000)::integer downloadKbitNormal," + //bigint
+                    " round(cov_mno_fn.ul_normal/1000)::integer uploadKbitNormal," + //bigint
                     " cov_mno_fn.technology," +
                     " ST_AsGeoJSON(ST_Transform(geom,4326)) geoJson" + //varchar
                     " from atraster " +
