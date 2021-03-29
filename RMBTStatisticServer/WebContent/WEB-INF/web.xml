@@ -17,7 +17,7 @@
 -->
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" id="WebApp_ID" version="2.5">
   <display-name>RMBTStatisticServer</display-name>
-  
+
   <welcome-file-list>
     <welcome-file>index.html</welcome-file>
     <welcome-file>index.htm</welcome-file>
@@ -26,12 +26,14 @@
     <welcome-file>default.htm</welcome-file>
     <welcome-file>default.jsp</welcome-file>
   </welcome-file-list>
-  
+
   <listener>
     <listener-class>at.rtr.rmbt.shared.cache.CacheContextListener</listener-class>
+  </listener>
+  <listener>
     <listener-class>at.rtr.rmbt.statisticServer.ContextListener</listener-class>
   </listener>
-  
+
   <!-- Application class name -->
     <context-param>
         <param-name>org.restlet.application</param-name>
