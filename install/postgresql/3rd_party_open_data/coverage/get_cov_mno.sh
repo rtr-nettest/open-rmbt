@@ -55,7 +55,8 @@ export LANG=C
 
 
 # https://www.a1.net/5g-netzabdeckung-karte
-# URL_A1TA=###
+# 
+URL_A1TA=https://cdn11.a1.net/m/resources/media/excel/5GNR3500-Final-20201231.bin
 
 # https://www.magenta.at/3_5Ghz
 # URL_TMA=####
@@ -81,17 +82,29 @@ URL_MASS=https://www.massresponse.com/versorgungsdaten3-5ghz/OpenDataRasterdaten
 mkdir ~/open
 cd ~/open
 
-rm *.csv
-
+rm -rf *.csv
+rm -rf xl/sharedStrings.xml
 
 # download files
-
+# file extension is .bin, but content is .xlsx
+wget $URL_A1TA -O A1.xlsx
+# ATA1: extract XML from xlsx and convert it to CSV
+unzip -x A1.xlsx xl/sharedStrings.xml
+sed -i 's/<\/t><\/si><si><t>/\n/g' xl/sharedStrings.xml
+sed -i "s/<.*>//g" xl/sharedStrings.xml
+sed -i "/^\r$/d" xl/sharedStrings.xml
+sed "s/,/./g" xl/sharedStrings.xml > A1TA.csv
+rm -rf xl/sharedStrings.xml
+#
 wget $URL_TMA_NDL -O TMA_NDL.csv
 sed -i "s/,/./g" TMA_NDL.csv
+#
 wget $URL_TMA_MDL -O TMA_MDL.csv
 sed -i "s/,/./g" TMA_MDL.csv
+#
 wget $URL_TMA_NUL -O TMA_NUL.csv
 sed -i "s/,/./g" TMA_NUL.csv
+#
 wget $URL_TMA_MUL -O TMA_MUL.csv
 sed -i "s/,/./g" TMA_MUL.csv
 #
@@ -102,6 +115,10 @@ wget $URL_LIWEST -O LIWEST.csv
 wget $URL_SBGAG -O SBGAG.csv
 #
 wget $URL_MASS -O MASS.csv
+# MASS: fix invalid strings
+# ;4,00E+07;20000000;2,00E+08;40000000
+sed -i "s/4,00E+07/40000000/g" MASS.csv
+sed -i "s/2,00E+08/200000000/g" MASS.csv
 
 
 # import CSV
@@ -109,8 +126,22 @@ wget $URL_MASS -O MASS.csv
 sql=$(cat <<EOF
 BEGIN;
 
+CREATE TEMPORARY TABLE tmp_a1ta (uid serial,
+"rfc_date" varchar (50),
+"raster" varchar (50),
+"dl_normal" double precision,
+"ul_normal" double precision,
+"dl_max" double precision,
+"ul_max" double precision);
+
+
+COPY tmp_a1ta(raster,dl_normal,dl_max,ul_normal,ul_max,rfc_date)
+FROM '/var/lib/postgresql/open/A1TA.csv'
+DELIMITER ';'
+CSV HEADER; 
+
 CREATE TEMPORARY TABLE tmp_tma (uid serial,
-"date" varchar (50),
+"rfc_date" varchar (50),
 "raster" varchar (50),
 "dl_normal" double precision,
 "ul_normal" double precision,
@@ -121,22 +152,22 @@ ALTER TABLE tmp_tma ADD PRIMARY KEY (uid);
 CREATE INDEX tmp_tma_raster_idx
     ON tmp_tma(raster);
 
-COPY tmp_tma(raster,dl_normal,date)
+COPY tmp_tma(raster,dl_normal,rfc_date)
 FROM '/var/lib/postgresql/open/TMA_NDL.csv'
 DELIMITER ';'
 CSV HEADER;
 
-COPY tmp_tma(raster,dl_max,date)
+COPY tmp_tma(raster,dl_max,rfc_date)
 FROM '/var/lib/postgresql/open/TMA_MDL.csv'
 DELIMITER ';'
 CSV HEADER;
 
-COPY tmp_tma(raster,ul_normal,date)
+COPY tmp_tma(raster,ul_normal,rfc_date)
 FROM '/var/lib/postgresql/open/TMA_NUL.csv'
 DELIMITER ';'
 CSV HEADER;
 
-COPY tmp_tma(raster,ul_max,date)
+COPY tmp_tma(raster,ul_max,rfc_date)
 FROM '/var/lib/postgresql/open/TMA_MUL.csv'
 DELIMITER ';'
 CSV HEADER;
@@ -144,12 +175,26 @@ CSV HEADER;
 
 TRUNCATE cov_mno;
 
+
 INSERT INTO cov_mno (raster,dl_normal,ul_normal,dl_max,ul_max,
 operator,reference,license,rfc_date)
-SELECT raster,
-  round(max(dl_normal)*1000000)::BIGINT dl_normal, round(max(ul_normal)*1000000)::BIGINT ul_normal, round(max(dl_max)*1000000)::BIGINT dl_max, round(max(ul_max)*1000000)::BIGINT ul_max,
-  'TMA','F7/16','CCBY4.0','2021-01-01'  
-FROM tmp_tma GROUP BY raster;
+SELECT tmp_a1ta.raster,
+  round(max(dl_normal)*1000000)::BIGINT dl_normal,
+  round(max(ul_normal)*1000000)::BIGINT ul_normal,
+  round(max(dl_max)*1000000)::BIGINT dl_max,
+  round(max(ul_max)*1000000)::BIGINT ul_max,
+  'A1TA','F7/16','CCBY4.0',tmp_a1ta.rfc_date
+FROM tmp_a1ta GROUP BY tmp_a1ta.raster,tmp_a1ta.rfc_date;
+
+INSERT INTO cov_mno (raster,dl_normal,ul_normal,dl_max,ul_max,
+operator,reference,license,rfc_date)
+SELECT tmp_tma.raster,
+  round(max(dl_normal)*1000000)::BIGINT dl_normal,
+  round(max(ul_normal)*1000000)::BIGINT ul_normal,
+  round(max(dl_max)*1000000)::BIGINT dl_max,
+  round(max(ul_max)*1000000)::BIGINT ul_max,
+  'TMA','F7/16','CCBY4.0',tmp_tma.rfc_date
+FROM tmp_tma GROUP BY tmp_tma.raster,tmp_tma.rfc_date;
 
 COPY cov_mno(operator,reference,license,rfc_date,raster,dl_normal,ul_normal,dl_max,ul_max)
 FROM '/var/lib/postgresql/open/H3A.csv'
