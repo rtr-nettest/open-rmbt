@@ -3,6 +3,7 @@ package at.rtr.rmbt.statisticServer.opendata.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.Strings;
 import io.swagger.annotations.ApiModelProperty;
 
 import java.util.ArrayList;
@@ -48,7 +49,7 @@ public class LocationGraphDTO {
         @ApiModelProperty(value = "Direction of travel of the hosting device in degrees, where 0° ≤ bearing < 360°, counting clockwise relative to the true north",
                 example = "195.4")
         public Double getBearing() {
-            if (getProvider().equals("gps")) {
+            if (Strings.nullToEmpty(getProvider()).equals("gps")) {
                 return bearing;
             }
             return null;
@@ -57,7 +58,7 @@ public class LocationGraphDTO {
         @ApiModelProperty(value = "Speed of the client device in meters per second",
                 example = "22.4")
         public Double getSpeed() {
-            if (getProvider().equals("gps")) {
+            if (Strings.nullToEmpty(getProvider()).equals("gps")) {
                 return speed;
             }
             return null;
