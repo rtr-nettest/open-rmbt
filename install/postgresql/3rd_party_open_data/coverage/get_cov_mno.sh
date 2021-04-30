@@ -56,7 +56,7 @@ export LANG=C
 
 # https://www.a1.net/5g-netzabdeckung-karte
 # 
-URL_A1TA=https://cdn11.a1.net/m/resources/media/excel/5GNR3500-Final-20201231.bin
+URL_A1TA=https://cdn11.a1.net/m/resources/media/excel/5GNR3500-20210331-versorgt.csv
 
 # https://www.magenta.at/3_5Ghz
 # URL_TMA=####
@@ -86,15 +86,11 @@ rm -rf *.csv
 rm -rf xl/sharedStrings.xml
 
 # download files
-# file extension is .bin, but content is .xlsx
-wget $URL_A1TA -O A1.xlsx
-# ATA1: extract XML from xlsx and convert it to CSV
-unzip -x A1.xlsx xl/sharedStrings.xml
-sed -i 's/<\/t><\/si><si><t>/\n/g' xl/sharedStrings.xml
-sed -i "s/<.*>//g" xl/sharedStrings.xml
-sed -i "/^\r$/d" xl/sharedStrings.xml
-sed "s/,/./g" xl/sharedStrings.xml > A1TA.csv
-rm -rf xl/sharedStrings.xml
+wget $URL_A1TA -O A1TA.csv
+# remove all variants of typographic quotes
+sed -i "s/\x93//g" A1TA.csv
+sed -i "s/\x94//g" A1TA.csv
+sed -i "s/\x22//g" A1TA.csv
 #
 wget $URL_TMA_NDL -O TMA_NDL.csv
 sed -i "s/,/./g" TMA_NDL.csv
@@ -125,20 +121,6 @@ sed -i "s/2,00E+08/200000000/g" MASS.csv
 
 sql=$(cat <<EOF
 BEGIN;
-
-CREATE TEMPORARY TABLE tmp_a1ta (uid serial,
-"rfc_date" varchar (50),
-"raster" varchar (50),
-"dl_normal" double precision,
-"ul_normal" double precision,
-"dl_max" double precision,
-"ul_max" double precision);
-
-
-COPY tmp_a1ta(raster,dl_normal,dl_max,ul_normal,ul_max,rfc_date)
-FROM '/var/lib/postgresql/open/A1TA.csv'
-DELIMITER ';'
-CSV HEADER; 
 
 CREATE TEMPORARY TABLE tmp_tma (uid serial,
 "rfc_date" varchar (50),
@@ -176,15 +158,11 @@ CSV HEADER;
 TRUNCATE cov_mno;
 
 
-INSERT INTO cov_mno (raster,dl_normal,ul_normal,dl_max,ul_max,
-operator,reference,license,rfc_date)
-SELECT tmp_a1ta.raster,
-  round(max(dl_normal)*1000000)::BIGINT dl_normal,
-  round(max(ul_normal)*1000000)::BIGINT ul_normal,
-  round(max(dl_max)*1000000)::BIGINT dl_max,
-  round(max(ul_max)*1000000)::BIGINT ul_max,
-  'A1TA','F7/16','CCBY4.0',tmp_a1ta.rfc_date
-FROM tmp_a1ta GROUP BY tmp_a1ta.raster,tmp_a1ta.rfc_date;
+COPY cov_mno(operator,reference,license,rfc_date,raster,dl_normal,ul_normal,dl_max,ul_max)
+FROM '/var/lib/postgresql/open/A1TA.csv'
+DELIMITER ';'
+CSV HEADER; 
+
 
 INSERT INTO cov_mno (raster,dl_normal,ul_normal,dl_max,ul_max,
 operator,reference,license,rfc_date)
