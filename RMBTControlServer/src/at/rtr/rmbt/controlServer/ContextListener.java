@@ -145,6 +145,7 @@ public class ContextListener implements ServletContextListener
                     }
 
                     ps1.close();
+                    conn.close();
                     System.out.println("Looking up missing ASN infos completed");
                 }
                 catch (SQLException | InterruptedException | UnknownHostException | NamingException e)
