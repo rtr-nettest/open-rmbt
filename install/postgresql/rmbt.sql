@@ -4980,7 +4980,7 @@ CREATE VIEW public.v_get_replication_delay AS
 ALTER TABLE public.v_get_replication_delay OWNER TO postgres;
 
 
-create table if not exists qoe_classification
+create table if not exists public.qoe_classification
 (
 	uid serial not null
 		constraint qoe_classification_pk
