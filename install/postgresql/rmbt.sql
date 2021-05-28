@@ -4689,7 +4689,7 @@ CREATE TABLE public.test (
 	last_qos_status varchar(50),
 	test_error_cause varchar,
 	last_sequence_number integer,
-	submission_retry_count integer;
+	submission_retry_count integer,
     CONSTRAINT enforce_dims_location CHECK ((public.st_ndims(location) = 2)),
     CONSTRAINT enforce_geotype_location CHECK (((public.geometrytype(location) = 'POINT'::text) OR (location IS NULL))),
     CONSTRAINT enforce_srid_location CHECK ((public.st_srid(location) = 900913)),
