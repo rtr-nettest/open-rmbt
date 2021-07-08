@@ -1,0 +1,45 @@
+Coverage data is provided as CSV file with the seperator ";" (semicolon) using the following structure:
+
+Header
+operator;reference;license;rfc_date;raster;dl_normal;ul_normal;dl_max;ul_max
+
+Sample record
+LIWEST;F7/16;CCBY4.0;2020-12-26;100mN27285E48011;55000000;22000000;250000000;49000000
+
+Definition of columns
+
+operator: String
+o    "A1TA" for A1 Telekom Austria AG
+o    "TMA": for T-Mobile Austria GmbH
+o    "H3A": for Hutchison Drei Austria GmbH
+o    "LIWEST" for LIWEST Kabelmedien GmbH
+o    "SBG" for Salzburg AG für Energie, Verkehr und Telekommunikation
+o    "HGRAZ" for Holding Graz - Kommunale Dienstleistungen GmbH
+o    "MASS" for MASS Response Service GmbH
+
+reference: String
+o    "F7/16" for data according to the obligation according to decision F7/16
+o    "F1/16" for data according to the obligation according to decision F1/16
+
+license: String
+"CCBY4.0"; data is published according to this license
+
+rfc_date: String
+date in format of RFC 3399 (only day, no daytime); The date refers to the point of time when the simulation was done. This point of time is typically earlier than the date of publication.
+Example: "2020-12-26"
+
+raster: String
+Raster according to the nomenclature of ETRS-LAEA-data
+Example:  "100mN27285E48011"
+
+dl_normal: Integer
+Downlink - normally available end user downlink data rate outdoors. This data rate is provided as integer (no decimals) in Bit/s (no multiples. If no coverage is available in that raster, the value of 0 is used.
+
+ul_normal: Integer
+Uplink - - normally available end user uplink data rate outdoors. This data rate is provided as integer (no decimals) in Bit/s (no multiples. If no coverage is available in that raster, the value of 0 is used.
+
+dl_max: Integer
+Downlink - estimated maximum end user downlink data rate outdoors. This data rate is provided as integer (no decimals) in Bit/s (no multiples. If no coverage is available in that raster, the value of 0 is used.
+
+ul_max: Integer
+Uplink - estimated maximum end user uplink data rate outdoors. This data rate is provided as integer (no decimals) in Bit/s (no multiples. If no coverage is available in that raster, the value of 0 is used.
