@@ -56,7 +56,7 @@ export LANG=C
 
 # https://www.a1.net/5g-netzabdeckung-karte
 # 
-URL_A1TA=https://cdn11.a1.net/m/resources/media/excel/5GNR3500-20210331-versorgt.csv
+URL_A1TA=https://cdn11.a1.net/m/resources/media/excel/5GNR3500-Final-20210630-versorgt.csv
 
 # https://www.magenta.at/3_5Ghz
 # URL_TMA=####
