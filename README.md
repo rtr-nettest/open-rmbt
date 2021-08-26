@@ -122,7 +122,7 @@ Installation
   * [Maxmind GeoLite2 database](https://dev.maxmind.com/geoip/geoip2/geolite2/)
   * _Optional:_ For StatisticServer pdf export functionality
     * [Prince](https://www.princexml.com/) or 
-    * [Weasyprint](https://weasyprint.org/). For weasyprint, install:
+    * [Weasyprint](https://weasyprint.org/). For weasyprint, install as user tomcat (not as root):
         * python3
         * python3-pip
         * run `pip3 install weasyprint`
