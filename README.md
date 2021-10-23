@@ -1,31 +1,21 @@
 Open-RMBT
 =========
 
-> *Open-RMBT* is an open source, multi-threaded bandwidth test written in Java and
-C, consisting of:
+> *Open-RMBT* is an open source, multi-threaded bandwidth measurement system.
 
-> * command line client
-> * Java Applet client
-> * Android client
-> * control Servlet based on Restlet
-> * map Servlet based on Restlet
-> * statistics Servlet based on Restlet
-> * qos test server
+It consists of the following components:
+* Web site
+* JavaScript client
+* Android client
+* iOS client
+* Measurement server
+* QoS measurement server (in this repository)
+* Control server 
+* Statistics server (in this repository)
+* Map server (in this repository)
 
 *Open-RMBT* is released under the [Apache License, Version 2.0](LICENSE). It was developed
 by the [Austrian Regulatory Authority for Broadcasting and Telecommunications (RTR-GmbH)](https://www.rtr.at/).
-
-The following projects are distributed in this release:
-
-- **RMBTSharedCode** - common libraries and classes
-- **RMBTUtil** - common libraries and classes
-- **(RMBTControlServer)** - Servlet acting as control server for the clients (obsolete) - see [new ControlServer](https://github.com/rtr-nettest/open-rmbt-control)
-- **RMBTMapServer** - Servlet acting as map server
-- **RMBTStatisticServer** - Servlet acting as statistics server
-- **RMBTQoSServer** - qos test server
-- **RMBTClient** - client code used by *RMBTAndroid*, the command line client and the Applet
-- **(RMBTAndroid)** - Android app (obsolete) - see [new Android app](https://github.com/rtr-nettest/open-rmbt-android)
-
 
 Related materials
 -----------------
@@ -33,18 +23,19 @@ Related materials
 * [RMBT specification](https://www.netztest.at/doc/)
 * [RTR-NetTest/rmbt-server](https://github.com/rtr-nettest/rmbt-server) - Test Server for conducting measurements based on the RMBT protocol
 * [RTR-NetTest/rmbtws](https://github.com/rtr-nettest/rmbtws) - JavaScript client for conducting RMBT-based speed measurements
-* [RTR-NetTest/open-rmbt-ios](https://github.com/rtr-nettest/open-rmbt-ios) - iOS app
 * [RTR-NetTest/open-rmbt-control](https://github.com/rtr-nettest/open-rmbt-control) - Control server
+* [RTR-NetTest/open-rmbt-ios](https://github.com/rtr-nettest/open-rmbt-ios) - iOS app
 * [RTR-NetTest/open-rmbt-android](https://github.com/rtr-nettest/open-rmbt-android) - Android app
+* [RTR-NetTest/rtr-nettest/open-rmbt-website](https://github.com/rtr-nettest/open-rmbt-website) - Web site
 
 
 System requirements
 -------------------
 
 * 1-3 servers
-* Everything can be installed on a single server
+* Everything can be installed on a single server 
 * The test servers (RMBT and Websocket) should run on a physical machine
-* Base system Debian 9 or newer (or similar) 
+* Base system Debian 11 or newer (or similar) 
 * At least one static IPv4 address (IPv6 support recommended, more addresses allow to run more services on port 443)
 
   *NOTE: other Linux distributions can also be used, but commands and package names may be different*
@@ -67,11 +58,11 @@ Installation
 ### Database Server
 
 1. Install:
-    * postgresql (version 10 and higher)
+    * postgresql (version 13 and higher)
     * postgresql-common
     * postgresql-contrib
     * postgis
-    * postgresql-10-postgis-2.4
+    * postgresql-13-postgis-3
     * *for quantile extension; Install:*
       * devscripts
       * sudo
@@ -94,8 +85,8 @@ Installation
  
     # (additional users might be needed for replication and nagios)
     
-    # if not using postgis 2.4, set the correct version
-    #> sed -i "s/postgis-2\.4/postgis-X.Y/g rmbt.sql"
+    # if not using postgis 3, set the correct version
+    #> sed -i "s/postgis-3/postgis-X\.Y/g rmbt.sql"
     cat rmbt.sql | psql rmbt -1
     cat rmbt_init.sql | psql rmbt -1
     ```
