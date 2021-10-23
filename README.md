@@ -24,16 +24,18 @@ The following projects are distributed in this release:
 - **RMBTStatisticServer** - Servlet acting as statistics server
 - **RMBTQoSServer** - qos test server
 - **RMBTClient** - client code used by *RMBTAndroid*, the command line client and the Applet
-- **(RMBTAndroid)** - Android App (obsolete) - see [new Android App](https://github.com/rtr-nettest/open-rmbt-android)
+- **(RMBTAndroid)** - Android app (obsolete) - see [new Android app](https://github.com/rtr-nettest/open-rmbt-android)
 
 
 Related materials
 -----------------
 
 * [RMBT specification](https://www.netztest.at/doc/)
-* [RTR-Netztest/rmbt-server](https://github.com/rtr-nettest/rmbt-server) - Test Server for conducting measurements based on the RMBT protocol
-* [RTR-Netztest/rmbtws](https://github.com/rtr-nettest/rmbtws) - JavaScript client for conducting RMBT-based speed measurements
-* [RTR-Netztest/open-rmbt-ios](https://github.com/rtr-nettest/open-rmbt-ios) - iOS app
+* [RTR-NetTest/rmbt-server](https://github.com/rtr-nettest/rmbt-server) - Test Server for conducting measurements based on the RMBT protocol
+* [RTR-NetTest/rmbtws](https://github.com/rtr-nettest/rmbtws) - JavaScript client for conducting RMBT-based speed measurements
+* [RTR-NetTest/open-rmbt-ios](https://github.com/rtr-nettest/open-rmbt-ios) - iOS app
+* [RTR-NetTest/open-rmbt-control](https://github.com/rtr-nettest/open-rmbt-control) - Control server
+* [RTR-NetTest/open-rmbt-android](https://github.com/rtr-nettest/open-rmbt-android) - Android app
 
 
 System requirements
