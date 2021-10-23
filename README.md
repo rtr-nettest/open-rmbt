@@ -19,12 +19,12 @@ The following projects are distributed in this release:
 
 - **RMBTSharedCode** - common libraries and classes
 - **RMBTUtil** - common libraries and classes
-- **(RMBTControlServer)** - Servlet acting as control server for the clients (obsolete) - see [New ControlServer](https://github.com/rtr-nettest/open-rmbt-control)
+- **(RMBTControlServer)** - Servlet acting as control server for the clients (obsolete) - see [new ControlServer](https://github.com/rtr-nettest/open-rmbt-control)
 - **RMBTMapServer** - Servlet acting as map server
 - **RMBTStatisticServer** - Servlet acting as statistics server
 - **RMBTQoSServer** - qos test server
 - **RMBTClient** - client code used by *RMBTAndroid*, the command line client and the Applet
-- **RMBTAndroid** - Android App
+- **(RMBTAndroid)** - Android App (obsolete) - see [new Android App](https://github.com/rtr-nettest/open-rmbt-android)
 
 
 Related materials
