@@ -223,6 +223,6 @@ Appendix
 ### TLS Key Generation
 
 ```bash
-keytool -genkey -keyalg RSA -alias qos-server -keystore qosserver.jks -storepass \[ENTER\_YOUR\_STORE\_PW\_HERE\] -keypass \[ENTER\_YOUR\_ALIAS\_PW\_HERE\]
+keytool -genkey -keyalg RSA -alias Qos -keystore qosserver.jks -storepass \[ENTER\_YOUR\_STORE\_PW\_HERE\] -keypass \[ENTER\_YOUR\_ALIAS\_PW\_HERE\]
 ```
 
