@@ -222,7 +222,11 @@ Appendix
 
 ### TLS Key Generation
 
+Note: TLS of this server is outdated, thus it is recommended to use stunnel as TLS-wrapper.
+
+
 ```bash
 keytool -genkey -keyalg RSA -alias Qos -keystore qosserver.jks -storepass \[ENTER\_YOUR\_STORE\_PW\_HERE\] -keypass \[ENTER\_YOUR\_ALIAS\_PW\_HERE\]
 ```
+
 
