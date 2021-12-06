@@ -77,6 +77,10 @@ public class ServerOption implements Serializable {
 	@Expose
 	@SerializedName("title")
 	protected String title;
+
+	@Expose
+	@SerializedName("icon")
+	protected String icon;
 	
 	@Expose
 	@SerializedName("summary")
@@ -116,9 +120,14 @@ public class ServerOption implements Serializable {
 		this(title, null);
 	}
 
-	public ServerOption(final String title, final String summary) {
+	public ServerOption(final String title,  final String summary) {
 		this.title = title;
 		this.summary = summary;
+	}
+
+	public ServerOption(final String title, final String icon, final int i) {
+		this.title = title;
+		this.icon = icon;
 	}
 	
 	public ServerOption getParent() {
@@ -135,6 +144,14 @@ public class ServerOption implements Serializable {
 
 	public void setTitle(String title) {
 		this.title = title;
+	}
+
+	public String getIcon() {
+		return icon;
+	}
+
+	public void setIcon(String icon) {
+		this.icon = icon;
 	}
 
 	public String getSummary() {
@@ -281,7 +298,7 @@ public class ServerOption implements Serializable {
 
 	@Override
 	public String toString() {
-		return "ServerOption [title=" + title + ", summary=" + summary
+		return "ServerOption [title=" + title + ", icon = " + icon + ",summary=" + summary
 				+ ", optionList=" + optionList + ", parameterMap="
 				+ parameterMap + ", functionList=" + functionList
 				+ ", dependsOnMap=" + dependsOnMap + ", isDefault=" + isDefault
