@@ -98,8 +98,8 @@ public class InfoResource extends ServerResource
 	    		
 	    	optionList.add(o);
     	}
-
-    	final ServerOption option = new ServerOption(labels.getString("MAP_APPEARANCE"));
+        // now with icon and summary
+    	final ServerOption option = new ServerOption(labels.getString("MAP_APPEARANCE"),labels.getString("MAP_APPEARANCE_ICON"),1);
     	option.setOptionList(optionList);
     	
         return option;    	
@@ -176,7 +176,8 @@ public class InfoResource extends ServerResource
 	    	optionList.add(o);
     	}
 
-    	final ServerOption option = new ServerOption(labels.getString("OVERLAY_TYPE"));
+    	final ServerOption option = new ServerOption(labels.getString("OVERLAY_TYPE"),labels.getString("OVERLAY_TYPE_ICON"),1);
+
     	option.setOptionList(optionList);
     	
         return option;
@@ -190,7 +191,8 @@ public class InfoResource extends ServerResource
     {
         String lastType = null;
         
-        final ServerOption mapTypeOption = new ServerOption(labels.getString(String.format("MAP_TYPE")));
+        final ServerOption mapTypeOption = new ServerOption(labels.getString(String.format("MAP_TYPE")),labels.getString("MAP_TYPE_ICON"),1);
+
         final OptionFunction dropFunction = new OptionFunction("drop_param");
         dropFunction.addParameter("key", "map_type_is_mobile");
         mapTypeOption.addFunction(dropFunction);
@@ -248,7 +250,7 @@ public class InfoResource extends ServerResource
     		
     	}
     	
-    	final ServerOption option = new ServerOption(labels.getString("MAP_FILTER_PERIOD"));
+    	final ServerOption option = new ServerOption(labels.getString("MAP_FILTER_PERIOD"),labels.getString("MAP_FILTER_PERIOD_ICON"),1);
     	option.setOptionList(optionList);
     	
         return option;
@@ -281,7 +283,7 @@ public class InfoResource extends ServerResource
     		
     	}
     	
-    	final ServerOption option = new ServerOption(labels.getString("MAP_FILTER_TECHNOLOGY"));
+    	final ServerOption option = new ServerOption(labels.getString("MAP_FILTER_TECHNOLOGY"), labels.getString("MAP_FILTER_TECHNOLOGY_ICON"),1);
     	option.setOptionList(optionList);
     	option.addDependsOn("map_type_is_mobile", true);
         return option;
@@ -298,7 +300,7 @@ public class InfoResource extends ServerResource
    		optionAll.addParameter(mobile ? "operator" : "provider", "");
    		optionAll.setDefault(true);
    		
-    	final ServerOption option = new ServerOption(labels.getString("MAP_FILTER_CARRIER"));
+    	final ServerOption option = new ServerOption(labels.getString("MAP_FILTER_CARRIER"),labels.getString("MAP_FILTER_CARRIER_ICON"),1);
     	option.setOptionList(new ArrayList<ServerOption>());
    		option.getOptionList().add(optionAll);
    		option.addDependsOn("map_type_is_mobile", mobile);
