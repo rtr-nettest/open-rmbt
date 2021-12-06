@@ -34,6 +34,8 @@ import java.util.Queue;
 import java.util.ResourceBundle;
 import java.util.TimeZone;
 import java.util.UUID;
+
+import com.google.common.base.Strings;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.restlet.data.Form;
@@ -264,7 +266,10 @@ public class QueryParser {
 
                         try {
                             for (String uuid : uuids) {
-                                uuid = uuid.substring(1); //cut prefix
+                                if (Strings.nullToEmpty(uuid).length() == 37) {
+                                    uuid = uuid.substring(1); //cut prefix
+                                }
+                                System.out.println("set uuid to " + uuid);
                                 UUID.fromString(uuid);
                             }
                         } catch(IllegalArgumentException e) {
@@ -543,7 +548,9 @@ public class QueryParser {
        else if (type == FieldType.UUID) {
            String[] uuids = value.split(",");
            for (int i=0;i<uuids.length;i++) {
-               uuids[i] = uuids[i].substring(1);
+               if (uuids[i].length() == 37) {
+                   uuids[i] = uuids[i].substring(1);
+               }
            }
            String dbField = this.getDbFields(attr).get(0);
            String queryPart = " AND (" + dbField + " = ?";
