@@ -22,15 +22,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.DailyRollingFileAppender;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
-import org.apache.log4j.net.SyslogAppender;
+
 
 import at.rtr.rmbt.qos.testserver.ServerPreferences.TestServerServiceEnum;
 import at.rtr.rmbt.qos.testserver.TestServerImpl;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.Logger;
+import org.apache.logging.log4j.core.appender.ConsoleAppender;
+import org.apache.logging.log4j.core.appender.RollingFileAppender;
+import org.apache.logging.log4j.core.appender.SyslogAppender;
+import org.apache.logging.log4j.core.appender.rolling.TimeBasedTriggeringPolicy;
+import org.apache.logging.log4j.core.layout.PatternLayout;
+import org.apache.logging.log4j.core.net.Facility;
 
 /**
  * Logging  service for the test server
@@ -65,41 +68,49 @@ public class LoggingService {
 	 */
 	public static synchronized void init(final TestServerImpl testServerImpl) {
 		IS_LOGGING_AVAILABLE = isLoggingAvailable(testServerImpl);
-		
-		LogManager.getRootLogger().removeAllAppenders();
+		((Logger) LogManager.getRootLogger()).getAppenders().clear();
 		
 		if (testServerImpl.serverPreferences != null 
 				&& testServerImpl.serverPreferences.isSyslogEnabled()) {
-			LogManager.getRootLogger().addAppender(new SyslogAppender(
-					new PatternLayout(testServerImpl.serverPreferences.getSyslogPattern()), 
-					testServerImpl.serverPreferences.getSyslogHost(), 
-					SyslogAppender.LOG_LOCAL0));
+			SyslogAppender syslogAppender = SyslogAppender.newSyslogAppenderBuilder()
+					.setName("qosSyslog")
+					.setLayout(PatternLayout.newBuilder().withPattern(testServerImpl.serverPreferences.getSyslogPattern()).build())
+					.withHost(testServerImpl.serverPreferences.getSyslogHost())
+					.setFacility(Facility.LOCAL0).build();
+			Logger rootLogger = (Logger) LogManager.getRootLogger();
+			rootLogger.addAppender(syslogAppender);
+
 		}
 	
 		LOGGER_MAP.clear();
-		LOGGER_MAP.put(TestServerServiceEnum.RUNTIME_GUARD_SERVICE, Logger.getLogger("QOS.DEBUG"));
-		LOGGER_MAP.put(TestServerServiceEnum.TCP_SERVICE, Logger.getLogger("QOS.TCP"));
-		LOGGER_MAP.put(TestServerServiceEnum.UDP_SERVICE, Logger.getLogger("QOS.UDP"));
-		LOGGER_MAP.put(TestServerServiceEnum.TEST_SERVER, Logger.getLogger("QOS.SERVER"));
+		LOGGER_MAP.put(TestServerServiceEnum.RUNTIME_GUARD_SERVICE, (Logger) LogManager.getLogger("QOS.DEBUG"));
+		LOGGER_MAP.put(TestServerServiceEnum.TCP_SERVICE, (Logger) LogManager.getLogger("QOS.TCP"));
+		LOGGER_MAP.put(TestServerServiceEnum.UDP_SERVICE, (Logger) LogManager.getLogger("QOS.UDP"));
+		LOGGER_MAP.put(TestServerServiceEnum.TEST_SERVER, (Logger) LogManager.getLogger("QOS.SERVER"));
 		
 		//file logging appender:
 		if (testServerImpl.serverPreferences != null 
 				&& testServerImpl.serverPreferences.isLoggingEnabled()) {
 			for (final Entry<TestServerServiceEnum, String> e : testServerImpl.serverPreferences.getLogFileMap().entrySet()) {
 				final Logger l = LOGGER_MAP.get(e.getKey());
-				try {
-					l.addAppender(new DailyRollingFileAppender(
-							new PatternLayout(testServerImpl.serverPreferences.getLoggingPattern()), e.getValue(), "_yyyy-MM-dd-a"));
-				} catch (IOException ex) {
-					ex.printStackTrace();
-				}
+
+				RollingFileAppender appender = RollingFileAppender.newBuilder()
+						.setName("qos_" + e.getKey())
+						.withFileName(e.getValue())
+						.withPolicy(TimeBasedTriggeringPolicy.newBuilder().withInterval(1).build())
+						.withFilePattern("_%d{yyyy-MM-dd-a}")
+						.setLayout(PatternLayout.newBuilder().withPattern(testServerImpl.serverPreferences.getLoggingPattern()).build())
+						.build();
+				l.addAppender(appender);
+
 			}
 		}
 		
 		//console appender:
 		if (testServerImpl.serverPreferences != null 
 				&& testServerImpl.serverPreferences.isConsoleLog()) {
-			LogManager.getRootLogger().addAppender(new ConsoleAppender(new PatternLayout("%d{ISO8601} - %m%n")));
+			ConsoleAppender consoleAppender = ConsoleAppender.newBuilder().setName("rootConsole").setLayout(PatternLayout.newBuilder().withPattern("%d{ISO8601} - %m%n").build()).build();
+			((Logger) LogManager.getRootLogger()).addAppender(consoleAppender);
 		}
 	}
 	
