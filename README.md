@@ -66,7 +66,7 @@ Installation
     * *for quantile extension; Install:*
       * devscripts
       * sudo
-      * postgresql-server-dev-all (or ..-10)
+      * postgresql-server-dev-all (or ..-13)
       * pgxnclient
       * Run:
         ` pgxn install quantile`
