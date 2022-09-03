@@ -4,30 +4,39 @@ CREATE OR REPLACE FUNCTION public.trigger_test_location()
 AS $function$
 DECLARE
 
-    -- _min_accuracy CONSTANT integer := 2000;
-    _min_accuracy CONSTANT integer := -1; -- disable mapping (broken)
+    _min_accuracy CONSTANT integer := 2000;
+
 
 BEGIN
 
+    -- Migration:
+    
+    -- alter table test_location add column geom4326 public.geometry(point,4326) null;
+    -- alter table test_location add column geom3857 public.geometry(point,3857) null;
+
+
     -- post process if location is updated
-    IF (TG_OP = 'INSERT' OR NEW.location IS DISTINCT FROM OLD.location) THEN
+    IF (TG_OP = 'INSERT' OR NEW.location IS DISTINCT FROM OLD.location) then
+
+        new.geom3857=st_setsrid(new.location,3857);   
+        new.geom4326=st_transform(new.geom3857,4326);
+       
         -- ignore if location is not accurate
         IF (NEW.location IS NULL OR NEW.geo_accuracy > _min_accuracy) THEN
 
         ELSE
-            -- new.location3857=new.location;
 
             -- add dsr id (Austrian dauersiedlungsraum)
             SELECT dsr.id::INTEGER INTO NEW.settlement_type
             FROM dsr
-            WHERE within(st_transform(NEW.location, 31287), dsr.geom)
+            WHERE within(st_transform(NEW.geom3857, 31287), dsr.geom)
             LIMIT 1;
 
             -- add Austrian streets and railway (FRC 1,2,3,4,20,21)
             select q1.link_id,
                    linknet_names.link_name,
                    round(ST_DistanceSphere(q1.geom,
-                                           ST_Transform(NEW.location,
+                                           ST_Transform(NEW.geom3857,
                                                         4326))) link_distance,
                    q1.frc,
                    q1.edge_id
@@ -39,15 +48,15 @@ BEGIN
                   FROM linknet
             -- optimize search by using boundary box on geometry
             -- bbox=ST_Expand(geom,0.01);
-            WHERE ST_Transform(NEW.location, 4326) && linknet.bbox
+            WHERE ST_Transform(NEW.geom3857, 4326) && linknet.bbox
 
                   ORDER BY ST_Distance(linknet.geom,
-                                       ST_Transform(NEW.location,
+                                       ST_Transform(NEW.geom3857,
                                                     4326)) ASC
                   LIMIT 1) as q1
                      LEFT JOIN linknet_names ON q1.link_id = linknet_names.link_id
              WHERE ST_DistanceSphere(q1.geom,
-                                   ST_Transform(NEW.location, 4326)) <=
+                                   ST_Transform(NEW.geom3857, 4326)) <=
                   10.0
             -- only if accuracy 10m or better
              AND NEW.geo_accuracy < 10.0
@@ -62,8 +71,8 @@ BEGIN
                        bev.kg_nr_int
                        INTO NEW.gkz_bev, NEW.kg_nr_bev
                 FROM bev_vgd bev
-                WHERE st_transform(NEW.location, 31287) && bev.bbox
-                AND within(st_transform(NEW.location, 31287), bev.geom)
+                WHERE st_transform(NEW.geom3857, 31287) && bev.bbox
+                AND within(st_transform(NEW.geom3857, 31287), bev.geom)
                 LIMIT 1;
             EXCEPTION
                 WHEN undefined_table THEN
@@ -75,9 +84,9 @@ BEGIN
             BEGIN
                 SELECT sa.id::INTEGER INTO NEW.gkz_sa
                 FROM statistik_austria_gem sa
-                WHERE st_transform(NEW.location, 31287) && sa.bbox
+                WHERE st_transform(NEW.geom3857, 31287) && sa.bbox
                 AND
-                within(st_transform(NEW.location, 31287), sa.geom)
+                within(st_transform(NEW.geom3857, 31287), sa.geom)
                 LIMIT 1;
             EXCEPTION
                 WHEN undefined_table THEN
@@ -90,8 +99,8 @@ BEGIN
             FROM clc12_all_oesterreich clc
             -- use boundary box to increase performance
             -- bbox=ST_EXPAND(geom,0.01)
-            WHERE st_transform(NEW.location, 3035) && clc.bbox
-              AND within(st_transform(NEW.location, 3035), clc.geom)
+            WHERE st_transform(NEW.geom3857, 3035) && clc.bbox
+              AND within(st_transform(NEW.geom3857, 3035), clc.geom)
             LIMIT 1;
 
             -- add country code (country_location)
@@ -101,7 +110,7 @@ BEGIN
                 SELECT INTO NEW.country_location iso_a2
                 FROM ne_10m_admin_0_countries
                 WHERE NEW.location && geom
-                  AND Within(NEW.location, geom)
+                  AND Within(NEW.geom3857, geom)
                   AND char_length(iso_a2) = 2
                   AND iso_a2 IS DISTINCT FROM 'AT' -- #659: because ne_50_admin_0_countries is inaccurate, do not allow to return 'AT'
                 LIMIT 1;
