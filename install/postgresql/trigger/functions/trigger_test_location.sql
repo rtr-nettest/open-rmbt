@@ -1,3 +1,13 @@
+    -- Migration:
+    
+    -- alter table test_location add column geom4326 public.geometry(point,4326) null;
+    -- alter table test_location add column geom3857 public.geometry(point,3857) null;
+
+    -- fix SRID issue with ne_10m_admin_0_countries
+    -- alter table ne_10m_admin_0_countries add column geom4326 public.geometry(multipolygon,4326) null;
+    -- update ne_10m_admin_0_countries set geom4326=st_transform(st_setsrid(geom,3857),4326);
+
+
 CREATE OR REPLACE FUNCTION public.trigger_test_location()
  RETURNS trigger
  LANGUAGE plpgsql
@@ -8,12 +18,6 @@ DECLARE
 
 
 BEGIN
-
-    -- Migration:
-    
-    -- alter table test_location add column geom4326 public.geometry(point,4326) null;
-    -- alter table test_location add column geom3857 public.geometry(point,3857) null;
-
 
     -- post process if location is updated
     IF (TG_OP = 'INSERT' OR NEW.location IS DISTINCT FROM OLD.location) then
@@ -109,8 +113,8 @@ BEGIN
             ELSE
                 SELECT INTO NEW.country_location iso_a2
                 FROM ne_10m_admin_0_countries
-                WHERE NEW.location && geom
-                  AND Within(NEW.geom3857, geom)
+                WHERE NEW.geom4326 && geom4326
+                  AND Within(NEW.geom4326, geom4326)
                   AND char_length(iso_a2) = 2
                   AND iso_a2 IS DISTINCT FROM 'AT' -- #659: because ne_50_admin_0_countries is inaccurate, do not allow to return 'AT'
                 LIMIT 1;
@@ -133,3 +137,4 @@ BEGIN
 END;
 $function$
 ;
+
