@@ -7,7 +7,6 @@
     -- alter table ne_10m_admin_0_countries add column geom4326 public.geometry(multipolygon,4326) null;
     -- update ne_10m_admin_0_countries set geom4326=st_transform(st_setsrid(geom,3857),4326);
 
-
 CREATE OR REPLACE FUNCTION public.trigger_test_location()
  RETURNS trigger
  LANGUAGE plpgsql
@@ -108,15 +107,15 @@ BEGIN
             LIMIT 1;
 
             -- add country code (country_location)
-            IF (NEW.gkz_bev IS NOT NULL) THEN -- #659(mod): Austrian communities are more accurate/up-to-date for AT than ne_50_admin_0_countries
+            IF (NEW.gkz_bev IS NOT NULL) THEN -- #659(mod): Austrian communities are more accurate/up-to-date for AT than admin_0_countries
                 NEW.country_location = 'AT';
             ELSE
                 SELECT INTO NEW.country_location iso_a2
-                FROM ne_10m_admin_0_countries
-                WHERE NEW.geom4326 && geom4326
-                  AND Within(NEW.geom4326, geom4326)
+                FROM admin_0_countries
+                WHERE NEW.geom4326 && geom
+                  AND Within(NEW.geom4326, geom)
                   AND char_length(iso_a2) = 2
-                  AND iso_a2 IS DISTINCT FROM 'AT' -- #659: because ne_50_admin_0_countries is inaccurate, do not allow to return 'AT'
+                  AND iso_a2 IS DISTINCT FROM 'AT' -- #659: because admin_0_countries is inaccurate, do not allow to return 'AT'
                 LIMIT 1;
             END IF;
 
@@ -137,4 +136,3 @@ BEGIN
 END;
 $function$
 ;
-
