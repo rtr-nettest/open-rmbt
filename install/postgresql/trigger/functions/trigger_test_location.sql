@@ -6,6 +6,7 @@
     -- fix SRID issue with ne_10m_admin_0_countries
     -- alter table ne_10m_admin_0_countries add column geom4326 public.geometry(multipolygon,4326) null;
     -- update ne_10m_admin_0_countries set geom4326=st_transform(st_setsrid(geom,3857),4326);
+    -- Use function to abstract country table rmbt_get_country_iso_a2()
 
 CREATE OR REPLACE FUNCTION public.trigger_test_location()
  RETURNS trigger
@@ -110,13 +111,12 @@ BEGIN
             IF (NEW.gkz_bev IS NOT NULL) THEN -- #659(mod): Austrian communities are more accurate/up-to-date for AT than admin_0_countries
                 NEW.country_location = 'AT';
             ELSE
-                SELECT INTO NEW.country_location iso_a2
-                FROM admin_0_countries
-                WHERE NEW.geom4326 && geom
-                  AND Within(NEW.geom4326, geom)
-                  AND char_length(iso_a2) = 2
-                  AND iso_a2 IS DISTINCT FROM 'AT' -- #659: because admin_0_countries is inaccurate, do not allow to return 'AT'
-                LIMIT 1;
+                BEGIN
+                  new.country_location=rmbt_get_country_iso_a2(NEW.geom4326);
+                  if (new.country_location='AT') then
+                     new.country_location=null; -- #659: because admin_0_countries is inaccurate, do not allow to return 'AT'
+                  end if;
+                end;
             END IF;
 
             -- add altitude level from digital terrain model (DTM) #1203
@@ -136,3 +136,4 @@ BEGIN
 END;
 $function$
 ;
+
