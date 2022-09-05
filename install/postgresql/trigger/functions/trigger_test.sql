@@ -11,7 +11,7 @@ DECLARE
     _mcc_net               VARCHAR;
     -- limit for accurate location (differs from map where 2000m and 10000m are thresholds)
     _min_accuracy CONSTANT integer := 3000;
-    _tmp_location          geometry;
+    _tmp_geom4326          geometry;
     _tmp_cell_identifier    integer;
 
 begin
@@ -66,19 +66,23 @@ begin
             NEW.ping_median = NEW.ping_shortest;
         END IF;
     END IF;
-
+ 
   -- migration to "clean" location projections:
   IF ((NEW.location IS NOT NULL) AND (new.location is distinct from old.location)) THEN
-        new.geom3857=st_setsrid(new.location,3857);
+        new.geom3857=st_setsrid(new.location,3857); 
         new.geom4326=st_transform(new.geom3857,4326);
-  end if;
-
+  end if;     
+   
    --  process location in table test_location
 
-    IF ((NEW.location IS NOT NULL) AND (new.location is distinct from old.location) AND 
+    IF ((NEW.geom4326 IS NOT NULL) AND (new.geom4326 is distinct from old.geom4326) AND
         (NEW.geo_location_uuid IS NOT NULL) ) THEN
         UPDATE test_location
         SET geo_location_uuid = NEW.geo_location_uuid,
+            geom4326          = new.geom4326,
+            -- geom3857 might be removed in the future from test_location
+            geom3857	      = new.geom3857,
+            -- location is obsolete and shall be removed from test_location when migration is finished
             location          = NEW.location,
             geo_lat           = NEW.geo_lat,
             geo_long          = NEW.geo_long,
@@ -86,9 +90,9 @@ begin
             geo_provider      = NEW.geo_provider
         WHERE open_test_uuid  = NEW.open_test_uuid;
         IF NOT FOUND THEN
-            INSERT INTO test_location (geo_location_uuid,open_test_uuid, location, geo_lat,
+            INSERT INTO test_location (geo_location_uuid,open_test_uuid, geom4326, geom3857, location, geo_lat,
                                        geo_long, geo_accuracy, geo_provider)
-            VALUES (NEW.geo_location_uuid,NEW.open_test_uuid, NEW.location, NEW.geo_lat,
+            VALUES (NEW.geo_location_uuid,NEW.open_test_uuid, new.geom4326, new.geom3857, NEW.location, NEW.geo_lat,
                     NEW.geo_long, NEW.geo_accuracy, NEW.geo_provider);
         END IF;
     END IF;
@@ -202,8 +206,8 @@ begin
         LIMIT 1;
 
         IF _tmp_uid is not null THEN
-            SELECT INTO NEW.dist_prev ST_Distance(ST_Transform(t.location, 4326)::geography,
-                                                  ST_Transform(NEW.location, 4326)::geography) -- #668 improve geo precision for the calculation of the distance (in meters) to a previous test
+            SELECT INTO NEW.dist_prev ST_DistanceSpheroid(t.geom4326,new.geom4326,'SPHEROID["WGS 84",6378137,298.257223563]')
+             -- #668 improve geo precision for the calculation of the distance (in meters) to a previous test      
             FROM test t
             WHERE uid = _tmp_uid;
             IF NEW.dist_prev is not null THEN
@@ -235,9 +239,9 @@ begin
         -- disabled due to #1540: AND (NEW.time > (now() - INTERVAL '5 minutes')) -- update only new entries, skip old entries
     THEN
         _tmp_uuid = NULL;
-        _tmp_location = NULL;
-        SELECT open_uuid, location INTO _tmp_uuid, _tmp_location
-        FROM test -- find the open_uuid and location
+        _tmp_geom4326 = NULL;
+        SELECT open_uuid, geom4326 INTO _tmp_uuid, _tmp_geom4326
+        FROM test -- find the open_uuid and geom4326
         WHERE (NEW.client_id = client_id)                                      -- of the current client
           AND (NEW.time > time)                                                -- thereby skipping the current entry (was: OLD.uid != uid)
           AND status = 'FINISHED'                                              -- of successful tests
@@ -251,10 +255,10 @@ begin
         IF
                 (_tmp_uuid IS NULL) -- previous query doesn't return any test
                 OR -- OR
-                (NEW.location IS NOT NULL AND _tmp_location IS NOT NULL
-                    AND ST_Distance(ST_Transform(NEW.location, 4326),
-                                    ST_Transform(_tmp_location, 4326)::geography)
-                     >= 100) -- the distance to the last test >= 100m
+                (NEW.geom4326 IS NOT NULL AND _tmp_geom4326 IS NOT NULL
+                    AND 
+                    ST_DistanceSpheroid(new.geom4326,_tmp_geom4326,'SPHEROID["WGS 84",6378137,298.257223563]') 
+                    >= 100) -- the distance to the last test >= 100m
         THEN
             _tmp_uuid = uuid_generate_v4(); --generate new open_uuid
         END IF;
@@ -330,12 +334,10 @@ begin
           AND NEW.public_ip_asn = public_ip_asn                   -- from the same network based on AS
           AND NEW.network_type = network_type                     -- of the same network_type
           AND CASE
-                  WHEN (NEW.location IS NOT NULL AND NEW.geo_accuracy IS NOT NULL AND NEW.geo_accuracy < 2000
-                      AND location IS NOT NULL AND geo_accuracy IS NOT NULL AND geo_accuracy < 2000)
-                      THEN ST_Distance(
-                                   ST_Transform(NEW.location, 4326),
-                                   ST_Transform(location, 4326)::geography
-                               ) < GREATEST(100, NEW.geo_accuracy) -- either within a radius of 100 m
+                  WHEN (NEW.geom4326 IS NOT NULL AND NEW.geo_accuracy IS NOT NULL AND NEW.geo_accuracy < 2000
+                      AND geom4326 IS NOT NULL AND geo_accuracy IS NOT NULL AND geo_accuracy < 2000)
+                      THEN ST_DistanceSpheroid(new.geom4326,geom4326,'SPHEROID["WGS 84",6378137,298.257223563]')
+                               < GREATEST(100, NEW.geo_accuracy) -- either within a radius of 100 m
                   ELSE TRUE -- or if no or inaccurate location, only other criteria count
             END
         ORDER BY time DESC -- consider the last, most previous test
@@ -353,9 +355,10 @@ begin
     IF (TG_OP = 'UPDATE' AND OLD.STATUS = 'STARTED' AND NEW.STATUS = 'FINISHED') -- for ordinary tests
        OR
        ((TG_OP = 'INSERT' OR TG_OP = 'UPDATE') AND NEW.STATUS = 'SIGNAL')        -- for signal measurements
-    THEN
-       INSERT INTO radio_signal_location (last_signal_uuid, last_radio_signal_uuid, last_geo_location_uuid, next_geo_location_uuid, open_test_uuid, interpolated_location, "time") select (interpolate_radio_signal_location_v2 (new.open_test_uuid)).*
-       ON CONFLICT DO NOTHING; -- conflicting rows will be ignored, the remaining will be inserted
+    then
+       -- currently inactive to debug performance issue
+       -- INSERT INTO radio_signal_location (last_signal_uuid, last_radio_signal_uuid, last_geo_location_uuid, next_geo_location_uuid, open_test_uuid, interpolated_location, "time") select (interpolate_radio_signal_location_v2 (new.open_test_uuid)).*
+       -- ON CONFLICT DO NOTHING; -- conflicting rows will be ignored, the remaining will be inserted
     END IF; --location and signal interpolation
 
     --debugging, should be commented out for production
