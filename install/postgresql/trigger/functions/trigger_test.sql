@@ -43,6 +43,10 @@ begin
         new.cell_area_code = _tmp_cell_identifier;
 	end if;     
 
+
+
+
+
     -- calc logarithmic speed downlink
     IF ((TG_OP = 'INSERT' OR NEW.speed_download IS DISTINCT FROM OLD.speed_download) AND NEW.speed_download > 0) THEN
         NEW.speed_download_log = (log(NEW.speed_download::double precision / 10)) / 4;
@@ -63,7 +67,13 @@ begin
         END IF;
     END IF;
 
-    --  process location in table test_location
+  -- migration to "clean" location projections:
+  IF ((NEW.location IS NOT NULL) AND (new.location is distinct from old.location)) THEN
+        new.geom3857=st_setsrid(new.location,3857);
+        new.geom4326=st_transform(new.geom3857,4326);
+  end if;
+
+   --  process location in table test_location
 
     IF ((NEW.location IS NOT NULL) AND (new.location is distinct from old.location) AND 
         (NEW.geo_location_uuid IS NOT NULL) ) THEN
@@ -276,14 +286,10 @@ begin
         AND (
             (NEW.network_operator ILIKE '232%') -- test with Austrian mobile network operator
             )
-        AND ST_Distance(
-                    ST_Transform(NEW.location, 4326), -- location of the test
-                    ST_Transform((select geom from ne_10m_admin_0_countries where sovereignt ilike 'Austria'),
-                                 4326)::geography -- Austria shape
-                ) > 35000 -- location is more than 35 km outside of the Austria shape
-        ) -- if
+        AND rmbt_get_distance_iso_a2(new.geom4326,'AT') > 35000 -- location is more than 35 km outside of the Austria shape
+        ) 
     THEN
-        NEW.status = 'UPDATE ERROR'; NEW.comment = 'Automatic update error due to invalid location per #272';
+        NEW.status = 'UPDATE ERROR'; NEW.comment = 'Invalid location #272';
     END IF;
 
     -- ignore provider_id if location outside Austria
@@ -292,17 +298,13 @@ begin
         AND (
             (NEW.provider_id IS NOT NULL) -- Austrian operator
             )
-        AND ST_Distance(
-                    ST_Transform(NEW.location, 4326), -- location of the test
-                    ST_Transform((select geom from ne_10m_admin_0_countries where sovereignt ilike 'Austria'),
-                                 4326)::geography -- Austria shape
-                ) > 3000 -- location is outside of the Austria shape with a tolerance of +3 km
+        AND rmbt_get_distance_iso_a2(new.geom4326,'AT') > 3000 -- location is outside of the Austria shape with a tolerance of +3 km
         ) -- if
     -- TODO Do we really need such a long comment within the database here?
     THEN
         NEW.provider_id = NULL;
         NEW.comment = concat(
-                'No provider_id outside of Austria for e.g. VPNs, HotSpots, manual location/geocoder etc. per #664; ',
+                'Not AT, no provider_id #664; ',
                 NEW.comment, NULLIF(OLD.comment, NEW.comment));
     END IF;
 
@@ -312,7 +314,7 @@ begin
         AND (NEW.model = 'unknown') -- model is 'unknown'
         )
     THEN
-        NEW.status = 'UPDATE ERROR'; NEW.comment = 'Automatic update error due to unknown model per #356';
+        NEW.status = 'UPDATE ERROR'; NEW.comment = 'Unknown model #356';
     END IF;
 
     -- implement test pinning (tests excluded from statistics)
