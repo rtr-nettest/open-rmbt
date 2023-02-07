@@ -6,24 +6,28 @@ Open-RMBT
 It consists of the following components:
 * Web site
 * JavaScript client
-* Android client
-* iOS client
+* Android client +
+* iOS client 
 * Measurement server
 * QoS measurement server (in this repository)
 * Control server 
-* Statistics server (in this repository)
+* Statistics server +
 * Map server (in this repository)
+
++) These components are available in separate repositories. This repository still contains outdated and incompatible versions of these components. They shall not be used for production purposes. Plese contact us if you are uncertain about the compatiblity of repositories.
 
 *Open-RMBT* is released under the [Apache License, Version 2.0](LICENSE). It was developed
 by the [Austrian Regulatory Authority for Broadcasting and Telecommunications (RTR-GmbH)](https://www.rtr.at/).
 
-Related materials
------------------
+
+Related material
+----------------
 
 * [RMBT specification](https://www.netztest.at/doc/)
 * [RTR-NetTest/rmbt-server](https://github.com/rtr-nettest/rmbt-server) - Test Server for conducting measurements based on the RMBT protocol
 * [RTR-NetTest/rmbtws](https://github.com/rtr-nettest/rmbtws) - JavaScript client for conducting RMBT-based speed measurements
 * [RTR-NetTest/open-rmbt-control](https://github.com/rtr-nettest/open-rmbt-control) - Control server
+* [RTR-NetTest/open-rmbt-statistics](https://github.com/rtr-nettest/open-rmbt-statistics) - Statistics server
 * [RTR-NetTest/open-rmbt-ios](https://github.com/rtr-nettest/open-rmbt-ios) - iOS app
 * [RTR-NetTest/open-rmbt-android](https://github.com/rtr-nettest/open-rmbt-android) - Android app
 * [RTR-NetTest/rtr-nettest/open-rmbt-website](https://github.com/rtr-nettest/open-rmbt-website) - Web site
@@ -34,9 +38,9 @@ System requirements
 
 * 1-3 servers
 * Everything can be installed on a single server 
-* The test servers (RMBT and Websocket) should run on a physical machine
+* The test server (RMBT-Websocket) should run on a physical machine
 * Base system Debian 11 or newer (or similar) 
-* At least one static IPv4 address (IPv6 support recommended, more addresses allow to run more services on port 443)
+* At least a single static public IPv4 address (IPv6 support recommended, more addresses allow to run more services on port 443)
 
   *NOTE: other Linux distributions can also be used, but commands and package names may be different*
 
@@ -105,42 +109,17 @@ Installation
     * max_parallel_workers_per_gather
     * max_parallel_workers
     
-### Control-,  Map- and StatisticServer
+### MapServer
 
 1. Install:
-  * Apache Tomcat 8 or higher
+  * Apache Tomcat 9 or higher
   * nginx (optional, highly recommended)
-  * openjdk-8-jre (do not use a higher version)
+  * openjdk-11-jre (do not use a higher version)
   * libservlet3.1-java
-  * [Maxmind GeoLite2 database](https://dev.maxmind.com/geoip/geoip2/geolite2/)
-  * _Optional:_ For StatisticServer pdf export functionality
-    * [Prince](https://www.princexml.com/) or 
-    * [Weasyprint](https://weasyprint.org/). For weasyprint, install as user tomcat (not as root):
-        * python3
-        * python3-pip
-        * run `pip3 install weasyprint`
 
-2. Edit `/etc/tomcat8/context.xml` (substitute parts with `[]`), add to `<Context>`:
+2. Edit `/etc/tomcat9/context.xml` (substitute parts with `[]`), add to `<Context>`:
 
-   For control server:
-    ```xml
-    <Context>
-    <!-- [...] -->
-    <Resource 
-       name="jdbc/rmbt" 
-       auth="Container"
-       type="javax.sql.DataSource"
-       maxActive="200" maxIdle="10" maxWait="10000"
-       url="jdbc:postgresql://[db host]/rmbt"
-       driverClassName="org.postgresql.Driver"
-       username="rmbt_control" password="[db r/w pass]"
-       description="DB RW Connection" />
-    <Parameter name="RMBT_SECRETKEY" value="[rmbt qos secret key]" override="false" />
-    <!-- [...] -->
-    </Context>
-    ```
-    For statistic/map servers:
-    
+
     ```xml
     <Context>
     <!-- [...] -->
@@ -157,24 +136,21 @@ Installation
     </Context>
      
     ```
-3. Build the servers
+3. Build the server:
     
-    The servers can be built with gradle:
+    The map server can be built with gradle:
     ```bash
-    ./gradlew :RMBTControlServer:war :RMBTMapServer:war :RMBTStatisticServer:war
+    ./gradlew :RMBTMapServer:war 
     ```
-    The war files are then located in `RMBT[Control|Map|Statistic]Server/build/lib`.
+    The war file is located in `RMBTMapServer/build/lib`.
 
-4. Copy `RMBTControlServer.war`, `RMBTMapServer.war` and/or `RMBTStatisticServer.war` to `/var/lib/tomcat8/webapps/`
-
-    In case the Java-Postgres connector is missing:
-    Add the package `libpostgresql-jdbc-java` and restart tomcat8.
-
-5. Run `service tomcat8 restart`
+4. Copy `RMBTMapServer.war` to `/var/lib/tomcat9/webapps/`
+    
+5. Add the package `libpostgresql-jdbc-java` from [Postgresql JDBC](https://jdbc.postgresql.org/) and restart tomcat9.
 
 6. Optimize tomcat settings
 
-    Check the values in /etc/default/tomcat8
+    Check the values in /etc/default/tomcat9
     * JAVA_OPTS -Xmms MEM -Xmx MEM
 
 Get in Touch
