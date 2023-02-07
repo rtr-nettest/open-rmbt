@@ -10,7 +10,7 @@ It consists of the following components:
 * iOS client 
 * Measurement server
 * QoS measurement server (in this repository)
-* Control server 
+* Control server +
 * Statistics server +
 * Map server (in this repository)
 
