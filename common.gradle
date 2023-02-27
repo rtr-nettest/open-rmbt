@@ -4,10 +4,10 @@
 ext {
     restletVersion = '2.4.3'
     servletVersion = '3.1.0'
-    jacksonVersion = '2.11.3'
-    catalinaVersion = '7.0.106'
+    jacksonVersion = '2.14.2'
+    catalinaVersion = '10.15'
     jsonVersion = '20200518'
-    javaMelodyVersion = '1.86.0'
+    javaMelodyVersion = '1.91.0'
     dbUtilsVersion = '1.7'
 }
 
