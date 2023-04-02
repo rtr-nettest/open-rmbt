@@ -86,12 +86,12 @@ public class ShapeTiles extends TileRestlet<ShapeTileParameters>
             //debugging hint: St_AsText allows human-readable representation of a geometry object
             final String sql = String.format(
                     "WITH box AS"
-                            //input from Browser is converted to 900913; has to be transformed to 31287 for use with bev data
+                            //input from Browser is converted to 3857; has to be transformed to 31287 for use with bev data
                     + " (SELECT ST_Transform(ST_SetSRID(ST_MakeBox2D(ST_Point(?,?),"
-                    + " ST_Point(?,?)), 900913), 31287) AS box)"
+                    + " ST_Point(?,?)), 3857), 31287) AS box)"
                     + " SELECT"
-                            //output has to be transformed to 900913 for Browsers
-                    + " ST_SnapToGrid(ST_Transform(ST_intersection(p.geom, box.box), 900913), ?,?,?,?) AS geom,"
+                            //output has to be transformed to EPSG:3857 for Browsers
+                    + " ST_SnapToGrid(ST_Transform(ST_intersection(p.geom, box.box), 3857), ?,?,?,?) AS geom,"
                     + " count(\"%1$s\") count,"
                     + " quantile(\"%1$s\",?) val" 
                     + " FROM box, bev_vgd p"
