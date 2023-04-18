@@ -23,49 +23,46 @@ export LANG=C
 # Open data site:
 # https://www.data.gv.at/katalog/dataset/stat_regionalstatistische-rastereinheiten66c96
 # current release
-URL=http://data.statistik.gv.at/data/OGDEXT_RASTER_1_STATISTIK_AUSTRIA_L000100_LAEA.zip
-
+URL=https://data.statistik.gv.at/data/OGDEXT_RASTER_1_STATISTIK_AUSTRIA_L000100_LAEA.zip
 
 mkdir ~/open
 cd ~/open
+rm -rf STATISTIK_AUSTRIA_L000100_LAEA*
 
-rm STATISTIK_AUSTRIA_L000100_LAEA*
-
-wget $URL
-unzip *.zip
-rm *.zip
-
+wget $URL -O atraster100.zip
+unzip atraster100.zip && rm atraster100.zip
 
 # import as table atraster (takes some time)
 # -I create geo index
 # -s data is in "ETRS_1989_LAEA" - this is EPSG:3035 (ETRS89-extended / LAEA Europe) => code 3035
-# -d drop table if it exists
-shp2pgsql -I -s 3035 -d STATISTIK_AUSTRIA_L000100_LAEA.shp atraster | psql rmbt > /dev/null 
+# :3857 => projection to 3857 (web)
+# ((-d drop table ))
+shp2pgsql -I -s 3035:3857  STATISTIK_AUSTRIA_L000100_LAEA.shp atraster100 | psql rmbt > /dev/null 
 
 # typical record
-# INSERT INTO "atraster" ("id","name",geom) VALUES ('100mN27473E45458','CRS3035RES100mN2747300E4545800','01060000000100000001030000000100000005000000000000004257514100000000D2F5444100000000425751410000000004F64441000000005B5751410000000004F64441000000005B57514100000000D2F54441000000004257514100000000D2F54441');
+# INSERT INTO "atraster100" ("id","name",geom) VALUES ('100mN27473E45458','CRS3035RES100mN2747300E4545800','01060000000100000001030000000100000005000000000000004257514100000000D2F5444100000000425751410000000004F64441000000005B5751410000000004F64441000000005B57514100000000D2F54441000000004257514100000000D2F54441');
 # column name is redundant, can be dropped to save space
-
-
 
 # create index on id
 
 sql=$(cat <<EOF
 BEGIN;
-CREATE INDEX atraster_id_idx
+CREATE INDEX atraster100_id_idx 
   ON atraster(id);
+CREATE INDEX idx_the_geom_4326_atraster100 
+  ON public.atraster100 USING gist (public.st_transform(geom,4326));
 ANALYSE atraster;
-ALTER TABLE atraster OWNER TO rmbt;
-GRANT SELECT ON TABLE atraster TO rmbt_group_read_only;
+ALTER TABLE atraster100 OWNER TO rmbt;
+GRANT SELECT ON TABLE atraster100 TO rmbt_group_read_only;
 COMMIT;
-VACUUM atraster;
+SELECT pg_size_pretty( pg_total_relation_size('atraster') );
 EOF
 )
 echo -e $sql|psql rmbt
 
 
 # Example query to select a raster based on WGS84 coordinates
-# SELECT * from atraster where SELECT * from atraster where ST_intersects((ST_Transform(ST_SetSRID(ST_MakePoint(12.6939,47.074531),4326),3035)),geom);
+# SELECT * from atraster100 where ST_intersects((ST_Transform(ST_SetSRID(ST_MakePoint(12.6939,47.074531),4326),3857)),geom);
 
 
 echo done
