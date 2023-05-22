@@ -124,7 +124,10 @@ Installation
 
    You need to add the test server key to the test_server table.
    
-5. Optimise postgres settings
+5. Edit `/etc/postgresql/13/main/postgresql.conf` to allow remote access for the ControlServer and other servers 
+   (change `listen_addresses`) and configure `/etc/postgresql/13/main/pg_hba.conf` accordingly
+
+6. Optimise postgres settings
    
     Check the values of 
     * shared_buffers
