@@ -62,45 +62,69 @@ Installation
 ### Database Server
 
 1. Install:
-    * postgresql (version 13 and higher)
-    * postgresql-common
+    * postgresql-13
     * postgresql-contrib
+    * postgresql-13-cron
     * postgis
     * postgresql-13-postgis-3
     * *for quantile extension; Install:*
       * devscripts
       * sudo
-      * postgresql-server-dev-all (or ..-13)
+      * postgresql-server-dev-13
       * pgxnclient
       * Run:
         ` pgxn install quantile`
 
-2. Run:
+2. Configure pg_cron, add in
+   /etc/postgresql/13/main/postgresql.conf
+   ```
+   # -- extension pg_cron
+   # add to postgresql.conf
+
+   # required to load pg_cron background worker on start-up
+   shared_preload_libraries = 'pg_cron'
+   # optionally, specify the database in which the pg_cron background worker should
+   cron.database_name = 'rmbt'
+
+   # Schedule jobs via background workers instead of localhost connections
+   cron.use_background_workers = on
+   ```
+
+3. Run:
 
     ```bash
+    # Restart database to enable pg_cron
+    systemctl restart postgresql
     su - postgres
-    createuser -lSRD rmbt     # (set db pass)
-    createuser -lSRDP rmbt_control     # (set db pass)
+    # Create database users
+    createuser -lSRDP rmbt     # (set password)
+    createuser -lSRDP rmbt_control     # (set password)
     createuser -LSRD rmbt_group_control
     createuser -LSRD rmbt_group_read_only
+    createuser -LSRD rmbt_group_read_only
+    # The following two users are within schema, but not required
+    # for basic functionality
+    createuser -LSRD kibana # (for export)
+    createuser -LSRD nagios # (for monitoring) 
+    # Additional users might be required for replication
     echo 'GRANT rmbt_group_read_only TO rmbt_group_control;' | psql
     echo 'GRANT rmbt_group_control TO rmbt_control;' | psql
-    createdb -O rmbt rmbt
+
+    # Create database
+    createdb -O rmbt rmbt 
  
-    # (additional users might be needed for replication and nagios)
-    
-    # if not using postgis 3, set the correct version
-    #> sed -i "s/postgis-3/postgis-X\.Y/g rmbt.sql"
+    # import database scheme    
     cat rmbt.sql | psql rmbt -1
+    # import basic configuration (modifiy according to your needs)
     cat rmbt_init.sql | psql rmbt -1
     ```
-    (optional: add additional open databases, eg. Corine)
+    (optional: add additional 3rd party open data, eg. Corine)
 
-3. Edit table "test_server"
+4. Edit table "test_server"
 
    You need to add the test server key to the test_server table.
    
-4. Optimise postgres settings
+5. Optimise postgres settings
    
     Check the values of 
     * shared_buffers

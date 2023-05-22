@@ -1,15 +1,14 @@
--- 2019-07-26_06-46-41 rmbt.sql
 --
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 10.9 (Debian 10.9-1.pgdg90+1)
--- Dumped by pg_dump version 10.9 (Debian 10.9-1.pgdg90+1)
+-- Dumped from database version 13.11 (Debian 13.11-0+deb11u1)
+-- Dumped by pg_dump version 13.11 (Debian 13.11-0+deb11u1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
-SET client_encoding = 'UTF8';
+SET client_encoding = 'SQL_ASCII';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
@@ -18,21 +17,21 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
+-- Name: pg_cron; Type: EXTENSION; Schema: -; Owner: -
 --
 
-CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
-
-
---
--- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
---
-
-COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
+CREATE EXTENSION IF NOT EXISTS pg_cron WITH SCHEMA public;
 
 
 --
--- Name: hstore; Type: EXTENSION; Schema: -; Owner: 
+-- Name: EXTENSION pg_cron; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION pg_cron IS 'Job scheduler for PostgreSQL';
+
+
+--
+-- Name: hstore; Type: EXTENSION; Schema: -; Owner: -
 --
 
 CREATE EXTENSION IF NOT EXISTS hstore WITH SCHEMA public;
@@ -46,7 +45,7 @@ COMMENT ON EXTENSION hstore IS 'data type for storing sets of (key, value) pairs
 
 
 --
--- Name: pgstattuple; Type: EXTENSION; Schema: -; Owner: 
+-- Name: pgstattuple; Type: EXTENSION; Schema: -; Owner: -
 --
 
 CREATE EXTENSION IF NOT EXISTS pgstattuple WITH SCHEMA public;
@@ -60,7 +59,7 @@ COMMENT ON EXTENSION pgstattuple IS 'show tuple-level statistics';
 
 
 --
--- Name: postgis; Type: EXTENSION; Schema: -; Owner: 
+-- Name: postgis; Type: EXTENSION; Schema: -; Owner: -
 --
 
 CREATE EXTENSION IF NOT EXISTS postgis WITH SCHEMA public;
@@ -74,7 +73,21 @@ COMMENT ON EXTENSION postgis IS 'PostGIS geometry, geography, and raster spatial
 
 
 --
--- Name: quantile; Type: EXTENSION; Schema: -; Owner: 
+-- Name: postgis_raster; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS postgis_raster WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION postgis_raster; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION postgis_raster IS 'PostGIS raster types and functions';
+
+
+--
+-- Name: quantile; Type: EXTENSION; Schema: -; Owner: -
 --
 
 CREATE EXTENSION IF NOT EXISTS quantile WITH SCHEMA public;
@@ -88,7 +101,7 @@ COMMENT ON EXTENSION quantile IS 'Provides quantile aggregate function.';
 
 
 --
--- Name: uuid-ossp; Type: EXTENSION; Schema: -; Owner: 
+-- Name: uuid-ossp; Type: EXTENSION; Schema: -; Owner: -
 --
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA public;
@@ -176,146 +189,6 @@ $_$;
 
 
 ALTER FUNCTION public._final_median(anyarray) OWNER TO postgres;
-
---
--- Name: affine(public.geometry, double precision, double precision, double precision, double precision, double precision, double precision); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.affine(public.geometry, double precision, double precision, double precision, double precision, double precision, double precision) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$SELECT st_affine($1,  $2, $3, 0,  $4, $5, 0,  0, 0, 1,  $6, $7, 0)$_$;
-
-
-ALTER FUNCTION public.affine(public.geometry, double precision, double precision, double precision, double precision, double precision, double precision) OWNER TO postgres;
-
---
--- Name: asgml(public.geometry); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.asgml(public.geometry) RETURNS text
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$SELECT _ST_AsGML(2, $1, 15, 0, null, null)$_$;
-
-
-ALTER FUNCTION public.asgml(public.geometry) OWNER TO postgres;
-
---
--- Name: asgml(public.geometry, integer); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.asgml(public.geometry, integer) RETURNS text
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$SELECT _ST_AsGML(2, $1, $2, 0, null, null)$_$;
-
-
-ALTER FUNCTION public.asgml(public.geometry, integer) OWNER TO postgres;
-
---
--- Name: askml(public.geometry); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.askml(public.geometry) RETURNS text
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$SELECT _ST_AsKML(2, ST_Transform($1,4326), 15, null)$_$;
-
-
-ALTER FUNCTION public.askml(public.geometry) OWNER TO postgres;
-
---
--- Name: askml(public.geometry, integer); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.askml(public.geometry, integer) RETURNS text
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$SELECT _ST_AsKML(2, ST_transform($1,4326), $2, null)$_$;
-
-
-ALTER FUNCTION public.askml(public.geometry, integer) OWNER TO postgres;
-
---
--- Name: askml(integer, public.geometry, integer); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.askml(integer, public.geometry, integer) RETURNS text
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$SELECT _ST_AsKML($1, ST_Transform($2,4326), $3, null)$_$;
-
-
-ALTER FUNCTION public.askml(integer, public.geometry, integer) OWNER TO postgres;
-
---
--- Name: bdmpolyfromtext(text, integer); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.bdmpolyfromtext(text, integer) RETURNS public.geometry
-    LANGUAGE plpgsql IMMUTABLE STRICT
-    AS $_$
-DECLARE
-	geomtext alias for $1;
-	srid alias for $2;
-	mline geometry;
-	geom geometry;
-BEGIN
-	mline := ST_MultiLineStringFromText(geomtext, srid);
-
-	IF mline IS NULL
-	THEN
-		RAISE EXCEPTION 'Input is not a MultiLinestring';
-	END IF;
-
-	geom := ST_Multi(ST_BuildArea(mline));
-
-	RETURN geom;
-END;
-$_$;
-
-
-ALTER FUNCTION public.bdmpolyfromtext(text, integer) OWNER TO postgres;
-
---
--- Name: bdpolyfromtext(text, integer); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.bdpolyfromtext(text, integer) RETURNS public.geometry
-    LANGUAGE plpgsql IMMUTABLE STRICT
-    AS $_$
-DECLARE
-	geomtext alias for $1;
-	srid alias for $2;
-	mline geometry;
-	geom geometry;
-BEGIN
-	mline := ST_MultiLineStringFromText(geomtext, srid);
-
-	IF mline IS NULL
-	THEN
-		RAISE EXCEPTION 'Input is not a MultiLinestring';
-	END IF;
-
-	geom := ST_BuildArea(mline);
-
-	IF GeometryType(geom) != 'POLYGON'
-	THEN
-		RAISE EXCEPTION 'Input returns more then a single polygon, try using BdMPolyFromText instead';
-	END IF;
-
-	RETURN geom;
-END;
-$_$;
-
-
-ALTER FUNCTION public.bdpolyfromtext(text, integer) OWNER TO postgres;
-
---
--- Name: buffer(public.geometry, double precision, integer); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.buffer(public.geometry, double precision, integer) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$SELECT ST_Buffer($1, $2, $3)$_$;
-
-
-ALTER FUNCTION public.buffer(public.geometry, double precision, integer) OWNER TO postgres;
 
 --
 -- Name: cov_get_donor_geo_location(bigint); Type: FUNCTION; Schema: public; Owner: rmbt
@@ -463,80 +336,6 @@ $$;
 ALTER FUNCTION public.cov_signal_json_to_csv(signals jsonb) OWNER TO rmbt;
 
 --
--- Name: find_extent(text, text); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.find_extent(text, text) RETURNS public.box2d
-    LANGUAGE plpgsql IMMUTABLE STRICT
-    AS $_$
-DECLARE
-	tablename alias for $1;
-	columnname alias for $2;
-	myrec RECORD;
-
-BEGIN
-	FOR myrec IN EXECUTE 'SELECT ST_Extent("' || columnname || '") As extent FROM "' || tablename || '"' LOOP
-		return myrec.extent;
-	END LOOP;
-END;
-$_$;
-
-
-ALTER FUNCTION public.find_extent(text, text) OWNER TO postgres;
-
---
--- Name: find_extent(text, text, text); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.find_extent(text, text, text) RETURNS public.box2d
-    LANGUAGE plpgsql IMMUTABLE STRICT
-    AS $_$
-DECLARE
-	schemaname alias for $1;
-	tablename alias for $2;
-	columnname alias for $3;
-	myrec RECORD;
-
-BEGIN
-	FOR myrec IN EXECUTE 'SELECT ST_Extent("' || columnname || '") FROM "' || schemaname || '"."' || tablename || '" As extent ' LOOP
-		return myrec.extent;
-	END LOOP;
-END;
-$_$;
-
-
-ALTER FUNCTION public.find_extent(text, text, text) OWNER TO postgres;
-
---
--- Name: fix_geometry_columns(); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.fix_geometry_columns() RETURNS text
-    LANGUAGE plpgsql
-    AS $$
-DECLARE
-	mislinked record;
-	result text;
-	linked integer;
-	deleted integer;
-	foundschema integer;
-BEGIN
-
-	-- Since 7.3 schema support has been added.
-	-- Previous postgis versions used to put the database name in
-	-- the schema column. This needs to be fixed, so we try to
-	-- set the correct schema for each geometry_colums record
-	-- looking at table, column, type and srid.
-	
-	return 'This function is obsolete now that geometry_columns is a view';
-
-END;
-$$;
-
-
-ALTER FUNCTION public.fix_geometry_columns() OWNER TO postgres;
-
---
 -- Name: fix_location(integer, integer); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -664,188 +463,6 @@ $$;
 ALTER FUNCTION public.fix_location0(a integer, b integer) OWNER TO postgres;
 
 --
--- Name: geomcollfromtext(text); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.geomcollfromtext(text) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$
-	SELECT CASE
-	WHEN geometrytype(GeomFromText($1)) = 'GEOMETRYCOLLECTION'
-	THEN GeomFromText($1)
-	ELSE NULL END
-	$_$;
-
-
-ALTER FUNCTION public.geomcollfromtext(text) OWNER TO postgres;
-
---
--- Name: geomcollfromtext(text, integer); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.geomcollfromtext(text, integer) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$
-	SELECT CASE
-	WHEN geometrytype(GeomFromText($1, $2)) = 'GEOMETRYCOLLECTION'
-	THEN GeomFromText($1,$2)
-	ELSE NULL END
-	$_$;
-
-
-ALTER FUNCTION public.geomcollfromtext(text, integer) OWNER TO postgres;
-
---
--- Name: geomcollfromwkb(bytea); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.geomcollfromwkb(bytea) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$
-	SELECT CASE
-	WHEN geometrytype(GeomFromWKB($1)) = 'GEOMETRYCOLLECTION'
-	THEN GeomFromWKB($1)
-	ELSE NULL END
-	$_$;
-
-
-ALTER FUNCTION public.geomcollfromwkb(bytea) OWNER TO postgres;
-
---
--- Name: geomcollfromwkb(bytea, integer); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.geomcollfromwkb(bytea, integer) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$
-	SELECT CASE
-	WHEN geometrytype(GeomFromWKB($1, $2)) = 'GEOMETRYCOLLECTION'
-	THEN GeomFromWKB($1, $2)
-	ELSE NULL END
-	$_$;
-
-
-ALTER FUNCTION public.geomcollfromwkb(bytea, integer) OWNER TO postgres;
-
---
--- Name: geomfromtext(text); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.geomfromtext(text) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$SELECT ST_GeomFromText($1)$_$;
-
-
-ALTER FUNCTION public.geomfromtext(text) OWNER TO postgres;
-
---
--- Name: geomfromtext(text, integer); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.geomfromtext(text, integer) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$SELECT ST_GeomFromText($1, $2)$_$;
-
-
-ALTER FUNCTION public.geomfromtext(text, integer) OWNER TO postgres;
-
---
--- Name: geomfromwkb(bytea, integer); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.geomfromwkb(bytea, integer) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$SELECT ST_SetSRID(ST_GeomFromWKB($1), $2)$_$;
-
-
-ALTER FUNCTION public.geomfromwkb(bytea, integer) OWNER TO postgres;
-
---
--- Name: get_bev_vgd(public.geometry); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.get_bev_vgd(location public.geometry) RETURNS TABLE(kg_nr character varying, kg_nr_bev integer, kg character varying, meridian character varying, gkz character varying, gkz_bev integer, pg character varying, bkz character varying, pb character varying, fa_nr character varying, fa character varying, gb_kz character varying, gb character varying, va_nr character varying, va character varying, bl_kz character varying, bl character varying, st_kz smallint, st character varying, fl double precision, geom public.geometry)
-    LANGUAGE plpgsql
-    AS $$
-
-BEGIN
-
-
-    BEGIN
-        RETURN QUERY
-            SELECT bev_vgd.kg_nr,
-                   bev_vgd.kg_nr::integer,
-                   bev_vgd.kg,
-                   bev_vgd.meridian,
-                   bev_vgd.gkz,
-                   bev_vgd.gkz::integer,
-                   bev_vgd.pg,
-                   bev_vgd.bkz,
-                   bev_vgd.pb,
-                   bev_vgd.fa_nr,
-                   bev_vgd.fa,
-                   bev_vgd.gb_kz,
-                   bev_vgd.gb,
-                   bev_vgd.va_nr,
-                   bev_vgd.va,
-                   bev_vgd.bl_kz,
-                   bev_vgd.bl,
-                   bev_vgd.st_kz,
-                   bev_vgd.st,
-                   bev_vgd.fl,
-                   bev_vgd.geom
-
-            FROM bev_vgd
-            WHERE within(st_transform(location, 31287), bev_vgd.geom)
-            LIMIT 1;
-
-    EXCEPTION
-        WHEN undefined_table THEN
-            -- just return NULL, but ignore missing database
-            RAISE NOTICE '%', SQLERRM;
-    END;
-
-END;
-
-
-$$;
-
-
-ALTER FUNCTION public.get_bev_vgd(location public.geometry) OWNER TO postgres;
-
---
--- Name: get_gkz_sa(public.geometry); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.get_gkz_sa(location public.geometry) RETURNS integer
-    LANGUAGE plpgsql
-    AS $$
-DECLARE
-    gkz_sa INTEGER := NULL;
-BEGIN
-    IF (location IS NULL) THEN
-        RETURN NULL;
-    end if;
-    BEGIN
-        SELECT sa.id::INTEGER INTO gkz_sa
-        FROM statistik_austria_gem sa
-        WHERE within(st_transform(location, 31287), sa.geom)
-        LIMIT 1;
-
-    EXCEPTION
-        WHEN undefined_table THEN
-            -- just return NULL, but ignore missing database
-            RAISE NOTICE '%', SQLERRM;
-    END;
-    RETURN gkz_sa;
-END;
-
-$$;
-
-
-ALTER FUNCTION public.get_gkz_sa(location public.geometry) OWNER TO postgres;
-
---
 -- Name: get_replication_delay(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -897,6 +514,40 @@ $$;
 ALTER FUNCTION public.get_sync_code(client_uuid uuid) OWNER TO rmbt;
 
 --
+-- Name: getnewsstatus(boolean, timestamp with time zone, timestamp with time zone); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.getnewsstatus(boolean, timestamp with time zone, timestamp with time zone) RETURNS character varying
+    LANGUAGE plpgsql
+    AS $_$
+DECLARE
+    active alias for $1;
+    startDate alias for $2;
+    endDate alias for $3;
+    now       timestamp with time zone;
+    isEnded   boolean;
+    isStarted boolean;
+BEGIN
+    now := NOW();
+    isEnded := endDate IS NOT NULL AND endDate < now;
+    isStarted := startDate < now;
+
+    RETURN CASE
+               WHEN active AND NOT isEnded AND NOT isStarted
+                   THEN 'SCHEDULED'
+               WHEN active AND NOT isEnded AND isStarted
+                   THEN 'PUBLISHED'
+               WHEN active AND isEnded
+                   THEN 'EXPIRED'
+               ELSE 'DRAFT'
+        END;
+END;
+$_$;
+
+
+ALTER FUNCTION public.getnewsstatus(boolean, timestamp with time zone, timestamp with time zone) OWNER TO postgres;
+
+--
 -- Name: hstore2json(public.hstore); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -925,254 +576,6 @@ $$;
 
 
 ALTER FUNCTION public.hstore2json(hs public.hstore) OWNER TO postgres;
-
---
--- Name: interpolate_radio_signal_location(uuid); Type: FUNCTION; Schema: public; Owner: rmbt
---
-
-CREATE FUNCTION public.interpolate_radio_signal_location(in_open_test_uuid uuid) RETURNS TABLE(out_last_signal_uuid uuid, out_last_radio_signal_uuid uuid, out_last_geo_location_uuid uuid, out_open_test_uuid uuid, out_interpolated_location public.geometry, out_time timestamp with time zone)
-    LANGUAGE plpgsql
-    AS $$
--- USAGE:
--- # for data migration:
---   insert into radio_signal_location (last_signal_uuid, last_radio_signal_uuid, last_geo_location_uuid, open_test_uuid, interpolated_location, time) select (interpolate_radio_signal_location (open_test_uuid)).* from test where open_test_uuid = '0583309a-1c36-4048-90d1-a777be8ef4fd' order by uid asc;
--- # with single open_test_uuid (e.g. in trigger or server code):
---   insert into radio_signal_location (last_signal_uuid, last_radio_signal_uuid, last_geo_location_uuid, open_test_uuid, interpolated_location, time) select (interpolate_radio_signal_location ('0583309a-1c36-4048-90d1-a777be8ef4fd')).* ;
--- # show only (e.g for debugging):
---   select (interpolate_radio_signal_location ('0583309a-1c36-4048-90d1-a777be8ef4fd')).*;
--- # generate test data:
---   select * from (
---   (select * from interpolate_radio_signal_location ('0583309a-1c36-4048-90d1-a777be8ef4fd') left join signal on signal_uuid=out_last_signal_uuid left join radio_signal on radio_signal_uuid = out_last_radio_signal_uuid left join geo_location on geo_location_uuid= out_last_geo_location_uuid)
---   union
---   (select * from interpolate_radio_signal_location ('d1fe403a-14b5-41a7-946a-251b1a5f49ce') left join signal on signal_uuid=out_last_signal_uuid left join radio_signal on radio_signal_uuid = out_last_radio_signal_uuid left join geo_location on geo_location_uuid= out_last_geo_location_uuid)
---   ) as foo order by out_open_test_uuid, out_time;
-declare
-  signal_rows_found bool;
-  test_time timestamptz;
-  MAX_INACCURACY constant double precision := 2000.0;
-  MIN_TIME_NS constant bigint := -1*60*1000000000::bigint; -- -1 minute  in nanoseconds
-  MAX_TIME_NS constant bigint :=  2*60*1000000000::bigint; --  2 minutes in nanoseconds
-BEGIN
-  --raise notice '%',  in_open_test_uuid; --debug, can be commented out
-SELECT test.time INTO test_time FROM test WHERE open_test_uuid = in_open_test_uuid;
-if not found then
-  return; -- no timestamp found for this open_test_uuid, return nothing and exit
-end if;
-
-CREATE TEMP TABLE if not exists temp_radio_signal_location (
-  -- inputs:
-  signal_uuid uuid,
-  radio_signal_uuid uuid,
-  geo_location_uuid uuid,
-  open_test_uuid uuid,
-  time_ns bigint, -- this is also debug or auxillary output for. e.g. sorting purposes - equals to a coalesce of all time_ns from geo_location, signal and radio_signal tables
-  signal_strength int, -- a coalesce of 2G/3G/4G/WLAN signal strengths
-  location geometry,
-  -- intermediate internal results:
-  time_ns_a bigint,     --time of first interpolation point
-  location_a geometry,  --and its location
-  time_ns_b bigint,     --time of last interpolation point
-  location_b geometry,  --and its location
-  -- outputs:
-  last_signal_uuid uuid,       --last non-null signal_uuid
-  last_radio_signal_uuid uuid, --last non-null radio_signal_uuid
-  last_geo_location_uuid uuid, --last non-null geo_location_uuid
-  interpolated_location geometry, --points from geo_location and interpolated points for signal rows
-  last_signal_strength int,       --last non-null signal strength
-  "time" timestamptz,             --timestamp with accuracy of microseconds, equals to test.time + time_ns
-  -- internal:
-  uid bigserial
-  ) on commit drop;
-
-truncate table temp_radio_signal_location;
-
-insert into temp_radio_signal_location (/*signal_uuid=NULL, radio_signal_uuid=NULL,*/ geo_location_uuid, open_test_uuid, time_ns, location/*, signal_strength*/)
-  select geo_location_uuid, geo_location.open_test_uuid, time_ns, location
-  from geo_location
-  where geo_location.open_test_uuid = in_open_test_uuid
-    and location is not null and accuracy <= MAX_INACCURACY -- consider only data with good accuracy
-    AND time_ns BETWEEN MIN_TIME_NS AND MAX_TIME_NS;        -- consider only plausible time_ns values
-if not found then
-  return; -- no location data found for this open_test_uuid, return nothing and exit
-end if;
-
-insert into temp_radio_signal_location (signal_uuid, /*radio_signal_uuid=NULL, geo_location_uuid=NULL,*/ open_test_uuid, time_ns /*,location=NULL*/, signal_strength)
-  select signal_uuid, signal.open_test_uuid,time_ns, lte_rsrp -- temporary only 4G, should be coalesce - TODO tbd
-  from signal
-  where signal.open_test_uuid = in_open_test_uuid
-    AND time_ns BETWEEN MIN_TIME_NS AND MAX_TIME_NS;       -- consider only plausible time_ns values
-signal_rows_found := found;
-
-insert into temp_radio_signal_location (/*signal_uuid=NULL,*/ radio_signal_uuid, /*geo_location_uuid=NULL,*/ open_test_uuid, time_ns /*,location=NULL*/, signal_strength)
-  select radio_signal_uuid, radio_signal.open_test_uuid, time_ns, lte_rsrp -- temporary only 4G, should be coalesce - TODO tbd
-  from radio_signal
-  join radio_cell on radio_signal.cell_uuid = radio_cell.uuid and registered and active  --for active cells only and the active SIM in case of dual SIMs
-  where radio_signal.open_test_uuid = in_open_test_uuid
-    AND time_ns BETWEEN MIN_TIME_NS AND MAX_TIME_NS;        -- consider only plausible time_ns values
-if (not signal_rows_found and not /*radio_signal_rows_*/found) then -- or (signal_rows_found and /*radio_signal_rows_*/found) == additionally both signal and radio_signal found - would be more restrictive
-  return; -- no signal data found, return nothing and exit
-end if;
-
--- do first the time ascending handling
-declare -- default values are NULL
-  cursor_asc cursor for select * from temp_radio_signal_location order by time_ns asc for update;
-  row record;
-  last_oldsig_uuid uuid;
-  last_sig_uuid uuid;
-  last_geo_uuid uuid;
-  last_time_ns_a bigint;
-  last_location_a geometry;
-  last_sig_strength int;
-begin
-for row in cursor_asc
-  LOOP
-    <<get_missing_values_asc>>
-    BEGIN
-      if row.signal_uuid is not null and row.signal_uuid is distinct from last_oldsig_uuid then
-        last_oldsig_uuid := row.signal_uuid;
-      end if;
-      if row.radio_signal_uuid is not null and row.radio_signal_uuid is distinct from last_sig_uuid then
-        last_sig_uuid := row.radio_signal_uuid;
-      end if;
-      if row.geo_location_uuid is not null and row.geo_location_uuid is distinct from last_geo_uuid then
-        last_geo_uuid := row.geo_location_uuid;
-      end if;
-      if row.time_ns is not null and row.time_ns is distinct from last_time_ns_a and row.geo_location_uuid is not null then
-        last_time_ns_a := row.time_ns;
-      end if;
-      if row.location is not null and row.location is distinct from last_location_a then
-        last_location_a := row.location;
-      end if;
-      if row.signal_strength is not null and row.signal_strength is distinct from last_sig_strength then
-        last_sig_strength := row.signal_strength;
-      end if;
-    END get_missing_values_asc;
-    <<populate_missing_values_asc>>
-    BEGIN
-      if last_oldsig_uuid is not null then -- assume last old signal
-          update temp_radio_signal_location set last_signal_uuid = last_oldsig_uuid where current of cursor_asc;
-        end if;
-      if last_sig_uuid is not null then -- assume last signal
-        update temp_radio_signal_location set last_radio_signal_uuid = last_sig_uuid where current of cursor_asc;
-      end if;
-      if last_geo_uuid is not null then -- assume last location
-        update temp_radio_signal_location set last_geo_location_uuid = last_geo_uuid where current of cursor_asc;
-      end if;
-      if last_time_ns_a is not null then -- fill last time_ns_a
-        update temp_radio_signal_location set time_ns_a = last_time_ns_a where current of cursor_asc;
-      end if;
-      if last_location_a is not null then -- assume last location
-        update temp_radio_signal_location set location_a = last_location_a where current of cursor_asc;
-      end if;
-      if last_sig_strength is not null then -- assume last signal_strength
-        update temp_radio_signal_location set last_signal_strength = last_sig_strength where current of cursor_asc;
-      end if;
-      update temp_radio_signal_location set time = test_time + ( (ROW.time_ns/1000.0) * INTERVAL '1 microsecond')  where current of cursor_asc;  -- timestamp has accuracy of microseconds
-    END populate_missing_values_asc;
-  END LOOP;
-end;
-
--- secondly do the time descending handling
-declare -- default values are NULL
-  cursor_desc cursor for select * from temp_radio_signal_location order by time_ns desc for update;
-  row record;
-  last_time_ns_b bigint;
-  last_location_b geometry;
-  interpolated_line geometry;
-  interpolated_point geometry;
-  fraction double precision;
-begin
-for row in cursor_desc
-  LOOP
-    <<get_missing_values_desc>>
-    BEGIN
-      if row.time_ns is not null and row.time_ns is distinct from last_time_ns_b and row.geo_location_uuid is not null then
-        last_time_ns_b := row.time_ns;
-      end if;
-      if row.location is not null and row.location is distinct from last_location_b then
-        last_location_b := row.location;
-      end if;
-    END get_missing_values_desc;
-    <<populate_missing_values_desc>>
-    BEGIN
-      if last_time_ns_b is not null then -- fill next time_ns_b
-        update temp_radio_signal_location set time_ns_b = last_time_ns_b where current of cursor_desc;
-      end if;
-      if last_location_b is not null then -- assume next location
-        update temp_radio_signal_location set location_b = last_location_b where current of cursor_desc;
-      end if;
-    END populate_missing_values_desc;
-  END LOOP;
-end;
-
--- do the interpolation
-declare -- default values are NULL
-  cursor_asc cursor for select * from temp_radio_signal_location order by time_ns asc for update;
-  row record;
-  interpolated_line geometry;
-  interpolated_point geometry;
-  fraction double precision;
-begin
-for row in cursor_asc
-  LOOP
-    <<populate_interpolated_values>>
-    BEGIN
-      if row.location_a is not null then
-          if row.location_b is not null then
-            interpolated_line := ST_makeline(row.location_a, row.location_b);
-            if row.time_ns_a <> row.time_ns_b then
-              fraction := (row.time_ns - row.time_ns_a)::double precision/(row.time_ns_b - row.time_ns_a)::double precision;
-            else
-              fraction := 0; -- it is one point only
-            end if;
-            interpolated_point := ST_lineinterpolatepoint(interpolated_line, fraction);
-            update temp_radio_signal_location set interpolated_location = interpolated_point /*, provider = 'interpolated'*/ where current of cursor_asc;
-          else --row.location_b is null, take the last row.location_a
-            update temp_radio_signal_location set interpolated_location = row.location_a /*, provider = 'last_position'*/ where current of cursor_asc;
-          end if;
-      end if;
-    END populate_interpolated_values;
-  END LOOP;
-end;
-return query select
-  last_signal_uuid,
-  last_radio_signal_uuid,
-  last_geo_location_uuid,
-  open_test_uuid,
-  interpolated_location,
-  "time"
-  --debug:
-  --,time_ns,
-  --last_signal_strength
-  --time_ns_a,
-  --location_a,
-  --time_ns_b,
-  --location_b
-  from temp_radio_signal_location
-  where
-    (((last_signal_uuid IS NOT NULL) AND (last_radio_signal_uuid IS NULL)) OR ((last_signal_uuid IS NULL) AND (last_radio_signal_uuid IS NOT NULL))) --only return rows with either signal or radio signal according to constraint xor_signals_not_null
-    and  (((last_geo_location_uuid IS NOT NULL) AND (interpolated_location IS NOT NULL))) -- and with location according to constraint location_not_null_for_uuid
-    AND "time" IS NOT NULL -- and with a timestamp
-  order by time_ns asc;
-
--- do the approximate counting stuff
--- it is optional and can be commented out
-/*<<do_the_counting>>
-declare
-  val bigint;
-begin
-  val := nextval('temp_radio_signal_location_uid_seq');
-  --if val > 1 then
-  --  perform setval('temp_radio_signal_location_uid_seq',val-1);
-  --end if;
-  raise notice 'nextval %', val;
-end do_the_counting;*/
---DROP TABLE temp_radio_signal_location; --> leads to "out of shared memory" error and 100.000+ transaction locks
-END;
-$$;
-
-
-ALTER FUNCTION public.interpolate_radio_signal_location(in_open_test_uuid uuid) OWNER TO rmbt;
 
 --
 -- Name: jsonb_array_map(jsonb, text[]); Type: FUNCTION; Schema: public; Owner: rmbt
@@ -1207,663 +610,6 @@ END $$;
 ALTER FUNCTION public.jsonb_array_map(json_arr jsonb, path text[]) OWNER TO rmbt;
 
 --
--- Name: linefromtext(text); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.linefromtext(text) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$
-	SELECT CASE WHEN geometrytype(GeomFromText($1)) = 'LINESTRING'
-	THEN GeomFromText($1)
-	ELSE NULL END
-	$_$;
-
-
-ALTER FUNCTION public.linefromtext(text) OWNER TO postgres;
-
---
--- Name: linefromtext(text, integer); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.linefromtext(text, integer) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$
-	SELECT CASE WHEN geometrytype(GeomFromText($1, $2)) = 'LINESTRING'
-	THEN GeomFromText($1,$2)
-	ELSE NULL END
-	$_$;
-
-
-ALTER FUNCTION public.linefromtext(text, integer) OWNER TO postgres;
-
---
--- Name: linefromwkb(bytea); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.linefromwkb(bytea) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$
-	SELECT CASE WHEN geometrytype(GeomFromWKB($1)) = 'LINESTRING'
-	THEN GeomFromWKB($1)
-	ELSE NULL END
-	$_$;
-
-
-ALTER FUNCTION public.linefromwkb(bytea) OWNER TO postgres;
-
---
--- Name: linefromwkb(bytea, integer); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.linefromwkb(bytea, integer) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$
-	SELECT CASE WHEN geometrytype(GeomFromWKB($1, $2)) = 'LINESTRING'
-	THEN GeomFromWKB($1, $2)
-	ELSE NULL END
-	$_$;
-
-
-ALTER FUNCTION public.linefromwkb(bytea, integer) OWNER TO postgres;
-
---
--- Name: linestringfromtext(text); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.linestringfromtext(text) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$SELECT LineFromText($1)$_$;
-
-
-ALTER FUNCTION public.linestringfromtext(text) OWNER TO postgres;
-
---
--- Name: linestringfromtext(text, integer); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.linestringfromtext(text, integer) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$SELECT LineFromText($1, $2)$_$;
-
-
-ALTER FUNCTION public.linestringfromtext(text, integer) OWNER TO postgres;
-
---
--- Name: linestringfromwkb(bytea); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.linestringfromwkb(bytea) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$
-	SELECT CASE WHEN geometrytype(GeomFromWKB($1)) = 'LINESTRING'
-	THEN GeomFromWKB($1)
-	ELSE NULL END
-	$_$;
-
-
-ALTER FUNCTION public.linestringfromwkb(bytea) OWNER TO postgres;
-
---
--- Name: linestringfromwkb(bytea, integer); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.linestringfromwkb(bytea, integer) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$
-	SELECT CASE WHEN geometrytype(GeomFromWKB($1, $2)) = 'LINESTRING'
-	THEN GeomFromWKB($1, $2)
-	ELSE NULL END
-	$_$;
-
-
-ALTER FUNCTION public.linestringfromwkb(bytea, integer) OWNER TO postgres;
-
---
--- Name: locate_along_measure(public.geometry, double precision); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.locate_along_measure(public.geometry, double precision) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$ SELECT ST_locate_between_measures($1, $2, $2) $_$;
-
-
-ALTER FUNCTION public.locate_along_measure(public.geometry, double precision) OWNER TO postgres;
-
---
--- Name: mlinefromtext(text); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.mlinefromtext(text) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$
-	SELECT CASE WHEN geometrytype(GeomFromText($1)) = 'MULTILINESTRING'
-	THEN GeomFromText($1)
-	ELSE NULL END
-	$_$;
-
-
-ALTER FUNCTION public.mlinefromtext(text) OWNER TO postgres;
-
---
--- Name: mlinefromtext(text, integer); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.mlinefromtext(text, integer) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$
-	SELECT CASE
-	WHEN geometrytype(GeomFromText($1, $2)) = 'MULTILINESTRING'
-	THEN GeomFromText($1,$2)
-	ELSE NULL END
-	$_$;
-
-
-ALTER FUNCTION public.mlinefromtext(text, integer) OWNER TO postgres;
-
---
--- Name: mlinefromwkb(bytea); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.mlinefromwkb(bytea) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$
-	SELECT CASE WHEN geometrytype(GeomFromWKB($1)) = 'MULTILINESTRING'
-	THEN GeomFromWKB($1)
-	ELSE NULL END
-	$_$;
-
-
-ALTER FUNCTION public.mlinefromwkb(bytea) OWNER TO postgres;
-
---
--- Name: mlinefromwkb(bytea, integer); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.mlinefromwkb(bytea, integer) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$
-	SELECT CASE WHEN geometrytype(GeomFromWKB($1, $2)) = 'MULTILINESTRING'
-	THEN GeomFromWKB($1, $2)
-	ELSE NULL END
-	$_$;
-
-
-ALTER FUNCTION public.mlinefromwkb(bytea, integer) OWNER TO postgres;
-
---
--- Name: mpointfromtext(text); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.mpointfromtext(text) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$
-	SELECT CASE WHEN geometrytype(GeomFromText($1)) = 'MULTIPOINT'
-	THEN GeomFromText($1)
-	ELSE NULL END
-	$_$;
-
-
-ALTER FUNCTION public.mpointfromtext(text) OWNER TO postgres;
-
---
--- Name: mpointfromtext(text, integer); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.mpointfromtext(text, integer) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$
-	SELECT CASE WHEN geometrytype(GeomFromText($1,$2)) = 'MULTIPOINT'
-	THEN GeomFromText($1,$2)
-	ELSE NULL END
-	$_$;
-
-
-ALTER FUNCTION public.mpointfromtext(text, integer) OWNER TO postgres;
-
---
--- Name: mpointfromwkb(bytea); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.mpointfromwkb(bytea) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$
-	SELECT CASE WHEN geometrytype(GeomFromWKB($1)) = 'MULTIPOINT'
-	THEN GeomFromWKB($1)
-	ELSE NULL END
-	$_$;
-
-
-ALTER FUNCTION public.mpointfromwkb(bytea) OWNER TO postgres;
-
---
--- Name: mpointfromwkb(bytea, integer); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.mpointfromwkb(bytea, integer) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$
-	SELECT CASE WHEN geometrytype(GeomFromWKB($1,$2)) = 'MULTIPOINT'
-	THEN GeomFromWKB($1, $2)
-	ELSE NULL END
-	$_$;
-
-
-ALTER FUNCTION public.mpointfromwkb(bytea, integer) OWNER TO postgres;
-
---
--- Name: mpolyfromtext(text); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.mpolyfromtext(text) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$
-	SELECT CASE WHEN geometrytype(GeomFromText($1)) = 'MULTIPOLYGON'
-	THEN GeomFromText($1)
-	ELSE NULL END
-	$_$;
-
-
-ALTER FUNCTION public.mpolyfromtext(text) OWNER TO postgres;
-
---
--- Name: mpolyfromtext(text, integer); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.mpolyfromtext(text, integer) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$
-	SELECT CASE WHEN geometrytype(GeomFromText($1, $2)) = 'MULTIPOLYGON'
-	THEN GeomFromText($1,$2)
-	ELSE NULL END
-	$_$;
-
-
-ALTER FUNCTION public.mpolyfromtext(text, integer) OWNER TO postgres;
-
---
--- Name: mpolyfromwkb(bytea); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.mpolyfromwkb(bytea) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$
-	SELECT CASE WHEN geometrytype(GeomFromWKB($1)) = 'MULTIPOLYGON'
-	THEN GeomFromWKB($1)
-	ELSE NULL END
-	$_$;
-
-
-ALTER FUNCTION public.mpolyfromwkb(bytea) OWNER TO postgres;
-
---
--- Name: mpolyfromwkb(bytea, integer); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.mpolyfromwkb(bytea, integer) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$
-	SELECT CASE WHEN geometrytype(GeomFromWKB($1, $2)) = 'MULTIPOLYGON'
-	THEN GeomFromWKB($1, $2)
-	ELSE NULL END
-	$_$;
-
-
-ALTER FUNCTION public.mpolyfromwkb(bytea, integer) OWNER TO postgres;
-
---
--- Name: multilinefromwkb(bytea); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.multilinefromwkb(bytea) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$
-	SELECT CASE WHEN geometrytype(GeomFromWKB($1)) = 'MULTILINESTRING'
-	THEN GeomFromWKB($1)
-	ELSE NULL END
-	$_$;
-
-
-ALTER FUNCTION public.multilinefromwkb(bytea) OWNER TO postgres;
-
---
--- Name: multilinefromwkb(bytea, integer); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.multilinefromwkb(bytea, integer) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$
-	SELECT CASE WHEN geometrytype(GeomFromWKB($1, $2)) = 'MULTILINESTRING'
-	THEN GeomFromWKB($1, $2)
-	ELSE NULL END
-	$_$;
-
-
-ALTER FUNCTION public.multilinefromwkb(bytea, integer) OWNER TO postgres;
-
---
--- Name: multilinestringfromtext(text); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.multilinestringfromtext(text) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$SELECT ST_MLineFromText($1)$_$;
-
-
-ALTER FUNCTION public.multilinestringfromtext(text) OWNER TO postgres;
-
---
--- Name: multilinestringfromtext(text, integer); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.multilinestringfromtext(text, integer) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$SELECT MLineFromText($1, $2)$_$;
-
-
-ALTER FUNCTION public.multilinestringfromtext(text, integer) OWNER TO postgres;
-
---
--- Name: multipointfromtext(text); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.multipointfromtext(text) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$SELECT MPointFromText($1)$_$;
-
-
-ALTER FUNCTION public.multipointfromtext(text) OWNER TO postgres;
-
---
--- Name: multipointfromtext(text, integer); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.multipointfromtext(text, integer) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$SELECT MPointFromText($1, $2)$_$;
-
-
-ALTER FUNCTION public.multipointfromtext(text, integer) OWNER TO postgres;
-
---
--- Name: multipointfromwkb(bytea); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.multipointfromwkb(bytea) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$
-	SELECT CASE WHEN geometrytype(GeomFromWKB($1)) = 'MULTIPOINT'
-	THEN GeomFromWKB($1)
-	ELSE NULL END
-	$_$;
-
-
-ALTER FUNCTION public.multipointfromwkb(bytea) OWNER TO postgres;
-
---
--- Name: multipointfromwkb(bytea, integer); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.multipointfromwkb(bytea, integer) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$
-	SELECT CASE WHEN geometrytype(GeomFromWKB($1,$2)) = 'MULTIPOINT'
-	THEN GeomFromWKB($1, $2)
-	ELSE NULL END
-	$_$;
-
-
-ALTER FUNCTION public.multipointfromwkb(bytea, integer) OWNER TO postgres;
-
---
--- Name: multipolyfromwkb(bytea); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.multipolyfromwkb(bytea) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$
-	SELECT CASE WHEN geometrytype(GeomFromWKB($1)) = 'MULTIPOLYGON'
-	THEN GeomFromWKB($1)
-	ELSE NULL END
-	$_$;
-
-
-ALTER FUNCTION public.multipolyfromwkb(bytea) OWNER TO postgres;
-
---
--- Name: multipolyfromwkb(bytea, integer); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.multipolyfromwkb(bytea, integer) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$
-	SELECT CASE WHEN geometrytype(GeomFromWKB($1, $2)) = 'MULTIPOLYGON'
-	THEN GeomFromWKB($1, $2)
-	ELSE NULL END
-	$_$;
-
-
-ALTER FUNCTION public.multipolyfromwkb(bytea, integer) OWNER TO postgres;
-
---
--- Name: multipolygonfromtext(text); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.multipolygonfromtext(text) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$SELECT MPolyFromText($1)$_$;
-
-
-ALTER FUNCTION public.multipolygonfromtext(text) OWNER TO postgres;
-
---
--- Name: multipolygonfromtext(text, integer); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.multipolygonfromtext(text, integer) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$SELECT MPolyFromText($1, $2)$_$;
-
-
-ALTER FUNCTION public.multipolygonfromtext(text, integer) OWNER TO postgres;
-
---
--- Name: pointfromtext(text); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.pointfromtext(text) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$
-	SELECT CASE WHEN geometrytype(GeomFromText($1)) = 'POINT'
-	THEN GeomFromText($1)
-	ELSE NULL END
-	$_$;
-
-
-ALTER FUNCTION public.pointfromtext(text) OWNER TO postgres;
-
---
--- Name: pointfromtext(text, integer); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.pointfromtext(text, integer) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$
-	SELECT CASE WHEN geometrytype(GeomFromText($1, $2)) = 'POINT'
-	THEN GeomFromText($1,$2)
-	ELSE NULL END
-	$_$;
-
-
-ALTER FUNCTION public.pointfromtext(text, integer) OWNER TO postgres;
-
---
--- Name: pointfromwkb(bytea); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.pointfromwkb(bytea) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$
-	SELECT CASE WHEN geometrytype(GeomFromWKB($1)) = 'POINT'
-	THEN GeomFromWKB($1)
-	ELSE NULL END
-	$_$;
-
-
-ALTER FUNCTION public.pointfromwkb(bytea) OWNER TO postgres;
-
---
--- Name: pointfromwkb(bytea, integer); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.pointfromwkb(bytea, integer) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$
-	SELECT CASE WHEN geometrytype(ST_GeomFromWKB($1, $2)) = 'POINT'
-	THEN GeomFromWKB($1, $2)
-	ELSE NULL END
-	$_$;
-
-
-ALTER FUNCTION public.pointfromwkb(bytea, integer) OWNER TO postgres;
-
---
--- Name: polyfromtext(text); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.polyfromtext(text) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$
-	SELECT CASE WHEN geometrytype(GeomFromText($1)) = 'POLYGON'
-	THEN GeomFromText($1)
-	ELSE NULL END
-	$_$;
-
-
-ALTER FUNCTION public.polyfromtext(text) OWNER TO postgres;
-
---
--- Name: polyfromtext(text, integer); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.polyfromtext(text, integer) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$
-	SELECT CASE WHEN geometrytype(GeomFromText($1, $2)) = 'POLYGON'
-	THEN GeomFromText($1,$2)
-	ELSE NULL END
-	$_$;
-
-
-ALTER FUNCTION public.polyfromtext(text, integer) OWNER TO postgres;
-
---
--- Name: polyfromwkb(bytea); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.polyfromwkb(bytea) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$
-	SELECT CASE WHEN geometrytype(GeomFromWKB($1)) = 'POLYGON'
-	THEN GeomFromWKB($1)
-	ELSE NULL END
-	$_$;
-
-
-ALTER FUNCTION public.polyfromwkb(bytea) OWNER TO postgres;
-
---
--- Name: polyfromwkb(bytea, integer); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.polyfromwkb(bytea, integer) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$
-	SELECT CASE WHEN geometrytype(GeomFromWKB($1, $2)) = 'POLYGON'
-	THEN GeomFromWKB($1, $2)
-	ELSE NULL END
-	$_$;
-
-
-ALTER FUNCTION public.polyfromwkb(bytea, integer) OWNER TO postgres;
-
---
--- Name: polygonfromtext(text); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.polygonfromtext(text) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$SELECT PolyFromText($1)$_$;
-
-
-ALTER FUNCTION public.polygonfromtext(text) OWNER TO postgres;
-
---
--- Name: polygonfromtext(text, integer); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.polygonfromtext(text, integer) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$SELECT PolyFromText($1, $2)$_$;
-
-
-ALTER FUNCTION public.polygonfromtext(text, integer) OWNER TO postgres;
-
---
--- Name: polygonfromwkb(bytea); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.polygonfromwkb(bytea) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$
-	SELECT CASE WHEN geometrytype(GeomFromWKB($1)) = 'POLYGON'
-	THEN GeomFromWKB($1)
-	ELSE NULL END
-	$_$;
-
-
-ALTER FUNCTION public.polygonfromwkb(bytea) OWNER TO postgres;
-
---
--- Name: polygonfromwkb(bytea, integer); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.polygonfromwkb(bytea, integer) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$
-	SELECT CASE WHEN geometrytype(GeomFromWKB($1,$2)) = 'POLYGON'
-	THEN GeomFromWKB($1, $2)
-	ELSE NULL END
-	$_$;
-
-
-ALTER FUNCTION public.polygonfromwkb(bytea, integer) OWNER TO postgres;
-
---
--- Name: probe_geometry_columns(); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.probe_geometry_columns() RETURNS text
-    LANGUAGE plpgsql
-    AS $$
-DECLARE
-	inserted integer;
-	oldcount integer;
-	probed integer;
-	stale integer;
-BEGIN
-
-
-
-
-	RETURN 'This function is obsolete now that geometry_columns is a view';
-END
-
-$$;
-
-
-ALTER FUNCTION public.probe_geometry_columns() OWNER TO postgres;
-
---
 -- Name: random_sync_code(integer); Type: FUNCTION; Schema: public; Owner: rmbt
 --
 
@@ -1884,19 +630,6 @@ $_$;
 
 
 ALTER FUNCTION public.random_sync_code(integer) OWNER TO rmbt;
-
---
--- Name: rename_geometry_table_constraints(); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.rename_geometry_table_constraints() RETURNS text
-    LANGUAGE sql IMMUTABLE
-    AS $$
-SELECT 'rename_geometry_table_constraint() is obsoleted'::text
-$$;
-
-
-ALTER FUNCTION public.rename_geometry_table_constraints() OWNER TO postgres;
 
 --
 -- Name: rmbt_fill_open_uuid(); Type: FUNCTION; Schema: public; Owner: rmbt
@@ -1992,6 +725,96 @@ $$;
 ALTER FUNCTION public.rmbt_get_sync_code(client_uuid uuid) OWNER TO rmbt;
 
 --
+-- Name: rmbt_lte_rsrp(uuid); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.rmbt_lte_rsrp(otu uuid) RETURNS integer
+    LANGUAGE plpgsql
+    AS $$
+   declare
+      rsrp int4;
+
+	BEGIN
+
+   select min(rs.lte_rsrp) into rsrp from radio_signal rs 
+left join radio_cell rc on rc.uuid  = rs.cell_uuid 
+where rs.open_test_uuid = otu  and rc.active = true and (rc.primary_data_subscription is null or rc.primary_data_subscription ='true') group by rs.open_test_uuid;
+
+if (rsrp is null) then
+   select min(s.lte_rsrp) into rsrp from signal s where s.open_test_uuid = otu; 
+  end if;
+   
+    return rsrp;
+	END;
+$$;
+
+
+ALTER FUNCTION public.rmbt_lte_rsrp(otu uuid) OWNER TO postgres;
+
+--
+-- Name: rmbt_lte_rsrq(uuid); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.rmbt_lte_rsrq(otu uuid) RETURNS integer
+    LANGUAGE plpgsql
+    AS $$
+   declare
+      rsrq int4;
+
+	BEGIN
+
+   select min(rs.lte_rsrq) into rsrq from radio_signal rs 
+left join radio_cell rc on rc.uuid  = rs.cell_uuid 
+where rs.open_test_uuid = otu  and rc.active = true and (rc.primary_data_subscription is null or rc.primary_data_subscription ='true') group by rs.open_test_uuid;
+
+if (rsrq is null) then
+   select min(s.lte_rsrq) into rsrq from signal s where s.open_test_uuid = otu; 
+  end if;
+   
+    return rsrq;
+	END;
+$$;
+
+
+ALTER FUNCTION public.rmbt_lte_rsrq(otu uuid) OWNER TO postgres;
+
+--
+-- Name: rmbt_purge_obsolete(integer); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.rmbt_purge_obsolete(age integer) RETURNS integer
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+  num integer;
+	BEGIN
+    if (age is null or age < 90) then
+      return null;
+	end if;
+
+-- function purges IP etc for all tests older than age days
+-- returns number of tests purged or NULL when age is less than 90 days
+
+UPDATE test 
+SET client_public_ip = NULL, public_ip_rdns = NULL, source_ip = NULL, 
+ client_ip_local = NULL, wifi_bssid = NULL, wifi_ssid = NULL
+WHERE (now()::date - time::date) > age
+ AND (client_public_ip IS NOT NULL OR public_ip_rdns IS NOT NULL OR source_ip IS NOT NULL OR    
+ client_ip_local IS NOT NULL OR wifi_bssid IS NOT NULL OR wifi_ssid IS NOT NULL);
+
+GET diagnostics num = ROW_COUNT;
+
+RAISE NOTICE 'rmbt_purge_obsolete for last % days: % rows purged', age, num ;
+
+ return num;
+		
+	END;
+$$;
+
+
+ALTER FUNCTION public.rmbt_purge_obsolete(age integer) OWNER TO postgres;
+
+--
 -- Name: rmbt_random_sync_code(integer); Type: FUNCTION; Schema: public; Owner: rmbt
 --
 
@@ -2055,150 +878,88 @@ $$;
 ALTER FUNCTION public.rmbt_set_provider_from_as(_test_id bigint) OWNER TO rmbt;
 
 --
--- Name: rotate(public.geometry, double precision); Type: FUNCTION; Schema: public; Owner: postgres
+-- Name: trigger_geo_location(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
-CREATE FUNCTION public.rotate(public.geometry, double precision) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$SELECT st_rotateZ($1, $2)$_$;
+CREATE FUNCTION public.trigger_geo_location() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+	BEGIN
+
+		
+    IF (TG_OP = 'INSERT' and new.location is not NULL) then
+       new.geom3857=st_setsrid(new.location,3857);
+       new.geom4326=st_transform(new.geom3857,4326);
+     end if;
+    RETURN NEW;
+
+	END;
+$$;
 
 
-ALTER FUNCTION public.rotate(public.geometry, double precision) OWNER TO postgres;
-
---
--- Name: rotatex(public.geometry, double precision); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.rotatex(public.geometry, double precision) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$SELECT st_affine($1, 1, 0, 0, 0, cos($2), -sin($2), 0, sin($2), cos($2), 0, 0, 0)$_$;
-
-
-ALTER FUNCTION public.rotatex(public.geometry, double precision) OWNER TO postgres;
-
---
--- Name: rotatey(public.geometry, double precision); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.rotatey(public.geometry, double precision) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$SELECT st_affine($1,  cos($2), 0, sin($2),  0, 1, 0,  -sin($2), 0, cos($2), 0,  0, 0)$_$;
-
-
-ALTER FUNCTION public.rotatey(public.geometry, double precision) OWNER TO postgres;
+ALTER FUNCTION public.trigger_geo_location() OWNER TO postgres;
 
 --
--- Name: rotatez(public.geometry, double precision); Type: FUNCTION; Schema: public; Owner: postgres
+-- Name: trigger_qos_test_result(); Type: FUNCTION; Schema: public; Owner: rmbt
 --
 
-CREATE FUNCTION public.rotatez(public.geometry, double precision) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$SELECT st_affine($1,  cos($2), -sin($2), 0,  sin($2), cos($2), 0,  0, 0, 1,  0, 0, 0)$_$;
+CREATE FUNCTION public.trigger_qos_test_result() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+--
+BEGIN
+  IF  (TG_OP = 'INSERT' OR TG_OP = 'UPDATE')
+  -- timeout is reported although the duration is shorter than the preconfigured one
+  AND ((NEW."result" ->> 'duration_ns')::bigint < (NEW."result" ->> 'dns_objective_timeout')::bigint)
+  AND ((NEW."result" ->> 'dns_result_info') = 'TIMEOUT'::TEXT) THEN
+    NEW.deleted = TRUE;
+  END IF;
+  RETURN NEW;
+END;
+$$;
 
 
-ALTER FUNCTION public.rotatez(public.geometry, double precision) OWNER TO postgres;
+ALTER FUNCTION public.trigger_qos_test_result() OWNER TO rmbt;
 
 --
--- Name: scale(public.geometry, double precision, double precision); Type: FUNCTION; Schema: public; Owner: postgres
+-- Name: trigger_radio_cell(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
-CREATE FUNCTION public.scale(public.geometry, double precision, double precision) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$SELECT st_scale($1, $2, $3, 1)$_$;
+CREATE FUNCTION public.trigger_radio_cell() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+
+    _tmp_id integer;
+
+BEGIN
+
+    -- post process if location is updated
+    IF (TG_OP = 'INSERT') then
+        -- ignore Android invalid value
+        if (new.location_id = 2147483647) then
+           new.location_id = null;
+        end if;
+       -- ignore Android invalid value 
+       if (new.area_code = 2147483647) then
+           new.area_code = null;
+        end if;  
+       -- workaround for 3.x apps which swap area_code and location_id
+       if (new.area_code > 65535) then
+          _tmp_id = new.area_code;
+          new.area_code = new.location_id;
+          new.location_id = _tmp_id;
+       end if;  
+    end if;
+    RETURN NEW;
 
 
-ALTER FUNCTION public.scale(public.geometry, double precision, double precision) OWNER TO postgres;
-
---
--- Name: scale(public.geometry, double precision, double precision, double precision); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.scale(public.geometry, double precision, double precision, double precision) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$SELECT st_affine($1,  $2, 0, 0,  0, $3, 0,  0, 0, $4,  0, 0, 0)$_$;
+END;
+$$;
 
 
-ALTER FUNCTION public.scale(public.geometry, double precision, double precision, double precision) OWNER TO postgres;
-
---
--- Name: se_envelopesintersect(public.geometry, public.geometry); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.se_envelopesintersect(public.geometry, public.geometry) RETURNS boolean
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$ 
-	SELECT $1 && $2
-	$_$;
-
-
-ALTER FUNCTION public.se_envelopesintersect(public.geometry, public.geometry) OWNER TO postgres;
-
---
--- Name: se_locatealong(public.geometry, double precision); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.se_locatealong(public.geometry, double precision) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$ SELECT SE_LocateBetween($1, $2, $2) $_$;
-
-
-ALTER FUNCTION public.se_locatealong(public.geometry, double precision) OWNER TO postgres;
-
---
--- Name: snaptogrid(public.geometry, double precision); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.snaptogrid(public.geometry, double precision) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$SELECT ST_SnapToGrid($1, 0, 0, $2, $2)$_$;
-
-
-ALTER FUNCTION public.snaptogrid(public.geometry, double precision) OWNER TO postgres;
-
---
--- Name: st_astext(bytea); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.st_astext(bytea) RETURNS text
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$ SELECT ST_AsText($1::geometry);$_$;
-
-
-ALTER FUNCTION public.st_astext(bytea) OWNER TO postgres;
-
---
--- Name: translate(public.geometry, double precision, double precision); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.translate(public.geometry, double precision, double precision) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$SELECT st_translate($1, $2, $3, 0)$_$;
-
-
-ALTER FUNCTION public.translate(public.geometry, double precision, double precision) OWNER TO postgres;
-
---
--- Name: translate(public.geometry, double precision, double precision, double precision); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.translate(public.geometry, double precision, double precision, double precision) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$SELECT st_affine($1, 1, 0, 0, 0, 1, 0, 0, 0, 1, $2, $3, $4)$_$;
-
-
-ALTER FUNCTION public.translate(public.geometry, double precision, double precision, double precision) OWNER TO postgres;
-
---
--- Name: transscale(public.geometry, double precision, double precision, double precision, double precision); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.transscale(public.geometry, double precision, double precision, double precision, double precision) RETURNS public.geometry
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$SELECT st_affine($1,  $4, 0, 0,  0, $5, 0,
-		0, 0, 1,  $2 * $4, $3 * $5, 0)$_$;
-
-
-ALTER FUNCTION public.transscale(public.geometry, double precision, double precision, double precision, double precision) OWNER TO postgres;
+ALTER FUNCTION public.trigger_radio_cell() OWNER TO postgres;
 
 --
 -- Name: trigger_test(); Type: FUNCTION; Schema: public; Owner: rmbt
@@ -2216,9 +977,42 @@ DECLARE
     _mcc_net               VARCHAR;
     -- limit for accurate location (differs from map where 2000m and 10000m are thresholds)
     _min_accuracy CONSTANT integer := 3000;
-    _tmp_location          geometry;
+    _tmp_geom4326          geometry;
+    _tmp_cell_identifier    integer;
 
-BEGIN
+begin
+	
+	
+	 -- workaround against deletion of client_software_version update
+    IF (TG_OP = 'UPDATE' and new.client_software_version is null ) THEN
+       NEW.client_software_version = old.client_software_version;
+    END IF;
+	
+		 -- log if status changes from FINISED to something else
+    IF ((TG_OP = 'UPDATE') and (new.status is distinct from old.status) and old.status = 'FINISED' ) THEN
+       NEW.comment = 'Status finished modified';
+       NEW.implausible = true;
+    END IF;
+	
+	
+                  -- #715 workaround for bug in old clients
+    	-- swap cell_area_code,cell_location_id for Android version 3.x.x clients
+	if (TG_OP = 'UPDATE' and  
+	     new.plattform = 'Android' and
+	     substring(new.client_software_version,1,1)='3' and 
+	     old.cell_area_code is null and old.cell_location_id is null and
+	     new.cell_area_code is not null and new.cell_location_id is not null and 
+	     -- if identifiers are swapped, cell_locatio_id must be smaller than 2^16+1
+	     new.cell_location_id < 65536) then 
+        _tmp_cell_identifier = new.cell_location_id;
+        new.cell_location_id = new.cell_area_code;
+        new.cell_area_code = _tmp_cell_identifier;
+	end if;     
+
+
+
+
+
     -- calc logarithmic speed downlink
     IF ((TG_OP = 'INSERT' OR NEW.speed_download IS DISTINCT FROM OLD.speed_download) AND NEW.speed_download > 0) THEN
         NEW.speed_download_log = (log(NEW.speed_download::double precision / 10)) / 4;
@@ -2238,116 +1032,24 @@ BEGIN
             NEW.ping_median = NEW.ping_shortest;
         END IF;
     END IF;
-    -- location information was migrated to test_location, obsolete
-    /*
-      IF (TG_OP = 'INSERT' OR NEW.location IS DISTINCT FROM OLD.location) THEN
-        -- ignore if location is not accurate
-        IF (NEW.location IS NULL OR NEW.geo_accuracy > _min_accuracy) THEN
+ 
+  -- migration to "clean" location projections:
+ -- DZ 2023-04-02 now in ControlServer  
+ --  IF ((NEW.location IS NOT NULL) AND (new.location is distinct from old.location)) THEN
+ --        new.geom3857=st_setsrid(new.location,3857); 
+ --       new.geom4326=st_transform(new.geom3857,4326);
+ -- end if;     
+   
+   --  process location in table test_location
 
-        ELSE
-
-
-            -- add dsr id (Austrian dauersiedlungsraum)
-            SELECT dsr.id::INTEGER INTO NEW.settlement_type
-            FROM dsr
-            WHERE within(st_transform(NEW.location, 31287), dsr.geom)
-            LIMIT 1;
-
-            -- add Austrian streets and railway (FRC 1,2,3,4,20,21)
-            select q1.link_id,
-                   linknet_names.link_name,
-                   round(ST_DistanceSphere(q1.geom,
-                                           ST_Transform(NEW.location,
-                                                        4326))) link_distance,
-                   q1.frc,
-                   q1.edge_id
-            into NEW.link_id, NEW.link_name, NEW.link_distance, NEW.frc, NEW.edge_id
-            from (SELECT linknet.link_id,
-                         linknet.geom,
-                         linknet.frc,
-                         linknet.edge_id
-                  FROM linknet
-            -- optimize search by using boundary box on geometry
-            -- bbox=ST_Expand(geom,0.01);
-            WHERE ST_Transform(NEW.location, 4326) && linknet.bbox
-
-                  ORDER BY ST_Distance(linknet.geom,
-                                       ST_Transform(NEW.location,
-                                                    4326)) ASC
-                  LIMIT 1) as q1
-                     LEFT JOIN linknet_names ON q1.link_id = linknet_names.link_id
-             WHERE ST_DistanceSphere(q1.geom,
-                                   ST_Transform(NEW.location, 4326)) <=
-                  10.0
-            -- -- only if accuracy 10m or better
-             AND NEW.geo_accuracy < 10.0
-            -- -- only if GPS available
-            AND (NEW.geo_provider ='' OR -- iOS (up to now)
-                NEW.geo_provider IS NULL OR  -- iOS (planned)
-                 NEW.geo_provider='gps');
-
-            -- add BEV gkz (community identifier) and kg_nr (settlement identifier)
-            BEGIN
-                SELECT bev.gkz::INTEGER,
-                       bev.kg_nr_int
-                       INTO NEW.gkz_bev, NEW.kg_nr_bev
-                FROM bev_vgd bev
-                WHERE st_transform(NEW.location, 31287) && bev.bbox
-                AND within(st_transform(NEW.location, 31287), bev.geom)
-                LIMIT 1;
-            EXCEPTION
-                WHEN undefined_table THEN
-                    -- just return NULL, but ignore missing database
-                    RAISE NOTICE '%', SQLERRM;
-            END;
-
-            -- add SA gkz (community identifier)
-            BEGIN
-                SELECT sa.id::INTEGER INTO NEW.gkz_sa
-                FROM statistik_austria_gem sa
-                WHERE st_transform(NEW.location, 31287) && sa.bbox
-                AND
-                within(st_transform(NEW.location, 31287), sa.geom)
-                LIMIT 1;
-            EXCEPTION
-                WHEN undefined_table THEN
-                    -- just return NULL, but ignore missing database
-                    RAISE NOTICE '%', SQLERRM;
-            END;
-
-            -- add land cover id
-            SELECT clc.code_12::INTEGER INTO NEW.land_cover
-            FROM clc12_all_oesterreich clc
-            -- use boundary box to increase performance
-            -- bbox=ST_EXPAND(geom,0.01)
-            WHERE st_transform(NEW.location, 3035) && clc.bbox
-              AND within(st_transform(NEW.location, 3035), clc.geom)
-            LIMIT 1;
-
-            -- add country code (country_location)
-            IF (NEW.gkz_bev IS NOT NULL) THEN -- #659(mod): Austrian communities are more accurate/up-to-date for AT than ne_50_admin_0_countries
-                NEW.country_location = 'AT';
-            ELSE
-                SELECT INTO NEW.country_location iso_a2
-                FROM ne_10m_admin_0_countries
-                WHERE NEW.location && geom
-                  AND Within(NEW.location, geom)
-                  AND char_length(iso_a2) = 2
-                  AND iso_a2 IS DISTINCT FROM 'AT' -- #659: because ne_50_admin_0_countries is inaccurate, do not allow to return 'AT'
-                LIMIT 1;
-            END IF;
-
-        END IF;
-
-    END IF;
-      
-    */
-
-    --  process location in table test_location
-
-    IF ((NEW.location IS NOT NULL) AND (NEW.geo_location_uuid IS NOT NULL)) THEN
+    IF ((NEW.geom4326 IS NOT NULL) AND (new.geom4326 is distinct from old.geom4326) AND
+        (NEW.geo_location_uuid IS NOT NULL) ) THEN
         UPDATE test_location
         SET geo_location_uuid = NEW.geo_location_uuid,
+            geom4326          = new.geom4326,
+            -- geom3857 might be removed in the future from test_location
+            geom3857	      = new.geom3857,
+            -- location is obsolete and shall be removed from test_location when migration is finished
             location          = NEW.location,
             geo_lat           = NEW.geo_lat,
             geo_long          = NEW.geo_long,
@@ -2355,9 +1057,9 @@ BEGIN
             geo_provider      = NEW.geo_provider
         WHERE open_test_uuid  = NEW.open_test_uuid;
         IF NOT FOUND THEN
-            INSERT INTO test_location (geo_location_uuid,open_test_uuid, location, geo_lat,
+            INSERT INTO test_location (geo_location_uuid,open_test_uuid, geom4326, geom3857, location, geo_lat,
                                        geo_long, geo_accuracy, geo_provider)
-            VALUES (NEW.geo_location_uuid,NEW.open_test_uuid, NEW.location, NEW.geo_lat,
+            VALUES (NEW.geo_location_uuid,NEW.open_test_uuid, new.geom4326, new.geom3857, NEW.location, NEW.geo_lat,
                     NEW.geo_long, NEW.geo_accuracy, NEW.geo_provider);
         END IF;
     END IF;
@@ -2471,8 +1173,8 @@ BEGIN
         LIMIT 1;
 
         IF _tmp_uid is not null THEN
-            SELECT INTO NEW.dist_prev ST_Distance(ST_Transform(t.location, 4326)::geography,
-                                                  ST_Transform(NEW.location, 4326)::geography) -- #668 improve geo precision for the calculation of the distance (in meters) to a previous test
+            SELECT INTO NEW.dist_prev ST_DistanceSpheroid(t.geom4326,new.geom4326,'SPHEROID["WGS 84",6378137,298.257223563]')
+             -- #668 improve geo precision for the calculation of the distance (in meters) to a previous test      
             FROM test t
             WHERE uid = _tmp_uid;
             IF NEW.dist_prev is not null THEN
@@ -2501,12 +1203,12 @@ BEGIN
     -- set open_uuid
     -- #759 Finalisation loop mode
     IF (TG_OP = 'UPDATE' AND OLD.status = 'STARTED' AND NEW.status = 'FINISHED')
-        AND (NEW.time > (now() - INTERVAL '5 minutes')) -- update only new entries, skip old entries
+        -- disabled due to #1540: AND (NEW.time > (now() - INTERVAL '5 minutes')) -- update only new entries, skip old entries
     THEN
         _tmp_uuid = NULL;
-        _tmp_location = NULL;
-        SELECT open_uuid, location INTO _tmp_uuid, _tmp_location
-        FROM test -- find the open_uuid and location
+        _tmp_geom4326 = NULL;
+        SELECT open_uuid, geom4326 INTO _tmp_uuid, _tmp_geom4326
+        FROM test -- find the open_uuid and geom4326
         WHERE (NEW.client_id = client_id)                                      -- of the current client
           AND (NEW.time > time)                                                -- thereby skipping the current entry (was: OLD.uid != uid)
           AND status = 'FINISHED'                                              -- of successful tests
@@ -2520,10 +1222,10 @@ BEGIN
         IF
                 (_tmp_uuid IS NULL) -- previous query doesn't return any test
                 OR -- OR
-                (NEW.location IS NOT NULL AND _tmp_location IS NOT NULL
-                    AND ST_Distance(ST_Transform(NEW.location, 4326),
-                                    ST_Transform(_tmp_location, 4326)::geography)
-                     >= 100) -- the distance to the last test >= 100m
+                (NEW.geom4326 IS NOT NULL AND _tmp_geom4326 IS NOT NULL
+                    AND 
+                    ST_DistanceSpheroid(new.geom4326,_tmp_geom4326,'SPHEROID["WGS 84",6378137,298.257223563]') 
+                    >= 100) -- the distance to the last test >= 100m
         THEN
             _tmp_uuid = uuid_generate_v4(); --generate new open_uuid
         END IF;
@@ -2555,14 +1257,10 @@ BEGIN
         AND (
             (NEW.network_operator ILIKE '232%') -- test with Austrian mobile network operator
             )
-        AND ST_Distance(
-                    ST_Transform(NEW.location, 4326), -- location of the test
-                    ST_Transform((select geom from ne_10m_admin_0_countries where sovereignt ilike 'Austria'),
-                                 4326)::geography -- Austria shape
-                ) > 35000 -- location is more than 35 km outside of the Austria shape
-        ) -- if
+        AND rmbt_get_distance_iso_a2(new.geom4326,'AT') > 35000 -- location is more than 35 km outside of the Austria shape
+        ) 
     THEN
-        NEW.status = 'UPDATE ERROR'; NEW.comment = 'Automatic update error due to invalid location per #272';
+        NEW.status = 'UPDATE ERROR'; NEW.comment = 'Invalid location #272';
     END IF;
 
     -- ignore provider_id if location outside Austria
@@ -2571,17 +1269,13 @@ BEGIN
         AND (
             (NEW.provider_id IS NOT NULL) -- Austrian operator
             )
-        AND ST_Distance(
-                    ST_Transform(NEW.location, 4326), -- location of the test
-                    ST_Transform((select geom from ne_10m_admin_0_countries where sovereignt ilike 'Austria'),
-                                 4326)::geography -- Austria shape
-                ) > 3000 -- location is outside of the Austria shape with a tolerance of +3 km
+        AND rmbt_get_distance_iso_a2(new.geom4326,'AT') > 3000 -- location is outside of the Austria shape with a tolerance of +3 km
         ) -- if
     -- TODO Do we really need such a long comment within the database here?
     THEN
         NEW.provider_id = NULL;
         NEW.comment = concat(
-                'No provider_id outside of Austria for e.g. VPNs, HotSpots, manual location/geocoder etc. per #664; ',
+                'Not AT, no provider_id #664; ',
                 NEW.comment, NULLIF(OLD.comment, NEW.comment));
     END IF;
 
@@ -2591,7 +1285,7 @@ BEGIN
         AND (NEW.model = 'unknown') -- model is 'unknown'
         )
     THEN
-        NEW.status = 'UPDATE ERROR'; NEW.comment = 'Automatic update error due to unknown model per #356';
+        NEW.status = 'UPDATE ERROR'; NEW.comment = 'Unknown model #356';
     END IF;
 
     -- implement test pinning (tests excluded from statistics)
@@ -2607,12 +1301,10 @@ BEGIN
           AND NEW.public_ip_asn = public_ip_asn                   -- from the same network based on AS
           AND NEW.network_type = network_type                     -- of the same network_type
           AND CASE
-                  WHEN (NEW.location IS NOT NULL AND NEW.geo_accuracy IS NOT NULL AND NEW.geo_accuracy < 2000
-                      AND location IS NOT NULL AND geo_accuracy IS NOT NULL AND geo_accuracy < 2000)
-                      THEN ST_Distance(
-                                   ST_Transform(NEW.location, 4326),
-                                   ST_Transform(location, 4326)::geography
-                               ) < GREATEST(100, NEW.geo_accuracy) -- either within a radius of 100 m
+                  WHEN (NEW.geom4326 IS NOT NULL AND NEW.geo_accuracy IS NOT NULL AND NEW.geo_accuracy < 2000
+                      AND geom4326 IS NOT NULL AND geo_accuracy IS NOT NULL AND geo_accuracy < 2000)
+                      THEN ST_DistanceSpheroid(new.geom4326,geom4326,'SPHEROID["WGS 84",6378137,298.257223563]')
+                               < GREATEST(100, NEW.geo_accuracy) -- either within a radius of 100 m
                   ELSE TRUE -- or if no or inaccurate location, only other criteria count
             END
         ORDER BY time DESC -- consider the last, most previous test
@@ -2627,10 +1319,19 @@ BEGIN
     END IF; -- end test pinning
 
     --populate radio_signal_location for location and signal interpolation
-    IF (TG_OP = 'UPDATE' AND OLD.STATUS = 'STARTED' AND NEW.STATUS = 'FINISHED') then
-       insert into radio_signal_location (last_signal_uuid, last_radio_signal_uuid, last_geo_location_uuid, open_test_uuid, interpolated_location, "time") select (interpolate_radio_signal_location (new.open_test_uuid)).* ; 
-    end if; --location and signal interpolation
-    
+    IF (TG_OP = 'UPDATE' AND OLD.STATUS = 'STARTED' AND NEW.STATUS = 'FINISHED') -- for ordinary tests
+       OR
+       ((TG_OP = 'INSERT' OR TG_OP = 'UPDATE') AND NEW.STATUS = 'SIGNAL')        -- for signal measurements
+    then
+       INSERT INTO radio_signal_location (last_signal_uuid, last_radio_signal_uuid, last_geo_location_uuid, next_geo_location_uuid, open_test_uuid, interpolated_location, "time") select (interpolate_radio_signal_location_v2 (new.open_test_uuid)).*
+       ON CONFLICT DO NOTHING; -- conflicting rows will be ignored, the remaining will be inserted
+    END IF; --location and signal interpolation
+
+    --debugging, should be commented out for production
+    --IF (TG_OP = 'INSERT') THEN RAISE warning 'rmbtdebug:TG_OP=% NEW=%',TG_OP, NEW; END IF;
+    --IF (TG_OP = 'UPDATE') THEN RAISE warning 'rmbtdebug:TG_OP=% OLD=%',TG_OP, OLD; RAISE warning 'rmbtdebug:TG_OP=% NEW=%',TG_OP, NEW; END IF;
+    --debugging end
+
     RETURN NEW;
 
 END;
@@ -2654,24 +1355,27 @@ DECLARE
 BEGIN
 
     -- post process if location is updated
-    IF (TG_OP = 'INSERT' OR NEW.location IS DISTINCT FROM OLD.location) THEN
+    IF (TG_OP = 'INSERT' OR NEW.location IS DISTINCT FROM OLD.location) then
+
+        new.geom3857=st_setsrid(new.location,3857);   
+        new.geom4326=st_transform(new.geom3857,4326);
+       
         -- ignore if location is not accurate
         IF (NEW.location IS NULL OR NEW.geo_accuracy > _min_accuracy) THEN
 
         ELSE
 
-
             -- add dsr id (Austrian dauersiedlungsraum)
             SELECT dsr.id::INTEGER INTO NEW.settlement_type
             FROM dsr
-            WHERE within(st_transform(NEW.location, 31287), dsr.geom)
+            WHERE within(st_transform(NEW.geom3857, 31287), dsr.geom)
             LIMIT 1;
 
             -- add Austrian streets and railway (FRC 1,2,3,4,20,21)
             select q1.link_id,
                    linknet_names.link_name,
                    round(ST_DistanceSphere(q1.geom,
-                                           ST_Transform(NEW.location,
+                                           ST_Transform(NEW.geom3857,
                                                         4326))) link_distance,
                    q1.frc,
                    q1.edge_id
@@ -2683,15 +1387,15 @@ BEGIN
                   FROM linknet
             -- optimize search by using boundary box on geometry
             -- bbox=ST_Expand(geom,0.01);
-            WHERE ST_Transform(NEW.location, 4326) && linknet.bbox
+            WHERE ST_Transform(NEW.geom3857, 4326) && linknet.bbox
 
                   ORDER BY ST_Distance(linknet.geom,
-                                       ST_Transform(NEW.location,
+                                       ST_Transform(NEW.geom3857,
                                                     4326)) ASC
                   LIMIT 1) as q1
                      LEFT JOIN linknet_names ON q1.link_id = linknet_names.link_id
              WHERE ST_DistanceSphere(q1.geom,
-                                   ST_Transform(NEW.location, 4326)) <=
+                                   ST_Transform(NEW.geom3857, 4326)) <=
                   10.0
             -- only if accuracy 10m or better
              AND NEW.geo_accuracy < 10.0
@@ -2706,8 +1410,8 @@ BEGIN
                        bev.kg_nr_int
                        INTO NEW.gkz_bev, NEW.kg_nr_bev
                 FROM bev_vgd bev
-                WHERE st_transform(NEW.location, 31287) && bev.bbox
-                AND within(st_transform(NEW.location, 31287), bev.geom)
+                WHERE st_transform(NEW.geom3857, 31287) && bev.bbox
+                AND within(st_transform(NEW.geom3857, 31287), bev.geom)
                 LIMIT 1;
             EXCEPTION
                 WHEN undefined_table THEN
@@ -2719,9 +1423,9 @@ BEGIN
             BEGIN
                 SELECT sa.id::INTEGER INTO NEW.gkz_sa
                 FROM statistik_austria_gem sa
-                WHERE st_transform(NEW.location, 31287) && sa.bbox
+                WHERE st_transform(NEW.geom3857, 31287) && sa.bbox
                 AND
-                within(st_transform(NEW.location, 31287), sa.geom)
+                within(st_transform(NEW.geom3857, 31287), sa.geom)
                 LIMIT 1;
             EXCEPTION
                 WHEN undefined_table THEN
@@ -2734,21 +1438,20 @@ BEGIN
             FROM clc12_all_oesterreich clc
             -- use boundary box to increase performance
             -- bbox=ST_EXPAND(geom,0.01)
-            WHERE st_transform(NEW.location, 3035) && clc.bbox
-              AND within(st_transform(NEW.location, 3035), clc.geom)
+            WHERE st_transform(NEW.geom3857, 3035) && clc.bbox
+              AND within(st_transform(NEW.geom3857, 3035), clc.geom)
             LIMIT 1;
 
             -- add country code (country_location)
-            IF (NEW.gkz_bev IS NOT NULL) THEN -- #659(mod): Austrian communities are more accurate/up-to-date for AT than ne_50_admin_0_countries
+            IF (NEW.gkz_bev IS NOT NULL) THEN -- #659(mod): Austrian communities are more accurate/up-to-date for AT than admin_0_countries
                 NEW.country_location = 'AT';
             ELSE
-                SELECT INTO NEW.country_location iso_a2
-                FROM ne_10m_admin_0_countries
-                WHERE NEW.location && geom
-                  AND Within(NEW.location, geom)
-                  AND char_length(iso_a2) = 2
-                  AND iso_a2 IS DISTINCT FROM 'AT' -- #659: because ne_50_admin_0_countries is inaccurate, do not allow to return 'AT'
-                LIMIT 1;
+                BEGIN
+                  new.country_location=rmbt_get_country_iso_a2(NEW.geom4326);
+                  if (new.country_location='AT') then
+                     new.country_location=null; -- #659: because admin_0_countries is inaccurate, do not allow to return 'AT'
+                  end if;   
+                end;        
             END IF;
 
             -- add altitude level from digital terrain model (DTM) #1203
@@ -2757,6 +1460,35 @@ BEGIN
             WHERE st_intersects(rast, (ST_Transform(ST_SetSRID(ST_MakePoint(NEW.geo_long, NEW.geo_lat), 4326), 31287)));
 
 
+           -- add atraster100 (Austrian 100m grid)
+           BEGIN 
+              SELECT atraster100.id::VARCHAR INTO NEW.atraster100
+              FROM atraster100
+              WHERE st_within(NEW.geom3857, atraster100.geom)
+              LIMIT 1;
+            EXCEPTION
+                WHEN undefined_table THEN
+                    -- just return NULL, but ignore missing database
+                    RAISE NOTICE '%', SQLERRM;                   
+            END; 
+           
+           -- add atraster250 (Austrian 250m grid)
+           BEGIN 
+              SELECT atraster250.id::VARCHAR INTO NEW.atraster250
+              FROM atraster250
+              WHERE st_within(NEW.geom3857, atraster250.geom)
+              LIMIT 1;
+            EXCEPTION
+                WHEN undefined_table THEN
+                    -- just return NULL, but ignore missing database
+                    RAISE NOTICE '%', SQLERRM;                   
+            END;
+           
+           
+           
+           
+           
+           
         END IF;
 
     END IF;
@@ -2770,56 +1502,6 @@ $$;
 
 
 ALTER FUNCTION public.trigger_test_location() OWNER TO postgres;
-
---
--- Name: within(public.geometry, public.geometry); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.within(public.geometry, public.geometry) RETURNS boolean
-    LANGUAGE sql IMMUTABLE STRICT
-    AS $_$SELECT ST_Within($1, $2)$_$;
-
-
-ALTER FUNCTION public.within(public.geometry, public.geometry) OWNER TO postgres;
-
---
--- Name: accum(public.geometry); Type: AGGREGATE; Schema: public; Owner: postgres
---
-
-CREATE AGGREGATE public.accum(public.geometry) (
-    SFUNC = public.pgis_geometry_accum_transfn,
-    STYPE = public.pgis_abs,
-    FINALFUNC = public.pgis_geometry_accum_finalfn
-);
-
-
-ALTER AGGREGATE public.accum(public.geometry) OWNER TO postgres;
-
---
--- Name: extent(public.geometry); Type: AGGREGATE; Schema: public; Owner: postgres
---
-
-CREATE AGGREGATE public.extent(public.geometry) (
-    SFUNC = public.st_combine_bbox,
-    STYPE = public.box3d,
-    FINALFUNC = public.box2d
-);
-
-
-ALTER AGGREGATE public.extent(public.geometry) OWNER TO postgres;
-
---
--- Name: makeline(public.geometry); Type: AGGREGATE; Schema: public; Owner: postgres
---
-
-CREATE AGGREGATE public.makeline(public.geometry) (
-    SFUNC = public.pgis_geometry_accum_transfn,
-    STYPE = public.pgis_abs,
-    FINALFUNC = public.pgis_geometry_makeline_finalfn
-);
-
-
-ALTER AGGREGATE public.makeline(public.geometry) OWNER TO postgres;
 
 --
 -- Name: median(anyelement); Type: AGGREGATE; Schema: public; Owner: postgres
@@ -2847,21 +1529,231 @@ CREATE AGGREGATE public.memcollect(public.geometry) (
 
 ALTER AGGREGATE public.memcollect(public.geometry) OWNER TO postgres;
 
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
 --
--- Name: st_extent3d(public.geometry); Type: AGGREGATE; Schema: public; Owner: postgres
+-- Name: _SCHEMA_VERSION; Type: TABLE; Schema: public; Owner: rmbt_control
 --
 
-CREATE AGGREGATE public.st_extent3d(public.geometry) (
-    SFUNC = public.st_combine_bbox,
-    STYPE = public.box3d
+CREATE TABLE public."_SCHEMA_VERSION" (
+    installed_rank integer NOT NULL,
+    version character varying(50),
+    description character varying(200) NOT NULL,
+    type character varying(20) NOT NULL,
+    script character varying(1000) NOT NULL,
+    checksum integer,
+    installed_by character varying(100) NOT NULL,
+    installed_on timestamp without time zone DEFAULT now() NOT NULL,
+    execution_time integer NOT NULL,
+    success boolean NOT NULL
 );
 
 
-ALTER AGGREGATE public.st_extent3d(public.geometry) OWNER TO postgres;
+ALTER TABLE public."_SCHEMA_VERSION" OWNER TO rmbt_control;
 
-SET default_tablespace = '';
+--
+-- Name: admin_0_countries; Type: TABLE; Schema: public; Owner: rmbt
+--
 
-SET default_with_oids = false;
+CREATE TABLE public.admin_0_countries (
+    gid integer NOT NULL,
+    featurecla character varying(15),
+    scalerank smallint,
+    labelrank smallint,
+    sovereignt character varying(32),
+    sov_a3 character varying(3),
+    adm0_dif smallint,
+    level smallint,
+    type character varying(17),
+    tlc character varying(1),
+    admin character varying(36),
+    adm0_a3 character varying(3),
+    geou_dif smallint,
+    geounit character varying(36),
+    gu_a3 character varying(3),
+    su_dif smallint,
+    subunit character varying(36),
+    su_a3 character varying(3),
+    brk_diff smallint,
+    name character varying(29),
+    name_long character varying(36),
+    brk_a3 character varying(3),
+    brk_name character varying(32),
+    brk_group character varying(17),
+    abbrev character varying(16),
+    postal character varying(4),
+    formal_en character varying(52),
+    formal_fr character varying(35),
+    name_ciawf character varying(45),
+    note_adm0 character varying(16),
+    note_brk character varying(63),
+    name_sort character varying(36),
+    name_alt character varying(19),
+    mapcolor7 smallint,
+    mapcolor8 smallint,
+    mapcolor9 smallint,
+    mapcolor13 smallint,
+    pop_est double precision,
+    pop_rank smallint,
+    pop_year smallint,
+    gdp_md integer,
+    gdp_year smallint,
+    economy character varying(26),
+    income_grp character varying(23),
+    fips_10 character varying(3),
+    iso_a2 character varying(5),
+    iso_a2_eh character varying(3),
+    iso_a3 character varying(3),
+    iso_a3_eh character varying(3),
+    iso_n3 character varying(3),
+    iso_n3_eh character varying(3),
+    un_a3 character varying(4),
+    wb_a2 character varying(3),
+    wb_a3 character varying(3),
+    woe_id integer,
+    woe_id_eh integer,
+    woe_note character varying(167),
+    adm0_iso character varying(3),
+    adm0_diff character varying(1),
+    adm0_tlc character varying(3),
+    adm0_a3_us character varying(3),
+    adm0_a3_fr character varying(3),
+    adm0_a3_ru character varying(3),
+    adm0_a3_es character varying(3),
+    adm0_a3_cn character varying(3),
+    adm0_a3_tw character varying(3),
+    adm0_a3_in character varying(3),
+    adm0_a3_np character varying(3),
+    adm0_a3_pk character varying(3),
+    adm0_a3_de character varying(3),
+    adm0_a3_gb character varying(3),
+    adm0_a3_br character varying(3),
+    adm0_a3_il character varying(3),
+    adm0_a3_ps character varying(3),
+    adm0_a3_sa character varying(3),
+    adm0_a3_eg character varying(3),
+    adm0_a3_ma character varying(3),
+    adm0_a3_pt character varying(3),
+    adm0_a3_ar character varying(3),
+    adm0_a3_jp character varying(3),
+    adm0_a3_ko character varying(3),
+    adm0_a3_vn character varying(3),
+    adm0_a3_tr character varying(3),
+    adm0_a3_id character varying(3),
+    adm0_a3_pl character varying(3),
+    adm0_a3_gr character varying(3),
+    adm0_a3_it character varying(3),
+    adm0_a3_nl character varying(3),
+    adm0_a3_se character varying(3),
+    adm0_a3_bd character varying(3),
+    adm0_a3_ua character varying(3),
+    adm0_a3_un smallint,
+    adm0_a3_wb smallint,
+    continent character varying(23),
+    region_un character varying(10),
+    subregion character varying(25),
+    region_wb character varying(26),
+    name_len smallint,
+    long_len smallint,
+    abbrev_len smallint,
+    tiny smallint,
+    homepart smallint,
+    min_zoom double precision,
+    min_label double precision,
+    max_label double precision,
+    label_x double precision,
+    label_y double precision,
+    ne_id double precision,
+    wikidataid character varying(8),
+    name_ar character varying(72),
+    name_bn character varying(148),
+    name_de character varying(46),
+    name_en character varying(44),
+    name_es character varying(44),
+    name_fa character varying(66),
+    name_fr character varying(54),
+    name_el character varying(86),
+    name_he character varying(78),
+    name_hi character varying(126),
+    name_hu character varying(52),
+    name_id character varying(46),
+    name_it character varying(48),
+    name_ja character varying(63),
+    name_ko character varying(47),
+    name_nl character varying(49),
+    name_pl character varying(47),
+    name_pt character varying(43),
+    name_ru character varying(86),
+    name_sv character varying(57),
+    name_tr character varying(42),
+    name_uk character varying(91),
+    name_ur character varying(67),
+    name_vi character varying(56),
+    name_zh character varying(33),
+    name_zht character varying(33),
+    fclass_iso character varying(24),
+    tlc_diff character varying(1),
+    fclass_tlc character varying(21),
+    fclass_us character varying(30),
+    fclass_fr character varying(18),
+    fclass_ru character varying(14),
+    fclass_es character varying(18),
+    fclass_cn character varying(24),
+    fclass_tw character varying(15),
+    fclass_in character varying(14),
+    fclass_np character varying(24),
+    fclass_pk character varying(15),
+    fclass_de character varying(18),
+    fclass_gb character varying(18),
+    fclass_br character varying(12),
+    fclass_il character varying(15),
+    fclass_ps character varying(15),
+    fclass_sa character varying(15),
+    fclass_eg character varying(24),
+    fclass_ma character varying(24),
+    fclass_pt character varying(18),
+    fclass_ar character varying(12),
+    fclass_jp character varying(18),
+    fclass_ko character varying(18),
+    fclass_vn character varying(12),
+    fclass_tr character varying(18),
+    fclass_id character varying(24),
+    fclass_pl character varying(18),
+    fclass_gr character varying(18),
+    fclass_it character varying(18),
+    fclass_nl character varying(18),
+    fclass_se character varying(18),
+    fclass_bd character varying(24),
+    fclass_ua character varying(18),
+    geom public.geometry(MultiPolygon,4326)
+);
+
+
+ALTER TABLE public.admin_0_countries OWNER TO rmbt;
+
+--
+-- Name: admin_0_countries_gid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
+--
+
+CREATE SEQUENCE public.admin_0_countries_gid_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.admin_0_countries_gid_seq OWNER TO rmbt;
+
+--
+-- Name: admin_0_countries_gid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
+--
+
+ALTER SEQUENCE public.admin_0_countries_gid_seq OWNED BY public.admin_0_countries.gid;
+
 
 --
 -- Name: device_map; Type: TABLE; Schema: public; Owner: rmbt
@@ -2935,29 +1827,137 @@ ALTER SEQUENCE public.as2provider_uid_seq OWNED BY public.as2provider.uid;
 
 
 --
+-- Name: atraster; Type: TABLE; Schema: public; Owner: rmbt
+--
+
+CREATE TABLE public.atraster (
+    gid integer NOT NULL,
+    id character varying(254),
+    name character varying(254),
+    geom public.geometry(MultiPolygon,3035)
+);
+
+
+ALTER TABLE public.atraster OWNER TO rmbt;
+
+--
+-- Name: atraster100; Type: TABLE; Schema: public; Owner: rmbt
+--
+
+CREATE TABLE public.atraster100 (
+    gid integer NOT NULL,
+    id character varying(254),
+    name character varying(254),
+    geom public.geometry(MultiPolygon,3857)
+);
+
+
+ALTER TABLE public.atraster100 OWNER TO rmbt;
+
+--
+-- Name: atraster100_gid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
+--
+
+CREATE SEQUENCE public.atraster100_gid_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.atraster100_gid_seq OWNER TO rmbt;
+
+--
+-- Name: atraster100_gid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
+--
+
+ALTER SEQUENCE public.atraster100_gid_seq OWNED BY public.atraster100.gid;
+
+
+--
+-- Name: atraster250; Type: TABLE; Schema: public; Owner: rmbt
+--
+
+CREATE TABLE public.atraster250 (
+    gid integer NOT NULL,
+    id character varying(254),
+    name character varying(254),
+    geom public.geometry(MultiPolygon,3857)
+);
+
+
+ALTER TABLE public.atraster250 OWNER TO rmbt;
+
+--
+-- Name: atraster250_gid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
+--
+
+CREATE SEQUENCE public.atraster250_gid_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.atraster250_gid_seq OWNER TO rmbt;
+
+--
+-- Name: atraster250_gid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
+--
+
+ALTER SEQUENCE public.atraster250_gid_seq OWNED BY public.atraster250.gid;
+
+
+--
+-- Name: atraster_gid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
+--
+
+CREATE SEQUENCE public.atraster_gid_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.atraster_gid_seq OWNER TO rmbt;
+
+--
+-- Name: atraster_gid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
+--
+
+ALTER SEQUENCE public.atraster_gid_seq OWNED BY public.atraster.gid;
+
+
+--
 -- Name: bev_vgd; Type: TABLE; Schema: public; Owner: rmbt
 --
 
 CREATE TABLE public.bev_vgd (
     gid integer NOT NULL,
+    meridian smallint,
+    gkz integer,
+    bkz smallint,
+    fa_nr smallint,
+    bl_kz smallint,
+    st_kz smallint,
+    fl double precision,
     kg_nr character varying(6),
     kg character varying(50),
-    meridian character varying(3),
-    gkz character varying(6),
     pg character varying(50),
-    bkz character varying(4),
     pb character varying(50),
-    fa_nr character varying(3),
     fa character varying(50),
-    gb_kz character varying(4),
+    gb_kz character varying(3),
     gb character varying(50),
-    va_nr character varying(3),
+    va_nr character varying(2),
     va character varying(50),
-    bl_kz character varying(2),
     bl character varying(50),
-    st_kz smallint,
     st character varying(50),
-    fl double precision,
     geom public.geometry(MultiPolygon,31287),
     kg_nr_int integer,
     bbox public.geometry
@@ -3168,6 +2168,143 @@ ALTER SEQUENCE public.client_uid_seq OWNED BY public.client.uid;
 
 
 --
+-- Name: cov_bb_fixed; Type: TABLE; Schema: public; Owner: rmbt
+--
+
+CREATE TABLE public.cov_bb_fixed (
+    uid integer NOT NULL,
+    raster character varying(50),
+    operator character varying(200),
+    technology character varying(50),
+    dl_max_mbit real,
+    ul_max_mbit real,
+    date character varying(50)
+);
+
+
+ALTER TABLE public.cov_bb_fixed OWNER TO rmbt;
+
+--
+-- Name: cov_bb_fixed_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
+--
+
+CREATE SEQUENCE public.cov_bb_fixed_uid_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.cov_bb_fixed_uid_seq OWNER TO rmbt;
+
+--
+-- Name: cov_bb_fixed_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
+--
+
+ALTER SEQUENCE public.cov_bb_fixed_uid_seq OWNED BY public.cov_bb_fixed.uid;
+
+
+--
+-- Name: cov_mno; Type: TABLE; Schema: public; Owner: rmbt
+--
+
+CREATE TABLE public.cov_mno (
+    uid integer NOT NULL,
+    operator character varying(50),
+    reference character varying(50),
+    license character varying(50),
+    rfc_date character varying(50),
+    raster character varying(50),
+    dl_normal bigint,
+    ul_normal bigint,
+    dl_max bigint,
+    ul_max bigint
+);
+
+
+ALTER TABLE public.cov_mno OWNER TO rmbt;
+
+--
+-- Name: cov_mno_fn; Type: MATERIALIZED VIEW; Schema: public; Owner: rmbt
+--
+
+CREATE MATERIALIZED VIEW public.cov_mno_fn AS
+ SELECT cov_bb_fixed.operator,
+    'BBfixed'::character varying AS reference,
+    'CCBY4.0 BMLRT'::text AS license,
+    substr((cov_bb_fixed.date)::text, 0, 11) AS rfc_date,
+    cov_bb_fixed.raster,
+    NULL::bigint AS dl_normal,
+    NULL::bigint AS ul_normal,
+    ((cov_bb_fixed.dl_max_mbit * (1000000)::double precision))::bigint AS dl_max,
+    ((cov_bb_fixed.ul_max_mbit * (1000000)::double precision))::bigint AS ul_max,
+    cov_bb_fixed.technology
+   FROM public.cov_bb_fixed
+  WITH NO DATA;
+
+
+ALTER TABLE public.cov_mno_fn OWNER TO rmbt;
+
+--
+-- Name: cov_mno_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
+--
+
+CREATE SEQUENCE public.cov_mno_uid_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.cov_mno_uid_seq OWNER TO rmbt;
+
+--
+-- Name: cov_mno_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
+--
+
+ALTER SEQUENCE public.cov_mno_uid_seq OWNED BY public.cov_mno.uid;
+
+
+--
+-- Name: cov_visible_name; Type: TABLE; Schema: public; Owner: rmbt
+--
+
+CREATE TABLE public.cov_visible_name (
+    uid integer NOT NULL,
+    operator character varying(200),
+    visible_name character varying(50)
+);
+
+
+ALTER TABLE public.cov_visible_name OWNER TO rmbt;
+
+--
+-- Name: cov_visible_name_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
+--
+
+CREATE SEQUENCE public.cov_visible_name_uid_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.cov_visible_name_uid_seq OWNER TO rmbt;
+
+--
+-- Name: cov_visible_name_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
+--
+
+ALTER SEQUENCE public.cov_visible_name_uid_seq OWNED BY public.cov_visible_name.uid;
+
+
+--
 -- Name: dhm; Type: TABLE; Schema: public; Owner: rmbt
 --
 
@@ -3180,10 +2317,10 @@ CREATE TABLE public.dhm (
 ALTER TABLE public.dhm OWNER TO rmbt;
 
 --
--- Name: dhm_rid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
+-- Name: dhm2_rid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
 --
 
-CREATE SEQUENCE public.dhm_rid_seq
+CREATE SEQUENCE public.dhm2_rid_seq
     AS integer
     START WITH 1
     INCREMENT BY 1
@@ -3192,13 +2329,13 @@ CREATE SEQUENCE public.dhm_rid_seq
     CACHE 1;
 
 
-ALTER TABLE public.dhm_rid_seq OWNER TO rmbt;
+ALTER TABLE public.dhm2_rid_seq OWNER TO rmbt;
 
 --
--- Name: dhm_rid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
+-- Name: dhm2_rid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
 --
 
-ALTER SEQUENCE public.dhm_rid_seq OWNED BY public.dhm.rid;
+ALTER SEQUENCE public.dhm2_rid_seq OWNED BY public.dhm.rid;
 
 
 --
@@ -3326,6 +2463,8 @@ CREATE TABLE public.geo_location (
     geo_long double precision,
     location public.geometry NOT NULL,
     mock_location boolean,
+    geom4326 public.geometry(Point,4326),
+    geom3857 public.geometry(Point,3857),
     CONSTRAINT enforce_geotype_location CHECK ((public.geometrytype(location) = 'POINT'::text)),
     CONSTRAINT enforce_srid_location CHECK ((public.st_srid(location) = 900913)),
     CONSTRAINT geo_location_location_check CHECK ((public.st_ndims(location) = 2))
@@ -3550,26 +2689,6 @@ CREATE TABLE public.linknet_names (
 ALTER TABLE public.linknet_names OWNER TO rmbt;
 
 --
--- Name: logged_actions_obsolete; Type: TABLE; Schema: public; Owner: rmbt
---
-
-CREATE TABLE public.logged_actions_obsolete (
-    schema_name text NOT NULL,
-    table_name text NOT NULL,
-    user_name text,
-    action_tstamp timestamp with time zone DEFAULT now() NOT NULL,
-    action text NOT NULL,
-    original_data text,
-    new_data text,
-    query text,
-    CONSTRAINT logged_actions_action_check CHECK ((action = ANY (ARRAY['I'::text, 'D'::text, 'U'::text])))
-)
-WITH (fillfactor='100');
-
-
-ALTER TABLE public.logged_actions_obsolete OWNER TO rmbt;
-
---
 -- Name: mcc2country; Type: TABLE; Schema: public; Owner: rmbt
 --
 
@@ -3738,7 +2857,8 @@ CREATE TABLE public.ne_10m_admin_0_countries (
     min_zoom double precision,
     min_label double precision,
     max_label double precision,
-    geom public.geometry(MultiPolygon,900913)
+    geom public.geometry(MultiPolygon,900913),
+    geom4326 public.geometry(MultiPolygon,4326)
 );
 
 
@@ -3823,7 +2943,9 @@ CREATE TABLE public.news (
     plattform text,
     max_software_version_code integer,
     min_software_version_code integer,
-    uuid uuid
+    uuid uuid,
+    start_time timestamp with time zone DEFAULT now() NOT NULL,
+    end_time timestamp with time zone
 );
 
 
@@ -3849,6 +2971,31 @@ ALTER TABLE public.news_uid_seq OWNER TO rmbt;
 
 ALTER SEQUENCE public.news_uid_seq OWNED BY public.news.uid;
 
+
+--
+-- Name: news_view; Type: VIEW; Schema: public; Owner: postgres
+--
+
+CREATE VIEW public.news_view AS
+ SELECT n.uid,
+    n.title_en,
+    n.title_de,
+    n.text_en,
+    n.text_de,
+    n.plattform,
+    n.active,
+    n.force,
+    n.max_software_version_code,
+    n.min_software_version_code,
+    n.uuid,
+    n.start_time,
+    n.end_time,
+    n."time",
+    public.getnewsstatus(n.active, n.start_time, n.end_time) AS status
+   FROM public.news n;
+
+
+ALTER TABLE public.news_view OWNER TO postgres;
 
 --
 -- Name: next_link_uid_seq; Type: SEQUENCE; Schema: public; Owner: postgres
@@ -3977,6 +3124,49 @@ ALTER SEQUENCE public.provider_uid_seq OWNED BY public.provider.uid;
 
 
 --
+-- Name: qoe_classification; Type: TABLE; Schema: public; Owner: rmbt
+--
+
+CREATE TABLE public.qoe_classification (
+    uid integer NOT NULL,
+    category character varying(30) NOT NULL,
+    dl_4 double precision NOT NULL,
+    dl_3 double precision NOT NULL,
+    dl_2 double precision NOT NULL,
+    ul_4 double precision NOT NULL,
+    ul_3 double precision NOT NULL,
+    ul_2 double precision NOT NULL,
+    ping_4 double precision NOT NULL,
+    ping_3 double precision NOT NULL,
+    ping_2 double precision NOT NULL
+);
+
+
+ALTER TABLE public.qoe_classification OWNER TO rmbt;
+
+--
+-- Name: qoe_classification_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
+--
+
+CREATE SEQUENCE public.qoe_classification_uid_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.qoe_classification_uid_seq OWNER TO rmbt;
+
+--
+-- Name: qoe_classification_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
+--
+
+ALTER SEQUENCE public.qoe_classification_uid_seq OWNED BY public.qoe_classification.uid;
+
+
+--
 -- Name: qos_test_desc; Type: TABLE; Schema: public; Owner: rmbt
 --
 
@@ -4070,6 +3260,46 @@ CREATE TABLE public.qos_test_result (
 ALTER TABLE public.qos_test_result OWNER TO rmbt;
 
 --
+-- Name: qos_test_result_b; Type: TABLE; Schema: public; Owner: rmbt
+--
+
+CREATE TABLE public.qos_test_result_b (
+    uid integer NOT NULL,
+    test_uid bigint,
+    qos_test_uid bigint,
+    success_count integer DEFAULT 0 NOT NULL,
+    failure_count integer DEFAULT 0 NOT NULL,
+    implausible boolean DEFAULT false,
+    deleted boolean DEFAULT false,
+    result jsonb
+);
+
+
+ALTER TABLE public.qos_test_result_b OWNER TO rmbt;
+
+--
+-- Name: qos_test_result_b_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
+--
+
+CREATE SEQUENCE public.qos_test_result_b_uid_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.qos_test_result_b_uid_seq OWNER TO rmbt;
+
+--
+-- Name: qos_test_result_b_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
+--
+
+ALTER SEQUENCE public.qos_test_result_b_uid_seq OWNED BY public.qos_test_result_b.uid;
+
+
+--
 -- Name: qos_test_result_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
 --
 
@@ -4141,11 +3371,27 @@ CREATE TABLE public.radio_cell (
     primary_scrambling_code integer,
     registered boolean,
     channel_number integer,
-    active boolean
+    active boolean,
+    primary_data_subscription character varying(30),
+    cell_state character varying(15)
 );
 
 
 ALTER TABLE public.radio_cell OWNER TO rmbt;
+
+--
+-- Name: COLUMN radio_cell.registered; Type: COMMENT; Schema: public; Owner: rmbt
+--
+
+COMMENT ON COLUMN public.radio_cell.registered IS 'do not use, obsolete';
+
+
+--
+-- Name: COLUMN radio_cell.cell_state; Type: COMMENT; Schema: public; Owner: rmbt
+--
+
+COMMENT ON COLUMN public.radio_cell.cell_state IS 'Connection status of cell: "primary","secondary","none"';
+
 
 --
 -- Name: radio_cell_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
@@ -4206,6 +3452,7 @@ CREATE TABLE public.radio_signal_location (
     open_test_uuid uuid NOT NULL,
     interpolated_location public.geometry NOT NULL,
     "time" timestamp with time zone NOT NULL,
+    next_geo_location_uuid uuid,
     CONSTRAINT location_not_null_for_uuid CHECK (((last_geo_location_uuid IS NOT NULL) AND (interpolated_location IS NOT NULL))),
     CONSTRAINT xor_signals_not_null CHECK ((((last_signal_uuid IS NOT NULL) AND (last_radio_signal_uuid IS NULL)) OR ((last_signal_uuid IS NULL) AND (last_radio_signal_uuid IS NOT NULL))))
 );
@@ -4261,46 +3508,6 @@ ALTER TABLE public.radio_signal_uid_seq OWNER TO rmbt;
 --
 
 ALTER SEQUENCE public.radio_signal_uid_seq OWNED BY public.radio_signal.uid;
-
-
---
--- Name: rtr_gemeinden_multiband; Type: TABLE; Schema: public; Owner: rmbt
---
-
-CREATE TABLE public.rtr_gemeinden_multiband (
-    uid bigint NOT NULL,
-    gemeinde_i integer,
-    gemeinde character varying(40),
-    versorgung numeric,
-    anhang character varying(5),
-    the_geom public.geometry,
-    CONSTRAINT enforce_dims_the_geom CHECK ((public.st_ndims(the_geom) = 2)),
-    CONSTRAINT enforce_geotype_the_geom CHECK (((public.geometrytype(the_geom) = 'MULTIPOLYGON'::text) OR (the_geom IS NULL))),
-    CONSTRAINT enforce_srid_the_geom CHECK ((public.st_srid(the_geom) = 900913))
-);
-
-
-ALTER TABLE public.rtr_gemeinden_multiband OWNER TO rmbt;
-
---
--- Name: rtr_gemeinden_multiband_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
---
-
-CREATE SEQUENCE public.rtr_gemeinden_multiband_uid_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.rtr_gemeinden_multiband_uid_seq OWNER TO rmbt;
-
---
--- Name: rtr_gemeinden_multiband_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
---
-
-ALTER SEQUENCE public.rtr_gemeinden_multiband_uid_seq OWNED BY public.rtr_gemeinden_multiband.uid;
 
 
 --
@@ -4676,8 +3883,8 @@ CREATE TABLE public.test (
     gkz_sa_obsolete integer,
     kg_nr_bev integer,
     land_cover_obsolete integer,
-    cell_location_id integer,
     cell_area_code integer,
+    cell_location_id integer,
     link_distance_obsolete integer,
     link_id_obsolete integer,
     settlement_type_obsolete integer,
@@ -4685,11 +3892,17 @@ CREATE TABLE public.test (
     frc_obsolete smallint,
     edge_id_obsolete numeric,
     geo_location_uuid uuid,
-    last_client_status varchar(50),
-	last_qos_status varchar(50),
-	test_error_cause varchar,
-	last_sequence_number integer,
-	submission_retry_count integer,
+    last_client_status character varying(50),
+    last_qos_status character varying(50),
+    test_error_cause character varying,
+    last_sequence_number integer,
+    submission_retry_count integer,
+    measurement_type_flag character varying(50),
+    geom3857 public.geometry(Point,3857),
+    geom4326 public.geometry(Point,4326),
+    temperature double precision,
+    coverage boolean,
+    referrer character varying(2048),
     CONSTRAINT enforce_dims_location CHECK ((public.st_ndims(location) = 2)),
     CONSTRAINT enforce_geotype_location CHECK (((public.geometrytype(location) = 'POINT'::text) OR (location IS NULL))),
     CONSTRAINT enforce_srid_location CHECK ((public.st_srid(location) = 900913)),
@@ -4705,6 +3918,20 @@ ALTER TABLE public.test OWNER TO rmbt;
 --
 
 COMMENT ON COLUMN public.test.server_id IS 'id of test server used';
+
+
+--
+-- Name: COLUMN test.coverage; Type: COMMENT; Schema: public; Owner: rmbt
+--
+
+COMMENT ON COLUMN public.test.coverage IS 'True if measurement is a coverage verification test';
+
+
+--
+-- Name: COLUMN test.referrer; Type: COMMENT; Schema: public; Owner: rmbt
+--
+
+COMMENT ON COLUMN public.test.referrer IS 'referrer for iframe tests, eg. "https://www.rtr.at/abcde/x.hml"';
 
 
 --
@@ -4732,14 +3959,31 @@ CREATE TABLE public.test_location (
     edge_id numeric,
     country_location character(2),
     dtm_level integer,
+    geom3857 public.geometry(Point,3857),
+    geom4326 public.geometry(Point,4326),
+    atraster100 character varying(16),
+    atraster250 character varying(18),
     CONSTRAINT enforce_dims_location2 CHECK ((public.st_ndims(location) = 2)),
     CONSTRAINT enforce_geotype_location2 CHECK ((public.geometrytype(location) = 'POINT'::text)),
-    CONSTRAINT enforce_srid_location2 CHECK ((public.st_srid(location) = 900913)),
     CONSTRAINT settlement_type_check2 CHECK (((settlement_type > 0) AND (settlement_type < 4)))
 );
 
 
 ALTER TABLE public.test_location OWNER TO rmbt;
+
+--
+-- Name: COLUMN test_location.atraster100; Type: COMMENT; Schema: public; Owner: rmbt
+--
+
+COMMENT ON COLUMN public.test_location.atraster100 IS 'Austrian 100m grid ID';
+
+
+--
+-- Name: COLUMN test_location.atraster250; Type: COMMENT; Schema: public; Owner: rmbt
+--
+
+COMMENT ON COLUMN public.test_location.atraster250 IS 'Austrian 250m grid ID';
+
 
 --
 -- Name: test_location_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
@@ -4869,6 +4113,8 @@ CREATE TABLE public.test_server (
     selectable boolean DEFAULT false NOT NULL,
     countries character varying[] DEFAULT '{dev}'::character varying[] NOT NULL,
     node character varying,
+    archived boolean DEFAULT false NOT NULL,
+    coverage boolean,
     CONSTRAINT enforce_dims_location CHECK ((public.st_ndims(location) = 2)),
     CONSTRAINT enforce_geotype_location CHECK (((public.geometrytype(location) = 'POINT'::text) OR (location IS NULL))),
     CONSTRAINT enforce_srid_location CHECK ((public.st_srid(location) = 900913))
@@ -4876,6 +4122,51 @@ CREATE TABLE public.test_server (
 
 
 ALTER TABLE public.test_server OWNER TO rmbt;
+
+--
+-- Name: COLUMN test_server.coverage; Type: COMMENT; Schema: public; Owner: rmbt
+--
+
+COMMENT ON COLUMN public.test_server.coverage IS 'True if server is for coverage verification tests';
+
+
+--
+-- Name: test_server_types; Type: TABLE; Schema: public; Owner: rmbt
+--
+
+CREATE TABLE public.test_server_types (
+    test_server_uid bigint NOT NULL,
+    server_type character varying(60) NOT NULL,
+    uid integer NOT NULL,
+    port integer,
+    port_ssl integer,
+    encrypted boolean DEFAULT false NOT NULL
+);
+
+
+ALTER TABLE public.test_server_types OWNER TO rmbt;
+
+--
+-- Name: test_server_types_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
+--
+
+CREATE SEQUENCE public.test_server_types_uid_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.test_server_types_uid_seq OWNER TO rmbt;
+
+--
+-- Name: test_server_types_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
+--
+
+ALTER SEQUENCE public.test_server_types_uid_seq OWNED BY public.test_server_types.uid;
+
 
 --
 -- Name: test_server_uid_seq; Type: SEQUENCE; Schema: public; Owner: rmbt
@@ -4974,32 +4265,140 @@ CREATE VIEW public.v_get_replication_delay AS
     get_replication_delay.replay_lag,
     get_replication_delay.sync_priority,
     get_replication_delay.sync_state
-   FROM public.get_replication_delay() get_replication_delay(pid, usesysid, usename, application_name, client_addr, client_hostname, client_port, backend_start, backend_xmin, state, sent_lsn, write_lsn, flush_lsn, replay_lsn, write_lag, flush_lag, replay_lag, sync_priority, sync_state);
+   FROM public.get_replication_delay() get_replication_delay(pid, usesysid, usename, application_name, client_addr, client_hostname, client_port, backend_start, backend_xmin, state, sent_lsn, write_lsn, flush_lsn, replay_lsn, write_lag, flush_lag, replay_lag, sync_priority, sync_state, reply_time);
 
 
 ALTER TABLE public.v_get_replication_delay OWNER TO postgres;
 
+--
+-- Name: v_kibana; Type: VIEW; Schema: public; Owner: rmbt
+--
 
-create table if not exists public.qoe_classification
-(
-	uid serial not null
-		constraint qoe_classification_pk
-			primary key,
-	category varchar(30) not null,
-	dl_4 double precision not null,
-	dl_3 double precision not null,
-	dl_2 double precision not null,
-	ul_4 double precision not null,
-	ul_3 double precision not null,
-	ul_2 double precision not null,
-	ping_4 double precision not null,
-	ping_3 double precision not null,
-	ping_2 double precision not null
-);
+CREATE VIEW public.v_kibana AS
+ SELECT test."time" AS "timestamp",
+    test."time" AS measurement_date,
+    test.open_test_uuid,
+    provider.shortname AS provider,
+    test.plattform AS platform,
+    test.device,
+    test.model,
+    test.speed_download AS download,
+    test.speed_upload AS upload,
+    test.ping_median AS ping,
+    (test.network_type)::text AS network_type,
+    test.num_threads,
+    test.signal_strength,
+    test.lte_rsrq,
+    test.lte_rsrp,
+    NULL::character varying AS client_uuid,
+    NULL::character varying AS loop_mode_uuid,
+    test.country_asn AS country,
+    test.client_name,
+    test.client_version,
+    NULL::character varying AS ip_address,
+    test.status,
+    NULL::character varying AS wifi_ssid,
+    test.network_operator_name AS operator,
+        CASE
+            WHEN (test.geo_accuracy < (10000)::double precision) THEN test.geo_lat
+            ELSE NULL::double precision
+        END AS latitude,
+        CASE
+            WHEN (test.geo_accuracy < (10000)::double precision) THEN test.geo_long
+            ELSE NULL::double precision
+        END AS longitude,
+    test_server.uid AS measurement_server_id,
+    test_server.name AS measurement_server_name,
+    NULL::character varying AS client_type,
+    test.os_version,
+    test.api_level,
+    test.product,
+    test.phone_type,
+    test.data_state,
+    test.network_country,
+    test.network_operator,
+    test.network_operator_name,
+    test.network_sim_country,
+    test.network_sim_operator,
+    test.network_sim_operator_name,
+    test.duration,
+    test.timezone,
+    test.bytes_download,
+    test.bytes_upload,
+    test.nsec_download,
+    test.nsec_upload,
+    test.server_ip,
+    test.software_revision,
+    test.nat_type,
+    test.public_ip_asn,
+    test.total_bytes_download,
+    test.total_bytes_upload,
+    test.wifi_link_speed,
+    test.public_ip_as_name,
+    test.network_is_roaming,
+    test.geo_provider,
+        CASE
+            WHEN (test.geo_accuracy < (10000)::double precision) THEN test.geo_accuracy
+            ELSE NULL::double precision
+        END AS geo_accuracy,
+    test.roaming_type,
+    test.country_asn,
+    test.test_if_bytes_download,
+    test.test_if_bytes_upload,
+    test.testdl_if_bytes_download,
+    test.testdl_if_bytes_upload,
+    test.testul_if_bytes_download,
+    test.testul_if_bytes_upload,
+    test.country_geoip,
+    test.network_group_name,
+    test.network_group_type,
+    test.time_dl_ns,
+    test.time_ul_ns,
+    test.num_threads_ul,
+    tl.kg_nr_bev,
+    tl.gkz_bev,
+    tl.gkz_sa,
+    tl.land_cover,
+    tl.settlement_type,
+    tl.country_location,
+    tl.link_name,
+    tl.dtm_level
+   FROM (((public.test
+     LEFT JOIN public.test_location tl ON ((tl.open_test_uuid = test.open_test_uuid)))
+     LEFT JOIN public.provider ON ((provider.uid = test.provider_id)))
+     LEFT JOIN public.test_server ON ((test_server.uid = test.server_id)))
+  WHERE (((test.status)::text = 'FINISHED'::text) AND (NOT test.deleted) AND (NOT test.implausible))
+  ORDER BY test.uid;
 
-ALTER TABLE public.qoe_classification OWNER TO rmbt;
-GRANT SELECT ON TABLE public.qoe_classification TO rmbt_group_read_only;
 
+ALTER TABLE public.v_kibana OWNER TO rmbt;
+
+--
+-- Name: v_radio_signal_location; Type: VIEW; Schema: public; Owner: postgres
+--
+
+CREATE VIEW public.v_radio_signal_location AS
+ SELECT radio_signal_location.uid,
+    radio_signal_location.last_signal_uuid,
+    radio_signal_location.last_radio_signal_uuid,
+    radio_signal_location.last_geo_location_uuid,
+    radio_signal_location.open_test_uuid,
+    radio_signal_location.interpolated_location,
+    geo_location.accuracy AS geo_accuracy,
+    radio_signal_location."time",
+    COALESCE((radio_signal.lte_rsrp + 10), radio_signal.signal_strength, (signal.lte_rsrp + 10), signal.signal_strength) AS merged_signal,
+    COALESCE(radio_signal.network_type_id, signal.network_type_id) AS network_type,
+    test.deleted,
+    test.implausible,
+    test.status
+   FROM ((((public.radio_signal_location
+     LEFT JOIN public.radio_signal ON ((radio_signal_location.last_radio_signal_uuid = radio_signal.radio_signal_uuid)))
+     LEFT JOIN public.signal ON ((radio_signal_location.last_signal_uuid = signal.signal_uuid)))
+     JOIN public.geo_location ON ((radio_signal_location.last_geo_location_uuid = geo_location.geo_location_uuid)))
+     JOIN public.test ON ((radio_signal.open_test_uuid = test.open_test_uuid)));
+
+
+ALTER TABLE public.v_radio_signal_location OWNER TO postgres;
 
 --
 -- Name: v_test; Type: VIEW; Schema: public; Owner: postgres
@@ -5372,7 +4771,7 @@ CREATE VIEW public.v_test3 AS
 ALTER TABLE public.v_test3 OWNER TO postgres;
 
 --
--- Name: vt; Type: VIEW; Schema: public; Owner: dj
+-- Name: vt; Type: VIEW; Schema: public; Owner: rmbt
 --
 
 CREATE VIEW public.vt AS
@@ -5497,10 +4896,17 @@ CREATE VIEW public.vt AS
 ALTER TABLE public.vt OWNER TO rmbt;
 
 --
--- Name: VIEW vt; Type: COMMENT; Schema: public; Owner: dj
+-- Name: VIEW vt; Type: COMMENT; Schema: public; Owner: rmbt
 --
 
 COMMENT ON VIEW public.vt IS 'light weight columns from test (dj)';
+
+
+--
+-- Name: admin_0_countries gid; Type: DEFAULT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.admin_0_countries ALTER COLUMN gid SET DEFAULT nextval('public.admin_0_countries_gid_seq'::regclass);
 
 
 --
@@ -5508,6 +4914,27 @@ COMMENT ON VIEW public.vt IS 'light weight columns from test (dj)';
 --
 
 ALTER TABLE ONLY public.as2provider ALTER COLUMN uid SET DEFAULT nextval('public.as2provider_uid_seq'::regclass);
+
+
+--
+-- Name: atraster gid; Type: DEFAULT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.atraster ALTER COLUMN gid SET DEFAULT nextval('public.atraster_gid_seq'::regclass);
+
+
+--
+-- Name: atraster100 gid; Type: DEFAULT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.atraster100 ALTER COLUMN gid SET DEFAULT nextval('public.atraster100_gid_seq'::regclass);
+
+
+--
+-- Name: atraster250 gid; Type: DEFAULT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.atraster250 ALTER COLUMN gid SET DEFAULT nextval('public.atraster250_gid_seq'::regclass);
 
 
 --
@@ -5546,6 +4973,27 @@ ALTER TABLE ONLY public.client_type ALTER COLUMN uid SET DEFAULT nextval('public
 
 
 --
+-- Name: cov_bb_fixed uid; Type: DEFAULT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.cov_bb_fixed ALTER COLUMN uid SET DEFAULT nextval('public.cov_bb_fixed_uid_seq'::regclass);
+
+
+--
+-- Name: cov_mno uid; Type: DEFAULT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.cov_mno ALTER COLUMN uid SET DEFAULT nextval('public.cov_mno_uid_seq'::regclass);
+
+
+--
+-- Name: cov_visible_name uid; Type: DEFAULT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.cov_visible_name ALTER COLUMN uid SET DEFAULT nextval('public.cov_visible_name_uid_seq'::regclass);
+
+
+--
 -- Name: device_map uid; Type: DEFAULT; Schema: public; Owner: rmbt
 --
 
@@ -5556,7 +5004,7 @@ ALTER TABLE ONLY public.device_map ALTER COLUMN uid SET DEFAULT nextval('public.
 -- Name: dhm rid; Type: DEFAULT; Schema: public; Owner: rmbt
 --
 
-ALTER TABLE ONLY public.dhm ALTER COLUMN rid SET DEFAULT nextval('public.dhm_rid_seq'::regclass);
+ALTER TABLE ONLY public.dhm ALTER COLUMN rid SET DEFAULT nextval('public.dhm2_rid_seq'::regclass);
 
 
 --
@@ -5651,6 +5099,13 @@ ALTER TABLE ONLY public.provider ALTER COLUMN uid SET DEFAULT nextval('public.pr
 
 
 --
+-- Name: qoe_classification uid; Type: DEFAULT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.qoe_classification ALTER COLUMN uid SET DEFAULT nextval('public.qoe_classification_uid_seq'::regclass);
+
+
+--
 -- Name: qos_test_desc uid; Type: DEFAULT; Schema: public; Owner: rmbt
 --
 
@@ -5669,6 +5124,13 @@ ALTER TABLE ONLY public.qos_test_objective ALTER COLUMN uid SET DEFAULT nextval(
 --
 
 ALTER TABLE ONLY public.qos_test_result ALTER COLUMN uid SET DEFAULT nextval('public.qos_test_result_uid_seq'::regclass);
+
+
+--
+-- Name: qos_test_result_b uid; Type: DEFAULT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.qos_test_result_b ALTER COLUMN uid SET DEFAULT nextval('public.qos_test_result_b_uid_seq'::regclass);
 
 
 --
@@ -5697,13 +5159,6 @@ ALTER TABLE ONLY public.radio_signal ALTER COLUMN uid SET DEFAULT nextval('publi
 --
 
 ALTER TABLE ONLY public.radio_signal_location ALTER COLUMN uid SET DEFAULT nextval('public.radio_signal_location_uid_seq'::regclass);
-
-
---
--- Name: rtr_gemeinden_multiband uid; Type: DEFAULT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.rtr_gemeinden_multiband ALTER COLUMN uid SET DEFAULT nextval('public.rtr_gemeinden_multiband_uid_seq'::regclass);
 
 
 --
@@ -5777,6 +5232,29 @@ ALTER TABLE ONLY public.test_server ALTER COLUMN uid SET DEFAULT nextval('public
 
 
 --
+-- Name: test_server_types uid; Type: DEFAULT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.test_server_types ALTER COLUMN uid SET DEFAULT nextval('public.test_server_types_uid_seq'::regclass);
+
+
+--
+-- Name: _SCHEMA_VERSION _SCHEMA_VERSION_pk; Type: CONSTRAINT; Schema: public; Owner: rmbt_control
+--
+
+ALTER TABLE ONLY public."_SCHEMA_VERSION"
+    ADD CONSTRAINT "_SCHEMA_VERSION_pk" PRIMARY KEY (installed_rank);
+
+
+--
+-- Name: admin_0_countries admin_0_countries_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.admin_0_countries
+    ADD CONSTRAINT admin_0_countries_pkey PRIMARY KEY (gid);
+
+
+--
 -- Name: device_map android_device_map_codename_key; Type: CONSTRAINT; Schema: public; Owner: rmbt
 --
 
@@ -5798,6 +5276,30 @@ ALTER TABLE ONLY public.device_map
 
 ALTER TABLE ONLY public.as2provider
     ADD CONSTRAINT as2provider_pkey PRIMARY KEY (uid);
+
+
+--
+-- Name: atraster100 atraster100_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.atraster100
+    ADD CONSTRAINT atraster100_pkey PRIMARY KEY (gid);
+
+
+--
+-- Name: atraster250 atraster250_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.atraster250
+    ADD CONSTRAINT atraster250_pkey PRIMARY KEY (gid);
+
+
+--
+-- Name: atraster atraster_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.atraster
+    ADD CONSTRAINT atraster_pkey PRIMARY KEY (gid);
 
 
 --
@@ -5865,6 +5367,30 @@ ALTER TABLE ONLY public.client
 
 
 --
+-- Name: cov_bb_fixed cov_bb_fixed_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.cov_bb_fixed
+    ADD CONSTRAINT cov_bb_fixed_pkey PRIMARY KEY (uid);
+
+
+--
+-- Name: cov_mno cov_mno_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.cov_mno
+    ADD CONSTRAINT cov_mno_pkey PRIMARY KEY (uid);
+
+
+--
+-- Name: cov_visible_name cov_visible_name_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.cov_visible_name
+    ADD CONSTRAINT cov_visible_name_pkey PRIMARY KEY (uid);
+
+
+--
 -- Name: device_map device_map_fullname_key; Type: CONSTRAINT; Schema: public; Owner: rmbt
 --
 
@@ -5873,11 +5399,11 @@ ALTER TABLE ONLY public.device_map
 
 
 --
--- Name: dhm dhm_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
+-- Name: dhm dhm2_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
 --
 
 ALTER TABLE ONLY public.dhm
-    ADD CONSTRAINT dhm_pkey PRIMARY KEY (rid);
+    ADD CONSTRAINT dhm2_pkey PRIMARY KEY (rid);
 
 
 --
@@ -6009,6 +5535,14 @@ ALTER TABLE ONLY public.provider
 
 
 --
+-- Name: qoe_classification qoe_classification_pk; Type: CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.qoe_classification
+    ADD CONSTRAINT qoe_classification_pk PRIMARY KEY (uid);
+
+
+--
 -- Name: qos_test_desc qos_test_desc_desc_key_lang_key; Type: CONSTRAINT; Schema: public; Owner: rmbt
 --
 
@@ -6038,6 +5572,14 @@ ALTER TABLE ONLY public.qos_test_objective
 
 ALTER TABLE ONLY public.qos_test_result
     ADD CONSTRAINT qos_test_result_pkey PRIMARY KEY (uid);
+
+
+--
+-- Name: qos_test_result_b qos_test_resultb_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.qos_test_result_b
+    ADD CONSTRAINT qos_test_resultb_pkey PRIMARY KEY (uid);
 
 
 --
@@ -6094,14 +5636,6 @@ ALTER TABLE ONLY public.radio_signal
 
 ALTER TABLE ONLY public.signal
     ADD CONSTRAINT radio_signal_uid_pkey PRIMARY KEY (uid);
-
-
---
--- Name: rtr_gemeinden_multiband rtr_gemeinden_multiband_uid_pkey; Type: CONSTRAINT; Schema: public; Owner: rmbt
---
-
-ALTER TABLE ONLY public.rtr_gemeinden_multiband
-    ADD CONSTRAINT rtr_gemeinden_multiband_uid_pkey PRIMARY KEY (uid);
 
 
 --
@@ -6281,10 +5815,66 @@ ALTER TABLE ONLY public.radio_signal_location
 
 
 --
+-- Name: _SCHEMA_VERSION_s_idx; Type: INDEX; Schema: public; Owner: rmbt_control
+--
+
+CREATE INDEX "_SCHEMA_VERSION_s_idx" ON public."_SCHEMA_VERSION" USING btree (success);
+
+
+--
+-- Name: admin_0_countries_geom_idx; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX admin_0_countries_geom_idx ON public.admin_0_countries USING gist (geom);
+
+
+--
 -- Name: as2provider_provider_id_idx; Type: INDEX; Schema: public; Owner: rmbt
 --
 
 CREATE INDEX as2provider_provider_id_idx ON public.as2provider USING btree (provider_id);
+
+
+--
+-- Name: atraster100_geom_idx; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX atraster100_geom_idx ON public.atraster100 USING gist (geom);
+
+
+--
+-- Name: atraster100_id_idx; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX atraster100_id_idx ON public.atraster USING btree (id);
+
+
+--
+-- Name: atraster250_geom_idx; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX atraster250_geom_idx ON public.atraster250 USING gist (geom);
+
+
+--
+-- Name: atraster250_id_idx; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX atraster250_id_idx ON public.atraster USING btree (id);
+
+
+--
+-- Name: atraster_geom_idx; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX atraster_geom_idx ON public.atraster USING gist (geom);
+
+
+--
+-- Name: atraster_id_idx; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX atraster_id_idx ON public.atraster USING btree (id);
 
 
 --
@@ -6295,10 +5885,10 @@ CREATE INDEX bev_vgd_bbox_gix ON public.bev_vgd USING gist (bbox);
 
 
 --
--- Name: bev_vgd_gix; Type: INDEX; Schema: public; Owner: rmbt
+-- Name: bev_vgd_geom_idx; Type: INDEX; Schema: public; Owner: rmbt
 --
 
-CREATE INDEX bev_vgd_gix ON public.bev_vgd USING gist (geom);
+CREATE INDEX bev_vgd_geom_idx ON public.bev_vgd USING gist (geom);
 
 
 --
@@ -6372,10 +5962,38 @@ CREATE INDEX client_sync_group_id_idx ON public.client USING btree (sync_group_i
 
 
 --
--- Name: dhm_st_convexhull_idx; Type: INDEX; Schema: public; Owner: rmbt
+-- Name: cov_bb_fixed_raster_idx; Type: INDEX; Schema: public; Owner: rmbt
 --
 
-CREATE INDEX dhm_st_convexhull_idx ON public.dhm USING gist (public.st_convexhull(rast));
+CREATE INDEX cov_bb_fixed_raster_idx ON public.cov_bb_fixed USING btree (raster);
+
+
+--
+-- Name: cov_mno_operator_reference_license_raster_idx; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX cov_mno_operator_reference_license_raster_idx ON public.cov_mno USING btree (operator, reference, license, raster);
+
+
+--
+-- Name: cov_mno_raster_idx; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX cov_mno_raster_idx ON public.cov_mno USING btree (raster);
+
+
+--
+-- Name: cov_visible_name_visible_name_idx; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX cov_visible_name_visible_name_idx ON public.cov_visible_name USING btree (visible_name);
+
+
+--
+-- Name: dhm2_st_convexhull_idx; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX dhm2_st_convexhull_idx ON public.dhm USING gist (public.st_convexhull(rast));
 
 
 --
@@ -6386,6 +6004,13 @@ CREATE INDEX download_idx ON public.test USING btree (bytes_download, network_ty
 
 
 --
+-- Name: dsr_geom_gix; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX dsr_geom_gix ON public.dsr USING gist (geom);
+
+
+--
 -- Name: fki_qos_test_result_qos_test_uid_fkey; Type: INDEX; Schema: public; Owner: rmbt
 --
 
@@ -6393,10 +6018,24 @@ CREATE INDEX fki_qos_test_result_qos_test_uid_fkey ON public.qos_test_result USI
 
 
 --
+-- Name: fki_qos_test_result_qos_testb_uid_fkey; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX fki_qos_test_result_qos_testb_uid_fkey ON public.qos_test_result_b USING btree (qos_test_uid);
+
+
+--
 -- Name: fki_qos_test_result_test_uid; Type: INDEX; Schema: public; Owner: rmbt
 --
 
 CREATE INDEX fki_qos_test_result_test_uid ON public.qos_test_result USING btree (test_uid);
+
+
+--
+-- Name: fki_qos_test_result_testb_uid; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX fki_qos_test_result_testb_uid ON public.qos_test_result_b USING btree (test_uid);
 
 
 --
@@ -6432,6 +6071,20 @@ CREATE INDEX geo_location_test_id_provider_time_idx ON public.geo_location USING
 --
 
 CREATE INDEX geo_location_test_id_time_idx ON public.geo_location USING btree (test_id, "time");
+
+
+--
+-- Name: idx_the_geom_4326_atraster100; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX idx_the_geom_4326_atraster100 ON public.atraster100 USING gist (public.st_transform(geom, 4326));
+
+
+--
+-- Name: idx_the_geom_4326_atraster250; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX idx_the_geom_4326_atraster250 ON public.atraster250 USING gist (public.st_transform(geom, 4326));
 
 
 --
@@ -6484,27 +6137,6 @@ CREATE INDEX location_idx ON public.test USING gist (location);
 
 
 --
--- Name: logged_actions_action_idx; Type: INDEX; Schema: public; Owner: rmbt
---
-
-CREATE INDEX logged_actions_action_idx ON public.logged_actions_obsolete USING btree (action);
-
-
---
--- Name: logged_actions_action_tstamp_idx; Type: INDEX; Schema: public; Owner: rmbt
---
-
-CREATE INDEX logged_actions_action_tstamp_idx ON public.logged_actions_obsolete USING btree (action_tstamp);
-
-
---
--- Name: logged_actions_schema_table_idx; Type: INDEX; Schema: public; Owner: rmbt
---
-
-CREATE INDEX logged_actions_schema_table_idx ON public.logged_actions_obsolete USING btree ((((schema_name || '.'::text) || table_name)));
-
-
---
 -- Name: mcc2country_mcc; Type: INDEX; Schema: public; Owner: rmbt
 --
 
@@ -6537,6 +6169,13 @@ CREATE INDEX mccmnc2provider_provider_id ON public.mccmnc2provider USING btree (
 --
 
 CREATE INDEX ne_10m_admin_0_countries_iso_a2_idx ON public.ne_10m_admin_0_countries USING btree (iso_a2);
+
+
+--
+-- Name: ne_10m_admin_0_countries_iso_geom3426_gist; Type: INDEX; Schema: public; Owner: rmbt
+--
+
+CREATE INDEX ne_10m_admin_0_countries_iso_geom3426_gist ON public.ne_10m_admin_0_countries USING gist (geom4326);
 
 
 --
@@ -6659,13 +6298,6 @@ CREATE INDEX radio_signal_open_uuid_idx ON public.radio_signal USING btree (open
 
 
 --
--- Name: rtr_gemeinden_multiband_gix; Type: INDEX; Schema: public; Owner: rmbt
---
-
-CREATE INDEX rtr_gemeinden_multiband_gix ON public.rtr_gemeinden_multiband USING gist (the_geom);
-
-
---
 -- Name: settings_key_lang_idx; Type: INDEX; Schema: public; Owner: rmbt
 --
 
@@ -6680,10 +6312,10 @@ CREATE INDEX statistik_austria_gem_bbox_gix ON public.statistik_austria_gem USIN
 
 
 --
--- Name: statistik_austria_gem_gix; Type: INDEX; Schema: public; Owner: rmbt
+-- Name: statistik_austria_gem_geom_idx; Type: INDEX; Schema: public; Owner: rmbt
 --
 
-CREATE INDEX statistik_austria_gem_gix ON public.statistik_austria_gem USING gist (geom);
+CREATE INDEX statistik_austria_gem_geom_idx ON public.statistik_austria_gem USING gist (geom);
 
 
 --
@@ -6981,17 +6613,45 @@ CREATE INDEX test_zip_code_idx ON public.test USING btree (zip_code);
 
 
 --
+-- Name: cell_location trigger_cell_location; Type: TRIGGER; Schema: public; Owner: rmbt
+--
+
+CREATE TRIGGER trigger_cell_location BEFORE INSERT ON public.cell_location FOR EACH ROW EXECUTE FUNCTION public.trigger_radio_cell();
+
+
+--
+-- Name: geo_location trigger_geo_location; Type: TRIGGER; Schema: public; Owner: rmbt
+--
+
+CREATE TRIGGER trigger_geo_location BEFORE INSERT ON public.geo_location FOR EACH ROW EXECUTE FUNCTION public.trigger_geo_location();
+
+
+--
+-- Name: qos_test_result trigger_qos_test_result; Type: TRIGGER; Schema: public; Owner: rmbt
+--
+
+CREATE TRIGGER trigger_qos_test_result BEFORE INSERT OR UPDATE ON public.qos_test_result FOR EACH ROW EXECUTE FUNCTION public.trigger_qos_test_result();
+
+
+--
+-- Name: radio_cell trigger_radio_cell; Type: TRIGGER; Schema: public; Owner: rmbt
+--
+
+CREATE TRIGGER trigger_radio_cell BEFORE INSERT ON public.radio_cell FOR EACH ROW EXECUTE FUNCTION public.trigger_radio_cell();
+
+
+--
 -- Name: test trigger_test; Type: TRIGGER; Schema: public; Owner: rmbt
 --
 
-CREATE TRIGGER trigger_test BEFORE INSERT OR UPDATE ON public.test FOR EACH ROW EXECUTE PROCEDURE public.trigger_test();
+CREATE TRIGGER trigger_test BEFORE INSERT OR UPDATE ON public.test FOR EACH ROW EXECUTE FUNCTION public.trigger_test();
 
 
 --
 -- Name: test_location trigger_test_location2; Type: TRIGGER; Schema: public; Owner: rmbt
 --
 
-CREATE TRIGGER trigger_test_location2 BEFORE INSERT OR UPDATE ON public.test_location FOR EACH ROW EXECUTE PROCEDURE public.trigger_test_location();
+CREATE TRIGGER trigger_test_location2 BEFORE INSERT OR UPDATE ON public.test_location FOR EACH ROW EXECUTE FUNCTION public.trigger_test_location();
 
 
 --
@@ -7064,6 +6724,22 @@ ALTER TABLE ONLY public.qos_test_result
 
 ALTER TABLE ONLY public.qos_test_result
     ADD CONSTRAINT qos_test_result_test_uid FOREIGN KEY (test_uid) REFERENCES public.test(uid) ON DELETE CASCADE;
+
+
+--
+-- Name: qos_test_result_b qos_test_result_test_uid; Type: FK CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.qos_test_result_b
+    ADD CONSTRAINT qos_test_result_test_uid FOREIGN KEY (test_uid) REFERENCES public.test(uid) ON DELETE CASCADE;
+
+
+--
+-- Name: qos_test_result_b qos_test_resultb_qos_test_uid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.qos_test_result_b
+    ADD CONSTRAINT qos_test_resultb_qos_test_uid_fkey FOREIGN KEY (qos_test_uid) REFERENCES public.qos_test_objective(uid) ON DELETE CASCADE;
 
 
 --
@@ -7179,12 +6855,52 @@ ALTER TABLE ONLY public.test
 
 
 --
--- Name: FUNCTION interpolate_radio_signal_location(in_open_test_uuid uuid); Type: ACL; Schema: public; Owner: rmbt
+-- Name: job cron_job_policy; Type: POLICY; Schema: cron; Owner: postgres
 --
 
-REVOKE ALL ON FUNCTION public.interpolate_radio_signal_location(in_open_test_uuid uuid) FROM PUBLIC;
-GRANT ALL ON FUNCTION public.interpolate_radio_signal_location(in_open_test_uuid uuid) TO rmbt_group_control;
-GRANT ALL ON FUNCTION public.interpolate_radio_signal_location(in_open_test_uuid uuid) TO rmbt_group_read_only;
+-- CREATE POLICY cron_job_policy ON cron.job USING ((username = CURRENT_USER));
+
+
+--
+-- Name: job_run_details cron_job_run_details_policy; Type: POLICY; Schema: cron; Owner: postgres
+--
+
+-- CREATE POLICY cron_job_run_details_policy ON cron.job_run_details USING ((username = CURRENT_USER));
+
+
+--
+-- Name: job; Type: ROW SECURITY; Schema: cron; Owner: postgres
+--
+
+ALTER TABLE cron.job ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: job_run_details; Type: ROW SECURITY; Schema: cron; Owner: postgres
+--
+
+ALTER TABLE cron.job_run_details ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: TABLE job; Type: ACL; Schema: cron; Owner: postgres
+--
+
+GRANT SELECT ON TABLE cron.job TO rmbt_group_read_only;
+
+
+--
+-- Name: TABLE job_run_details; Type: ACL; Schema: cron; Owner: postgres
+--
+
+GRANT SELECT ON TABLE cron.job_run_details TO rmbt_group_read_only;
+
+
+--
+-- Name: TABLE admin_0_countries; Type: ACL; Schema: public; Owner: rmbt
+--
+
+GRANT SELECT ON TABLE public.admin_0_countries TO rmbt_group_read_only;
+GRANT SELECT ON TABLE public.admin_0_countries TO rmbt_control;
+GRANT SELECT ON TABLE public.admin_0_countries TO rmbt_group_control;
 
 
 --
@@ -7199,6 +6915,27 @@ GRANT SELECT ON TABLE public.device_map TO rmbt_group_read_only;
 --
 
 GRANT SELECT ON TABLE public.as2provider TO rmbt_group_read_only;
+
+
+--
+-- Name: TABLE atraster; Type: ACL; Schema: public; Owner: rmbt
+--
+
+GRANT SELECT ON TABLE public.atraster TO rmbt_group_read_only;
+
+
+--
+-- Name: TABLE atraster100; Type: ACL; Schema: public; Owner: rmbt
+--
+
+GRANT SELECT ON TABLE public.atraster100 TO rmbt_group_read_only;
+
+
+--
+-- Name: TABLE atraster250; Type: ACL; Schema: public; Owner: rmbt
+--
+
+GRANT SELECT ON TABLE public.atraster250 TO rmbt_group_read_only;
 
 
 --
@@ -7260,11 +6997,24 @@ GRANT USAGE ON SEQUENCE public.client_uid_seq TO rmbt_group_control;
 
 
 --
+-- Name: TABLE cov_mno_fn; Type: ACL; Schema: public; Owner: rmbt
+--
+
+GRANT SELECT ON TABLE public.cov_mno_fn TO rmbt_group_read_only;
+
+
+--
+-- Name: TABLE cov_visible_name; Type: ACL; Schema: public; Owner: rmbt
+--
+
+GRANT SELECT ON TABLE public.cov_visible_name TO rmbt_group_read_only;
+
+
+--
 -- Name: TABLE dhm; Type: ACL; Schema: public; Owner: rmbt
 --
 
 GRANT SELECT ON TABLE public.dhm TO rmbt_group_read_only;
-GRANT ALL ON TABLE public.dhm TO rmbt_group_control;
 
 
 --
@@ -7316,13 +7066,6 @@ GRANT SELECT ON TABLE public.linknet TO rmbt_group_read_only;
 --
 
 GRANT SELECT ON TABLE public.linknet_names TO rmbt_group_read_only;
-
-
---
--- Name: TABLE logged_actions_obsolete; Type: ACL; Schema: public; Owner: rmbt
---
-
-GRANT INSERT ON TABLE public.logged_actions_obsolete TO rmbt_group_control;
 
 
 --
@@ -7391,6 +7134,13 @@ GRANT SELECT ON TABLE public.provider TO rmbt_group_read_only;
 
 
 --
+-- Name: TABLE qoe_classification; Type: ACL; Schema: public; Owner: rmbt
+--
+
+GRANT SELECT ON TABLE public.qoe_classification TO rmbt_group_read_only;
+
+
+--
 -- Name: TABLE qos_test_desc; Type: ACL; Schema: public; Owner: rmbt
 --
 
@@ -7410,6 +7160,21 @@ GRANT SELECT ON TABLE public.qos_test_objective TO rmbt_group_read_only;
 
 GRANT SELECT ON TABLE public.qos_test_result TO rmbt_group_read_only;
 GRANT INSERT,UPDATE ON TABLE public.qos_test_result TO rmbt_group_control;
+
+
+--
+-- Name: TABLE qos_test_result_b; Type: ACL; Schema: public; Owner: rmbt
+--
+
+GRANT SELECT ON TABLE public.qos_test_result_b TO rmbt_group_read_only;
+GRANT INSERT,UPDATE ON TABLE public.qos_test_result_b TO rmbt_group_control;
+
+
+--
+-- Name: SEQUENCE qos_test_result_b_uid_seq; Type: ACL; Schema: public; Owner: rmbt
+--
+
+GRANT USAGE ON SEQUENCE public.qos_test_result_b_uid_seq TO rmbt_group_control;
 
 
 --
@@ -7600,6 +7365,15 @@ GRANT SELECT ON TABLE public.test_server TO rmbt_group_read_only;
 
 
 --
+-- Name: TABLE test_server_types; Type: ACL; Schema: public; Owner: rmbt
+--
+
+GRANT SELECT ON TABLE public.test_server_types TO rmbt_control;
+GRANT SELECT ON TABLE public.test_server_types TO rmbt_group_control;
+GRANT SELECT ON TABLE public.test_server_types TO rmbt_group_read_only;
+
+
+--
 -- Name: SEQUENCE test_uid_seq; Type: ACL; Schema: public; Owner: rmbt
 --
 
@@ -7624,7 +7398,23 @@ GRANT SELECT ON TABLE public.v_dl_bandwidth_per_minute TO rmbt_group_read_only;
 -- Name: TABLE v_get_replication_delay; Type: ACL; Schema: public; Owner: postgres
 --
 
---GRANT SELECT ON TABLE public.v_get_replication_delay TO nagios;
+GRANT SELECT ON TABLE public.v_get_replication_delay TO nagios;
+
+
+--
+-- Name: TABLE v_kibana; Type: ACL; Schema: public; Owner: rmbt
+--
+
+GRANT SELECT ON TABLE public.v_kibana TO kibana;
+GRANT SELECT ON TABLE public.v_kibana TO rmbt_group_read_only;
+
+
+--
+-- Name: TABLE v_radio_signal_location; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT SELECT ON TABLE public.v_radio_signal_location TO rmbt_group_read_only;
+GRANT SELECT ON TABLE public.v_radio_signal_location TO rmbt;
 
 
 --
