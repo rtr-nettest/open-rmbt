@@ -463,6 +463,91 @@ $$;
 ALTER FUNCTION public.fix_location0(a integer, b integer) OWNER TO postgres;
 
 --
+-- Name: get_bev_vgd(public.geometry); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.get_bev_vgd(location public.geometry) RETURNS TABLE(kg_nr character varying, kg_nr_bev integer, kg character varying, meridian character varying, gkz character varying, gkz_bev integer, pg character varying, bkz character varying, pb character varying, fa_nr character varying, fa character varying, gb_kz character varying, gb character varying, va_nr character varying, va character varying, bl_kz character varying, bl character varying, st_kz smallint, st character varying, fl double precision, geom public.geometry)
+    LANGUAGE plpgsql
+    AS $$
+
+BEGIN
+
+
+    BEGIN
+        RETURN QUERY
+            SELECT bev_vgd.kg_nr,
+                   bev_vgd.kg_nr::integer,
+                   bev_vgd.kg,
+                   bev_vgd.meridian,
+                   bev_vgd.gkz,
+                   bev_vgd.gkz::integer,
+                   bev_vgd.pg,
+                   bev_vgd.bkz,
+                   bev_vgd.pb,
+                   bev_vgd.fa_nr,
+                   bev_vgd.fa,
+                   bev_vgd.gb_kz,
+                   bev_vgd.gb,
+                   bev_vgd.va_nr,
+                   bev_vgd.va,
+                   bev_vgd.bl_kz,
+                   bev_vgd.bl,
+                   bev_vgd.st_kz,
+                   bev_vgd.st,
+                   bev_vgd.fl,
+                   bev_vgd.geom
+
+            FROM bev_vgd
+            WHERE within(st_transform(location, 31287), bev_vgd.geom)
+            LIMIT 1;
+
+    EXCEPTION
+        WHEN undefined_table THEN
+            -- just return NULL, but ignore missing database
+            RAISE NOTICE '%', SQLERRM;
+    END;
+
+END;
+
+
+$$;
+
+
+ALTER FUNCTION public.get_bev_vgd(location public.geometry) OWNER TO postgres;
+
+--
+-- Name: get_gkz_sa(public.geometry); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.get_gkz_sa(location public.geometry) RETURNS integer
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    gkz_sa INTEGER := NULL;
+BEGIN
+    IF (location IS NULL) THEN
+        RETURN NULL;
+    end if;
+    BEGIN
+        SELECT sa.id::INTEGER INTO gkz_sa
+        FROM statistik_austria_gem sa
+        WHERE within(st_transform(location, 31287), sa.geom)
+        LIMIT 1;
+
+    EXCEPTION
+        WHEN undefined_table THEN
+            -- just return NULL, but ignore missing database
+            RAISE NOTICE '%', SQLERRM;
+    END;
+    RETURN gkz_sa;
+END;
+
+$$;
+
+
+ALTER FUNCTION public.get_gkz_sa(location public.geometry) OWNER TO postgres;
+
+--
 -- Name: get_replication_delay(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -578,6 +663,532 @@ $$;
 ALTER FUNCTION public.hstore2json(hs public.hstore) OWNER TO postgres;
 
 --
+-- Name: interpolate_radio_signal_location(uuid); Type: FUNCTION; Schema: public; Owner: rmbt
+--
+
+CREATE FUNCTION public.interpolate_radio_signal_location(in_open_test_uuid uuid) RETURNS TABLE(out_last_signal_uuid uuid, out_last_radio_signal_uuid uuid, out_last_geo_location_uuid uuid, out_next_geo_location_uuid uuid, out_open_test_uuid uuid, out_interpolated_location public.geometry, out_time timestamp with time zone)
+    LANGUAGE plpgsql
+    AS $$
+-- USAGE:
+-- # for data migration:
+--   insert into radio_signal_location (last_signal_uuid, last_radio_signal_uuid, last_geo_location_uuid, next_geo_location_uuid, open_test_uuid, interpolated_location, time) select (interpolate_radio_signal_location (open_test_uuid)).* from test where open_test_uuid = '0583309a-1c36-4048-90d1-a777be8ef4fd' order by uid asc;
+-- # with single open_test_uuid (e.g. in trigger or server code):
+--   insert into radio_signal_location (last_signal_uuid, last_radio_signal_uuid, last_geo_location_uuid, next_geo_location_uuid, open_test_uuid, interpolated_location, time) select (interpolate_radio_signal_location ('0583309a-1c36-4048-90d1-a777be8ef4fd')).* ;
+-- # show only (e.g for debugging):
+--   select (interpolate_radio_signal_location ('0583309a-1c36-4048-90d1-a777be8ef4fd')).*;
+-- # generate test data:
+--   select * from (
+--   (select * from interpolate_radio_signal_location ('0583309a-1c36-4048-90d1-a777be8ef4fd') left join signal on signal_uuid=out_last_signal_uuid left join radio_signal on radio_signal_uuid = out_last_radio_signal_uuid left join geo_location on geo_location_uuid= out_last_geo_location_uuid)
+--   union
+--   (select * from interpolate_radio_signal_location ('d1fe403a-14b5-41a7-946a-251b1a5f49ce') left join signal on signal_uuid=out_last_signal_uuid left join radio_signal on radio_signal_uuid = out_last_radio_signal_uuid left join geo_location on geo_location_uuid= out_last_geo_location_uuid)
+--   ) as foo order by out_open_test_uuid, out_time;
+declare
+  signal_rows_found bool;
+  test_time timestamptz;
+  ALLOWED_GEO_LOCATION_PROVIDER constant varchar := 'gps';
+  MAX_INACCURACY constant double precision := 100.0;
+  MIN_TIME_NS constant bigint := -1*60*1000000000::bigint; -- -1 minute  in nanoseconds
+  MAX_TIME_NS constant bigint :=  4*60*60*1000000000::bigint; --  4 hours in nanoseconds
+BEGIN
+  --raise notice '%',  in_open_test_uuid; --debug, can be commented out
+SELECT test.time INTO test_time FROM test WHERE open_test_uuid = in_open_test_uuid;
+if not found then
+  return; -- no timestamp found for this open_test_uuid, return nothing and exit
+end if;
+CREATE TEMP TABLE if not exists temp_radio_signal_location (
+  -- inputs:
+  signal_uuid uuid,
+  radio_signal_uuid uuid,
+  geo_location_uuid uuid,
+  open_test_uuid uuid,
+  time_ns bigint, -- this is also debug or auxillary output for. e.g. sorting purposes - equals to a coalesce of all time_ns from geo_location, signal and radio_signal tables
+  signal_strength int, -- not used, currently only 4G, should be a coalesce of all technologies - TODO tbd
+  location geometry,
+  -- intermediate internal results:
+  time_ns_a bigint,     --time of first interpolation point
+  location_a geometry,  --and its location
+  time_ns_b bigint,     --time of last interpolation point
+  location_b geometry,  --and its location
+  -- outputs:
+  last_signal_uuid uuid,       --last non-null signal_uuid
+  last_radio_signal_uuid uuid, --last non-null radio_signal_uuid
+  last_geo_location_uuid uuid, --last non-null geo_location_uuid
+  next_geo_location_uuid uuid, --next non-null geo_location_uuid
+  interpolated_location geometry, --points from geo_location and interpolated points for signal rows
+  last_signal_strength int,       --last non-null signal strength
+  "time" timestamptz,             --timestamp with accuracy of microseconds, equals to test.time + time_ns
+  -- internal:
+  uid bigserial
+  ) on commit drop;
+truncate table temp_radio_signal_location;
+insert into temp_radio_signal_location (/*signal_uuid=NULL, radio_signal_uuid=NULL,*/ geo_location_uuid, open_test_uuid, time_ns, location/*, signal_strength*/)
+  select geo_location_uuid, geo_location.open_test_uuid, time_ns, location
+  from geo_location
+  where geo_location.open_test_uuid = in_open_test_uuid
+    and location is not null and accuracy BETWEEN 0.0 AND MAX_INACCURACY AND provider = ALLOWED_GEO_LOCATION_PROVIDER -- consider only data with good accuracy
+    AND time_ns BETWEEN MIN_TIME_NS AND MAX_TIME_NS;        -- consider only plausible time_ns values
+if not found then
+  return; -- no location data found for this open_test_uuid, return nothing and exit
+end if;
+insert into temp_radio_signal_location (signal_uuid, /*radio_signal_uuid=NULL, geo_location_uuid=NULL,*/ open_test_uuid, time_ns /*,location=NULL*/, signal_strength)
+  select signal_uuid, signal.open_test_uuid,time_ns, lte_rsrp -- not used, currently only 4G, should be a coalesce of all technologies - TODO tbd
+  from signal
+  where signal.open_test_uuid = in_open_test_uuid
+    AND time_ns BETWEEN MIN_TIME_NS AND MAX_TIME_NS;       -- consider only plausible time_ns values
+signal_rows_found := found;
+insert into temp_radio_signal_location (/*signal_uuid=NULL,*/ radio_signal_uuid, /*geo_location_uuid=NULL,*/ open_test_uuid, time_ns /*,location=NULL*/, signal_strength)
+  select radio_signal_uuid, radio_signal.open_test_uuid, time_ns, lte_rsrp -- not used, currently only 4G, should be a coalesce of all technologies - TODO tbd
+  from radio_signal
+  join radio_cell on radio_signal.cell_uuid = radio_cell.uuid and registered and active  --for active cells only and the active SIM in case of dual SIMs
+  where radio_signal.open_test_uuid = in_open_test_uuid
+    AND time_ns BETWEEN MIN_TIME_NS AND MAX_TIME_NS;        -- consider only plausible time_ns values
+if (not signal_rows_found and not /*radio_signal_rows_*/found) then -- or (signal_rows_found and /*radio_signal_rows_*/found) == additionally both signal and radio_signal found - would be more restrictive
+  return; -- no signal data found, return nothing and exit
+end if;
+-- do first the time ascending handling
+declare -- default values are NULL
+  cursor_asc cursor for select * from temp_radio_signal_location order by time_ns asc for update;
+  row record;
+  last_oldsig_uuid uuid;
+  last_sig_uuid uuid;
+  last_geo_uuid uuid;
+  last_time_ns_a bigint;
+  last_location_a geometry;
+  last_sig_strength int;
+begin
+for row in cursor_asc
+  LOOP
+    <<get_missing_values_asc>>
+    BEGIN
+      if row.signal_uuid is not null and row.signal_uuid is distinct from last_oldsig_uuid then
+        last_oldsig_uuid := row.signal_uuid;
+      end if;
+      if row.radio_signal_uuid is not null and row.radio_signal_uuid is distinct from last_sig_uuid then
+        last_sig_uuid := row.radio_signal_uuid;
+      end if;
+      if row.geo_location_uuid is not null and row.geo_location_uuid is distinct from last_geo_uuid then
+        last_geo_uuid := row.geo_location_uuid;
+      end if;
+      if row.time_ns is not null and row.time_ns is distinct from last_time_ns_a and row.geo_location_uuid is not null then
+        last_time_ns_a := row.time_ns;
+      end if;
+      if row.location is not null and row.location is distinct from last_location_a then
+        last_location_a := row.location;
+      end if;
+      if row.signal_strength is not null and row.signal_strength is distinct from last_sig_strength then
+        last_sig_strength := row.signal_strength;
+      end if;
+    END get_missing_values_asc;
+    <<populate_missing_values_asc>>
+    BEGIN
+      if last_oldsig_uuid is not null then -- assume last old signal
+        update temp_radio_signal_location set last_signal_uuid = last_oldsig_uuid where current of cursor_asc;
+      end if;
+      if last_sig_uuid is not null then -- assume last signal
+        update temp_radio_signal_location set last_radio_signal_uuid = last_sig_uuid where current of cursor_asc;
+      end if;
+      if last_geo_uuid is not null then -- assume last location
+        update temp_radio_signal_location set last_geo_location_uuid = last_geo_uuid where current of cursor_asc;
+      end if;
+      if last_time_ns_a is not null then -- fill last time_ns_a
+        update temp_radio_signal_location set time_ns_a = last_time_ns_a where current of cursor_asc;
+      end if;
+      if last_location_a is not null then -- assume last location
+        update temp_radio_signal_location set location_a = last_location_a where current of cursor_asc;
+      end if;
+      if last_sig_strength is not null then -- assume last signal_strength
+        update temp_radio_signal_location set last_signal_strength = last_sig_strength where current of cursor_asc;
+      end if;
+      update temp_radio_signal_location set time = test_time + ( (ROW.time_ns/1000.0) * INTERVAL '1 microsecond')  where current of cursor_asc;  -- timestamp has accuracy of microseconds
+    END populate_missing_values_asc;
+  END LOOP;
+end;
+-- secondly do the time descending handling
+declare -- default values are NULL
+  cursor_desc cursor for select * from temp_radio_signal_location order by time_ns desc for update;
+  row record;
+  next_geo_uuid uuid;
+  last_time_ns_b bigint;
+  last_location_b geometry;
+  interpolated_line geometry;
+  interpolated_point geometry;
+  fraction double precision;
+begin
+for row in cursor_desc
+  LOOP
+    <<get_missing_values_desc>>
+    BEGIN
+      if row.geo_location_uuid is not null and row.geo_location_uuid is distinct from next_geo_uuid then
+        next_geo_uuid := row.geo_location_uuid;
+      end if;
+      if row.time_ns is not null and row.time_ns is distinct from last_time_ns_b and row.geo_location_uuid is not null then
+        last_time_ns_b := row.time_ns;
+      end if;
+      if row.location is not null and row.location is distinct from last_location_b then
+        last_location_b := row.location;
+      end if;
+    END get_missing_values_desc;
+    <<populate_missing_values_desc>>
+    BEGIN
+      if next_geo_uuid is not null then -- assume next location
+        update temp_radio_signal_location set next_geo_location_uuid = next_geo_uuid where current of cursor_desc;
+      end if;
+      if last_time_ns_b is not null then -- fill next time_ns_b
+        update temp_radio_signal_location set time_ns_b = last_time_ns_b where current of cursor_desc;
+      end if;
+      if last_location_b is not null then -- assume next location
+        update temp_radio_signal_location set location_b = last_location_b where current of cursor_desc;
+      end if;
+    END populate_missing_values_desc;
+  END LOOP;
+end;
+-- do the interpolation
+declare -- default values are NULL
+  cursor_asc cursor for select * from temp_radio_signal_location order by time_ns asc for update;
+  row record;
+  interpolated_line geometry;
+  interpolated_point geometry;
+  fraction double precision;
+begin
+for row in cursor_asc
+  LOOP
+    <<populate_interpolated_values>>
+    BEGIN
+      if row.location_a is not null then
+          if row.location_b is not null then
+            interpolated_line := ST_makeline(row.location_a, row.location_b);
+            if row.time_ns_a <> row.time_ns_b then
+              fraction := (row.time_ns - row.time_ns_a)::double precision/(row.time_ns_b - row.time_ns_a)::double precision;
+            else
+              fraction := 0; -- it is one point only
+            end if;
+            interpolated_point := ST_lineinterpolatepoint(interpolated_line, fraction);
+            update temp_radio_signal_location set interpolated_location = interpolated_point /*, provider = 'interpolated'*/ where current of cursor_asc;
+          else --row.location_b is null 
+            -- do nothing
+          end if;
+      end if;
+    END populate_interpolated_values;
+  END LOOP;
+end;
+return query select
+  last_signal_uuid,
+  last_radio_signal_uuid,
+  last_geo_location_uuid,
+  next_geo_location_uuid,
+  open_test_uuid,
+  interpolated_location,
+  "time"
+  --debug:
+  --,time_ns,
+  --last_signal_strength
+  --time_ns_a,
+  --location_a,
+  --time_ns_b,
+  --location_b
+  from temp_radio_signal_location
+  where
+    (((last_signal_uuid IS NOT NULL) AND (last_radio_signal_uuid IS NULL)) OR ((last_signal_uuid IS NULL) AND (last_radio_signal_uuid IS NOT NULL))) --only return rows with either signal or radio signal according to constraint xor_signals_not_null
+    and  (((last_geo_location_uuid IS NOT NULL) AND (interpolated_location IS NOT NULL))) -- and with location according to constraint location_not_null_for_uuid
+    AND  (last_geo_location_uuid <> next_geo_location_uuid) -- do not return not interpolated points
+    AND "time" IS NOT NULL -- and with a timestamp
+  order by time_ns asc;
+-- do the approximate counting stuff
+-- it is optional and can be commented out
+/*<<do_the_counting>>
+declare
+  val bigint;
+begin
+  val := nextval('temp_radio_signal_location_uid_seq');
+  --if val > 1 then
+  --  perform setval('temp_radio_signal_location_uid_seq',val-1);
+  --end if;
+  raise notice 'nextval %', val;
+end do_the_counting;*/
+--DROP TABLE temp_radio_signal_location; --> leads to "out of shared memory" error and 100.000+ transaction locks
+END;
+$$;
+
+
+ALTER FUNCTION public.interpolate_radio_signal_location(in_open_test_uuid uuid) OWNER TO rmbt;
+
+--
+-- Name: interpolate_radio_signal_location_v2(uuid); Type: FUNCTION; Schema: public; Owner: rmbt
+--
+
+CREATE FUNCTION public.interpolate_radio_signal_location_v2(in_open_test_uuid uuid) RETURNS TABLE(out_last_signal_uuid uuid, out_last_radio_signal_uuid uuid, out_last_geo_location_uuid uuid, out_next_geo_location_uuid uuid, out_open_test_uuid uuid, out_interpolated_location public.geometry, out_time timestamp with time zone)
+    LANGUAGE plpgsql
+    SET client_min_messages TO 'warning'
+    AS $$
+-- v2: DJ 2022-03-03: this is the performance optimized interpolation function which interpolates from the last interpolated entry in the radio_signal_location table (if any)
+-- v2: DJ 2022-03-03: tested and found to be equivalent to the previous version interpolate_radio_signal_location()
+-- USAGE:
+-- # for data migration:
+--   insert into radio_signal_location (last_signal_uuid, last_radio_signal_uuid, last_geo_location_uuid, next_geo_location_uuid, open_test_uuid, interpolated_location, time) select (interpolate_radio_signal_location_v2 (open_test_uuid)).* from test where open_test_uuid = '0583309a-1c36-4048-90d1-a777be8ef4fd' order by uid asc;
+--   insert into radio_signal_location (last_signal_uuid, last_radio_signal_uuid, last_geo_location_uuid, next_geo_location_uuid, open_test_uuid, interpolated_location, time) select (interpolate_radio_signal_location_v2 (open_test_uuid)).* from (select open_test_uuid from test where time between 'YYYY-MM-DD' and 'YYYY-MM-DD' order by uid asc) as foo;
+-- # with single open_test_uuid (e.g. in trigger or server code):
+--   insert into radio_signal_location (last_signal_uuid, last_radio_signal_uuid, last_geo_location_uuid, next_geo_location_uuid, open_test_uuid, interpolated_location, time) select (interpolate_radio_signal_location_v2 ('0583309a-1c36-4048-90d1-a777be8ef4fd')).* ;
+-- # show only (e.g for debugging):
+--   select (interpolate_radio_signal_location_v2 ('0583309a-1c36-4048-90d1-a777be8ef4fd')).*;
+-- # generate test data:
+--   select * from (
+--   (select * from interpolate_radio_signal_location_v2 ('0583309a-1c36-4048-90d1-a777be8ef4fd') left join signal on signal_uuid=out_last_signal_uuid left join radio_signal on radio_signal_uuid = out_last_radio_signal_uuid left join geo_location on geo_location_uuid= out_last_geo_location_uuid)
+--   union
+--   (select * from interpolate_radio_signal_location_v2 ('d1fe403a-14b5-41a7-946a-251b1a5f49ce') left join signal on signal_uuid=out_last_signal_uuid left join radio_signal on radio_signal_uuid = out_last_radio_signal_uuid left join geo_location on geo_location_uuid= out_last_geo_location_uuid)
+--   ) as foo order by out_open_test_uuid, out_time;
+declare
+  signal_rows_found bool;
+  test_time timestamptz;
+  ALLOWED_GEO_LOCATION_PROVIDER constant varchar := 'gps';
+  MAX_INACCURACY constant double precision := 100.0;
+  MIN_TIME_NS constant bigint := -1*60*1000000000::bigint; -- -1 minute  in nanoseconds
+  MAX_TIME_NS constant bigint :=  4*60*60*1000000000::bigint; --  4 hours in nanoseconds
+  from_signal_uuid uuid; from_radio_signal_uuid uuid; from_geo_location_uuid uuid; --v2
+  from_time_ns bigint := MIN_TIME_NS; --v2  
+BEGIN
+--raise notice '%',  in_open_test_uuid; --debug, can be commented out
+
+--v2: check if there are interpolated items for this open_test_uuid
+SELECT last_signal_uuid, last_radio_signal_uuid, last_geo_location_uuid 
+  INTO from_signal_uuid, from_radio_signal_uuid, from_geo_location_uuid
+  FROM radio_signal_location WHERE open_test_uuid = in_open_test_uuid ORDER BY uid DESC NULLS LAST LIMIT 1; --#1151#comment:64: NULLS LAST because of performance problems of LIMIT 1
+if found THEN --v2: get the least interpolated time_ns from all
+  SELECT COALESCE(MIN(time_ns), MIN_TIME_NS) --v2: In case of time_ns IS NULL take the default MIN_TIME_NS with COALESCE
+    INTO from_time_ns FROM (
+      (SELECT time_ns FROM signal WHERE signal_uuid = from_signal_uuid ORDER BY uid DESC LIMIT 1)
+      UNION 
+      (SELECT time_ns FROM radio_signal WHERE radio_signal_uuid = from_radio_signal_uuid ORDER BY uid DESC LIMIT 1)
+      UNION 
+      (SELECT time_ns FROM geo_location WHERE geo_location_uuid = from_geo_location_uuid ORDER BY uid DESC LIMIT 1)
+      ) AS foo;
+end if;
+-- raise notice 'from_time_ns %',  from_time_ns; --debug, can be commented out
+
+SELECT test.time INTO test_time FROM test WHERE open_test_uuid = in_open_test_uuid;
+if not found then
+  return; -- no timestamp found for this open_test_uuid, return nothing and exit
+end if;
+CREATE TEMP TABLE if not exists temp_radio_signal_location (
+  -- inputs:
+  signal_uuid uuid,
+  radio_signal_uuid uuid,
+  geo_location_uuid uuid,
+  open_test_uuid uuid,
+  time_ns bigint, -- this is also debug or auxillary output for. e.g. sorting purposes - equals to a coalesce of all time_ns from geo_location, signal and radio_signal tables
+  signal_strength int, -- not used, currently only 4G, should be a coalesce of all technologies - TODO tbd
+  location geometry,
+  -- intermediate internal results:
+  time_ns_a bigint,     --time of first interpolation point
+  location_a geometry,  --and its location
+  time_ns_b bigint,     --time of last interpolation point
+  location_b geometry,  --and its location
+  -- outputs:
+  last_signal_uuid uuid,       --last non-null signal_uuid
+  last_radio_signal_uuid uuid, --last non-null radio_signal_uuid
+  last_geo_location_uuid uuid, --last non-null geo_location_uuid
+  next_geo_location_uuid uuid, --next non-null geo_location_uuid
+  interpolated_location geometry, --points from geo_location and interpolated points for signal rows
+  last_signal_strength int,       --last non-null signal strength
+  "time" timestamptz,             --timestamp with accuracy of microseconds, equals to test.time + time_ns
+  -- internal:
+  uid bigserial
+  ) on commit drop;
+truncate table temp_radio_signal_location;
+insert into temp_radio_signal_location (/*signal_uuid=NULL, radio_signal_uuid=NULL,*/ geo_location_uuid, open_test_uuid, time_ns, location/*, signal_strength*/)
+  select geo_location_uuid, geo_location.open_test_uuid, time_ns, geom4326 --was geo_location.location with srid 900913
+  from geo_location
+  where geo_location.open_test_uuid = in_open_test_uuid
+    and geom4326 /*was geo_location.location with srid 900913*/ is not null and accuracy BETWEEN 0.0 AND MAX_INACCURACY AND provider = ALLOWED_GEO_LOCATION_PROVIDER -- consider only data with good accuracy
+    AND time_ns BETWEEN MIN_TIME_NS AND MAX_TIME_NS -- consider only plausible time_ns values
+    AND time_ns >= from_time_ns; --v2: optimized from last interpolated time_ns
+if not found then
+  return; -- no location data found for this open_test_uuid, return nothing and exit
+end if;
+insert into temp_radio_signal_location (signal_uuid, /*radio_signal_uuid=NULL, geo_location_uuid=NULL,*/ open_test_uuid, time_ns /*,location=NULL*/, signal_strength)
+  select signal_uuid, signal.open_test_uuid,time_ns, lte_rsrp -- not used, currently only 4G, should be a coalesce of all technologies - TODO tbd
+  from signal
+  where signal.open_test_uuid = in_open_test_uuid
+    AND time_ns BETWEEN MIN_TIME_NS AND MAX_TIME_NS -- consider only plausible time_ns values
+    AND time_ns >= from_time_ns; --v2: optimized from last interpolated time_ns
+signal_rows_found := found;
+insert into temp_radio_signal_location (/*signal_uuid=NULL,*/ radio_signal_uuid, /*geo_location_uuid=NULL,*/ open_test_uuid, time_ns /*,location=NULL*/, signal_strength)
+  select radio_signal_uuid, radio_signal.open_test_uuid, time_ns, lte_rsrp -- not used, currently only 4G, should be a coalesce of all technologies - TODO tbd
+  from radio_signal
+  join radio_cell on radio_signal.cell_uuid = radio_cell.uuid and registered and active  --for active cells only and the active SIM in case of dual SIMs
+  where radio_signal.open_test_uuid = in_open_test_uuid
+    AND time_ns BETWEEN MIN_TIME_NS AND MAX_TIME_NS -- consider only plausible time_ns values
+    AND time_ns >= from_time_ns; --v2: optimized from last interpolated time_ns
+if (not signal_rows_found and not /*radio_signal_rows_*/found) then -- or (signal_rows_found and /*radio_signal_rows_*/found) == additionally both signal and radio_signal found - would be more restrictive
+  return; -- no signal data found, return nothing and exit
+end if;
+-- do first the time ascending handling
+declare -- default values are NULL
+  cursor_asc cursor for select * from temp_radio_signal_location order by time_ns asc for update;
+  row record;
+  last_oldsig_uuid uuid;
+  last_sig_uuid uuid;
+  last_geo_uuid uuid;
+  last_time_ns_a bigint;
+  last_location_a geometry;
+  last_sig_strength int;
+begin
+for row in cursor_asc
+  LOOP
+    <<get_missing_values_asc>>
+    BEGIN
+      if row.signal_uuid is not null and row.signal_uuid is distinct from last_oldsig_uuid then
+        last_oldsig_uuid := row.signal_uuid;
+      end if;
+      if row.radio_signal_uuid is not null and row.radio_signal_uuid is distinct from last_sig_uuid then
+        last_sig_uuid := row.radio_signal_uuid;
+      end if;
+      if row.geo_location_uuid is not null and row.geo_location_uuid is distinct from last_geo_uuid then
+        last_geo_uuid := row.geo_location_uuid;
+      end if;
+      if row.time_ns is not null and row.time_ns is distinct from last_time_ns_a and row.geo_location_uuid is not null then
+        last_time_ns_a := row.time_ns;
+      end if;
+      if row.location is not null and row.location is distinct from last_location_a then
+        last_location_a := row.location;
+      end if;
+      if row.signal_strength is not null and row.signal_strength is distinct from last_sig_strength then
+        last_sig_strength := row.signal_strength;
+      end if;
+    END get_missing_values_asc;
+    <<populate_missing_values_asc>>
+    BEGIN
+      if last_oldsig_uuid is not null then -- assume last old signal
+        update temp_radio_signal_location set last_signal_uuid = last_oldsig_uuid where current of cursor_asc;
+      end if;
+      if last_sig_uuid is not null then -- assume last signal
+        update temp_radio_signal_location set last_radio_signal_uuid = last_sig_uuid where current of cursor_asc;
+      end if;
+      if last_geo_uuid is not null then -- assume last location
+        update temp_radio_signal_location set last_geo_location_uuid = last_geo_uuid where current of cursor_asc;
+      end if;
+      if last_time_ns_a is not null then -- fill last time_ns_a
+        update temp_radio_signal_location set time_ns_a = last_time_ns_a where current of cursor_asc;
+      end if;
+      if last_location_a is not null then -- assume last location
+        update temp_radio_signal_location set location_a = last_location_a where current of cursor_asc;
+      end if;
+      if last_sig_strength is not null then -- assume last signal_strength
+        update temp_radio_signal_location set last_signal_strength = last_sig_strength where current of cursor_asc;
+      end if;
+      update temp_radio_signal_location set time = test_time + ( (ROW.time_ns/1000.0) * INTERVAL '1 microsecond')  where current of cursor_asc;  -- timestamp has accuracy of microseconds
+    END populate_missing_values_asc;
+  END LOOP;
+end;
+-- secondly do the time descending handling
+declare -- default values are NULL
+  cursor_desc cursor for select * from temp_radio_signal_location order by time_ns desc for update;
+  row record;
+  next_geo_uuid uuid;
+  last_time_ns_b bigint;
+  last_location_b geometry;
+  interpolated_line geometry;
+  interpolated_point geometry;
+  fraction double precision;
+begin
+for row in cursor_desc
+  LOOP
+    <<get_missing_values_desc>>
+    BEGIN
+      if row.geo_location_uuid is not null and row.geo_location_uuid is distinct from next_geo_uuid then
+        next_geo_uuid := row.geo_location_uuid;
+      end if;
+      if row.time_ns is not null and row.time_ns is distinct from last_time_ns_b and row.geo_location_uuid is not null then
+        last_time_ns_b := row.time_ns;
+      end if;
+      if row.location is not null and row.location is distinct from last_location_b then
+        last_location_b := row.location;
+      end if;
+    END get_missing_values_desc;
+    <<populate_missing_values_desc>>
+    BEGIN
+      if next_geo_uuid is not null then -- assume next location
+        update temp_radio_signal_location set next_geo_location_uuid = next_geo_uuid where current of cursor_desc;
+      end if;
+      if last_time_ns_b is not null then -- fill next time_ns_b
+        update temp_radio_signal_location set time_ns_b = last_time_ns_b where current of cursor_desc;
+      end if;
+      if last_location_b is not null then -- assume next location
+        update temp_radio_signal_location set location_b = last_location_b where current of cursor_desc;
+      end if;
+    END populate_missing_values_desc;
+  END LOOP;
+end;
+-- do the interpolation
+declare -- default values are NULL
+  cursor_asc cursor for select * from temp_radio_signal_location order by time_ns asc for update;
+  row record;
+  interpolated_line geometry;
+  interpolated_point geometry;
+  fraction double precision;
+begin
+for row in cursor_asc
+  LOOP
+    <<populate_interpolated_values>>
+    BEGIN
+      if row.location_a is not null then
+          if row.location_b is not null then
+            interpolated_line := ST_makeline(row.location_a, row.location_b);
+            if row.time_ns_a <> row.time_ns_b then
+              fraction := (row.time_ns - row.time_ns_a)::double precision/(row.time_ns_b - row.time_ns_a)::double precision;
+            else
+              fraction := 0; -- it is one point only
+            end if;
+            interpolated_point := ST_lineinterpolatepoint(interpolated_line, fraction);
+            update temp_radio_signal_location set interpolated_location = interpolated_point /*, provider = 'interpolated'*/ where current of cursor_asc;
+          else --row.location_b is null 
+            -- do nothing
+          end if;
+      end if;
+    END populate_interpolated_values;
+  END LOOP;
+end;
+return query select
+  last_signal_uuid,
+  last_radio_signal_uuid,
+  last_geo_location_uuid,
+  next_geo_location_uuid,
+  open_test_uuid,
+  interpolated_location,
+  "time"
+  --debug:
+  --,time_ns,
+  --last_signal_strength
+  --time_ns_a,
+  --location_a,
+  --time_ns_b,
+  --location_b
+  from temp_radio_signal_location
+  where
+    (((last_signal_uuid IS NOT NULL) AND (last_radio_signal_uuid IS NULL)) OR ((last_signal_uuid IS NULL) AND (last_radio_signal_uuid IS NOT NULL))) --only return rows with either signal or radio signal according to constraint xor_signals_not_null
+    and  (((last_geo_location_uuid IS NOT NULL) AND (interpolated_location IS NOT NULL))) -- and with location according to constraint location_not_null_for_uuid
+    AND  (last_geo_location_uuid <> next_geo_location_uuid) -- do not return not interpolated points
+    AND "time" IS NOT NULL -- and with a timestamp
+  order by time_ns asc;
+-- do the approximate counting stuff
+-- it is optional and can be commented out
+/*<<do_the_counting>>
+declare
+  val bigint;
+begin
+  val := nextval('temp_radio_signal_location_uid_seq');
+  --if val > 1 then
+  --  perform setval('temp_radio_signal_location_uid_seq',val-1);
+  --end if;
+  raise notice 'nextval %', val;
+end do_the_counting;*/
+--DROP TABLE temp_radio_signal_location; --> leads to "out of shared memory" error and 100.000+ transaction locks
+END;
+$$;
+
+
+ALTER FUNCTION public.interpolate_radio_signal_location_v2(in_open_test_uuid uuid) OWNER TO rmbt;
+
+--
 -- Name: jsonb_array_map(jsonb, text[]); Type: FUNCTION; Schema: public; Owner: rmbt
 --
 
@@ -655,6 +1266,53 @@ END;$$;
 
 
 ALTER FUNCTION public.rmbt_fill_open_uuid() OWNER TO rmbt;
+
+--
+-- Name: rmbt_get_country_iso_a2(public.geometry); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.rmbt_get_country_iso_a2(point public.geometry) RETURNS character varying
+    LANGUAGE plpgsql IMMUTABLE STRICT
+    AS $$
+DECLARE
+  -- ISO3266 two digit country code (e.g. 'US')
+  a2 varchar(5);
+BEGIN
+
+	-- Example query: select rmbt_get_country_iso_a2(st_setsrid(ST_GeomFromText('POINT(-71.064544 42.28787)'),4326));
+
+	
+	select into a2 ac.iso_a2 from admin_0_countries ac where point && ac.geom and within(point,ac.geom) and char_length(iso_a2) = 2;
+    return a2;
+    
+END;
+$$;
+
+
+ALTER FUNCTION public.rmbt_get_country_iso_a2(point public.geometry) OWNER TO postgres;
+
+--
+-- Name: rmbt_get_distance_iso_a2(public.geometry, character varying); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.rmbt_get_distance_iso_a2(point public.geometry, a2 character varying) RETURNS double precision
+    LANGUAGE plpgsql IMMUTABLE STRICT
+    AS $$
+DECLARE
+  -- ISO3266 two digit country code (e.g. 'US')
+  distance float;
+BEGIN
+    -- returns the distance in meter (m) betweeen location in WGS84 (EPSG:4236) and a two digit country code (e.g. 'US')
+	
+	-- Example query: select rmbt_get_distance_iso_a2(st_setsrid(ST_GeomFromText('POINT(-71.064544 42.28787)'),4326),'CA');
+ 		
+	return  ST_DistanceSpheroid(point,(select geom from admin_0_countries ac where iso_a2=a2),'SPHEROID["WGS 84",6378137,298.257223563]');
+    
+END;
+$$;
+
+
+ALTER FUNCTION public.rmbt_get_distance_iso_a2(point public.geometry, a2 character varying) OWNER TO postgres;
 
 --
 -- Name: rmbt_get_next_test_slot(bigint); Type: FUNCTION; Schema: public; Owner: rmbt
@@ -6881,6 +7539,24 @@ ALTER TABLE cron.job ENABLE ROW LEVEL SECURITY;
 ALTER TABLE cron.job_run_details ENABLE ROW LEVEL SECURITY;
 
 --
+-- Name: FUNCTION interpolate_radio_signal_location(in_open_test_uuid uuid); Type: ACL; Schema: public; Owner: rmbt
+--
+
+REVOKE ALL ON FUNCTION public.interpolate_radio_signal_location(in_open_test_uuid uuid) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.interpolate_radio_signal_location(in_open_test_uuid uuid) TO rmbt_group_read_only;
+GRANT ALL ON FUNCTION public.interpolate_radio_signal_location(in_open_test_uuid uuid) TO rmbt_group_control;
+
+
+--
+-- Name: FUNCTION interpolate_radio_signal_location_v2(in_open_test_uuid uuid); Type: ACL; Schema: public; Owner: rmbt
+--
+
+REVOKE ALL ON FUNCTION public.interpolate_radio_signal_location_v2(in_open_test_uuid uuid) FROM PUBLIC;
+GRANT ALL ON FUNCTION public.interpolate_radio_signal_location_v2(in_open_test_uuid uuid) TO rmbt_group_read_only;
+GRANT ALL ON FUNCTION public.interpolate_radio_signal_location_v2(in_open_test_uuid uuid) TO rmbt_group_control;
+
+
+--
 -- Name: TABLE job; Type: ACL; Schema: cron; Owner: postgres
 --
 
@@ -7438,6 +8114,20 @@ GRANT SELECT ON TABLE public.v_test2 TO rmbt;
 
 GRANT SELECT ON TABLE public.v_test3 TO rmbt_group_read_only;
 GRANT SELECT ON TABLE public.v_test3 TO rmbt;
+
+
+
+--
+-- Name: within(public.geometry, public.geometry); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.within(public.geometry, public.geometry) RETURNS boolean
+    LANGUAGE sql IMMUTABLE STRICT
+    AS $_$SELECT ST_Within($1, $2)$_$;
+
+
+ALTER FUNCTION public.within(public.geometry, public.geometry) OWNER TO postgres;
+
 
 
 --

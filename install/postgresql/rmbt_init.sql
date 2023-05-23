@@ -3084,14 +3084,53 @@ SET row_security = off;
 -- Data for Name: test_server; Type: TABLE DATA; Schema: public; Owner: rmbt
 --
 
-INSERT INTO public.test_server (name, web_address, port, port_ssl, city, country, geo_lat, geo_long, location, web_address_ipv4, web_address_ipv6, server_type, priority, weight, active, uuid, key, selectable, countries, node) VALUES ('OpenRMBT Server', NULL, NULL, 443, 'Vienna', 'AT', 48.2697550000000035, 16.4109130000000007,'010100002031BF0D00DD5C867A26E03B41B6FC3597AA775741', 'server-v4.example.com', 'server-v6.example.com', 'RMBT', 1, 1, true, 'ccc9107b-3d34-493f-8afc-6af8b6a66b6e', '-change-me', true, '{any}', 'VIE');
-INSERT INTO public.test_server (uid,"name",port_ssl,city,country,geo_lat,geo_long,"location",web_address_ipv4,web_address_ipv6,server_type,priority,weight,active,uuid,"key",selectable,countries,node) VALUES (35,'QOS Server',443,'Vienna','AT',48.2697550000000035,16.4109130000000007,'010100002031BF0D00DD5C867A26E03B41B6FC3597AA775741','qos-v4.example.com','qos-v6.example.com','QoS',0,1,true,'27ba66e8-d6fc-4fca-890a-19e3b4aed6bf','-change-me',true,'{any}','VIE');
+INSERT INTO public.test_server (uid, name, web_address, port, port_ssl, city, country, geo_lat, geo_long, location, web_address_ipv4, web_address_ipv6, server_type, priority, weight, active, uuid, key, selectable, countries, node) VALUES (1,'OpenRMBT Server', NULL, NULL, 443, 'Vienna', 'AT', 48.2697550000000035, 16.4109130000000007,'010100002031BF0D00DD5C867A26E03B41B6FC3597AA775741', 'server-v4.example.com', 'server-v6.example.com', 'RMBT', 1, 1, true, 'ccc9107b-3d34-493f-8afc-6af8b6a66b6e', '-change-me', true, '{any}', 'VIE');
+INSERT INTO public.test_server (uid,name,port_ssl,city,country,geo_lat,geo_long,"location",web_address_ipv4,web_address_ipv6,server_type,priority,weight,active,uuid,"key",selectable,countries,node) VALUES (2,'QOS Server',443,'Vienna','AT',48.2697550000000035,16.4109130000000007,'010100002031BF0D00DD5C867A26E03B41B6FC3597AA775741','qos-v4.example.com','qos-v6.example.com','QoS',0,1,true,'27ba66e8-d6fc-4fca-890a-19e3b4aed6bf','-change-me',true,'{any}','VIE');
 
 --
 -- Name: test_server_uid_seq; Type: SEQUENCE SET; Schema: public; Owner: rmbt
 --
 
-SELECT pg_catalog.setval('public.test_server_uid_seq', 86, true);
+SELECT pg_catalog.setval('public.test_server_uid_seq', 3, true);
+
+
+--
+-- Name: test_server_types_uid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: rmbt
+--
+
+ALTER SEQUENCE public.test_server_types_uid_seq OWNED BY public.test_server_types.uid;
+
+
+--
+-- Name: test_server_types uid; Type: DEFAULT; Schema: public; Owner: rmbt
+--
+
+ALTER TABLE ONLY public.test_server_types ALTER COLUMN uid SET DEFAULT nextval('public.test_server_types_uid_seq'::regclass);
+
+
+--
+-- Data for Name: test_server_types; Type: TABLE DATA; Schema: public; Owner: rmbt
+--
+
+COPY public.test_server_types (test_server_uid, server_type, uid, port, port_ssl, encrypted) FROM stdin;
+1	RMBThttp	1	80	443	t
+\.
+
+
+--
+-- Name: test_server_types_uid_seq; Type: SEQUENCE SET; Schema: public; Owner: rmbt
+--
+
+SELECT pg_catalog.setval('public.test_server_types_uid_seq', 1, false);
+
+
+--
+-- Name: TABLE test_server_types; Type: ACL; Schema: public; Owner: rmbt
+--
+
+GRANT ALL ON TABLE public.test_server_types TO rmbt_control;
+GRANT SELECT ON TABLE public.test_server_types TO rmbt_group_control;
+GRANT SELECT ON TABLE public.test_server_types TO rmbt_group_read_only;
 
 
 --
