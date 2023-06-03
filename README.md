@@ -130,11 +130,13 @@ Installation
 6. Optimise postgres settings
    
     Check the values of 
-    * shared_buffers
-    * work_mem
-    * max_worker_processes
-    * max_parallel_workers_per_gather
-    * max_parallel_workers
+    * shared_buffers (approx. 25% of available memory)
+    * work_mem (approx25% of mem/max_connections)
+    * effective_cache_size (approx. 50% of mem)
+    * maintenance_work_mem (approx. 5% of mem)
+    * max_worker_processes (as number of CPUs)
+    * max_parallel_workers_per_gather (as number of CPUs)
+    * max_parallel_workers (as number of CPUs)
     
 ### MapServer
 
