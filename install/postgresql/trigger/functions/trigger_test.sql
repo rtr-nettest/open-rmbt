@@ -106,6 +106,7 @@ begin
         OR NEW.network_sim_operator IS DISTINCT FROM OLD.network_sim_operator
         OR NEW.network_operator IS DISTINCT FROM OLD.network_operator
         OR NEW.time IS DISTINCT FROM OLD.time
+	OR NEW.location IS DISTINCT FROM OLD.location
         ) THEN
 
         IF (NEW.network_sim_operator IS NULL OR NEW.network_operator IS NULL) THEN
