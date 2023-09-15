@@ -53,7 +53,7 @@ def generatedContextXmlFile = file("${buildDir}/context.xml")
 
 dependencies {
     providedCompile "org.apache.tomcat:tomcat-catalina:$catalinaVersion"
-    providedCompile group: 'javax.servlet', name: 'javax.servlet-api', version: "$servletVersion"
+    compileOnly group: 'jakarta.servlet', name: 'jakarta.servlet-api', version: "$servletVersion"
     testImplementation group: 'junit', name: 'junit', version: '4.12'
     testImplementation 'org.mockito:mockito-core:2.7.17'
     implementation "org.restlet.jse:org.restlet:$restletVersion"

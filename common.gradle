@@ -3,9 +3,9 @@
 //
 ext {
     restletVersion = '2.4.3'
-    servletVersion = '3.1.0'
+    servletVersion = '5.0.0'
     jacksonVersion = '2.14.2'
-    catalinaVersion = '7.0.109'
+    catalinaVersion = '10.1.13'
     jsonVersion = '20220924'
     javaMelodyVersion = '1.91.0'
     dbUtilsVersion = '1.7'

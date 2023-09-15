@@ -40,7 +40,7 @@ def generatedContextXmlFile = file("${buildDir}/context.xml")
 
 dependencies {
     providedCompile "org.apache.tomcat:tomcat-catalina:$catalinaVersion"
-    providedCompile "javax.servlet:javax.servlet-api:$servletVersion"
+    compileOnly group: 'jakarta.servlet', name: 'jakarta.servlet-api', version: "$servletVersion"
     implementation('commons-io:commons-io:2.4',
             "org.json:json:$jsonVersion",
             "org.restlet.jse:org.restlet.ext.json:${restletVersion}",

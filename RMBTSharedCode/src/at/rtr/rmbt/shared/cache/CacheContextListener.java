@@ -16,8 +16,8 @@
  *******************************************************************************/
 package at.rtr.rmbt.shared.cache;
 
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
 
 public class CacheContextListener implements ServletContextListener
 {

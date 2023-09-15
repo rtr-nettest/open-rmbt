@@ -27,8 +27,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import javax.naming.NamingException;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
 
 import at.rtr.rmbt.db.DbConnection;
 import at.rtr.rmbt.shared.GeoIPHelper;

@@ -33,7 +33,6 @@ subprojects{
 
 dependencies {
     providedCompile "org.apache.tomcat:tomcat-catalina:$catalinaVersion"
-    providedCompile group: 'javax.servlet', name: 'javax.servlet-api', version: "$servletVersion"
     implementation "org.json:json:$jsonVersion"
     implementation "org.restlet.jse:org.restlet.ext.json:$restletVersion"
     implementation "org.restlet.jee:org.restlet.ext.servlet:$restletVersion"

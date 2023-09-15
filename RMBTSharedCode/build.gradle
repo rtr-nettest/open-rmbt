@@ -25,7 +25,7 @@ dependencies {
     testImplementation group: 'junit', name: 'junit', version: '4.11'
     implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.18'
     implementation group: 'com.google.guava', name: 'guava', version: "$guavaVersion"
-    providedCompile group: 'javax.servlet', name: 'javax.servlet-api', version: "$servletVersion"
+    compileOnly group: 'jakarta.servlet', name: 'jakarta.servlet-api', version: "$servletVersion"
     implementation "org.json:json:$jsonVersion"
     implementation group: 'com.google.code.gson', name: 'gson', version: "$gsonVersion"
     implementation group: 'com.github.jknack', name: 'handlebars', version: '4.1.2'
