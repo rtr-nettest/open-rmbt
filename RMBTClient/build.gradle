@@ -16,12 +16,15 @@ buildscript {
 }
 
 dependencies {
-    compile group: 'org.apache.httpcomponents', name: 'httpcore', version: '4.4.5'
-    compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.2'
-    compile group: 'net.sf.jopt-simple', name: 'jopt-simple', version: '5.0.4'
-    compile group: 'dnsjava', name: 'dnsjava', version: '2.1.8'
-    compile project(':RMBTSharedCode')
-    compile project(':RMBTUtil')
+    implementation group: 'org.apache.httpcomponents', name: 'httpcore', version: '4.4.5'
+    implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.2'
+    implementation group: 'net.sf.jopt-simple', name: 'jopt-simple', version: '5.0.4'
+    implementation group: 'dnsjava', name: 'dnsjava', version: '2.1.8'
+    implementation "org.json:json:$jsonVersion"
+    implementation group: 'com.google.code.gson', name: 'gson', version: "$gsonVersion"
+    implementation group: 'com.google.guava', name: 'guava', version: "$guavaVersion"
+    implementation project(':RMBTSharedCode')
+    implementation project(':RMBTUtil')
 
     testImplementation group: 'org.jmockit', name: 'jmockit', version: '1.45'
     testImplementation group: 'junit', name: 'junit', version: '4.12'

@@ -20,7 +20,7 @@ project.webAppDirName = 'WebContent'
 
 repositories {
     mavenCentral()
-    maven{url 'http://maven.restlet.com'}
+    maven{url 'https://maven.restlet.talend.com'}
     maven{url 'https://oss.sonatype.org/content/repositories/snapshots/'}
     maven { url 'https://jitpack.io' }
 }
@@ -54,26 +54,31 @@ def generatedContextXmlFile = file("${buildDir}/context.xml")
 dependencies {
     providedCompile "org.apache.tomcat:tomcat-catalina:$catalinaVersion"
     providedCompile group: 'javax.servlet', name: 'javax.servlet-api', version: "$servletVersion"
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-    testCompile 'org.mockito:mockito-core:2.7.17'
-    compile "org.restlet.jse:org.restlet:$restletVersion"
-    compile "org.restlet.jse:org.restlet.ext.json:$restletVersion"
-    compile "org.restlet.jee:org.restlet.ext.servlet:$restletVersion"
-    compile "org.restlet.jee:org.restlet.ext.fileupload:$restletVersion"
-    compile "org.json:json:$jsonVersion"
-    compile 'commons-io:commons-io:2.4'
-    compile 'org.apache.jcs:jcs:1.3'
-    compile "io.swagger:swagger-annotations:1.5.24"
+    testImplementation group: 'junit', name: 'junit', version: '4.12'
+    testImplementation 'org.mockito:mockito-core:2.7.17'
+    implementation "org.restlet.jse:org.restlet:$restletVersion"
+    implementation "org.restlet.jse:org.restlet.ext.json:$restletVersion"
+    implementation "org.restlet.jee:org.restlet.ext.servlet:$restletVersion"
+    implementation "org.restlet.jee:org.restlet.ext.fileupload:$restletVersion"
+    implementation "org.json:json:$jsonVersion"
+    implementation 'commons-io:commons-io:2.4'
+    implementation 'org.apache.jcs:jcs:1.3'
+    implementation "io.swagger:swagger-annotations:1.5.24"
     //compile 'io.swagger:swagger-core:1.5.15'
-    compile 'javax.ws.rs:javax.ws.rs-api:2.0.1'
-    compile "com.fasterxml.jackson:jackson-base:$jacksonVersion"
-    compile "com.fasterxml.jackson.dataformat:jackson-dataformat-csv:$jacksonVersion"
+    implementation 'javax.ws.rs:javax.ws.rs-api:2.0.1'
+    implementation "com.fasterxml.jackson:jackson-base:$jacksonVersion"
+    implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-csv:$jacksonVersion"
     implementation group: 'de.grundid.opendatalab', name: 'geojson-jackson', version: '1.14'
-    compile group: 'commons-dbutils', name: 'commons-dbutils', version: "$dbUtilsVersion"
-    compile "com.github.sett4:jackson-dataformat-xlsx-lite:2.9.10.1"
-    compile (group: 'net.bull.javamelody', name: 'javamelody-core', version: "$javaMelodyVersion")
-    compile project(':RMBTSharedCode')
-    compile project(':RMBTUtil')
+    implementation group: 'commons-dbutils', name: 'commons-dbutils', version: "$dbUtilsVersion"
+    implementation "com.github.sett4:jackson-dataformat-xlsx-lite:2.9.10.1"
+    implementation (group: 'net.bull.javamelody', name: 'javamelody-core', version: "$javaMelodyVersion")
+    implementation group: 'com.google.code.gson', name: 'gson', version: "$gsonVersion"
+    implementation group: 'com.google.guava', name: 'guava', version: "$guavaVersion"
+    implementation group: 'com.github.jknack', name: 'handlebars', version: '4.1.2'
+    implementation group: 'joda-time', name: 'joda-time', version: '2.9.7'
+    implementation group: 'net.spy', name: 'spymemcached', version: '2.12.1'
+    implementation project(':RMBTSharedCode')
+    implementation project(':RMBTUtil')
 }
 
 
@@ -81,6 +86,7 @@ war {
     exclude 'WEB-INF/lib/**'
     exclude 'WEB-INF/classes/**'
     exclude 'META-INF/context.xml'
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from(buildDir){ 
             into('META-INF') 
             include 'context.xml' 
@@ -121,6 +127,7 @@ swagger {
 
 def revisionPropertiesFile = file("${buildDir}/resources/main/revision.properties")
 processResources {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     doLast {
         String revisionProperties = "git.describe=" + getVersionNameFromGit() + "\n"
         revisionProperties = revisionProperties + "git.branch=" + getBranchFromGit() + "\n"

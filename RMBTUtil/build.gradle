@@ -7,7 +7,7 @@ repositories {
 
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.13.2'
-    compile group: 'org.json', name: 'json', version: "$jsonVersion"
-    compile group: 'com.google.code.gson', name: 'gson', version: '2.10.1'
+    testImplementation group: 'junit', name: 'junit', version: '4.13.2'
+    implementation group: 'org.json', name: 'json', version: "$jsonVersion"
+    implementation group: 'com.google.code.gson', name: 'gson', version: '2.10.1'
 }

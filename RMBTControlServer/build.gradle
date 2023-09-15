@@ -16,7 +16,7 @@ project.webAppDirName = 'WebContent'
 
 repositories {
     mavenCentral()
-    maven{url 'http://maven.restlet.com'}
+    maven{url 'https://maven.restlet.talend.com'}
     maven{url 'https://oss.sonatype.org/content/repositories/snapshots/'}
 }
 
@@ -41,7 +41,7 @@ def generatedContextXmlFile = file("${buildDir}/context.xml")
 dependencies {
     providedCompile "org.apache.tomcat:tomcat-catalina:$catalinaVersion"
     providedCompile "javax.servlet:javax.servlet-api:$servletVersion"
-    compile('commons-io:commons-io:2.4',
+    implementation('commons-io:commons-io:2.4',
             "org.json:json:$jsonVersion",
             "org.restlet.jse:org.restlet.ext.json:${restletVersion}",
             "org.restlet.jee:org.restlet.ext.servlet:$restletVersion",
@@ -51,11 +51,13 @@ dependencies {
             "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
             group: 'net.bull.javamelody', name: 'javamelody-core', version: "$javaMelodyVersion"
     )
-    testCompile 'net.sf.uadetector:uadetector-resources:2014.10'
-    compile project(':RMBTSharedCode')
-    compile project(':RMBTUtil')
+    implementation group: 'com.google.code.gson', name: 'gson', version: "$gsonVersion"
+    implementation group: 'com.google.guava', name: 'guava', version: "$guavaVersion"
+    implementation group: 'joda-time', name: 'joda-time', version: '2.9.7'
+    testImplementation 'net.sf.uadetector:uadetector-resources:2014.10'
+    implementation project(':RMBTSharedCode')
+    implementation project(':RMBTUtil')
 }
-
 
 war {
     webXml = webXmlFile
@@ -63,6 +65,7 @@ war {
     exclude 'WEB-INF/lib/**'
     exclude 'WEB-INF/classes/**'
     exclude 'META-INF/context.xml'
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from(buildDir){ 
             into('META-INF') 
             include 'context.xml' 
@@ -72,6 +75,7 @@ war {
 
 def revisionPropertiesFile = file("${buildDir}/resources/main/revision.properties")
 processResources {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     doLast {
         String revisionProperties = "git.describe=" + getVersionNameFromGit() + "\n"
         revisionProperties = revisionProperties + "git.branch=" + getBranchFromGit() + "\n"

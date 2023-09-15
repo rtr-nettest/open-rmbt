@@ -13,29 +13,32 @@ tasks.withType(JavaCompile) {
 
 repositories {
     mavenCentral()
-    maven{url 'http://maven.restlet.com'}
+    maven{url 'https://maven.restlet.talend.com'}
 }
 
 
 
 dependencies {
-    compile project(':RMBTUtil')
-    compile project(':RMBTSharedCode')
-    compile 'org.jumpmind.symmetric.jdbc:postgresql:9.2-1002-jdbc4'
-    compile 'org.apache.logging.log4j:log4j-core:2.16.0'
-    compile "org.json:json:$jsonVersion"
-    compile "org.restlet.jse:org.restlet:$restletVersion"
+    implementation project(':RMBTUtil')
+    implementation project(':RMBTSharedCode')
+    implementation 'org.jumpmind.symmetric.jdbc:postgresql:9.2-1002-jdbc4'
+    implementation 'org.apache.logging.log4j:log4j-core:2.16.0'
+    implementation "org.json:json:$jsonVersion"
+    implementation "org.restlet.jse:org.restlet:$restletVersion"
+    implementation group: 'com.google.code.gson', name: 'gson', version: "$gsonVersion"
+    implementation group: 'com.google.guava', name: 'guava', version: "$guavaVersion"
 
     testImplementation group: 'org.jmockit', name: 'jmockit', version: '1.45'
     testImplementation group: 'junit', name: 'junit', version: '4.12'
 }
 
 jar {
-   from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+   from { configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
    from(rootProject.file("private/qosserver.jks"),{
        into('/crt')
    })
    manifest { attributes 'Main-Class': 'at.rtr.rmbt.qos.testserver.TestServer' }
+   duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 task wrapper(type: Wrapper) {
