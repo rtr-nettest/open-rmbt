@@ -16,7 +16,7 @@ jobs:
       with:
         java-version: '17'
         distribution: 'adopt'
-        cache: maven
+        cache: gradle
     - name: Move `private` folder
       run: mv private.sample private
     - name: Build with Gradle
