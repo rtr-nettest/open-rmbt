@@ -20,4 +20,22 @@ jobs:
     - name: Move `private` folder
       run: mv private.sample private
     - name: Build with Gradle
-      run: ./gradlew build --info --stacktrace
+      run: | 
+        ./gradlew build --info --stacktrace
+        ./gradlew :RMBTClient:shadowJar
+        ./gradlew :RMBTMapServer:war
+        ./gradlew :RMBTStatisticServer:war
+        ./gradlew :RMBTQoSServer:jar
+        ./gradlew :RMBTControlServer:war
+
+    - name: Archive files
+      uses: actions/upload-artifact@v2
+      with:
+        name: outputs
+        path: |
+          RMBTClient/build/libs/target/*-all.jar
+          RMBTQoSServer/build/libs/*.jar
+          RMBTControlServer/build/libs/*.war
+          RMBTMapServer/build/libs/*.war
+          RMBTStatisticServer/build/libs/*.war
+        retention-days: 365
