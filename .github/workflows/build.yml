@@ -33,7 +33,7 @@ jobs:
       with:
         name: outputs
         path: |
-          RMBTClient/build/libs/target/*-all.jar
+          RMBTClient/build/libs/*-all.jar
           RMBTQoSServer/build/libs/*.jar
           RMBTControlServer/build/libs/*.war
           RMBTMapServer/build/libs/*.war
