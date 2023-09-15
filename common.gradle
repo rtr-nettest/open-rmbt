@@ -7,7 +7,7 @@ ext {
     jacksonVersion = '2.14.2'
     catalinaVersion = '10.1.13'
     jsonVersion = '20220924'
-    javaMelodyVersion = '1.91.0'
+    javaMelodyVersion = '2.0.1'
     dbUtilsVersion = '1.7'
     guavaVersion = '20.0'
     gsonVersion = '2.8.0'
