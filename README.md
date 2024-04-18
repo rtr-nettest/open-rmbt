@@ -3,7 +3,9 @@ Open-RMBT
 
 > *Open-RMBT* is an open source, multi-threaded bandwidth measurement system.
 
-It consists of the following components:
+This is the original, mostly historic repository for RTR-Netztest (RTR-NetTest, aka Open-RMBT). Current code can be found in separate repositories as detailed below.
+
+Open-RMBT consists of the following components:
 * Web site +
 * JavaScript client
 * Android client +
