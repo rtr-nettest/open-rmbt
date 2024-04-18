@@ -4,15 +4,16 @@ Open-RMBT
 > *Open-RMBT* is an open source, multi-threaded bandwidth measurement system.
 
 It consists of the following components:
-* Web site
+* Web site +
 * JavaScript client
 * Android client +
-* iOS client 
-* Measurement server
+* iOS client +
+* Measurement server +
 * QoS measurement server (in this repository)
 * Control server +
 * Statistics server +
-* Map server (in this repository)
+* Map server (in this repository, a renewed implementation is under development)
+* Desktop app +
 
 +) These components are available in separate repositories. This repository still contains outdated and incompatible versions of these components. They shall not be used for production purposes. Plese contact us if you are uncertain about the compatiblity of repositories.
 
@@ -30,7 +31,8 @@ Related material
 * [RTR-NetTest/open-rmbt-statistics](https://github.com/rtr-nettest/open-rmbt-statistics) - Statistics server
 * [RTR-NetTest/open-rmbt-ios](https://github.com/rtr-nettest/open-rmbt-ios) - iOS app
 * [RTR-NetTest/open-rmbt-android](https://github.com/rtr-nettest/open-rmbt-android) - Android app
-* [RTR-NetTest/rtr-nettest/open-rmbt-website](https://github.com/rtr-nettest/open-rmbt-website) - Web site
+* [RTR-NetTest/open-rmbt-website](https://github.com/rtr-nettest/open-rmbt-website) - Web site
+* [RTR-NetTest/open-rmbt-desktop](https://github.com/rtr-nettest/open-rmbt-desktop) - Desktop app
 
 
 System requirements
@@ -39,7 +41,7 @@ System requirements
 * 1-3 servers
 * Everything can be installed on a single server 
 * The test server (RMBT-Websocket) should run on a physical machine
-* Base system Debian 11 or newer (or similar) 
+* Base system Debian 12 or newer (or similar) 
 * At least a single static public IPv4 address (IPv6 support recommended, more addresses allow to run more services on port 443)
 
   *NOTE: other Linux distributions can also be used, but commands and package names may be different*
@@ -141,7 +143,7 @@ Installation
 ### MapServer
 
 1. Install:
-  * Apache Tomcat 9 or higher
+  * Apache Tomcat 9 (do not use a higher version)
   * nginx (optional, highly recommended)
   * openjdk-11-jre (do not use a higher version)
   * libservlet3.1-java
