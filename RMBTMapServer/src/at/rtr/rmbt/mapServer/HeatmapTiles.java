@@ -137,7 +137,7 @@ public class HeatmapTiles extends TileRestlet<HeatmapTileParameters>
             whereSQL.append(" AND ").append(sf.where);
         
         final String sql = String.format("SELECT count(\"%1$s\") count," 
-                + " quantile(\"%1$s\",?) val,"
+                + " percentile_disc(?) WITHIN GROUP (ORDER BY \"%1$s\") AS val,"
                 + " ST_X(ST_SnapToGrid(location, ?,?,?,?)) gx," 
                 + " ST_Y(ST_SnapToGrid(location, ?,?,?,?)) gy"
                 + " FROM v_test2 t" 
