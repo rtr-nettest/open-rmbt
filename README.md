@@ -71,13 +71,7 @@ Installation
     * postgresql-13-cron
     * postgis
     * postgresql-13-postgis-3
-    * *for quantile extension; Install:*
-      * devscripts
-      * sudo
-      * postgresql-server-dev-13
-      * pgxnclient
-      * Run:
-        ` pgxn install quantile`
+
 
 2. Configure pg_cron, add in
    /etc/postgresql/13/main/postgresql.conf
