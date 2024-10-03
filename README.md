@@ -66,11 +66,11 @@ Installation
 ### Database Server
 
 1. Install:
-    * postgresql-13
+    * postgresql-16
     * postgresql-contrib
-    * postgresql-13-cron
+    * postgresql-16-cron
     * postgis
-    * postgresql-13-postgis-3
+    * postgresql-16-postgis-3
 
 
 2. Configure pg_cron, add in
