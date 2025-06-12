@@ -88,14 +88,14 @@ public class ShapeTiles extends TileRestlet<ShapeTileParameters>
                     "WITH box AS"
                             //input from Browser is converted to 3857; has to be transformed to 31287 for use with bev data
                     + " (SELECT ST_Transform(ST_SetSRID(ST_MakeBox2D(ST_Point(?,?),"
-                    + " ST_Point(?,?)), 3857), 31287) AS box)"
+                    + " ST_Point(?,?)), 3857), 3912) AS box)"
                     + " SELECT"
                             //output has to be transformed to EPSG:3857 for Browsers
                     + " ST_SnapToGrid(ST_Transform(ST_intersection(p.geom, box.box), 3857), ?,?,?,?) AS geom,"
                     + " count(\"%1$s\") count,"
-                    + " percentile_disc(?) WITHIN GROUP (ORDER BY \"%1$s\") AS val"
-                    + " FROM box, bev_vgd p"
-                    + " JOIN test_location tl ON tl.kg_nr_bev=p.kg_nr_int"
+                    + " quantile(\"%1$s\",?) val" 
+                    + " FROM box, naselja p"
+                    + " JOIN test_location tl ON tl.gkz_bev=p.na_mid"
                     + " JOIN v_test2 t ON t.open_test_uuid = tl.open_test_uuid"
                     + " WHERE" + " %2$s" 
                     + " AND p.geom && box.box"
