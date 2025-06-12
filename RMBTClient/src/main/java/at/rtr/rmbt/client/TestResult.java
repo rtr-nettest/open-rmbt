@@ -27,7 +27,16 @@ public abstract class TestResult
     public int port_remote;
     public int num_threads;
     public String encryption = "NONE";
+    public String result_link = "";
+
+    public String test_uuid = "";
+    public String registration_server = "";
+    public String test_server = "";
     
+    public double test_download;
+    public double test_upload;
+    public double test_ping;
+
     public long ping_shortest;
     public long ping_median;
     public String client_version;
@@ -40,5 +49,4 @@ public abstract class TestResult
     {
         return Math.round((double) bytes / (double) nsec * 1e9 * 8.0);
     }
-    
 }

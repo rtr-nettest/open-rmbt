@@ -34,6 +34,8 @@ public class TotalTestResult extends TestResult
     public long nsec_upload;
     public long totalDownBytes;
     public long totalUpBytes;
+    public String testUUID;
+    public String host;
     
     private Map<TestStatus, TestMeasurement> measurementMap;
     private TestMeasurement totalTrafficMeasurement;

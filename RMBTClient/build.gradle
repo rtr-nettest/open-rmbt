@@ -1,27 +1,40 @@
-apply plugin: 'java'
-apply plugin: 'com.github.johnrengelman.shadow'
-sourceCompatibility = 1.8
+buildscript {
+  repositories {
+    maven {
+      url "https://plugins.gradle.org/m2/"
+    }
+  }
+  dependencies {
+    classpath "com.github.johnrengelman:shadow:8.1.1"
+  }
+}
+
+
+plugins {
+    id "java"
+    id "com.github.johnrengelman.shadow" version "8.1.1"
+}
+
+
+apply plugin: "com.github.johnrengelman.shadow"
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+}
 
 repositories {
     mavenCentral()
 }
 
-buildscript {
-    repositories {
-        gradlePluginPortal()
-    }
-    dependencies {
-        classpath 'com.github.jengelman.gradle.plugins:shadow:5.2.0'
-    }
-}
-
 dependencies {
-    compile group: 'org.apache.httpcomponents', name: 'httpcore', version: '4.4.5'
-    compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.2'
-    compile group: 'net.sf.jopt-simple', name: 'jopt-simple', version: '5.0.4'
-    compile group: 'dnsjava', name: 'dnsjava', version: '2.1.8'
-    compile project(':RMBTSharedCode')
-    compile project(':RMBTUtil')
+    implementation group: 'org.apache.httpcomponents', name: 'httpcore', version: '4.4.5'
+    implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.2'
+    implementation group: 'org.json', name: 'json', version: '20220320'
+    implementation group: 'com.google.code.gson', name: 'gson', version: '2.10.1'
+    implementation group: 'net.sf.jopt-simple', name: 'jopt-simple', version: '5.0.4'
+    implementation group: 'dnsjava', name: 'dnsjava', version: '2.1.8'
+    implementation project(':RMBTSharedCode')
+    implementation project(':RMBTUtil')
 
     testImplementation group: 'org.jmockit', name: 'jmockit', version: '1.45'
     testImplementation group: 'junit', name: 'junit', version: '4.12'
@@ -41,11 +54,14 @@ subprojects{
 jar {
     manifest {
         attributes 'Main-Class': 'at.rtr.rmbt.client.RMBTClientRunner'
+        attributes 'Permissions': 'all-permissions'
+        attributes 'Codebase': '*.qmon.eu *.akostest.net'
+        attributes 'Application-Library-Allowable-Codebase': '*'
     }
 }
 
 shadowJar {
-    baseName = 'RMBTClient'
+    archiveBaseName = 'RMBTClient'
 }
 
 def revisionPropertiesFile = file("${buildDir}/resources/main/revision.properties")

@@ -22,6 +22,7 @@ import java.net.SocketTimeoutException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import at.rtr.rmbt.client.helper.Globals;
 import at.rtr.rmbt.shared.qos.QosMeasurementType;
 import at.rtr.rmbt.client.QualityOfServiceTest;
 import at.rtr.rmbt.client.v2.task.result.QoSTestResult;
@@ -92,7 +93,8 @@ public class TcpTask extends AbstractQoSTask {
 			Socket socketIn = null;
 			
 			try {
-				System.out.println("TCPTASK: " + getTestServerAddr() + ":" + getTestServerPort());
+				if(Globals.DEBUG_CLI) 
+					System.out.println("TCPTASK: " + getTestServerAddr() + ":" + getTestServerPort());
 		    	
 		    	String response = null;
 		    	
@@ -105,16 +107,19 @@ public class TcpTask extends AbstractQoSTask {
 						
 						public void onResponse(final String response, final String request) {
 				    		if (response != null && response.startsWith("OK")) {
-				    			System.out.println("got response: " + response);
+								if(Globals.DEBUG_CLI) 
+				    				System.out.println("Got response: " + response);
 				    			Socket socketOut = null;
 				    			
 				    			try {
 					    			socketOut = getSocket(getTestServerAddr(), testPortOut, false, (int)(timeout/1000000));
 					    			socketOut.setSoTimeout((int)(timeout/1000000));
 					    			sendMessage(socketOut, "PING\n");
-					    			final String testResponse = readLine(socketOut);
-								
-					    			System.out.println("TCP OUT TEST response: " + testResponse);
+
+									final String testResponse = readLine(socketOut);
+					    			
+					    			if(Globals.DEBUG_CLI) 
+										System.out.println("TCP OUT TEST response " + testPortOut +  " : " + testResponse);
 								
 					    			result.getResultMap().put(RESULT_RESPONSE_OUT, testResponse);
 					    			socketOut.close();
@@ -124,6 +129,8 @@ public class TcpTask extends AbstractQoSTask {
 				    				result.getResultMap().put(RESULT_OUT, "TIMEOUT");
 				    			}
 				    			catch (Exception e) {
+									if(Globals.DEBUG_CLI) 
+										System.out.println("TCP OUT TEST error " + testPortOut +  " : " + e);
 				    				result.getResultMap().put(RESULT_OUT, "ERROR");
 				    			}
 				    			finally {
@@ -151,7 +158,8 @@ public class TcpTask extends AbstractQoSTask {
 						socketIn = serverSocket.accept();
 						socketIn.setSoTimeout((int)(timeout/1000000));
 						response = readLine(socketIn);
-						System.out.println("TCP IN TEST response: " + response);						
+						if(Globals.DEBUG_CLI) 
+							System.out.println("TCP IN TEST response: " + response);						
 						result.getResultMap().put(RESULT_RESPONSE_IN, response);
 						socketIn.close();
 						result.getResultMap().put(RESULT_IN, "OK");	    				    			
@@ -166,6 +174,7 @@ public class TcpTask extends AbstractQoSTask {
 				
 			}
 			catch (Exception e) {
+				System.out.println("TCP Exception: " + e);
 				e.printStackTrace();
 			}
 			

@@ -110,6 +110,7 @@ public class QoSMeasurementClient {
         }
 
         client.setStatus(TestStatus.QOS_TEST_RUNNING);
+        
 
         threadRunner = new Thread(new Runnable() {
 

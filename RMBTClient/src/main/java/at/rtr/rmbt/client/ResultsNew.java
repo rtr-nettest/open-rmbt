@@ -16,32 +16,38 @@
  ******************************************************************************/
 package at.rtr.rmbt.client;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Results
+class ResultsNewClient
 {
-    public final long[] bytes;
-    public final long[] nsec;
-    
-    public Results(int numResults)
+    private static ResultsNewClient instance;
+
+    public Map<Integer, Long> dict = new HashMap<Integer, Long>();
+    public String host;
+
+    private ResultsNewClient()
     {
-        bytes = new long[numResults];
-        nsec = new long[numResults];
-    }
-    
-    public Results(long[] bytes, long[] nsec)
-    {
-        if (bytes.length != nsec.length)
-            throw new IllegalArgumentException("length of bytes and nsec not identical");
-        this.bytes = bytes;
-        this.nsec = nsec;
+      dict = new HashMap<Integer, Long>();
+      host = "";
     }
 
-	@Override
-	public String toString() {
-		return "Results [bytes=" + Arrays.toString(bytes) + ", nsec="
-				+ Arrays.toString(nsec) + "]";
-	}
+    public static ResultsNewClient getInstance()
+    {
+      if (instance == null) 
+      {
+        //synchronized block to remove overhead
+        synchronized (ResultsNewClient.class)
+        {
+          if(instance==null)
+          {
+            // if instance is null, initialize
+            instance = new ResultsNewClient();
+          }
+         
+        }
+      }
+      return instance;
+    }
+
 }

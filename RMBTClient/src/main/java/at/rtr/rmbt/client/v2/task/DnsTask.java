@@ -38,6 +38,7 @@ import at.rtr.rmbt.client.QualityOfServiceTest;
 import at.rtr.rmbt.client.helper.Dig;
 import at.rtr.rmbt.client.helper.Dig.DnsRequest;
 import at.rtr.rmbt.client.v2.task.result.QoSTestResult;
+import at.rtr.rmbt.client.helper.Globals;
 
 public class DnsTask extends AbstractQoSTask {
 
@@ -146,7 +147,8 @@ public class DnsTask extends AbstractQoSTask {
 		
 		//Lookup dnsLookup = null;
 		try {
-			System.out.println("dns lookup: record = " + record + " for host: " + domainName + ", using resolver:" + resolver);
+			if(Globals.DEBUG_CLI) 
+				System.out.println("DNS lookup: record = " + record + " for host: " + domainName + ", using resolver:" + resolver);
 			
 			ResolverConfig.refresh(); // refresh dns server
 			
@@ -187,7 +189,9 @@ public class DnsTask extends AbstractQoSTask {
 						
 						//result.add(records[i].toString());
 						result.add(dnsEntry);
-						System.out.println("record " + i + " toString: " + records[i].toString());
+
+						if(Globals.DEBUG_CLI) 
+							System.out.println("Record " + i + " toString: " + records[i].toString());
 					}
 				}
 				else {

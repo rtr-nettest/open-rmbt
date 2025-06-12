@@ -1,9 +1,9 @@
 include ':RMBTUtil'
 include ':RMBTSharedCode'
-include ':RMBTQoSServer'
-include ':RMBTControlServer'
-include ':RMBTStatisticServer'
-include ':RMBTMapServer'
+//include ':RMBTQoSServer'
+//include ':RMBTControlServer'
+//include ':RMBTStatisticServer'
+//incldue ':RMBTMapServer'
 include ':RMBTClient'
 
 

@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
@@ -32,7 +33,10 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.json.JSONObject;
 
+import at.rtr.rmbt.client.helper.DebugStates;
+import at.rtr.rmbt.client.helper.Globals;
 import at.rtr.rmbt.client.qos.QoSMeasurementClientProgressListener;
 import at.rtr.rmbt.shared.qos.QosMeasurementType;
 import at.rtr.rmbt.client.v2.task.AbstractEchoProtocolTask;
@@ -117,7 +121,9 @@ public class QualityOfServiceTest implements Callable<QoSResultCollector> {
 	 * @param client
 	 */
 	public QualityOfServiceTest(RMBTClient client, TestSettings nnTestSettings, List<QoSMeasurementClientProgressListener> listeners) {
-		System.out.println("\n\n---- Initializing QoS Tests ----\n");
+		
+		if(Globals.DEBUG_CLI) 
+			System.out.println("Initializing QoS Tests");
 
 		if (listeners != null) {
 			this.progressListeners.addAll(listeners);
@@ -182,7 +188,8 @@ public class QualityOfServiceTest implements Callable<QoSResultCollector> {
 					test = new TracerouteTask(this, taskDesc, threadCounter++);
 				}
 				else {
-					System.out.println("No TracerouteService implementation: Skipping TracerouteTask: " + taskDesc);
+					if(Globals.DEBUG_CLI) 
+						System.out.println("No TracerouteService implementation: Skipping TracerouteTask: " + taskDesc);
 				}
 			}
 			if (TASK_TRACEROUTE_MASKED.equals(taskId)) {
@@ -190,8 +197,9 @@ public class QualityOfServiceTest implements Callable<QoSResultCollector> {
 				if (TraceRouteMaskedAvailable && nnTestSettings != null && nnTestSettings.getTracerouteServiceClazz() != null) {
 					test = new TracerouteTask(this, taskDesc, threadCounter++,true);
 				}
-				else {
-					System.out.println("No TracerouteMaskedService implementation: Skipping TracerouteMaskedTask: " + taskDesc);
+				else {					
+					if(Globals.DEBUG_CLI) 
+						System.out.println("No TracerouteMaskedService implementation: Skipping TracerouteMaskedTask: " + taskDesc);
 				}
 			}
 			else if (TASK_WEBSITE.equals(taskId)) {
@@ -199,7 +207,8 @@ public class QualityOfServiceTest implements Callable<QoSResultCollector> {
 					test = new WebsiteTask(this, taskDesc, threadCounter++);
 				}
 				else {
-					System.out.println("No WebsiteTestService implementation: Skipping WebsiteTask: " + taskDesc);
+					if(Globals.DEBUG_CLI) 
+						System.out.println("No WebsiteTestService implementation: Skipping WebsiteTask: " + taskDesc);
 				}
 			}
 			else if (TASK_ECHO_PROTOCOL.equals(taskId)) {
@@ -210,10 +219,12 @@ public class QualityOfServiceTest implements Callable<QoSResultCollector> {
 					} else if (AbstractEchoProtocolTask.PROTOCOL_UDP.equals(protocol)) {
 						test = new EchoProtocolUdpTask(this, taskDesc, threadCounter++);
 					} else {
-						System.out.println("Protocol for EchoProtocol unknown. Use either: " + AbstractEchoProtocolTask.PROTOCOL_UDP + " or " + AbstractEchoProtocolTask.PROTOCOL_TCP);
+						if(Globals.DEBUG_CLI) 
+							System.out.println("Protocol for EchoProtocol unknown. Use either: " + AbstractEchoProtocolTask.PROTOCOL_UDP + " or " + AbstractEchoProtocolTask.PROTOCOL_TCP);
 					}
 				} else {
-					System.out.println("No protocol specified for the EchoProtocol test. Skipping " + taskDesc);
+					if(Globals.DEBUG_CLI) 
+						System.out.println("No protocol specified for the EchoProtocol test. Skipping " + taskDesc);
 				}
 			}
 			/*else if (TASK_MKIT_WEB_CONNECTIVITY.equals(taskId)) {
@@ -225,6 +236,9 @@ public class QualityOfServiceTest implements Callable<QoSResultCollector> {
 			else if (TASK_SIP.equals(taskId)) {
 				test = new SipTask(this, taskDesc, threadCounter++);
 			}
+
+			// LOG QoS JC
+			//qosLog(taskDesc);
 
 			if (test != null) {
 				//manage taskMap:
@@ -266,10 +280,12 @@ public class QualityOfServiceTest implements Callable<QoSResultCollector> {
 				if (test.needsQoSControlConnection()) {
 
 					if (!controlConnectionMap.containsKey(test.getTestServerAddr())) {
+						// JC Qos
 						RMBTTestParameter params = new RMBTTestParameter(test.getTestServerAddr(), test.getTestServerPort(),
 								nnTestSettings.isUseSsl(), test.getTaskDesc().getToken(),
 								test.getTaskDesc().getDuration(), test.getTaskDesc().getNumThreads(),
 								test.getTaskDesc().getNumPings(), test.getTaskDesc().getStartTime());
+
 						controlConnectionMap.put(test.getTestServerAddr(), new QoSControlConnection(getRMBTClient(), params));
 					}
 
@@ -365,11 +381,15 @@ public class QualityOfServiceTest implements Callable<QoSResultCollector> {
 
 						if (!curResult.getQosTask().hasConnectionError()) {
 							result.getResults().add(curResult);
+							// LOG QoS JC
+							qosLog(curResult.toString());
 						}
 						else {
-							System.out.println("test: " + curResult.getTestType().name() + " failed. Could not connect to QoSControlServer.");
+							if(Globals.DEBUG_CLI) 
+								System.out.println("Test: " + curResult.getTestType().name() + " failed. Could not connect to QoSControlServer.");
 						}
-						System.out.println("test " + curResult.getTestType().name() + " finished (" + (progress.get() + 1) + " out of " +
+						if(Globals.DEBUG_CLI) 
+							System.out.println("Test " + curResult.getTestType().name() + " finished (" + (progress.get() + 1) + " out of " +
 								testSize + ", CONCURRENCY GROUP=" + groupId + ")");
 						Counter testTypeCounter = testGroupCounterMap.get(curResult.getTestType());
 						if (testTypeCounter != null) {
@@ -425,7 +445,8 @@ public class QualityOfServiceTest implements Callable<QoSResultCollector> {
 
 		if (trafficServiceStatus != TrafficService.SERVICE_NOT_SUPPORTED) {
 			qoSTestSettings.getTrafficService().stop();
-			System.out.println("TRAFFIC SERVICE: Tx Bytes = " + qoSTestSettings.getTrafficService().getTxBytes()
+			if(Globals.DEBUG_CLI) 
+				System.out.println("TRAFFIC SERVICE: Tx Bytes = " + qoSTestSettings.getTrafficService().getTxBytes()
 					+ ", Rx Bytes = " + qoSTestSettings.getTrafficService().getRxBytes());
 		}
 
@@ -509,6 +530,19 @@ public class QualityOfServiceTest implements Callable<QoSResultCollector> {
 	 */
 	public void setStatus(QoSTestEnum newStatus) {
 		updateQoSStatus(newStatus);
+
+        if (Globals.DEBUG_CLI)
+            System.out.println(String.format(Locale.US, "Status changed: %s", status));
+
+        if (Globals.DEBUG_CLI_GUI){
+
+			JSONObject json = new JSONObject();
+            json.put("type", DebugStates.STATE_CHANGE);
+            json.put("time", System.currentTimeMillis());
+            json.put("state", newStatus);
+			System.out.println(String.format(Locale.US, "%s", json));
+		}
+
 	}
 
 	/**
@@ -684,4 +718,28 @@ public class QualityOfServiceTest implements Callable<QoSResultCollector> {
 			}
 		}
 	}
+
+	private void qosLog(String curlResult){
+        // FORM json
+        JSONObject json = new JSONObject();
+        json.put("type", DebugStates.QOS_RESULT);
+        json.put("time", System.currentTimeMillis());
+        json.put("phase", "QOS");
+
+        //json.put("testOpenUuid", params.getUUID());
+
+		//String taskId = (String) taskDesc.getParams().get(TaskDesc.QOS_TEST_IDENTIFIER_KEY);
+		//Long time = taskDesc.getParams().get("time");
+
+        json.put("qos_result", curlResult);
+        //json.put("taskId", taskId);
+        //json.put("taskDesc", taskDesc);
+
+        //json.put("startTimeMs", params.getStartTime());
+        //json.put("status", getStatus());
+
+        
+        if (Globals.DEBUG_CLI_GUI)
+            System.out.println(String.format(Locale.US, "%s", json));
+    }
 }

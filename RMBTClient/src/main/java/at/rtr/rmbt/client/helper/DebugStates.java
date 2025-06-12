@@ -14,20 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package at.rtr.rmbt.client;
+package at.rtr.rmbt.client.helper;
 
-public class ThreadTestResult extends TestResult
+public enum DebugStates
 {
-    public Results down;
-    public Results up;
-    
-    public long totalDownBytes;
-    public long totalUpBytes;
-    
-    public static long getLastEntry(final long[] data)
-    {
-        if (data == null || data.length == 0)
-            return 0;
-        return data[data.length - 1];
-    }
+    PING_RESULT, DOWNLOAD_RESULT, UPLOAD_RESULT, QOS_RESULT, STATE_CHANGE, UUID_INFO;
 }

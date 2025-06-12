@@ -33,6 +33,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import at.rtr.rmbt.client.helper.Globals;
 import at.rtr.rmbt.client.Ping;
 import at.rtr.rmbt.client.RMBTTestParameter;
 import at.rtr.rmbt.client.SpeedItem;
@@ -143,7 +144,8 @@ public class ControlServerConnection
         
         hostUrl = getUrl(encryption, host, pathPrefix, port, Config.RMBT_QOS_TEST_REQUEST);
         
-        System.out.println("Connection to " + hostUrl);
+        if(Globals.DEBUG_CLI) 
+            System.out.println("Connection to: " + hostUrl);
         
         final JSONObject regData = new JSONObject();
         
@@ -151,7 +153,7 @@ public class ControlServerConnection
         {
             regData.put("uuid", uuid);
             regData.put("client", clientName);
-            regData.put("version", Config.RMBT_VERSION_NUMBER);
+            regData.put("version", clientVersion);
             regData.put("type", clientType);
             regData.put("softwareVersion", clientVersion);
             regData.put("softwareRevision", RevisionHelper.getVerboseRevision());
@@ -260,7 +262,7 @@ public class ControlServerConnection
     
     public String requestNewTestConnection(final String host, final String pathPrefix, final int port,
             final boolean encryption, final ArrayList<String> geoInfo, final String uuid, final String clientType,
-            final String clientName, final String clientVersion, final JSONObject additionalValues)
+            final String clientName, final String clientVersion, final JSONObject additionalValues, final JSONObject jsonLoopData, final JSONObject jsonQmonData)
     {
     	resetErrors();
         String errorMsg = null;
@@ -270,7 +272,7 @@ public class ControlServerConnection
         
         hostUrl = getUrl(encryption, host, pathPrefix, port, Config.RMBT_TEST_SETTINGS_REQUEST);
         
-        System.out.println("Connection to " + hostUrl);
+        //System.out.println("Connection: " + hostUrl);
         
         final JSONObject regData = new JSONObject();
         
@@ -278,7 +280,7 @@ public class ControlServerConnection
         {
             regData.put("uuid", uuid);
             regData.put("client", clientName);
-            regData.put("version", Config.RMBT_VERSION_NUMBER);
+            regData.put("version", clientVersion);
             regData.put("type", clientType);
             regData.put("softwareVersion", clientVersion);
             regData.put("softwareRevision", RevisionHelper.getVerboseRevision());
@@ -287,6 +289,16 @@ public class ControlServerConnection
             startTimeMillis = System.currentTimeMillis();
             regData.put("time", startTimeMillis);
             startTimeNs = System.nanoTime();
+
+            if (jsonLoopData.length() != 0){
+                regData.put("user_loop_mode", true);
+                regData.put("loopmode_info", jsonLoopData);
+            }
+
+            if (jsonQmonData.length() != 0 && jsonQmonData.has("temperature"))  
+                regData.put("temperature", jsonQmonData.getFloat("temperature"));
+
+            System.out.println(regData);
 
             if (geoInfo != null)
             {
@@ -311,26 +323,31 @@ public class ControlServerConnection
             errorMsg = "Error gernerating request";
             // e1.printStackTrace();
         }
+
+        //System.out.println(regData);  
         
         // getting JSON string from URL
-        final JSONObject response = JSONParser.sendJSONToUrl(hostUrl, regData);
+        final JSONObject response = JSONParser.sendJSONToUrl(hostUrl, regData);  
         
         if (response != null)
             try
             {
                 final JSONArray errorList = response.getJSONArray("error");
                 
+                //System.out.println(hostUrl);
                 // System.out.println(response.toString(4));
                 checkHasErrors(response);
                 
                 if (errorList.length() == 0)
                 {
+                    //System.out.println(response);
 
                     clientUUID = response.optString("uuid", clientUUID);
                     
                     testToken = response.getString("test_token");
                     loopUuid = response.optString("loop_uuid");
 
+                    // JC US?
                     testUuid = response.getString("test_uuid");
                     
                     testTime = System.currentTimeMillis() + 1000 * response.getLong("test_wait");
@@ -344,12 +361,24 @@ public class ControlServerConnection
                     
                     testDuration = response.getInt("test_duration");
                     testNumThreads = response.getInt("test_numthreads");
+                    // JC Num PING!
                     testNumPings = response.optInt("test_numpings", 10); // pings default to 10
+                    testNumPings = 40;
                     
                     remoteIp = response.getString("client_remote_ip");
                                         
                     resultURL = new URL(response.getString("result_url"));
                     resultQoSURI = new URL(response.getString("result_qos_url"));
+
+                    JSONObject json = new JSONObject();
+                    json.put("type", DebugStates.UUID_INFO);
+                    json.put("testUuid", testUuid);
+                    json.put("openTestUuid", response.getString("open_test_uuid"));
+                    json.put("testToken", testToken);
+                    
+                    //System.out.println(json);
+                    if (Globals.DEBUG_CLI_GUI)
+                        System.out.println(String.format(Locale.US, "%s", json));
                 }
                 else
                 {
@@ -376,6 +405,7 @@ public class ControlServerConnection
             }
         else
             errorMsg = "No response";
+
         return errorMsg;
     }
 
@@ -468,6 +498,8 @@ public class ControlServerConnection
                         pingItem.put("value", ping.client);
                         pingItem.put("value_server", ping.server);
                         pingItem.put("time_ns", ping.timeNs - startTimeNs);
+                        // JC ping print, not OK
+                        //System.out.println(pingItem);
                         pingData.put(pingItem);
                     }
                 }
@@ -497,6 +529,9 @@ public class ControlServerConnection
 
             // getting JSON string from URL
             JSONObject response = JSONParser.sendJSONToUrl(resultURL, testData);
+            // JC results upload
+            //System.out.println(testData);
+            System.out.println(response);
 
             for (int i = 0; response == null && i < 4; i++) {
                 //try again
@@ -548,7 +583,8 @@ public class ControlServerConnection
     public String sendQoSResult(final TotalTestResult result, final JSONArray qosTestResult)
     {
         String errorMsg = null;
-        System.out.println("sending qos results to " + resultQoSURI);
+        if (Globals.DEBUG_CLI)
+            System.out.println("Sending qos results to: " + resultQoSURI);
         if (resultQoSURI != null)
         {
             
@@ -575,6 +611,8 @@ public class ControlServerConnection
             
             // getting JSON string from URL
             final JSONObject response = JSONParser.sendJSONToUrl(resultQoSURI, testData);
+            // JCqos
+            //System.out.println(testData);
             
             if (response != null)
                 try
@@ -751,6 +789,7 @@ public class ControlServerConnection
             if (overrideParams.getNumThreads() > 0)
                 numThreads = overrideParams.getNumThreads();
         }
+
         return new RMBTTestParameter(host, port, encryption, testToken, duration, numThreads, numPings, testTime, serverType);
     }
 

@@ -118,8 +118,13 @@ public class QoSControlConnection extends AbstractRMBTTest implements Runnable {
 	public void connect() throws Exception {
 		isRunning.set(true);
 		try {
+
+			// JCqosfix
+			//System.out.println("---JC connect: " + params.isEncryption());
+			//controlSocket = connect(null, InetAddress.getByName(params.getHost()), params.getPort(), 
+			//	AbstractQoSTask.QOS_SERVER_PROTOCOL_VERSION, "ACCEPT", params.isEncryption(), AbstractQoSTask.CONTROL_CONNECTION_TIMEOUT);
 			controlSocket = connect(null, InetAddress.getByName(params.getHost()), params.getPort(), 
-				AbstractQoSTask.QOS_SERVER_PROTOCOL_VERSION, "ACCEPT", params.isEncryption(), AbstractQoSTask.CONTROL_CONNECTION_TIMEOUT);
+				AbstractQoSTask.QOS_SERVER_PROTOCOL_VERSION, "ACCEPT", true, AbstractQoSTask.CONTROL_CONNECTION_TIMEOUT);
 		    if (controlSocket == null) {
 		        isRunning.set(false);
 		        couldNotConnect.set(true);

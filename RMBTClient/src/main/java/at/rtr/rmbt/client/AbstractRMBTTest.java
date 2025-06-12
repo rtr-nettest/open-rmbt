@@ -32,6 +32,7 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 
 import at.rtr.rmbt.client.helper.Config;
+import at.rtr.rmbt.client.helper.Globals;
 
 public abstract class AbstractRMBTTest {
     protected static final String EXPECT_GREETING = Config.RMBT_SERVER_NAME;
@@ -65,6 +66,7 @@ public abstract class AbstractRMBTTest {
 
     protected Socket getSocket(final String host, final int port, final boolean isSecure, final int timeOut) throws UnknownHostException, IOException
     {
+
     	InetSocketAddress sockAddr = new InetSocketAddress(host, port);
     	
     	final Socket socket;
@@ -77,8 +79,11 @@ public abstract class AbstractRMBTTest {
             socket = new Socket();
         }
         
+
+
         if (socket != null) {
-        	System.out.println("Connecting to " + sockAddr + " with timout: " + timeOut + "ms " + socket + " [SSL: " + isSecure + "]");
+            if(Globals.DEBUG_CLI) 
+        	    System.out.println("Connecting to " + sockAddr + " with timeout: " + timeOut + "ms " + socket + " [SSL: " + isSecure + "]");
         	socket.connect(sockAddr, timeOut);
         }
         
@@ -86,6 +91,7 @@ public abstract class AbstractRMBTTest {
     }
 
     protected Socket connect(final TestResult testResult, final InetAddress host, final int port, final String protocolVersion, final String response, final boolean isSecure, final int connTimeOut) throws IOException {
+        
         log(String.format(Locale.US, "thread %d: connecting...", threadId));
         
         final InetAddress inetAddress = host;
@@ -206,14 +212,17 @@ public abstract class AbstractRMBTTest {
         String send;
         send = String.format(Locale.US, message);        	
 
-        System.out.println("sending command (thread " + Thread.currentThread().getId() + "): " + send);
-		out.write(send.getBytes("US-ASCII"));
+        if(Globals.DEBUG_CLI) 
+            System.out.println("sending command (thread " + Thread.currentThread().getId() + "): " + send);
+		
+        out.write(send.getBytes("US-ASCII"));
         out.flush();
     }
     
     protected void log(final CharSequence text)
     {
-        client.log(text);
+        if(Globals.DEBUG_CLI)   
+            client.log(text);
     }
 
 }

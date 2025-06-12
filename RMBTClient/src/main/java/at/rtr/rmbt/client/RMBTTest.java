@@ -39,11 +39,14 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+import org.json.JSONObject;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 
 import at.rtr.rmbt.client.helper.Config;
+import at.rtr.rmbt.client.helper.ControlServerConnection;
+import at.rtr.rmbt.client.helper.DebugStates;
+import at.rtr.rmbt.client.helper.Globals;
 import at.rtr.rmbt.client.helper.TestStatus;
 
 public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestResult>
@@ -59,6 +62,9 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
     
     private final boolean doDownload = true;
     private final boolean doUpload = true;
+
+    private float bytesUploadSum = 0;
+    private float bytesDownloadSum = 0;
     
     private final AtomicLong curTransfer = new AtomicLong();
     private final AtomicLong curTime = new AtomicLong();
@@ -66,7 +72,11 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
     private final long minDiffTime;
     private final int maxCoarseResults;
     private final int maxFineResults;
+
+    private long timeDebugCliGui = 0;
     
+    private static long startTimeNsPublic = System.nanoTime();
+    private static boolean startTimeNsPublicTrue = false;
     private class SingleResult
     {
         private final Results fine;
@@ -259,7 +269,9 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
         
         final InetAddress inetAddress = InetAddress.getByName(params.getHost());
         
-        System.out.println("connecting to: " + inetAddress.getHostName() + ":" + params.getPort());
+        if(Globals.DEBUG_CLI) 
+            System.out.println("Connecting to: " + inetAddress.getHostName() + ":" + params.getPort());
+
         final Socket s = getSocket(inetAddress.getHostAddress(), params.getPort(), true, 20000);
         
         testResult.ip_local = s.getLocalAddress();
@@ -383,8 +395,9 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
     
     public ThreadTestResult call()
     {
-        log(String.format(Locale.US, "thread %d: started.", threadId));
+        log(String.format(Locale.US, "Thread %d: started.", threadId));
         final ThreadTestResult testResult = new ThreadTestResult();
+
         Socket s = null;
         try
         {
@@ -427,6 +440,7 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
                     return null;
                 
                 final int NUMPINGS = params.getNumPings();
+
                 long shortestPing = Long.MAX_VALUE;
                 long medianPing = Long.MAX_VALUE;
                 long[] pings = new long[NUMPINGS];
@@ -460,6 +474,7 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
                 	}
                 	// display median ping
                 	client.setPing(medianPing);
+                    
                 }
                 testResult.ping_shortest = shortestPing;
                 testResult.ping_median = medianPing;
@@ -467,9 +482,14 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
             }
             /*********************/
             
-                        
+                
+            final String testUUID = params.getUUID();
+
+            
             if (doDownload)
             {
+                setStatus(TestStatus.INIT_DOWN);
+
                 final int duration = params.getDuration();
             	//final int duration = 1;
                 
@@ -486,7 +506,8 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
                 curTime.set(0);
                 
                 final SingleResult result = new SingleResult();
-                final boolean reinitSocket = download(duration, 0, result);
+
+                final boolean reinitSocket = download(duration, 0, result, testUUID);
                 if (reinitSocket)
                 {
                     s.close();
@@ -498,11 +519,7 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
                 
                 testResult.down = result.getAllResults();
                 result.addCoarseSpeedItems(testResult.speedItems, false, threadId);
-                
-//                if (threadId == 0) {
-//                	System.out.println("download speed items: " + testResult.speedItems);
-//                	System.out.println("download raw results: " + result);
-//                }
+    
                 
                 curTransfer.set(result.getBytes());
                 curTime.set(result.getNsec());
@@ -613,7 +630,7 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
         if (chunks < 1)
             throw new IllegalArgumentException();
         
-        log(String.format(Locale.US, "thread %d: getting %d chunk(s)", threadId, chunks));
+        //log(String.format(Locale.US, "thread %d: getting %d chunk(s)", threadId, chunks));
         
         String line = reader.readLine();
         if (line == null)
@@ -669,7 +686,7 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
      * @throws InterruptedException
      * @throws IllegalStateException
      */
-    private boolean download(final int seconds, final int additionalWait, final SingleResult result)
+    private boolean download(final int seconds, final int additionalWait, final SingleResult result, String testUUID)
             throws IOException, UnsupportedEncodingException, InterruptedException, IllegalStateException
     {
         if (Thread.interrupted())
@@ -678,9 +695,15 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
         if (seconds < 1)
             throw new IllegalArgumentException();
         
-        log(String.format(Locale.US, "thread %d: download test %d seconds", threadId, seconds));
+        log(String.format(Locale.US, "Thread %d: DOWNLOAD test %d seconds", threadId, seconds));
+        //System.out.println(resultsNewClient.test);
+
+        ResultsNewClient resultsNewClient = ResultsNewClient.getInstance();
+        resultsNewClient.dict.clear();
         
         String line = reader.readLine();
+        //log(String.format(Locale.US, "%s", line));
+
         if (line == null)
             throw new IllegalStateException("connection lost");
         if (!line.startsWith("ACCEPT "))
@@ -700,7 +723,7 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
         long totalRead = 0;
         long read;
         byte lastByte = (byte) 0;
-        
+
         do
         {
             if (Thread.interrupted())
@@ -714,7 +737,10 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
                 totalRead += read;
                 
                 final long nsec = System.nanoTime() - timeStart;
-                
+            
+
+                calculateValuesChart(resultsNewClient, threadId, totalRead, nsec, "DOWN", params);
+
                 result.addResult(totalRead, nsec);
                 curTransfer.set(totalRead);
                 curTime.set(nsec);
@@ -731,6 +757,9 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
         }
         
         final long nsec = timeEnd - timeStart;
+
+        calculateValuesChart(resultsNewClient, threadId, totalRead, nsec, "DOWN",params);
+
         result.addResult(totalRead, nsec);
         curTransfer.set(totalRead);
         curTime.set(nsec);
@@ -753,6 +782,83 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
         
     }
     
+    private void calculateValuesChart(ResultsNewClient resultsNewClient, int threadId, long totalRead, long nsec, String phase, RMBTTestParameter params){
+        try {
+
+            if (resultsNewClient.dict.get(threadId) != null) {
+                if(totalRead > resultsNewClient.dict.get(threadId))
+                    resultsNewClient.dict.put(threadId, totalRead);
+            } else {
+                resultsNewClient.dict.put(threadId, totalRead);
+            }
+                
+            float sum = 0;
+            for (float value : resultsNewClient.dict.values()) {
+                sum = sum + value;  
+            }
+            float fin_mb_sum = (sum*8/((float)nsec/1000000000))/1000000;
+
+            float progress = ((float)nsec/1000000000)/params.getDuration();
+
+            long time = System.currentTimeMillis();
+
+            // FORM json
+            JSONObject json = new JSONObject();
+            json.put("time", time);
+            json.put("phase", phase);
+            //json.put("ping", 10);
+
+            if (phase == "DOWN"){
+                json.put("type", DebugStates.DOWNLOAD_RESULT);
+                json.put("down", fin_mb_sum);
+                json.put("up", -1);    
+                            
+                bytesDownloadSum = bytesDownloadSum + sum;
+                json.put("bytes", bytesDownloadSum);
+            }
+            else if (phase == "UP"){
+                json.put("type", DebugStates.UPLOAD_RESULT);
+                json.put("up", fin_mb_sum);
+                json.put("down", -1);    
+                
+                bytesUploadSum = bytesUploadSum + sum;
+                json.put("bytes", bytesUploadSum);
+            }
+
+            json.put("testOpenUuid", params.getUUID());
+
+            json.put("progress", progress);
+            json.put("startTimeMs", params.getStartTime());
+            json.put("status", getStatus());
+
+            if (Globals.DEBUG_CLI_GUI){
+                logDownloadUpload(json);
+            }
+
+            //System.out.println(json);
+            //if (Globals.DEBUG_CLI_GUI)
+            //    System.out.println(String.format(Locale.US, "%s", json));
+
+        } catch (Exception e) {
+            System.out.println(e);  
+        }
+    }
+
+    private void logDownloadUpload(JSONObject json){
+
+        int logStepMs = 200;
+        long time = json.getLong("time");
+
+        if (time > timeDebugCliGui + logStepMs){
+
+            timeDebugCliGui = time;
+            // only one thread logs
+            if (threadId == 0)
+                System.out.println(String.format(Locale.US, "%s", json));
+                
+        } 
+    }
+    
     private void uploadChunks(final int chunks) throws InterruptedException, IOException
     {
         if (Thread.interrupted())
@@ -761,7 +867,7 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
         if (chunks < 1)
             throw new IllegalArgumentException();
         
-        log(String.format(Locale.US, "thread %d: putting %d chunk(s)", threadId, chunks));
+        //log(String.format(Locale.US, "thread %d: putting %d chunk(s)", threadId, chunks));
         
         String line = reader.readLine();
         if (line == null)
@@ -809,6 +915,8 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
     private boolean upload(final int seconds, final SingleResult result) throws IOException,
             UnsupportedEncodingException, InterruptedException, IllegalStateException
     {
+        ResultsNewClient resultsNewClient = ResultsNewClient.getInstance();
+        resultsNewClient.dict.clear();
         if (Thread.interrupted())
             throw new InterruptedException();
         
@@ -872,7 +980,7 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
                             next = s.next(patternTime);
                             if (next == null)
                             {
-                                System.out.println(s.nextLine());
+                                //System.out.println(s.nextLine());
                                 throw new IllegalStateException();
                             }
                             return false;
@@ -884,8 +992,11 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
                             final long nsec = Long.parseLong(match.group(1));
                             final long bytes = Long.parseLong(match.group(2));
                             result.addResult(bytes, nsec);
+                            
                             curTransfer.set(bytes);
                             curTime.set(nsec);
+
+                            calculateValuesChart(resultsNewClient, threadId, bytes, nsec, "UP", params);
                         }
                         
                         if (terminateRxAtAllEvents.get())
@@ -996,8 +1107,16 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
         log(String.format(Locale.US, "thread %d: ping test", threadId));
         
         final long pingTimeNs = System.nanoTime();
+        if (!startTimeNsPublicTrue) {
+            startTimeNsPublic = pingTimeNs;
+            startTimeNsPublicTrue = true;
+        }
         
         String line = reader.readLine();
+
+        if (line == null)
+            return null;
+
         if (!line.startsWith("ACCEPT "))
         {
             log(String.format(Locale.US, "thread %d: got '%s' expected 'ACCEPT'", threadId, line));
@@ -1012,10 +1131,20 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
         final long timeEnd = System.nanoTime();
         out.write("OK\n".getBytes("US-ASCII"));
         out.flush();
+
+
+
+        if (line == null)
+            return null;
+
         if (!line.equals("PONG"))
             return null;
         
         line = reader.readLine();
+
+        if (line == null)
+            return null;
+
         final Scanner s = new Scanner(line);
         s.findInLine("TIME (\\d+)");
         s.close();
@@ -1025,16 +1154,49 @@ public class RMBTTest extends AbstractRMBTTest implements Callable<ThreadTestRes
         
         final double pingClient = diffClient / 1e6;
         final double pingServer = diffServer / 1e6;
-        
+
+        // JC ping log here
+        pingLog(pingTimeNs, pingClient, pingServer);
+
         log(String.format(Locale.US, "thread %d - client: %.3f ms ping", threadId, pingClient));
         log(String.format(Locale.US, "thread %d - server: %.3f ms ping", threadId, pingServer));
         return new Ping(diffClient, diffServer, pingTimeNs);
     }
+
+    void pingLog(long pingTimeNs, double pingClient, double pingServer){
+        // FORM json
+        JSONObject json = new JSONObject();
+        json.put("type", DebugStates.PING_RESULT);
+        json.put("time", System.currentTimeMillis());
+        json.put("phase", "PING");
+
+        json.put("testOpenUuid", params.getUUID());
+
+        json.put("pingTimeNs", pingTimeNs-startTimeNsPublic);
+        json.put("pingTimeNsStart", startTimeNsPublic);
+        json.put("pingClient", pingClient);
+        json.put("pingServer", pingServer);
+
+        json.put("startTimeMs", params.getStartTime());
+        json.put("status", getStatus());
+
+        
+        //System.out.println(json);
+        if (Globals.DEBUG_CLI_GUI)
+            System.out.println(String.format(Locale.US, "%s", json));
+    }
         
     private void setStatus(final TestStatus status)
     {
-        if (threadId == 0)
+        if (threadId == 0){
             client.setStatus(status);
+        }
+    
+    }
+
+    private TestStatus getStatus()
+    {
+        return client.getStatus();
     }
     
     private void startTrafficService(final TestStatus status) {
