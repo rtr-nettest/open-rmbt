@@ -41,6 +41,7 @@ import at.rtr.rmbt.util.net.rtp.RtpUtil;
 import at.rtr.rmbt.util.net.rtp.RtpUtil.RtpControlData;
 import at.rtr.rmbt.util.net.rtp.RtpUtil.RtpQoSResult;
 import at.rtr.rmbt.util.net.udp.StreamSender.UdpStreamCallback;
+import at.rtr.rmbt.client.helper.Globals;
 
 /**
  * 
@@ -326,7 +327,8 @@ public class VoipTask extends AbstractQoSTask {
 				
 				public void onResponse(final String response, final String request) {
 					if (response != null && response.startsWith("VOIPRESULT")) {
-						System.out.println(response);
+						if(Globals.DEBUG_CLI) 
+							System.out.println(response);
 						Matcher m = VOIP_RECEIVE_RESPONSE_PATTERN.matcher(response);
 						if (m.find()) {
 							final String prefix = RESULT_VOIP_PREFIX + RESULT_OUTGOING_PREFIX;

@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 import at.rtr.rmbt.shared.qos.QosMeasurementType;
 import at.rtr.rmbt.client.QualityOfServiceTest;
 import at.rtr.rmbt.client.v2.task.result.QoSTestResult;
+import at.rtr.rmbt.client.helper.Globals;
 
 /**
  * 
@@ -111,7 +112,8 @@ public class NonTransparentProxyTask extends AbstractQoSTask {
 							
 							//read response from echo service
 							String testResponse = readLine(testSocket);
-							System.out.println("NON_TRANSPARENT_PROXY response: " + testResponse);
+							if(Globals.DEBUG_CLI) 
+								System.out.println("NON_TRANSPARENT_PROXY response: " + testResponse);
 							if (testResponse != null) {		
 								testResponse = String.format(Locale.US, "%s", testResponse);
 								result.getResultMap().put(RESULT_RESPONSE, (testResponse != null ? testResponse.trim() : ""));

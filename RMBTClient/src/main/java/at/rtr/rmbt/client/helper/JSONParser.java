@@ -63,6 +63,8 @@ public abstract class JSONParser
     
     public static String readUrl(final URL url) throws IOException 
     {
+        System.out.println("Read Url: " + url);
+
         final URLConnection urlConnection = url.openConnection();
         try {
             urlConnection.setConnectTimeout(CONNECT_TIMEOUT);
@@ -83,6 +85,7 @@ public abstract class JSONParser
 
     public static String sendToUrl(final URL url, final String data, int connectTimeout) throws IOException
     {
+
         final HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
         try {
             urlConnection.setDoOutput(true);
@@ -104,6 +107,7 @@ public abstract class JSONParser
             final char[] chars = new char[1024];
             while ((read = reader.read(chars)) != -1)
                 stringBuilder.append(chars, 0, read);
+
             return stringBuilder.toString();
         } finally {
             urlConnection.disconnect();

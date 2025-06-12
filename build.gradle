@@ -10,7 +10,7 @@ subprojects {
 
 buildscript {
     repositories {
-        jcenter()
+        //jcenter()
         mavenCentral()
         //https://developer.android.com/studio/preview/features/new-android-plugin-migration.html
         maven {

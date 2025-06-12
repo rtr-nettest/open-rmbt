@@ -41,6 +41,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import at.rtr.rmbt.client.helper.Globals;
 import at.rtr.rmbt.shared.qos.QosMeasurementType;
 import at.rtr.rmbt.shared.qos.UdpPayload;
 import at.rtr.rmbt.shared.qos.util.UdpPayloadUtil;
@@ -248,7 +249,8 @@ public class UdpTask extends AbstractQoSTask {
 					}
 
 					if (!outgoingLatch.await(timeout, TimeUnit.NANOSECONDS)) {
-						System.out.println("OUT " + outgoingPort + " TIMEOUT REACHED: " + outgoingPacketData);
+						if(Globals.DEBUG_CLI) 
+							System.out.println("OUT " + outgoingPort + " TIMEOUT REACHED: " + outgoingPacketData);
 					}
 
 					//request results;
@@ -257,7 +259,8 @@ public class UdpTask extends AbstractQoSTask {
 
 						public void onResponse(final String response, final String request) {
 							if (response != null && response.startsWith("RCV")) {
-								System.out.println("UDPTASK OUT :" + outgoingPort + " -> " + response);
+								if(Globals.DEBUG_CLI) 
+									System.out.println("UDPTASK OUT :" + outgoingPort + " -> " + response);
 
 								Matcher m = QOS_RECEIVE_RESPONSE_PATTERN.matcher(response);
 								if (m.find()) {
@@ -303,7 +306,8 @@ public class UdpTask extends AbstractQoSTask {
 
 						public void onResponse(final String response, final String request) {
 							if (response != null && response.startsWith("RCV")) {
-								System.out.println("UDPTASK IN :" + incomingPort + " -> " + response);
+								if(Globals.DEBUG_CLI) 
+									System.out.println("UDPTASK IN :" + incomingPort + " -> " + response);
 								Matcher m = QOS_RECEIVE_RESPONSE_PATTERN.matcher(response);
 								if (m.find()) {
 									incomingPacketData.rcvServerResponse = Integer.valueOf(m.group(1));
@@ -343,7 +347,8 @@ public class UdpTask extends AbstractQoSTask {
 			}
 
 			if (this.packetCountOutgoing != null) {
-				System.out.println("OUT " + outgoingPort + ": " + outgoingPacketData);
+				if(Globals.DEBUG_CLI) 
+					System.out.println("OUT " + outgoingPort + ": " + outgoingPacketData);
 				result.getResultMap().put(RESULT_NUM_PACKETS_OUTGOING, packetCountOutgoing);
 				result.getResultMap().put(RESULT_PORT_OUTGOING, outgoingPort);
 				result.getResultMap().put(RESULT_OUTGOING_PACKETS, outgoingPacketData != null ? outgoingPacketData.rcvServerResponse : 0);
@@ -365,7 +370,8 @@ public class UdpTask extends AbstractQoSTask {
 				final int outgoingPackets = (outgoingPacketData != null ? outgoingPacketData.numPackets : 0);
 				final int lostPackets = packetCountOutgoing - outgoingPackets;
 
-				System.out.println("UDP Test: outgoing all: " + outgoingPackets + ", lost: " + lostPackets);
+				if(Globals.DEBUG_CLI) 
+					System.out.println("UDP Test: outgoing all: " + outgoingPackets + ", lost: " + lostPackets);
 				if (lostPackets > 0) {
 					int packetLossRate = (int) (((float)lostPackets / (float)packetCountOutgoing) * 100f);
 					result.getResultMap().put(RESULT_OUTGOING_PLR, String.valueOf(packetLossRate));
@@ -376,7 +382,8 @@ public class UdpTask extends AbstractQoSTask {
 			}
 
 			if (this.packetCountIncoming != null && this.incomingPort != null) {
-				System.out.println("IN " + incomingPort + ": " + incomingPacketData);
+				if(Globals.DEBUG_CLI) 
+					System.out.println("IN " + incomingPort + ": " + incomingPacketData);
 				final int incomingPackets = incomingPacketData != null ? incomingPacketData.rcvServerResponse : 0;
 
 				result.getResultMap().put(RESULT_NUM_PACKETS_INCOMING, packetCountIncoming);
@@ -447,7 +454,9 @@ public class UdpTask extends AbstractQoSTask {
 			final TreeMap<Integer, Long> rttMap = new TreeMap<>();
 
 			public boolean onSend(DataOutputStream dataOut, int packetNumber, byte[] receivedPayload) throws IOException {
-				System.out.println("UDP OUT Test: sending packet #" + packetNumber);
+
+				if(Globals.DEBUG_CLI) 
+					System.out.println("UDP OUT Test: sending packet #" + packetNumber);
 //	    		dataOut.writeByte(UDP_TEST_AWAIT_RESPONSE_IDENTIFIER);
 //	    		dataOut.writeByte(packetNumber);
 //    			dataOut.write(params.getUUID().getBytes());
@@ -466,11 +475,11 @@ public class UdpTask extends AbstractQoSTask {
 			public synchronized void onReceive(final DatagramPacket dp) throws IOException {
 				final byte[] buffer = dp.getData();
 				final UdpPayload udpPayload = UdpPayloadUtil.toUdpPayload(buffer);
-				System.out.println(udpPayload);
 				int packetNumber = udpPayload.getPacketNumber();
 				final long rtt = (System.nanoTime() - udpPayload.getTimestamp());
 
-				System.out.println("UDP OUT Test: received packet: #" + packetNumber + " (RTT: " + rtt  + "ms) -> " + buffer);
+				if(Globals.DEBUG_CLI) 
+					System.out.println("UDP OUT Test: received packet: #" + packetNumber + " (RTT: " + rtt  + "ms) -> " + buffer);
 				//check udp packet:
 				if (buffer[0] != UDP_TEST_RESPONSE) {
 					udpSettings.getSocket().close();
@@ -485,7 +494,8 @@ public class UdpTask extends AbstractQoSTask {
 						throw new IOException("duplicate UDP IN TEST packet id");
 					}
 					else {
-						System.out.println("duplicate UDP IN TEST packet id");
+						if(Globals.DEBUG_CLI) 
+							System.out.println("duplicate UDP IN TEST packet id");
 					}
 				}
 				else {
@@ -528,7 +538,8 @@ public class UdpTask extends AbstractQoSTask {
 
 				public boolean onSend(DataOutputStream dataOut, int packetNumber, byte[] receivedPayload)
 						throws IOException {
-					System.out.println("UDP IN SEND #" + (packetNumber-1) + " -> " + rttMap);
+					if(Globals.DEBUG_CLI) 
+						System.out.println("UDP IN SEND #" + (packetNumber-1) + " -> " + rttMap);
 
 					// only update the previously received payload
 					final UdpPayload udpPayload = UdpPayloadUtil.toUdpPayload(receivedPayload);
@@ -543,7 +554,8 @@ public class UdpTask extends AbstractQoSTask {
 					final UdpPayload udpPayload = UdpPayloadUtil.toUdpPayload(data);
 					final int packetNumber = udpPayload.getPacketNumber();
 
-					System.out.println("UDP IN Test: received packet #" + packetNumber + " on port: " + socket.getLocalPort() + " -> " + udpPayload);
+					if(Globals.DEBUG_CLI) 
+						System.out.println("UDP IN Test: received packet #" + packetNumber + " on port: " + socket.getLocalPort() + " -> " + udpPayload);
 
 					//check udp packet:
 					if (data[0] != UDP_TEST_ONE_DIRECTION_IDENTIFIER && data[0] != UDP_TEST_AWAIT_RESPONSE_IDENTIFIER) {
@@ -565,7 +577,8 @@ public class UdpTask extends AbstractQoSTask {
 					packetData.dupNumPackets = duplicatePackets.size();
 					packetData.numPackets = packetsReceived.size();
 
-					System.out.println("UDP IN FINISHED ON RECEIVE");
+					if(Globals.DEBUG_CLI) 
+						System.out.println("UDP IN FINISHED ON RECEIVE");
 				}
 
 				public void onBind(Integer port) throws IOException {

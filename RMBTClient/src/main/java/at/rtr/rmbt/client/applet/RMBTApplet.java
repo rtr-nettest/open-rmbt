@@ -31,6 +31,7 @@ import at.rtr.rmbt.client.QualityOfServiceTest;
 import at.rtr.rmbt.client.RMBTClient;
 import at.rtr.rmbt.client.TestResult;
 import at.rtr.rmbt.client.helper.Config;
+import at.rtr.rmbt.client.helper.Globals;
 import at.rtr.rmbt.client.helper.ControlServerConnection;
 import at.rtr.rmbt.client.helper.IntermediateResult;
 import at.rtr.rmbt.client.helper.NdtStatus;
@@ -128,9 +129,9 @@ public class RMBTApplet extends Applet
                         
                         client = RMBTClient.getInstance(getParameter("host"), getParameter("path"),
                                 port, encryption, geoInfo, uuid, "DESKTOP", Config.RMBT_CLIENT_NAME,
-                                Config.RMBT_VERSION_NUMBER, null, additionalValues);
+                                Config.RMBT_VERSION_NUMBER, null, additionalValues, null, null);
                                                 
-                        final TestResult result = client.runTest();
+                        final TestResult result = client.runTest(getParameter("host"));
                         if (result != null)
                         {
                             final JSONObject jsonResult = new JSONObject();
@@ -187,11 +188,13 @@ public class RMBTApplet extends Applet
                         		client.setStatus(TestStatus.QOS_TEST_RUNNING);
                             	final TestSettings qosTestSettings = new TestSettings(client.getControlConnection().getStartTimeNs());
                             	System.out.println(qosTestSettings);
-                            	qosTestSettings.setUseSsl(useSslForQoS);
+                                qosTestSettings.setUseSsl(useSslForQoS);
                             	final QualityOfServiceTest qosTest = new QualityOfServiceTest(client, qosTestSettings);
 								QoSResultCollector qosResult = qosTest.call();
 								if (qosResult != null && qosTest.getStatus().equals(QoSTestEnum.QOS_FINISHED)) {
-	                                System.out.println("Sending QoS results...");
+                                    if (Globals.DEBUG_CLI)
+	                                    System.out.println("Sending QoS results...");
+
 									client.sendQoSResult(qosResult);
 								}
 								System.out.println("QoS finished.");

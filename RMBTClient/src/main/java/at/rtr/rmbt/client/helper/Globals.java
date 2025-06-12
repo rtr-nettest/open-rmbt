@@ -14,34 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package at.rtr.rmbt.client;
+package at.rtr.rmbt.client.helper;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+/**
+ * The system defaults.
+ * 
+ * 
+ * 
+ */
 
-public class Results
-{
-    public final long[] bytes;
-    public final long[] nsec;
-    
-    public Results(int numResults)
-    {
-        bytes = new long[numResults];
-        nsec = new long[numResults];
-    }
-    
-    public Results(long[] bytes, long[] nsec)
-    {
-        if (bytes.length != nsec.length)
-            throw new IllegalArgumentException("length of bytes and nsec not identical");
-        this.bytes = bytes;
-        this.nsec = nsec;
-    }
-
-	@Override
-	public String toString() {
-		return "Results [bytes=" + Arrays.toString(bytes) + ", nsec="
-				+ Arrays.toString(nsec) + "]";
-	}
+public class Globals {
+    public static boolean DEBUG_CLI = false;
+    public static boolean DEBUG_CLI_GUI = false;
+    public static boolean JSON_RESULT = false;
 }

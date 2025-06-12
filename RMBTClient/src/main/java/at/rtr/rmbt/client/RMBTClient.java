@@ -48,7 +48,9 @@ import org.json.JSONObject;
 
 import at.rtr.rmbt.client.RMBTTest.CurrentSpeed;
 import at.rtr.rmbt.client.helper.Config;
+import at.rtr.rmbt.client.helper.Globals;
 import at.rtr.rmbt.client.helper.ControlServerConnection;
+import at.rtr.rmbt.client.helper.DebugStates;
 import at.rtr.rmbt.client.helper.IntermediateResult;
 import at.rtr.rmbt.client.helper.RMBTOutputCallback;
 import at.rtr.rmbt.client.helper.TestStatus;
@@ -123,9 +125,9 @@ public class RMBTClient
     public static RMBTClient getInstance(final String host, final String pathPrefix, final int port,
             final boolean encryption, final ArrayList<String> geoInfo, final String uuid, final String clientType,
             final String clientName, final String clientVersion, final RMBTTestParameter overrideParams,
-            final JSONObject additionalValues) {
+            final JSONObject additionalValues, final JSONObject jsonLoopData, final JSONObject jsonQmonData) {
     	return getInstance(host, pathPrefix, port, encryption, geoInfo, uuid, clientType, 
-    			clientName, clientVersion, overrideParams, additionalValues, null);
+    			clientName, clientVersion, overrideParams, additionalValues, jsonLoopData, jsonQmonData, null);
     }
 
     /**
@@ -135,12 +137,12 @@ public class RMBTClient
     public static RMBTClient getInstance(final String host, final String pathPrefix, final int port,
             final boolean encryption, final ArrayList<String> geoInfo, final String uuid, final String clientType,
             final String clientName, final String clientVersion, final RMBTTestParameter overrideParams,
-            final JSONObject additionalValues, final Set<ErrorStatus> errorSet)
+            final JSONObject additionalValues, final JSONObject jsonLoopData, final JSONObject jsonQmonData, final Set<ErrorStatus> errorSet)
     {
         final ControlServerConnection controlConnection = new ControlServerConnection();
-        
+
         final String error = controlConnection.requestNewTestConnection(host, pathPrefix, port, encryption, geoInfo,
-                uuid, clientType, clientName, clientVersion, additionalValues);
+                uuid, clientType, clientName, clientVersion, additionalValues, jsonLoopData, jsonQmonData);
         
         if (controlConnection.getLastErrorList() != null && errorSet != null) {
         	errorSet.addAll(controlConnection.getLastErrorList());
@@ -204,6 +206,7 @@ public class RMBTClient
         
         if (controlConnection != null)
             this.taskDescList = controlConnection.v2TaskDesc;
+
         //if (params.isEncryption())
         //    sslSocketFactory = createSSLSocketFactory();
 
@@ -220,12 +223,12 @@ public class RMBTClient
     protected SSLSocketFactory createSSLSocketFactory()
     {
         log("initSSL...");
+
         try
         {
             final SSLContext sc = getSSLContext(null, null);
             
             final SSLSocketFactory factory = sc.getSocketFactory();
-            
             return factory;
         }
         catch (final Exception e)
@@ -263,7 +266,7 @@ public class RMBTClient
     
     public static SSLContext getSSLContext(final String caResource, final String certResource)
             throws NoSuchAlgorithmException, KeyManagementException
-    {
+    {      
         X509Certificate _ca = null;
         try
         {
@@ -361,9 +364,9 @@ public class RMBTClient
         return sc;
     }
     
-    public TestResult runTest() throws InterruptedException
+    public TestResult runTest(String host) throws InterruptedException
     {
-    	System.out.println("starting test...");
+        result = new TotalTestResult();
     	
     	long txBytes = 0;
     	long rxBytes = 0;
@@ -383,6 +386,9 @@ public class RMBTClient
             pingNano.set(-1);
             
             final long waitTime = params.getStartTime() - System.currentTimeMillis();
+
+            waitTimeLog(testStatus.get(), waitTime);
+
             if (waitTime > 0)
             {
                 setStatus(TestStatus.WAIT);
@@ -398,7 +404,6 @@ public class RMBTClient
             
             if (testThreadPool.isShutdown())
                 throw new IllegalStateException("RMBTClient already shut down");
-            log("starting test...");
             
             final int numThreads = params.getNumThreads();
             
@@ -410,7 +415,7 @@ public class RMBTClient
                 sslSocketFactory = createSSLSocketFactory();
                         
             log(String.format(Locale.US, "Host: %s; Port: %s; Enc: %s", params.getHost(), params.getPort(), params.isEncryption()));
-            log(String.format(Locale.US, "starting %d threads...", numThreads));
+            log(String.format(Locale.US, "Starting %d threads...", numThreads));
             
             final CyclicBarrier barrier = new CyclicBarrier(numThreads);
             
@@ -486,6 +491,9 @@ public class RMBTClient
                 
                 result.calculateDownload(allDownBytes, allDownNsecs);
                 result.calculateUpload(allUpBytes, allUpNsecs);
+
+                result.testUUID = params.getUUID();
+                result.host = host;
                 
                 log("");
                 log(String.format(Locale.US, "Total calculated bytes down: %d", result.bytes_download));
@@ -505,34 +513,44 @@ public class RMBTClient
                 
                 result.speed_download = result.getDownloadSpeedBitPerSec() / 1e3;
                 result.speed_upload = result.getUploadSpeedBitPerSec() / 1e3;
+
+                result.test_download = result.speed_download;
+                result.test_upload = result.speed_upload;
+                result.test_ping = shortestPing / 1e6;
                 
                 log("");
-                log(String.format(Locale.US, "Total Down: %.0f kBit/s", result.getDownloadSpeedBitPerSec() / 1e3));
-                log(String.format(Locale.US, "Total UP:   %.0f kBit/s", result.getUploadSpeedBitPerSec() / 1e3));
-                log(String.format(Locale.US, "Ping:       %.2f ms", shortestPing / 1e6));
+                System.out.println(String.format(Locale.US, "Total Down: %.0f kBit/s", result.getDownloadSpeedBitPerSec() / 1e3));
+                System.out.println(String.format(Locale.US, "Total UP:   %.0f kBit/s", result.getUploadSpeedBitPerSec() / 1e3));
+                System.out.println(String.format(Locale.US, "Ping:       %.2f ms", shortestPing / 1e6));
                 
                 if (controlConnection != null)
                 {
                     log("");
                     final String testUUID = params.getUUID();
                     final long testTime = controlConnection.getTestTime();
+
                     log(String.format(Locale.US, "time=%s, uuid=%s\n", new SimpleDateFormat(
                             "yyyy-MM-dd HH:mm:ss.SSS", Locale.US).format(new Date(testTime)), testUUID));
+
                 }
                 
                 downBitPerSec.set(Math.round(result.getDownloadSpeedBitPerSec()));
                 upBitPerSec.set(Math.round(result.getUploadSpeedBitPerSec()));
                 
-                log("end.");
-                setStatus(TestStatus.SPEEDTEST_END);
-                
+                //setStatus(TestStatus.SPEEDTEST_END);
+
             	if (trafficService != null) {
             		txBytes = trafficService.getTotalTxBytes() - txBytes;
             		rxBytes = trafficService.getTotalRxBytes() - rxBytes;
             		result.setTotalTrafficMeasurement(new TestMeasurement(rxBytes, txBytes, timeStampStart, System.nanoTime()));
             		result.setMeasurementMap(measurementMap);
             	}
+                
+                result.test_uuid = params.getUUID();
+                result.registration_server = host;
 
+                result.test_server = params.getHost();
+                result.result_link = "https://" + host + "/sl/Opentest?O" + params.getUUID();
                 
                 return result;
             }
@@ -575,13 +593,26 @@ public class RMBTClient
         return true;
     }
     
+    void waitTimeLog(TestStatus status, long waitTime){
+        // FORM json
+        JSONObject json = new JSONObject();
+        json.put("phase", "SERVER WAIT TIME");
+        json.put("state", status);
+        json.put("wait_time", waitTime);
+        json.put("time", System.currentTimeMillis());
+        
+        //System.out.println(json);
+        if (Globals.DEBUG_CLI_GUI)
+            System.out.println(String.format(Locale.US, "%s", json));
+    }
+
     public void shutdown()
     {
-        System.out.println("Shutting down RMBT thread pool...");
+        //System.out.println("Shutting down RMBT thread pool...");
         if (testThreadPool != null)
             testThreadPool.shutdownNow();
         
-        System.out.println("Shutdown finished.");
+        //System.out.println("Shutdown finished.");
     }
     
     @Override
@@ -759,6 +790,19 @@ public class RMBTClient
             downBitPerSec.set(Math.round(getTotalSpeed()));
             resetSpeed();
         }
+
+
+        if (Globals.DEBUG_CLI)
+            System.out.println(String.format(Locale.US, "Status changed: %s", status));
+
+        if (Globals.DEBUG_CLI_GUI){
+            JSONObject json = new JSONObject();
+            json.put("type", DebugStates.STATE_CHANGE);
+            json.put("time", System.currentTimeMillis());
+            json.put("state", status);
+            System.out.println(String.format(Locale.US, "%s", json));
+        }
+
     }
         
     public void startTrafficService(final int threadId, final TestStatus status) {
@@ -790,6 +834,8 @@ public class RMBTClient
     
     public void sendResult(final JSONObject additionalValues)
     {
+
+        
     	if (controlConnection != null) {
     		final String errorMsg = controlConnection.sendTestResult(result, additionalValues);
             if (errorMsg != null)
@@ -802,6 +848,7 @@ public class RMBTClient
     }
         
     public void sendQoSResult(final QoSResultCollector qosResult) {
+
     	if (controlConnection != null) {
     		final String errorMsg = controlConnection.sendQoSResult(result, qosResult.toJson());
             if (errorMsg != null)
@@ -818,10 +865,25 @@ public class RMBTClient
         final TestStatus lastStatus = testStatus.getAndSet(TestStatus.ERROR);
         if (lastStatus != TestStatus.ERROR)
             statusBeforeError.set(lastStatus);
+
+        if (Globals.DEBUG_CLI)
+            System.out.println(String.format(Locale.US, "Status changed: %s", TestStatus.ERROR));
+
+        if (Globals.DEBUG_CLI_GUI){
+
+			JSONObject json = new JSONObject();
+            json.put("type", DebugStates.STATE_CHANGE);
+            json.put("time", System.currentTimeMillis());
+            json.put("state", TestStatus.ERROR);
+			System.out.println(String.format(Locale.US, "%s", json));
+		}
     }
     
     void log(final CharSequence text)
     {
+        if(!Globals.DEBUG_CLI) 
+            return;
+
         if (outputToStdout)
             System.out.println(text);
         if (outputCallback != null)
@@ -830,6 +892,9 @@ public class RMBTClient
     
     void log(final Exception e)
     {
+        if(!Globals.DEBUG_CLI) 
+            return;
+
         if (outputToStdout)
             e.printStackTrace(System.out);
         if (outputCallback != null)
@@ -917,6 +982,13 @@ public class RMBTClient
         return controlConnection.getTestUuid();
     }
     
+    public String getLoopUuid()
+    {
+        if (controlConnection == null)
+            return null;
+        return controlConnection.getLoopUuid();
+    }
+
     public long getStartTimeMillis() {
     	return controlConnection != null ? controlConnection.getStartTimeMillis() : 0;
     }
