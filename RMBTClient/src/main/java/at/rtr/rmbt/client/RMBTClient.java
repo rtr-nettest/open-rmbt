@@ -550,7 +550,7 @@ public class RMBTClient
                 result.registration_server = host;
 
                 result.test_server = params.getHost();
-                result.result_link = "https://" + host + "/sl/Opentest?O" + params.getUUID();
+                result.result_link = "https://www.netztest.at/share/O" + params.getUUID();
                 
                 return result;
             }

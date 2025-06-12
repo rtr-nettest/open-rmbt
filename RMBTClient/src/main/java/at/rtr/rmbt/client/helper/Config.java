@@ -31,7 +31,7 @@ public abstract interface Config
      * 
      *********************/
 
-    public static final String APPLICATION_NAME = "AKOS Command Line Client";
+    public static final String APPLICATION_NAME = "RMBT Command Line Client";
     
     public static final String RMBT_SERVER_NAME = "RMBT";
     public static final String RMBT_CLIENT_NAME = "RMBT";
@@ -65,7 +65,7 @@ public abstract interface Config
     public static final String SERVER_TYPE_RMBT = "RMBT";
     public static final String SERVER_TYPE_RMBT_HTTP = "RMBThttp";
 
-    public static final String SERVER_DEFAULT = "akostest.net";
+    public static final String SERVER_DEFAULT = "c01.netztest.at";
     public static final int PORT_HTTPS  = 443;
 
     public static boolean DEBUG_CLI_TEST = false;
