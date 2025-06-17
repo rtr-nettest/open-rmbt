@@ -448,9 +448,12 @@ public class RMBTClientRunner
                         jsonResult.put("network_type", "98"); // default value 98=LAN
 
                     if (jsonInputParms.has("platform"))
-                        jsonResult.put("plattform", jsonInputParms.getString("platform"));
+                        jsonResult.put("platform", jsonInputParms.getString("platform"));
                     else
-                        jsonResult.put("plattform", "desktop"); // default value =desktop
+                        jsonResult.put("platform", "cli-java");
+
+                    // make sure that the native platform remains visible (thus Java client remains detectable)
+                    jsonResult.put("native_platform", "cli-java");
 
                     if (jsonInputParms.has("model"))
                         jsonResult.put("model", jsonInputParms.getString("model"));
@@ -463,6 +466,12 @@ public class RMBTClientRunner
 
                     if (jsonInputParms.has("osver"))
                         jsonResult.put("os_version", jsonInputParms.getString("osver"));
+
+                    String osName = System.getProperty("os.name");
+                    String osVersion = System.getProperty("os.version");
+                    String osArchitecture = System.getProperty("os.arch");
+                    // make sure that the native os remains visible
+                    jsonResult.put("native_os_version", osName+" "+osVersion+" "+osArchitecture);
 
                     //System.out.println(jsonResult);
 
@@ -480,7 +489,7 @@ public class RMBTClientRunner
                         jsonResult.put("geoLocations", geoLocList);
                     }
 
-                    // Opererator info
+                    // Operator info
                     if (jsonQmonData.has("operatorinfo")){
                         JSONObject operatorinfo = jsonQmonData.getJSONObject("operatorinfo");
                         if (operatorinfo.has("telephony_network_operator_name"))
