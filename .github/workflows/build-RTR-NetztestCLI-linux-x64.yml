@@ -1,0 +1,50 @@
+name: Build RTR-NetztestCLI-linux-x64 (without testing)
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-24.04
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: set up JDK 1.21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'corretto'
+    - name: Build with Gradle
+      run: |
+        ./gradlew :RMBTClient:shadowJar -x test
+    - name: Archive files
+      uses: actions/upload-artifact@v4
+      with:
+        name: RTR-NetztestCLI-jar
+        path: |
+          RMBTClient/build/libs/*-all.jar
+        retention-days: 90
+    - name: Build jpackage
+      run: |
+        cd RMBTClient/build/
+        ls *
+        jpackage --input libs --name "RTR-Netztest" --main-jar RMBTClient-all.jar  --main-class at.rtr.rmbt.client.RMBTClientRunner --type app-image --app-version "1.0.19"  --vendor "RTR" --verbose --arguments --log  --description "RTR-Netztest - RMBTClient engine"
+        ls *
+        zip -r RTR-NetztestCLI-linux-x64.zip RTR-Netztest 
+    - name: Archive files
+      uses: actions/upload-artifact@v4
+      with:
+        name: RTR-NetztestCLI-linux-x64
+        path: |
+          RMBTClient/build/RTR-Netztest/*
+        retention-days: 90
+    - name: Intermediate file check
+      run: |
+        cd RMBTClient/build/
+        ls -l *
+    - name: Release
+      uses: softprops/action-gh-release@v2
+      if: github.ref_type == 'tag'
+      with:
+        files: |
+          RMBTClient/build/RTR-Netztest/RTR-NetztestCLI-linux-x64.zip
