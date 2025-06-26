@@ -3,7 +3,7 @@ name: Build RTR-NetztestCLI-linux-x64 (without testing)
 on: [push]
 
 jobs:
-  build:
+  build-linux-x64:
 
     runs-on: ubuntu-24.04
 
@@ -26,9 +26,12 @@ jobs:
         retention-days: 90
     - name: Build jpackage
       run: |
+        cp RMBTClient/icon/rtr-netztest.ico RMBTClient/build
         cd RMBTClient/build/
         ls *
-        jpackage --input libs --name "RTR-Netztest" --main-jar RMBTClient-all.jar  --main-class at.rtr.rmbt.client.RMBTClientRunner --type app-image --app-version "1.0.19"  --vendor "RTR" --verbose --arguments --log  --description "RTR-Netztest - RMBTClient engine"
+        latest_tag=$(git describe --tags --abbrev=0)
+        echo "Latest tag: $latest_tag"
+        jpackage --input libs --name "RTR-Netztest" --icon rtr-netztest.ico --main-jar RMBTClient-all.jar  --main-class at.rtr.rmbt.client.RMBTClientRunner --type app-image --app-version "$latest_tag"  --vendor "RTR" --verbose --arguments --log  --description "RTR-Netztest - RMBTClient engine"
         ls *
         zip -r RTR-NetztestCLI-linux-x64.zip RTR-Netztest 
     - name: Archive files
@@ -46,5 +49,5 @@ jobs:
       uses: softprops/action-gh-release@v2
       if: github.ref_type == 'tag'
       with:
-        files: |
+        files: 
           RMBTClient/build/RTR-NetztestCLI-linux-x64.zip
