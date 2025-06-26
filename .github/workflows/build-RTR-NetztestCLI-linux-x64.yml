@@ -47,4 +47,4 @@ jobs:
       if: github.ref_type == 'tag'
       with:
         files: |
-          RMBTClient/build/RTR-Netztest/RTR-NetztestCLI-linux-x64.zip
+          RMBTClient/build/RTR-NetztestCLI-linux-x64.zip
