@@ -32,12 +32,11 @@ jobs:
         cd RMBTClient/build/
         ls *
         pwd
-        git status
-        latest_tag=$(git describe --tags --abbrev=0)
-        # jpackage does not like "v", thus remove it
-        latest_tag=$(echo "$latest_tag" | tr -d 'v')
-        echo "Latest tag: $latest_tag"
-        jpackage --input libs --name "RTR-Netztest" --icon rtr-netztest.icns --main-jar RMBTClient-all.jar  --main-class at.rtr.rmbt.client.RMBTClientRunner --type app-image --app-version "$latest_tag"  --vendor "RTR" --verbose --arguments --log  --description "RTR-Netztest - RMBTClient engine"
+        # Get the initial commit hash
+        INITIAL_COMMIT=$(git rev-list --max-parents=0 HEAD)
+        # Count commits since the initial commit
+        version_tag=$(git rev-list --count ${INITIAL_COMMIT}..HEAD)
+        jpackage --input libs --name "RTR-Netztest" --icon rtr-netztest.icns --main-jar RMBTClient-all.jar  --main-class at.rtr.rmbt.client.RMBTClientRunner --type app-image --app-version "$version_tag"  --vendor "RTR" --verbose --arguments --log  --description "RTR-Netztest - RMBTClient engine"
         ls *
         zip -r RTR-NetztestCLI-macos.zip RTR-Netztest.app
     - name: Archive files

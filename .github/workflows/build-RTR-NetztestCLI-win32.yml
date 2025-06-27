@@ -25,11 +25,12 @@ jobs:
         copy RMBTClient\icon\rtr-netztest.ico RMBTClient\build
         cd RMBTClient\build\
         dir *
-        $latestTag = (git describe --tags --abbrev=0).Trim()
-        # jpackage fails on "v1.2.3", thus only "1.2.3"
-        $latestTag = $latestTag -replace 'v', ''
-        Write-Host "Using $latestTag"
-        jpackage --input libs/ --name "RTR-Netztest" --icon rtr-netztest.ico --main-jar RMBTClient-all.jar  --main-class at.rtr.rmbt.client.RMBTClientRunner --type app-image --app-version "$latestTag"  --vendor "RTR" --verbose --arguments --log --description "RTR-Netztest - RMBTClient engine"
+        # Get the initial commit hash
+        $INITIAL_COMMIT = git rev-list --max-parents=0 HEAD
+        # Count commits since the initial commit
+        $versionTag = git rev-list --count "$INITIAL_COMMIT..HEAD"
+        Write-Output "Number of commits since the initial commit: $versionTag"
+        jpackage --input libs/ --name "RTR-Netztest" --icon rtr-netztest.ico --main-jar RMBTClient-all.jar  --main-class at.rtr.rmbt.client.RMBTClientRunner --type app-image --app-version "$versionTag"  --vendor "RTR" --verbose --arguments --log --description "RTR-Netztest - RMBTClient engine"
         dir *
         Compress-Archive -Path RTR-Netztest -DestinationPath RTR-NetztestCLI-win32.zip 
     - name: Archive files
