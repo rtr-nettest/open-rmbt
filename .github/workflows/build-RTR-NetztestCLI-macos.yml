@@ -1,11 +1,11 @@
-name: Build RTR-NetztestCLI-linux-x64 (without testing)
+name: Build RTR-NetztestCLI-macos (without testing)
 
 on: [push]
 
 jobs:
-  build-linux-x64:
+  build-macos:
 
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
 
     steps:
     - uses: actions/checkout@v4
@@ -28,21 +28,24 @@ jobs:
         retention-days: 90
     - name: Build jpackage
       run: |
-        mkdir -p RMBTClient/build
-        cp RMBTClient/icon/rtr-netztest.ico RMBTClient/build
+        cp RMBTClient/icon/rtr-netztest.icns RMBTClient/build
         cd RMBTClient/build/
         ls *
+        pwd
+        git status
         latest_tag=$(git describe --tags --abbrev=0)
+        # jpackage does not like "v", thus remove it
+        latest_tag=$(echo "$latest_tag" | tr -d 'v')
         echo "Latest tag: $latest_tag"
-        jpackage --input libs --name "RTR-Netztest" --icon rtr-netztest.ico --main-jar RMBTClient-all.jar  --main-class at.rtr.rmbt.client.RMBTClientRunner --type app-image --app-version "$latest_tag"  --vendor "RTR" --verbose --arguments --log  --description "RTR-Netztest - RMBTClient engine"
+        jpackage --input libs --name "RTR-Netztest" --icon rtr-netztest.icns --main-jar RMBTClient-all.jar  --main-class at.rtr.rmbt.client.RMBTClientRunner --type app-image --app-version "$latest_tag"  --vendor "RTR" --verbose --arguments --log  --description "RTR-Netztest - RMBTClient engine"
         ls *
-        zip -r RTR-NetztestCLI-linux-x64.zip RTR-Netztest 
+        zip -r RTR-NetztestCLI-macos.zip RTR-Netztest.app
     - name: Archive files
       uses: actions/upload-artifact@v4
       with:
-        name: RTR-NetztestCLI-linux-x64
+        name: RTR-NetztestCLI-macos
         path: |
-          RMBTClient/build/RTR-Netztest/*
+          RMBTClient/build/RTR-Netztest.app/*
         retention-days: 90
     - name: Intermediate file check
       run: |
@@ -53,4 +56,4 @@ jobs:
       if: github.ref_type == 'tag'
       with:
         files: 
-          RMBTClient/build/RTR-NetztestCLI-linux-x64.zip
+          RMBTClient/build/RTR-NetztestCLI-macos.zip
