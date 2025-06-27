@@ -19,7 +19,7 @@ plugins {
 apply plugin: "com.github.johnrengelman.shadow"
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_11
 }
 
 repositories {
