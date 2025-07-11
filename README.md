@@ -5,7 +5,7 @@ Open-RMBT
 
 This is the original, mostly historic repository for RTR-Netztest (RTR-NetTest, aka Open-RMBT). Current code can be found in separate repositories as detailed below.
 
-Open-RMBT consists of the following components:
+Open-RMBT consists of the following components available in different repositories:
 * Web site +
 * JavaScript client
 * Android client +
@@ -14,10 +14,10 @@ Open-RMBT consists of the following components:
 * QoS measurement server (in this repository)
 * Control server +
 * Statistics server +
-* Map server (in this repository, a renewed implementation is under development)
+* Map server +
 * Desktop app +
 
-+) These components are available in separate repositories. This repository still contains outdated and incompatible versions of these components. They shall not be used for production purposes. Plese contact us if you are uncertain about the compatiblity of repositories.
++) These components are available in separate repositories. This repository still contains outdated and incompatible versions of these components. They shall not be used for production purposes. Plese contact us if you are uncertain about the compatiblity of components or repositories.
 
 *Open-RMBT* is released under the [Apache License, Version 2.0](LICENSE). It was developed
 by the [Austrian Regulatory Authority for Broadcasting and Telecommunications (RTR-GmbH)](https://www.rtr.at/).
@@ -31,10 +31,12 @@ Related material
 * [RTR-NetTest/rmbtws](https://github.com/rtr-nettest/rmbtws) - JavaScript client for conducting RMBT-based speed measurements
 * [RTR-NetTest/open-rmbt-control](https://github.com/rtr-nettest/open-rmbt-control) - Control server
 * [RTR-NetTest/open-rmbt-statistics](https://github.com/rtr-nettest/open-rmbt-statistics) - Statistics server
+* [RTR-NetTest/open-rmbt-map](https://github.com/rtr-nettest/open-rmbt-map) - Map server
 * [RTR-NetTest/open-rmbt-ios](https://github.com/rtr-nettest/open-rmbt-ios) - iOS app
 * [RTR-NetTest/open-rmbt-android](https://github.com/rtr-nettest/open-rmbt-android) - Android app
 * [RTR-NetTest/open-rmbt-website](https://github.com/rtr-nettest/open-rmbt-website) - Web site
 * [RTR-NetTest/open-rmbt-desktop](https://github.com/rtr-nettest/open-rmbt-desktop) - Desktop app
+
 
 
 System requirements
@@ -55,7 +57,7 @@ Installation
 ### For each server:
 
 1. Setup IP/DNS/hostname
-2. firewall (e.g. iptables)
+2. Firewall (e.g. iptables)
 3. Install git
 4. Install and configure sshd 
 5. Install and configure ntp
@@ -136,49 +138,8 @@ Installation
     * max_parallel_workers_per_gather (as number of CPUs)
     * max_parallel_workers (as number of CPUs)
     
-### MapServer
-
-1. Install:
-  * Apache Tomcat 9 (do not use a higher version)
-  * nginx (optional, highly recommended)
-  * openjdk-11-jre (do not use a higher version)
-  * libservlet3.1-java
-
-2. Edit `/etc/tomcat9/context.xml` (substitute parts with `[]`), add to `<Context>`:
-
-
-    ```xml
-    <Context>
-    <!-- [...] -->
-    <Resource 
-       name="jdbc/rmbtro" 
-       auth="Container"
-       type="javax.sql.DataSource"
-       maxActive="200" maxIdle="10" maxWait="10000"
-       url="jdbc:postgresql://[db host]/rmbt"
-       driverClassName="org.postgresql.Driver"
-       username="rmbt" password="[read only pass]"
-       description="DB RO Connection" />
-    <!-- [...] -->
-    </Context>
      
     ```
-3. Build the server:
-    
-    The map server can be built with gradle:
-    ```bash
-    ./gradlew :RMBTMapServer:war 
-    ```
-    The war file is located in `RMBTMapServer/build/lib`.
-
-4. Copy `RMBTMapServer.war` to `/var/lib/tomcat9/webapps/`
-    
-5. Add the package `libpostgresql-jdbc-java` from [Postgresql JDBC](https://jdbc.postgresql.org/) and restart tomcat9.
-
-6. Optimize tomcat settings
-
-    Check the values in /etc/default/tomcat9
-    * JAVA_OPTS -Xmms MEM -Xmx MEM
 
 Get in Touch
 ------------
