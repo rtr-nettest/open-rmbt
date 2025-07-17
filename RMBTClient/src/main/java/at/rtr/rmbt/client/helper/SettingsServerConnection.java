@@ -78,9 +78,11 @@ public class SettingsServerConnection
         {
             regData.put("uuid", uuid);
             regData.put("terms_and_conditions_accepted", true);
-            regData.put("terms_and_conditions_accepted_version", 1);
-
-            
+            // regData.put("type","CLI");
+            regData.put("name", "RTR-Netztest");
+            // regData.put("version_name","0.1");
+            // regData.put("version_code", "1");
+            regData.put("terms_and_conditions_accepted_version", 6);
         }
         catch (final JSONException e1)
         {
