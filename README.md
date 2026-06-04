@@ -38,6 +38,14 @@ Related material
 * [RTR-NetTest/open-rmbt-desktop](https://github.com/rtr-nettest/open-rmbt-desktop) - Desktop app
 
 
+Related projects:
+
+* [CTU] (https://github.com/CTUCZ/)
+* [AKOS] (https://github.com/Internet-Institute/)
+* [CNMC] (https://github.com/gitcnmc/calidadtelecos)  
+* [RRT] (https://github.com/rrt-matuok-lt)
+* [Specure] (https://github.com/specure/)
+
 
 System requirements
 -------------------
