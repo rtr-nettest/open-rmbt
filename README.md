@@ -6,18 +6,18 @@ Open-RMBT
 This is the original, mostly historic repository for RTR-Netztest (RTR-NetTest, aka Open-RMBT). Current code can be found in separate repositories as detailed below.
 
 Open-RMBT consists of the following components available in different repositories:
-* Web site +
+* Web site
 * JavaScript client
-* Android client +
-* iOS client +
-* Measurement server +
-* QoS measurement server (in this repository)
-* Control server +
-* Statistics server +
-* Map server +
-* Desktop app +
+* Android client
+* iOS client
+* Measurement server
+* QoS measurement server
+* Control server
+* Statistics server
+* Map server
+* Desktop app
 
-+) These components are available in separate repositories. This repository still contains outdated and incompatible versions of these components. They shall not be used for production purposes. Plese contact us if you are uncertain about the compatiblity of components or repositories.
++) These components are available in separate repositories. Plese contact us if you are uncertain about the compatiblity of components or repositories.
 
 *Open-RMBT* is released under the [Apache License, Version 2.0](LICENSE). It was developed
 by the [Austrian Regulatory Authority for Broadcasting and Telecommunications (RTR-GmbH)](https://www.rtr.at/).
@@ -45,14 +45,16 @@ System requirements
 * 1-3 servers
 * Everything can be installed on a single server 
 * The test server (RMBT-Websocket) should run on a physical machine
-* Base system Debian 12 or newer (or similar) 
+* Base system Debian 13 or newer (or similar) 
 * At least a single static public IPv4 address (IPv6 support recommended, more addresses allow to run more services on port 443)
 
   *NOTE: other Linux distributions can also be used, but commands and package names may be different*
 
 
 Installation 
---------------
+------------
+
+Note: The following instructions are outdated and incomplete.
 
 ### For each server:
 
@@ -74,23 +76,7 @@ Installation
     * postgis
     * postgresql-16-postgis-3
 
-
-2. Configure pg_cron, add in
-   /etc/postgresql/13/main/postgresql.conf
-   ```
-   # -- extension pg_cron
-   # add to postgresql.conf
-
-   # required to load pg_cron background worker on start-up
-   shared_preload_libraries = 'pg_cron'
-   # optionally, specify the database in which the pg_cron background worker should
-   cron.database_name = 'rmbt'
-
-   # Schedule jobs via background workers instead of localhost connections
-   cron.use_background_workers = on
-   ```
-
-3. Run:
+2. Run:
 
     ```bash
     # Restart database to enable pg_cron
@@ -124,8 +110,8 @@ Installation
 
    You need to add the test server key to the test_server table.
    
-5. Edit `/etc/postgresql/13/main/postgresql.conf` to allow remote access for the ControlServer and other servers 
-   (change `listen_addresses`) and configure `/etc/postgresql/13/main/pg_hba.conf` accordingly
+5. Edit `/etc/postgresql/16/main/postgresql.conf` to allow remote access for the ControlServer and other servers 
+   (change `listen_addresses`) and configure `/etc/postgresql/16/main/pg_hba.conf` accordingly
 
 6. Optimise postgres settings
    
