@@ -31,6 +31,7 @@ Related material
 * [RTR-NetTest/rmbtws](https://github.com/rtr-nettest/rmbtws) - JavaScript client for conducting RMBT-based speed measurements
 * [RTR-NetTest/open-rmbt-control](https://github.com/rtr-nettest/open-rmbt-control) - Control server
 * [RTR-NetTest/open-rmbt-statistics](https://github.com/rtr-nettest/open-rmbt-statistics) - Statistics server
+* [RTR-NetTest/open-rmbt-database](https://github.com/rtr-nettest/open-rmbt-database) - Database schema
 * [RTR-NetTest/open-rmbt-map](https://github.com/rtr-nettest/open-rmbt-map) - Map server
 * [RTR-NetTest/open-rmbt-ios](https://github.com/rtr-nettest/open-rmbt-ios) - iOS app
 * [RTR-NetTest/open-rmbt-android](https://github.com/rtr-nettest/open-rmbt-android) - Android app
