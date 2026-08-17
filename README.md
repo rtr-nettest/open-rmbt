@@ -85,44 +85,15 @@ Note: The following instructions are outdated and incomplete.
     * postgis
     * postgresql-16-postgis-3
 
-2. Run:
 
-    ```bash
-    # Restart database to enable pg_cron
-    systemctl restart postgresql
-    su - postgres
-    # Create database users
-    createuser -lSRDP rmbt     # (set password)
-    createuser -lSRDP rmbt_control     # (set password)
-    createuser -LSRD rmbt_group_control
-    createuser -LSRD rmbt_group_read_only
-    createuser -LSRD rmbt_group_read_only
-    # The following two users are within schema, but not required
-    # for basic functionality
-    createuser -LSRD kibana # (for export)
-    createuser -LSRD nagios # (for monitoring) 
-    # Additional users might be required for replication
-    echo 'GRANT rmbt_group_read_only TO rmbt_group_control;' | psql
-    echo 'GRANT rmbt_group_control TO rmbt_control;' | psql
-
-    # Create database
-    createdb -O rmbt rmbt 
- 
-    # import database scheme    
-    cat rmbt.sql | psql rmbt -1
-    # import basic configuration (modifiy according to your needs)
-    cat rmbt_init.sql | psql rmbt -1
-    ```
-    (optional: add additional 3rd party open data, eg. Corine)
-
-4. Edit table "test_server"
+2. Edit table "test_server"
 
    You need to add the test server key to the test_server table.
    
-5. Edit `/etc/postgresql/16/main/postgresql.conf` to allow remote access for the ControlServer and other servers 
+3. Edit `/etc/postgresql/16/main/postgresql.conf` to allow remote access for the ControlServer and other servers 
    (change `listen_addresses`) and configure `/etc/postgresql/16/main/pg_hba.conf` accordingly
 
-6. Optimise postgres settings
+4. Optimise postgres settings
    
     Check the values of 
     * shared_buffers (approx. 25% of available memory)
